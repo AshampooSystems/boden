@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0011 NEW)
-cmake_policy(SET CMP0054 NEW)
+
+if(${CMAKE_VERSION} VERSION_GREATER 3.0)
+	cmake_policy(SET CMP0054 NEW)
+endif()
 
 project (boden)
 
@@ -30,6 +33,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Apple"))
 	SET(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
+add_definitions( -DUNICODE -D_UNICODE )
+
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
@@ -42,20 +47,33 @@ add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
 
 set( UIDEMO_SRCDIR "../uidemo/src")
-
 file( GLOB_RECURSE UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
-
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 
-add_executable(uidemo ${UIDEMO_SOURCES} )
+add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
 target_link_libraries(uidemo boden)
+if(APPLE)
+	find_library(COCOA_LIBRARY Cocoa)
+	mark_as_advanced(COCOA_LIBRARY)
+	target_link_libraries(uidemo ${COCOA_LIBRARY})
+endif()
+
+
+set( BODENTEST_SRCDIR "../bodentest/src")
+file( GLOB_RECURSE BODENTEST_SOURCES ${BODENTEST_SRCDIR}/*.cpp ${BODENTEST_SRCDIR}/*.h)
+include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+
+
+add_executable(bodentest ${BODENTEST_SOURCES} )
+
+target_link_libraries(bodentest boden)
 
 if(APPLE)
 
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
-	target_link_libraries(uidemo ${COCOA_LIBRARY})
+	target_link_libraries(bodentest ${COCOA_LIBRARY})
 
 endif()
 

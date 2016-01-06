@@ -1,23 +1,20 @@
-#ifndef _BDN_APPNOTINSTANTIATED_H_
-#define _BDN_APPNOTINSTANTIATED_H_
+#ifndef _BDN_AppNotInstantiatedError_H_
+#define _BDN_AppNotInstantiatedError_H_
 
-#include <exception>
+#include <bdn/Error.h>
 
 namespace bdn
 {
 
-class AppNotInstantiatedError : public std::exception
-{
-public:
-    AppNotInstantiatedError()
-    {
-    }
+	class AppNotInstantiatedError : public Error
+	{
+	public:
+		AppNotInstantiatedError()
+			: Error("No app object was instantiated.", "bdn", "appNotInstantiated")
+		{
+		}
     
-    virtual const char* what() const noexcept override
-    {
-        return "No app object was instantiated.";
-    }
-};
+	};
     
    
 }
