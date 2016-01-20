@@ -1,5 +1,5 @@
-#ifndef _BDN_IDGEN_H_
-#define _BDN_IDGEN_H_
+#ifndef BDN_IDGEN_H_
+#define BDN_IDGEN_H_
 
 #include "Base.h"
 

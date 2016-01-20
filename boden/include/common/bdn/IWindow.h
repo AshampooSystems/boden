@@ -1,5 +1,5 @@
-#ifndef _BDN_IWINDOW_H_
-#define _BDN_IWINDOW_H_
+#ifndef BDN_IWINDOW_H_
+#define BDN_IWINDOW_H_
 
 #include <bdn/IBase.h>
 

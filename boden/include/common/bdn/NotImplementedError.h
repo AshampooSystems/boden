@@ -1,20 +1,20 @@
-#ifndef _BDN_NotImplementedError_H_
-#define _BDN_NotImplementedError_H_
+#ifndef BDN_NotImplementedError_H_
+#define BDN_NotImplementedError_H_
 
 #include <bdn/Error.h>
 
 namespace bdn
 {
 
-	class NotImplementedError : public Error
+class NotImplementedError : public std::logic_error
+{
+public:
+	NotImplementedError(const String& funcName)
+		: std::logic_error("Not implemented: "+funcName)
 	{
-	public:
-		NotImplementedError(const String& funcName)
-			: Error("Not implemented: "+funcName, "bdn", "notImplemented")
-		{
-		}
+	}
 
-	};
+};
 
 
 }

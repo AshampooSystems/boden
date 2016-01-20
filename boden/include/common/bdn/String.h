@@ -1,158 +1,56 @@
-#ifndef _BDN_String_H_
-#define _BDN_String_H_
+#ifndef BDN_String_H_
+#define BDN_String_H_
 
-#include <bdn/Base.h>
+#include <bdn/StringImpl.h>
+#include <bdn/NativeStringData.h>
 
 namespace bdn
 {
+
     
-    class String : public Base
-    {
-    public:
-        String(const char* s, int lengthElements=-1)
-        {
-            _pData = make_shared<Utf8StringData>(s, lengthElements);
-        }
-        
-        String(const char16_t* s, int lengthElements=-1)
-        {
-            _pData = make_shared<Utf16StringData>(s, lengthElements);
-        }
-        
-        String(const char32_t* s, int lengthElements=-1)
-        {
-            _pData = make_shared<Utf32StringData>(s, lengthElements);
-        }
-        
-        int getLength() const
-        {
-            return _pData->getLength();
-        }
-        
-        int length() const
-        {
-            return _pData->getLength();
-        }
-        
-        CharIterator begin()
-        {
-            return _pData->begin();
-        }
-        
-        CharIterator end()
-        {
-            return _pData->end();
-        }
-        
-       
-        
-        char32_t operator[](size_t index)
-        {
-            return pData->getChar(index);
-        }
-        
-        bool operator==(const String& s)
-        {
-            return (*pData)==(*s._pData);
-        }
-        
-        
-        CharIterator find(const String& subString) const
-        {
-            return _pData->find(subString.begin(), subString.end());
-        }
-        
-        CharIterator find(CharIterator beginIt, CharIterator endIt) const
-        {
-            return _pData->find(beginIt, endIt);
-        }
-        
-        
-        
-        CharIterator findNoCase(const String& subString) const
-        {
-            return _pData->findNoCase(subString.begin(), subString.end());
-        }
-        
-        CharIterator findNoCase(CharIterator beginIt, CharIterator endIt) const
-        {
-            return _pData->findNoCase(beginIt, endIt);
-        }
+/** Stores and performs operations on a text string.
 
-        
-        
-        String replace(const String& oldSubString, const String& newSubString) const
-        {
-            return _pData->replace(oldSubString.begin(), oldSubString.end(), newSubString.begin(), newSubString.end());
-        }
-        
-        String replace(CharIterator oldBegin, CharIterator oldEnd, CharIterator newBegin, CHarIterator newEnd) const
-        {
-            return _pData->replace(oldBegin, oldEnd, newBegin, newEnd);
-        }
+	In contrast to the string classes in the standard library, String objects present
+	the string as a sequence of Unicode characters, not a string of encoded bytes.
+	While the String object stores the data internally in a certain encoding, it automatically
+	and efficiently decodes it when needed and only presents full characters to the class user.
 
-        
-        
-        shared_ptr<const StringDataBase> getData() const
-        {
-            return _pData;
-        }
-        
-        template class<DATATYPE>
-        shared_ptr<DATATYPE> getDataAs() const
-        {
-            shared_ptr<DATATYPE> pResult = dynamic_pointer_cast<DATATYPE>( _pData );
-            if(pResult==nullptr)
-            {
-                // convert to the desired type
-                pResult = make_shared<DATATYPE>(_pData);
-                
-                // replace the "old" representation. We assume that we will
-                // more often need the requested type than our previous internal type.
-                _pData = pResult;
-            }
-            
-            return pResult;
-        }
-        
-        
-        shared_ptr<const Utf8StringData> getUtf8() const
-        {
-            return getDataAs<Utf8StringData>();
-        }
-        
-        shared_ptr<const Utf16StringData> getUtf16() const
-        {
-            return getDataAs<Utf16StringData>();
-        }
-        
-        shared_ptr<const Utf32StringData> getUtf32() const
-        {
-            return getDataAs<Utf32StringData>();
-        }
-        
-        
-        const char* getUtf8Ptr() const
-        {
-            return getUtf8()->getRawData();
-        }
-        
-        const char16_t* getUtf16Ptr() const
-        {
-            return getUtf16()->getRawData();
-        }
-        
-        const char32_t getUtf32Ptr() const
-        {
-            return getUtf32()->getRawData();
-        }
-        
-        
-        
+	That implies that all lengths and indices also refer to characters, not bytes or encoded entities.
+	The iterators also work on characters and return full characters.
 
-    protected:
-        mutable shared_ptr< StringDataBase > _pData;
-    };
+	As a user of String you do not usually need to concern yourself with the internal encoding.
+
+	When you do need to access raw encoded data (for example, if you want to pass it to a system function
+	or a library that works with encoded strings) then you can call one of the getXYZString functions
+	(e.g. #getCString_Utf8, #getStdString, ...). The String implementation will provide the requested data
+	and cache it in case it is needed again.
+
+	Some notes about performance and the implementation:
+
+	String objects store their data internally with the "native" Unicode encoding of the system.
+	On Windows this is UTF-16, on most other systems it is UTF-8. Note that String always uses a Unicode
+	encoding for its primary data, even if the native multibyte encoding defined in the locale is not UTF-8.
+
+	String objects can hold a copy of their data in one additional encoding. This copy is generated on demand,
+	depending on which encoding is requested. For example, if you call #getCString_Utf8 on a UTF-16 string
+	then it will automatically create a copy of the data in UTF-8 and return a pointer to that.
+	This copy is cached, so if you request the same encoding again then no further conversion is necessary.
+		
+	If you request another non-native encoding then any previously cached copy is replaced.
+
+	Note that the String will never replace the copy of the data in native encoding. That one always remains.
+
+	Multiple String objects can share the same internal data as a result of copy or subString (slicing) operations.
+	So assignment, copying and subString operations are very cheap and fast, since basically only a pointer to the existing data
+	is copied.
+
+	This has the implication that String objects have to copy shared data before they can modify it (copy-on-write).
+	So all modifying operations (#replace, etc.) can potentially result in the entire string being copied once.
+	Note that this is not really a performance penalty, since this copy operation would simply have occurred
+	earlier if the String objects had not shared the same data.
+*/
+typedef StringImpl<NativeStringData> String;
+
 }
 
 

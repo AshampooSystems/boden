@@ -1,5 +1,5 @@
-#ifndef _BDN_EventSource_H_
-#define _BDN_EventSource_H_
+#ifndef BDN_EventSource_H_
+#define BDN_EventSource_H_
 
 #include <bdn/Base.h>
 

@@ -1,5 +1,5 @@
-#ifndef _BDN_CLICKEVENT_H_
-#define _BDN_CLICKEVENT_H_
+#ifndef BDN_CLICKEVENT_H_
+#define BDN_CLICKEVENT_H_
 
 #include <bdn/IWindow.h>
 #include <bdn/Base.h>

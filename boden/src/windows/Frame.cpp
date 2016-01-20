@@ -1,3 +1,4 @@
+#include <bdn/init.h>
 #include <bdn/Frame.h>
 #include <bdn/Button.h>
 

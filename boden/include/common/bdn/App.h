@@ -1,5 +1,5 @@
-#ifndef _BDN_APP_H_
-#define _BDN_APP_H_
+#ifndef BDN_APP_H_
+#define BDN_APP_H_
 
 #include <bdn/Base.h>
 #include <bdn/AppNotInstantiatedError.h>

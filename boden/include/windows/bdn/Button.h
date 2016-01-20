@@ -1,5 +1,5 @@
-#ifndef _BDN_Button_H_
-#define _BDN_Button_H_
+#ifndef BDN_Button_H_
+#define BDN_Button_H_
 
 
 #include <bdn/Base.h>

@@ -1,7 +1,8 @@
-#ifndef _BDN_IStringData_H_
-#define _BDN_IStringData_H_
+#ifndef BDN_IStringData_H_
+#define BDN_IStringData_H_
 
 #include <bdn/IBase.h>
+#include <bdn/CharIterator.h>
 
 namespace bdn
 {

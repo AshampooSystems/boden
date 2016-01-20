@@ -1,0 +1,368 @@
+#ifndef BDN_Utf8Codec_H_
+#define BDN_Utf8Codec_H_
+
+#include <string>
+
+namespace bdn
+{
+
+/** The Utf-8 string codec.*/
+class Utf8Codec : public Base
+{
+public:
+
+	/** The encoded element type. For Utf-8 this is char.*/
+	typedef char EncodedElement;
+
+
+	/** The std string type for the encoded string.*/
+	typedef std::basic_string<EncodedElement> EncodedString;
+	
+
+	/** A character iterator that decodes UTF-8 data (char elements) from an
+		arbitrary source iterator into Unicode characters (char32_t).
+	*/
+	template<class SourceIterator>
+	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
+	{
+	public:
+		/** @param sourceIt the source iterator that provides the UTF-8 data.
+			@param beginSourceIt an iterator that points to the beginning of the valid source data.
+				The implementation uses this to avoid overshooting the data boundaries if the UTF-8 data is corrupted.
+				This is often the same as sourceIt.
+			@param endSourceIt an iterator that points to the end of the valid source data
+				(the position after the last valid source element).
+				The implementation uses this to avoid overshooting the data boundaries if the UTF-8 data is corrupted.
+				*/
+		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt)
+		{
+			_sourceIt = sourceIt;
+			_beginSourceIt = beginSourceIt;
+			_endSourceIt = endSourceIt;
+
+			_chr = (char32_t)-1;
+		}
+
+		DecodingIterator()
+		{
+			_chr = (char32_t)-1;
+		}
+
+
+		DecodingIterator& operator++()
+		{
+			if(_chr==(char32_t)-1)
+				decode();
+			_sourceIt = _nextIt;
+
+			return *this;
+		}
+
+		DecodingIterator operator++(int)
+		{
+			DecodingIterator oldVal = *this;
+			operator++();
+
+			return oldVal;
+		}
+
+		DecodingIterator& operator--()
+		{
+			SourceIterator startIt = _sourceIt;
+
+			// iterate backwards until we find the beginning of
+			// a sequence.
+			bool invalid = false;
+
+			_sourceIt--;
+			for(int i=0; ((*_sourceIt) & 0x0c)!=0x80; i++ )
+			{
+				if(_sourceIt==_beginSourceIt || i==5)
+				{
+					// cannot advance further back. So we have an invalid
+					// sequence at the start of our data.
+					invalid = true;
+					break;
+				}
+
+				_sourceIt--;
+			}
+
+			if(!invalid)
+			{
+				decode();
+
+				if(_nextIt!=startIt)
+					invalid = true;
+			}
+
+			if(invalid)
+			{
+				// the sequence was invalid and not all the bytes we skipped
+				// over were consumed. When we decode the "next character" forwards from
+				// here, the next bytes until the end of the invalid sequence
+				// will be decoded as a single replacement character each.
+				// Since we want decoding forwards and backwards to yield exactly the same
+				// result we only go back a single byte.
+				_nextIt = startIt;
+				_sourceIt = startIt;
+				_sourceIt--;
+
+				_chr = 0xfffd;
+			}
+
+			return *this;
+		}
+
+		DecodingIterator operator--(int)
+		{
+			DecodingIterator oldVal = *this;
+			operator--();
+
+			return oldVal;
+		}
+
+		char32_t operator*()
+		{
+			if(_chr==(char32_t)-1)
+				decode();
+
+			return _chr;
+		}
+
+		bool operator==(const DecodingIterator& o) const
+		{
+			return (_sourceIt!=o._sourceIt);
+		}
+
+		bool operator!=(const DecodingIterator& o) const
+		{
+			return !operator==(o);
+		}
+
+
+	protected:
+		void decode()
+		{
+			_nextIt = _sourceIt;
+
+			uint8_t firstByte = *_nextIt;
+
+			++_nextIt;
+
+			if((firstByte & 0x80)==0)
+				_chr = firstByte;
+			else
+			{
+				int     mask = 0x40;
+				bool    invalid = false;
+				int     length=1;
+
+				_chr = 0;
+
+				while(true)
+				{
+					if((firstByte & mask)==0)
+					{
+						// end of sequence
+						break;
+					}
+
+					if(_nextIt==_endSourceIt)
+					{
+						// we should have one more byte, but we don't.
+						invalid = true;
+						break;
+					}
+
+					uint8_t val = *_nextIt;
+					if((val & 0xc0)!=0x80)
+					{
+						// invalid sequence. We should abort right away, because the current
+						// value could be part of a valid sequence that follows the broken one.
+						invalid = true;
+						break;
+					}
+
+					_chr <<= 6;
+					_chr |= (val & 0x3f);
+
+					mask >>= 1;
+
+					++_nextIt;
+					++length;
+				}
+
+				if(invalid || length==1)
+				{
+					// use the unicode "replacement character".
+					_chr = 0xfffd;
+					// only consume a single byte.
+					_nextIt = _sourceIt;
+					++_nextIt;
+				}
+				else
+				{
+					_chr |= (((char32_t)firstByte) & (mask-1)) << (length*6);
+				}
+			}
+		}
+
+
+		SourceIterator  _sourceIt;
+		SourceIterator  _beginSourceIt;
+		SourceIterator  _endSourceIt;
+
+		char32_t         _chr;
+		SourceIterator  _nextIt;
+	};
+
+
+	/** A decoding iterator that works on the iterator type of the encoded standard string type
+		#EncodedString.*/
+	typedef DecodingIterator<EncodedString::const_iterator> DecodingStringIterator;
+
+
+	/** Encodes unicode characters (char32_t) from an arbitary source iterator to UTF-8 (char elements).*/
+	template<class SourceIterator>
+	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag, char>
+	{
+	public:
+		EncodingIterator(const SourceIterator& sourceIt)
+		{
+			_sourceIt = sourceIt;
+
+			// we cannot call encode yet, because sourceIt might be
+			// at an invalid position (i.e. end()). So instead we use an
+			// invalid offset and encode the first time we dereference.
+			_offset=-1;
+		}
+
+		EncodingIterator()
+		{
+			_offset = -1;
+		}
+
+
+		EncodingIterator& operator++()
+		{
+			if(_offset==-1)
+				encode();
+
+			++_offset;
+			if(_offset>6)
+			{
+				++_sourceIt;
+				_offset=-1;
+			}
+
+			return *this;
+		}
+
+		EncodingIterator operator++(int)
+		{
+			EncodingIterator oldVal = *this;
+
+			operator++();
+
+			return oldVal;
+		}
+
+		EncodingIterator& operator--()
+		{
+			if(_offset==-1 || _encoded[_offset-1]==0xff)
+			{
+				// _offset==-1 means that this is the starting position
+				// of the iterator, i.e. the current position is the first byte of the first character..
+				// _encoded[_offset-1]==0xff means that the current byte is the
+				// first byte of the encoded sequence.
+
+				_sourceIt--;
+				_encode();
+
+				// move to the last byte of the sequence. Note that that is always index 6
+				// (the first byte offset changes depending on the sequence size - the end index stays the same).
+				_offset = 6;
+			}
+			else
+				_offset--;
+
+			return *this;
+		}
+
+		EncodingIterator operator--(int)
+		{
+			EncodingIterator oldVal = *this;
+
+			operator--();
+
+			return oldVal;
+		}
+
+		char operator*()
+		{
+			if(_offset==-1)
+				encode();
+
+			return _encoded[_offset];
+		}
+
+		bool operator==(const EncodingIterator& o) const
+		{
+			if(_sourceIt!=o._sourceIt)
+				return false;
+
+			// 0 and -1 are the same position (-1 means "0 but still need to call encode")
+			return (_offset==o._offset || (_offset<=0 && o._offset<=0));
+		}
+
+		bool operator!=(const EncodingIterator& o) const
+		{
+			return !operator==(o);
+		}
+
+
+	protected:
+		void encode()
+		{
+			char32_t chr = *_sourceIt;
+
+			if(chr<0 || chr>0x7FFFFFFF)
+			{
+				// invalid unicode character. Use 'replacement character'
+				chr = 0xfffd;
+			}
+
+			int firstBytePayloadMask = 0x7f;
+
+			_offset=6;
+			while((chr & firstBytePayloadMask)!=0)
+			{
+				_encoded[_offset] = 0x80 | (chr & 0x3f);
+
+				chr>>=6;
+				_offset--;
+
+				firstBytePayloadMask >>= 1;
+			}
+
+			_encoded[_offset] = (~(firstBytePayloadMask<<1)) | (uint8_t)chr;
+			_encoded[_offset-1] = 0xff;
+		}
+
+
+		SourceIterator  _sourceIt;
+		int             _offset = 0;
+		uint8_t         _encoded[7];
+
+	};
+
+
+
+
+};
+	
+
+}
+
+#endif

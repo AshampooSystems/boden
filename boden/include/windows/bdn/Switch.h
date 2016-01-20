@@ -1,5 +1,5 @@
-#ifndef _BDN_Switch_H_
-#define _BDN_Switch_H_
+#ifndef BDN_Switch_H_
+#define BDN_Switch_H_
 
 
 #include <bdn/Base.h>

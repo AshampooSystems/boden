@@ -1,4 +1,5 @@
 
+#include <bdn/init.h>
 #include <bdn/App.h>
 
 #include <Windows.h>

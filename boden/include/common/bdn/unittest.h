@@ -1,15 +1,12 @@
-/*
- *  Catch v1.3.2
- *  Generated: 2015-12-28 15:07:07.166291
- *  ----------------------------------------------------------
- *  This file has been merged from multiple headers. Please don't edit it directly
- *  Copyright (c) 2012 Two Blue Cubes Ltd. All rights reserved.
+/*  This is based on the Catch test framework.
+ *
+ *  Original Catch Copyright (c) 2012 Two Blue Cubes Ltd. All rights reserved.
  *
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */
-#ifndef TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
-#define TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
+#ifndef _BDN_unittest_H_
+#define _BDN_unittest_H_
 
 #define TWOBLUECUBES_CATCH_HPP_INCLUDED
 
@@ -10199,5 +10196,5 @@ int main (int argc, char * const argv[]) {
 
 using Catch::Detail::Approx;
 
-#endif // TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
+#endif // _BDN_unittest_H_
 

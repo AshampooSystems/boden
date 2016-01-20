@@ -1,5 +1,5 @@
-#ifndef _BDN_Frame_H_
-#define _BDN_Frame_H_
+#ifndef BDN_Frame_H_
+#define BDN_Frame_H_
 
 #include <bdn/Base.h>
 #include <bdn/IWindow.h>

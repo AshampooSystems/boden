@@ -1,5 +1,5 @@
-#ifndef _BDN_CharIterator_H_
-#define _BDN_CharIterator_H_
+#ifndef BDN_CharIterator_H_
+#define BDN_CharIterator_H_
 
 
 #include <iterator>
@@ -7,44 +7,24 @@
 namespace bdn
 {
     
-    template<class CharDecoderType, class EncodedIteratorType>
+
+	/** Base class for character iterators.*/
     class CharIterator : public std::iterator<UniChar, std::bidirectional_iterator_tag>
     {
     public:
-        CharIterator(const EncodedIteratorType& encodedIt)
+        
+		virtual UniChar operator*() const = 0;
+        
+		virtual CharIterator operator++() = 0;
+        virtual CharIterator operator--() = 0;
+        
+		virtual bool operator==(const CharIterator& o) const = 0;
+        
+        virtual bool operator!=(const CharIterator& o) const
         {
-            _encodedIt = encodedIt;
+			return !operator==(o);
         }
         
-        UniChar operator*() const
-        {
-            CharDecoderType::decodeChar(_encodedIt);
-        }
-        
-        CharIterator<CharDecoderType,EncodedIteratorType> operator++()
-        {
-            _encodedIt = CharDecoderType::decodeChar(_encodedIt);
-            return *this;
-        }
-        
-        CharIterator<CharDecoderType,EncodedIteratorType> operator--()
-        {
-            _encodedIt = CodecType::decodePrecedingChar(_encodedIt);
-            return *this;
-        }
-        
-        bool operator==(const CharIterator<CharDecoderType,EncodedIteratorType>& o) const
-        {
-            return (_encodedIt==o._encodedIt);
-        }
-        
-        bool operator!=(const CharIterator<CharDecoderType,EncodedIteratorType>& o) const
-        {
-            return (_encodedIt!=o._encodedIt);
-        }
-        
-    protected:
-        EncodedIteratorType _encodedIt;
     };
     
     
