@@ -24,7 +24,7 @@ public:
 	typedef std::basic_string<EncodedElement> EncodedString;
 
 
-	/** A character iterator that decodes UTF-16 data (char elements) from an
+	/** A character iterator that decodes UTF-16 data from an
 		arbitrary source iterator into Unicode characters (char32_t).
 	*/
 	template<class SourceIterator>

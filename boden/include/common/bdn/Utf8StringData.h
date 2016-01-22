@@ -8,7 +8,23 @@
 namespace bdn
 {
 
+/** A StringData implementation that stores the data in UTF-8 format.
+	
+	This class is a typedef to StringData<Utf8Codec>.
+
+	See StringData for information about constructors and methods.
+*/
+#ifdef BDN_GENERATING_DOCS
+
+class Utf8StringData
+{
+};
+
+#else
+
 typedef StringData<Utf8Codec> Utf8StringData;
+
+#endif
 
 }
 
