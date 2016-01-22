@@ -3,6 +3,9 @@
 
 #include <bdn/test.h>
 
+
+#include "codecIteratorUtil.h"
+
 namespace bdn
 {
 
@@ -56,57 +59,7 @@ TEST_CASE( "Utf8Codec.decoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		Utf8Codec::DecodingIterator<std::string::iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
-		Utf8Codec::DecodingIterator<std::string::iterator> end(encoded.end(), encoded.begin(), encoded.end());
-
-		// forward then backward iteration
-		{
-			Utf8Codec::DecodingIterator<std::string::iterator> it = begin;
-
-			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-
-			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-		}
-
-
-		// backward then forward iteration
-		{
-			Utf8Codec::DecodingIterator<std::string::iterator> it = end;
-
-			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-
-			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-		}
+		testCodecDecodingIterator<Utf8Codec>(encoded, expectedDecoded);
 	}
 }
 
@@ -145,58 +98,7 @@ TEST_CASE( "Utf8Codec.encoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		Utf8Codec::EncodingIterator<std::u32string::iterator> begin(input.begin());
-		Utf8Codec::EncodingIterator<std::u32string::iterator> end(input.end());
-
-		// forward then backward iteration
-		{
-			Utf8Codec::EncodingIterator<std::u32string::iterator> it = begin;
-
-			for( auto expectedIt = expectedUtf8.begin(); expectedIt!=expectedUtf8.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-
-			for( auto expectedIt = expectedUtf8.rbegin(); expectedIt!=expectedUtf8.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-		}
-
-
-		// backward then forward iteration
-		{
-			Utf8Codec::EncodingIterator<std::u32string::iterator> it = end;
-
-			for( auto expectedIt = expectedUtf8.rbegin(); expectedIt!=expectedUtf8.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-
-			for( auto expectedIt = expectedUtf8.begin(); expectedIt!=expectedUtf8.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-		}
+		testCodecEncodingIterator<Utf8Codec>( input, expectedUtf8);		
 	}
 }
 

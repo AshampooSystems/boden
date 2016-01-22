@@ -3,6 +3,8 @@
 
 #include <bdn/test.h>
 
+#include "codecIteratorUtil.h"
+
 namespace bdn
 {
 
@@ -31,95 +33,19 @@ TEST_CASE( "Utf32Codec", "[string]" )
 	// Utf 32 decoding and encoding is very straight forward. Both decoder and encoder
 	// should simply pass each character through
 
-	SECTION("encoding")
-	{
-		SECTION(pCurrData->desc)
-		{
-			Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> begin(data.begin());
-			Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> end(data.end());
-
-			// forward then backward iteration
-			{
-				Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> it = begin;
-
-				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, end, false) );
-
-					REQUIRE( *it == *expectedIt );
-					it++;
-				}
-
-				REQUIRE( checkEquality(it, end, true) );
-
-				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, begin, false) );
-					it--;
-
-					REQUIRE( *it == *expectedIt );
-				}
-
-				REQUIRE( checkEquality(it, begin, true) );
-			}
-		}
-	}
-
 	SECTION("decoding")
 	{
 		SECTION(pCurrData->desc)
 		{
-			Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> begin(data.begin(), data.begin(), data.end());
-			Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> end(data.end(), data.begin(), data.end());
+			testCodecDecodingIterator< Utf32Codec<char32_t> >(data, data);
+		}
+	}
 
-			// forward then backward iteration
-			{
-				Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> it = begin;
-
-				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, end, false) );
-					REQUIRE( *it == *expectedIt );
-					it++;
-				}
-
-				REQUIRE( checkEquality(it, end, true) );
-
-				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, begin, false) );
-					it--;
-
-					REQUIRE( *it == *expectedIt );
-				}
-
-				REQUIRE( checkEquality(it, begin, true) );
-			}
-
-
-			// backward then forward iteration
-			{
-				Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> it = end;
-
-				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, begin, false) );
-					it--;
-
-					REQUIRE( *it == *expectedIt );
-				}
-
-				REQUIRE( checkEquality(it, begin, true) );
-
-				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
-				{
-					REQUIRE( checkEquality(it, end, false) );
-					REQUIRE( *it == *expectedIt );
-					it++;
-				}
-
-				REQUIRE( checkEquality(it, end, true) );
-			}
+	SECTION("encoding")
+	{
+		SECTION(pCurrData->desc)
+		{
+			testCodecEncodingIterator< Utf32Codec<char32_t> >(data, data);
 		}
 	}
 }

@@ -3,6 +3,8 @@
 
 #include <bdn/test.h>
 
+#include "codecIteratorUtil.h"
+
 namespace bdn
 {
 
@@ -54,58 +56,7 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
-		Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> end(encoded.end(), encoded.begin(), encoded.end());
-
-		// forward then backward iteration
-		{
-			Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> it = begin;
-
-			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-
-			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-		}
-
-
-		// backward then forward iteration
-		{
-			Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> it = end;
-
-			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-
-			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-		}
+		testCodecDecodingIterator< Utf16Codec<char16_t> >(encoded, expectedDecoded);
 	}
 }
 
@@ -158,57 +109,7 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> begin(input.begin());
-		Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> end(input.end());
-
-		// forward then backward iteration
-		{
-			Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> it = begin;
-
-			for( auto expectedIt = expectedUtf16.begin(); expectedIt!=expectedUtf16.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-
-			for( auto expectedIt = expectedUtf16.rbegin(); expectedIt!=expectedUtf16.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );		
-		}
-
-
-		// backward then forward iteration
-		{
-			Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> it = end;
-
-			for( auto expectedIt = expectedUtf16.rbegin(); expectedIt!=expectedUtf16.rend(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, begin, false) );
-				it--;
-
-				REQUIRE( *it == *expectedIt );
-			}
-
-			REQUIRE( checkEquality(it, begin, true) );
-
-			for( auto expectedIt = expectedUtf16.begin(); expectedIt!=expectedUtf16.end(); ++expectedIt)
-			{
-				REQUIRE( checkEquality(it, end, false) );
-				REQUIRE( *it == *expectedIt );
-				it++;
-			}
-
-			REQUIRE( checkEquality(it, end, true) );
-		}
+		testCodecEncodingIterator<Utf16Codec<char16_t>>( input, expectedUtf16);		
 	}
 }
 
