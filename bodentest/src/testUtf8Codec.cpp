@@ -8,8 +8,6 @@ namespace bdn
 
 TEST_CASE( "utf8 decoding", "[string]" )
 {
-	using namespace bdn::Generators;
-
 	struct SubTestData
 	{
 		const char*		utf8;
@@ -124,8 +122,6 @@ TEST_CASE( "utf8 decoding", "[string]" )
 
 TEST_CASE( "utf8 encoding", "[string]" )
 {
-	using namespace bdn::Generators;
-
 	struct SubTestData
 	{		
 		const char32_t*	input;

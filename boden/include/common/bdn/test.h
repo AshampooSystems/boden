@@ -2433,8 +2433,8 @@ private:
     size_t m_totalSize;
 };
 
-namespace Generators
-{
+// this used to be in a sub-namespace. Don't see the point.
+//{
     template<typename T>
     CompositeGenerator<T> between( T from, T to ) {
         CompositeGenerator<T> generators;
@@ -2475,9 +2475,8 @@ namespace Generators
         return generators;
     }
 
-} // end namespace Generators
-
-using namespace Generators;
+//} // end namespace Generators
+// using namespace Generators;
 
 } // end namespace bdn
 
