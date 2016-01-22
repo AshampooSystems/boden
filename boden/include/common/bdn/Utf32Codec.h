@@ -11,13 +11,12 @@ namespace bdn
 	The template parameter EL must be a 32 bit integer type. Usually either char32_t or
 	wchar_t (on systems where wchar_t is 32 bit)
 */
-template<class EL>
 class Utf32Codec : public Base
 {
 public:
 
-	/** The encoded element type. This is a 16 bit integer type.*/
-	typedef EL EncodedElement;
+	/** The encoded element type. This is char32_t.*/
+	typedef char32_t EncodedElement;
 
 
 	/** The std string type for the encoded string.*/
@@ -84,7 +83,7 @@ public:
 
 		bool operator==(const DecodingIterator& o) const
 		{
-			return (_sourceIt!=o._sourceIt);
+			return (_sourceIt==o._sourceIt);
 		}
 
 		bool operator!=(const DecodingIterator& o) const
@@ -161,7 +160,7 @@ public:
 
 		bool operator==(const EncodingIterator& o) const
 		{
-			return (_sourceIt!=o._sourceIt);
+			return (_sourceIt==o._sourceIt);
 		}
 
 		bool operator!=(const EncodingIterator& o) const
