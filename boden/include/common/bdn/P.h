@@ -65,7 +65,7 @@ public:
 
 		If the smart pointer already held a reference to another object then
 		that reference is released.*/
-	void _assign(T* pObj)
+	void assign(T* pObj)
 	{
 		T* pMyOld = _pObject;
 
@@ -84,14 +84,14 @@ public:
 
 	P<T>& operator=(T* pObj)
 	{
-		_assign(pObj);
+		assign(pObj);
 		return *this;
 	}
 
 
 	P<T>& operator=(const P<T>& pObj)
 	{
-		_assign(pObj._getPtr());
+		assign(pObj.getPtr());
 		return *this;
 	}
 
@@ -99,7 +99,7 @@ public:
 	template<class O>
 	inline P<T>& operator=(const P<O>& pObj)
 	{
-		_assign(pObj._getPtr());
+		assign(pObj._getPtr());
 		return *this;
 	}
 
@@ -111,7 +111,7 @@ public:
 
 		Returns a plain pointer to the object that the smart pointer pointed to.
 		*/
-	T* _detach()
+	T* detach()
 	{
 		T* pObj = _pObject;
 
@@ -126,7 +126,7 @@ public:
 		The object's reference count will be released as normal when the smart pointer is deleted
 		or gets another pointer assigned.
 	*/
-	P& _attach(T* pObj)
+	P& attach(T* pObj)
 	{
 		if(_pObject != nullptr)
 			_pObject->releaseRef();
@@ -165,18 +165,18 @@ public:
 
 	bool operator!=(const P<T>& pObj) const
 	{
-		return m_pObject != pObj.m_pObject;
+		return _pObject != pObj._pObject;
 	}
 
 
 	bool operator!=(const T* pObj) const
 	{
-		return ::m_pObject != pObj;
+		return _pObject != pObj;
 	}
 
 
 	/** Returns the value of the smart pointer as a plain pointer.*/
-	T* _getPtr() const
+	T* getPtr() const
 	{
 		return _pObject;
 	}

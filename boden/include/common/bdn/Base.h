@@ -149,7 +149,7 @@ protected:
 		_refCount += _deleteThisRefCountDelta + 1;
 
 		P<IBase> pRef;
-		pRef._attach(this);
+		pRef.attach(this);
 		return pRef;
 	}
 
