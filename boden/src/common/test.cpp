@@ -34,7 +34,7 @@ DEALINGS IN THE SOFTWARE.
 
 */
 
-
+#include <bdn/init.h>
 #include <bdn/test.h>
 
 #  ifndef CLARA_CONFIG_MAIN
@@ -7040,3 +7040,4 @@ int runTestSession( int argc, char const* const argv[] )
 }
 
 }
+
