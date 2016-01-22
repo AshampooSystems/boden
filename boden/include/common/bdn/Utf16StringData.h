@@ -2,14 +2,13 @@
 #define BDN_Utf16StringData_H_
 
 #include <bdn/StringData.h>
-#include <bdn/Utf16EncodingIterator.h>
-#include <bdn/Utf16DecodingIterator.h>
+#include <bdn/Utf16Codec.h>
 
 
 namespace bdn
 {
 
-	typedef UTF16StringData StringData<char16_t, Utf16EncodingIterator, Utf16DecodingIterator>;
+typedef StringData<Utf16Codec> Utf16StringData;
 
 }
 

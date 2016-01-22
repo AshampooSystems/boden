@@ -2,14 +2,13 @@
 #define BDN_Utf32StringData_H_
 
 #include <bdn/StringData.h>
-#include <bdn/Utf32EncodingIterator.h>
-#include <bdn/Utf32DecodingIterator.h>
+#include <bdn/Utf32Codec.h>
 
 
 namespace bdn
 {
 
-	typedef UTF32StringData StringData<char32_t, Utf32EncodingIterator, Utf32DecodingIterator>;
+typedef StringData< Utf32Codec<char32_t> > Utf32StringData;
 
 }
 
