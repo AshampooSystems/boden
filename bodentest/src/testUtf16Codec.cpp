@@ -63,26 +63,23 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 
 			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
 			{
-				REQUIRE( it!=end );
-				REQUIRE( end!=it );
+				REQUIRE( checkEquality(it, end, false) );
+
 				REQUIRE( *it == *expectedIt );
 				it++;
 			}
 
-			REQUIRE( it==end );	
-			REQUIRE( end==it );	
+			REQUIRE( checkEquality(it, end, true) );
 
 			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
 			{
-				REQUIRE( it!=begin );
-				REQUIRE( begin!=it );
+				REQUIRE( checkEquality(it, begin, false) );
 				it--;
 
 				REQUIRE( *it == *expectedIt );
 			}
 
-			REQUIRE( it==begin );			
-			REQUIRE( begin==it );			
+			REQUIRE( checkEquality(it, begin, true) );
 		}
 
 
@@ -92,26 +89,22 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 
 			for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
 			{
-				REQUIRE( it!=begin );
-				REQUIRE( begin!=it );
+				REQUIRE( checkEquality(it, begin, false) );
 				it--;
 
 				REQUIRE( *it == *expectedIt );
 			}
 
-			REQUIRE( it==begin );	
-			REQUIRE( begin==it );	
+			REQUIRE( checkEquality(it, begin, true) );
 
 			for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
 			{
-				REQUIRE( it!=end );
-				REQUIRE( end!=it );
+				REQUIRE( checkEquality(it, end, false) );
 				REQUIRE( *it == *expectedIt );
 				it++;
 			}
 
-			REQUIRE( it==end );	
-			REQUIRE( end==it );	
+			REQUIRE( checkEquality(it, end, true) );
 		}
 	}
 }
@@ -174,25 +167,22 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 
 			for( auto expectedIt = expectedUtf16.begin(); expectedIt!=expectedUtf16.end(); ++expectedIt)
 			{
-				REQUIRE( it!=end );
-				REQUIRE( end!=it );
+				REQUIRE( checkEquality(it, end, false) );
 				REQUIRE( *it == *expectedIt );
 				it++;
 			}
 
-			REQUIRE( it==end );	
-			REQUIRE( end==it );	
+			REQUIRE( checkEquality(it, end, true) );
 
 			for( auto expectedIt = expectedUtf16.rbegin(); expectedIt!=expectedUtf16.rend(); ++expectedIt)
 			{
-				REQUIRE( it!=begin );
-				REQUIRE( begin!=it );
+				REQUIRE( checkEquality(it, begin, false) );
 				it--;
 
 				REQUIRE( *it == *expectedIt );
 			}
 
-			REQUIRE( it==begin );			
+			REQUIRE( checkEquality(it, begin, true) );		
 		}
 
 
@@ -202,26 +192,22 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 
 			for( auto expectedIt = expectedUtf16.rbegin(); expectedIt!=expectedUtf16.rend(); ++expectedIt)
 			{
-				REQUIRE( it!=begin );
-				REQUIRE( begin!=it );
+				REQUIRE( checkEquality(it, begin, false) );
 				it--;
 
 				REQUIRE( *it == *expectedIt );
 			}
 
-			REQUIRE( it==begin );	
-			REQUIRE( begin==it );	
+			REQUIRE( checkEquality(it, begin, true) );
 
 			for( auto expectedIt = expectedUtf16.begin(); expectedIt!=expectedUtf16.end(); ++expectedIt)
 			{
-				REQUIRE( it!=end );
-				REQUIRE( end!=it );
+				REQUIRE( checkEquality(it, end, false) );
 				REQUIRE( *it == *expectedIt );
 				it++;
 			}
 
-			REQUIRE( it==end );	
-			REQUIRE( end==it );	
+			REQUIRE( checkEquality(it, end, true) );
 		}
 	}
 }

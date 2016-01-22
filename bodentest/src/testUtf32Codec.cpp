@@ -44,25 +44,23 @@ TEST_CASE( "Utf32Codec", "[string]" )
 
 				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
 				{
-					REQUIRE( it!=end );
-					REQUIRE( end!=it );
+					REQUIRE( checkEquality(it, end, false) );
+
 					REQUIRE( *it == *expectedIt );
 					it++;
 				}
 
-				REQUIRE( it==end );	
-				REQUIRE( end==it );	
+				REQUIRE( checkEquality(it, end, true) );
 
 				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
 				{
-					REQUIRE( it!=begin );
-					REQUIRE( begin!=it );
+					REQUIRE( checkEquality(it, begin, false) );
 					it--;
 
 					REQUIRE( *it == *expectedIt );
 				}
 
-				REQUIRE( it==begin );			
+				REQUIRE( checkEquality(it, begin, true) );
 			}
 		}
 	}
@@ -80,26 +78,22 @@ TEST_CASE( "Utf32Codec", "[string]" )
 
 				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
 				{
-					REQUIRE( it!=end );
-					REQUIRE( end!=it );
+					REQUIRE( checkEquality(it, end, false) );
 					REQUIRE( *it == *expectedIt );
 					it++;
 				}
 
-				REQUIRE( it==end );	
-				REQUIRE( end==it );	
+				REQUIRE( checkEquality(it, end, true) );
 
 				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
 				{
-					REQUIRE( it!=begin );
-					REQUIRE( begin!=it );
+					REQUIRE( checkEquality(it, begin, false) );
 					it--;
 
 					REQUIRE( *it == *expectedIt );
 				}
 
-				REQUIRE( it==begin );			
-				REQUIRE( begin==it );			
+				REQUIRE( checkEquality(it, begin, true) );
 			}
 
 
@@ -109,26 +103,22 @@ TEST_CASE( "Utf32Codec", "[string]" )
 
 				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
 				{
-					REQUIRE( it!=begin );
-					REQUIRE( begin!=it );
+					REQUIRE( checkEquality(it, begin, false) );
 					it--;
 
 					REQUIRE( *it == *expectedIt );
 				}
 
-				REQUIRE( it==begin );	
-				REQUIRE( begin==it );	
+				REQUIRE( checkEquality(it, begin, true) );
 
 				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
 				{
-					REQUIRE( it!=end );
-					REQUIRE( end!=it );
+					REQUIRE( checkEquality(it, end, false) );
 					REQUIRE( *it == *expectedIt );
 					it++;
 				}
 
-				REQUIRE( it==end );	
-				REQUIRE( end==it );	
+				REQUIRE( checkEquality(it, end, true) );
 			}
 		}
 	}

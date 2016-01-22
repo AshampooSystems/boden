@@ -3200,7 +3200,40 @@ using bdn::Detail::Approx;
 
 namespace bdn
 {
+	/** Executes a test session (runs all tests). This can be called
+		from a custom main function.
+		Instead of calling this manually you can also
+		include <bdn/testMain.h> to get the default implementation of
+		a main function.
+		*/
 	int runTestSession( int argc, char const* const argv[] );
+
+	/** Checks if an equality comparison of the specified values
+		yields the expected result. This tests both the == and the != operator
+		and also switches the order of operands.
+				
+		This is most often used to test the the == and != operators of 
+		a class are properly implemented.
+		
+		The call is equivalent to:
+
+		\code
+		(		(a==b)==expectedResult
+			&&  (b==a)==expectedResult
+			&& (!(a!=b)) == expectedResult
+			&& (!(b!=a)) == expectedResult )
+		\endcode
+		*/
+	template<typename A, typename B>
+	bool checkEquality(A a, B b, bool expectedResult)
+	{
+		return (		(a==b)==expectedResult
+					&&  (b==a)==expectedResult
+					&& (!(a!=b)) == expectedResult
+					&& (!(b!=a)) == expectedResult
+				);
+	}
+
 }
 
 #endif // _BDN_test_H_
