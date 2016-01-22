@@ -4,6 +4,30 @@ import sys;
 import subprocess;
 import os.path;
 import shutil;
+import json;
+
+
+def getStatePath():
+	return os.path.join( os.path.dirname(__file__), ".generateProjects.state");
+
+
+def loadState():
+	state = {};
+
+	p = getStatePath();
+	if os.path.exists(p):
+		with open(p, "rb") as f:
+			state = json.load( f );
+
+	return state;
+
+
+def storeState(state):
+	p = getStatePath();
+	with open(p, "wb") as f:
+		json.dump( state, f );
+
+
 
 def main():
 
@@ -33,7 +57,7 @@ def main():
 						("osx", 	"", [""]),
 						("ios", 	"", ["", "sim64", "sim32"]),
 						("android", "", [""]),
-						("web", 	"", [""])
+						("web", 	"", [""]),
 					];
 
 	targetHelp = "";
@@ -49,7 +73,7 @@ def main():
 
 	if len(sys.argv)!=3:
 
-		print """Usage: generateProject.py TARGETNAME TOOLSET
+		print """Usage: generateProjects.py TARGETNAME TOOLSET
 
 TARGETNAME can be one of the following:
 
@@ -67,15 +91,38 @@ as the generator name and can be one of the following values on your system:
   IMPORTANT: Remember to enclose the toolset names that consist of multiple
   words in quotation marks!
 
+You can also specify "-" for TARGETNAME and/or TOOLSET to use the value from
+the previous execution of generateProjects.py.
+
   """ % ( targetHelp, "\n".join(generatorHelpList) );
 		return 1;
 
 	targetName = sys.argv[1].lower();
 	toolsetName = sys.argv[2];
 
+	state = loadState();
+
+	if targetName=="-":
+		if "lastTarget" not in state:
+			print "No previous target stored. Specify the target explictly."
+			return 4;			
+		targetName = state["lastTarget"];
+
+	if toolsetName=="-":
+		if "lastToolset" not in state:
+			print "No previous target stored. Specify the target explictly."
+			return 4;			
+		toolsetName = state["lastToolset"];
+
+
 	if targetName not in targetMap:
 		print "Invalid target name."
 		return 1;
+
+
+	state["lastTarget"] = targetName;
+	state["lastToolset"] = toolsetName;
+	storeState(state);
 
 	myPath = os.path.abspath(__file__);
 	mainDir = os.path.dirname(myPath);
