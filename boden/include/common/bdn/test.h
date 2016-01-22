@@ -5,10 +5,10 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */
-#ifndef _BDN_unittest_H_
-#define _BDN_unittest_H_
+#ifndef _BDN_test_H_
+#define _BDN_test_H_
 
-#define TWOBLUECUBES_CATCH_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_HPP_INCLUDED
 
 #ifdef __clang__
 #    pragma clang system_header
@@ -40,11 +40,11 @@
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wpadded"
 #endif
-#if defined(CATCH_CONFIG_MAIN) || defined(CATCH_CONFIG_RUNNER)
-#  define CATCH_IMPL
+#if defined(BDN_CONFIG_MAIN) || defined(BDN_CONFIG_RUNNER)
+#  define BDN_IMPL
 #endif
 
-#ifdef CATCH_IMPL
+#ifdef BDN_IMPL
 #  ifndef CLARA_CONFIG_MAIN
 #    define CLARA_CONFIG_MAIN_NOT_DEFINED
 #    define CLARA_CONFIG_MAIN
@@ -52,40 +52,40 @@
 #endif
 
 // #included from: internal/catch_notimplemented_exception.h
-#define TWOBLUECUBES_CATCH_NOTIMPLEMENTED_EXCEPTION_H_INCLUDED
+#define TWOBLUECUBES_BDN_NOTIMPLEMENTED_EXCEPTION_H_INCLUDED
 
 // #included from: catch_common.h
-#define TWOBLUECUBES_CATCH_COMMON_H_INCLUDED
+#define TWOBLUECUBES_BDN_COMMON_H_INCLUDED
 
-#define INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line ) name##line
-#define INTERNAL_CATCH_UNIQUE_NAME_LINE( name, line ) INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line )
-#define INTERNAL_CATCH_UNIQUE_NAME( name ) INTERNAL_CATCH_UNIQUE_NAME_LINE( name, __LINE__ )
+#define INTERNAL_BDN_UNIQUE_NAME_LINE2( name, line ) name##line
+#define INTERNAL_BDN_UNIQUE_NAME_LINE( name, line ) INTERNAL_BDN_UNIQUE_NAME_LINE2( name, line )
+#define INTERNAL_BDN_UNIQUE_NAME( name ) INTERNAL_BDN_UNIQUE_NAME_LINE( name, __LINE__ )
 
-#define INTERNAL_CATCH_STRINGIFY2( expr ) #expr
-#define INTERNAL_CATCH_STRINGIFY( expr ) INTERNAL_CATCH_STRINGIFY2( expr )
+#define INTERNAL_BDN_STRINGIFY2( expr ) #expr
+#define INTERNAL_BDN_STRINGIFY( expr ) INTERNAL_BDN_STRINGIFY2( expr )
 
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
 
 // #included from: catch_compiler_capabilities.h
-#define TWOBLUECUBES_CATCH_COMPILER_CAPABILITIES_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
 
 // Detect a number of compiler features - mostly C++11/14 conformance - by compiler
 // The following features are defined:
 //
-// CATCH_CONFIG_CPP11_NULLPTR : is nullptr supported?
-// CATCH_CONFIG_CPP11_NOEXCEPT : is noexcept supported?
-// CATCH_CONFIG_CPP11_GENERATED_METHODS : The delete and default keywords for compiler generated methods
-// CATCH_CONFIG_CPP11_IS_ENUM : std::is_enum is supported?
-// CATCH_CONFIG_CPP11_TUPLE : std::tuple is supported
-// CATCH_CONFIG_CPP11_LONG_LONG : is long long supported?
-// CATCH_CONFIG_CPP11_OVERRIDE : is override supported?
-// CATCH_CONFIG_CPP11_UNIQUE_PTR : is unique_ptr supported (otherwise use auto_ptr)
+// BDN_CONFIG_CPP11_NULLPTR : is nullptr supported?
+// BDN_CONFIG_CPP11_NOEXCEPT : is noexcept supported?
+// BDN_CONFIG_CPP11_GENERATED_METHODS : The delete and default keywords for compiler generated methods
+// BDN_CONFIG_CPP11_IS_ENUM : std::is_enum is supported?
+// BDN_CONFIG_CPP11_TUPLE : std::tuple is supported
+// BDN_CONFIG_CPP11_LONG_LONG : is long long supported?
+// BDN_CONFIG_CPP11_OVERRIDE : is override supported?
+// BDN_CONFIG_CPP11_UNIQUE_PTR : is unique_ptr supported (otherwise use auto_ptr)
 
-// CATCH_CONFIG_CPP11_OR_GREATER : Is C++11 supported?
+// BDN_CONFIG_CPP11_OR_GREATER : Is C++11 supported?
 
-// CATCH_CONFIG_VARIADIC_MACROS : are variadic macros supported?
+// BDN_CONFIG_VARIADIC_MACROS : are variadic macros supported?
 
 // ****************
 // Note to maintainers: if new toggles are added please document them
@@ -93,20 +93,20 @@
 // ****************
 
 // In general each macro has a _NO_<feature name> form
-// (e.g. CATCH_CONFIG_CPP11_NO_NULLPTR) which disables the feature.
+// (e.g. BDN_CONFIG_CPP11_NO_NULLPTR) which disables the feature.
 // Many features, at point of detection, define an _INTERNAL_ macro, so they
 // can be combined, en-mass, with the _NO_ forms later.
 
-// All the C++11 features can be disabled with CATCH_CONFIG_NO_CPP11
+// All the C++11 features can be disabled with BDN_CONFIG_NO_CPP11
 
 #ifdef __clang__
 
 #  if __has_feature(cxx_nullptr)
-#    define CATCH_INTERNAL_CONFIG_CPP11_NULLPTR
+#    define BDN_INTERNAL_CONFIG_CPP11_NULLPTR
 #  endif
 
 #  if __has_feature(cxx_noexcept)
-#    define CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT
+#    define BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT
 #  endif
 
 #endif // __clang__
@@ -134,7 +134,7 @@
 #ifdef __GNUC__
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ >= 6 && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#   define CATCH_INTERNAL_CONFIG_CPP11_NULLPTR
+#   define BDN_INTERNAL_CONFIG_CPP11_NULLPTR
 #endif
 
 // - otherwise more recent versions define __cplusplus >= 201103L
@@ -147,13 +147,13 @@
 #ifdef _MSC_VER
 
 #if (_MSC_VER >= 1600)
-#   define CATCH_INTERNAL_CONFIG_CPP11_NULLPTR
-#   define CATCH_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
+#   define BDN_INTERNAL_CONFIG_CPP11_NULLPTR
+#   define BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
 #endif
 
 #if (_MSC_VER >= 1900 ) // (VC++ 13 (VS2015))
-#define CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT
-#define CATCH_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
+#define BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT
+#define BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
 #endif
 
 #endif // _MSC_VER
@@ -166,7 +166,7 @@
     ( defined __GNUC__ && __GNUC__ >= 3 ) || \
     ( !defined __cplusplus && __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L )
 
-#define CATCH_INTERNAL_CONFIG_VARIADIC_MACROS
+#define BDN_INTERNAL_CONFIG_VARIADIC_MACROS
 
 #endif
 
@@ -176,105 +176,105 @@
 // catch all support for C++11
 #if defined(__cplusplus) && __cplusplus >= 201103L
 
-#  define CATCH_CPP11_OR_GREATER
+#  define BDN_CPP11_OR_GREATER
 
-#  if !defined(CATCH_INTERNAL_CONFIG_CPP11_NULLPTR)
-#    define CATCH_INTERNAL_CONFIG_CPP11_NULLPTR
+#  if !defined(BDN_INTERNAL_CONFIG_CPP11_NULLPTR)
+#    define BDN_INTERNAL_CONFIG_CPP11_NULLPTR
 #  endif
 
-#  ifndef CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT
-#    define CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT
+#  ifndef BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT
+#    define BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT
 #  endif
 
-#  ifndef CATCH_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
-#    define CATCH_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
+#  ifndef BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
+#    define BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS
 #  endif
 
-#  ifndef CATCH_INTERNAL_CONFIG_CPP11_IS_ENUM
-#    define CATCH_INTERNAL_CONFIG_CPP11_IS_ENUM
+#  ifndef BDN_INTERNAL_CONFIG_CPP11_IS_ENUM
+#    define BDN_INTERNAL_CONFIG_CPP11_IS_ENUM
 #  endif
 
-#  ifndef CATCH_INTERNAL_CONFIG_CPP11_TUPLE
-#    define CATCH_INTERNAL_CONFIG_CPP11_TUPLE
+#  ifndef BDN_INTERNAL_CONFIG_CPP11_TUPLE
+#    define BDN_INTERNAL_CONFIG_CPP11_TUPLE
 #  endif
 
-#  ifndef CATCH_INTERNAL_CONFIG_VARIADIC_MACROS
-#    define CATCH_INTERNAL_CONFIG_VARIADIC_MACROS
+#  ifndef BDN_INTERNAL_CONFIG_VARIADIC_MACROS
+#    define BDN_INTERNAL_CONFIG_VARIADIC_MACROS
 #  endif
 
-#  if !defined(CATCH_INTERNAL_CONFIG_CPP11_LONG_LONG)
-#    define CATCH_INTERNAL_CONFIG_CPP11_LONG_LONG
+#  if !defined(BDN_INTERNAL_CONFIG_CPP11_LONG_LONG)
+#    define BDN_INTERNAL_CONFIG_CPP11_LONG_LONG
 #  endif
 
-#  if !defined(CATCH_INTERNAL_CONFIG_CPP11_OVERRIDE)
-#    define CATCH_INTERNAL_CONFIG_CPP11_OVERRIDE
+#  if !defined(BDN_INTERNAL_CONFIG_CPP11_OVERRIDE)
+#    define BDN_INTERNAL_CONFIG_CPP11_OVERRIDE
 #  endif
-#  if !defined(CATCH_INTERNAL_CONFIG_CPP11_UNIQUE_PTR)
-#    define CATCH_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
+#  if !defined(BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR)
+#    define BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR
 #  endif
 
 #endif // __cplusplus >= 201103L
 
 // Now set the actual defines based on the above + anything the user has configured
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_NULLPTR) && !defined(CATCH_CONFIG_CPP11_NO_NULLPTR) && !defined(CATCH_CONFIG_CPP11_NULLPTR) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_NULLPTR
+#if defined(BDN_INTERNAL_CONFIG_CPP11_NULLPTR) && !defined(BDN_CONFIG_CPP11_NO_NULLPTR) && !defined(BDN_CONFIG_CPP11_NULLPTR) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_NULLPTR
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_NOEXCEPT) && !defined(CATCH_CONFIG_CPP11_NO_NOEXCEPT) && !defined(CATCH_CONFIG_CPP11_NOEXCEPT) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_NOEXCEPT
+#if defined(BDN_INTERNAL_CONFIG_CPP11_NOEXCEPT) && !defined(BDN_CONFIG_CPP11_NO_NOEXCEPT) && !defined(BDN_CONFIG_CPP11_NOEXCEPT) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_NOEXCEPT
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_GENERATED_METHODS) && !defined(CATCH_CONFIG_CPP11_NO_GENERATED_METHODS) && !defined(CATCH_CONFIG_CPP11_GENERATED_METHODS) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_GENERATED_METHODS
+#if defined(BDN_INTERNAL_CONFIG_CPP11_GENERATED_METHODS) && !defined(BDN_CONFIG_CPP11_NO_GENERATED_METHODS) && !defined(BDN_CONFIG_CPP11_GENERATED_METHODS) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_GENERATED_METHODS
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_IS_ENUM) && !defined(CATCH_CONFIG_CPP11_NO_IS_ENUM) && !defined(CATCH_CONFIG_CPP11_IS_ENUM) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_IS_ENUM
+#if defined(BDN_INTERNAL_CONFIG_CPP11_IS_ENUM) && !defined(BDN_CONFIG_CPP11_NO_IS_ENUM) && !defined(BDN_CONFIG_CPP11_IS_ENUM) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_IS_ENUM
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_TUPLE) && !defined(CATCH_CONFIG_CPP11_NO_TUPLE) && !defined(CATCH_CONFIG_CPP11_TUPLE) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_TUPLE
+#if defined(BDN_INTERNAL_CONFIG_CPP11_TUPLE) && !defined(BDN_CONFIG_CPP11_NO_TUPLE) && !defined(BDN_CONFIG_CPP11_TUPLE) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_TUPLE
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_VARIADIC_MACROS) && !defined(CATCH_CONFIG_NO_VARIADIC_MACROS) && !defined(CATCH_CONFIG_VARIADIC_MACROS)
-#   define CATCH_CONFIG_VARIADIC_MACROS
+#if defined(BDN_INTERNAL_CONFIG_VARIADIC_MACROS) && !defined(BDN_CONFIG_NO_VARIADIC_MACROS) && !defined(BDN_CONFIG_VARIADIC_MACROS)
+#   define BDN_CONFIG_VARIADIC_MACROS
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_LONG_LONG) && !defined(CATCH_CONFIG_NO_LONG_LONG) && !defined(CATCH_CONFIG_CPP11_LONG_LONG) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_LONG_LONG
+#if defined(BDN_INTERNAL_CONFIG_CPP11_LONG_LONG) && !defined(BDN_CONFIG_NO_LONG_LONG) && !defined(BDN_CONFIG_CPP11_LONG_LONG) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_LONG_LONG
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_OVERRIDE) && !defined(CATCH_CONFIG_NO_OVERRIDE) && !defined(CATCH_CONFIG_CPP11_OVERRIDE) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_OVERRIDE
+#if defined(BDN_INTERNAL_CONFIG_CPP11_OVERRIDE) && !defined(BDN_CONFIG_NO_OVERRIDE) && !defined(BDN_CONFIG_CPP11_OVERRIDE) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_OVERRIDE
 #endif
-#if defined(CATCH_INTERNAL_CONFIG_CPP11_UNIQUE_PTR) && !defined(CATCH_CONFIG_NO_UNIQUE_PTR) && !defined(CATCH_CONFIG_CPP11_UNIQUE_PTR) && !defined(CATCH_CONFIG_NO_CPP11)
-#   define CATCH_CONFIG_CPP11_UNIQUE_PTR
+#if defined(BDN_INTERNAL_CONFIG_CPP11_UNIQUE_PTR) && !defined(BDN_CONFIG_NO_UNIQUE_PTR) && !defined(BDN_CONFIG_CPP11_UNIQUE_PTR) && !defined(BDN_CONFIG_NO_CPP11)
+#   define BDN_CONFIG_CPP11_UNIQUE_PTR
 #endif
 
 // noexcept support:
-#if defined(CATCH_CONFIG_CPP11_NOEXCEPT) && !defined(CATCH_NOEXCEPT)
-#  define CATCH_NOEXCEPT noexcept
-#  define CATCH_NOEXCEPT_IS(x) noexcept(x)
+#if defined(BDN_CONFIG_CPP11_NOEXCEPT) && !defined(BDN_NOEXCEPT)
+#  define BDN_NOEXCEPT noexcept
+#  define BDN_NOEXCEPT_IS(x) noexcept(x)
 #else
-#  define CATCH_NOEXCEPT throw()
-#  define CATCH_NOEXCEPT_IS(x)
+#  define BDN_NOEXCEPT throw()
+#  define BDN_NOEXCEPT_IS(x)
 #endif
 
 // nullptr support
-#ifdef CATCH_CONFIG_CPP11_NULLPTR
-#   define CATCH_NULL nullptr
+#ifdef BDN_CONFIG_CPP11_NULLPTR
+#   define BDN_NULL nullptr
 #else
-#   define CATCH_NULL NULL
+#   define BDN_NULL NULL
 #endif
 
 // override support
-#ifdef CATCH_CONFIG_CPP11_OVERRIDE
-#   define CATCH_OVERRIDE override
+#ifdef BDN_CONFIG_CPP11_OVERRIDE
+#   define BDN_OVERRIDE override
 #else
-#   define CATCH_OVERRIDE
+#   define BDN_OVERRIDE
 #endif
 
 // unique_ptr support
-#ifdef CATCH_CONFIG_CPP11_UNIQUE_PTR
-#   define CATCH_AUTO_PTR( T ) std::unique_ptr<T>
+#ifdef BDN_CONFIG_CPP11_UNIQUE_PTR
+#   define BDN_AUTO_PTR( T ) std::unique_ptr<T>
 #else
-#   define CATCH_AUTO_PTR( T ) std::auto_ptr<T>
+#   define BDN_AUTO_PTR( T ) std::auto_ptr<T>
 #endif
 
-namespace Catch {
+namespace bdn {
 
     struct IConfig;
 
@@ -284,7 +284,7 @@ namespace Catch {
     }; };
 
     class NonCopyable {
-#ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         NonCopyable( NonCopyable const& )              = delete;
         NonCopyable( NonCopyable && )                  = delete;
         NonCopyable& operator = ( NonCopyable const& ) = delete;
@@ -347,7 +347,7 @@ namespace Catch {
         SourceLineInfo();
         SourceLineInfo( char const* _file, std::size_t _line );
         SourceLineInfo( SourceLineInfo const& other );
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         SourceLineInfo( SourceLineInfo && )                  = default;
         SourceLineInfo& operator = ( SourceLineInfo const& ) = default;
         SourceLineInfo& operator = ( SourceLineInfo && )     = default;
@@ -387,12 +387,12 @@ namespace Catch {
     }
 }
 
-#define CATCH_INTERNAL_LINEINFO ::Catch::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )
-#define CATCH_INTERNAL_ERROR( msg ) ::Catch::throwLogicError( msg, CATCH_INTERNAL_LINEINFO );
+#define BDN_INTERNAL_LINEINFO ::bdn::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )
+#define BDN_INTERNAL_ERROR( msg ) ::bdn::throwLogicError( msg, BDN_INTERNAL_LINEINFO );
 
 #include <ostream>
 
-namespace Catch {
+namespace bdn {
 
     class NotImplementedException : public std::exception
     {
@@ -400,29 +400,29 @@ namespace Catch {
         NotImplementedException( SourceLineInfo const& lineInfo );
         NotImplementedException( NotImplementedException const& ) {}
 
-        virtual ~NotImplementedException() CATCH_NOEXCEPT {}
+        virtual ~NotImplementedException() BDN_NOEXCEPT {}
 
-        virtual const char* what() const CATCH_NOEXCEPT;
+        virtual const char* what() const BDN_NOEXCEPT;
 
     private:
         std::string m_what;
         SourceLineInfo m_lineInfo;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 ///////////////////////////////////////////////////////////////////////////////
-#define CATCH_NOT_IMPLEMENTED throw Catch::NotImplementedException( CATCH_INTERNAL_LINEINFO )
+#define BDN_NOT_IMPLEMENTED throw bdn::NotImplementedException( BDN_INTERNAL_LINEINFO )
 
 // #included from: internal/catch_context.h
-#define TWOBLUECUBES_CATCH_CONTEXT_H_INCLUDED
+#define TWOBLUECUBES_BDN_CONTEXT_H_INCLUDED
 
 // #included from: catch_interfaces_generators.h
-#define TWOBLUECUBES_CATCH_INTERFACES_GENERATORS_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_GENERATORS_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     struct IGeneratorInfo {
         virtual ~IGeneratorInfo();
@@ -439,17 +439,17 @@ namespace Catch {
 
     IGeneratorsForTest* createGeneratorsForTest();
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_ptr.hpp
-#define TWOBLUECUBES_CATCH_PTR_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_PTR_HPP_INCLUDED
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
-namespace Catch {
+namespace bdn {
 
     // An intrusive reference counting smart pointer.
     // T must implement addRef() and release() methods
@@ -457,7 +457,7 @@ namespace Catch {
     template<typename T>
     class Ptr {
     public:
-        Ptr() : m_p( CATCH_NULL ){}
+        Ptr() : m_p( BDN_NULL ){}
         Ptr( T* p ) : m_p( p ){
             if( m_p )
                 m_p->addRef();
@@ -473,7 +473,7 @@ namespace Catch {
         void reset() {
             if( m_p )
                 m_p->release();
-            m_p = CATCH_NULL;
+            m_p = BDN_NULL;
         }
         Ptr& operator = ( T* p ){
             Ptr temp( p );
@@ -489,8 +489,8 @@ namespace Catch {
         T* get() const{ return m_p; }
         T& operator*() const { return *m_p; }
         T* operator->() const { return m_p; }
-        bool operator !() const { return m_p == CATCH_NULL; }
-        operator SafeBool::type() const { return SafeBool::makeSafe( m_p != CATCH_NULL ); }
+        bool operator !() const { return m_p == BDN_NULL; }
+        operator SafeBool::type() const { return SafeBool::makeSafe( m_p != BDN_NULL ); }
 
     private:
         T* m_p;
@@ -518,7 +518,7 @@ namespace Catch {
         mutable unsigned int m_rc;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -528,7 +528,7 @@ namespace Catch {
 #include <vector>
 #include <stdlib.h>
 
-namespace Catch {
+namespace bdn {
 
     class TestCase;
     class Stream;
@@ -564,14 +564,14 @@ namespace Catch {
 }
 
 // #included from: internal/catch_test_registry.hpp
-#define TWOBLUECUBES_CATCH_TEST_REGISTRY_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_REGISTRY_HPP_INCLUDED
 
 // #included from: catch_interfaces_testcase.h
-#define TWOBLUECUBES_CATCH_INTERFACES_TESTCASE_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_TESTCASE_H_INCLUDED
 
 #include <vector>
 
-namespace Catch {
+namespace bdn {
 
     class TestSpec;
 
@@ -596,7 +596,7 @@ namespace Catch {
 
 }
 
-namespace Catch {
+namespace bdn {
 
 template<typename C>
 class MethodTestCase : public SharedImpl<ITestCase> {
@@ -665,69 +665,69 @@ void registerTestCaseFunction
         SourceLineInfo const& lineInfo,
         NameAndDesc const& nameAndDesc );
 
-} // end namespace Catch
+} // end namespace bdn
 
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
+#ifdef BDN_CONFIG_VARIADIC_MACROS
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_TESTCASE( ... ) \
-        static void INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &INTERNAL_CATCH_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( __VA_ARGS__ ) ); }\
-        static void INTERNAL_CATCH_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
-
-    ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_METHOD_AS_TEST_CASE( QualifiedMethod, ... ) \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc( __VA_ARGS__ ), CATCH_INTERNAL_LINEINFO ); }
+    #define INTERNAL_BDN_TESTCASE( ... ) \
+        static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) ); }\
+        static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_TEST_CASE_METHOD( ClassName, ... )\
+    #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, ... ) \
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, ... )\
         namespace{ \
-            struct INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
+            struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, Catch::NameAndDesc( __VA_ARGS__ ), CATCH_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); \
         } \
-        void INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
+        void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_REGISTER_TESTCASE( Function, ... ) \
-        Catch::AutoReg( Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( __VA_ARGS__ ) );
+    #define INTERNAL_BDN_REGISTER_TESTCASE( Function, ... ) \
+        bdn::AutoReg( Function, BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) );
 
 #else
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_TESTCASE( Name, Desc ) \
-        static void INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &INTERNAL_CATCH_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( Name, Desc ) ); }\
-        static void INTERNAL_CATCH_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
+    #define INTERNAL_BDN_TESTCASE( Name, Desc ) \
+        static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) ); }\
+        static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_METHOD_AS_TEST_CASE( QualifiedMethod, Name, Desc ) \
-        namespace{ Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, Catch::NameAndDesc( Name, Desc ), CATCH_INTERNAL_LINEINFO ); }
+    #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, Name, Desc ) \
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( Name, Desc ), BDN_INTERNAL_LINEINFO ); }
 
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_TEST_CASE_METHOD( ClassName, TestName, Desc )\
+    #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, TestName, Desc )\
         namespace{ \
-            struct INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
+            struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            Catch::AutoReg INTERNAL_CATCH_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, Catch::NameAndDesc( TestName, Desc ), CATCH_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( TestName, Desc ), BDN_INTERNAL_LINEINFO ); \
         } \
-        void INTERNAL_CATCH_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
+        void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
     ///////////////////////////////////////////////////////////////////////////////
-    #define INTERNAL_CATCH_REGISTER_TESTCASE( Function, Name, Desc ) \
-        Catch::AutoReg( Function, CATCH_INTERNAL_LINEINFO, Catch::NameAndDesc( Name, Desc ) );
+    #define INTERNAL_BDN_REGISTER_TESTCASE( Function, Name, Desc ) \
+        bdn::AutoReg( Function, BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) );
 #endif
 
 // #included from: internal/catch_capture.hpp
-#define TWOBLUECUBES_CATCH_CAPTURE_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_CAPTURE_HPP_INCLUDED
 
 // #included from: catch_result_builder.h
-#define TWOBLUECUBES_CATCH_RESULT_BUILDER_H_INCLUDED
+#define TWOBLUECUBES_BDN_RESULT_BUILDER_H_INCLUDED
 
 // #included from: catch_result_type.h
-#define TWOBLUECUBES_CATCH_RESULT_TYPE_H_INCLUDED
+#define TWOBLUECUBES_BDN_RESULT_TYPE_H_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     // ResultWas::OfType enum
     struct ResultWas { enum OfType {
@@ -774,14 +774,14 @@ namespace Catch {
     inline bool isFalseTest( int flags )                { return ( flags & ResultDisposition::FalseTest ) != 0; }
     inline bool shouldSuppressFailure( int flags )      { return ( flags & ResultDisposition::SuppressFail ) != 0; }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_assertionresult.h
-#define TWOBLUECUBES_CATCH_ASSERTIONRESULT_H_INCLUDED
+#define TWOBLUECUBES_BDN_ASSERTIONRESULT_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     struct AssertionInfo
     {
@@ -811,7 +811,7 @@ namespace Catch {
         AssertionResult();
         AssertionResult( AssertionInfo const& info, AssertionResultData const& data );
         ~AssertionResult();
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
          AssertionResult( AssertionResult const& )              = default;
          AssertionResult( AssertionResult && )                  = default;
          AssertionResult& operator = ( AssertionResult const& ) = default;
@@ -836,12 +836,12 @@ namespace Catch {
         AssertionResultData m_resultData;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_matchers.hpp
-#define TWOBLUECUBES_CATCH_MATCHERS_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_MATCHERS_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 namespace Matchers {
     namespace Impl {
 
@@ -881,11 +881,11 @@ namespace Matchers {
             explicit Not( Matcher<ExpressionT> const& matcher ) : m_matcher(matcher.clone()) {}
             Not( Not const& other ) : m_matcher( other.m_matcher ) {}
 
-            virtual bool match( ExpressionT const& expr ) const CATCH_OVERRIDE {
+            virtual bool match( ExpressionT const& expr ) const BDN_OVERRIDE {
                 return !m_matcher->match( expr );
             }
 
-            virtual std::string toString() const CATCH_OVERRIDE {
+            virtual std::string toString() const BDN_OVERRIDE {
                 return "not " + m_matcher->toString();
             }
         private:
@@ -1153,9 +1153,9 @@ namespace Matchers {
 
 using namespace Matchers;
 
-} // namespace Catch
+} // namespace bdn
 
-namespace Catch {
+namespace bdn {
 
     struct TestFailureException{};
 
@@ -1232,14 +1232,14 @@ namespace Catch {
         bool m_shouldThrow;
     };
 
-} // namespace Catch
+} // namespace bdn
 
 // Include after due to circular dependency:
 // #included from: catch_expression_lhs.hpp
-#define TWOBLUECUBES_CATCH_EXPRESSION_LHS_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_EXPRESSION_LHS_HPP_INCLUDED
 
 // #included from: catch_evaluate.hpp
-#define TWOBLUECUBES_CATCH_EVALUATE_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_EVALUATE_HPP_INCLUDED
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -1248,7 +1248,7 @@ namespace Catch {
 
 #include <cstddef>
 
-namespace Catch {
+namespace bdn {
 namespace Internal {
 
     enum Operator {
@@ -1272,9 +1272,9 @@ namespace Internal {
     inline T& opCast(T const& t) { return const_cast<T&>(t); }
 
 // nullptr_t support based on pull request #154 from Konstantin Baumann
-#ifdef CATCH_CONFIG_CPP11_NULLPTR
+#ifdef BDN_CONFIG_CPP11_NULLPTR
     inline std::nullptr_t opCast(std::nullptr_t) { return nullptr; }
-#endif // CATCH_CONFIG_CPP11_NULLPTR
+#endif // BDN_CONFIG_CPP11_NULLPTR
 
     // So the compare overloads can be operator agnostic we convey the operator as a template
     // enum, which is used to specialise an Evaluator for doing the comparison.
@@ -1392,7 +1392,7 @@ namespace Internal {
         return Evaluator<T*, T*, Op>::evaluate( lhs, reinterpret_cast<T*>( rhs ) );
     }
 
-#ifdef CATCH_CONFIG_CPP11_LONG_LONG
+#ifdef BDN_CONFIG_CPP11_LONG_LONG
     // long long to unsigned X
     template<Operator Op> bool compare( long long lhs, unsigned int rhs ) {
         return applyEvaluator<Op>( static_cast<unsigned long>( lhs ), rhs );
@@ -1428,9 +1428,9 @@ namespace Internal {
     template<Operator Op, typename T> bool compare( T* lhs, long long rhs ) {
         return Evaluator<T*, T*, Op>::evaluate( lhs, reinterpret_cast<T*>( rhs ) );
     }
-#endif // CATCH_CONFIG_CPP11_LONG_LONG
+#endif // BDN_CONFIG_CPP11_LONG_LONG
 
-#ifdef CATCH_CONFIG_CPP11_NULLPTR
+#ifdef BDN_CONFIG_CPP11_NULLPTR
     // pointer to nullptr_t (when comparing against nullptr)
     template<Operator Op, typename T> bool compare( std::nullptr_t, T* rhs ) {
         return Evaluator<T*, T*, Op>::evaluate( nullptr, rhs );
@@ -1438,17 +1438,17 @@ namespace Internal {
     template<Operator Op, typename T> bool compare( T* lhs, std::nullptr_t ) {
         return Evaluator<T*, T*, Op>::evaluate( lhs, nullptr );
     }
-#endif // CATCH_CONFIG_CPP11_NULLPTR
+#endif // BDN_CONFIG_CPP11_NULLPTR
 
 } // end of namespace Internal
-} // end of namespace Catch
+} // end of namespace bdn
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
 // #included from: catch_tostring.h
-#define TWOBLUECUBES_CATCH_TOSTRING_H_INCLUDED
+#define TWOBLUECUBES_BDN_TOSTRING_H_INCLUDED
 
 #include <sstream>
 #include <iomanip>
@@ -1458,20 +1458,20 @@ namespace Internal {
 
 #ifdef __OBJC__
 // #included from: catch_objc_arc.hpp
-#define TWOBLUECUBES_CATCH_OBJC_ARC_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_OBJC_ARC_HPP_INCLUDED
 
 #import <Foundation/Foundation.h>
 
 #ifdef __has_feature
-#define CATCH_ARC_ENABLED __has_feature(objc_arc)
+#define BDN_ARC_ENABLED __has_feature(objc_arc)
 #else
-#define CATCH_ARC_ENABLED 0
+#define BDN_ARC_ENABLED 0
 #endif
 
 void arcSafeRelease( NSObject* obj );
 id performOptionalSelector( id obj, SEL sel );
 
-#if !CATCH_ARC_ENABLED
+#if !BDN_ARC_ENABLED
 inline void arcSafeRelease( NSObject* obj ) {
     [obj release];
 }
@@ -1480,8 +1480,8 @@ inline id performOptionalSelector( id obj, SEL sel ) {
         return [obj performSelector: sel];
     return nil;
 }
-#define CATCH_UNSAFE_UNRETAINED
-#define CATCH_ARC_STRONG
+#define BDN_UNSAFE_UNRETAINED
+#define BDN_ARC_STRONG
 #else
 inline void arcSafeRelease( NSObject* ){}
 inline id performOptionalSelector( id obj, SEL sel ) {
@@ -1496,21 +1496,21 @@ inline id performOptionalSelector( id obj, SEL sel ) {
 #endif
     return nil;
 }
-#define CATCH_UNSAFE_UNRETAINED __unsafe_unretained
-#define CATCH_ARC_STRONG __strong
+#define BDN_UNSAFE_UNRETAINED __unsafe_unretained
+#define BDN_ARC_STRONG __strong
 #endif
 
 #endif
 
-#ifdef CATCH_CONFIG_CPP11_TUPLE
+#ifdef BDN_CONFIG_CPP11_TUPLE
 #include <tuple>
 #endif
 
-#ifdef CATCH_CONFIG_CPP11_IS_ENUM
+#ifdef BDN_CONFIG_CPP11_IS_ENUM
 #include <type_traits>
 #endif
 
-namespace Catch {
+namespace bdn {
 
 // Why we're here.
 template<typename T>
@@ -1534,18 +1534,18 @@ std::string toString( char value );
 std::string toString( signed char value );
 std::string toString( unsigned char value );
 
-#ifdef CATCH_CONFIG_CPP11_LONG_LONG
+#ifdef BDN_CONFIG_CPP11_LONG_LONG
 std::string toString( long long value );
 std::string toString( unsigned long long value );
 #endif
 
-#ifdef CATCH_CONFIG_CPP11_NULLPTR
+#ifdef BDN_CONFIG_CPP11_NULLPTR
 std::string toString( std::nullptr_t );
 #endif
 
 #ifdef __OBJC__
     std::string toString( NSString const * const& nsstring );
-    std::string toString( NSString * CATCH_ARC_STRONG const& nsstring );
+    std::string toString( NSString * BDN_ARC_STRONG const& nsstring );
     std::string toString( NSObject* const& nsObject );
 #endif
 
@@ -1572,7 +1572,7 @@ namespace Detail {
         enum { value = sizeof( testStreamable(s << t) ) == sizeof( TrueType ) };
     };
 
-#if defined(CATCH_CONFIG_CPP11_IS_ENUM)
+#if defined(BDN_CONFIG_CPP11_IS_ENUM)
     template<typename T,
              bool IsEnum = std::is_enum<T>::value
              >
@@ -1586,7 +1586,7 @@ namespace Detail {
     {
         static std::string convert( T const& v )
         {
-            return ::Catch::toString(
+            return ::bdn::toString(
                 static_cast<typename std::underlying_type<T>::type>(v)
                 );
         }
@@ -1594,7 +1594,7 @@ namespace Detail {
 #endif
     template<bool C>
     struct StringMakerBase {
-#if defined(CATCH_CONFIG_CPP11_IS_ENUM)
+#if defined(BDN_CONFIG_CPP11_IS_ENUM)
         template<typename T>
         static std::string convert( T const& v )
         {
@@ -1667,7 +1667,7 @@ std::string toString( std::vector<T,Allocator> const& v ) {
     return Detail::rangeToString( v.begin(), v.end() );
 }
 
-#ifdef CATCH_CONFIG_CPP11_TUPLE
+#ifdef BDN_CONFIG_CPP11_TUPLE
 
 // toString for tuples
 namespace TupleDetail {
@@ -1680,7 +1680,7 @@ namespace TupleDetail {
       static void print( const Tuple& tuple, std::ostream& os )
       {
           os << ( N ? ", " : " " )
-             << Catch::toString(std::get<N>(tuple));
+             << bdn::toString(std::get<N>(tuple));
           ElementPrinter<Tuple,N+1>::print(tuple,os);
       }
   };
@@ -1707,7 +1707,7 @@ struct StringMaker<std::tuple<Types...>> {
         return os.str();
     }
 };
-#endif // CATCH_CONFIG_CPP11_TUPLE
+#endif // BDN_CONFIG_CPP11_TUPLE
 
 namespace Detail {
     template<typename T>
@@ -1734,31 +1734,31 @@ std::string toString( T const& value ) {
         std::ostringstream oss;
         oss << "{ ";
         if( first != last ) {
-            oss << Catch::toString( *first );
+            oss << bdn::toString( *first );
             for( ++first ; first != last ; ++first )
-                oss << ", " << Catch::toString( *first );
+                oss << ", " << bdn::toString( *first );
         }
         oss << " }";
         return oss.str();
     }
 }
 
-} // end namespace Catch
+} // end namespace bdn
 
-namespace Catch {
+namespace bdn {
 
 // Wraps the LHS of an expression and captures the operator and RHS (if any) -
 // wrapping them all in a ResultBuilder object
 template<typename T>
 class ExpressionLhs {
     ExpressionLhs& operator = ( ExpressionLhs const& );
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
     ExpressionLhs& operator = ( ExpressionLhs && ) = delete;
 #  endif
 
 public:
     ExpressionLhs( ResultBuilder& rb, T lhs ) : m_rb( rb ), m_lhs( lhs ) {}
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
     ExpressionLhs( ExpressionLhs const& ) = default;
     ExpressionLhs( ExpressionLhs && )     = default;
 #  endif
@@ -1804,7 +1804,7 @@ public:
     void endExpression() {
         bool value = m_lhs ? true : false;
         m_rb
-            .setLhs( Catch::toString( value ) )
+            .setLhs( bdn::toString( value ) )
             .setResultType( value )
             .endExpression();
     }
@@ -1823,8 +1823,8 @@ private:
     ResultBuilder& captureExpression( RhsT const& rhs ) {
         return m_rb
             .setResultType( Internal::compare<Op>( m_lhs, rhs ) )
-            .setLhs( Catch::toString( m_lhs ) )
-            .setRhs( Catch::toString( rhs ) )
+            .setLhs( bdn::toString( m_lhs ) )
+            .setRhs( bdn::toString( rhs ) )
             .setOp( Internal::OperatorTraits<Op>::getName() );
     }
 
@@ -1833,10 +1833,10 @@ private:
     T m_lhs;
 };
 
-} // end namespace Catch
+} // end namespace bdn
 
 
-namespace Catch {
+namespace bdn {
 
     template<typename T>
     inline ExpressionLhs<T const&> ResultBuilder::operator <= ( T const& operand ) {
@@ -1847,14 +1847,14 @@ namespace Catch {
         return ExpressionLhs<bool>( *this, value );
     }
 
-} // namespace Catch
+} // namespace bdn
 
 // #included from: catch_message.h
-#define TWOBLUECUBES_CATCH_MESSAGE_H_INCLUDED
+#define TWOBLUECUBES_BDN_MESSAGE_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     struct MessageInfo {
         MessageInfo(    std::string const& _macroName,
@@ -1903,14 +1903,14 @@ namespace Catch {
         MessageInfo m_info;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_interfaces_capture.h
-#define TWOBLUECUBES_CATCH_INTERFACES_CAPTURE_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_CAPTURE_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     class TestCase;
     class AssertionResult;
@@ -1943,58 +1943,58 @@ namespace Catch {
 }
 
 // #included from: catch_debugger.h
-#define TWOBLUECUBES_CATCH_DEBUGGER_H_INCLUDED
+#define TWOBLUECUBES_BDN_DEBUGGER_H_INCLUDED
 
 // #included from: catch_platform.h
-#define TWOBLUECUBES_CATCH_PLATFORM_H_INCLUDED
+#define TWOBLUECUBES_BDN_PLATFORM_H_INCLUDED
 
 #if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_MAC
+#define BDN_PLATFORM_MAC
 #elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_IPHONE
+#define BDN_PLATFORM_IPHONE
 #elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
-#define CATCH_PLATFORM_WINDOWS
+#define BDN_PLATFORM_WINDOWS
 #endif
 
 #include <string>
 
-namespace Catch{
+namespace bdn{
 
     bool isDebuggerActive();
     void writeToDebugConsole( std::string const& text );
 }
 
-#ifdef CATCH_PLATFORM_MAC
+#ifdef BDN_PLATFORM_MAC
 
     // The following code snippet based on:
     // http://cocoawithlove.com/2008/03/break-into-debugger.html
     #ifdef DEBUG
         #if defined(__ppc64__) || defined(__ppc__)
-            #define CATCH_BREAK_INTO_DEBUGGER() \
-                if( Catch::isDebuggerActive() ) { \
+            #define BDN_BREAK_INTO_DEBUGGER() \
+                if( bdn::isDebuggerActive() ) { \
                     __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
                     : : : "memory","r0","r3","r4" ); \
                 }
         #else
-            #define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) {__asm__("int $3\n" : : );}
+            #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) {__asm__("int $3\n" : : );}
         #endif
     #endif
 
 #elif defined(_MSC_VER)
-    #define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) { __debugbreak(); }
+    #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { __debugbreak(); }
 #elif defined(__MINGW32__)
     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
-    #define CATCH_BREAK_INTO_DEBUGGER() if( Catch::isDebuggerActive() ) { DebugBreak(); }
+    #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
 #endif
 
-#ifndef CATCH_BREAK_INTO_DEBUGGER
-#define CATCH_BREAK_INTO_DEBUGGER() Catch::alwaysTrue();
+#ifndef BDN_BREAK_INTO_DEBUGGER
+#define BDN_BREAK_INTO_DEBUGGER() bdn::alwaysTrue();
 #endif
 
 // #included from: catch_interfaces_runner.h
-#define TWOBLUECUBES_CATCH_INTERFACES_RUNNER_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_RUNNER_H_INCLUDED
 
-namespace Catch {
+namespace bdn {
     class TestCase;
 
     struct IRunner {
@@ -2007,138 +2007,138 @@ namespace Catch {
 // In the event of a failure works out if the debugger needs to be invoked
 // and/or an exception thrown and takes appropriate action.
 // This needs to be done as a macro so the debugger will stop in the user
-// source code rather than in Catch library code
-#define INTERNAL_CATCH_REACT( resultBuilder ) \
-    if( resultBuilder.shouldDebugBreak() ) CATCH_BREAK_INTO_DEBUGGER(); \
+// source code rather than in bdn library code
+#define INTERNAL_BDN_REACT( resultBuilder ) \
+    if( resultBuilder.shouldDebugBreak() ) BDN_BREAK_INTO_DEBUGGER(); \
     resultBuilder.react();
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ) \
+#define INTERNAL_BDN_TEST( expr, resultDisposition, macroName ) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition ); \
         try { \
             ( __catchResult <= expr ).endExpression(); \
         } \
         catch( ... ) { \
-            __catchResult.useActiveException( Catch::ResultDisposition::Normal ); \
+            __catchResult.useActiveException( bdn::ResultDisposition::Normal ); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::isTrue( false && (expr) ) ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::isTrue( false && (expr) ) ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_IF( expr, resultDisposition, macroName ) \
-    INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ); \
-    if( Catch::getResultCapture().getLastResult()->succeeded() )
+#define INTERNAL_BDN_IF( expr, resultDisposition, macroName ) \
+    INTERNAL_BDN_TEST( expr, resultDisposition, macroName ); \
+    if( bdn::getResultCapture().getLastResult()->succeeded() )
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_ELSE( expr, resultDisposition, macroName ) \
-    INTERNAL_CATCH_TEST( expr, resultDisposition, macroName ); \
-    if( !Catch::getResultCapture().getLastResult()->succeeded() )
+#define INTERNAL_BDN_ELSE( expr, resultDisposition, macroName ) \
+    INTERNAL_BDN_TEST( expr, resultDisposition, macroName ); \
+    if( !bdn::getResultCapture().getLastResult()->succeeded() )
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_NO_THROW( expr, resultDisposition, macroName ) \
+#define INTERNAL_BDN_NO_THROW( expr, resultDisposition, macroName ) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition ); \
         try { \
             expr; \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
+            __catchResult.captureResult( bdn::ResultWas::Ok ); \
         } \
         catch( ... ) { \
             __catchResult.useActiveException( resultDisposition ); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() )
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_THROWS( expr, resultDisposition, matcher, macroName ) \
+#define INTERNAL_BDN_THROWS( expr, resultDisposition, matcher, macroName ) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition, #matcher ); \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition, #matcher ); \
         if( __catchResult.allowThrows() ) \
             try { \
                 expr; \
-                __catchResult.captureResult( Catch::ResultWas::DidntThrowException ); \
+                __catchResult.captureResult( bdn::ResultWas::DidntThrowException ); \
             } \
             catch( ... ) { \
                 __catchResult.captureExpectedException( matcher ); \
             } \
         else \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+            __catchResult.captureResult( bdn::ResultWas::Ok ); \
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() )
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_THROWS_AS( expr, exceptionType, resultDisposition, macroName ) \
+#define INTERNAL_BDN_THROWS_AS( expr, exceptionType, resultDisposition, macroName ) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #expr, resultDisposition ); \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #expr, resultDisposition ); \
         if( __catchResult.allowThrows() ) \
             try { \
                 expr; \
-                __catchResult.captureResult( Catch::ResultWas::DidntThrowException ); \
+                __catchResult.captureResult( bdn::ResultWas::DidntThrowException ); \
             } \
             catch( exceptionType ) { \
-                __catchResult.captureResult( Catch::ResultWas::Ok ); \
+                __catchResult.captureResult( bdn::ResultWas::Ok ); \
             } \
             catch( ... ) { \
                 __catchResult.useActiveException( resultDisposition ); \
             } \
         else \
-            __catchResult.captureResult( Catch::ResultWas::Ok ); \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+            __catchResult.captureResult( bdn::ResultWas::Ok ); \
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() )
 
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
-    #define INTERNAL_CATCH_MSG( messageType, resultDisposition, macroName, ... ) \
+#ifdef BDN_CONFIG_VARIADIC_MACROS
+    #define INTERNAL_BDN_MSG( messageType, resultDisposition, macroName, ... ) \
         do { \
-            Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition ); \
-            __catchResult << __VA_ARGS__ + ::Catch::StreamEndStop(); \
+            bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition ); \
+            __catchResult << __VA_ARGS__ + ::bdn::StreamEndStop(); \
             __catchResult.captureResult( messageType ); \
-            INTERNAL_CATCH_REACT( __catchResult ) \
-        } while( Catch::alwaysFalse() )
+            INTERNAL_BDN_REACT( __catchResult ) \
+        } while( bdn::alwaysFalse() )
 #else
-    #define INTERNAL_CATCH_MSG( messageType, resultDisposition, macroName, log ) \
+    #define INTERNAL_BDN_MSG( messageType, resultDisposition, macroName, log ) \
         do { \
-            Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, "", resultDisposition ); \
-            __catchResult << log + ::Catch::StreamEndStop(); \
+            bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition ); \
+            __catchResult << log + ::bdn::StreamEndStop(); \
             __catchResult.captureResult( messageType ); \
-            INTERNAL_CATCH_REACT( __catchResult ) \
-        } while( Catch::alwaysFalse() )
+            INTERNAL_BDN_REACT( __catchResult ) \
+        } while( bdn::alwaysFalse() )
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_INFO( log, macroName ) \
-    Catch::ScopedMessage INTERNAL_CATCH_UNIQUE_NAME( scopedMessage ) = Catch::MessageBuilder( macroName, CATCH_INTERNAL_LINEINFO, Catch::ResultWas::Info ) << log;
+#define INTERNAL_BDN_INFO( log, macroName ) \
+    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME( scopedMessage ) = bdn::MessageBuilder( macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info ) << log;
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CHECK_THAT( arg, matcher, resultDisposition, macroName ) \
     do { \
-        Catch::ResultBuilder __catchResult( macroName, CATCH_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition ); \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition ); \
         try { \
             std::string matcherAsString = (matcher).toString(); \
             __catchResult \
-                .setLhs( Catch::toString( arg ) ) \
-                .setRhs( matcherAsString == Catch::Detail::unprintableString ? #matcher : matcherAsString ) \
+                .setLhs( bdn::toString( arg ) ) \
+                .setRhs( matcherAsString == bdn::Detail::unprintableString ? #matcher : matcherAsString ) \
                 .setOp( "matches" ) \
                 .setResultType( (matcher).match( arg ) ); \
             __catchResult.captureExpression(); \
         } catch( ... ) { \
-            __catchResult.useActiveException( resultDisposition | Catch::ResultDisposition::ContinueOnFailure ); \
+            __catchResult.useActiveException( resultDisposition | bdn::ResultDisposition::ContinueOnFailure ); \
         } \
-        INTERNAL_CATCH_REACT( __catchResult ) \
-    } while( Catch::alwaysFalse() )
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() )
 
 // #included from: internal/catch_section.h
-#define TWOBLUECUBES_CATCH_SECTION_H_INCLUDED
+#define TWOBLUECUBES_BDN_SECTION_H_INCLUDED
 
 // #included from: catch_section_info.h
-#define TWOBLUECUBES_CATCH_SECTION_INFO_H_INCLUDED
+#define TWOBLUECUBES_BDN_SECTION_INFO_H_INCLUDED
 
 // #included from: catch_totals.hpp
-#define TWOBLUECUBES_CATCH_TOTALS_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TOTALS_HPP_INCLUDED
 
 #include <cstddef>
 
-namespace Catch {
+namespace bdn {
 
     struct Counts {
         Counts() : passed( 0 ), failed( 0 ), failedButOk( 0 ) {}
@@ -2203,7 +2203,7 @@ namespace Catch {
     };
 }
 
-namespace Catch {
+namespace bdn {
 
     struct SectionInfo {
         SectionInfo
@@ -2226,18 +2226,18 @@ namespace Catch {
         double durationInSeconds;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_timer.h
-#define TWOBLUECUBES_CATCH_TIMER_H_INCLUDED
+#define TWOBLUECUBES_BDN_TIMER_H_INCLUDED
 
-#ifdef CATCH_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 typedef unsigned long long uint64_t;
 #else
 #include <stdint.h>
 #endif
 
-namespace Catch {
+namespace bdn {
 
     class Timer {
     public:
@@ -2251,11 +2251,11 @@ namespace Catch {
         uint64_t m_ticks;
     };
 
-} // namespace Catch
+} // namespace bdn
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     class Section : NonCopyable {
     public:
@@ -2274,25 +2274,25 @@ namespace Catch {
         Timer m_timer;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
-    #define INTERNAL_CATCH_SECTION( ... ) \
-        if( Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( catch_internal_Section ) = Catch::SectionInfo( CATCH_INTERNAL_LINEINFO, __VA_ARGS__ ) )
+#ifdef BDN_CONFIG_VARIADIC_MACROS
+    #define INTERNAL_BDN_SECTION( ... ) \
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, __VA_ARGS__ ) )
 #else
-    #define INTERNAL_CATCH_SECTION( name, desc ) \
-        if( Catch::Section const& INTERNAL_CATCH_UNIQUE_NAME( catch_internal_Section ) = Catch::SectionInfo( CATCH_INTERNAL_LINEINFO, name, desc ) )
+    #define INTERNAL_BDN_SECTION( name, desc ) \
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
 #endif
 
 // #included from: internal/catch_generators.hpp
-#define TWOBLUECUBES_CATCH_GENERATORS_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_GENERATORS_HPP_INCLUDED
 
 #include <iterator>
 #include <vector>
 #include <string>
 #include <stdlib.h>
 
-namespace Catch {
+namespace bdn {
 
 template<typename T>
 struct IGenerator {
@@ -2377,7 +2377,7 @@ public:
             }
             index += generator->size();
         }
-        CATCH_INTERNAL_ERROR( "Indexed past end of generated range" );
+        BDN_INTERNAL_ERROR( "Indexed past end of generated range" );
         return T(); // Suppress spurious "not all control paths return a value" warning in Visual Studio - if you know how to fix this please do so
     }
 
@@ -2457,25 +2457,25 @@ namespace Generators
 
 using namespace Generators;
 
-} // end namespace Catch
+} // end namespace bdn
 
-#define INTERNAL_CATCH_LINESTR2( line ) #line
-#define INTERNAL_CATCH_LINESTR( line ) INTERNAL_CATCH_LINESTR2( line )
+#define INTERNAL_BDN_LINESTR2( line ) #line
+#define INTERNAL_BDN_LINESTR( line ) INTERNAL_BDN_LINESTR2( line )
 
-#define INTERNAL_CATCH_GENERATE( expr ) expr.setFileInfo( __FILE__ "(" INTERNAL_CATCH_LINESTR( __LINE__ ) ")" )
+#define INTERNAL_BDN_GENERATE( expr ) expr.setFileInfo( __FILE__ "(" INTERNAL_BDN_LINESTR( __LINE__ ) ")" )
 
 // #included from: internal/catch_interfaces_exception.h
-#define TWOBLUECUBES_CATCH_INTERFACES_EXCEPTION_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_EXCEPTION_H_INCLUDED
 
 #include <string>
 #include <vector>
 
 // #included from: catch_interfaces_registry_hub.h
-#define TWOBLUECUBES_CATCH_INTERFACES_REGISTRY_HUB_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_REGISTRY_HUB_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     class TestCase;
     struct ITestCaseRegistry;
@@ -2507,7 +2507,7 @@ namespace Catch {
 
 }
 
-namespace Catch {
+namespace bdn {
 
     typedef std::string(*exceptionTranslateFunction)();
 
@@ -2534,7 +2534,7 @@ namespace Catch {
             : m_translateFunction( translateFunction )
             {}
 
-            virtual std::string translate( ExceptionTranslators::const_iterator it, ExceptionTranslators::const_iterator itEnd ) const CATCH_OVERRIDE {
+            virtual std::string translate( ExceptionTranslators::const_iterator it, ExceptionTranslators::const_iterator itEnd ) const BDN_OVERRIDE {
                 try {
                     if( it == itEnd )
                         throw;
@@ -2560,18 +2560,18 @@ namespace Catch {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TRANSLATE_EXCEPTION( signature ) \
-    static std::string INTERNAL_CATCH_UNIQUE_NAME( catch_internal_ExceptionTranslator )( signature ); \
-    namespace{ Catch::ExceptionTranslatorRegistrar INTERNAL_CATCH_UNIQUE_NAME( catch_internal_ExceptionRegistrar )( &INTERNAL_CATCH_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
-    static std::string INTERNAL_CATCH_UNIQUE_NAME(  catch_internal_ExceptionTranslator )( signature )
+#define INTERNAL_BDN_TRANSLATE_EXCEPTION( signature ) \
+    static std::string INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator )( signature ); \
+    namespace{ bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionRegistrar )( &INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
+    static std::string INTERNAL_BDN_UNIQUE_NAME(  catch_internal_ExceptionTranslator )( signature )
 
 // #included from: internal/catch_approx.hpp
-#define TWOBLUECUBES_CATCH_APPROX_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_APPROX_HPP_INCLUDED
 
 #include <cmath>
 #include <limits>
 
-namespace Catch {
+namespace bdn {
 namespace Detail {
 
     class Approx {
@@ -2628,7 +2628,7 @@ namespace Detail {
 
         std::string toString() const {
             std::ostringstream oss;
-            oss << "Approx( " << Catch::toString( m_value ) << " )";
+            oss << "Approx( " << bdn::toString( m_value ) << " )";
             return oss.str();
         }
 
@@ -2644,17 +2644,17 @@ inline std::string toString<Detail::Approx>( Detail::Approx const& value ) {
     return value.toString();
 }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: internal/catch_interfaces_tag_alias_registry.h
-#define TWOBLUECUBES_CATCH_INTERFACES_TAG_ALIAS_REGISTRY_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_TAG_ALIAS_REGISTRY_H_INCLUDED
 
 // #included from: catch_tag_alias.h
-#define TWOBLUECUBES_CATCH_TAG_ALIAS_H_INCLUDED
+#define TWOBLUECUBES_BDN_TAG_ALIAS_H_INCLUDED
 
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     struct TagAlias {
         TagAlias( std::string _tag, SourceLineInfo _lineInfo ) : tag( _tag ), lineInfo( _lineInfo ) {}
@@ -2667,24 +2667,24 @@ namespace Catch {
         RegistrarForTagAliases( char const* alias, char const* tag, SourceLineInfo const& lineInfo );
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
-#define CATCH_REGISTER_TAG_ALIAS( alias, spec ) namespace{ Catch::RegistrarForTagAliases INTERNAL_CATCH_UNIQUE_NAME( AutoRegisterTagAlias )( alias, spec, CATCH_INTERNAL_LINEINFO ); }
+#define BDN_REGISTER_TAG_ALIAS( alias, spec ) namespace{ bdn::RegistrarForTagAliases INTERNAL_BDN_UNIQUE_NAME( AutoRegisterTagAlias )( alias, spec, BDN_INTERNAL_LINEINFO ); }
 // #included from: catch_option.hpp
-#define TWOBLUECUBES_CATCH_OPTION_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_OPTION_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     // An optional type
     template<typename T>
     class Option {
     public:
-        Option() : nullableValue( CATCH_NULL ) {}
+        Option() : nullableValue( BDN_NULL ) {}
         Option( T const& _value )
         : nullableValue( new( storage ) T( _value ) )
         {}
         Option( Option const& _other )
-        : nullableValue( _other ? new( storage ) T( *_other ) : CATCH_NULL )
+        : nullableValue( _other ? new( storage ) T( *_other ) : BDN_NULL )
         {}
 
         ~Option() {
@@ -2708,7 +2708,7 @@ namespace Catch {
         void reset() {
             if( nullableValue )
                 nullableValue->~T();
-            nullableValue = CATCH_NULL;
+            nullableValue = BDN_NULL;
         }
 
         T& operator*() { return *nullableValue; }
@@ -2720,10 +2720,10 @@ namespace Catch {
             return nullableValue ? *nullableValue : defaultValue;
         }
 
-        bool some() const { return nullableValue != CATCH_NULL; }
-        bool none() const { return nullableValue == CATCH_NULL; }
+        bool some() const { return nullableValue != BDN_NULL; }
+        bool none() const { return nullableValue == BDN_NULL; }
 
-        bool operator !() const { return nullableValue == CATCH_NULL; }
+        bool operator !() const { return nullableValue == BDN_NULL; }
         operator SafeBool::type() const {
             return SafeBool::makeSafe( some() );
         }
@@ -2733,9 +2733,9 @@ namespace Catch {
         char storage[sizeof(T)];
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
-namespace Catch {
+namespace bdn {
 
     struct ITagAliasRegistry {
         virtual ~ITagAliasRegistry();
@@ -2745,12 +2745,12 @@ namespace Catch {
         static ITagAliasRegistry const& get();
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // These files are included here so the single_include script doesn't put them
 // in the conditionally compiled sections
 // #included from: internal/catch_test_case_info.h
-#define TWOBLUECUBES_CATCH_TEST_CASE_INFO_H_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_CASE_INFO_H_INCLUDED
 
 #include <string>
 #include <set>
@@ -2760,7 +2760,7 @@ namespace Catch {
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
-namespace Catch {
+namespace bdn {
 
     struct ITestCase;
 
@@ -2833,7 +2833,7 @@ namespace Catch {
 
 #ifdef __OBJC__
 // #included from: internal/catch_objc.hpp
-#define TWOBLUECUBES_CATCH_OBJC_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_OBJC_HPP_INCLUDED
 
 #import <objc/runtime.h>
 
@@ -2855,7 +2855,7 @@ namespace Catch {
 
 @end
 
-namespace Catch {
+namespace bdn {
 
     class OcMethod : public SharedImpl<ITestCase> {
 
@@ -2895,9 +2895,9 @@ namespace Catch {
 
     inline size_t registerTestMethods() {
         size_t noTestMethods = 0;
-        int noClasses = objc_getClassList( CATCH_NULL, 0 );
+        int noClasses = objc_getClassList( BDN_NULL, 0 );
 
-        Class* classes = (CATCH_UNSAFE_UNRETAINED Class *)malloc( sizeof(Class) * noClasses);
+        Class* classes = (BDN_UNSAFE_UNRETAINED Class *)malloc( sizeof(Class) * noClasses);
         objc_getClassList( classes, noClasses );
 
         for( int c = 0; c < noClasses; c++ ) {
@@ -2948,7 +2948,7 @@ namespace Catch {
                 }
 
                 virtual std::string toString() const {
-                    return "equals string: " + Catch::toString( m_substr );
+                    return "equals string: " + bdn::toString( m_substr );
                 }
             };
 
@@ -2961,7 +2961,7 @@ namespace Catch {
                 }
 
                 virtual std::string toString() const {
-                    return "contains string: " + Catch::toString( m_substr );
+                    return "contains string: " + bdn::toString( m_substr );
                 }
             };
 
@@ -2974,7 +2974,7 @@ namespace Catch {
                 }
 
                 virtual std::string toString() const {
-                    return "starts with: " + Catch::toString( m_substr );
+                    return "starts with: " + bdn::toString( m_substr );
                 }
             };
             struct EndsWith : StringHolder<EndsWith> {
@@ -2986,7 +2986,7 @@ namespace Catch {
                 }
 
                 virtual std::string toString() const {
-                    return "ends with: " + Catch::toString( m_substr );
+                    return "ends with: " + bdn::toString( m_substr );
                 }
             };
 
@@ -3009,25 +3009,25 @@ namespace Catch {
 
     using namespace Matchers;
 
-} // namespace Catch
+} // namespace bdn
 
 ///////////////////////////////////////////////////////////////////////////////
 #define OC_TEST_CASE( name, desc )\
-+(NSString*) INTERNAL_CATCH_UNIQUE_NAME( Catch_Name_test ) \
++(NSString*) INTERNAL_BDN_UNIQUE_NAME( Catch_Name_test ) \
 {\
 return @ name; \
 }\
-+(NSString*) INTERNAL_CATCH_UNIQUE_NAME( Catch_Description_test ) \
++(NSString*) INTERNAL_BDN_UNIQUE_NAME( Catch_Description_test ) \
 { \
 return @ desc; \
 } \
--(void) INTERNAL_CATCH_UNIQUE_NAME( Catch_TestCase_test )
+-(void) INTERNAL_BDN_UNIQUE_NAME( Catch_TestCase_test )
 
 #endif
 
-#ifdef CATCH_IMPL
+#ifdef BDN_IMPL
 // #included from: internal/catch_impl.hpp
-#define TWOBLUECUBES_CATCH_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_IMPL_HPP_INCLUDED
 
 // Collect all the implementation files together here
 // These are the equivalent of what would usually be cpp files
@@ -3038,16 +3038,16 @@ return @ desc; \
 #endif
 
 // #included from: ../catch_session.hpp
-#define TWOBLUECUBES_CATCH_RUNNER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_RUNNER_HPP_INCLUDED
 
 // #included from: internal/catch_commandline.hpp
-#define TWOBLUECUBES_CATCH_COMMANDLINE_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_COMMANDLINE_HPP_INCLUDED
 
 // #included from: catch_config.hpp
-#define TWOBLUECUBES_CATCH_CONFIG_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_CONFIG_HPP_INCLUDED
 
 // #included from: catch_test_spec_parser.hpp
-#define TWOBLUECUBES_CATCH_TEST_SPEC_PARSER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_SPEC_PARSER_HPP_INCLUDED
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -3055,7 +3055,7 @@ return @ desc; \
 #endif
 
 // #included from: catch_test_spec.hpp
-#define TWOBLUECUBES_CATCH_TEST_SPEC_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_SPEC_HPP_INCLUDED
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -3063,9 +3063,9 @@ return @ desc; \
 #endif
 
 // #included from: catch_wildcard_pattern.hpp
-#define TWOBLUECUBES_CATCH_WILDCARD_PATTERN_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_WILDCARD_PATTERN_HPP_INCLUDED
 
-namespace Catch
+namespace bdn
 {
     class WildcardPattern {
         enum WildcardPosition {
@@ -3126,7 +3126,7 @@ namespace Catch
 #include <string>
 #include <vector>
 
-namespace Catch {
+namespace bdn {
 
     class TestSpec {
         struct Pattern : SharedImpl<> {
@@ -3201,7 +3201,7 @@ namespace Catch {
 #pragma clang diagnostic pop
 #endif
 
-namespace Catch {
+namespace bdn {
 
     class TestSpecParser {
         enum Mode{ None, Name, QuotedName, Tag };
@@ -3292,20 +3292,20 @@ namespace Catch {
         return TestSpecParser( ITagAliasRegistry::get() ).parse( arg ).testSpec();
     }
 
-} // namespace Catch
+} // namespace bdn
 
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 
 // #included from: catch_interfaces_config.h
-#define TWOBLUECUBES_CATCH_INTERFACES_CONFIG_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_CONFIG_H_INCLUDED
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-namespace Catch {
+namespace bdn {
 
     struct Verbosity { enum Level {
         NoOutput = 0,
@@ -3352,18 +3352,18 @@ namespace Catch {
 }
 
 // #included from: catch_stream.h
-#define TWOBLUECUBES_CATCH_STREAM_H_INCLUDED
+#define TWOBLUECUBES_BDN_STREAM_H_INCLUDED
 
 // #included from: catch_streambuf.h
-#define TWOBLUECUBES_CATCH_STREAMBUF_H_INCLUDED
+#define TWOBLUECUBES_BDN_STREAMBUF_H_INCLUDED
 
 #include <streambuf>
 
-namespace Catch {
+namespace bdn {
 
     class StreamBufBase : public std::streambuf {
     public:
-        virtual ~StreamBufBase() CATCH_NOEXCEPT;
+        virtual ~StreamBufBase() BDN_NOEXCEPT;
     };
 }
 
@@ -3371,13 +3371,13 @@ namespace Catch {
 #include <ostream>
 #include <fstream>
 
-namespace Catch {
+namespace bdn {
 
     std::ostream& cout();
     std::ostream& cerr();
 
     struct IStream {
-        virtual ~IStream() CATCH_NOEXCEPT;
+        virtual ~IStream() BDN_NOEXCEPT;
         virtual std::ostream& stream() const = 0;
     };
 
@@ -3385,19 +3385,19 @@ namespace Catch {
         mutable std::ofstream m_ofs;
     public:
         FileStream( std::string const& filename );
-        virtual ~FileStream() CATCH_NOEXCEPT;
+        virtual ~FileStream() BDN_NOEXCEPT;
     public: // IStream
-        virtual std::ostream& stream() const CATCH_OVERRIDE;
+        virtual std::ostream& stream() const BDN_OVERRIDE;
     };
 
     class CoutStream : public IStream {
         mutable std::ostream m_os;
     public:
         CoutStream();
-        virtual ~CoutStream() CATCH_NOEXCEPT;
+        virtual ~CoutStream() BDN_NOEXCEPT;
 
     public: // IStream
-        virtual std::ostream& stream() const CATCH_OVERRIDE;
+        virtual std::ostream& stream() const BDN_OVERRIDE;
     };
 
     class DebugOutStream : public IStream {
@@ -3405,10 +3405,10 @@ namespace Catch {
         mutable std::ostream m_os;
     public:
         DebugOutStream();
-        virtual ~DebugOutStream() CATCH_NOEXCEPT;
+        virtual ~DebugOutStream() BDN_NOEXCEPT;
 
     public: // IStream
-        virtual std::ostream& stream() const CATCH_OVERRIDE;
+        virtual std::ostream& stream() const BDN_OVERRIDE;
     };
 }
 
@@ -3418,11 +3418,11 @@ namespace Catch {
 #include <iostream>
 #include <ctime>
 
-#ifndef CATCH_CONFIG_CONSOLE_WIDTH
-#define CATCH_CONFIG_CONSOLE_WIDTH 80
+#ifndef BDN_CONFIG_CONSOLE_WIDTH
+#define BDN_CONFIG_CONSOLE_WIDTH 80
 #endif
 
-namespace Catch {
+namespace bdn {
 
     struct ConfigData {
 
@@ -3553,20 +3553,20 @@ namespace Catch {
         TestSpec m_testSpec;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_clara.h
-#define TWOBLUECUBES_CATCH_CLARA_H_INCLUDED
+#define TWOBLUECUBES_BDN_CLARA_H_INCLUDED
 
 // Use Catch's value for console width (store Clara's off to the side, if present)
 #ifdef CLARA_CONFIG_CONSOLE_WIDTH
-#define CATCH_TEMP_CLARA_CONFIG_CONSOLE_WIDTH CLARA_CONFIG_CONSOLE_WIDTH
+#define BDN_TEMP_CLARA_CONFIG_CONSOLE_WIDTH CLARA_CONFIG_CONSOLE_WIDTH
 #undef CLARA_CONFIG_CONSOLE_WIDTH
 #endif
-#define CLARA_CONFIG_CONSOLE_WIDTH CATCH_CONFIG_CONSOLE_WIDTH
+#define CLARA_CONFIG_CONSOLE_WIDTH BDN_CONFIG_CONSOLE_WIDTH
 
 // Declare Clara inside the Catch namespace
-#define STITCH_CLARA_OPEN_NAMESPACE namespace Catch {
+#define STITCH_CLARA_OPEN_NAMESPACE namespace bdn {
 // #included from: ../external/clara.h
 
 // Only use header guard if we are not using an outer namespace
@@ -3805,7 +3805,7 @@ namespace Clara {
         template<typename ConfigT>
         struct IArgFunction {
             virtual ~IArgFunction() {}
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
             IArgFunction()                      = default;
             IArgFunction( IArgFunction const& ) = default;
 #  endif
@@ -3818,11 +3818,11 @@ namespace Clara {
         template<typename ConfigT>
         class BoundArgFunction {
         public:
-            BoundArgFunction() : functionObj( CATCH_NULL ) {}
+            BoundArgFunction() : functionObj( BDN_NULL ) {}
             BoundArgFunction( IArgFunction<ConfigT>* _functionObj ) : functionObj( _functionObj ) {}
-            BoundArgFunction( BoundArgFunction const& other ) : functionObj( other.functionObj ? other.functionObj->clone() : CATCH_NULL ) {}
+            BoundArgFunction( BoundArgFunction const& other ) : functionObj( other.functionObj ? other.functionObj->clone() : BDN_NULL ) {}
             BoundArgFunction& operator = ( BoundArgFunction const& other ) {
-                IArgFunction<ConfigT>* newFunctionObj = other.functionObj ? other.functionObj->clone() : CATCH_NULL;
+                IArgFunction<ConfigT>* newFunctionObj = other.functionObj ? other.functionObj->clone() : BDN_NULL;
                 delete functionObj;
                 functionObj = newFunctionObj;
                 return *this;
@@ -3838,7 +3838,7 @@ namespace Clara {
             bool takesArg() const { return functionObj->takesArg(); }
 
             bool isSet() const {
-                return functionObj != CATCH_NULL;
+                return functionObj != BDN_NULL;
             }
         private:
             IArgFunction<ConfigT>* functionObj;
@@ -4056,7 +4056,7 @@ namespace Clara {
             }
         };
 
-        typedef CATCH_AUTO_PTR( Arg ) ArgAutoPtr;
+        typedef BDN_AUTO_PTR( Arg ) ArgAutoPtr;
 
         friend void addOptName( Arg& arg, std::string const& optName )
         {
@@ -4413,14 +4413,14 @@ STITCH_CLARA_CLOSE_NAMESPACE
 #undef STITCH_CLARA_OPEN_NAMESPACE
 
 // Restore Clara's value for console width, if present
-#ifdef CATCH_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
-#define CLARA_CONFIG_CONSOLE_WIDTH CATCH_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
-#undef CATCH_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
+#ifdef BDN_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
+#define CLARA_CONFIG_CONSOLE_WIDTH BDN_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
+#undef BDN_TEMP_CLARA_CONFIG_CONSOLE_WIDTH
 #endif
 
 #include <fstream>
 
-namespace Catch {
+namespace bdn {
 
     inline void abortAfterFirst( ConfigData& config ) { config.abortAfter = 1; }
     inline void abortAfterX( ConfigData& config, int x ) {
@@ -4588,15 +4588,15 @@ namespace Catch {
         return cli;
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: internal/catch_list.hpp
-#define TWOBLUECUBES_CATCH_LIST_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_LIST_HPP_INCLUDED
 
 // #included from: catch_text.h
-#define TWOBLUECUBES_CATCH_TEXT_H_INCLUDED
+#define TWOBLUECUBES_BDN_TEXT_H_INCLUDED
 
-#define TBC_TEXT_FORMAT_CONSOLE_WIDTH CATCH_CONFIG_CONSOLE_WIDTH
+#define TBC_TEXT_FORMAT_CONSOLE_WIDTH BDN_CONFIG_CONSOLE_WIDTH
 
 #define CLICHE_TBC_TEXT_FORMAT_OUTER_NAMESPACE Catch
 // #included from: ../external/tbc_text_format.h
@@ -4748,15 +4748,15 @@ namespace Tbc {
 #endif // TWOBLUECUBES_TEXT_FORMAT_H_ALREADY_INCLUDED
 #undef CLICHE_TBC_TEXT_FORMAT_OUTER_NAMESPACE
 
-namespace Catch {
+namespace bdn {
     using Tbc::Text;
     using Tbc::TextAttributes;
 }
 
 // #included from: catch_console_colour.hpp
-#define TWOBLUECUBES_CATCH_CONSOLE_COLOUR_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_CONSOLE_COLOUR_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     struct Colour {
         enum Code {
@@ -4808,17 +4808,17 @@ namespace Catch {
 
     inline std::ostream& operator << ( std::ostream& os, Colour const& ) { return os; }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_interfaces_reporter.h
-#define TWOBLUECUBES_CATCH_INTERFACES_REPORTER_H_INCLUDED
+#define TWOBLUECUBES_BDN_INTERFACES_REPORTER_H_INCLUDED
 
 #include <string>
 #include <ostream>
 #include <map>
 #include <assert.h>
 
-namespace Catch
+namespace bdn
 {
     struct ReporterConfig {
         explicit ReporterConfig( Ptr<IConfig const> const& _fullConfig )
@@ -4896,7 +4896,7 @@ namespace Catch
         }
         virtual ~AssertionStats();
 
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         AssertionStats( AssertionStats const& )              = default;
         AssertionStats( AssertionStats && )                  = default;
         AssertionStats& operator = ( AssertionStats const& ) = default;
@@ -4919,7 +4919,7 @@ namespace Catch
             missingAssertions( _missingAssertions )
         {}
         virtual ~SectionStats();
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         SectionStats( SectionStats const& )              = default;
         SectionStats( SectionStats && )                  = default;
         SectionStats& operator = ( SectionStats const& ) = default;
@@ -4946,7 +4946,7 @@ namespace Catch
         {}
         virtual ~TestCaseStats();
 
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         TestCaseStats( TestCaseStats const& )              = default;
         TestCaseStats( TestCaseStats && )                  = default;
         TestCaseStats& operator = ( TestCaseStats const& ) = default;
@@ -4974,7 +4974,7 @@ namespace Catch
         {}
         virtual ~TestGroupStats();
 
-#  ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifdef BDN_CONFIG_CPP11_GENERATED_METHODS
         TestGroupStats( TestGroupStats const& )              = default;
         TestGroupStats( TestGroupStats && )                  = default;
         TestGroupStats& operator = ( TestGroupStats const& ) = default;
@@ -4996,7 +4996,7 @@ namespace Catch
         {}
         virtual ~TestRunStats();
 
-#  ifndef CATCH_CONFIG_CPP11_GENERATED_METHODS
+#  ifndef BDN_CONFIG_CPP11_GENERATED_METHODS
         TestRunStats( TestRunStats const& _other )
         :   runInfo( _other.runInfo ),
             totals( _other.totals ),
@@ -5066,15 +5066,15 @@ namespace Catch
 #include <limits>
 #include <algorithm>
 
-namespace Catch {
+namespace bdn {
 
     inline std::size_t listTests( Config const& config ) {
 
         TestSpec testSpec = config.testSpec();
         if( config.testSpec().hasFilters() )
-            Catch::cout() << "Matching test cases:\n";
+            bdn::cout() << "Matching test cases:\n";
         else {
-            Catch::cout() << "All available test cases:\n";
+            bdn::cout() << "All available test cases:\n";
             testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "*" ).testSpec();
         }
 
@@ -5094,15 +5094,15 @@ namespace Catch {
                 : Colour::None;
             Colour colourGuard( colour );
 
-            Catch::cout() << Text( testCaseInfo.name, nameAttr ) << std::endl;
+            bdn::cout() << Text( testCaseInfo.name, nameAttr ) << std::endl;
             if( !testCaseInfo.tags.empty() )
-                Catch::cout() << Text( testCaseInfo.tagsAsString, tagsAttr ) << std::endl;
+                bdn::cout() << Text( testCaseInfo.tagsAsString, tagsAttr ) << std::endl;
         }
 
         if( !config.testSpec().hasFilters() )
-            Catch::cout() << pluralise( matchedTests, "test case" ) << "\n" << std::endl;
+            bdn::cout() << pluralise( matchedTests, "test case" ) << "\n" << std::endl;
         else
-            Catch::cout() << pluralise( matchedTests, "matching test case" ) << "\n" << std::endl;
+            bdn::cout() << pluralise( matchedTests, "matching test case" ) << "\n" << std::endl;
         return matchedTests;
     }
 
@@ -5117,7 +5117,7 @@ namespace Catch {
                 ++it ) {
             matchedTests++;
             TestCaseInfo const& testCaseInfo = it->getTestCaseInfo();
-            Catch::cout() << testCaseInfo.name << std::endl;
+            bdn::cout() << testCaseInfo.name << std::endl;
         }
         return matchedTests;
     }
@@ -5143,9 +5143,9 @@ namespace Catch {
     inline std::size_t listTags( Config const& config ) {
         TestSpec testSpec = config.testSpec();
         if( config.testSpec().hasFilters() )
-            Catch::cout() << "Tags for matching test cases:\n";
+            bdn::cout() << "Tags for matching test cases:\n";
         else {
-            Catch::cout() << "All available tags:\n";
+            bdn::cout() << "All available tags:\n";
             testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "*" ).testSpec();
         }
 
@@ -5177,15 +5177,15 @@ namespace Catch {
             Text wrapper( countIt->second.all(), TextAttributes()
                                                     .setInitialIndent( 0 )
                                                     .setIndent( oss.str().size() )
-                                                    .setWidth( CATCH_CONFIG_CONSOLE_WIDTH-10 ) );
-            Catch::cout() << oss.str() << wrapper << "\n";
+                                                    .setWidth( BDN_CONFIG_CONSOLE_WIDTH-10 ) );
+            bdn::cout() << oss.str() << wrapper << "\n";
         }
-        Catch::cout() << pluralise( tagCounts.size(), "tag" ) << "\n" << std::endl;
+        bdn::cout() << pluralise( tagCounts.size(), "tag" ) << "\n" << std::endl;
         return tagCounts.size();
     }
 
     inline std::size_t listReporters( Config const& /*config*/ ) {
-        Catch::cout() << "Available reporters:\n";
+        bdn::cout() << "Available reporters:\n";
         IReporterRegistry::FactoryMap const& factories = getRegistryHub().getReporterRegistry().getFactories();
         IReporterRegistry::FactoryMap::const_iterator itBegin = factories.begin(), itEnd = factories.end(), it;
         std::size_t maxNameLen = 0;
@@ -5196,14 +5196,14 @@ namespace Catch {
             Text wrapper( it->second->getDescription(), TextAttributes()
                                                         .setInitialIndent( 0 )
                                                         .setIndent( 7+maxNameLen )
-                                                        .setWidth( CATCH_CONFIG_CONSOLE_WIDTH - maxNameLen-8 ) );
-            Catch::cout() << "  "
+                                                        .setWidth( BDN_CONFIG_CONSOLE_WIDTH - maxNameLen-8 ) );
+            bdn::cout() << "  "
                     << it->first
                     << ":"
                     << std::string( maxNameLen - it->first.size() + 2, ' ' )
                     << wrapper << "\n";
         }
-        Catch::cout() << std::endl;
+        bdn::cout() << std::endl;
         return factories.size();
     }
 
@@ -5220,20 +5220,20 @@ namespace Catch {
         return listedCount;
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: internal/catch_run_context.hpp
-#define TWOBLUECUBES_CATCH_RUNNER_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_RUNNER_IMPL_HPP_INCLUDED
 
 // #included from: catch_test_case_tracker.hpp
-#define TWOBLUECUBES_CATCH_TEST_CASE_TRACKER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_CASE_TRACKER_HPP_INCLUDED
 
 #include <map>
 #include <string>
 #include <assert.h>
 #include <vector>
 
-namespace Catch {
+namespace bdn {
 namespace TestCaseTracking {
 
     struct ITracker : SharedImpl<> {
@@ -5280,7 +5280,7 @@ namespace TestCaseTracking {
         }
 
         TrackerContext()
-        :   m_currentTracker( CATCH_NULL ),
+        :   m_currentTracker( BDN_NULL ),
             m_runState( NotStarted )
         {}
 
@@ -5288,7 +5288,7 @@ namespace TestCaseTracking {
 
         void endRun() {
             m_rootTracker.reset();
-            m_currentTracker = CATCH_NULL;
+            m_currentTracker = BDN_NULL;
             m_runState = NotStarted;
         }
 
@@ -5344,38 +5344,38 @@ namespace TestCaseTracking {
         {}
         virtual ~TrackerBase();
 
-        virtual std::string name() const CATCH_OVERRIDE {
+        virtual std::string name() const BDN_OVERRIDE {
             return m_name;
         }
-        virtual bool isComplete() const CATCH_OVERRIDE {
+        virtual bool isComplete() const BDN_OVERRIDE {
             return m_runState == CompletedSuccessfully || m_runState == Failed;
         }
-        virtual bool isSuccessfullyCompleted() const CATCH_OVERRIDE {
+        virtual bool isSuccessfullyCompleted() const BDN_OVERRIDE {
             return m_runState == CompletedSuccessfully;
         }
-        virtual bool isOpen() const CATCH_OVERRIDE {
+        virtual bool isOpen() const BDN_OVERRIDE {
             return m_runState != NotStarted && !isComplete();
         }
-        virtual bool hasChildren() const CATCH_OVERRIDE {
+        virtual bool hasChildren() const BDN_OVERRIDE {
             return !m_children.empty();
         }
 
-        virtual void addChild( Ptr<ITracker> const& child ) CATCH_OVERRIDE {
+        virtual void addChild( Ptr<ITracker> const& child ) BDN_OVERRIDE {
             m_children.push_back( child );
         }
 
-        virtual ITracker* findChild( std::string const& name ) CATCH_OVERRIDE {
+        virtual ITracker* findChild( std::string const& name ) BDN_OVERRIDE {
             Children::const_iterator it = std::find_if( m_children.begin(), m_children.end(), TrackerHasName( name ) );
             return( it != m_children.end() )
                 ? it->get()
-                : CATCH_NULL;
+                : BDN_NULL;
         }
-        virtual ITracker& parent() CATCH_OVERRIDE {
+        virtual ITracker& parent() BDN_OVERRIDE {
             assert( m_parent ); // Should always be non-null except for root
             return *m_parent;
         }
 
-        virtual void openChild() CATCH_OVERRIDE {
+        virtual void openChild() BDN_OVERRIDE {
             if( m_runState != ExecutingChildren ) {
                 m_runState = ExecutingChildren;
                 if( m_parent )
@@ -5389,7 +5389,7 @@ namespace TestCaseTracking {
                 m_parent->openChild();
         }
 
-        virtual void close() CATCH_OVERRIDE {
+        virtual void close() BDN_OVERRIDE {
 
             // Close any still open children (e.g. generators)
             while( &m_ctx.currentTracker() != this )
@@ -5418,14 +5418,14 @@ namespace TestCaseTracking {
             moveToParent();
             m_ctx.completeCycle();
         }
-        virtual void fail() CATCH_OVERRIDE {
+        virtual void fail() BDN_OVERRIDE {
             m_runState = Failed;
             if( m_parent )
                 m_parent->markAsNeedingAnotherRun();
             moveToParent();
             m_ctx.completeCycle();
         }
-        virtual void markAsNeedingAnotherRun() CATCH_OVERRIDE {
+        virtual void markAsNeedingAnotherRun() BDN_OVERRIDE {
             m_runState = NeedsAnotherRun;
         }
     private:
@@ -5446,7 +5446,7 @@ namespace TestCaseTracking {
         virtual ~SectionTracker();
 
         static SectionTracker& acquire( TrackerContext& ctx, std::string const& name ) {
-            SectionTracker* section = CATCH_NULL;
+            SectionTracker* section = BDN_NULL;
 
             ITracker& currentTracker = ctx.currentTracker();
             if( ITracker* childTracker = currentTracker.findChild( name ) ) {
@@ -5477,7 +5477,7 @@ namespace TestCaseTracking {
         virtual ~IndexTracker();
 
         static IndexTracker& acquire( TrackerContext& ctx, std::string const& name, int size ) {
-            IndexTracker* tracker = CATCH_NULL;
+            IndexTracker* tracker = BDN_NULL;
 
             ITracker& currentTracker = ctx.currentTracker();
             if( ITracker* childTracker = currentTracker.findChild( name ) ) {
@@ -5505,7 +5505,7 @@ namespace TestCaseTracking {
             m_children.clear();
         }
 
-        virtual void close() CATCH_OVERRIDE {
+        virtual void close() BDN_OVERRIDE {
             TrackerBase::close();
             if( m_runState == CompletedSuccessfully && m_index < m_size-1 )
                 m_runState = Executing;
@@ -5513,8 +5513,8 @@ namespace TestCaseTracking {
     };
 
     inline ITracker& TrackerContext::startRun() {
-        m_rootTracker = new SectionTracker( "{root}", *this, CATCH_NULL );
-        m_currentTracker = CATCH_NULL;
+        m_rootTracker = new SectionTracker( "{root}", *this, BDN_NULL );
+        m_currentTracker = BDN_NULL;
         m_runState = Executing;
         return *m_rootTracker;
     }
@@ -5526,40 +5526,40 @@ using TestCaseTracking::TrackerContext;
 using TestCaseTracking::SectionTracker;
 using TestCaseTracking::IndexTracker;
 
-} // namespace Catch
+} // namespace bdn
 
 // #included from: catch_fatal_condition.hpp
-#define TWOBLUECUBES_CATCH_FATAL_CONDITION_H_INCLUDED
+#define TWOBLUECUBES_BDN_FATAL_CONDITION_H_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     // Report the error condition then exit the process
     inline void fatal( std::string const& message, int exitCode ) {
-        IContext& context = Catch::getCurrentContext();
+        IContext& context = bdn::getCurrentContext();
         IResultCapture* resultCapture = context.getResultCapture();
         resultCapture->handleFatalErrorCondition( message );
 
-		if( Catch::alwaysTrue() ) // avoids "no return" warnings
+		if( bdn::alwaysTrue() ) // avoids "no return" warnings
             exit( exitCode );
     }
 
-} // namespace Catch
+} // namespace bdn
 
-#if defined ( CATCH_PLATFORM_WINDOWS ) /////////////////////////////////////////
+#if defined ( BDN_PLATFORM_WINDOWS ) /////////////////////////////////////////
 
-namespace Catch {
+namespace bdn {
 
     struct FatalConditionHandler {
 		void reset() {}
 	};
 
-} // namespace Catch
+} // namespace bdn
 
 #else // Not Windows - assumed to be POSIX compatible //////////////////////////
 
 #include <signal.h>
 
-namespace Catch {
+namespace bdn {
 
     struct SignalDefs { int id; const char* name; };
     extern SignalDefs signalDefs[];
@@ -5599,14 +5599,14 @@ namespace Catch {
         bool m_isSet;
     };
 
-} // namespace Catch
+} // namespace bdn
 
 #endif // not Windows
 
 #include <set>
 #include <string>
 
-namespace Catch {
+namespace bdn {
 
     class StreamRedirect {
 
@@ -5643,7 +5643,7 @@ namespace Catch {
         explicit RunContext( Ptr<IConfig const> const& _config, Ptr<IStreamingReporter> const& reporter )
         :   m_runInfo( _config->name() ),
             m_context( getCurrentMutableContext() ),
-            m_activeTestCase( CATCH_NULL ),
+            m_activeTestCase( BDN_NULL ),
             m_config( _config ),
             m_reporter( reporter )
         {
@@ -5696,8 +5696,8 @@ namespace Catch {
                                                         redirectedCerr,
                                                         aborting() ) );
 
-            m_activeTestCase = CATCH_NULL;
-            m_testCaseTracker = CATCH_NULL;
+            m_activeTestCase = BDN_NULL;
+            m_testCaseTracker = BDN_NULL;
 
             return deltaTotals;
         }
@@ -5851,8 +5851,8 @@ namespace Catch {
                 Timer timer;
                 timer.start();
                 if( m_reporter->getPreferences().shouldRedirectStdOut ) {
-                    StreamRedirect coutRedir( Catch::cout(), redirectedCout );
-                    StreamRedirect cerrRedir( Catch::cerr(), redirectedCerr );
+                    StreamRedirect coutRedir( bdn::cout(), redirectedCout );
+                    StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
                     invokeActiveTestCase();
                 }
                 else {
@@ -5933,12 +5933,12 @@ namespace Catch {
             throw std::logic_error( "No result capture instance" );
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: internal/catch_version.h
-#define TWOBLUECUBES_CATCH_VERSION_H_INCLUDED
+#define TWOBLUECUBES_BDN_VERSION_H_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     // Versioning information
     struct Version {
@@ -5969,7 +5969,7 @@ namespace Catch {
 #include <stdlib.h>
 #include <limits>
 
-namespace Catch {
+namespace bdn {
 
     Ptr<IStreamingReporter> createReporter( std::string const& reporterName, Ptr<Config> const& config ) {
         Ptr<IStreamingReporter> reporter = getRegistryHub().getReporterRegistry().create( reporterName, config.get() );
@@ -6063,21 +6063,21 @@ namespace Catch {
         Session()
         : m_cli( makeCommandLineParser() ) {
             if( alreadyInstantiated ) {
-                std::string msg = "Only one instance of Catch::Session can ever be used";
-                Catch::cerr() << msg << std::endl;
+                std::string msg = "Only one instance of bdn::Session can ever be used";
+                bdn::cerr() << msg << std::endl;
                 throw std::logic_error( msg );
             }
             alreadyInstantiated = true;
         }
         ~Session() {
-            Catch::cleanUp();
+            bdn::cleanUp();
         }
 
         void showHelp( std::string const& processName ) {
-            Catch::cout() << "\nCatch v" << libraryVersion << "\n";
+            bdn::cout() << "\nCatch v" << libraryVersion << "\n";
 
-            m_cli.usage( Catch::cout(), processName );
-            Catch::cout() << "For more detail usage please see the project docs\n" << std::endl;
+            m_cli.usage( bdn::cout(), processName );
+            bdn::cout() << "For more detail usage please see the project docs\n" << std::endl;
         }
 
         int applyCommandLine( int argc, char const* const argv[], OnUnusedOptions::DoWhat unusedOptionBehaviour = OnUnusedOptions::Fail ) {
@@ -6091,12 +6091,12 @@ namespace Catch {
             catch( std::exception& ex ) {
                 {
                     Colour colourGuard( Colour::Red );
-                    Catch::cerr()
+                    bdn::cerr()
                         << "\nError(s) in input:\n"
                         << Text( ex.what(), TextAttributes().setIndent(2) )
                         << "\n\n";
                 }
-                m_cli.usage( Catch::cout(), m_configData.processName );
+                m_cli.usage( bdn::cout(), m_configData.processName );
                 return (std::numeric_limits<int>::max)();
             }
             return 0;
@@ -6135,7 +6135,7 @@ namespace Catch {
                 return static_cast<int>( runTests( m_config ).assertions.failed );
             }
             catch( std::exception& ex ) {
-                Catch::cerr() << ex.what() << std::endl;
+                bdn::cerr() << ex.what() << std::endl;
                 return (std::numeric_limits<int>::max)();
             }
         }
@@ -6163,13 +6163,13 @@ namespace Catch {
 
     bool Session::alreadyInstantiated = false;
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_registry_hub.hpp
-#define TWOBLUECUBES_CATCH_REGISTRY_HUB_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REGISTRY_HUB_HPP_INCLUDED
 
 // #included from: catch_test_case_registry_impl.hpp
-#define TWOBLUECUBES_CATCH_TEST_CASE_REGISTRY_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_CASE_REGISTRY_IMPL_HPP_INCLUDED
 
 #include <vector>
 #include <set>
@@ -6177,7 +6177,7 @@ namespace Catch {
 #include <iostream>
 #include <algorithm>
 
-namespace Catch {
+namespace bdn {
 
     struct LexSort {
         bool operator() (TestCase i,TestCase j) const { return (i<j);}
@@ -6219,7 +6219,7 @@ namespace Catch {
             ++it ) {
             std::pair<std::set<TestCase>::const_iterator, bool> prev = seenFunctions.insert( *it );
             if( !prev.second ){
-                Catch::cerr()
+                bdn::cerr()
                 << Colour( Colour::Red )
                 << "error: TEST_CASE( \"" << it->name << "\" ) already defined.\n"
                 << "\tFirst seen at " << prev.first->getTestCaseInfo().lineInfo << "\n"
@@ -6345,25 +6345,25 @@ namespace Catch {
 
     AutoReg::~AutoReg() {}
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_reporter_registry.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_REGISTRY_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_REGISTRY_HPP_INCLUDED
 
 #include <map>
 
-namespace Catch {
+namespace bdn {
 
     class ReporterRegistry : public IReporterRegistry {
 
     public:
 
-        virtual ~ReporterRegistry() CATCH_OVERRIDE {}
+        virtual ~ReporterRegistry() BDN_OVERRIDE {}
 
-        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& config ) const CATCH_OVERRIDE {
+        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& config ) const BDN_OVERRIDE {
             FactoryMap::const_iterator it =  m_factories.find( name );
             if( it == m_factories.end() )
-                return CATCH_NULL;
+                return BDN_NULL;
             return it->second->create( ReporterConfig( config ) );
         }
 
@@ -6374,10 +6374,10 @@ namespace Catch {
             m_listeners.push_back( factory );
         }
 
-        virtual FactoryMap const& getFactories() const CATCH_OVERRIDE {
+        virtual FactoryMap const& getFactories() const BDN_OVERRIDE {
             return m_factories;
         }
-        virtual Listeners const& getListeners() const CATCH_OVERRIDE {
+        virtual Listeners const& getListeners() const BDN_OVERRIDE {
             return m_listeners;
         }
 
@@ -6388,13 +6388,13 @@ namespace Catch {
 }
 
 // #included from: catch_exception_translator_registry.hpp
-#define TWOBLUECUBES_CATCH_EXCEPTION_TRANSLATOR_REGISTRY_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_EXCEPTION_TRANSLATOR_REGISTRY_HPP_INCLUDED
 
 #ifdef __OBJC__
 #import "Foundation/Foundation.h"
 #endif
 
-namespace Catch {
+namespace bdn {
 
     class ExceptionTranslatorRegistry : public IExceptionTranslatorRegistry {
     public:
@@ -6414,7 +6414,7 @@ namespace Catch {
                     return tryTranslators();
                 }
                 @catch (NSException *exception) {
-                    return Catch::toString( [exception description] );
+                    return bdn::toString( [exception description] );
                 }
 #else
                 return tryTranslators();
@@ -6449,7 +6449,7 @@ namespace Catch {
     };
 }
 
-namespace Catch {
+namespace bdn {
 
     namespace {
 
@@ -6461,27 +6461,27 @@ namespace Catch {
         public: // IRegistryHub
             RegistryHub() {
             }
-            virtual IReporterRegistry const& getReporterRegistry() const CATCH_OVERRIDE {
+            virtual IReporterRegistry const& getReporterRegistry() const BDN_OVERRIDE {
                 return m_reporterRegistry;
             }
-            virtual ITestCaseRegistry const& getTestCaseRegistry() const CATCH_OVERRIDE {
+            virtual ITestCaseRegistry const& getTestCaseRegistry() const BDN_OVERRIDE {
                 return m_testCaseRegistry;
             }
-            virtual IExceptionTranslatorRegistry& getExceptionTranslatorRegistry() CATCH_OVERRIDE {
+            virtual IExceptionTranslatorRegistry& getExceptionTranslatorRegistry() BDN_OVERRIDE {
                 return m_exceptionTranslatorRegistry;
             }
 
         public: // IMutableRegistryHub
-            virtual void registerReporter( std::string const& name, Ptr<IReporterFactory> const& factory ) CATCH_OVERRIDE {
+            virtual void registerReporter( std::string const& name, Ptr<IReporterFactory> const& factory ) BDN_OVERRIDE {
                 m_reporterRegistry.registerReporter( name, factory );
             }
-            virtual void registerListener( Ptr<IReporterFactory> const& factory ) CATCH_OVERRIDE {
+            virtual void registerListener( Ptr<IReporterFactory> const& factory ) BDN_OVERRIDE {
                 m_reporterRegistry.registerListener( factory );
             }
-            virtual void registerTest( TestCase const& testInfo ) CATCH_OVERRIDE {
+            virtual void registerTest( TestCase const& testInfo ) BDN_OVERRIDE {
                 m_testCaseRegistry.registerTest( testInfo );
             }
-            virtual void registerTranslator( const IExceptionTranslator* translator ) CATCH_OVERRIDE {
+            virtual void registerTranslator( const IExceptionTranslator* translator ) BDN_OVERRIDE {
                 m_exceptionTranslatorRegistry.registerTranslator( translator );
             }
 
@@ -6493,7 +6493,7 @@ namespace Catch {
 
         // Single, global, instance
         inline RegistryHub*& getTheRegistryHub() {
-            static RegistryHub* theRegistryHub = CATCH_NULL;
+            static RegistryHub* theRegistryHub = BDN_NULL;
             if( !theRegistryHub )
                 theRegistryHub = new RegistryHub();
             return theRegistryHub;
@@ -6508,21 +6508,21 @@ namespace Catch {
     }
     void cleanUp() {
         delete getTheRegistryHub();
-        getTheRegistryHub() = CATCH_NULL;
+        getTheRegistryHub() = BDN_NULL;
         cleanUpContext();
     }
     std::string translateActiveException() {
         return getRegistryHub().getExceptionTranslatorRegistry().translateActiveException();
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_notimplemented_exception.hpp
-#define TWOBLUECUBES_CATCH_NOTIMPLEMENTED_EXCEPTION_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_NOTIMPLEMENTED_EXCEPTION_HPP_INCLUDED
 
 #include <ostream>
 
-namespace Catch {
+namespace bdn {
 
     NotImplementedException::NotImplementedException( SourceLineInfo const& lineInfo )
     :   m_lineInfo( lineInfo ) {
@@ -6532,23 +6532,23 @@ namespace Catch {
         m_what = oss.str();
     }
 
-    const char* NotImplementedException::what() const CATCH_NOEXCEPT {
+    const char* NotImplementedException::what() const BDN_NOEXCEPT {
         return m_what.c_str();
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_context_impl.hpp
-#define TWOBLUECUBES_CATCH_CONTEXT_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_CONTEXT_IMPL_HPP_INCLUDED
 
 // #included from: catch_stream.hpp
-#define TWOBLUECUBES_CATCH_STREAM_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_STREAM_HPP_INCLUDED
 
 #include <stdexcept>
 #include <cstdio>
 #include <iostream>
 
-namespace Catch {
+namespace bdn {
 
     template<typename WriterF, size_t bufferSize=256>
     class StreamBufImpl : public StreamBufBase {
@@ -6560,7 +6560,7 @@ namespace Catch {
             setp( data, data + sizeof(data) );
         }
 
-        ~StreamBufImpl() CATCH_NOEXCEPT {
+        ~StreamBufImpl() BDN_NOEXCEPT {
             sync();
         }
 
@@ -6620,14 +6620,14 @@ namespace Catch {
     // Store the streambuf from cout up-front because
     // cout may get redirected when running tests
     CoutStream::CoutStream()
-    :   m_os( Catch::cout().rdbuf() )
+    :   m_os( bdn::cout().rdbuf() )
     {}
 
     std::ostream& CoutStream::stream() const {
         return m_os;
     }
 
-#ifndef CATCH_CONFIG_NOSTDOUT // If you #define this you must implement these functions
+#ifndef BDN_CONFIG_NOSTDOUT // If you #define this you must implement these functions
     std::ostream& cout() {
         return std::cout;
     }
@@ -6637,11 +6637,11 @@ namespace Catch {
 #endif
 }
 
-namespace Catch {
+namespace bdn {
 
     class Context : public IMutableContext {
 
-        Context() : m_config( CATCH_NULL ), m_runner( CATCH_NULL ), m_resultCapture( CATCH_NULL ) {}
+        Context() : m_config( BDN_NULL ), m_runner( BDN_NULL ), m_resultCapture( BDN_NULL ) {}
         Context( Context const& );
         void operator=( Context const& );
 
@@ -6687,7 +6687,7 @@ namespace Catch {
                 m_generatorsByTestName.find( testName );
             return it != m_generatorsByTestName.end()
                 ? it->second
-                : CATCH_NULL;
+                : BDN_NULL;
         }
 
         IGeneratorsForTest& getGeneratorsForCurrentTest() {
@@ -6708,7 +6708,7 @@ namespace Catch {
     };
 
     namespace {
-        Context* currentContext = CATCH_NULL;
+        Context* currentContext = BDN_NULL;
     }
     IMutableContext& getCurrentMutableContext() {
         if( !currentContext )
@@ -6721,14 +6721,14 @@ namespace Catch {
 
     void cleanUpContext() {
         delete currentContext;
-        currentContext = CATCH_NULL;
+        currentContext = BDN_NULL;
     }
 }
 
 // #included from: catch_console_colour_impl.hpp
-#define TWOBLUECUBES_CATCH_CONSOLE_COLOUR_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_CONSOLE_COLOUR_IMPL_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
     namespace {
 
         struct IColourImpl {
@@ -6746,17 +6746,17 @@ namespace Catch {
         };
 
     } // anon namespace
-} // namespace Catch
+} // namespace bdn
 
-#if !defined( CATCH_CONFIG_COLOUR_NONE ) && !defined( CATCH_CONFIG_COLOUR_WINDOWS ) && !defined( CATCH_CONFIG_COLOUR_ANSI )
-#   ifdef CATCH_PLATFORM_WINDOWS
-#       define CATCH_CONFIG_COLOUR_WINDOWS
+#if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
+#   ifdef BDN_PLATFORM_WINDOWS
+#       define BDN_CONFIG_COLOUR_WINDOWS
 #   else
-#       define CATCH_CONFIG_COLOUR_ANSI
+#       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
 
-#if defined ( CATCH_CONFIG_COLOUR_WINDOWS ) /////////////////////////////////////////
+#if defined ( BDN_CONFIG_COLOUR_WINDOWS ) /////////////////////////////////////////
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -6768,7 +6768,7 @@ namespace Catch {
 #include <windows.h>
 #endif
 
-namespace Catch {
+namespace bdn {
 namespace {
 
     class Win32ColourImpl : public IColourImpl {
@@ -6816,13 +6816,13 @@ namespace {
     }
 
 } // end anon namespace
-} // end namespace Catch
+} // end namespace bdn
 
-#elif defined( CATCH_CONFIG_COLOUR_ANSI ) //////////////////////////////////////
+#elif defined( BDN_CONFIG_COLOUR_ANSI ) //////////////////////////////////////
 
 #include <unistd.h>
 
-namespace Catch {
+namespace bdn {
 namespace {
 
     // use POSIX/ ANSI console terminal codes
@@ -6857,7 +6857,7 @@ namespace {
 
     private:
         void setColour( const char* _escapeCode ) {
-            Catch::cout() << '\033' << _escapeCode;
+            bdn::cout() << '\033' << _escapeCode;
         }
     };
 
@@ -6869,19 +6869,19 @@ namespace {
     }
 
 } // end anon namespace
-} // end namespace Catch
+} // end namespace bdn
 
 #else  // not Windows or ANSI ///////////////////////////////////////////////
 
-namespace Catch {
+namespace bdn {
 
     static IColourImpl* platformColourInstance() { return NoColourImpl::instance(); }
 
-} // end namespace Catch
+} // end namespace bdn
 
 #endif // Windows/ ANSI/ None
 
-namespace Catch {
+namespace bdn {
 
     Colour::Colour( Code _colourCode ) : m_moved( false ) { use( _colourCode ); }
     Colour::Colour( Colour const& _other ) : m_moved( false ) { const_cast<Colour&>( _other ).m_moved = true; }
@@ -6894,16 +6894,16 @@ namespace Catch {
         impl->use( _colourCode );
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_generators_impl.hpp
-#define TWOBLUECUBES_CATCH_GENERATORS_IMPL_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_GENERATORS_IMPL_HPP_INCLUDED
 
 #include <vector>
 #include <string>
 #include <map>
 
-namespace Catch {
+namespace bdn {
 
     struct GeneratorInfo : IGeneratorInfo {
 
@@ -6968,12 +6968,12 @@ namespace Catch {
         return new GeneratorsForTest();
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_assertionresult.hpp
-#define TWOBLUECUBES_CATCH_ASSERTIONRESULT_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_ASSERTIONRESULT_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     AssertionInfo::AssertionInfo(   std::string const& _macroName,
                                     SourceLineInfo const& _lineInfo,
@@ -6996,12 +6996,12 @@ namespace Catch {
 
     // Result was a success
     bool AssertionResult::succeeded() const {
-        return Catch::isOk( m_resultData.resultType );
+        return bdn::isOk( m_resultData.resultType );
     }
 
     // Result was a success, or failure is suppressed
     bool AssertionResult::isOk() const {
-        return Catch::isOk( m_resultData.resultType ) || shouldSuppressFailure( m_info.resultDisposition );
+        return bdn::isOk( m_resultData.resultType ) || shouldSuppressFailure( m_info.resultDisposition );
     }
 
     ResultWas::OfType AssertionResult::getResultType() const {
@@ -7048,12 +7048,12 @@ namespace Catch {
         return m_info.macroName;
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_test_case_info.hpp
-#define TWOBLUECUBES_CATCH_TEST_CASE_INFO_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TEST_CASE_INFO_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     inline TestCaseInfo::SpecialProperties parseSpecialTag( std::string const& tag ) {
         if( startsWith( tag, "." ) ||
@@ -7076,13 +7076,13 @@ namespace Catch {
         if( isReservedTag( tag ) ) {
             {
                 Colour colourGuard( Colour::Red );
-                Catch::cerr()
+                bdn::cerr()
                     << "Tag name [" << tag << "] not allowed.\n"
                     << "Tag names starting with non alpha-numeric characters are reserved\n";
             }
             {
                 Colour colourGuard( Colour::FileName );
-                Catch::cerr() << _lineInfo << std::endl;
+                bdn::cerr() << _lineInfo << std::endl;
             }
             exit(1);
         }
@@ -7235,12 +7235,12 @@ namespace Catch {
         return *this;
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_version.hpp
-#define TWOBLUECUBES_CATCH_VERSION_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_VERSION_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     Version::Version
         (   unsigned int _majorVersion,
@@ -7272,9 +7272,9 @@ namespace Catch {
 }
 
 // #included from: catch_message.hpp
-#define TWOBLUECUBES_CATCH_MESSAGE_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_MESSAGE_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     MessageInfo::MessageInfo(   std::string const& _macroName,
                                 SourceLineInfo const& _lineInfo,
@@ -7304,15 +7304,15 @@ namespace Catch {
         getResultCapture().popScopedMessage( m_info );
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_legacy_reporter_adapter.hpp
-#define TWOBLUECUBES_CATCH_LEGACY_REPORTER_ADAPTER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_LEGACY_REPORTER_ADAPTER_HPP_INCLUDED
 
 // #included from: catch_legacy_reporter_adapter.h
-#define TWOBLUECUBES_CATCH_LEGACY_REPORTER_ADAPTER_H_INCLUDED
+#define TWOBLUECUBES_BDN_LEGACY_REPORTER_ADAPTER_H_INCLUDED
 
-namespace Catch
+namespace bdn
 {
     // Deprecated
     struct IReporter : IShared {
@@ -7359,7 +7359,7 @@ namespace Catch
     };
 }
 
-namespace Catch
+namespace bdn
 {
     LegacyReporterAdapter::LegacyReporterAdapter( Ptr<IReporter> const& legacyReporter )
     :   m_legacyReporter( legacyReporter )
@@ -7437,16 +7437,16 @@ namespace Catch
 #pragma clang diagnostic ignored "-Wc++11-long-long"
 #endif
 
-#ifdef CATCH_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 #include <windows.h>
 #else
 #include <sys/time.h>
 #endif
 
-namespace Catch {
+namespace bdn {
 
     namespace {
-#ifdef CATCH_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
         uint64_t getCurrentTicks() {
             static uint64_t hz=0, hzo=0;
             if (!hz) {
@@ -7460,7 +7460,7 @@ namespace Catch {
 #else
         uint64_t getCurrentTicks() {
             timeval t;
-            gettimeofday(&t,CATCH_NULL);
+            gettimeofday(&t,BDN_NULL);
             return static_cast<uint64_t>( t.tv_sec ) * 1000000ull + static_cast<uint64_t>( t.tv_usec );
         }
 #endif
@@ -7479,15 +7479,15 @@ namespace Catch {
         return getElapsedMicroseconds()/1000000.0;
     }
 
-} // namespace Catch
+} // namespace bdn
 
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 // #included from: catch_common.hpp
-#define TWOBLUECUBES_CATCH_COMMON_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_COMMON_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     bool startsWith( std::string const& s, std::string const& prefix ) {
         return s.size() >= prefix.size() && s.substr( 0, prefix.size() ) == prefix;
@@ -7585,9 +7585,9 @@ namespace Catch {
 }
 
 // #included from: catch_section.hpp
-#define TWOBLUECUBES_CATCH_SECTION_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_SECTION_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     SectionInfo::SectionInfo
         (   SourceLineInfo const& _lineInfo,
@@ -7620,14 +7620,14 @@ namespace Catch {
         return m_sectionIncluded;
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_debugger.hpp
-#define TWOBLUECUBES_CATCH_DEBUGGER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_DEBUGGER_HPP_INCLUDED
 
 #include <iostream>
 
-#ifdef CATCH_PLATFORM_MAC
+#ifdef BDN_PLATFORM_MAC
 
     #include <assert.h>
     #include <stdbool.h>
@@ -7635,7 +7635,7 @@ namespace Catch {
     #include <unistd.h>
     #include <sys/sysctl.h>
 
-    namespace Catch{
+    namespace bdn{
 
         // The following function is taken directly from the following technical note:
         // http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
@@ -7664,8 +7664,8 @@ namespace Catch {
             // Call sysctl.
 
             size = sizeof(info);
-            if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, CATCH_NULL, 0) != 0 ) {
-                Catch::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
+            if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, BDN_NULL, 0) != 0 ) {
+                bdn::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
                 return false;
             }
 
@@ -7673,48 +7673,48 @@ namespace Catch {
 
             return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
         }
-    } // namespace Catch
+    } // namespace bdn
 
 #elif defined(_MSC_VER)
     extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
+    namespace bdn {
         bool isDebuggerActive() {
             return IsDebuggerPresent() != 0;
         }
     }
 #elif defined(__MINGW32__)
     extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
+    namespace bdn {
         bool isDebuggerActive() {
             return IsDebuggerPresent() != 0;
         }
     }
 #else
-    namespace Catch {
+    namespace bdn {
        inline bool isDebuggerActive() { return false; }
     }
 #endif // Platform
 
-#ifdef CATCH_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
     extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
-    namespace Catch {
+    namespace bdn {
         void writeToDebugConsole( std::string const& text ) {
             ::OutputDebugStringA( text.c_str() );
         }
     }
 #else
-    namespace Catch {
+    namespace bdn {
         void writeToDebugConsole( std::string const& text ) {
             // !TBD: Need a version for Mac/ XCode and other IDEs
-            Catch::cout() << text;
+            bdn::cout() << text;
         }
     }
 #endif // Platform
 
 // #included from: catch_tostring.hpp
-#define TWOBLUECUBES_CATCH_TOSTRING_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TOSTRING_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
 namespace Detail {
 
@@ -7780,25 +7780,25 @@ std::string toString( std::wstring const& value ) {
     s.reserve( value.size() );
     for(size_t i = 0; i < value.size(); ++i )
         s += value[i] <= 0xff ? static_cast<char>( value[i] ) : '?';
-    return Catch::toString( s );
+    return bdn::toString( s );
 }
 
 std::string toString( const char* const value ) {
-    return value ? Catch::toString( std::string( value ) ) : std::string( "{null string}" );
+    return value ? bdn::toString( std::string( value ) ) : std::string( "{null string}" );
 }
 
 std::string toString( char* const value ) {
-    return Catch::toString( static_cast<const char*>( value ) );
+    return bdn::toString( static_cast<const char*>( value ) );
 }
 
 std::string toString( const wchar_t* const value )
 {
-	return value ? Catch::toString( std::wstring(value) ) : std::string( "{null string}" );
+	return value ? bdn::toString( std::wstring(value) ) : std::string( "{null string}" );
 }
 
 std::string toString( wchar_t* const value )
 {
-	return Catch::toString( static_cast<const wchar_t*>( value ) );
+	return bdn::toString( static_cast<const wchar_t*>( value ) );
 }
 
 std::string toString( int value ) {
@@ -7818,7 +7818,7 @@ std::string toString( unsigned long value ) {
 }
 
 std::string toString( unsigned int value ) {
-    return Catch::toString( static_cast<unsigned long>( value ) );
+    return bdn::toString( static_cast<unsigned long>( value ) );
 }
 
 template<typename T>
@@ -7862,7 +7862,7 @@ std::string toString( unsigned char value ) {
     return toString( static_cast<char>( value ) );
 }
 
-#ifdef CATCH_CONFIG_CPP11_LONG_LONG
+#ifdef BDN_CONFIG_CPP11_LONG_LONG
 std::string toString( long long value ) {
     std::ostringstream oss;
     oss << value;
@@ -7879,7 +7879,7 @@ std::string toString( unsigned long long value ) {
 }
 #endif
 
-#ifdef CATCH_CONFIG_CPP11_NULLPTR
+#ifdef BDN_CONFIG_CPP11_NULLPTR
 std::string toString( std::nullptr_t ) {
     return "nullptr";
 }
@@ -7891,7 +7891,7 @@ std::string toString( std::nullptr_t ) {
             return "nil";
         return "@" + toString([nsstring UTF8String]);
     }
-    std::string toString( NSString * CATCH_ARC_STRONG const& nsstring ) {
+    std::string toString( NSString * BDN_ARC_STRONG const& nsstring ) {
         if( !nsstring )
             return "nil";
         return "@" + toString([nsstring UTF8String]);
@@ -7901,12 +7901,12 @@ std::string toString( std::nullptr_t ) {
     }
 #endif
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_result_builder.hpp
-#define TWOBLUECUBES_CATCH_RESULT_BUILDER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_RESULT_BUILDER_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     std::string capturedExpressionWithSecondArgument( std::string const& capturedExpression, std::string const& secondArg ) {
         return secondArg.empty() || secondArg == "\"\""
@@ -7951,7 +7951,7 @@ namespace Catch {
 
     void ResultBuilder::useActiveException( ResultDisposition::Flags resultDisposition ) {
         m_assertionInfo.resultDisposition = resultDisposition;
-        m_stream.oss << Catch::translateActiveException();
+        m_stream.oss << bdn::translateActiveException();
         captureResult( ResultWas::ThrewException );
     }
 
@@ -7973,7 +7973,7 @@ namespace Catch {
         data.resultType = ResultWas::Ok;
         data.reconstructedExpression = m_assertionInfo.capturedExpression;
 
-        std::string actualMessage = Catch::translateActiveException();
+        std::string actualMessage = bdn::translateActiveException();
         if( !matcher.match( actualMessage ) ) {
             data.resultType = ResultWas::ExpressionFailed;
             data.reconstructedExpression = actualMessage;
@@ -7999,7 +7999,7 @@ namespace Catch {
     }
     void ResultBuilder::react() {
         if( m_shouldThrow )
-            throw Catch::TestFailureException();
+            throw bdn::TestFailureException();
     }
 
     bool ResultBuilder::shouldDebugBreak() const { return m_shouldDebugBreak; }
@@ -8046,17 +8046,17 @@ namespace Catch {
             return "{can't expand - use " + m_assertionInfo.macroName + "_FALSE( " + m_assertionInfo.capturedExpression.substr(1) + " ) instead of " + m_assertionInfo.macroName + "( " + m_assertionInfo.capturedExpression + " ) for better diagnostics}";
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: catch_tag_alias_registry.hpp
-#define TWOBLUECUBES_CATCH_TAG_ALIAS_REGISTRY_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_TAG_ALIAS_REGISTRY_HPP_INCLUDED
 
 // #included from: catch_tag_alias_registry.h
-#define TWOBLUECUBES_CATCH_TAG_ALIAS_REGISTRY_H_INCLUDED
+#define TWOBLUECUBES_BDN_TAG_ALIAS_REGISTRY_H_INCLUDED
 
 #include <map>
 
-namespace Catch {
+namespace bdn {
 
     class TagAliasRegistry : public ITagAliasRegistry {
     public:
@@ -8070,12 +8070,12 @@ namespace Catch {
         std::map<std::string, TagAlias> m_registry;
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 #include <map>
 #include <iostream>
 
-namespace Catch {
+namespace bdn {
 
     TagAliasRegistry::~TagAliasRegistry() {}
 
@@ -8133,17 +8133,17 @@ namespace Catch {
         }
         catch( std::exception& ex ) {
             Colour colourGuard( Colour::Red );
-            Catch::cerr() << ex.what() << std::endl;
+            bdn::cerr() << ex.what() << std::endl;
             exit(1);
         }
     }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../reporters/catch_reporter_multi.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_MULTI_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_MULTI_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
 class MultipleReporters : public SharedImpl<IStreamingReporter> {
     typedef std::vector<Ptr<IStreamingReporter> > Reporters;
@@ -8156,46 +8156,46 @@ public:
 
 public: // IStreamingReporter
 
-    virtual ReporterPreferences getPreferences() const CATCH_OVERRIDE {
+    virtual ReporterPreferences getPreferences() const BDN_OVERRIDE {
         return m_reporters[0]->getPreferences();
     }
 
-    virtual void noMatchingTestCases( std::string const& spec ) CATCH_OVERRIDE {
+    virtual void noMatchingTestCases( std::string const& spec ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->noMatchingTestCases( spec );
     }
 
-    virtual void testRunStarting( TestRunInfo const& testRunInfo ) CATCH_OVERRIDE {
+    virtual void testRunStarting( TestRunInfo const& testRunInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testRunStarting( testRunInfo );
     }
 
-    virtual void testGroupStarting( GroupInfo const& groupInfo ) CATCH_OVERRIDE {
+    virtual void testGroupStarting( GroupInfo const& groupInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testGroupStarting( groupInfo );
     }
 
-    virtual void testCaseStarting( TestCaseInfo const& testInfo ) CATCH_OVERRIDE {
+    virtual void testCaseStarting( TestCaseInfo const& testInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testCaseStarting( testInfo );
     }
 
-    virtual void sectionStarting( SectionInfo const& sectionInfo ) CATCH_OVERRIDE {
+    virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->sectionStarting( sectionInfo );
     }
 
-    virtual void assertionStarting( AssertionInfo const& assertionInfo ) CATCH_OVERRIDE {
+    virtual void assertionStarting( AssertionInfo const& assertionInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
@@ -8203,7 +8203,7 @@ public: // IStreamingReporter
     }
 
     // The return value indicates if the messages buffer should be cleared:
-    virtual bool assertionEnded( AssertionStats const& assertionStats ) CATCH_OVERRIDE {
+    virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
         bool clearBuffer = false;
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
@@ -8212,35 +8212,35 @@ public: // IStreamingReporter
         return clearBuffer;
     }
 
-    virtual void sectionEnded( SectionStats const& sectionStats ) CATCH_OVERRIDE {
+    virtual void sectionEnded( SectionStats const& sectionStats ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->sectionEnded( sectionStats );
     }
 
-    virtual void testCaseEnded( TestCaseStats const& testCaseStats ) CATCH_OVERRIDE {
+    virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testCaseEnded( testCaseStats );
     }
 
-    virtual void testGroupEnded( TestGroupStats const& testGroupStats ) CATCH_OVERRIDE {
+    virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testGroupEnded( testGroupStats );
     }
 
-    virtual void testRunEnded( TestRunStats const& testRunStats ) CATCH_OVERRIDE {
+    virtual void testRunEnded( TestRunStats const& testRunStats ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
             (*it)->testRunEnded( testRunStats );
     }
 
-    virtual void skipTest( TestCaseInfo const& testInfo ) CATCH_OVERRIDE {
+    virtual void skipTest( TestCaseInfo const& testInfo ) BDN_OVERRIDE {
         for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
                 it != itEnd;
                 ++it )
@@ -8269,17 +8269,17 @@ Ptr<IStreamingReporter> addReporter( Ptr<IStreamingReporter> const& existingRepo
     return resultingReporter;
 }
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../reporters/catch_reporter_xml.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_XML_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_XML_HPP_INCLUDED
 
 // #included from: catch_reporter_bases.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_BASES_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_BASES_HPP_INCLUDED
 
 #include <cstring>
 
-namespace Catch {
+namespace bdn {
 
     struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 
@@ -8290,44 +8290,44 @@ namespace Catch {
             m_reporterPrefs.shouldRedirectStdOut = false;
         }
 
-        virtual ReporterPreferences getPreferences() const CATCH_OVERRIDE {
+        virtual ReporterPreferences getPreferences() const BDN_OVERRIDE {
             return m_reporterPrefs;
         }
 
-        virtual ~StreamingReporterBase() CATCH_OVERRIDE;
+        virtual ~StreamingReporterBase() BDN_OVERRIDE;
 
-        virtual void noMatchingTestCases( std::string const& ) CATCH_OVERRIDE {}
+        virtual void noMatchingTestCases( std::string const& ) BDN_OVERRIDE {}
 
-        virtual void testRunStarting( TestRunInfo const& _testRunInfo ) CATCH_OVERRIDE {
+        virtual void testRunStarting( TestRunInfo const& _testRunInfo ) BDN_OVERRIDE {
             currentTestRunInfo = _testRunInfo;
         }
-        virtual void testGroupStarting( GroupInfo const& _groupInfo ) CATCH_OVERRIDE {
+        virtual void testGroupStarting( GroupInfo const& _groupInfo ) BDN_OVERRIDE {
             currentGroupInfo = _groupInfo;
         }
 
-        virtual void testCaseStarting( TestCaseInfo const& _testInfo ) CATCH_OVERRIDE {
+        virtual void testCaseStarting( TestCaseInfo const& _testInfo ) BDN_OVERRIDE {
             currentTestCaseInfo = _testInfo;
         }
-        virtual void sectionStarting( SectionInfo const& _sectionInfo ) CATCH_OVERRIDE {
+        virtual void sectionStarting( SectionInfo const& _sectionInfo ) BDN_OVERRIDE {
             m_sectionStack.push_back( _sectionInfo );
         }
 
-        virtual void sectionEnded( SectionStats const& /* _sectionStats */ ) CATCH_OVERRIDE {
+        virtual void sectionEnded( SectionStats const& /* _sectionStats */ ) BDN_OVERRIDE {
             m_sectionStack.pop_back();
         }
-        virtual void testCaseEnded( TestCaseStats const& /* _testCaseStats */ ) CATCH_OVERRIDE {
+        virtual void testCaseEnded( TestCaseStats const& /* _testCaseStats */ ) BDN_OVERRIDE {
             currentTestCaseInfo.reset();
         }
-        virtual void testGroupEnded( TestGroupStats const& /* _testGroupStats */ ) CATCH_OVERRIDE {
+        virtual void testGroupEnded( TestGroupStats const& /* _testGroupStats */ ) BDN_OVERRIDE {
             currentGroupInfo.reset();
         }
-        virtual void testRunEnded( TestRunStats const& /* _testRunStats */ ) CATCH_OVERRIDE {
+        virtual void testRunEnded( TestRunStats const& /* _testRunStats */ ) BDN_OVERRIDE {
             currentTestCaseInfo.reset();
             currentGroupInfo.reset();
             currentTestRunInfo.reset();
         }
 
-        virtual void skipTest( TestCaseInfo const& ) CATCH_OVERRIDE {
+        virtual void skipTest( TestCaseInfo const& ) BDN_OVERRIDE {
             // Don't do anything with this by default.
             // It can optionally be overridden in the derived class.
         }
@@ -8396,16 +8396,16 @@ namespace Catch {
         }
         ~CumulativeReporterBase();
 
-        virtual ReporterPreferences getPreferences() const CATCH_OVERRIDE {
+        virtual ReporterPreferences getPreferences() const BDN_OVERRIDE {
             return m_reporterPrefs;
         }
 
-        virtual void testRunStarting( TestRunInfo const& ) CATCH_OVERRIDE {}
-        virtual void testGroupStarting( GroupInfo const& ) CATCH_OVERRIDE {}
+        virtual void testRunStarting( TestRunInfo const& ) BDN_OVERRIDE {}
+        virtual void testGroupStarting( GroupInfo const& ) BDN_OVERRIDE {}
 
-        virtual void testCaseStarting( TestCaseInfo const& ) CATCH_OVERRIDE {}
+        virtual void testCaseStarting( TestCaseInfo const& ) BDN_OVERRIDE {}
 
-        virtual void sectionStarting( SectionInfo const& sectionInfo ) CATCH_OVERRIDE {
+        virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
             SectionStats incompleteStats( sectionInfo, Counts(), 0, false );
             Ptr<SectionNode> node;
             if( m_sectionStack.empty() ) {
@@ -8430,7 +8430,7 @@ namespace Catch {
             m_deepestSection = node;
         }
 
-        virtual void assertionStarting( AssertionInfo const& ) CATCH_OVERRIDE {}
+        virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {}
 
         virtual bool assertionEnded( AssertionStats const& assertionStats ) {
             assert( !m_sectionStack.empty() );
@@ -8438,13 +8438,13 @@ namespace Catch {
             sectionNode.assertions.push_back( assertionStats );
             return true;
         }
-        virtual void sectionEnded( SectionStats const& sectionStats ) CATCH_OVERRIDE {
+        virtual void sectionEnded( SectionStats const& sectionStats ) BDN_OVERRIDE {
             assert( !m_sectionStack.empty() );
             SectionNode& node = *m_sectionStack.back();
             node.stats = sectionStats;
             m_sectionStack.pop_back();
         }
-        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) CATCH_OVERRIDE {
+        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
             Ptr<TestCaseNode> node = new TestCaseNode( testCaseStats );
             assert( m_sectionStack.size() == 0 );
             node->children.push_back( m_rootSection );
@@ -8455,12 +8455,12 @@ namespace Catch {
             m_deepestSection->stdOut = testCaseStats.stdOut;
             m_deepestSection->stdErr = testCaseStats.stdErr;
         }
-        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) CATCH_OVERRIDE {
+        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
             Ptr<TestGroupNode> node = new TestGroupNode( testGroupStats );
             node->children.swap( m_testCases );
             m_testGroups.push_back( node );
         }
-        virtual void testRunEnded( TestRunStats const& testRunStats ) CATCH_OVERRIDE {
+        virtual void testRunEnded( TestRunStats const& testRunStats ) BDN_OVERRIDE {
             Ptr<TestRunNode> node = new TestRunNode( testRunStats );
             node->children.swap( m_testGroups );
             m_testRuns.push_back( node );
@@ -8468,7 +8468,7 @@ namespace Catch {
         }
         virtual void testRunEndedCumulative() = 0;
 
-        virtual void skipTest( TestCaseInfo const& ) CATCH_OVERRIDE {}
+        virtual void skipTest( TestCaseInfo const& ) BDN_OVERRIDE {}
 
         Ptr<IConfig const> m_config;
         std::ostream& stream;
@@ -8488,10 +8488,10 @@ namespace Catch {
 
     template<char C>
     char const* getLineOfChars() {
-        static char line[CATCH_CONFIG_CONSOLE_WIDTH] = {0};
+        static char line[BDN_CONFIG_CONSOLE_WIDTH] = {0};
         if( !*line ) {
-            memset( line, C, CATCH_CONFIG_CONSOLE_WIDTH-1 );
-            line[CATCH_CONFIG_CONSOLE_WIDTH-1] = 0;
+            memset( line, C, BDN_CONFIG_CONSOLE_WIDTH-1 );
+            line[BDN_CONFIG_CONSOLE_WIDTH-1] = 0;
         }
         return line;
     }
@@ -8501,18 +8501,18 @@ namespace Catch {
         :   StreamingReporterBase( _config )
         {}
 
-        virtual void assertionStarting( AssertionInfo const& ) CATCH_OVERRIDE {}
-        virtual bool assertionEnded( AssertionStats const& ) CATCH_OVERRIDE {
+        virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {}
+        virtual bool assertionEnded( AssertionStats const& ) BDN_OVERRIDE {
             return false;
         }
     };
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../internal/catch_reporter_registrars.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_REGISTRARS_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_REGISTRARS_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     template<typename T>
     class LegacyReporterRegistrar {
@@ -8587,24 +8587,24 @@ namespace Catch {
     };
 }
 
-#define INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType ) \
-    namespace{ Catch::LegacyReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
+#define INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType ) \
+    namespace{ bdn::LegacyReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
 
-#define INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType ) \
-    namespace{ Catch::ReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
+#define INTERNAL_BDN_REGISTER_REPORTER( name, reporterType ) \
+    namespace{ bdn::ReporterRegistrar<reporterType> catch_internal_RegistrarFor##reporterType( name ); }
 
-#define INTERNAL_CATCH_REGISTER_LISTENER( listenerType ) \
-    namespace{ Catch::ListenerRegistrar<listenerType> catch_internal_RegistrarFor##listenerType; }
+#define INTERNAL_BDN_REGISTER_LISTENER( listenerType ) \
+    namespace{ bdn::ListenerRegistrar<listenerType> catch_internal_RegistrarFor##listenerType; }
 
 // #included from: ../internal/catch_xmlwriter.hpp
-#define TWOBLUECUBES_CATCH_XMLWRITER_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_XMLWRITER_HPP_INCLUDED
 
 #include <sstream>
 #include <string>
 #include <vector>
 #include <iomanip>
 
-namespace Catch {
+namespace bdn {
 
     class XmlEncode {
     public:
@@ -8672,7 +8672,7 @@ namespace Catch {
 
             ScopedElement( ScopedElement const& other )
             :   m_writer( other.m_writer ){
-                other.m_writer = CATCH_NULL;
+                other.m_writer = BDN_NULL;
             }
 
             ~ScopedElement() {
@@ -8698,7 +8698,7 @@ namespace Catch {
         XmlWriter()
         :   m_tagIsOpen( false ),
             m_needsNewline( false ),
-            m_os( &Catch::cout() )
+            m_os( &bdn::cout() )
         {}
 
         XmlWriter( std::ostream& os )
@@ -8821,7 +8821,7 @@ namespace Catch {
 }
 // #included from: catch_reenable_warnings.h
 
-#define TWOBLUECUBES_CATCH_REENABLE_WARNINGS_H_INCLUDED
+#define TWOBLUECUBES_BDN_REENABLE_WARNINGS_H_INCLUDED
 
 #ifdef __clang__
 #    ifdef __ICC // icpc defines the __clang__ macro
@@ -8834,7 +8834,7 @@ namespace Catch {
 #endif
 
 
-namespace Catch {
+namespace bdn {
     class XmlReporter : public StreamingReporterBase {
     public:
         XmlReporter( ReporterConfig const& _config )
@@ -8844,7 +8844,7 @@ namespace Catch {
             m_reporterPrefs.shouldRedirectStdOut = true;
         }
 
-        virtual ~XmlReporter() CATCH_OVERRIDE;
+        virtual ~XmlReporter() BDN_OVERRIDE;
 
         static std::string getDescription() {
             return "Reports test results as an XML document";
@@ -8852,11 +8852,11 @@ namespace Catch {
 
     public: // StreamingReporterBase
 
-        virtual void noMatchingTestCases( std::string const& s ) CATCH_OVERRIDE {
+        virtual void noMatchingTestCases( std::string const& s ) BDN_OVERRIDE {
             StreamingReporterBase::noMatchingTestCases( s );
         }
 
-        virtual void testRunStarting( TestRunInfo const& testInfo ) CATCH_OVERRIDE {
+        virtual void testRunStarting( TestRunInfo const& testInfo ) BDN_OVERRIDE {
             StreamingReporterBase::testRunStarting( testInfo );
             m_xml.setStream( stream );
             m_xml.startElement( "Catch" );
@@ -8864,13 +8864,13 @@ namespace Catch {
                 m_xml.writeAttribute( "name", m_config->name() );
         }
 
-        virtual void testGroupStarting( GroupInfo const& groupInfo ) CATCH_OVERRIDE {
+        virtual void testGroupStarting( GroupInfo const& groupInfo ) BDN_OVERRIDE {
             StreamingReporterBase::testGroupStarting( groupInfo );
             m_xml.startElement( "Group" )
                 .writeAttribute( "name", groupInfo.name );
         }
 
-        virtual void testCaseStarting( TestCaseInfo const& testInfo ) CATCH_OVERRIDE {
+        virtual void testCaseStarting( TestCaseInfo const& testInfo ) BDN_OVERRIDE {
             StreamingReporterBase::testCaseStarting(testInfo);
             m_xml.startElement( "TestCase" ).writeAttribute( "name", trim( testInfo.name ) );
 
@@ -8878,7 +8878,7 @@ namespace Catch {
                 m_testCaseTimer.start();
         }
 
-        virtual void sectionStarting( SectionInfo const& sectionInfo ) CATCH_OVERRIDE {
+        virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
             StreamingReporterBase::sectionStarting( sectionInfo );
             if( m_sectionDepth++ > 0 ) {
                 m_xml.startElement( "Section" )
@@ -8887,9 +8887,9 @@ namespace Catch {
             }
         }
 
-        virtual void assertionStarting( AssertionInfo const& ) CATCH_OVERRIDE { }
+        virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE { }
 
-        virtual bool assertionEnded( AssertionStats const& assertionStats ) CATCH_OVERRIDE {
+        virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
             const AssertionResult& assertionResult = assertionStats.assertionResult;
 
             // Print any info messages in <Info> tags.
@@ -8960,7 +8960,7 @@ namespace Catch {
             return true;
         }
 
-        virtual void sectionEnded( SectionStats const& sectionStats ) CATCH_OVERRIDE {
+        virtual void sectionEnded( SectionStats const& sectionStats ) BDN_OVERRIDE {
             StreamingReporterBase::sectionEnded( sectionStats );
             if( --m_sectionDepth > 0 ) {
                 XmlWriter::ScopedElement e = m_xml.scopedElement( "OverallResults" );
@@ -8975,7 +8975,7 @@ namespace Catch {
             }
         }
 
-        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) CATCH_OVERRIDE {
+        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
             StreamingReporterBase::testCaseEnded( testCaseStats );
             XmlWriter::ScopedElement e = m_xml.scopedElement( "OverallResult" );
             e.writeAttribute( "success", testCaseStats.totals.assertions.allOk() );
@@ -8986,7 +8986,7 @@ namespace Catch {
             m_xml.endElement();
         }
 
-        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) CATCH_OVERRIDE {
+        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
             StreamingReporterBase::testGroupEnded( testGroupStats );
             // TODO: Check testGroupStats.aborting and act accordingly.
             m_xml.scopedElement( "OverallResults" )
@@ -8996,7 +8996,7 @@ namespace Catch {
             m_xml.endElement();
         }
 
-        virtual void testRunEnded( TestRunStats const& testRunStats ) CATCH_OVERRIDE {
+        virtual void testRunEnded( TestRunStats const& testRunStats ) BDN_OVERRIDE {
             StreamingReporterBase::testRunEnded( testRunStats );
             m_xml.scopedElement( "OverallResults" )
                 .writeAttribute( "successes", testRunStats.totals.assertions.passed )
@@ -9011,16 +9011,16 @@ namespace Catch {
         int m_sectionDepth;
     };
 
-     INTERNAL_CATCH_REGISTER_REPORTER( "xml", XmlReporter )
+     INTERNAL_BDN_REGISTER_REPORTER( "xml", XmlReporter )
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../reporters/catch_reporter_junit.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_JUNIT_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_JUNIT_HPP_INCLUDED
 
 #include <assert.h>
 
-namespace Catch {
+namespace bdn {
 
     class JunitReporter : public CumulativeReporterBase {
     public:
@@ -9031,20 +9031,20 @@ namespace Catch {
             m_reporterPrefs.shouldRedirectStdOut = true;
         }
 
-        virtual ~JunitReporter() CATCH_OVERRIDE;
+        virtual ~JunitReporter() BDN_OVERRIDE;
 
         static std::string getDescription() {
             return "Reports test results in an XML format that looks like Ant's junitreport target";
         }
 
-        virtual void noMatchingTestCases( std::string const& /*spec*/ ) CATCH_OVERRIDE {}
+        virtual void noMatchingTestCases( std::string const& /*spec*/ ) BDN_OVERRIDE {}
 
-        virtual void testRunStarting( TestRunInfo const& runInfo ) CATCH_OVERRIDE {
+        virtual void testRunStarting( TestRunInfo const& runInfo ) BDN_OVERRIDE {
             CumulativeReporterBase::testRunStarting( runInfo );
             xml.startElement( "testsuites" );
         }
 
-        virtual void testGroupStarting( GroupInfo const& groupInfo ) CATCH_OVERRIDE {
+        virtual void testGroupStarting( GroupInfo const& groupInfo ) BDN_OVERRIDE {
             suiteTimer.start();
             stdOutForSuite.str("");
             stdErrForSuite.str("");
@@ -9052,25 +9052,25 @@ namespace Catch {
             CumulativeReporterBase::testGroupStarting( groupInfo );
         }
 
-        virtual bool assertionEnded( AssertionStats const& assertionStats ) CATCH_OVERRIDE {
+        virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
             if( assertionStats.assertionResult.getResultType() == ResultWas::ThrewException )
                 unexpectedExceptions++;
             return CumulativeReporterBase::assertionEnded( assertionStats );
         }
 
-        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) CATCH_OVERRIDE {
+        virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
             stdOutForSuite << testCaseStats.stdOut;
             stdErrForSuite << testCaseStats.stdErr;
             CumulativeReporterBase::testCaseEnded( testCaseStats );
         }
 
-        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) CATCH_OVERRIDE {
+        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
             double suiteTime = suiteTimer.getElapsedSeconds();
             CumulativeReporterBase::testGroupEnded( testGroupStats );
             writeGroup( *m_testGroups.back(), suiteTime );
         }
 
-        virtual void testRunEndedCumulative() CATCH_OVERRIDE {
+        virtual void testRunEndedCumulative() BDN_OVERRIDE {
             xml.endElement();
         }
 
@@ -9135,7 +9135,7 @@ namespace Catch {
                     xml.writeAttribute( "classname", className );
                     xml.writeAttribute( "name", name );
                 }
-                xml.writeAttribute( "time", Catch::toString( sectionNode.stats.durationInSeconds ) );
+                xml.writeAttribute( "time", bdn::toString( sectionNode.stats.durationInSeconds ) );
 
                 writeAssertions( sectionNode );
 
@@ -9220,14 +9220,14 @@ namespace Catch {
         unsigned int unexpectedExceptions;
     };
 
-    INTERNAL_CATCH_REGISTER_REPORTER( "junit", JunitReporter )
+    INTERNAL_BDN_REGISTER_REPORTER( "junit", JunitReporter )
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../reporters/catch_reporter_console.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_CONSOLE_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_CONSOLE_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     struct ConsoleReporter : StreamingReporterBase {
         ConsoleReporter( ReporterConfig const& _config )
@@ -9235,19 +9235,19 @@ namespace Catch {
             m_headerPrinted( false )
         {}
 
-        virtual ~ConsoleReporter() CATCH_OVERRIDE;
+        virtual ~ConsoleReporter() BDN_OVERRIDE;
         static std::string getDescription() {
             return "Reports test results as plain lines of text";
         }
 
-        virtual void noMatchingTestCases( std::string const& spec ) CATCH_OVERRIDE {
+        virtual void noMatchingTestCases( std::string const& spec ) BDN_OVERRIDE {
             stream << "No test cases matched '" << spec << "'" << std::endl;
         }
 
-        virtual void assertionStarting( AssertionInfo const& ) CATCH_OVERRIDE {
+        virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {
         }
 
-        virtual bool assertionEnded( AssertionStats const& _assertionStats ) CATCH_OVERRIDE {
+        virtual bool assertionEnded( AssertionStats const& _assertionStats ) BDN_OVERRIDE {
             AssertionResult const& result = _assertionStats.assertionResult;
 
             bool printInfoMessages = true;
@@ -9267,11 +9267,11 @@ namespace Catch {
             return true;
         }
 
-        virtual void sectionStarting( SectionInfo const& _sectionInfo ) CATCH_OVERRIDE {
+        virtual void sectionStarting( SectionInfo const& _sectionInfo ) BDN_OVERRIDE {
             m_headerPrinted = false;
             StreamingReporterBase::sectionStarting( _sectionInfo );
         }
-        virtual void sectionEnded( SectionStats const& _sectionStats ) CATCH_OVERRIDE {
+        virtual void sectionEnded( SectionStats const& _sectionStats ) BDN_OVERRIDE {
             if( _sectionStats.missingAssertions ) {
                 lazyPrint();
                 Colour colour( Colour::ResultError );
@@ -9293,11 +9293,11 @@ namespace Catch {
             StreamingReporterBase::sectionEnded( _sectionStats );
         }
 
-        virtual void testCaseEnded( TestCaseStats const& _testCaseStats ) CATCH_OVERRIDE {
+        virtual void testCaseEnded( TestCaseStats const& _testCaseStats ) BDN_OVERRIDE {
             StreamingReporterBase::testCaseEnded( _testCaseStats );
             m_headerPrinted = false;
         }
-        virtual void testGroupEnded( TestGroupStats const& _testGroupStats ) CATCH_OVERRIDE {
+        virtual void testGroupEnded( TestGroupStats const& _testGroupStats ) BDN_OVERRIDE {
             if( currentGroupInfo.used ) {
                 printSummaryDivider();
                 stream << "Summary for group '" << _testGroupStats.groupInfo.name << "':\n";
@@ -9306,7 +9306,7 @@ namespace Catch {
             }
             StreamingReporterBase::testGroupEnded( _testGroupStats );
         }
-        virtual void testRunEnded( TestRunStats const& _testRunStats ) CATCH_OVERRIDE {
+        virtual void testRunEnded( TestRunStats const& _testRunStats ) BDN_OVERRIDE {
             printTotalsDivider( _testRunStats.totals );
             printTotals( _testRunStats.totals );
             stream << std::endl;
@@ -9610,7 +9610,7 @@ namespace Catch {
         }
 
         static std::size_t makeRatio( std::size_t number, std::size_t total ) {
-            std::size_t ratio = total > 0 ? CATCH_CONFIG_CONSOLE_WIDTH * number/ total : 0;
+            std::size_t ratio = total > 0 ? BDN_CONFIG_CONSOLE_WIDTH * number/ total : 0;
             return ( ratio == 0 && number > 0 ) ? 1 : ratio;
         }
         static std::size_t& findMax( std::size_t& i, std::size_t& j, std::size_t& k ) {
@@ -9627,9 +9627,9 @@ namespace Catch {
                 std::size_t failedRatio = makeRatio( totals.testCases.failed, totals.testCases.total() );
                 std::size_t failedButOkRatio = makeRatio( totals.testCases.failedButOk, totals.testCases.total() );
                 std::size_t passedRatio = makeRatio( totals.testCases.passed, totals.testCases.total() );
-                while( failedRatio + failedButOkRatio + passedRatio < CATCH_CONFIG_CONSOLE_WIDTH-1 )
+                while( failedRatio + failedButOkRatio + passedRatio < BDN_CONFIG_CONSOLE_WIDTH-1 )
                     findMax( failedRatio, failedButOkRatio, passedRatio )++;
-                while( failedRatio + failedButOkRatio + passedRatio > CATCH_CONFIG_CONSOLE_WIDTH-1 )
+                while( failedRatio + failedButOkRatio + passedRatio > BDN_CONFIG_CONSOLE_WIDTH-1 )
                     findMax( failedRatio, failedButOkRatio, passedRatio )--;
 
                 stream << Colour( Colour::Error ) << std::string( failedRatio, '=' );
@@ -9640,7 +9640,7 @@ namespace Catch {
                     stream << Colour( Colour::Success ) << std::string( passedRatio, '=' );
             }
             else {
-                stream << Colour( Colour::Warning ) << std::string( CATCH_CONFIG_CONSOLE_WIDTH-1, '=' );
+                stream << Colour( Colour::Warning ) << std::string( BDN_CONFIG_CONSOLE_WIDTH-1, '=' );
             }
             stream << "\n";
         }
@@ -9652,14 +9652,14 @@ namespace Catch {
         bool m_headerPrinted;
     };
 
-    INTERNAL_CATCH_REGISTER_REPORTER( "console", ConsoleReporter )
+    INTERNAL_BDN_REGISTER_REPORTER( "console", ConsoleReporter )
 
-} // end namespace Catch
+} // end namespace bdn
 
 // #included from: ../reporters/catch_reporter_compact.hpp
-#define TWOBLUECUBES_CATCH_REPORTER_COMPACT_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_REPORTER_COMPACT_HPP_INCLUDED
 
-namespace Catch {
+namespace bdn {
 
     struct CompactReporter : StreamingReporterBase {
 
@@ -9797,7 +9797,7 @@ namespace Catch {
 
             static Colour::Code dimColour() { return Colour::FileName; }
 
-#ifdef CATCH_PLATFORM_MAC
+#ifdef BDN_PLATFORM_MAC
             static const char* failedString() { return "FAILED"; }
             static const char* passedString() { return "PASSED"; }
 #else
@@ -9940,20 +9940,20 @@ namespace Catch {
         }
     };
 
-    INTERNAL_CATCH_REGISTER_REPORTER( "compact", CompactReporter )
+    INTERNAL_BDN_REGISTER_REPORTER( "compact", CompactReporter )
 
-} // end namespace Catch
+} // end namespace bdn
 
-namespace Catch {
+namespace bdn {
     // These are all here to avoid warnings about not having any out of line
     // virtual methods
     NonCopyable::~NonCopyable() {}
     IShared::~IShared() {}
-    IStream::~IStream() CATCH_NOEXCEPT {}
-    FileStream::~FileStream() CATCH_NOEXCEPT {}
-    CoutStream::~CoutStream() CATCH_NOEXCEPT {}
-    DebugOutStream::~DebugOutStream() CATCH_NOEXCEPT {}
-    StreamBufBase::~StreamBufBase() CATCH_NOEXCEPT {}
+    IStream::~IStream() BDN_NOEXCEPT {}
+    FileStream::~FileStream() BDN_NOEXCEPT {}
+    CoutStream::~CoutStream() BDN_NOEXCEPT {}
+    DebugOutStream::~DebugOutStream() BDN_NOEXCEPT {}
+    StreamBufBase::~StreamBufBase() BDN_NOEXCEPT {}
     IContext::~IContext() {}
     IResultCapture::~IResultCapture() {}
     ITestCase::~ITestCase() {}
@@ -10013,29 +10013,29 @@ namespace Catch {
 
 #endif
 
-#ifdef CATCH_CONFIG_MAIN
+#ifdef BDN_CONFIG_MAIN
 // #included from: internal/catch_default_main.hpp
-#define TWOBLUECUBES_CATCH_DEFAULT_MAIN_HPP_INCLUDED
+#define TWOBLUECUBES_BDN_DEFAULT_MAIN_HPP_INCLUDED
 
 #ifndef __OBJC__
 
 // Standard C/C++ main entry point
 int main (int argc, char * argv[]) {
-    return Catch::Session().run( argc, argv );
+    return bdn::Session().run( argc, argv );
 }
 
 #else // __OBJC__
 
 // Objective-C entry point
 int main (int argc, char * const argv[]) {
-#if !CATCH_ARC_ENABLED
+#if !BDN_ARC_ENABLED
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 #endif
 
-    Catch::registerTestMethods();
-    int result = Catch::Session().run( argc, (char* const*)argv );
+    bdn::registerTestMethods();
+    int result = bdn::Session().run( argc, (char* const*)argv );
 
-#if !CATCH_ARC_ENABLED
+#if !BDN_ARC_ENABLED
     [pool drain];
 #endif
 
@@ -10052,141 +10052,141 @@ int main (int argc, char * const argv[]) {
 
 //////
 
-// If this config identifier is defined then all CATCH macros are prefixed with CATCH_
-#ifdef CATCH_CONFIG_PREFIX_ALL
+// If this config identifier is defined then all CATCH macros are prefixed with BDN_
+#ifdef BDN_CONFIG_PREFIX_ALL
 
-#define CATCH_REQUIRE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE" )
-#define CATCH_REQUIRE_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "CATCH_REQUIRE_FALSE" )
+#define BDN_REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE" )
+#define BDN_REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "BDN_REQUIRE_FALSE" )
 
-#define CATCH_REQUIRE_THROWS( expr ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, "", "CATCH_REQUIRE_THROWS" )
-#define CATCH_REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THROWS_AS" )
-#define CATCH_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, matcher, "CATCH_REQUIRE_THROWS_WITH" )
-#define CATCH_REQUIRE_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_NOTHROW" )
+#define BDN_REQUIRE_THROWS( expr ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, "", "BDN_REQUIRE_THROWS" )
+#define BDN_REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THROWS_AS" )
+#define BDN_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "BDN_REQUIRE_THROWS_WITH" )
+#define BDN_REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE_NOTHROW" )
 
-#define CATCH_CHECK( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK" )
-#define CATCH_CHECK_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CATCH_CHECK_FALSE" )
-#define CATCH_CHECKED_IF( expr ) INTERNAL_CATCH_IF( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_IF" )
-#define CATCH_CHECKED_ELSE( expr ) INTERNAL_CATCH_ELSE( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECKED_ELSE" )
-#define CATCH_CHECK_NOFAIL( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CATCH_CHECK_NOFAIL" )
+#define BDN_CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK" )
+#define BDN_CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "BDN_CHECK_FALSE" )
+#define BDN_CHECKED_IF( expr ) INTERNAL_BDN_IF( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECKED_IF" )
+#define BDN_CHECKED_ELSE( expr ) INTERNAL_BDN_ELSE( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECKED_ELSE" )
+#define BDN_CHECK_NOFAIL( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::SuppressFail, "BDN_CHECK_NOFAIL" )
 
-#define CATCH_CHECK_THROWS( expr )  INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS" )
-#define CATCH_CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THROWS_AS" )
-#define CATCH_CHECK_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CATCH_CHECK_THROWS_WITH" )
-#define CATCH_CHECK_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_NOTHROW" )
+#define BDN_CHECK_THROWS( expr )  INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THROWS" )
+#define BDN_CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THROWS_AS" )
+#define BDN_CHECK_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "BDN_CHECK_THROWS_WITH" )
+#define BDN_CHECK_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_NOTHROW" )
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CATCH_CHECK_THAT" )
-#define CATCH_REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::Normal, "CATCH_REQUIRE_THAT" )
+#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT" )
+#define BDN_REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THAT" )
 
-#define CATCH_INFO( msg ) INTERNAL_CATCH_INFO( msg, "CATCH_INFO" )
-#define CATCH_WARN( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "CATCH_WARN", msg )
-#define CATCH_SCOPED_INFO( msg ) INTERNAL_CATCH_INFO( msg, "CATCH_INFO" )
-#define CATCH_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CATCH_CAPTURE" )
-#define CATCH_SCOPED_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CATCH_CAPTURE" )
+#define BDN_INFO( msg ) INTERNAL_BDN_INFO( msg, "BDN_INFO" )
+#define BDN_WARN( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Warning, bdn::ResultDisposition::ContinueOnFailure, "BDN_WARN", msg )
+#define BDN_SCOPED_INFO( msg ) INTERNAL_BDN_INFO( msg, "BDN_INFO" )
+#define BDN_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
+#define BDN_SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
 
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
-    #define CATCH_TEST_CASE( ... ) INTERNAL_CATCH_TESTCASE( __VA_ARGS__ )
-    #define CATCH_TEST_CASE_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define CATCH_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define CATCH_REGISTER_TEST_CASE( ... ) INTERNAL_CATCH_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define CATCH_SECTION( ... ) INTERNAL_CATCH_SECTION( __VA_ARGS__ )
-    #define CATCH_FAIL( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", __VA_ARGS__ )
-    #define CATCH_SUCCEED( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", __VA_ARGS__ )
+#ifdef BDN_CONFIG_VARIADIC_MACROS
+    #define BDN_TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+    #define BDN_TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+    #define BDN_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+    #define BDN_REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+    #define BDN_SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+    #define BDN_FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__ )
+    #define BDN_SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__ )
 #else
-    #define CATCH_TEST_CASE( name, description ) INTERNAL_CATCH_TESTCASE( name, description )
-    #define CATCH_TEST_CASE_METHOD( className, name, description ) INTERNAL_CATCH_TEST_CASE_METHOD( className, name, description )
-    #define CATCH_METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, name, description )
-    #define CATCH_REGISTER_TEST_CASE( function, name, description ) INTERNAL_CATCH_REGISTER_TESTCASE( function, name, description )
-    #define CATCH_SECTION( name, description ) INTERNAL_CATCH_SECTION( name, description )
-    #define CATCH_FAIL( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "CATCH_FAIL", msg )
-    #define CATCH_SUCCEED( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "CATCH_SUCCEED", msg )
+    #define BDN_TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
+    #define BDN_TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
+    #define BDN_METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
+    #define BDN_REGISTER_TEST_CASE( function, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( function, name, description )
+    #define BDN_SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
+    #define BDN_FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", msg )
+    #define BDN_SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", msg )
 #endif
-#define CATCH_ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE( "", "" )
+#define BDN_ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
-#define CATCH_REGISTER_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType )
-#define CATCH_REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType )
+#define BDN_REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
+#define BDN_REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )
 
-#define CATCH_GENERATE( expr) INTERNAL_CATCH_GENERATE( expr )
+#define BDN_GENERATE( expr) INTERNAL_BDN_GENERATE( expr )
 
 // "BDD-style" convenience wrappers
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
-#define CATCH_SCENARIO( ... ) CATCH_TEST_CASE( "Scenario: " __VA_ARGS__ )
-#define CATCH_SCENARIO_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
+#ifdef BDN_CONFIG_VARIADIC_MACROS
+#define BDN_SCENARIO( ... ) BDN_TEST_CASE( "Scenario: " __VA_ARGS__ )
+#define BDN_SCENARIO_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
 #else
-#define CATCH_SCENARIO( name, tags ) CATCH_TEST_CASE( "Scenario: " name, tags )
-#define CATCH_SCENARIO_METHOD( className, name, tags ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " name, tags )
+#define BDN_SCENARIO( name, tags ) BDN_TEST_CASE( "Scenario: " name, tags )
+#define BDN_SCENARIO_METHOD( className, name, tags ) INTERNAL_BDN_TEST_CASE_METHOD( className, "Scenario: " name, tags )
 #endif
-#define CATCH_GIVEN( desc )    CATCH_SECTION( std::string( "Given: ") + desc, "" )
-#define CATCH_WHEN( desc )     CATCH_SECTION( std::string( " When: ") + desc, "" )
-#define CATCH_AND_WHEN( desc ) CATCH_SECTION( std::string( "  And: ") + desc, "" )
-#define CATCH_THEN( desc )     CATCH_SECTION( std::string( " Then: ") + desc, "" )
-#define CATCH_AND_THEN( desc ) CATCH_SECTION( std::string( "  And: ") + desc, "" )
+#define BDN_GIVEN( desc )    BDN_SECTION( std::string( "Given: ") + desc, "" )
+#define BDN_WHEN( desc )     BDN_SECTION( std::string( " When: ") + desc, "" )
+#define BDN_AND_WHEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
+#define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
+#define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
-// If CATCH_CONFIG_PREFIX_ALL is not defined then the CATCH_ prefix is not required
+// If BDN_CONFIG_PREFIX_ALL is not defined then the BDN_ prefix is not required
 #else
 
-#define REQUIRE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal, "REQUIRE" )
-#define REQUIRE_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal | Catch::ResultDisposition::FalseTest, "REQUIRE_FALSE" )
+#define REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "REQUIRE" )
+#define REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "REQUIRE_FALSE" )
 
-#define REQUIRE_THROWS( expr ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, "", "REQUIRE_THROWS" )
-#define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
-#define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
-#define REQUIRE_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
+#define REQUIRE_THROWS( expr ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, "", "REQUIRE_THROWS" )
+#define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
+#define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
+#define REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
 
-#define CHECK( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK" )
-#define CHECK_FALSE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::FalseTest, "CHECK_FALSE" )
-#define CHECKED_IF( expr ) INTERNAL_CATCH_IF( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_IF" )
-#define CHECKED_ELSE( expr ) INTERNAL_CATCH_ELSE( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECKED_ELSE" )
-#define CHECK_NOFAIL( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::ContinueOnFailure | Catch::ResultDisposition::SuppressFail, "CHECK_NOFAIL" )
+#define CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK" )
+#define CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "CHECK_FALSE" )
+#define CHECKED_IF( expr ) INTERNAL_BDN_IF( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECKED_IF" )
+#define CHECKED_ELSE( expr ) INTERNAL_BDN_ELSE( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECKED_ELSE" )
+#define CHECK_NOFAIL( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::SuppressFail, "CHECK_NOFAIL" )
 
-#define CHECK_THROWS( expr )  INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, "", "CHECK_THROWS" )
-#define CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_CATCH_THROWS_AS( expr, exceptionType, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THROWS_AS" )
-#define CHECK_THROWS_WITH( expr, matcher ) INTERNAL_CATCH_THROWS( expr, Catch::ResultDisposition::ContinueOnFailure, matcher, "CHECK_THROWS_WITH" )
-#define CHECK_NOTHROW( expr ) INTERNAL_CATCH_NO_THROW( expr, Catch::ResultDisposition::ContinueOnFailure, "CHECK_NOTHROW" )
+#define CHECK_THROWS( expr )  INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, "", "CHECK_THROWS" )
+#define CHECK_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::ContinueOnFailure, "CHECK_THROWS_AS" )
+#define CHECK_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "CHECK_THROWS_WITH" )
+#define CHECK_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK_NOTHROW" )
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::ContinueOnFailure, "CHECK_THAT" )
-#define REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, Catch::ResultDisposition::Normal, "REQUIRE_THAT" )
+#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "CHECK_THAT" )
+#define REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::Normal, "REQUIRE_THAT" )
 
-#define INFO( msg ) INTERNAL_CATCH_INFO( msg, "INFO" )
-#define WARN( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Warning, Catch::ResultDisposition::ContinueOnFailure, "WARN", msg )
-#define SCOPED_INFO( msg ) INTERNAL_CATCH_INFO( msg, "INFO" )
-#define CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CAPTURE" )
-#define SCOPED_CAPTURE( msg ) INTERNAL_CATCH_INFO( #msg " := " << msg, "CAPTURE" )
+#define INFO( msg ) INTERNAL_BDN_INFO( msg, "INFO" )
+#define WARN( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Warning, bdn::ResultDisposition::ContinueOnFailure, "WARN", msg )
+#define SCOPED_INFO( msg ) INTERNAL_BDN_INFO( msg, "INFO" )
+#define CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
+#define SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
 
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
-    #define TEST_CASE( ... ) INTERNAL_CATCH_TESTCASE( __VA_ARGS__ )
-    #define TEST_CASE_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define REGISTER_TEST_CASE( ... ) INTERNAL_CATCH_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define SECTION( ... ) INTERNAL_CATCH_SECTION( __VA_ARGS__ )
-    #define FAIL( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-    #define SUCCEED( ... ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
+#ifdef BDN_CONFIG_VARIADIC_MACROS
+    #define TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+    #define TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+    #define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+    #define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+    #define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+    #define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
+    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
 #else
-    #define TEST_CASE( name, description ) INTERNAL_CATCH_TESTCASE( name, description )
-    #define TEST_CASE_METHOD( className, name, description ) INTERNAL_CATCH_TEST_CASE_METHOD( className, name, description )
-    #define METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_CATCH_METHOD_AS_TEST_CASE( method, name, description )
-    #define REGISTER_TEST_CASE( method, name, description ) INTERNAL_CATCH_REGISTER_TESTCASE( method, name, description )
-    #define SECTION( name, description ) INTERNAL_CATCH_SECTION( name, description )
-    #define FAIL( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::ExplicitFailure, Catch::ResultDisposition::Normal, "FAIL", msg )
-    #define SUCCEED( msg ) INTERNAL_CATCH_MSG( Catch::ResultWas::Ok, Catch::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
+    #define TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
+    #define TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
+    #define METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
+    #define REGISTER_TEST_CASE( method, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( method, name, description )
+    #define SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
+    #define FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", msg )
+    #define SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
 #endif
-#define ANON_TEST_CASE() INTERNAL_CATCH_TESTCASE( "", "" )
+#define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
-#define REGISTER_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_REPORTER( name, reporterType )
-#define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_CATCH_REGISTER_LEGACY_REPORTER( name, reporterType )
+#define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
+#define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )
 
-#define GENERATE( expr) INTERNAL_CATCH_GENERATE( expr )
+#define GENERATE( expr) INTERNAL_BDN_GENERATE( expr )
 
 #endif
 
-#define CATCH_TRANSLATE_EXCEPTION( signature ) INTERNAL_CATCH_TRANSLATE_EXCEPTION( signature )
+#define BDN_TRANSLATE_EXCEPTION( signature ) INTERNAL_BDN_TRANSLATE_EXCEPTION( signature )
 
 // "BDD-style" convenience wrappers
-#ifdef CATCH_CONFIG_VARIADIC_MACROS
+#ifdef BDN_CONFIG_VARIADIC_MACROS
 #define SCENARIO( ... ) TEST_CASE( "Scenario: " __VA_ARGS__ )
-#define SCENARIO_METHOD( className, ... ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
+#define SCENARIO_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, "Scenario: " __VA_ARGS__ )
 #else
 #define SCENARIO( name, tags ) TEST_CASE( "Scenario: " name, tags )
-#define SCENARIO_METHOD( className, name, tags ) INTERNAL_CATCH_TEST_CASE_METHOD( className, "Scenario: " name, tags )
+#define SCENARIO_METHOD( className, name, tags ) INTERNAL_BDN_TEST_CASE_METHOD( className, "Scenario: " name, tags )
 #endif
 #define GIVEN( desc )    SECTION( std::string("   Given: ") + desc, "" )
 #define WHEN( desc )     SECTION( std::string("    When: ") + desc, "" )
@@ -10194,7 +10194,7 @@ int main (int argc, char * const argv[]) {
 #define THEN( desc )     SECTION( std::string("    Then: ") + desc, "" )
 #define AND_THEN( desc ) SECTION( std::string("     And: ") + desc, "" )
 
-using Catch::Detail::Approx;
+using bdn::Detail::Approx;
 
 #endif // _BDN_unittest_H_
 

@@ -21,6 +21,10 @@ public:
 
 	/** A character iterator that decodes UTF-8 data (char elements) from an
 		arbitrary source iterator into Unicode characters (char32_t).
+
+		The decoder handles invalid / corrupted sequences gracefully. When a bad
+		sequence is encountered then each bad byte(!) is replaced by the Unicode
+		"replacement character" (which has the value 0xfffd).
 	*/
 	template<class SourceIterator>
 	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
@@ -54,6 +58,7 @@ public:
 			if(_chr==(char32_t)-1)
 				decode();
 			_sourceIt = _nextIt;
+			_chr = (char32_t)-1;
 
 			return *this;
 		}
@@ -75,7 +80,7 @@ public:
 			bool invalid = false;
 
 			_sourceIt--;
-			for(int i=0; ((*_sourceIt) & 0x0c)!=0x80; i++ )
+			for(int i=0; ((*_sourceIt) & 0xc0)==0x80; i++ )
 			{
 				if(_sourceIt==_beginSourceIt || i==5)
 				{
@@ -132,7 +137,7 @@ public:
 
 		bool operator==(const DecodingIterator& o) const
 		{
-			return (_sourceIt!=o._sourceIt);
+			return (_sourceIt==o._sourceIt);
 		}
 
 		bool operator!=(const DecodingIterator& o) const
@@ -193,7 +198,7 @@ public:
 					++length;
 				}
 
-				if(invalid || length==1)
+				if(invalid || length==1 || length>6)
 				{
 					// use the unicode "replacement character".
 					_chr = 0xfffd;
@@ -203,7 +208,7 @@ public:
 				}
 				else
 				{
-					_chr |= (((char32_t)firstByte) & (mask-1)) << (length*6);
+					_chr |= (((char32_t)firstByte) & (mask-1)) << ((length-1)*6);
 				}
 			}
 		}
@@ -278,7 +283,7 @@ public:
 				// first byte of the encoded sequence.
 
 				_sourceIt--;
-				_encode();
+				encode();
 
 				// move to the last byte of the sequence. Note that that is always index 6
 				// (the first byte offset changes depending on the sequence size - the end index stays the same).
@@ -312,8 +317,29 @@ public:
 			if(_sourceIt!=o._sourceIt)
 				return false;
 
-			// 0 and -1 are the same position (-1 means "0 but still need to call encode")
-			return (_offset==o._offset || (_offset<=0 && o._offset<=0));
+			if(_offset==o._offset)
+				return true;
+
+			// -1 means that the iterator is at the beginning
+			// of the character, but has not encoded it yet.
+			// So it means "first byte of encoded character".
+			// Which actual valid _offset value -1 ends up representing
+			// is unknown, since we store the encoded character in
+			// at the end of our encoded array.
+			if(_offset==-1)
+			{
+				// We know that o._offset is not -1 (otherwise we would have already returned true).
+				// See if o is at the first byte.
+				return (o._encoded[o._offset-1]==0xff);
+			}
+			else if(o._offset==-1)
+			{
+				// We know that o._offset is not -1 (otherwise we would have already returned true).
+				// See if o is at the first byte.
+				return (_encoded[_offset-1]==0xff);
+			}
+			
+			return false;
 		}
 
 		bool operator!=(const EncodingIterator& o) const
@@ -333,20 +359,32 @@ public:
 				chr = 0xfffd;
 			}
 
-			int firstBytePayloadMask = 0x7f;
-
 			_offset=6;
-			while((chr & firstBytePayloadMask)!=0)
+
+			if(chr<=0x7f)
 			{
-				_encoded[_offset] = 0x80 | (chr & 0x3f);
+				// ascii range
+				_encoded[_offset] = (uint8_t)chr;
+			}
+			else
+			{
+				int firstBytePayloadMask = 0x3f;
+			
+				do
+				{
+					firstBytePayloadMask >>= 1;
 
-				chr>>=6;
-				_offset--;
+					_encoded[_offset] = 0x80 | (chr & 0x3f);
 
-				firstBytePayloadMask >>= 1;
+					chr>>=6;
+					_offset--;					
+				}
+				while((chr & firstBytePayloadMask)!=chr);
+
+				_encoded[_offset] = (uint8_t) ( ((~firstBytePayloadMask)<<1 ) | (chr & firstBytePayloadMask) );
 			}
 
-			_encoded[_offset] = (~(firstBytePayloadMask<<1)) | (uint8_t)chr;
+			// end marker
 			_encoded[_offset-1] = 0xff;
 		}
 

@@ -1,5 +1,4 @@
-#define CATCH_IMPL
-
-#include <bdn/unittest.h>
+#define BDN_CONFIG_MAIN
+#include <bdn/test.h>
 
 
