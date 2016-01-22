@@ -12,7 +12,7 @@ namespace bdn
 	wchar_t (on systems where wchar_t is 32 bit)
 */
 template<class EL>
-class Utf32Codec : public Base
+class Utf32Codec
 {
 public:
 

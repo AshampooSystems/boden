@@ -12,7 +12,7 @@ namespace bdn
 	wchar_t (on systems where wchar_t is 16 bit)
 */
 template<class EL>
-class Utf16Codec : public Base
+class Utf16Codec
 {
 public:
 

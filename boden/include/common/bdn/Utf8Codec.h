@@ -7,7 +7,7 @@ namespace bdn
 {
 
 /** The Utf-8 string codec.*/
-class Utf8Codec : public Base
+class Utf8Codec
 {
 public:
 

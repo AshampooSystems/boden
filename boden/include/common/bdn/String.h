@@ -60,8 +60,8 @@ class String : public StringImpl<NativeStringData>
 };
 
 #else
-
 typedef StringImpl<NativeStringData> String;
+
 #endif
 
 }
