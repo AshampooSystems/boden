@@ -11,12 +11,13 @@ namespace bdn
 	The template parameter EL must be a 32 bit integer type. Usually either char32_t or
 	wchar_t (on systems where wchar_t is 32 bit)
 */
+template<class EL>
 class Utf32Codec : public Base
 {
 public:
 
-	/** The encoded element type. This is char32_t.*/
-	typedef char32_t EncodedElement;
+	/** The encoded element type. This is a 32 bit integer type, defined by the template parameter EL.*/
+	typedef EL EncodedElement;
 
 
 	/** The std string type for the encoded string.*/
@@ -111,7 +112,7 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<char32_t, std::bidirectional_iterator_tag>
+	class EncodingIterator : public std::iterator<EncodedElement, std::bidirectional_iterator_tag>
 	{
 	public:
 		EncodingIterator(const SourceIterator& sourceIt)
@@ -153,7 +154,7 @@ public:
 			return oldVal;			
 		}
 
-		char32_t operator*()
+		EncodedElement operator*()
 		{
 			return *_sourceIt;
 		}

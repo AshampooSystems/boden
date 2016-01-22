@@ -35,12 +35,12 @@ TEST_CASE( "Utf32Codec", "[string]" )
 	{
 		SECTION(pCurrData->desc)
 		{
-			Utf32Codec::EncodingIterator<std::u32string::iterator> begin(data.begin());
-			Utf32Codec::EncodingIterator<std::u32string::iterator> end(data.end());
+			Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> begin(data.begin());
+			Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> end(data.end());
 
 			// forward then backward iteration
 			{
-				Utf32Codec::EncodingIterator<std::u32string::iterator> it = begin;
+				Utf32Codec<char32_t>::EncodingIterator<std::u32string::iterator> it = begin;
 
 				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
 				{
@@ -71,12 +71,12 @@ TEST_CASE( "Utf32Codec", "[string]" )
 	{
 		SECTION(pCurrData->desc)
 		{
-			Utf32Codec::DecodingIterator<std::u32string::iterator> begin(data.begin(), data.begin(), data.end());
-			Utf32Codec::DecodingIterator<std::u32string::iterator> end(data.end(), data.begin(), data.end());
+			Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> begin(data.begin(), data.begin(), data.end());
+			Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> end(data.end(), data.begin(), data.end());
 
 			// forward then backward iteration
 			{
-				Utf32Codec::DecodingIterator<std::u32string::iterator> it = begin;
+				Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> it = begin;
 
 				for( auto expectedIt = data.begin(); expectedIt!=data.end(); ++expectedIt)
 				{
@@ -105,7 +105,7 @@ TEST_CASE( "Utf32Codec", "[string]" )
 
 			// backward then forward iteration
 			{
-				Utf32Codec::DecodingIterator<std::u32string::iterator> it = end;
+				Utf32Codec<char32_t>::DecodingIterator<std::u32string::iterator> it = end;
 
 				for( auto expectedIt = data.rbegin(); expectedIt!=data.rend(); ++expectedIt)
 				{
