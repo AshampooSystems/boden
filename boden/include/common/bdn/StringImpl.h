@@ -16,7 +16,7 @@ namespace bdn
 	While the String object stores the data internally in a certain encoding, it automatically
 	and efficiently decodes it when needed and only presents full characters to the class user.
 
-	That implies that all lengths and indices also refer to characters, not bytes or encoded entities.
+	That means that all lengths and indices also refer to characters, not bytes or encoded entities.
 	The iterators also work on characters and return full characters.
 
 	As a user of String you do not usually need to concern yourself with the internal encoding.

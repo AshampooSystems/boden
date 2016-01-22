@@ -15,7 +15,7 @@ namespace bdn
 	While the String object stores the data internally in a certain encoding, it automatically
 	and efficiently decodes it when needed and only presents full characters to the class user.
 
-	That implies that all lengths and indices also refer to characters, not bytes or encoded entities.
+	That means that all lengths and indices also refer to characters, not bytes or encoded entities.
 	The iterators also work on characters and return full characters.
 
 	As a user of String you do not usually need to concern yourself with the internal encoding.
@@ -48,8 +48,21 @@ namespace bdn
 	So all modifying operations (#replace, etc.) can potentially result in the entire string being copied once.
 	Note that this is not really a performance penalty, since this copy operation would simply have occurred
 	earlier if the String objects had not shared the same data.
+	
+	Note that this class is actually implemented as a typedef to StringImpl<NativeStringData> instead of being
+	derived from it.
 */
+
+#ifdef BDN_GENERATING_DOCS
+
+class String : public StringImpl<NativeStringData>
+{
+};
+
+#else
+
 typedef StringImpl<NativeStringData> String;
+#endif
 
 }
 

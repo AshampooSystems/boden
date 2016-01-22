@@ -6,7 +6,7 @@ namespace bdn
 {
 
 
-/** Base class for #SafeInit. Usually not used directly.*/
+/** Base class for SafeInit. Usually not used directly.*/
 class SafeInitBase
 {
 public:

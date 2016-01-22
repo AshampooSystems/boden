@@ -9,7 +9,7 @@ namespace bdn
 {
 
 
-/** Helper for #ErrorImpl. Do not use this directly.*/
+/** Helper for ErrorImpl. Do not use this directly.*/
 class _ErrorParamsMixin : public Base, BDN_IMPLEMENTS IErrorParams
 {
 public:

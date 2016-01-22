@@ -7,7 +7,7 @@ namespace bdn
 {
 
 
-/** Represents a lock on a #Mutex object.
+/** Represents a lock on a Mutex object.
 
 	When the MutexLock object is constructed it locks the mutex. When the MutexLock
 	object is destroyed it unlocks the mutex.

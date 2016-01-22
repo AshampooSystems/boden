@@ -9,7 +9,7 @@ namespace bdn
 {
 
 /** Base class for most other classes. Provides an implementation
-	for #IBase.
+	for IBase.
 	*/
 class Base : BDN_IMPLEMENTS IBase
 {
@@ -30,6 +30,7 @@ public:
 	virtual ~Base()
 	{
 	}
+
 
 	void addRef() const override
 	{
@@ -61,14 +62,24 @@ public:
 		return _refCount;
 	}
 
+
+	/** Checks if a cast to the specified type is allowed.
+		This is called by #bdn::cast when it has determined that the
+		class provides the specified type. By overriding this and returning
+		false, the implementation can cause #bdn::cast to treat the interface
+		as not supported.	
+	*/
 	bool checkCastAllowed(	const std::type_info& targetType ) const
 	{
 		return true;
 	}
 
 
+	/** A helper enumeration. This is only used if the raw new operator
+		needs to be called.*/
 	enum class RawNew
 	{
+		/** Helper value for the raw new operator.*/
 		Use
 	};
 
@@ -90,6 +101,8 @@ public:
 		return operator new(size);
 	}
 
+
+	/** Raw delete operator - see corresponding operator new for an explanation. */
 	inline void operator delete(void* p, RawNew)
 	{
 		operator delete(p);
@@ -100,6 +113,9 @@ public:
 		::operator delete(p);
 	}
 
+
+	/** Assignment operator. Does nothing - it only exists to ensure that
+		the internal reference counter is not copied.*/
 	Base& operator=(const Base& o)
 	{
 		// do nothing. This operator only exists to ensure that the reference count is not
