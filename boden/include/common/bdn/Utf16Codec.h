@@ -45,16 +45,16 @@ public:
 			_beginSourceIt = beginSourceIt;
 			_endSourceIt = endSourceIt;
 
-			_currChr = (char32_t)-1;
+			_chr = (char32_t)-1;
 		}
 
 		DecodingIterator()
 		{
-			_currChr = (UniChar)-1;
+			_chr = (char32_t)-1;
 		}
 
 
-		DecodingIterator<SourceIterator>& operator++()
+		DecodingIterator& operator++()
 		{
 			if(_chr==(char32_t)-1)
 			{
@@ -66,43 +66,62 @@ public:
 
 			_sourceIt = _nextIt;
 
+			_chr=(char32_t)-1;
+
 			return *this;
 		}
 
-		DecodingIterator<SourceIterator>& operator--()
+		DecodingIterator operator++(int)
+		{
+			DecodingIterator oldVal = *this;
+
+			operator++();
+
+			return oldVal;
+		}
+
+		DecodingIterator& operator--()
 		{
 			_nextIt = _sourceIt;
 
 			// iterate backwards until we find the beginning of
 			// a sequence.
 			_sourceIt--;
-			_chr = *sourceIt;
-			if(_chr>=0xdc00 && _chr<=0xdfff)
+			_chr = *_sourceIt;
+			if(_chr>=0xd800 && _chr<=0xdfff)
 			{
-				// a trailing surrogate. Need one more value.
-				if(_sourceIt==_beginSourceIt)
+				if(_chr<0xdc00)
 				{
-					// invalid sequence at the start. Cannot go further back.
+					// a leading surrogate at the end of a sequence => invalid
 					_chr = 0xfffd;
 				}
 				else
 				{
-					_sourceIt--;
-					char32_t highVal = *_sourceIt;
-					if(val<0xd800 || val>0xdbff)
+					// a trailing surrogate. Need one more value.
+					if(_sourceIt==_beginSourceIt)
 					{
-						// invalid leading surrogate. Which means that the
-						// first one is also invalid.
+						// invalid sequence at the start. Cannot go further back.
 						_chr = 0xfffd;
-						++_sourceIt;
 					}
 					else
 					{
-						highVal -= 0xd800;
+						_sourceIt--;
+						char32_t highVal = *_sourceIt;
+						if(highVal<0xd800 || highVal>0xdbff)
+						{
+							// invalid leading surrogate. Which means that the
+							// first one is also invalid.
+							_chr = 0xfffd;
+							++_sourceIt;
+						}
+						else
+						{
+							highVal -= 0xd800;
 
-						_chr -= 0xdc00;
-						_chr |= highVal<<10;
-						_chr += 0x010000;
+							_chr -= 0xdc00;
+							_chr |= highVal<<10;
+							_chr += 0x010000;
+						}
 					}
 				}
 			}
@@ -110,17 +129,26 @@ public:
 			return *this;
 		}
 
+		DecodingIterator operator--(int)
+		{
+			DecodingIterator oldVal = *this;
+
+			operator--();
+
+			return oldVal;
+		}
+
 		char32_t operator*()
 		{
 			if(_chr==(char32_t)-1)
 				decode();
 
-			return _currChr;
+			return _chr;
 		}
 
 		bool operator==(const DecodingIterator& o) const
 		{
-			return (_sourceIt!=o._sourceIt);
+			return (_sourceIt==o._sourceIt);
 		}
 
 		bool operator!=(const DecodingIterator& o) const
@@ -137,35 +165,44 @@ public:
 			_chr = *_nextIt;
 			++_nextIt;
 
-			if(_chr>=0xd800 && _chr<=0xdbff)
+			if(_chr>=0xd800 && _chr<=0xdfff)
 			{
-				// leading surrogate
-
-				if(_nextIt==_endSourceIt)
+				if(_chr>=0xdc00)
 				{
-					// no more data after the initial surrogate. Invalid value.
+					// trailing surrogate at the beginning => invalid
 					_chr = 0xfffd;
 				}
 				else
-				{
-					char32_t lowVal = *_nextIt;
-					if(lowVal>=0xdc00 && lowVal<=0xdfff)
+				{					
+					// leading surrogate
+
+					if(_nextIt==_endSourceIt)
 					{
-						// valid trailing surrogate
-						lowVal -= 0xdc00;
-						_chr-=0xd800;
-
-						_chr<<=10;
-						_chr |= lowVal;
-
-						_chr += 0x010000;
+						// no more data after the initial surrogate. Invalid value.
+						_chr = 0xfffd;
 					}
 					else
 					{
-						// not a valid trailing surrogate. So the leading surrogate should
-						// be treated as an invalid value.
-						_chr = 0xfffd;
-						_nextIt--;
+						char32_t lowVal = *_nextIt;					
+						if(lowVal>=0xdc00 && lowVal<=0xdfff)
+						{
+							// valid trailing surrogate
+							lowVal -= 0xdc00;
+							_chr-=0xd800;
+
+							_chr<<=10;
+							_chr |= lowVal;
+
+							_chr += 0x010000;
+
+							++_nextIt;
+						}
+						else
+						{
+							// not a valid trailing surrogate. So the leading surrogate should
+							// be treated as an invalid value.
+							_chr = 0xfffd;
+						}
 					}
 				}
 			}
@@ -240,7 +277,7 @@ public:
 				// means that we are at the beginning of the current character.
 
 				_sourceIt--;
-				_encode();
+				encode();
 
 				// move to the last value of the sequence.
 				_offset = _encodedLength-1;

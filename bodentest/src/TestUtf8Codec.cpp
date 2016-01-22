@@ -6,8 +6,6 @@
 namespace bdn
 {
 
-
-
 TEST_CASE( "utf8 decoding", "[string]" )
 {
 	using namespace bdn::Generators;
