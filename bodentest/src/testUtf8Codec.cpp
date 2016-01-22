@@ -6,7 +6,7 @@
 namespace bdn
 {
 
-TEST_CASE( "utf8 decoding", "[string]" )
+TEST_CASE( "Utf8Codec.decoding", "[string]" )
 {
 	struct SubTestData
 	{
@@ -54,7 +54,7 @@ TEST_CASE( "utf8 decoding", "[string]" )
 	std::u32string expectedDecoded(pCurrData->expectedDecoded);
 
 	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc, pCurrData->desc)
+	SECTION(pCurrData->desc)
 	{
 		Utf8Codec::DecodingIterator<std::string::iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
 		Utf8Codec::DecodingIterator<std::string::iterator> end(encoded.end(), encoded.begin(), encoded.end());
@@ -120,7 +120,7 @@ TEST_CASE( "utf8 decoding", "[string]" )
 
 
 
-TEST_CASE( "utf8 encoding", "[string]" )
+TEST_CASE( "Utf8Codec.encoding", "[string]" )
 {
 	struct SubTestData
 	{		
@@ -151,7 +151,7 @@ TEST_CASE( "utf8 encoding", "[string]" )
 	std::string expectedUtf8(pCurrData->expectedUtf8);
 
 	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc, pCurrData->desc)
+	SECTION(pCurrData->desc)
 	{
 		Utf8Codec::EncodingIterator<std::u32string::iterator> begin(input.begin());
 		Utf8Codec::EncodingIterator<std::u32string::iterator> end(input.end());

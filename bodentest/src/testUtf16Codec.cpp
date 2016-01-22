@@ -6,7 +6,7 @@
 namespace bdn
 {
 
-TEST_CASE( "utf16 decoding", "[string]" )
+TEST_CASE( "Utf16Codec.decoding", "[string]" )
 {
 	struct SubTestData
 	{
@@ -52,7 +52,7 @@ TEST_CASE( "utf16 decoding", "[string]" )
 	std::u32string expectedDecoded(pCurrData->expectedDecoded);
 
 	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc, pCurrData->desc)
+	SECTION(pCurrData->desc)
 	{
 		Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
 		Utf16Codec<char16_t>::DecodingIterator<std::u16string::iterator> end(encoded.end(), encoded.begin(), encoded.end());
@@ -118,7 +118,7 @@ TEST_CASE( "utf16 decoding", "[string]" )
 
 
 
-TEST_CASE( "utf16 encoding", "[string]" )
+TEST_CASE( "Utf16Codec.encoding", "[string]" )
 {
 	struct SubTestData
 	{		
@@ -163,7 +163,7 @@ TEST_CASE( "utf16 encoding", "[string]" )
 	std::u16string expectedUtf16(pCurrData->expectedUtf16);
 
 	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc, pCurrData->desc)
+	SECTION(pCurrData->desc)
 	{
 		Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> begin(input.begin());
 		Utf16Codec<char16_t>::EncodingIterator<std::u32string::iterator> end(input.end());
