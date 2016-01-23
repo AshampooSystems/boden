@@ -77,7 +77,7 @@ public:
 		@param lengthElements length of the string data in encoded 16 bit elements. If this is -1
 			then the length is auto detected and the string data must be zero-terminated.*/
 	StringData(const char16_t* s, int lengthElements = -1)
-		: StringData(	Utf16Codec(),
+		: StringData(	Utf16Codec<char16_t>(),
 						s,
 						makeEndIt(s, lengthElements) )
 	{
@@ -86,7 +86,7 @@ public:
 
 	/** Initializes the object from the specified UTF-16 encoded string.*/
 	StringData(const std::u16string& s)
-		: StringData(	Utf16Codec(),
+		: StringData(	Utf16Codec<char16_t>(),
 						s.begin(),
 						s.end() )
 	{
@@ -175,7 +175,7 @@ public:
 	template<>
 	StringData(const Codec& codec, typename Codec::EncodedString::iterator inputEncodedBeginIt, typename Codec::EncodedString::iterator inputEncodedEndIt)
 	{
-		_encodedString = typename Codec::EncodedString(inputEncodedBeginIt, inputEncodedBeginIt);
+		_encodedString = typename Codec::EncodedString(inputEncodedBeginIt, inputEncodedEndIt);
 	}
 
 
@@ -205,7 +205,7 @@ public:
 
 	/** Returns a pointer to a C-style zero terminated string. The string is encoded according
 		to the Codec used by this StringData.*/
-	const typename Codec::EncodedElement* c_str() const
+	const typename Codec::EncodedElement* getCString() const
 	{
 		return _encodedString.c_str();
 	}
@@ -266,6 +266,8 @@ protected:
 				lengthElements--;
 			}
 		}
+
+		return endIt;
 	}
 
 	typename Codec::EncodedString	_encodedString;

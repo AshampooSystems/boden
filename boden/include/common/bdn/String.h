@@ -8,28 +8,38 @@ namespace bdn
 {
 
     
-/** Stores and performs operations on a text string.
+/** Stores a text string and performs operations on it.
 
-	In contrast to the string classes in the standard library, String objects present
-	the string as a sequence of Unicode characters, not a string of encoded bytes.
-	While the String object stores the data internally in a certain encoding, it automatically
-	and efficiently decodes it when needed and only presents full characters to the class user.
+	All operations of the String class work with decoded 32 bit Unicode characters. As a user of String
+	you should forget about the internal encoding of the data (like UTF-8 or UTF-16 or the like).
+	
+	While String objectx do store their data internally in a certain encoding (like UTF-8 or UTF-16),
+	they automatically and efficiently decode them for access only presents full characters to the class user.	
+	This contrasts with the string classes in the standard library (like std::string), which expose the
+	encoded data bytes to the user.
 
-	That means that all lengths and indices also refer to characters, not bytes or encoded entities.
-	The iterators also work on characters and return full characters.
-
-	As a user of String you do not usually need to concern yourself with the internal encoding.
-
+	Since the String methods work with decoded characters, that means that its iterators also return
+	full characters and all lengths and indices etc. refer to character counts and indices as well.
+	
 	When you do need to access raw encoded data (for example, if you want to pass it to a system function
 	or a library that works with encoded strings) then you can call one of the getXYZString functions
-	(e.g. #getCString_Utf8, #getStdString, ...). The String implementation will provide the requested data
-	and cache it in case it is needed again.
+	(e.g. getCString_Utf8, getStdString, ...). The String implementation will provide the data in the requested
+	encoding. If the requested format does not match the internal encoding, then a converted copy is created
+	on the fly and cached in case it is needed again.
 
-	Some notes about performance and the implementation:
+	Multiple String objects can share the same internal data as a result of copy or subString (slicing) operations.
+	So assignment, copying and subString operations are very cheap and fast, since basically only a pointer to the existing data
+	is copied.
+
+	Implementation notes:
+
+	The following paragraphs contain notes about performance and the current implementation. The implementation
+	is subject to change, so you should not depend on it.
 
 	String objects store their data internally with the "native" Unicode encoding of the system.
 	On Windows this is UTF-16, on most other systems it is UTF-8. Note that String always uses a Unicode
-	encoding for its primary data, even if the native multibyte encoding defined in the locale is not UTF-8.
+	encoding for its primary data, even if the native multibyte encoding defined in the locale is not a Unicode
+	encoding.
 
 	String objects can hold a copy of their data in one additional encoding. This copy is generated on demand,
 	depending on which encoding is requested. For example, if you call #getCString_Utf8 on a UTF-16 string
@@ -38,17 +48,8 @@ namespace bdn
 		
 	If you request another non-native encoding then any previously cached copy is replaced.
 
-	Note that the String will never replace the copy of the data in native encoding. That one always remains.
-
-	Multiple String objects can share the same internal data as a result of copy or subString (slicing) operations.
-	So assignment, copying and subString operations are very cheap and fast, since basically only a pointer to the existing data
-	is copied.
-
-	This has the implication that String objects have to copy shared data before they can modify it (copy-on-write).
-	So all modifying operations (#replace, etc.) can potentially result in the entire string being copied once.
-	Note that this is not really a performance penalty, since this copy operation would simply have occurred
-	earlier if the String objects had not shared the same data.
-	
+	Note that the String will never replace their copy of the data in the primary encoding. That one always remains.
+			
 	Note that this class is actually implemented as a typedef to StringImpl<NativeStringData> instead of being
 	derived from it.
 */

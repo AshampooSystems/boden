@@ -32,7 +32,7 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<char32_t, std::bidirectional_iterator_tag>
+	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
 	{
 	public:
 		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt)
@@ -101,7 +101,7 @@ public:
 
 	/** A decoding iterator that works on the iterator type of the encoded standard string type
 		#EncodedString.*/
-	typedef DecodingIterator<typename EncodedString::iterator> DecodingStringIterator;
+	typedef DecodingIterator<typename EncodedString::const_iterator> DecodingStringIterator;
 
 
 
@@ -112,7 +112,7 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<EncodedElement, std::bidirectional_iterator_tag>
+	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag, EncodedElement>
 	{
 	public:
 		EncodingIterator(const SourceIterator& sourceIt)

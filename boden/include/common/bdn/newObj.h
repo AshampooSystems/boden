@@ -8,7 +8,7 @@ namespace bdn
 template<typename T, typename... Arguments>
 P<T> newObj(Arguments... args)
 {
-	return P<T>()._attach( new(Base::RawNew::Use) T(args...) );
+	return P<T>().attach( new(Base::RawNew::Use) T(args...) );
 }
 
 
