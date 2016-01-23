@@ -2216,11 +2216,13 @@ namespace bdn {
 
         Totals& operator += ( Totals const& other ) {
             assertions += other.assertions;
+			sections += other.sections;
             testCases += other.testCases;
             return *this;
         }
 
         Counts assertions;
+		Counts sections;
         Counts testCases;
     };
 }

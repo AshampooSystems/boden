@@ -2758,7 +2758,7 @@ private: // IResultCapture
 		m_reporter->sectionStarting( sectionInfo );
 
 		assertions = m_totals.assertions;
-
+		
 		return true;
 	}
 	bool testForMissingAssertions( Counts& assertions ) {
@@ -2774,13 +2774,16 @@ private: // IResultCapture
 	}
 
 	virtual void sectionEnded( SectionEndInfo const& endInfo ) {
+
 		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
-
+		
 		if( !m_activeSections.empty() ) {
 			m_activeSections.back()->close();
 			m_activeSections.pop_back();
 		}
+
+		m_totals.sections.passed++;
 
 		m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
 		m_messages.clear();
@@ -2792,6 +2795,8 @@ private: // IResultCapture
 		else
 			m_activeSections.back()->close();
 		m_activeSections.pop_back();
+
+		m_totals.sections.failed++;
 
 		m_unfinishedSections.push_back( endInfo );
 	}
@@ -6583,6 +6588,7 @@ private:
 			stream << Colour( Colour::ResultSuccess ) << "All tests passed";
 			stream << " ("
 				<< pluralise( totals.assertions.passed, "assertion" ) << " in "
+				<< pluralise( totals.sections.passed, "section" ) << " and "
 				<< pluralise( totals.testCases.passed, "test case" ) << ")"
 				<< "\n";
 		}
@@ -6931,19 +6937,23 @@ private:
 			stream <<
 				"Failed " << bothOrAll( totals.testCases.failed )
 				<< pluralise( totals.testCases.failed, "test case"  ) << ", "
+				"failed " << bothOrAll( totals.sections.failed ) <<
+				pluralise( totals.sections.failed, "section" ) << ","
 				"failed " << qualify_assertions_failed <<
 				pluralise( totals.assertions.failed, "assertion" ) << ".";
 		}
 		else if( totals.assertions.total() == 0 ) {
 			stream <<
 				"Passed " << bothOrAll( totals.testCases.total() )
-				<< pluralise( totals.testCases.total(), "test case" )
+				<< pluralise( totals.testCases.total(), "test case" ) << ", "
+				<< pluralise( totals.sections.total(), "section" )
 				<< " (no assertions).";
 		}
 		else if( totals.assertions.failed ) {
 			Colour colour( Colour::ResultError );
 			stream <<
 				"Failed " << pluralise( totals.testCases.failed, "test case"  ) << ", "
+				"failed " << pluralise( totals.sections.failed, "section"  ) << ", "
 				"failed " << pluralise( totals.assertions.failed, "assertion" ) << ".";
 		}
 		else {
@@ -6951,7 +6961,8 @@ private:
 			stream <<
 				"Passed " << bothOrAll( totals.testCases.passed )
 				<< pluralise( totals.testCases.passed, "test case"  ) <<
-				" with "  << pluralise( totals.assertions.passed, "assertion" ) << ".";
+				" with "  << pluralise( totals.sections.passed, "section" ) <<
+				" and "  << pluralise( totals.assertions.passed, "assertion" ) << ".";
 		}
 	}
 };
