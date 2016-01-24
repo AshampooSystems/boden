@@ -23,7 +23,7 @@ class Utf16StringData
 
 #else
 
-typedef StringData<Utf16Codec> Utf16StringData;
+typedef StringData<Utf16Codec<char16_t> > Utf16StringData;
 
 #endif
 

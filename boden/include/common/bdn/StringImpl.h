@@ -123,6 +123,30 @@ public:
 	{
 	}
 	
+
+	/** Initializes the object with the data between two character iterators.
+		The iterators must return fully decoded 32 bit Unicode characters.*/
+	template<class InputDecodedCharIterator>
+	StringImpl(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt)
+		: StringImpl( newObj<MainDataType>(beginIt, endIt) )
+	{
+	}
+
+
+	/** Initializes the object with the data between two iterators whose data is encoded
+		according to the specified InputCodec codec type.
+
+		The data is first automatically decoded and then re-encoded to this String's data codec.
+		The only exception is if InputCodec is the same codec that this String uses. In that
+		case the data will simply be copied as is.
+	*/
+	template<class InputCodec, class InputEncodedIterator>
+	StringImpl(const InputCodec& codec, InputEncodedIterator inputEncodedBeginIt, InputEncodedIterator inputEncodedEndIt)
+		: StringImpl( newObj<MainDataType>(codec, inputEncodedBeginIt, inputEncodedEndIt) )
+	{
+	}
+
+	
 	StringImpl(MainDataType* pData)
 		: _pData(pData)
 		, _beginIt( pData->begin() )

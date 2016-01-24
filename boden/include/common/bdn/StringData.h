@@ -137,7 +137,7 @@ public:
 	}
 
 
-	/** Initializes the object with the data between two arbitrary character iterators.
+	/** Initializes the object with the data between two character iterators.
 		The iterators must return fully decoded 32 bit Unicode characters.*/
 	template<class InputDecodedCharIterator>
 	StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt)
@@ -149,7 +149,7 @@ public:
 	}
 
 
-	/** Initializes the object with the data between two arbitrary iterators that are encoded
+	/** Initializes the object with the data between two iterators whose data is encoded
 		according to the specified InputCodec codec type.
 		
 		The data is first automatically decoded and then re-encoded with the Codec used by this
