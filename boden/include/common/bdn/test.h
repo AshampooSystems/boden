@@ -2199,6 +2199,7 @@ namespace bdn {
         Totals operator - ( Totals const& other ) const {
             Totals diff;
             diff.assertions = assertions - other.assertions;
+			diff.tests = tests - other.tests;
             diff.testCases = testCases - other.testCases;
             return diff;
         }
@@ -2216,13 +2217,13 @@ namespace bdn {
 
         Totals& operator += ( Totals const& other ) {
             assertions += other.assertions;
-			sections += other.sections;
+			tests += other.tests;
             testCases += other.testCases;
             return *this;
         }
 
         Counts assertions;
-		Counts sections;
+		Counts tests;
         Counts testCases;
     };
 }

@@ -2696,6 +2696,7 @@ public:
 			m_trackerContext.startRun();
 			do {
 				m_trackerContext.startCycle();
+
 				m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, testInfo.name );
 				runCurrentTest( redirectedCout, redirectedCerr );
 			}
@@ -2783,8 +2784,6 @@ private: // IResultCapture
 			m_activeSections.pop_back();
 		}
 
-		m_totals.sections.passed++;
-
 		m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
 		m_messages.clear();
 	}
@@ -2795,9 +2794,7 @@ private: // IResultCapture
 		else
 			m_activeSections.back()->close();
 		m_activeSections.pop_back();
-
-		m_totals.sections.failed++;
-
+		
 		m_unfinishedSections.push_back( endInfo );
 	}
 
@@ -2859,6 +2856,7 @@ public:
 private:
 
 	void runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr ) {
+
 		TestCaseInfo const& testCaseInfo = m_activeTestCase->getTestCaseInfo();
 		SectionInfo testCaseSection( testCaseInfo.lineInfo, testCaseInfo.name, testCaseInfo.description );
 		m_reporter->sectionStarting( testCaseSection );
@@ -2880,12 +2878,16 @@ private:
 				invokeActiveTestCase();
 			}
 			duration = timer.getElapsedSeconds();
+
+			m_totals.tests.passed++;
 		}
 		catch( TestFailureException& ) {
 			// This just means the test was aborted due to failure
+			m_totals.tests.failed++;
 		}
 		catch(...) {
-			makeUnexpectedResultBuilder().useActiveException();
+			m_totals.tests.failed++;
+			makeUnexpectedResultBuilder().useActiveException();			
 		}
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
@@ -6588,7 +6590,7 @@ private:
 			stream << Colour( Colour::ResultSuccess ) << "All tests passed";
 			stream << " ("
 				<< pluralise( totals.assertions.passed, "assertion" ) << " in "
-				<< pluralise( totals.sections.passed, "section" ) << " and "
+				<< pluralise( totals.tests.passed, "test" ) << " and "
 				<< pluralise( totals.testCases.passed, "test case" ) << ")"
 				<< "\n";
 		}
@@ -6937,8 +6939,8 @@ private:
 			stream <<
 				"Failed " << bothOrAll( totals.testCases.failed )
 				<< pluralise( totals.testCases.failed, "test case"  ) << ", "
-				"failed " << bothOrAll( totals.sections.failed ) <<
-				pluralise( totals.sections.failed, "section" ) << ","
+				"failed " << bothOrAll( totals.tests.failed ) <<
+				pluralise( totals.tests.failed, "test" ) << ","
 				"failed " << qualify_assertions_failed <<
 				pluralise( totals.assertions.failed, "assertion" ) << ".";
 		}
@@ -6946,14 +6948,14 @@ private:
 			stream <<
 				"Passed " << bothOrAll( totals.testCases.total() )
 				<< pluralise( totals.testCases.total(), "test case" ) << ", "
-				<< pluralise( totals.sections.total(), "section" )
+				<< pluralise( totals.tests.total(), "test" )
 				<< " (no assertions).";
 		}
 		else if( totals.assertions.failed ) {
 			Colour colour( Colour::ResultError );
 			stream <<
 				"Failed " << pluralise( totals.testCases.failed, "test case"  ) << ", "
-				"failed " << pluralise( totals.sections.failed, "section"  ) << ", "
+				"failed " << pluralise( totals.tests.failed, "test"  ) << ", "
 				"failed " << pluralise( totals.assertions.failed, "assertion" ) << ".";
 		}
 		else {
@@ -6961,7 +6963,7 @@ private:
 			stream <<
 				"Passed " << bothOrAll( totals.testCases.passed )
 				<< pluralise( totals.testCases.passed, "test case"  ) <<
-				" with "  << pluralise( totals.sections.passed, "section" ) <<
+				" with "  << pluralise( totals.tests.passed, "test" ) <<
 				" and "  << pluralise( totals.assertions.passed, "assertion" ) << ".";
 		}
 	}
