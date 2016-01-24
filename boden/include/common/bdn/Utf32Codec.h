@@ -8,10 +8,11 @@ namespace bdn
 
 /** The Utf-32 string codec.
 
-	The template parameter EL must be a 32 bit integer type. Usually either char32_t or
-	wchar_t (on systems where wchar_t is 32 bit)
+	\tparam EL specifies the type of the encoded elements. It
+		must be a 32 bit integer type. Usually either char32_t or wchar_t (on systems
+		where wchar_t is 32 bit). The default is char32_t.
 */
-template<class EL>
+template<class EL = char32_t>
 class Utf32Codec
 {
 public:

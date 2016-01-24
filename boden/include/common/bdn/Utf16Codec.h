@@ -8,10 +8,11 @@ namespace bdn
 
 /** The Utf-16 string codec.
 
-	The template parameter EL must be a 16 bit integer type. Usually either char16_t or
-	wchar_t (on systems where wchar_t is 16 bit)
+	\tparam EL specifies the type of the encoded elements. It
+		must be a 16 bit integer type. Usually either char16_t or wchar_t (on systems
+		where wchar_t is 16 bit). The default is char16_t.
 */
-template<class EL>
+template<class EL = char16_t>
 class Utf16Codec
 {
 public:
