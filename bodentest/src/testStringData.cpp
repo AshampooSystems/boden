@@ -230,6 +230,52 @@ inline void testStringData()
 
 		REQUIRE( pData == pData2);
 	}
+
+	SECTION("iterator")
+	{
+		StringData<CODEC> data("helloworld");
+
+		StringData<CODEC>::Iterator it = data.begin();
+
+		REQUIRE(*it==U'h');
+
+		it++;
+
+		REQUIRE(*it==U'e');
+
+		it--;
+
+		REQUIRE(*it==U'h');
+
+		++it;
+
+		REQUIRE(*it==U'e');
+
+		--it;
+
+		REQUIRE(*it==U'h');
+
+		it+=4;
+
+		REQUIRE(*it==U'o');
+
+		it-=3;
+
+		REQUIRE(*it==U'e');
+
+		StringData<CODEC>::Iterator it2 = it+6;
+
+		REQUIRE(*it==U'e');
+		REQUIRE(*it2==U'r');
+
+		StringData<CODEC>::Iterator it3 = it2-6;
+
+		REQUIRE(*it2==U'r');
+		REQUIRE(*it3==U'e');
+
+		REQUIRE( checkEquality(it3, it, true) );
+		REQUIRE( checkEquality(it, it2, false) );
+	}
 }
 
 TEST_CASE("StringData")

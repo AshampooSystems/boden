@@ -167,6 +167,133 @@ inline void testStringImpl()
 	{
 		testConstruct<DATATYPE>();
 	}
+
+	SECTION("equality")
+	{
+		StringImpl<DATATYPE> s("helloworld");
+		StringImpl<DATATYPE> s2("helloworld");
+		StringImpl<DATATYPE> s3("bla");
+
+		REQUIRE( checkEquality(s, s2, true) );
+		REQUIRE( checkEquality(s, s3, false) );
+
+		REQUIRE( s=="helloworld" );
+		REQUIRE( s!="helloworl" );
+		REQUIRE( s!="elloworld" );
+		REQUIRE( s!="helgoworld" );
+		REQUIRE( s!="helloWorld" );		
+	}
+
+	SECTION("isEmpty")
+	{
+		StringImpl<DATATYPE> s("helloworld");
+		StringImpl<DATATYPE> s2("");
+		StringImpl<DATATYPE> s3;
+
+		REQUIRE( !s.isEmpty() );
+		REQUIRE( s2.isEmpty() );
+		REQUIRE( s3.isEmpty() );
+	}
+
+	SECTION("subString")
+	{
+		StringImpl<DATATYPE> s("helloworld");
+
+		SECTION("empty")
+		{
+			SECTION("atStart")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(0, 0);
+				REQUIRE( s2=="" );
+
+				StringImpl<DATATYPE> s3 = s.subString(s.begin(), s.begin() );
+				REQUIRE( s3=="" );
+			}
+
+			SECTION("atLast")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(9, 0);
+				REQUIRE( s2=="" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.end()-1, s.end()-1);
+				REQUIRE( s3=="" );
+			}
+
+			SECTION("atEnd")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(10, 0);
+				REQUIRE( s2=="" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.end(), s.end() );
+				REQUIRE( s3=="" );
+			}
+
+			SECTION("inMiddle")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(5, 0);
+				REQUIRE( s2=="" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.begin()+5, s.begin()+5 );
+				REQUIRE( s3=="" );
+			}
+		}
+
+		SECTION("full")
+		{
+			SECTION("explicitLength")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(0, 10);
+				REQUIRE( s2=="helloworld" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.begin(), s.end() );
+				REQUIRE( s3=="helloworld" );
+			}
+
+			SECTION("toEnd")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(0, -1);
+				REQUIRE( s2=="helloworld" );
+			}
+		}
+
+		SECTION("partial")
+		{
+			SECTION("fromStart")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(0, 5);
+				REQUIRE( s2=="hello" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.begin(), s.begin()+5 );
+				REQUIRE( s3=="hello" );
+			}
+
+			SECTION("fromMiddleToMiddle")
+			{
+				StringImpl<DATATYPE> s2 = s.subString(3, 5);
+				REQUIRE( s2=="lowor" );
+
+				StringImpl<DATATYPE> s3 = s.subString( s.begin()+3, s.begin()+8 );
+				REQUIRE( s3=="lowor" );
+			}
+
+			SECTION("fromMiddleToEnd")
+			{
+				SECTION("explicitLength")
+				{
+					StringImpl<DATATYPE> s2 = s.subString(5, 5);
+					REQUIRE( s2=="world" );
+
+					StringImpl<DATATYPE> s3 = s.subString( s.begin()+5, s.end() );
+					REQUIRE( s3=="world" );
+				}
+				SECTION("toEnd")
+				{
+					StringImpl<DATATYPE> s2 = s.subString(5, -1);
+					REQUIRE( s2=="world" );
+				}
+			}
+		}
+	}
 }
 
 

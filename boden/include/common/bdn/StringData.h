@@ -35,13 +35,63 @@ namespace bdn
 		See #Utf8Codec for an example and a description of the parameters.
 
 */
-template<class Codec>
+template<class CODEC>
 class StringData : public Base
 {
 public:
 
+	typedef CODEC Codec;
+	typedef typename Codec::EncodedString EncodedString;
+
+
 	/** Iterator type for the string data. The iterator returns fully decoded 32 bit Unicode characters (char32_t).*/
-	typedef typename Codec::DecodingStringIterator Iterator;
+	class Iterator : public Codec::DecodingStringIterator
+	{
+	public:
+		Iterator(	const typename EncodedString::const_iterator& encodedIt,
+					const typename EncodedString::const_iterator& encodedBegin,
+					const typename EncodedString::const_iterator& encodedEnd)
+			: Codec::DecodingIterator<EncodedString::const_iterator>(encodedIt, encodedBegin, encodedEnd)
+		{
+		}
+
+		Iterator()
+		{
+		}
+
+		Iterator& operator+=(int val)
+		{
+			for(int i=0; i<val; i++)
+				operator++();
+
+			return *this;
+		}
+
+		Iterator& operator-=(int val)
+		{
+			for(int i=0; i<val; i++)
+				operator--();
+
+			return *this;
+		}
+
+
+		Iterator operator+(int val) const
+		{
+			Iterator it = *this;
+			it+=val;
+
+			return it;
+		}
+
+		Iterator operator-(int val) const
+		{
+			Iterator it = *this;
+			it-=val;
+
+			return it;
+		}
+	};
 
 	StringData()
 		: StringData("", 0)

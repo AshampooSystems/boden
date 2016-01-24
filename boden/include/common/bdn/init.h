@@ -20,4 +20,6 @@
 
 #include <bdn/ErrorImpl.h>
 
+#include <bdn/InvalidArgumentError.h>
+
 #endif

@@ -222,7 +222,7 @@ public:
 		int myCharCount = getCharCount();
 
 		if (startIndex<0 || startIndex>myCharCount)
-			throw InvalidArgError("String::subString", "Invalid start index: "+toString(startIndex) );
+			throw InvalidArgumentError("String::subString: Invalid start index: "+std::to_string(startIndex) );
 		if (charCount>=0 && startIndex+charCount>myCharCount)
 			charCount = myCharCount-startIndex;
 
