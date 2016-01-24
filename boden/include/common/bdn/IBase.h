@@ -14,7 +14,7 @@ namespace bdn
 
 /** Base interface for most classes.
 
-	It defines the methods for reference counting and cast overriding.
+	It defines the methods for reference counting.
 
 	Classes must implement IBase to be compatible with the smart pointer bdn::P.
 	Usually classes simply inherit from Base (which provides a default implementation),
@@ -45,9 +45,6 @@ public:
 	virtual void releaseRef() const=0;
 
 
-	/** Called when the object is cast to the specified type.
-		Returns true if the cast should be allowed and false otherwise.*/
-	virtual bool checkCastAllowed(	const std::type_info& targetType ) const=0;
 
 };
     

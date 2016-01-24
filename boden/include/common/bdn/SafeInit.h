@@ -1,7 +1,6 @@
 #ifndef BDN_SafeInit_H_
 #define BDN_SafeInit_H_
 
-
 namespace bdn
 {
 

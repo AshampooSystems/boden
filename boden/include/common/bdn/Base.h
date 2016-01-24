@@ -63,18 +63,6 @@ public:
 	}
 
 
-	/** Checks if a cast to the specified type is allowed.
-		This is called by #bdn::cast when it has determined that the
-		class provides the specified type. By overriding this and returning
-		false, the implementation can cause #bdn::cast to treat the interface
-		as not supported.	
-	*/
-	bool checkCastAllowed(	const std::type_info& targetType ) const
-	{
-		return true;
-	}
-
-
 	/** A helper enumeration. This is only used if the raw new operator
 		needs to be called.*/
 	enum class RawNew
