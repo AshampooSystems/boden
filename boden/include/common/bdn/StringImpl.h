@@ -9,6 +9,27 @@
 namespace bdn
 {
 
+/** Converts a wide char string into the multibyte encoding of the specified locale.
+	If the locale is not specified then the global locale is used.
+	
+	Unencodable characters are replaced with the Unicode replacement character (0xfffd).
+	If the replacement character is also unencodable then a question mark ('?') is used instead.
+	If that is also unencodable then the character is simply skipped.
+	
+	*/
+std::string wideToLocaleMultiByte(const std::wstring& wideString, const std::locale& loc = std::locale());
+
+
+/** Converts a string that is encoded with the multibyte encoding of the specified locale
+	to a wide char string.
+	If the locale is not specified then the global locale is used.
+
+	Unencodable characters are replaced with the Unicode replacement character (0xfffd).
+	If the replacement character is also unencodable then a question mark ('?') is used instead.
+	If that is also unencodable then the character is simply skipped.
+*/
+std::wstring localeMultiByteToWide(const std::string& multiByteString, const std::locale& loc = std::locale());
+
 
 /** Provides an implementation of a String class with the internal encoding being
 	controlled by the template parameter MainDataType. MainDataType must be a StringData object
@@ -358,129 +379,195 @@ public:
 	}
 
 
-	/** Returns a pointer to a zero terminated c-style string in UTF-8 encoding.
+	/** Returns a pointer to the string as a zero terminated c-style string in UTF-8 encoding.
 
 		This operation might invalidate existing iterators.
-	*/
-	const char* getCString_UTF8() const
-	{
-		Utf8StringData* pTypedData = getTypedData<Utf8StringData>( !isZeroTerminated() );
 
-		return pTypedData->getData(_beginIt.getInnerIt());
+		The pointer remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const char* asUtf8Ptr() const
+	{
+		return getEncoded<Utf8StringData>().c_str();
+	}
+
+	
+	/** Returns a reference to the string as a std::string object in UTF-8 encoding.
+
+		This operation might invalidate existing iterators. The returned object reference
+		remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const std::string& asUtf8() const
+	{
+		return getEncoded<Utf8StringData>();
 	}
 
 
-	/** Same as #getCString_UTF8. This function is included for compatibility with std::string.*/
+	/** Conversion operator to const char.
+		Same as calling asUtf8Ptr().*/
+	explicit operator const char*() const
+	{
+		return asUtf8Ptr();
+	}
+
+
+	/** Conversion operator to std::string.
+		Same as calling asUtf8().*/
+	explicit operator const std::string&() const
+	{
+		return asUtf8();
+	}
+
+	
+	/** Same as asUtf8Ptr(). This function is included for compatibility with std::string.*/
 	const char* c_str() const
 	{
-		return getCString_UTF8();
+		return getUtf8Ptr();
 	}
 
 
-	/** Returns a pointer to a zero terminated c-style string in the locale's multibyte encoding.
+	/** Returns a pointer to the string as a zero terminated c-style string in "wide char" encoding
+		(either UTF-16 or UTF-32, depending on the size of wchar_t).
 
 		This operation might invalidate existing iterators.
+
+		The pointer remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
 	*/
-	const char* getCString_Locale() const
+	const wchar_t* asWidePtr() const
 	{
-		return getLocaleData()->getData();			
+		return getEncoded<WStringData>().c_str();
 	}
-
-
-	/** Returns a pointer to a zero terminated c-style string in "wide char" encoding
-		(either UTF-16 or UTF-32, depending on the size of wchar_t).
 	
-		This operation might invalidate existing iterators.
-	*/
-	const wchar_t* getCWString() const
-	{
-		WStringData* pTypedData = getTypedData<WStringData>( !isZeroTerminated() );
-
-		return pTypedData->getData(_beginIt.getInnerIt());
-	}
-
-
-	/** Returns a pointer to a zero terminated c-style string in UTF-16 encoding.
-
-		This operation might invalidate existing iterators.
-	*/
-	const char16_t* getC16String() const
-	{
-		Utf16StringData* pTypedData = getTypedData<Utf16StringData>( !isZeroTerminated() );
-
-		return pTypedData->getData(_beginIt.getInnerIt());
-	}
-
-
-	/** Returns a pointer to a zero terminated c-style string in UTF-32 encoding.
-
-		This operation might invalidate existing iterators.
-	*/
-	const char32_t* getC32String() const
-	{
-		Utf32StringData* pTypedData = getTypedData<Utf32StringData>( !isZeroTerminated() );
-
-		return pTypedData->getData(_beginIt.getInnerIt());
-	}
-
-
-	/** Returns a reference to a std::string object in UTF-8 encoding.
-
-		This operation might invalidate existing iterators.
-	*/
-	const std::string& getStdString_Utf8() const
-	{
-		Utf8StringData* pTypedData = getTypedData<Utf8StringData>( isSubString() );
-
-		return *pTypedData;
-	}
-
-
-	/** Returns a reference to a std::string object in in the locale's multibyte encoding.
-
-		This operation might invalidate existing iterators.
-	*/
-	const std::string& getStdString_Locale() const
-	{
-		return *getLocaleData();
-	}
-
-
-	/** Returns a reference to a std::wstring object in "wide char" encoding
+	
+	/** Returns a reference to the string as a std::wstring object in in "wide char" encoding
 		(either UTF-16 or UTF-32, depending on the size of wchar_t).
 
-		This operation might invalidate existing iterators.
+		This operation might invalidate existing iterators. The returned object reference
+		remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
 	*/
-	const std::wstring& getStdWString() const
+	const std::wstring& asWide() const
 	{
-		WStringData* pTypedData = getTypedData<WStringData>( isSubString() )
+		return getEncoded<WStringData>();
+	}
 
-			return *pTypedData;
+	/** Conversion operator to const wchar_t.
+		Same as calling asWidePtr().*/
+	explicit operator const wchar_t*() const
+	{
+		return asWidePtr();
 	}
 
 
-	/** Returns a reference to a std::u16string object in UTF-16 encoding.
+	/** Conversion operator to const std::wstring.
+		Same as calling asWide().*/
+	explicit operator const std::wstring&() const
+	{
+		return asWide();
+	}
+
+	
+	/** Returns a pointer to the string as a zero terminated c-style string in UTF-16 encoding.
 
 		This operation might invalidate existing iterators.
-	*/
-	const std::u16string& getStdU16String() const
-	{
-		Utf16StringData* pTypedData = getTypedData<Utf16StringData>( isSubString() )
 
-			return *pTypedData;
+		The pointer remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const char16_t* asUtf16Ptr() const
+	{
+		return getEncoded<Utf16Data>().c_str();
 	}
 
 
-	/** Returns a reference to a std::u32string object in UTF-32 encoding.
+	/** Returns a reference to the string as a std::u16string object in UTF-16 encoding
+
+		This operation might invalidate existing iterators. The returned object reference
+		remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const std::u16string& asUtf16() const
+	{
+		return getEncoded<Utf16Data>();
+	}
+	
+
+	/** Conversion operator to const char16_t.
+		Same as calling asUtf16Ptr().*/
+	explicit operator const char16_t*() const
+	{
+		return asUtf16Ptr();
+	}
+
+	/** Conversion operator to const char16_t.
+	Same as calling asUtf16Ptr().*/
+	explicit operator const std::u16string&() const
+	{
+		return asUtf16();
+	}
+
+
+	/** Returns a pointer to the string as a zero terminated c-style string in UTF-32 encoding.
 
 		This operation might invalidate existing iterators.
-	*/
-	const std::u32string& getStdU32String() const
-	{
-		Utf32StringData* pTypedData = getTypedData<Utf32StringData>( isSubString() )
 
-			return *pTypedData;
+		The pointer remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const char32_t* asUtf32Ptr() const
+	{
+		return getEncoded<Utf32Data>().c_str();
 	}
+
+
+	/** Returns a reference to the string as a std::u16string object in UTF-32 encoding
+
+	This operation might invalidate existing iterators. The returned object reference
+	remains valid at least until one of the other asXYZ conversion functions is called
+	or the entire string object is destroyed.
+	*/
+	const std::u32string& asUtf32() const
+	{
+		return getEncoded<Utf32Data>();
+	}
+
+
+	/** Conversion operator to const char32_t.
+		Same as calling asUtf32Ptr().*/
+	explicit operator const char32_t*() const
+	{
+		return asUtf32Ptr();
+	}
+
+	/** Conversion operator to const char32_t.
+		Same as calling asUtf32().*/
+	explicit operator const std::u32string&() const
+	{
+		return asUtf32();
+	}
+
+
+
+
+	/** Returns a copy of the string as a std::string object in the specified
+		locale's multibyte encoding.
+
+		If the locale is not specified then the global locale is used.
+
+		Note that in contrast to the asXYZ conversion routines this function always
+		returns a new copy of the data.
+	*/
+	std::string toLocaleEncoded(const std::locale& loc = std::locale()) const
+	{
+		// note: we must use the wide char encoding as a basis, because that is the
+		// only facet provided by the locale object that converts to the locale-specific
+		// multibyte encoding. All other facets only convert to UTF-8.
+		return wideStringToLocaleEncoded(asWide(), loc);
+	}
+
+
 
 
 	int compare(const StringImpl& o) const
@@ -694,36 +781,37 @@ protected:
 	}
 
 
-	template<class StringDataType>
-	StringDataType* getTypedData(bool forceCopy) const
+	template<class T>
+	typename const T::EncodedString& getEncoded() const
 	{
-		if (!forceCopy)
+		T* p = dynamic_cast<T*>(_pDataInDifferentEncoding.getPtr());
+		if (p == nullptr)
 		{
-			StringDataType* pTypedData = dynamic_cast<StringDataType*>(_pDataInDifferentEncoding);
-			if (pTypedData != nullptr)
-				return pTypedData;
+			P<T> pNewData = newObj<T>(_beginIt, _endIt);
+			_pDataInDifferentEncoding = pNewData;
+
+			p = pNewData;
 		}
 
-		_pDataInDifferentEncoding = newObj<StringDataType>(_beginIt, _endIt);
-
-		return _pDataInDifferentEncoding;
+		return p->toStd();
 	}
 
-
 	template<>
-	MainDataType* getTypedData(bool forceCopy) const
+	typename const MainDataType::EncodedString& getEncoded<MainDataType>() const
 	{
-		if(forceCopy)
+		if(_endIt!=_pData->end() || _beginIt!=_pData->begin())
 		{
-			// this usually means that we want the data to be zero-terminated, but it currently is not.
+			// we are a sub-slice of another string. Copy it now, so that we can return
+			// the object.
 			_pData = newObj<MainDataType>(_beginIt, _endIt);
 			_beginIt = _pData->begin();
 			_endIt = _pData->end();
 		}
 
-		return _pData;		
+		return _pData->toStd();
 	}
 
+	
 
 	mutable P<MainDataType>	_pData;
 	mutable Iterator		_beginIt;

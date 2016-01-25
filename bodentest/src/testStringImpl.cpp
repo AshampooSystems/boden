@@ -413,6 +413,39 @@ inline void testIterators()
 	}
 }
 
+
+template<class DATATYPE>
+inline void testConversion()
+{
+	StringImpl<DATATYPE> s("hello");
+
+	SECTION("utf8")
+	{
+		const char* p = s.asUtf8Ptr();
+		REQUIRE( std::string(p)=="hello" );
+		
+		const char* p2( s );
+		REQUIRE( std::string(p2)=="hello" );
+
+		// must be the exact same pointer
+		REQUIRE( p2==p );
+
+		const std::string& o = s.asUtf8();
+		REQUIRE( o=="hello" );
+		const std::string& o2 = s.asUtf8();
+		REQUIRE( o2=="hello" );
+
+		// must be the same object
+		REQUIRE( &o==&o2 );
+	}
+
+	SECTION("utf8")
+	{
+		const char* p = s.asUtf8Ptr();
+		REQUIRE( strcmp(p, "hello")==0 );
+	}
+}
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -464,6 +497,11 @@ inline void testStringImpl()
 	{
 		testIterators<DATATYPE>();		
 	}
+
+	SECTION("conversion")
+	{
+		testConversion<DATATYPE>();
+	}
 }
 
 
@@ -492,6 +530,107 @@ TEST_CASE("StringImpl")
 	SECTION("native")
 	{
 		testStringImpl<NativeStringData>();
+	}
+}
+
+void verifyWideMultiByteConversion( const std::wstring& inWide,
+									const std::string& multiByte,
+									const std::wstring& outWide)
+{
+	// the back-converted string should have the same length at least. Unencodable character
+	// should have been replaced with a replacement character.
+
+	// note that the wide versions should have the same lengths
+	for(size_t i=0; i<inWide.length(); i++)
+	{
+		wchar_t inChr = inWide[i];
+
+		REQUIRE( i<outWide.length() );
+
+		wchar_t outChr = outWide[i];
+
+		// we assume that ASCII characters are representable in the multibyte encoding.
+		if(inChr<0x80)
+		{
+			REQUIRE( outChr==inChr );
+		}
+		else
+		{
+			// non-ASCII characters might have been replaced with one of the replacement characters
+			REQUIRE( (outChr==inChr || outChr==U'\ufffd' || outChr==U'?') );
+		}
+	}
+
+	REQUIRE(outWide.length() == inWide.length());
+}
+
+void verifyWideMultiByteConversion(const std::wstring& inWide)
+{
+	std::string  multiByte;
+	std::wstring outWide;
+
+	SECTION("defaultLocale")
+	{
+		multiByte = wideToLocaleMultiByte(inWide);
+		outWide = localeMultiByteToWide(multiByte);
+
+		verifyWideMultiByteConversion(inWide, multiByte, outWide);
+	}
+
+	SECTION("globalLocale")
+	{
+		multiByte = wideToLocaleMultiByte(inWide, std::locale());
+		outWide = localeMultiByteToWide(multiByte, std::locale());
+
+		verifyWideMultiByteConversion(inWide, multiByte, outWide);
+	}
+
+	SECTION("classicLocale")
+	{
+		multiByte = wideToLocaleMultiByte(inWide, std::locale::classic());
+		outWide = localeMultiByteToWide(multiByte, std::locale::classic());
+
+		verifyWideMultiByteConversion(inWide, multiByte, outWide);
+	}
+
+}
+
+
+TEST_CASE("wideMultiByteConversion")
+{
+
+	struct SubTestData
+	{
+		const wchar_t*	wide;
+		const char*		desc;
+	};
+
+	SubTestData allData[] = {	{ L"", "empty" },
+								{ L"\u0000", "zero char" },
+								{ L"h", "ascii char" },
+								{ L"hx", "ascii 2 chars" },
+								{ L"\u0345", "non-ascii below surrogate range" },
+								{ L"\U00010437", "surrogate range A" },
+								{ L"\U00024B62", "surrogate range B" },
+								{ L"\uE000", "above surrogate range A" },
+								{ L"\uF123", "above surrogate range B" },
+								{ L"\uFFFF", "above surrogate range C" }
+	};
+
+	int dataCount = std::extent<decltype(allData)>().value;
+
+	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
+
+	SECTION(pCurrData->desc)
+	{
+		verifyWideMultiByteConversion( pCurrData->wide );
+	}
+
+	SECTION(std::string(pCurrData->desc) +" mixed")
+	{
+		verifyWideMultiByteConversion( L"hello" + std::wstring(pCurrData->wide)
+										+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
+										+ L"rld");
 	}
 }
 

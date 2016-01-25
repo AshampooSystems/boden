@@ -99,7 +99,7 @@ public:
 	template<class O>
 	inline P<T>& operator=(const P<O>& pObj)
 	{
-		assign(pObj._getPtr());
+		assign(pObj.getPtr());
 		return *this;
 	}
 
