@@ -34,7 +34,7 @@ public:
 		arbitrary source iterator into Unicode characters (char32_t).
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<char32_t, std::bidirectional_iterator_tag>
+	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
 	{
 	public:
 		/** @param sourceIt the source iterator that provides the UTF-16 data.
@@ -66,7 +66,7 @@ public:
 
 	/** Encodes unicode characters to wchar_t encoding.*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<EncodedElement, std::bidirectional_iterator_tag>
+	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag, EncodedElement>
 	{
 	public:
 		EncodingIterator(const SourceIterator& sourceIt);

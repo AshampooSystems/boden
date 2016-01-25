@@ -22,9 +22,43 @@ class StringImpl : public Base
 {
 public:
 
+
+	/** Type of the character iterators used by this string.*/
 	typedef typename MainDataType::Iterator Iterator;
 
+
+	/** Iterator type for reverse iterators of this String (see rbegin()).*/
+	typedef std::reverse_iterator<Iterator> ReverseIterator;
+
+
+	/** iterator is an alias to Iterator. This is included for std::string compatibility.
+	
+		Note that Iterator does not allow direct modification of the string's characters
+		via the iterator. So it is not 100% compatible to std::string::iterator.
+
+	*/
 	typedef Iterator iterator;
+
+	
+	/** const_iterator is an alias to Iterator. This is included for std::string compatibility.
+		*/
+	typedef Iterator const_iterator;
+
+
+
+	/** reverse_iterator is an alias to ReverseIterator. This is included for std::string compatibility.
+	*/
+	typedef ReverseIterator reverse_iterator;
+
+
+	/** const_reverse_iterator is an alias to ReverseIterator. This is included for std::string compatibility.
+	*/
+	typedef ReverseIterator const_reverse_iterator;
+
+
+
+	/** Included for compatibility with std::string only.*/
+	static const size_t npos = -1;
 
 	
 	StringImpl()
@@ -40,7 +74,7 @@ public:
 		_beginIt = s._beginIt;
 		_endIt = s._endIt;
 
-		_charCountIfKnown = s._charCountIfKnown;
+		_lengthIfKnown = s._lengthIfKnown;
 	}
 
 	StringImpl(const StringImpl& s, const Iterator& beginIt, const Iterator& endIt )
@@ -52,7 +86,7 @@ public:
 		_beginIt = beginIt;
 		_endIt = endIt;
 
-		_charCountIfKnown = -1;
+		_lengthIfKnown = -1;
 	}
 
 
@@ -152,20 +186,27 @@ public:
 		, _beginIt( pData->begin() )
 		, _endIt( pData->end() )
 	{
-		_charCountIfKnown = -1;
+		_lengthIfKnown = -1;
 	}
 
 
+	/** Returns true if the string is empty (i.e. if its length is 0).*/
 	bool isEmpty() const
 	{
 		return (_beginIt == _endIt);
 	}
 
+	/** Same as isEmpty. This is included for compatibility with std::string.*/
+	bool empty() const
+	{
+		return isEmpty();
+	}
+
 
 	/** Returns the number of characters in this string.*/
-	int getCharCount() const
+	int getLength() const
 	{
-		if (_charCountIfKnown == -1)
+		if (_lengthIfKnown == -1)
 		{
 			// character count is unknown. We need to count it first.
 			int c = 0;
@@ -176,30 +217,97 @@ public:
 				++it;
 			}
 
-			_charCountIfKnown = c;
+			_lengthIfKnown = c;
 		}
 
-		return _charCountIfKnown;
+		return _lengthIfKnown;
 	}
 
 
-	/** Same as #getCharCount.*/
-	int length() const
+	/** Same as getLength. This is included for compatibility with std::string.*/
+	size_t length() const
 	{
-		return getCharCount();
+		return getLength();
+	}
+
+	/** Same as getLength. This is included for compatibility with std::string.*/
+	size_t size() const
+	{
+		return getLength();
 	}
 
 
-	Iterator begin()
+	/** Returns an iterator that points to the start of the string.*/
+	Iterator begin() const
 	{
 		return _beginIt;
 	}
 
-
-	Iterator end()
+	/** Retuns an iterator that points to the position just after the last character of the string.*/
+	Iterator end() const
 	{
 		return _endIt;
 	}
+
+
+	/** Same as begin(). This is included for compatibility with std::string.*/
+	Iterator cbegin() const
+	{
+		return begin();
+	}
+
+	/** Same as end(). This is included for compatibility with std::string.*/
+	Iterator cend() const
+	{
+		return end();
+	}
+
+
+
+	/** Returns an iterator that iterates over the characters of the string in reverse order.
+
+		The iterator starts at the last character of the string. Advancing it with ++ moves it
+		to the previous character.
+
+		Use this together with rend() to check for the end of the iteration.
+		
+		Example:
+
+		\code
+		s = "hello";
+		for(auto it = s.rbegin(); it!=s.rend(); it++)
+			print(*it);
+		\endcode
+		
+		This will print out "olleh" (the reverse of "hello").
+
+		*/
+	ReverseIterator rbegin() const
+	{
+		return std::reverse_iterator<Iterator>( end() );
+	}
+
+
+	/** Returns an iterator that points to the end of a reverse iteration.
+		See rbegin().*/
+	ReverseIterator rend() const
+	{
+		return std::reverse_iterator<Iterator>( begin() );
+	}
+
+
+	/** Same as rbegin(). This is included for compatibility with std::string.*/
+	ReverseIterator crbegin() const
+	{
+		return rbegin();
+	}
+
+	/** Same as rend(). This is included for compatibility with std::string.*/
+	ReverseIterator crend() const
+	{
+		return rend();
+	}
+
 
 
 	/** Returns a sub string of this string, starting at the character that beginIt points to
@@ -212,18 +320,24 @@ public:
 
 
 	/** Returns a sub string of this string, starting at startIndex and including charCount characters
-	from that point. If the string has less than charCount characters then the sub string up to the end
-	is returned.
+		from that point.
+		
+		If the string has less than charCount characters then the sub string up to the end
+		is returned.
 
-	charCount can be -1, in which case the rest of the string up to the end is returned.
+		charCount can be -1, in which case the rest of the string up to the end is returned.
+
+		If startIndex is invalid (<0 or >length) then an OutOfRangeError (which is the same as
+		std::out_of_range) is thrown.
+		startIndex can equal the string length - in that case the resulting sub string is always empty.
 	*/
 	StringImpl subString(int startIndex, int charCount) const
 	{
-		int myCharCount = getCharCount();
+		int myCharCount = getLength();
 
 		if (startIndex<0 || startIndex>myCharCount)
-			throw InvalidArgumentError("String::subString: Invalid start index: "+std::to_string(startIndex) );
-		if (charCount>=0 && startIndex+charCount>myCharCount)
+			throw OutOfRangeError("String::subString: Invalid start index: "+std::to_string(startIndex) );
+		if (charCount<0 || startIndex+charCount>myCharCount)
 			charCount = myCharCount-startIndex;
 
 		Iterator startIt = _beginIt+startIndex;
@@ -233,16 +347,20 @@ public:
 	}
 
 
-	/** Same as #subString. This function is included for compatibility with std::string.*/
-	StringImpl substr(int startIndex, int charCount) const
+	/** Similar to subString. This function is included for compatibility with std::string.
+	
+		The only difference to subString is that charCount must be String::npos (instead of
+		the -1) if you want	the rest of the string up to the end.
+	*/
+	StringImpl substr(size_t startIndex, size_t charCount) const
 	{
-		return subString(startIndex, charCount);
+		return subString(startIndex, charCount==npos ? -1 : (int)charCount);
 	}
 
 
 	/** Returns a pointer to a zero terminated c-style string in UTF-8 encoding.
 
-	This operation might invalidate existing iterators.
+		This operation might invalidate existing iterators.
 	*/
 	const char* getCString_UTF8() const
 	{
@@ -613,7 +731,7 @@ protected:
 
 	mutable P<Base>			_pDataInDifferentEncoding;
 
-	mutable int				_charCountIfKnown;
+	mutable int				_lengthIfKnown;
 };
 
 }

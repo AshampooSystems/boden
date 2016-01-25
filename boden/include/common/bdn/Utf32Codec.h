@@ -33,7 +33,21 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag, char32_t>
+	class DecodingIterator : public std::iterator<	std::bidirectional_iterator_tag,
+													char32_t,
+													std::ptrdiff_t,
+													char32_t*,
+													// this is a bit of a hack. We define Reference to be a value, not
+													// an actual reference. That is necessary, because we return values
+													// generated on the fly that are not actually stored by the underlying
+													// container. While we could return a reference to a member of the iterator,
+													// that would only remain valid while the iterator is alive. And parts of
+													// the standard library (for example std::reverse_iterator) will create
+													// temporary local iterators and return their value references, which would
+													// cause a crash.
+													// By defining reference as a value, we ensure that the standard library functions
+													// return valid objects.
+													char32_t >
 	{
 	public:
 		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt)
@@ -113,7 +127,21 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag, EncodedElement>
+	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag,
+													EncodedElement,
+													std::ptrdiff_t,
+													EncodedElement*,
+													// this is a bit of a hack. We define Reference to be a value, not
+													// an actual reference. That is necessary, because we return values
+													// generated on the fly that are not actually stored by the underlying
+													// container. While we could return a reference to a member of the iterator,
+													// that would only remain valid while the iterator is alive. And parts of
+													// the standard library (for example std::reverse_iterator) will create
+													// temporary local iterators and return their value references, which would
+													// cause a crash.
+													// By defining reference as a value, we ensure that the standard library functions
+													// return valid objects.
+													EncodedElement >
 	{
 	public:
 		EncodingIterator(const SourceIterator& sourceIt)

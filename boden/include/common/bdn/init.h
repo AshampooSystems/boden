@@ -20,6 +20,8 @@
 
 #include <bdn/ErrorImpl.h>
 
+#include <bdn/ProgrammingError.h>
 #include <bdn/InvalidArgumentError.h>
+#include <bdn/OutOfRangeError.h>
 
 #endif
