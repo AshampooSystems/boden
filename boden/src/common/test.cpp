@@ -2887,7 +2887,9 @@ private:
 		}
 		catch(...) {
 			m_totals.tests.failed++;
-			makeUnexpectedResultBuilder().useActiveException();			
+			ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
+			unexpectedResultBuilder.useActiveException();			
+			INTERNAL_BDN_REACT( unexpectedResultBuilder );
 		}
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
