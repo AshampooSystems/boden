@@ -751,15 +751,77 @@ public:
 	}
 
 
-	char32_t operator[](size_t index)
+
+	/** \copydoc at()
+	*/
+	char32_t operator[](size_t index) const
 	{
-		if(index<0 || index>=getLength())
-			throw InvalidArgError("String::operator[]", "Invalid index");
+		size_t len = getLength();
+		if(index<0 || index>=len)
+		{
+			if(index==len)
+				return U'\0';
+
+			throw OutOfRangeError("String::operator[]: Invalid index "+std::to_string(index));
+		}
 
 		return *(_beginIt+index);
 	}
 
 
+	/** Returns the character at the given string index.
+
+		If index is equal to the length of the string then a null-character is returned.
+
+		If index is negative or bigger than the length of the string then an OutOfRangeError is thrown.
+	*/
+	char32_t at(size_t index) const
+	{
+		size_t len = getLength();
+		if(index<0 || index>=len)
+		{
+			if(index==len)
+				return U'\0';
+
+			throw OutOfRangeError("String::operator[]: Invalid index "+std::to_string(index));
+		}
+
+		return *(_beginIt+index);
+	}
+
+
+	/** Returns the last character of the string. Throws an OutOfRangeError if the string is empty.*/
+	char32_t getLastChar() const
+	{
+		if(_beginIt==_endIt)
+			throw OutOfRangeError("String::getLastChar called on empty string.");
+
+		Iterator it = _endIt;
+		--it;
+
+		return *it;
+	}
+
+	/** Returns the first character of the string. Throws an OutOfRangeError if the string is empty.*/
+	char32_t getFirstChar() const
+	{
+		if(_beginIt==_endIt)
+			throw OutOfRangeError("String::getFirstChar called on empty string.");
+
+		return *_beginIt;
+	}
+
+	/** Same as getLastChar()*/
+	char32_t back() const
+	{
+		return getLastChar();
+	}
+
+	/** Same as getFirstChar()*/
+	char32_t front() const
+	{
+		return getFirstChar();
+	}
 
 
 	Iterator find(char32_t chr) const

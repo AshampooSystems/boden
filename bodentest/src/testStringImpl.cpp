@@ -673,6 +673,49 @@ inline void testComparison()
 }
 
 template<class DATATYPE>
+inline void verifyCharAccess(const StringImpl<DATATYPE>& s)
+{
+	SECTION("operator[]")
+	{
+		REQUIRE(s[0]==U'h');
+		REQUIRE(s[4]==U'o');
+		REQUIRE(s[5]==U'\0');
+
+		REQUIRE_THROWS_AS(s[6], OutOfRangeError);
+		REQUIRE_THROWS_AS(s[-1], OutOfRangeError);
+	}
+
+	SECTION("at")
+	{
+		REQUIRE(s.at(0)==U'h');
+		REQUIRE(s.at(4)==U'o');
+		REQUIRE(s.at(5)==U'\0');
+	
+		REQUIRE_THROWS_AS(s.at(6), OutOfRangeError);
+	}
+
+	SECTION("getLastChar,back")
+	{
+		REQUIRE(s.getLastChar()=='o');
+		REQUIRE(s.back()=='o');
+
+		StringImpl<DATATYPE> empty;
+		REQUIRE_THROWS_AS(empty.getLastChar(), OutOfRangeError);
+		REQUIRE_THROWS_AS(empty.back(), OutOfRangeError);
+	}
+
+	SECTION("getFirstChar,front")
+	{
+		REQUIRE(s.getFirstChar()=='h');
+		REQUIRE(s.front()=='h');
+
+		StringImpl<DATATYPE> empty;
+		REQUIRE_THROWS_AS(empty.getFirstChar(), OutOfRangeError);
+		REQUIRE_THROWS_AS(empty.front(), OutOfRangeError);
+	}
+}
+
+template<class DATATYPE>
 inline void testStringImpl()
 {
 	SECTION("construct")
@@ -732,6 +775,29 @@ inline void testStringImpl()
 	SECTION("comparison")
 	{
 		testComparison<DATATYPE>();
+	}
+
+	SECTION("charAccess")
+	{
+		SECTION("normal")
+		{
+			StringImpl<DATATYPE> s("hello");
+
+			verifyCharAccess(s);			
+		}
+
+		SECTION("slice")
+		{
+			StringImpl<DATATYPE> bigger("hihelloworld");
+			StringImpl<DATATYPE> s = bigger.subString(2, 5);
+
+			verifyCharAccess(s);
+		}
+	}
+
+	SECTION("back")
+	{
+
 	}
 }
 
