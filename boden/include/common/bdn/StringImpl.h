@@ -583,6 +583,7 @@ public:
 		return compare(o.begin(), o.end());
 	}
 
+
 	/** Compares this string with a character sequence, specified by two iterators.
 	
 		Returns -1 if this string is "smaller", 0 if it is the same string and 1 if this string is "bigger".
