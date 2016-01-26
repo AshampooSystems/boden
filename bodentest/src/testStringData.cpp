@@ -6,6 +6,17 @@
 
 using namespace bdn;
 
+
+TEST_CASE("getStringEndPtr")
+{
+	const char* s = "hello";
+
+	REQUIRE( getStringEndPtr(s)==s+5 );
+	REQUIRE( getStringEndPtr(s, 0)==s );
+	REQUIRE( getStringEndPtr(s, 5)==s+5 );
+	REQUIRE( getStringEndPtr(s, 4)==s+4 );
+}
+
 template<class CODEC>
 inline void verifyContents(StringData<CODEC>& data, const std::u32string& expectedResult)
 {
@@ -297,7 +308,7 @@ TEST_CASE("StringData")
 
 	SECTION("Wchar")
 	{
-		testStringData< WcharCodec >();
+		testStringData< WideCodec >();
 	}
 }
 

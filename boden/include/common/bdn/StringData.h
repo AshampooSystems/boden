@@ -6,6 +6,40 @@
 namespace bdn
 {
 
+/** Returns a pointer to the element just after the last element of the string.
+
+	It is usually not necessary to specify the template parameter explicitly.
+
+	Example:
+	\code
+	const char* pEnd = getStringEndPtr("hello");
+	// pEnd points to the element after the 'o'
+
+	const char* pEnd = getStringEndPtr("hello", 4);
+	// pEnd points to the 'o'
+	\endcode
+
+	@param p string pointer
+	@param length If this is -1 then the string must be zero-terminated. The zero terminator
+		is not considered part of the string (i.e. the result will be a pointer to the zero terminator).
+		If this not -1 then it is the length of the string in elements (e.g. in wchars for a wchar_t*, chars for a char*, etc.).
+
+	\tparam PTR a string pointer type (for example char32_*, const char*, ...)
+	*/
+template<class PTR>
+PTR getStringEndPtr(PTR p, int length=-1)
+{
+	if(length<0)
+	{
+		while( (*p) != 0)
+			p++;
+	}
+	else
+		p+=length;
+
+	return p;
+}
+
 
 /** Stores encoded string data, according to the codec specified as the template parameter.
 
@@ -107,7 +141,7 @@ public:
 	StringData(const char* s, int lengthBytes = -1)
 		: StringData(	Utf8Codec(),
 						s,
-						makeEndIt(s, lengthBytes) )
+						getStringEndPtr(s, lengthBytes) )
 	{
 	}
 
@@ -129,7 +163,7 @@ public:
 	StringData(const char16_t* s, int lengthElements = -1)
 		: StringData(	Utf16Codec<char16_t>(),
 						s,
-						makeEndIt(s, lengthElements) )
+						getStringEndPtr(s, lengthElements) )
 	{
 	}
 
@@ -151,9 +185,9 @@ public:
 		@param lengthElements length of the string data in encoded wchar_t elements. If this is -1
 			then the length is auto detected and the string data must be zero-terminated.*/
 	StringData(const wchar_t* s, int lengthElements = -1)
-		: StringData(	WcharCodec(),
+		: StringData(	WideCodec(),
 						s,
-						makeEndIt(s, lengthElements) )
+						getStringEndPtr(s, lengthElements) )
 	{
 	}
 
@@ -161,7 +195,7 @@ public:
 	/** Initializes the object from the specified wstring string. This must be either UTF-16 or
 		UTF-32 encoded (depending on whether wchar_t is	2 bytes long or 4 bytes long).*/
 	StringData(const std::wstring& s)
-		: StringData(	WcharCodec(),
+		: StringData(	WideCodec(),
 						s.begin(),
 						s.end() )
 	{
@@ -175,7 +209,7 @@ public:
 			then the length is auto detected and the string data must be zero-terminated.*/
 	StringData(const char32_t* s, int lengthElements = -1)
 		: StringData(	s,
-						makeEndIt(s, lengthElements))
+						getStringEndPtr(s, lengthElements))
 	{
 	}
 
@@ -298,28 +332,7 @@ public:
 	}
 
 protected:
-	template<class IT>
-	static IT makeEndIt(IT beginIt, int lengthElements)
-	{
-		IT endIt = beginIt;
-
-		if (lengthElements < 0)
-		{
-			while ((*endIt) != 0)
-				++endIt;
-		}
-		else
-		{
-			while (lengthElements > 0)
-			{
-				++endIt;
-				lengthElements--;
-			}
-		}
-
-		return endIt;
-	}
-
+	
 	typename Codec::EncodedString	_encodedString;
 };
 

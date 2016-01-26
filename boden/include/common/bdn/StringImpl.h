@@ -17,7 +17,7 @@ namespace bdn
 	If that is also unencodable then the character is simply skipped.
 	
 	*/
-std::string wideToLocaleMultiByte(const std::wstring& wideString, const std::locale& loc = std::locale());
+std::string wideToLocaleEncoding(const std::wstring& wideString, const std::locale& loc = std::locale());
 
 
 /** Converts a string that is encoded with the multibyte encoding of the specified locale
@@ -28,7 +28,7 @@ std::string wideToLocaleMultiByte(const std::wstring& wideString, const std::loc
 	If the replacement character is also unencodable then a question mark ('?') is used instead.
 	If that is also unencodable then the character is simply skipped.
 */
-std::wstring localeMultiByteToWide(const std::string& multiByteString, const std::locale& loc = std::locale());
+std::wstring localeEncodingToWide(const std::string& multiByteString, const std::locale& loc = std::locale());
 
 
 /** Provides an implementation of a String class with the internal encoding being
@@ -414,7 +414,7 @@ public:
 
 	/** Conversion operator to std::string.
 		Same as calling asUtf8().*/
-	explicit operator const std::string&() const
+	operator const std::string&() const
 	{
 		return asUtf8();
 	}
@@ -437,7 +437,7 @@ public:
 	*/
 	const wchar_t* asWidePtr() const
 	{
-		return getEncoded<WStringData>().c_str();
+		return getEncoded<WideStringData>().c_str();
 	}
 	
 	
@@ -450,7 +450,7 @@ public:
 	*/
 	const std::wstring& asWide() const
 	{
-		return getEncoded<WStringData>();
+		return getEncoded<WideStringData>();
 	}
 
 	/** Conversion operator to const wchar_t.
@@ -463,7 +463,7 @@ public:
 
 	/** Conversion operator to const std::wstring.
 		Same as calling asWide().*/
-	explicit operator const std::wstring&() const
+	operator const std::wstring&() const
 	{
 		return asWide();
 	}
@@ -478,7 +478,7 @@ public:
 	*/
 	const char16_t* asUtf16Ptr() const
 	{
-		return getEncoded<Utf16Data>().c_str();
+		return getEncoded<Utf16StringData>().c_str();
 	}
 
 
@@ -490,7 +490,7 @@ public:
 	*/
 	const std::u16string& asUtf16() const
 	{
-		return getEncoded<Utf16Data>();
+		return getEncoded<Utf16StringData>();
 	}
 	
 
@@ -503,7 +503,7 @@ public:
 
 	/** Conversion operator to const char16_t.
 	Same as calling asUtf16Ptr().*/
-	explicit operator const std::u16string&() const
+	operator const std::u16string&() const
 	{
 		return asUtf16();
 	}
@@ -518,7 +518,7 @@ public:
 	*/
 	const char32_t* asUtf32Ptr() const
 	{
-		return getEncoded<Utf32Data>().c_str();
+		return getEncoded<Utf32StringData>().c_str();
 	}
 
 
@@ -530,7 +530,7 @@ public:
 	*/
 	const std::u32string& asUtf32() const
 	{
-		return getEncoded<Utf32Data>();
+		return getEncoded<Utf32StringData>();
 	}
 
 
@@ -543,7 +543,7 @@ public:
 
 	/** Conversion operator to const char32_t.
 		Same as calling asUtf32().*/
-	explicit operator const std::u32string&() const
+	operator const std::u32string&() const
 	{
 		return asUtf32();
 	}
@@ -559,28 +559,57 @@ public:
 		Note that in contrast to the asXYZ conversion routines this function always
 		returns a new copy of the data.
 	*/
-	std::string toLocaleEncoded(const std::locale& loc = std::locale()) const
+	std::string toLocaleEncoding(const std::locale& loc = std::locale()) const
 	{
 		// note: we must use the wide char encoding as a basis, because that is the
 		// only facet provided by the locale object that converts to the locale-specific
 		// multibyte encoding. All other facets only convert to UTF-8.
-		return wideStringToLocaleEncoded(asWide(), loc);
+		return wideToLocaleEncoding(asWide(), loc);
 	}
 
+	/** Compares this string with the specified other string.
 
+		Returns -1 if this string is "smaller", 0 if it is the same string and 1 if this string is "bigger".
 
-
+		"Smaller" and "Bigger" are defined by a character-by-character comparison (using fully decoded
+		Unicode characters).
+		If two characters at a position are different then the string whose Unicode character value is
+		smaller is considered to be smaller.
+		If one of the two strings is shorter and all characters up to that point are the same then the shorter
+		string is smaller.
+	*/
 	int compare(const StringImpl& o) const
 	{
+		return compare(o.begin(), o.end());
+	}
+
+	/** Compares this string with a character sequence, specified by two iterators.
+	
+		Returns -1 if this string is "smaller", 0 if it is the same string and 1 if this string is "bigger".
+
+		"Smaller" and "Bigger" are defined by a character-by-character comparison (using fully decoded
+		Unicode characters).
+		If two characters at a position are different then the string whose Unicode character value is
+		smaller is considered to be smaller.
+		If one of the two strings is shorter and all characters up to that point are the same then the shorter
+		string is smaller.
+
+		@param otherIt iterator pointing to the first character of the character sequence.
+			The iterator must return char32_t Unicode characters!
+		@param otherEnd iterator pointing to the position just after the last character in the character sequence.
+			The iterator must return char32_t Unicode characters!
+	*/
+	template<class IT>
+	int compare(IT otherIt, IT otherEnd) const
+	{
 		Iterator myIt = _beginIt;
-		Iterator otherIt = o._beginIt;
 
 		while(true)
 		{
 			if(myIt==_endIt)
-				return (otherIt==o._endIt) ? 0 : -1;
+				return (otherIt==otherEnd) ? 0 : -1;
 
-			else if(otherIt==o._endIt)
+			else if(otherIt==otherEnd)
 				return 1;
 
 			else
@@ -601,32 +630,121 @@ public:
 		return 0;
 	}
 
-	bool operator==(const StringImpl& o) const
+	
+	/** See compare()
+	*/
+	int compare(const std::string& o) const
+	{
+		return compare( Utf8Codec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+						Utf8Codec::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const char* o) const
+	{
+		const char* oEnd = getStringEndPtr(o);
+
+		return compare( Utf8Codec::DecodingIterator<const char*>(o, o, oEnd),
+						Utf8Codec::DecodingIterator<const char*>(oEnd, o, oEnd) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const std::u16string& o) const
+	{
+		return compare( Utf16Codec<char16_t>::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+					    Utf16Codec<char16_t>::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const char16_t* o) const
+	{
+		const char16_t* oEnd = getStringEndPtr(o);
+
+		return compare( Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(o, o, oEnd),
+						Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(oEnd, o, oEnd) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const std::u32string& o) const
+	{
+		return compare( Utf32Codec<char32_t>::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+						Utf32Codec<char32_t>::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const char32_t* o) const
+	{
+		const char32_t* oEnd = getStringEndPtr(o);
+
+		return compare( o, oEnd );
+	}
+
+	/** See compare()
+	*/
+	int compare(const std::wstring& o) const
+	{
+		return compare( WideCodec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+						WideCodec::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+	}
+
+	/** See compare()
+	*/
+	int compare(const wchar_t* o) const
+	{
+		const wchar_t* oEnd = getStringEndPtr(o);
+
+		return compare( WideCodec::DecodingIterator<const wchar_t*>(o, o, oEnd),
+						WideCodec::DecodingIterator<const wchar_t*>(oEnd, o, oEnd) );
+	}
+
+
+	/** Returns true if this string and the specified other string are equal.*/
+	template<class OTHER>
+	bool operator==(const OTHER& o) const
 	{
 		return compare(o)==0;
 	}
 
-	bool operator!=(const StringImpl& o) const
+	/** Returns true if this string and the specified other string are not equal.*/
+	template<class OTHER>
+	bool operator!=(const OTHER& o) const
 	{
 		return compare(o)!=0;
 	}
 
-	bool operator<(const StringImpl& o) const
+
+	/** Returns true if this string is "smaller" than the specified other string. See compare().*/
+	template<class OTHER>
+	bool operator<(const OTHER& o) const
 	{
 		return compare(o) < 0;
 	}
 
-	bool operator>(const StringImpl& o) const
+
+	/** Returns true if this string is "bigger" than the specified other string. See compare().*/
+	template<class OTHER>
+	bool operator>(const OTHER& o) const
 	{
 		return compare(o) > 0;
 	}
 
-	bool operator<=(const StringImpl& o) const
+
+	/** Returns true if this string is "smaller" or equal to the specified other string. See compare().*/
+	template<class OTHER>
+	bool operator<=(const OTHER& o) const
 	{
 		return compare(o) <= 0;
 	}
 
-	bool operator>=(const StringImpl& o) const
+
+	/** Returns true if this string is "bigger" or equal to the specified other string. See compare().*/
+	template<class OTHER>
+	bool operator>=(const OTHER& o) const
 	{
 		return compare(o) >= 0;
 	}
@@ -634,7 +752,7 @@ public:
 
 	char32_t operator[](size_t index)
 	{
-		if(index<0 || index>=getCharCount())
+		if(index<0 || index>=getLength())
 			throw InvalidArgError("String::operator[]", "Invalid index");
 
 		return *(_beginIt+index);

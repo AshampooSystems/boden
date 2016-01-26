@@ -413,37 +413,263 @@ inline void testIterators()
 	}
 }
 
+template<class DATATYPE>
+void verifyMultiByteResult(const StringImpl<DATATYPE>& in, const std::wstring& outWide)
+{
+	auto inIt = in.begin();
+	auto outIt = outWide.begin();
+
+	while(inIt!=in.end())
+	{
+		REQUIRE( outIt != outWide.end() );
+
+		char32_t	inChr = *inIt;
+		char32_t	outChr = (char32_t)(*outIt);
+
+		if(inChr<0x80)
+		{
+			// ascii characters should be representable
+			REQUIRE( outChr==inChr );
+		}
+		else
+		{
+			// non-ASCII characters could have been replaced with a replacement character
+			REQUIRE( (outChr==inChr || outChr==U'\ufffd' || outChr==U'?') );
+		}
+
+		++inIt;
+		++outIt;
+	}
+
+	REQUIRE( outIt == outWide.end() );
+}
 
 template<class DATATYPE>
 inline void testConversion()
 {
-	StringImpl<DATATYPE> s("hello");
+	StringImpl<DATATYPE> s(U"he\u0218\u0777\uffffllo");
 
 	SECTION("utf8")
 	{
 		const char* p = s.asUtf8Ptr();
-		REQUIRE( std::string(p)=="hello" );
+		REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
 		
 		const char* p2( s );
-		REQUIRE( std::string(p2)=="hello" );
+		REQUIRE( std::string(p2)==u8"he\u0218\u0777\uffffllo" );
 
 		// must be the exact same pointer
 		REQUIRE( p2==p );
 
 		const std::string& o = s.asUtf8();
-		REQUIRE( o=="hello" );
+		REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
 		const std::string& o2 = s.asUtf8();
-		REQUIRE( o2=="hello" );
+		REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
+
+		const std::string& o3 = s;
+		REQUIRE( o3==u8"he\u0218\u0777\uffffllo" );
 
 		// must be the same object
 		REQUIRE( &o==&o2 );
+		REQUIRE( &o==&o3 );
+	}
+
+	SECTION("utf16")
+	{
+		const char16_t* p = s.asUtf16Ptr();
+		REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+
+		const char16_t* p2( s );
+		REQUIRE( std::u16string(p2)==u"he\u0218\u0777\uffffllo" );
+
+		// must be the exact same pointer
+		REQUIRE( p2==p );
+
+		const std::u16string& o = s.asUtf16();
+		REQUIRE( o==u"he\u0218\u0777\uffffllo" );
+		const std::u16string& o2 = s.asUtf16();
+		REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
+
+		const std::u16string& o3 = s;
+		REQUIRE( o3==u"he\u0218\u0777\uffffllo" );
+
+		// must be the same object
+		REQUIRE( &o==&o2 );
+		REQUIRE( &o==&o3 );
+	}
+
+	SECTION("utf32")
+	{
+		const char32_t* p = s.asUtf32Ptr();
+		REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+
+		const char32_t* p2( s );
+		REQUIRE( std::u32string(p2)==U"he\u0218\u0777\uffffllo" );
+
+		// must be the exact same pointer
+		REQUIRE( p2==p );
+
+		const std::u32string& o = s.asUtf32();
+		REQUIRE( o==U"he\u0218\u0777\uffffllo" );
+		const std::u32string& o2 = s.asUtf32();
+		REQUIRE( o2==U"he\u0218\u0777\uffffllo" );
+
+		const std::u32string& o3 = s;
+		REQUIRE( o3==U"he\u0218\u0777\uffffllo" );
+
+		// must be the same object
+		REQUIRE( &o==&o2 );
+		REQUIRE( &o==&o3 );
+	}
+
+	SECTION("wide")
+	{
+		const wchar_t* p = s.asWidePtr();
+		REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
+
+		const wchar_t* p2( s );
+		REQUIRE( std::wstring(p2)==L"he\u0218\u0777\uffffllo" );
+
+		// must be the exact same pointer
+		REQUIRE( p2==p );
+
+		const std::wstring& o = s.asWide();
+		REQUIRE( o==L"he\u0218\u0777\uffffllo" );
+		const std::wstring& o2 = s.asWide();
+		REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
+
+		const std::wstring& o3 = s;
+		REQUIRE( o3==L"he\u0218\u0777\uffffllo" );
+
+		// must be the same object
+		REQUIRE( &o==&o2 );
+		REQUIRE( &o==&o3 );
+	}
+
+	SECTION("multibyte")
+	{
+		SECTION("default")
+		{
+			std::string m = s.toLocaleEncoding();
+			verifyMultiByteResult(s, localeEncodingToWide(m) );
+		}
+
+		SECTION("global")
+		{
+			std::locale loc;
+			std::string m = s.toLocaleEncoding(loc);
+			verifyMultiByteResult(s, localeEncodingToWide(m, loc) );
+		}
+
+		SECTION("classic")
+		{
+			std::locale loc = std::locale::classic();
+			std::string m = s.toLocaleEncoding(loc);
+			verifyMultiByteResult(s, localeEncodingToWide(m, loc) );
+		}
+	}
+}
+
+
+template<class STRING, class OTHER>
+void verifyComparison(const STRING& s, OTHER o, int expectedResult)
+{
+	int result = s.compare(o);
+	REQUIRE(result==expectedResult);
+
+	REQUIRE( (s==o)==(expectedResult==0) );
+	REQUIRE( (s!=o)==(expectedResult!=0) );
+
+	REQUIRE( (s<o)==(expectedResult<0) );
+	REQUIRE( (s<=o)==(expectedResult<=0) );
+
+	REQUIRE( (s>o)==(expectedResult>0) );
+	REQUIRE( (s>=o)==(expectedResult>=0) );
+}
+
+
+template<class DATATYPE>
+void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE>& other, int expectedResult)
+{
+	SECTION("String")
+	{
+		verifyComparison(s, other, expectedResult);
 	}
 
 	SECTION("utf8")
 	{
-		const char* p = s.asUtf8Ptr();
-		REQUIRE( strcmp(p, "hello")==0 );
+		verifyComparison(s, other.asUtf8(), expectedResult);
 	}
+
+	SECTION("utf8Ptr")
+	{
+		verifyComparison(s, other.asUtf8Ptr(), expectedResult);
+	}
+
+	SECTION("utf16")
+	{
+		verifyComparison(s, other.asUtf16(), expectedResult);
+	}
+
+	SECTION("utf16Ptr")
+	{
+		verifyComparison(s, other.asUtf16Ptr(), expectedResult);
+	}
+
+	SECTION("utf32")
+	{
+		verifyComparison(s, other.asUtf32(), expectedResult);
+	}
+
+	SECTION("utf32Ptr")
+	{
+		verifyComparison(s, other.asUtf32Ptr(), expectedResult);
+	}
+
+	SECTION("wide")
+	{
+		verifyComparison(s, other.asWide(), expectedResult);
+	}
+
+	SECTION("widePtr")
+	{
+		verifyComparison(s, other.asWidePtr(), expectedResult);
+	}	
+}
+
+template<class DATATYPE>
+inline void testComparison()
+{
+	StringImpl<DATATYPE> s("HeLLo");
+
+	SECTION("empty")
+		testComparisonWith<DATATYPE>(s, "", 1);
+	
+	SECTION("shorter")
+		testComparisonWith<DATATYPE>(s, "HeLL", 1);
+
+	SECTION("smaller")
+		testComparisonWith<DATATYPE>(s, "AbCDe", 1);
+
+	SECTION("smallerAndLonger")
+		testComparisonWith<DATATYPE>(s, "AbCDef", 1);
+
+	SECTION("smallerB")
+		testComparisonWith<DATATYPE>(s, "HELLo", 1);
+
+	SECTION("same")
+		testComparisonWith<DATATYPE>(s, "HeLLo", 0);
+	
+	SECTION("bigger")
+		testComparisonWith<DATATYPE>(s, "heLLo", -1);
+
+	SECTION("biggerB")
+		testComparisonWith<DATATYPE>(s, "Hello", -1);
+
+	SECTION("biggerAndShorter")
+		testComparisonWith<DATATYPE>(s, "hell", -1);
+
+	SECTION("longer")
+		testComparisonWith<DATATYPE>(s, "HeLLox", -1);
 }
 
 template<class DATATYPE>
@@ -502,6 +728,11 @@ inline void testStringImpl()
 	{
 		testConversion<DATATYPE>();
 	}
+
+	SECTION("comparison")
+	{
+		testComparison<DATATYPE>();
+	}
 }
 
 
@@ -524,7 +755,7 @@ TEST_CASE("StringImpl")
 
 	SECTION("WString")
 	{
-		testStringImpl<WStringData>();
+		testStringImpl<WideStringData>();
 	}
 
 	SECTION("native")
@@ -564,31 +795,31 @@ void verifyWideMultiByteConversion( const std::wstring& inWide,
 	REQUIRE(outWide.length() == inWide.length());
 }
 
-void verifyWideMultiByteConversion(const std::wstring& inWide)
+void verifyWideLocaleEncodingConversion(const std::wstring& inWide)
 {
 	std::string  multiByte;
 	std::wstring outWide;
 
 	SECTION("defaultLocale")
 	{
-		multiByte = wideToLocaleMultiByte(inWide);
-		outWide = localeMultiByteToWide(multiByte);
+		multiByte = wideToLocaleEncoding(inWide);
+		outWide = localeEncodingToWide(multiByte);
 
 		verifyWideMultiByteConversion(inWide, multiByte, outWide);
 	}
 
 	SECTION("globalLocale")
 	{
-		multiByte = wideToLocaleMultiByte(inWide, std::locale());
-		outWide = localeMultiByteToWide(multiByte, std::locale());
+		multiByte = wideToLocaleEncoding(inWide, std::locale());
+		outWide = localeEncodingToWide(multiByte, std::locale());
 
 		verifyWideMultiByteConversion(inWide, multiByte, outWide);
 	}
 
 	SECTION("classicLocale")
 	{
-		multiByte = wideToLocaleMultiByte(inWide, std::locale::classic());
-		outWide = localeMultiByteToWide(multiByte, std::locale::classic());
+		multiByte = wideToLocaleEncoding(inWide, std::locale::classic());
+		outWide = localeEncodingToWide(multiByte, std::locale::classic());
 
 		verifyWideMultiByteConversion(inWide, multiByte, outWide);
 	}
@@ -596,7 +827,7 @@ void verifyWideMultiByteConversion(const std::wstring& inWide)
 }
 
 
-TEST_CASE("wideMultiByteConversion")
+TEST_CASE("wideLocaleEncodingConversion")
 {
 
 	struct SubTestData
@@ -623,14 +854,16 @@ TEST_CASE("wideMultiByteConversion")
 
 	SECTION(pCurrData->desc)
 	{
-		verifyWideMultiByteConversion( pCurrData->wide );
+		verifyWideLocaleEncodingConversion( pCurrData->wide );
 	}
 
 	SECTION(std::string(pCurrData->desc) +" mixed")
 	{
-		verifyWideMultiByteConversion( L"hello" + std::wstring(pCurrData->wide)
+		verifyWideLocaleEncodingConversion( L"hello" + std::wstring(pCurrData->wide)
 										+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
 										+ L"rld");
 	}
 }
+
+
 

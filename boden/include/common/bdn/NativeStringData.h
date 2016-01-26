@@ -2,7 +2,7 @@
 #define BDN_NativeStringData_H_
 
 #include <bdn/Utf8StringData.h>
-#include <bdn/WStringData.h>
+#include <bdn/WideStringData.h>
 
 namespace bdn
 {
@@ -27,7 +27,7 @@ class NativeStringData
 #if BDN_WINDOWS
 
 // native string data is wide char.
-typedef WStringData NativeStringData;
+typedef WideStringData NativeStringData;
 
 #else
 
