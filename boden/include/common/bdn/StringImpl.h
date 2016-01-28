@@ -1635,6 +1635,22 @@ public:
 		return append(initializerList.begin(), initializerList.end());
 	}
 
+
+	/** Appends a single character to the end of this string.*/
+	void append(char32_t chr)
+	{
+		append(1, chr);
+	}
+
+
+	/** Same as append(). Included for compatibility with std::string.*/
+	void push_back(char32_t chr)
+	{
+		append(chr);
+	}
+
+
+
 	/*
 
 

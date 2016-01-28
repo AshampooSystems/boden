@@ -1344,6 +1344,22 @@ inline void testAppendNumChars( StringImpl<DATATYPE>& s)
 
 
 template<class DATATYPE>
+inline void testAppendSingleChar( StringImpl<DATATYPE>& s)
+{	
+	std::u32string expected = s.asUtf32();
+
+	expected += U'\U00012345';
+
+	SECTION("append")
+		s.append(U'\U00012345');
+
+	SECTION("push_back")
+		s.push_back(U'\U00012345');
+
+	REQUIRE( s==expected );
+}
+
+template<class DATATYPE>
 inline void testAppend()
 {
 	SECTION("normal")
@@ -1356,6 +1372,9 @@ inline void testAppend()
 
 		SECTION("numChars")
 			testAppendNumChars<DATATYPE>(s);
+
+		SECTION("singleChar")
+			testAppendSingleChar<DATATYPE>(s);
 	}
 
 	SECTION("slice")
@@ -1367,6 +1386,9 @@ inline void testAppend()
 
 		SECTION("numChars")
 			testAppendNumChars<DATATYPE>(s);
+
+		SECTION("singleChar")
+			testAppendSingleChar<DATATYPE>(s);
 	}
 }
 
