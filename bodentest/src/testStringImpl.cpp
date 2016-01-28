@@ -855,7 +855,47 @@ inline void verifyReplace(StringType& s, RANGETYPE start, RANGETYPE end, const S
 
 		s.replace( start, end, rep.c_str(), rep.length()-3 );
 		REQUIRE( s==expected );
-	}	
+	}
+
+	SECTION("withCharInitializerList")
+	{
+		if(replaceWith.isEmpty())
+		{
+			s.replace( start, end, {} );
+			REQUIRE( s==expected );
+		}
+		else if(replaceWith==U"BL\U00013333A")
+		{
+			// must leave out the unicode character
+			s.replace( start, end, {'B', 'L', 'A'} );
+
+			std::u32string exp = expected;
+			size_t found = exp.find(U'\U00013333');
+			if(found!=String::npos)
+				exp.erase(found, 1);
+
+			REQUIRE( s==exp );
+		}
+		else
+			throw std::runtime_error("Test must be updated for new possble argument replaceWith");
+	}
+
+	SECTION("withChar32InitializerList")
+	{
+		if(replaceWith.isEmpty())
+		{
+			s.replace( start, end, {} );
+			REQUIRE( s==expected );
+		}
+		else if(replaceWith==U"BL\U00013333A")
+		{
+			s.replace( start, end, {U'B', U'L', U'\U00013333', U'A'} );
+			
+			REQUIRE( s==expected );
+		}
+		else
+			throw std::runtime_error("Test must be updated for new possble argument replaceWith");
+	}
 }
 
 template<class DATATYPE>
@@ -876,11 +916,11 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 							{10, 20, U"", U"he\U00012345loworld", "emptyWithEmptyAtEndWithLengthTooBig"},
 							{5, 0, U"", U"he\U00012345loworld", "emptyWithEmptyInMiddle"},	
 
-							{0, 0, U"BLA", U"BLAhe\U00012345loworld", "emptyWithNonEmptyAtStart"},
-							{10, 0, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEnd"},
-							{10, -1, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEndWithoutLength"},
-							{10, 20, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEndWithLengthTooBig"},
-							{5, 0, U"BLA", U"he\U00012345loBLAworld", "emptyWithNonEmptyInMiddle"},	
+							{0, 0, U"BL\U00013333A", U"BL\U00013333Ahe\U00012345loworld", "emptyWithNonEmptyAtStart"},
+							{10, 0, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEnd"},
+							{10, -1, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEndWithoutLength"},
+							{10, 20, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEndWithLengthTooBig"},
+							{5, 0, U"BL\U00013333A", U"he\U00012345loBL\U00013333Aworld", "emptyWithNonEmptyInMiddle"},	
 
 							{0, 2, U"", U"\U00012345loworld", "nonEmptyWithEmptyAtStart"},
 							{8, 2, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEnd"},
@@ -888,52 +928,164 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 							{8, 20, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEndWithLengthTooBig"},
 							{5, 2, U"", U"he\U00012345lorld", "nonEmptyWithEmptyInMiddle"},	
 
-							{0, 2, U"BLA", U"BLA\U00012345loworld", "nonEmptyWithNonEmptyAtStart"},
-							{0, 4, U"BLA", U"BLAoworld", "nonEmptyWithNonEmptyAtStartB"},
-							{8, 2, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEnd"},
-							{8, -1, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEndWithoutLength"},
-							{8, 20, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEndWithLengthTooBig"},
-							{5, 2, U"BLA", U"he\U00012345loBLArld", "nonEmptyWithNonEmptyInMiddle"},	
+							{0, 2, U"BL\U00013333A", U"BL\U00013333A\U00012345loworld", "nonEmptyWithNonEmptyAtStart"},
+							{0, 4, U"BL\U00013333A", U"BL\U00013333Aoworld", "nonEmptyWithNonEmptyAtStartB"},
+							{8, 2, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEnd"},
+							{8, -1, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEndWithoutLength"},
+							{8, 20, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEndWithLengthTooBig"},
+							{5, 2, U"BL\U00013333A", U"he\U00012345loBL\U00013333Arld", "nonEmptyWithNonEmptyInMiddle"},	
 							};
 
 	int testDataCount = std::extent<decltype(testData)>().value;
 
-	TestData* pTestData = GENERATE( between(&testData[0], &testData[testDataCount-1]) );
-
-	SECTION(pTestData->desc)
+	for(int t=0; t<testDataCount; t++)
 	{
-		SECTION("rangeIndexLength")
-		{
-			verifyReplace<StringImpl<DATATYPE>, size_t>(s,
-														pTestData->startIndex,
-														((pTestData->length==-1) ? String::npos : pTestData->length),
-														pTestData->replaceWith,
-														pTestData->expectedResult);
-		}
+		TestData* pTestData = &testData[t];
 
-		SECTION("rangeIterators")
+		SECTION(pTestData->desc)
 		{
-			StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
-			StringImpl<DATATYPE>::Iterator end;
-			
-			if(pTestData->length==-1)
-				end = s.end();
-			else if(pTestData->startIndex+pTestData->length>s.getLength())
+			SECTION("rangeIndexLength")
 			{
-				// some tests pass a length that is too big. We cannot represent that with iterators.
-				end = s.end();
+				verifyReplace<StringImpl<DATATYPE>, size_t>(s,
+															pTestData->startIndex,
+															((pTestData->length==-1) ? String::npos : pTestData->length),
+															pTestData->replaceWith,
+															pTestData->expectedResult);
 			}
-			else
-				end = start + pTestData->length;
 
-			verifyReplace<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(	s,
-																					start,
-																					end,
-																					pTestData->replaceWith,
-																					pTestData->expectedResult);
+			SECTION("rangeIterators")
+			{
+				StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
+				StringImpl<DATATYPE>::Iterator end;
+			
+				if(pTestData->length==-1)
+					end = s.end();
+				else if(pTestData->startIndex+pTestData->length>s.getLength())
+				{
+					// some tests pass a length that is too big. We cannot represent that with iterators.
+					end = s.end();
+				}
+				else
+					end = start + pTestData->length;
+
+				verifyReplace<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(	s,
+																						start,
+																						end,
+																						pTestData->replaceWith,
+																						pTestData->expectedResult);
+			}
 		}
 	}
 }
+
+
+template<class DATATYPE>
+inline void verifyReplaceNumChars(StringImpl<DATATYPE>& s, int startIndex, int length, int charCount, char32_t chr)
+{
+	std::u32string expected = s.asUtf32();
+
+	expected.replace(	startIndex,
+						((length==-1) ? String::npos : length),
+						charCount,
+						chr );
+
+	SECTION("rangeIndexLength")
+	{
+		s.replace(	startIndex,
+					((length==-1) ? String::npos : length),
+					charCount,
+					chr );
+
+		REQUIRE( s==expected );
+	}
+	
+	SECTION("rangeIterators")
+	{
+		StringImpl<DATATYPE>::Iterator start = s.begin()+startIndex;
+		StringImpl<DATATYPE>::Iterator end;
+			
+		if(length==-1)
+			end = s.end();
+		else if(startIndex+length>s.getLength())
+		{
+			// some tests pass a length that is too big. We cannot represent that with iterators.
+			end = s.end();
+		}
+		else
+			end = start + length;
+
+		s.replace(	start,
+					end,
+					charCount,
+					chr );
+
+		REQUIRE( s==expected );
+	}
+}
+
+
+template<class DATATYPE>
+inline void testReplaceNumChars_WithCharCount(StringImpl<DATATYPE>& s, int startIndex, int length, int charCount)
+{
+	SECTION("nullChar")
+	{
+		verifyReplaceNumChars<DATATYPE>( s, startIndex, length, charCount, U'\0');
+	}
+
+	SECTION("asciiChar")
+	{
+		verifyReplaceNumChars<DATATYPE>( s, startIndex, length, charCount, U'F');
+	}
+
+	SECTION("nonAsciiChar")
+	{
+		verifyReplaceNumChars<DATATYPE>( s, startIndex, length, charCount, U'\U00011111');
+	}
+}
+
+template<class DATATYPE>
+inline void testReplaceNumChars( StringImpl<DATATYPE>& s)
+{
+	struct TestData
+	{
+		int startIndex;
+		int length;
+		const char* desc;
+	};
+
+	TestData testData[] = { {0, 0, "empty at start"},
+							{10, 0, "empty at end"},
+							{10, -1, "empty at end without length"},
+							{10, 20, "empty at end with length too big"},
+							{5, 0, "empty in middle"},	
+							
+							{0, 2, "non-empty at start"},
+							{8, 2,  "non-empty at end"},
+							{8, -1, "non-empty at end without length"},
+							{8, 20, "non-empty at end with length too big"},
+							{5, 2, "non-empty in middle"},
+						};
+
+	int testDataCount = std::extent<decltype(testData)>().value;
+
+	for(int t=0; t<testDataCount; t++)
+	{
+		TestData* pTestData = &testData[t];
+
+		SECTION( pTestData->desc )
+		{
+			SECTION("zero chars")
+				testReplaceNumChars_WithCharCount(s, pTestData->startIndex, pTestData->length, 0);
+
+			SECTION("1 char")
+				testReplaceNumChars_WithCharCount(s, pTestData->startIndex, pTestData->length, 1);
+
+			SECTION("7 chars")
+				testReplaceNumChars_WithCharCount(s, pTestData->startIndex, pTestData->length, 7);
+		}
+	}
+}
+
 
 template<class DATATYPE>
 inline void testReplace()
@@ -941,14 +1093,23 @@ inline void testReplace()
 	SECTION("normal")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		testReplaceWithString<DATATYPE>(s);
+
+		SECTION("string")		
+			testReplaceWithString<DATATYPE>(s);
+
+		SECTION("numChars")		
+			testReplaceNumChars<DATATYPE>(s);
 	}
 
 	SECTION("slice")
 	{
 		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
 
-		testReplaceWithString<DATATYPE>( s.subString(2, 10) );
+		SECTION("string")
+			testReplaceWithString<DATATYPE>( s.subString(2, 10) );
+
+		SECTION("numChars")
+			testReplaceNumChars<DATATYPE>( s.subString(2, 10) );
 	}
 }
 
@@ -1086,6 +1247,35 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 		s.append( suf.c_str(), suf.length()-3 );
 		REQUIRE( s==expected );
 	}	
+
+	if(!suffix.isEmpty())
+	{	
+		if(suffix==U"BL\U00013333A")
+		{
+			SECTION("charInitializerList")
+			{			
+				// must leave out the unicode character
+				s.append( {'B', 'L', 'A'} );
+
+				std::u32string exp = expected;
+				size_t found = exp.find(U'\U00013333');
+				if(found!=String::npos)
+					exp.erase(found, 1);
+
+				REQUIRE( s==exp );
+			}
+
+			SECTION("char32InitializerList")
+			{
+				s.append( {U'B', U'L', U'\U00013333', U'A'} );
+			
+				REQUIRE( s==expected );
+			}
+		}
+		else
+			throw std::runtime_error("Test must be updated for new possble argument suffix");
+	}
+
 }
 
 template<class DATATYPE>
@@ -1098,9 +1288,60 @@ inline void testAppendWithString(StringImpl<DATATYPE>& s)
 
 	SECTION("nonEmpty")
 	{
-		verifyAppend< StringImpl<DATATYPE> >(s, U"Bl\U00012345a", s.asUtf32()+U"Bl\U00012345a" );
+		verifyAppend< StringImpl<DATATYPE> >(s, U"BL\U00013333A", s.asUtf32()+U"BL\U00013333A" );
 	}
 }
+
+
+
+
+template<class DATATYPE>
+inline void verifyAppendNumChars(StringImpl<DATATYPE>& s, int charCount, char32_t chr)
+{
+	std::u32string expected = s.asUtf32();
+
+	expected.append(	charCount,
+						chr );
+	
+	s.append(	charCount,
+				chr );
+
+	REQUIRE( s==expected );
+}
+
+
+template<class DATATYPE>
+inline void testAppendNumChars_WithCharCount(StringImpl<DATATYPE>& s, int charCount)
+{
+	SECTION("nullChar")
+	{
+		verifyAppendNumChars<DATATYPE>( s, charCount, U'\0');
+	}
+
+	SECTION("asciiChar")
+	{
+		verifyAppendNumChars<DATATYPE>( s, charCount, U'F');
+	}
+
+	SECTION("nonAsciiChar")
+	{
+		verifyAppendNumChars<DATATYPE>( s, charCount, U'\U00011111');
+	}
+}
+
+template<class DATATYPE>
+inline void testAppendNumChars( StringImpl<DATATYPE>& s)
+{	
+	SECTION("zero chars")
+		testAppendNumChars_WithCharCount(s, 0);
+
+	SECTION("1 char")
+		testAppendNumChars_WithCharCount(s, 1);
+
+	SECTION("7 chars")
+		testAppendNumChars_WithCharCount(s, 7);
+}
+
 
 template<class DATATYPE>
 inline void testAppend()
@@ -1108,14 +1349,24 @@ inline void testAppend()
 	SECTION("normal")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		testAppendWithString<DATATYPE>(s);
+		
+
+		SECTION("string")
+			testAppendWithString<DATATYPE>(s);
+
+		SECTION("numChars")
+			testAppendNumChars<DATATYPE>(s);
 	}
 
 	SECTION("slice")
 	{
 		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
 
-		testAppendWithString<DATATYPE>( s.subString(2, 10) );
+		SECTION("string")
+			testAppendWithString<DATATYPE>( s.subString(2, 10) );
+
+		SECTION("numChars")
+			testAppendNumChars<DATATYPE>(s);
 	}
 }
 
@@ -1164,9 +1415,9 @@ inline void verifyResize(StringImpl<DATATYPE>& s)
 
 	SECTION("biggerWithAsciiPaddingDefaultPadding")
 	{
-		s.resize(10, U'X');
+		s.resize(10, U'Z');
 
-		verifyResizeResult(s, 10, U"helloXXXXX");
+		verifyResizeResult(s, 10, U"helloZZZZZ");
 	}
 
 	SECTION("biggerWithNonPaddingDefaultPadding")
@@ -1426,18 +1677,21 @@ TEST_CASE("wideLocaleEncodingConversion")
 
 	int dataCount = std::extent<decltype(allData)>().value;
 
-	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
-
-	SECTION(pCurrData->desc)
+	for(int t=0; t<dataCount; t++)
 	{
-		verifyWideLocaleEncodingConversion( pCurrData->wide );
-	}
+		SubTestData* pCurrData = &allData[t];
 
-	SECTION(std::string(pCurrData->desc) +" mixed")
-	{
-		verifyWideLocaleEncodingConversion( L"hello" + std::wstring(pCurrData->wide)
-										+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
-										+ L"rld");
+		SECTION(pCurrData->desc)
+		{
+			verifyWideLocaleEncodingConversion( pCurrData->wide );
+		}
+
+		SECTION(std::string(pCurrData->desc) +" mixed")
+		{
+			verifyWideLocaleEncodingConversion( L"hello" + std::wstring(pCurrData->wide)
+											+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
+											+ L"rld");
+		}
 	}
 }
 

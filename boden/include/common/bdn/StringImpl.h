@@ -1192,8 +1192,100 @@ public:
 						replaceWith.begin(),
 						replaceWith.end() );
 	}
+	
+
+	StringImpl& replace(const Iterator& rangeStart, const Iterator& rangeEnd, std::initializer_list<char32_t> charList)
+	{
+		return replace(rangeStart, rangeEnd, charList.begin(), charList.end());
+	}
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							std::initializer_list<char32_t> charList)
+	{
+		return replace(rangeStartIndex, rangeLength, charList.begin(), charList.end());
+	}
 
 
+
+	StringImpl& replace(	const Iterator& rangeBegin,
+							const Iterator& rangeEnd,
+							size_t numChars,
+							char32_t chr )
+	{
+		MainDataType::Codec::EncodingIterator<const char32_t*> encodedBegin( &chr );
+		MainDataType::Codec::EncodingIterator<const char32_t*> encodedEnd( (&chr)+1 );
+
+		// get the size of the encoded character
+		int								encodedCharSize = 0;
+		MainDataType::EncodedElement	lastEncodedElement=0;
+		for( auto it = encodedBegin; it!=encodedEnd; it++)
+		{
+			lastEncodedElement = *it;
+			encodedCharSize++;
+		}
+
+		// we must convert the range to encoded indices because the iterators
+		// can be invalidated by Modify.
+		size_t encodedRangeBeginIndex = rangeBegin.getInner() - _beginIt.getInner();
+		size_t encodedRangeLength = rangeEnd.getInner() - rangeBegin.getInner();
+
+		{
+			Modify m(this);
+
+			if(encodedCharSize==0 || numChars==0)
+			{
+				// we can use erase
+				m.pStd->erase( encodedRangeBeginIndex, encodedRangeLength );
+			}
+			else if(encodedCharSize==1)
+			{
+				// we can use the std::string version of replace
+				m.pStd->replace( encodedRangeBeginIndex, encodedRangeLength, numChars, lastEncodedElement );
+			}
+			else
+			{
+				// we must insert in a loop.
+				// to make room we first fill with zero elements.
+
+				m.pStd->replace( encodedRangeBeginIndex, encodedRangeLength, numChars*encodedCharSize, 0 );
+				
+				auto destIt = m.pStd->begin()+encodedRangeBeginIndex;
+				for(size_t c=0; c<numChars; c++)
+				{
+					for( auto it = encodedBegin; it!=encodedEnd; it++)
+					{
+						*destIt = *it;
+						destIt++;
+					}
+				}
+			}
+		}
+		
+		return *this;
+	}
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							size_t numChars,
+							char32_t chr )
+	{
+		size_t myLength = getLength();
+
+		if(rangeStartIndex>myLength)
+			throw OutOfRangeError("Invalid start index passed to String::replace");
+
+		Iterator rangeStart( _beginIt + rangeStartIndex );
+		
+		Iterator rangeEnd( (rangeLength==npos || rangeStartIndex+rangeLength>=myLength)
+							? _endIt
+							: (rangeStart+rangeLength) );
+
+		return replace(rangeStart, rangeEnd, numChars, chr);
+	}
+
+
+		
 
 
 	StringImpl& append(const StringImpl& o, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
@@ -1247,46 +1339,11 @@ public:
 		return replace(_endIt, _endIt, o, length);
 	}
 
-
-
 	StringImpl& append(size_t numChars, char32_t chr)
 	{
-		if(numChars>0)
-		{
-			MainDataType::Codec::EncodingIterator<const char32_t*> encodedBegin( &chr );
-			MainDataType::Codec::EncodingIterator<const char32_t*> encodedEnd( (&chr)+1 );
-
-			// get the size of the encoded character
-			int encodedCharSize = 0;
-			for( auto it = encodedBegin; it!=encodedEnd; it++)
-				encodedCharSize++;
-
-			if(encodedCharSize>0)
-			{
-				Modify m(this);
-
-				size_t newEncodedLength = m.pStd->length() + encodedCharSize*numChars;
-
-				if(m.pStd->capacity() < newEncodedLength)
-					m.pStd->reserve( newEncodedLength );
-
-				for(size_t i=0; i<numChars; i++)
-					m.pStd->append( encodedBegin, encodedEnd );
-			}
-		}
-		
-		return *this;
+		return replace(_endIt, _endIt, numChars, chr);
 	}
 
-	StringImpl& append(std::initializer_list<char> initializerList)
-	{
-		// char is UTF-8 for us. For single char elements to make sense they have to be ASCII.
-		// And ASCII characters can be converted to char32_t simply by casting.
-		// So the initializer list iterators are valid as "fully decoded Unicode iterators".
-
-		return append( initializerList.begin(), initializerList.end());
-	}
-		
 	StringImpl& append(std::initializer_list<char32_t> initializerList)
 	{
 		return append(initializerList.begin(), initializerList.end());
