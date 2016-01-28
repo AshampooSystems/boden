@@ -954,6 +954,173 @@ inline void testReplace()
 
 
 
+
+
+
+template<class StringType>
+inline void verifyAppend(StringType& s, const StringType& suffix, const StringType& expected)
+{
+	SECTION("iterators")
+	{
+		s.append( suffix.begin(), suffix.end() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("iteratorsFromOtherClass")
+	{
+		std::u32string suf = suffix.asUtf32();
+
+		s.append( suf.begin(), suf.end() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("String")
+	{
+		s.append( suffix );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("subString")
+	{
+		std::u32string sufUtf32 = U"abc"+suffix.asUtf32()+U"efg";
+		StringType suf( sufUtf32 );
+
+		s.append( suf, 3, suffix.getLength() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("subStringWithoutLength")
+	{
+		std::u32string sufUtf32 = U"abc"+suffix.asUtf32();
+		StringType suf( sufUtf32 );
+
+		s.append( suf, 3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("subStringWithLengthTooBig")
+	{
+		std::u32string sufUtf32 = U"abc"+suffix.asUtf32();
+		StringType suf( sufUtf32 );
+
+		s.append( suf, 3, 100 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf8")
+	{
+		s.append( suffix.asUtf8() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf8Ptr")
+	{
+		s.append( suffix.asUtf8Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf8PtrWithLength")
+	{
+		std::string suf = suffix.asUtf8()+"xyz";
+
+		s.append( suf.c_str(), suf.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf16")
+	{
+		s.append( suffix.asUtf16() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf16Ptr")
+	{
+		s.append( suffix.asUtf16Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf16PtrWithLength")
+	{
+		std::u16string suf = suffix.asUtf16()+u"xyz";
+
+		s.append( suf.c_str(), suf.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf32")
+	{
+		s.append( suffix.asUtf32() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf32Ptr")
+	{
+		s.append( suffix.asUtf32Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("utf32PtrWithLength")
+	{
+		std::u32string suf = suffix.asUtf32()+U"xyz";
+
+		s.append( suf.c_str(), suf.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("wide")
+	{
+		s.append( suffix.asWide() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("widePtr")
+	{
+		s.append( suffix.asWidePtr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("widePtrWithLength")
+	{
+		std::wstring suf = suffix.asWide()+L"xyz";
+
+		s.append( suf.c_str(), suf.length()-3 );
+		REQUIRE( s==expected );
+	}	
+}
+
+template<class DATATYPE>
+inline void testAppendWithString(StringImpl<DATATYPE>& s)
+{
+	SECTION("empty")
+	{
+		verifyAppend< StringImpl<DATATYPE> >(s, "", s);
+	}
+
+	SECTION("nonEmpty")
+	{
+		verifyAppend< StringImpl<DATATYPE> >(s, U"Bl\U00012345a", s.asUtf32()+U"Bl\U00012345a" );
+	}
+}
+
+template<class DATATYPE>
+inline void testAppend()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+		testAppendWithString<DATATYPE>(s);
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		testAppendWithString<DATATYPE>( s.subString(2, 10) );
+	}
+}
+
+
+
 template<class DATATYPE>
 inline void verifyResizeResult(const StringImpl<DATATYPE>& s, int expectedLength, const char32_t* expected)
 {
@@ -1130,6 +1297,11 @@ inline void testStringImpl()
 	SECTION("replace")
 	{
 		testReplace<DATATYPE>();
+	}
+
+	SECTION("append")
+	{
+		testAppend<DATATYPE>();
 	}
 
 
