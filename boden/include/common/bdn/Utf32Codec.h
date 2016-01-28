@@ -108,6 +108,14 @@ public:
 		}
 
 
+		/** Returns an iterator to the inner encoded string that the decoding iterator is working on.
+			The inner iterator points to the first encoded element of the character, that the decoding
+			iterator is currently pointing to.*/
+		const SourceIterator& getInner() const
+		{
+			return _sourceIt;
+		}
+
 	protected:
 		SourceIterator  _sourceIt;
 	};

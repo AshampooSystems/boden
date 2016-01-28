@@ -194,15 +194,15 @@ inline void testEncodedContents()
 		verifyEncodedContents<CODEC>( encodedString, U"hello");
 	}
 
-	SECTION("toStd")
+	SECTION("asStd")
 	{
-		encodedString = data.toStd();
+		encodedString = data.getEncodedString();
 		verifyEncodedContents<CODEC>( encodedString, U"hello");
 	}
 
-	SECTION("getCString")
+	SECTION("asPtr")
 	{
-		encodedString = data.getCString();
+		encodedString = data.asPtr();
 		verifyEncodedContents<CODEC>( encodedString, U"hello");
 	}
 	

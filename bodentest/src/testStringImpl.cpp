@@ -192,6 +192,17 @@ inline void testLength()
 			REQUIRE( s.length()==10 );
 			REQUIRE( s.size()==10 );
 		}
+
+		SECTION("slice")
+		{
+			StringImpl<DATATYPE> source("xyhelloworldabc");
+
+			StringImpl<DATATYPE> s = source.subString(2, 10);
+
+			REQUIRE( s.getLength()==10 );
+			REQUIRE( s.length()==10 );
+			REQUIRE( s.size()==10 );
+		}
 	}
 
 	SECTION("empty")
@@ -715,6 +726,313 @@ inline void verifyCharAccess(const StringImpl<DATATYPE>& s)
 	}
 }
 
+
+template<class StringType, class RANGETYPE>
+inline void verifyReplace(StringType& s, RANGETYPE start, RANGETYPE end, const StringType& replaceWith, const StringType& expected)
+{
+	SECTION("withIterators")
+	{
+		s.replace( start, end, replaceWith.begin(), replaceWith.end() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withIteratorsFromOtherClass")
+	{
+		std::u32string rep = replaceWith.asUtf32();
+
+		s.replace( start, end, rep.begin(), rep.end() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withString")
+	{
+		s.replace( start, end, replaceWith );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withSubString")
+	{
+		std::u32string replaceWith2Utf32 = U"abc"+replaceWith.asUtf32()+U"efg";
+		StringType replaceWith2( replaceWith2Utf32 );
+
+		s.replace( start, end, replaceWith2, 3, replaceWith.getLength() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withSubStringWithoutLength")
+	{
+		std::u32string replaceWith2Utf32 = U"abc"+replaceWith.asUtf32();
+		StringType replaceWith2( replaceWith2Utf32 );
+
+		s.replace( start, end, replaceWith2, 3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withSubStringWithLengthTooBig")
+	{
+		std::u32string replaceWith2Utf32 = U"abc"+replaceWith.asUtf32();
+		StringType replaceWith2( replaceWith2Utf32 );
+
+		s.replace( start, end, replaceWith2, 3, 100 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF8")
+	{
+		s.replace( start, end, replaceWith.asUtf8() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF8Ptr")
+	{
+		s.replace( start, end, replaceWith.asUtf8Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF8PtrWithLength")
+	{
+		std::string rep = replaceWith.asUtf8()+"xyz";
+
+		s.replace( start, end, rep.c_str(), rep.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF16")
+	{
+		s.replace( start, end, replaceWith.asUtf16() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF16Ptr")
+	{
+		s.replace( start, end, replaceWith.asUtf16Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF16PtrWithLength")
+	{
+		std::u16string rep = replaceWith.asUtf16()+u"xyz";
+
+		s.replace( start, end, rep.c_str(), rep.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF32")
+	{
+		s.replace( start, end, replaceWith.asUtf32() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF32Ptr")
+	{
+		s.replace( start, end, replaceWith.asUtf32Ptr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withUTF32PtrWithLength")
+	{
+		std::u32string rep = replaceWith.asUtf32()+U"xyz";
+
+		s.replace( start, end, rep.c_str(), rep.length()-3 );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withWide")
+	{
+		s.replace( start, end, replaceWith.asWide() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withWidePtr")
+	{
+		s.replace( start, end, replaceWith.asWidePtr() );
+		REQUIRE( s==expected );
+	}
+
+	SECTION("withWidePtrWithLength")
+	{
+		std::wstring rep = replaceWith.asWide()+L"xyz";
+
+		s.replace( start, end, rep.c_str(), rep.length()-3 );
+		REQUIRE( s==expected );
+	}	
+}
+
+template<class DATATYPE>
+inline void testReplaceWithString(StringImpl<DATATYPE>& s)
+{
+	struct TestData
+	{
+		int startIndex;
+		int length;
+		const char32_t* replaceWith;
+		const char32_t* expectedResult;
+		const char* desc;
+	};
+
+	TestData testData[] = { {0, 0, U"", U"he\U00012345loworld", "emptyWithEmptyAtStart"},
+							{10, 0, U"", U"he\U00012345loworld", "emptyWithEmptyAtEnd"},
+							{10, -1, U"", U"he\U00012345loworld", "emptyWithEmptyAtEndWithoutLength"},
+							{10, 20, U"", U"he\U00012345loworld", "emptyWithEmptyAtEndWithLengthTooBig"},
+							{5, 0, U"", U"he\U00012345loworld", "emptyWithEmptyInMiddle"},	
+
+							{0, 0, U"BLA", U"BLAhe\U00012345loworld", "emptyWithNonEmptyAtStart"},
+							{10, 0, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEnd"},
+							{10, -1, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEndWithoutLength"},
+							{10, 20, U"BLA", U"he\U00012345loworldBLA", "emptyWithNonEmptyAtEndWithLengthTooBig"},
+							{5, 0, U"BLA", U"he\U00012345loBLAworld", "emptyWithNonEmptyInMiddle"},	
+
+							{0, 2, U"", U"\U00012345loworld", "nonEmptyWithEmptyAtStart"},
+							{8, 2, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEnd"},
+							{8, -1, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEndWithoutLength"},
+							{8, 20, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEndWithLengthTooBig"},
+							{5, 2, U"", U"he\U00012345lorld", "nonEmptyWithEmptyInMiddle"},	
+
+							{0, 2, U"BLA", U"BLA\U00012345loworld", "nonEmptyWithNonEmptyAtStart"},
+							{0, 4, U"BLA", U"BLAoworld", "nonEmptyWithNonEmptyAtStartB"},
+							{8, 2, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEnd"},
+							{8, -1, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEndWithoutLength"},
+							{8, 20, U"BLA", U"he\U00012345loworBLA", "nonEmptyWithNonEmptyAtEndWithLengthTooBig"},
+							{5, 2, U"BLA", U"he\U00012345loBLArld", "nonEmptyWithNonEmptyInMiddle"},	
+							};
+
+	int testDataCount = std::extent<decltype(testData)>().value;
+
+	TestData* pTestData = GENERATE( between(&testData[0], &testData[testDataCount-1]) );
+
+	SECTION(pTestData->desc)
+	{
+		SECTION("rangeIndexLength")
+		{
+			verifyReplace<StringImpl<DATATYPE>, size_t>(s,
+														pTestData->startIndex,
+														((pTestData->length==-1) ? String::npos : pTestData->length),
+														pTestData->replaceWith,
+														pTestData->expectedResult);
+		}
+
+		SECTION("rangeIterators")
+		{
+			StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
+			StringImpl<DATATYPE>::Iterator end;
+			
+			if(pTestData->length==-1)
+				end = s.end();
+			else if(pTestData->startIndex+pTestData->length>s.getLength())
+			{
+				// some tests pass a length that is too big. We cannot represent that with iterators.
+				end = s.end();
+			}
+			else
+				end = start + pTestData->length;
+
+			verifyReplace<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(	s,
+																					start,
+																					end,
+																					pTestData->replaceWith,
+																					pTestData->expectedResult);
+		}
+	}
+}
+
+template<class DATATYPE>
+inline void testReplace()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+		testReplaceWithString<DATATYPE>(s);
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		testReplaceWithString<DATATYPE>( s.subString(2, 10) );
+	}
+}
+
+
+
+template<class DATATYPE>
+inline void verifyResizeResult(const StringImpl<DATATYPE>& s, int expectedLength, const char32_t* expected)
+{
+	REQUIRE( s.getLength()==expectedLength );
+
+	auto it = s.begin();
+	for(int i=0; i<expectedLength; i++)
+	{
+		REQUIRE( *it == expected[i] );
+
+		++it;
+	}
+
+	REQUIRE( it==s.end() );
+}
+
+
+template<class DATATYPE>
+inline void verifyResize(StringImpl<DATATYPE>& s)
+{
+	SECTION("same")
+	{
+		s.resize(5);
+
+		verifyResizeResult(s, 5, U"hello");
+	}
+
+	SECTION("smaller")
+	{
+		s.resize(3);
+
+		verifyResizeResult(s, 3, U"hel");
+	}
+
+	SECTION("biggerWithDefaultPadding")
+	{
+		s.resize(10);
+
+		verifyResizeResult(s, 10, U"hello\0\0\0\0\0");		
+	}
+
+	SECTION("biggerWithAsciiPaddingDefaultPadding")
+	{
+		s.resize(10, U'X');
+
+		verifyResizeResult(s, 10, U"helloXXXXX");
+	}
+
+	SECTION("biggerWithNonPaddingDefaultPadding")
+	{
+		s.resize(10, U'\U00012345');
+
+		verifyResizeResult(s, 10, U"hello\U00012345\U00012345\U00012345\U00012345\U00012345");
+	}
+}
+
+template<class DATATYPE>
+inline void testResize()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s("hello");
+
+		verifyResize(s);
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> source("hihelloworld");		
+		StringImpl<DATATYPE> s = source.subString(2, 5);
+
+		verifyResize(s);
+
+		// source should not have been modified
+		REQUIRE( source=="hihelloworld" );
+	}
+}
+
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -795,9 +1113,29 @@ inline void testStringImpl()
 		}
 	}
 
-	SECTION("back")
+	SECTION("max_size")
 	{
+		StringImpl<DATATYPE> s;
 
+		size_t m = s.max_size();
+
+		// max_size should not be bigger than INT_MAX,
+		// since we use int for lengths and indices
+		REQUIRE( m<=INT_MAX );
+
+		// but it should have a "reasonably high" value.
+		REQUIRE( m>=0x40000000/sizeof(DATATYPE::EncodedElement) );
+	}
+
+	SECTION("replace")
+	{
+		testReplace<DATATYPE>();
+	}
+
+
+	SECTION("resize")
+	{
+		testResize<DATATYPE>();
 	}
 }
 

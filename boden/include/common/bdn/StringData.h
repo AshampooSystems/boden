@@ -76,6 +76,7 @@ public:
 
 	typedef CODEC Codec;
 	typedef typename Codec::EncodedString EncodedString;
+	typedef typename Codec::EncodedElement EncodedElement;
 
 
 	/** Iterator type for the string data. The iterator returns fully decoded 32 bit Unicode characters (char32_t).*/
@@ -280,8 +281,15 @@ public:
 		return _encodedString;
 	}
 
-	/** Returns the internal encoded data as a std::basic_string.*/
-	const typename Codec::EncodedString& toStd() const
+	/** Returns a reference to the internal encoded data (std::basic_string).*/
+	const typename Codec::EncodedString& getEncodedString() const
+	{
+		return _encodedString;
+	}
+
+
+	/** Returns a reference to the internal encoded data (std::basic_string).*/
+	typename Codec::EncodedString& getEncodedString()
 	{
 		return _encodedString;
 	}
@@ -289,7 +297,7 @@ public:
 
 	/** Returns a pointer to a C-style zero terminated string. The string is encoded according
 		to the Codec used by this StringData.*/
-	const typename Codec::EncodedElement* getCString() const
+	const typename Codec::EncodedElement* asPtr() const
 	{
 		return _encodedString.c_str();
 	}

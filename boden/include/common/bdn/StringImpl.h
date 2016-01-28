@@ -258,6 +258,37 @@ public:
 	}
 
 
+	/** Returns the theoretical maximum size of a string, given an infinite amount of memory.
+		This is included for compatibility with std::string.
+		*/
+	size_t max_size() const noexcept
+	{
+		size_t m = _pData->getEncodedString().max_size();
+		
+		return (m>INT_MAX) ? (size_t)INT_MAX : m;
+	}
+
+
+	/** Resizes the string to the specified number of characters.
+
+		If newLength is less than the current length then the string is truncated.
+		If newLength is more than the current length then the string is extended
+		with padChar characters.
+	*/
+	void resize(size_t newLength, char32_t padChar = U'\0')
+	{
+		size_t currLength = getLength();
+
+		if(newLength<currLength)
+		{
+			// all we need to do is change our end iterator.
+			setEnd( _beginIt+newLength, newLength );
+		}
+		else if(newLength>currLength)
+			append( (newLength-currLength), padChar );
+	}
+
+	
 	/** Returns an iterator that points to the start of the string.*/
 	Iterator begin() const
 	{
@@ -823,60 +854,445 @@ public:
 		return getFirstChar();
 	}
 
+	
 
-	Iterator find(char32_t chr) const
+
+	template<class InputIterator>
+	StringImpl& replace(const Iterator& rangeBegin,
+						const Iterator& rangeEnd,
+						const InputIterator& replaceWithBegin,
+						const InputIterator& replaceWithEnd)
 	{
-		return std::find(_beginIt, _endIt, chr);
+		// we must convert the range to encoded indices because the iterators
+		// can be invalidated by Modify.
+		size_t encodedBeginIndex = rangeBegin.getInner()-_beginIt.getInner();
+		size_t encodedLength = rangeEnd.getInner()-rangeBegin.getInner();
+
+		Modify m(this);
+
+		m.pStd->replace(	m.pStd->begin()+encodedBeginIndex,
+							m.pStd->begin()+encodedBeginIndex+encodedLength,
+							MainDataType::Codec::EncodingIterator<InputIterator>(replaceWithBegin),
+							MainDataType::Codec::EncodingIterator<InputIterator>(replaceWithEnd) );
+
+		return *this;
 	}
 
-	Iterator find(char32_t chr, const Iterator& searchBeginIt) const
+	template<>
+	StringImpl& replace<Iterator>(	const Iterator& rangeBegin,
+									const Iterator& rangeEnd,
+									const Iterator& replaceWithBegin,
+									const Iterator& replaceWithEnd)
 	{
-		return std::find(searchBeginIt, _endIt, chr);
+		// we must convert the range to encoded indices because the iterators
+		// can be invalidated by Modify.
+		size_t encodedBeginIndex = rangeBegin.getInner()-_beginIt.getInner();
+		size_t encodedLength = rangeEnd.getInner() - rangeBegin.getInner();
+
+		Modify m(this);
+
+		m.pStd->replace(	m.pStd->begin()+encodedBeginIndex,
+							m.pStd->begin()+encodedBeginIndex+encodedLength,
+							replaceWithBegin.getInner(),
+							replaceWithEnd.getInner() );
+
+		return *this;
 	}
 
 
-	template<class ToFindCharIterator>
-	Iterator find(	const ToFindCharIterator& toFindBegin,
-					const ToFindCharIterator& toFindEnd,
-					const Iterator& searchBeginIt,
-					Iterator* pMatchEnd = nullptr) const
+
+	template<class InputIterator>
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const InputIterator& replaceWithBegin,
+							const InputIterator& replaceWithEnd)
 	{
-		for (Iterator matchBegin = searchBeginIt; matchBegin != end(); matchBegin++)
+		size_t myLength = getLength();
+
+		if(rangeStartIndex>myLength)
+			throw OutOfRangeError("Invalid start index passed to String::replace");
+
+		Iterator rangeStart( _beginIt + rangeStartIndex );
+		
+		Iterator rangeEnd( (rangeLength==npos || rangeStartIndex+rangeLength>=myLength)
+							? _endIt
+							: (rangeStart+rangeLength) );
+
+		return replace(rangeStart, rangeEnd, replaceWithBegin, replaceWithEnd);
+	}
+
+
+	StringImpl& replace(const Iterator& rangeBegin,
+						const Iterator& rangeEnd,
+						const StringImpl& replaceWith,
+						size_t replaceWithStartIndex = 0,
+						size_t replaceWithLength = npos)
+	{
+		if(replaceWithStartIndex==0 && replaceWithLength==npos)
+			return replace(rangeBegin, rangeEnd, replaceWith.begin(), replaceWith.end() );
+		else
 		{
-			ToFindCharIterator toFindCurr = toFindBegin;
-			Iterator		   matchCurr = matchBegin;
-			while (true)
+			size_t actualReplaceWithLength = replaceWith.getLength();
+			if(replaceWithStartIndex>actualReplaceWithLength)
+				throw OutOfRangeError("Invalid start index passed to String::replace");
+
+			Iterator replaceWithStart = replaceWith.begin()+replaceWithStartIndex;
+
+			Iterator replaceWithEnd( (replaceWithLength==npos || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
+									? replaceWith.end()
+									: (replaceWithStart+replaceWithLength) );
+
+			return replace(rangeBegin, rangeEnd, replaceWithStart, replaceWithEnd);
+		}
+	}
+
+	
+	StringImpl& replace(size_t rangeStartIndex,
+						size_t rangeLength,
+						const StringImpl& replaceWith,
+						size_t replaceWithStartIndex = 0,
+						size_t replaceWithLength = npos)
+	{
+		if(replaceWithStartIndex==0 && replaceWithLength==npos)
+			return replace(rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end() );
+		else
+		{
+			size_t actualReplaceWithLength = replaceWith.getLength();
+			if(replaceWithStartIndex>actualReplaceWithLength)
+				throw OutOfRangeError("Invalid start index passed to String::replace");
+
+			Iterator replaceWithStart = replaceWith.begin()+replaceWithStartIndex;
+
+			Iterator replaceWithEnd( (replaceWithLength==npos || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
+									? replaceWith.end()
+									: (replaceWithStart+replaceWithLength) );
+
+			return replace(rangeStartIndex, rangeLength, replaceWithStart, replaceWithEnd);
+		}
+	}
+
+
+
+	template<class CODEC, class InputIterator>
+	StringImpl& replace(	const CODEC& codec,
+							size_t rangeStartIndex,
+							size_t rangeLength,
+							InputIterator encodedReplaceWithBegin,
+							InputIterator encodedReplaceWithEnd )
+	{
+		return replace( rangeStartIndex,
+						rangeLength,						
+						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
+	}
+
+	template<class CODEC, class InputIterator>
+	StringImpl& replace(	const CODEC& codec,
+							const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							InputIterator encodedReplaceWithBegin,
+							InputIterator encodedReplaceWithEnd )
+	{
+		return replace( rangeStart,
+						rangeEnd, 
+						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
+	}
+
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const char* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( Utf8Codec(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const char* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( Utf8Codec(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+
+	
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const std::string& replaceWith )
+	{
+		return replace( Utf8Codec(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const std::string& replaceWith )
+	{
+		return replace( Utf8Codec(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const char16_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( Utf16Codec<char16_t>(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const char16_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( Utf16Codec<char16_t>(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const std::u16string& replaceWith )
+	{
+		return replace( Utf16Codec<char16_t>(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const std::u16string& replaceWith )
+	{
+		return replace( Utf16Codec<char16_t>(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const char32_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( rangeStartIndex,
+						rangeLength,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const char32_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( rangeStart,
+						rangeEnd,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const std::u32string& replaceWith )
+	{
+		return replace( rangeStartIndex,
+						rangeLength,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const std::u32string& replaceWith )
+	{
+		return replace( rangeStart,
+						rangeEnd,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const wchar_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( WideCodec(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const wchar_t* replaceWith,
+							size_t replaceWithLength = npos )
+	{
+		return replace( WideCodec(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith,
+						getStringEndPtr(replaceWith, replaceWithLength) );
+	}
+
+
+	StringImpl& replace(	size_t rangeStartIndex,
+							size_t rangeLength,
+							const std::wstring& replaceWith )
+	{
+		return replace( WideCodec(),
+						rangeStartIndex,
+						rangeLength,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+	StringImpl& replace(	const Iterator& rangeStart,
+							const Iterator& rangeEnd,
+							const std::wstring& replaceWith )
+	{
+		return replace( WideCodec(),
+						rangeStart,
+						rangeEnd,						
+						replaceWith.begin(),
+						replaceWith.end() );
+	}
+
+
+
+
+	StringImpl& append(const StringImpl& o, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
+	{
+		return replace( _endIt, _endIt, o, otherSubStartIndex, otherSubLength);
+	}
+	
+	template<class IT>
+	StringImpl& append(const IT& beginIt, const IT& endIt)
+	{
+		return replace( _endIt, _endIt, beginIt, endIt);
+	}	
+
+	StringImpl& append(const std::string& o)
+	{
+		return replace(_endIt, _endIt, o);
+	}
+
+	StringImpl& append(const char* o, size_t length=npos)
+	{
+		return replace(_endIt, _endIt, o, length);
+	}
+
+	StringImpl& append(const std::u16string& o)
+	{
+		return replace(_endIt, _endIt, o);
+	}
+
+	StringImpl& append(const char16_t* o, size_t length=npos)
+	{
+		return replace(_endIt, _endIt, o, length);
+	}
+
+	StringImpl& append(const std::u32string& o)
+	{
+		return replace( _endIt, _endIt, o );
+	}
+
+	StringImpl& append(const char32_t* o, size_t length=-1)
+	{
+		return replace( _endIt, _endIt, o, length);
+	}
+
+	StringImpl& append(const std::wstring& o)
+	{
+		return replace(_endIt, _endIt, o );
+	}
+
+	StringImpl& append(const wchar_t* o, size_t length=npos)
+	{
+		return replace(_endIt, _endIt, o, length);
+	}
+
+
+
+	StringImpl& append(size_t numChars, char32_t chr)
+	{
+		if(numChars>0)
+		{
+			MainDataType::Codec::EncodingIterator<const char32_t*> encodedBegin( &chr );
+			MainDataType::Codec::EncodingIterator<const char32_t*> encodedEnd( (&chr)+1 );
+
+			// get the size of the encoded character
+			int encodedCharSize = 0;
+			for( auto it = encodedBegin; it!=encodedEnd; it++)
+				encodedCharSize++;
+
+			if(encodedCharSize>0)
 			{
-				if (toFindCurr == toFindEnd)
-				{
-					if (pMatchEnd != nullptr)
-						*pMatchEnd = matchCurr;
-					return matchBegin;
-				}
+				Modify m(this);
 
-				if (matchCurr == end())
-				{
-					// remainder of string is shorter than string we search for.
-					// => there can not be any more matches.
-					if (pMatchEnd != nullptr)
-						*pMatchEnd = end();
-					return end();
-				}
+				size_t newEncodedLength = m.pStd->length() + encodedCharSize*numChars;
 
-				if ((*matchCurr) != (*toFindCurr))
-					break;
+				if(m.pStd->capacity() < newEncodedLength)
+					m.pStd->reserve( newEncodedLength );
 
-				++toFindCurr;
-				++matchCurr;
+				for(size_t i=0; i<numChars; i++)
+					m.pStd->append( encodedBegin, encodedEnd );
 			}
 		}
-
-		if (pMatchEnd != nullptr)
-			*pMatchEnd = end();
-
-		return end();
+		
+		return *this;
 	}
 
+	StringImpl& append(std::initializer_list<char> initializerList)
+	{
+		// char is UTF-8 for us. For single char elements to make sense they have to be ASCII.
+		// And ASCII characters can be converted to char32_t simply by casting.
+		// So the initializer list iterators are valid as "fully decoded Unicode iterators".
+
+		return append( initializerList.begin(), initializerList.end());
+	}
+		
+	StringImpl& append(std::initializer_list<char32_t> initializerList)
+	{
+		return append(initializerList.begin(), initializerList.end());
+	}
+
+	/*
 
 
 	Iterator find(const StringImpl& s) const
@@ -946,21 +1362,9 @@ public:
 	{
 		return replaceAll(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end());
 	}
-
+	*/
 
 protected:
-	bool isZeroTerminated() const
-	{
-		return ( _endIt==pData->end() );
-	}
-
-	/** Returns true if this string is a substring of another string. I.e. if we only
-	work on PART of the internal string data.*/
-	bool isSubString() const
-	{
-		return (_beginIt!=_pData->begin() || _endIt!=_pData->end() );
-	}
-
 
 	template<class T>
 	typename const T::EncodedString& getEncoded() const
@@ -974,7 +1378,7 @@ protected:
 			p = pNewData;
 		}
 
-		return p->toStd();
+		return p->getEncodedString();
 	}
 
 	template<>
@@ -989,9 +1393,101 @@ protected:
 			_endIt = _pData->end();
 		}
 
-		return _pData->toStd();
+		return _pData->getEncodedString();
 	}
 
+	void setEnd( const Iterator& newEnd, int newLengthIfKnown)
+	{
+		_endIt = newEnd;
+		_lengthIfKnown = newLengthIfKnown;
+
+		// we must throw away any data in different encoding we might have.
+		_pDataInDifferentEncoding = nullptr;
+	}
+
+
+	/** Prepares for the string to be modified.
+		If we are sharing the string data with anyone then we make a copy and switch to it.
+		If we are working on a substring then we throw away the unneeded parts.
+
+		Afterwards the encoded string contains only the data that is valid for us.
+
+		If the string data is replaced then a pointer to the old data is stored
+		in pOldData.
+		*/
+	void beginModification()
+	{
+		if(_pData->getRefCount()!=1)
+		{
+			// we are sharing the data => need to copy.
+			
+			_pData = newObj<MainDataType>( MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner() );
+
+			_beginIt = _pData->begin();
+			_endIt = _pData->end();			
+		}
+		else
+		{
+			MainDataType::EncodedString* pStd = &_pData->getEncodedString();
+
+			if(_beginIt.getInner()!=pStd->begin()
+				|| _endIt.getInner()!=pStd->end() )
+			{
+				// we are working on a substring of the data. Throw away the other parts.
+				// Note that we want to avoid re-allocation, so we want to do this in place.
+				// First we cut off what we do not need from the end, then from the start.
+				// Unfortunately, cutting off from the end will invalidate our begin iterator,
+				// so we need to save its value as an index.
+
+				int startIndex = _beginIt.getInner() - pStd->begin();
+
+				if(_endIt.getInner()!=pStd->end())
+					pStd->erase( _endIt.getInner(), pStd->end() );
+
+				if(startIndex>0)
+					pStd->erase( pStd->begin(), pStd->begin()+startIndex );
+
+				_beginIt = _pData->begin();
+				_endIt = _pData->end();
+			}
+		}
+	}
+
+
+	/** Finishes a modification. Updates the begin end end iterators to the beginning
+		and end of the new encoded string.*/
+	void endModification()
+	{
+		// when we started modifying we ensured that we are not working on a substring.
+		// Now we can update our start and end iterators to the new start and end of the data.
+
+		_beginIt = _pData->begin();
+		_endIt = _pData->end();
+
+		_lengthIfKnown = -1;
+	}
+
+
+	struct Modify
+	{	
+		Modify(StringImpl* pParentArg)
+		{
+			pParent = pParentArg;
+
+			pParent->beginModification();
+
+			pStd = &pParent->_pData->getEncodedString();
+		}
+
+		~Modify()
+		{
+			pParent->endModification();
+		}
+
+		typename MainDataType::EncodedString*   pStd;
+		StringImpl*								pParent;
+	};
+	friend struct Modify;
 	
 
 	mutable P<MainDataType>	_pData;
