@@ -856,7 +856,9 @@ public:
 
 	
 
-
+	/** Replaces a section of the string (defined by two iterators) with the data between two
+		other iterators.
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
@@ -878,6 +880,10 @@ public:
 		return *this;
 	}
 
+
+	/** Replaces a section of the string (defined by two iterators) with the data between two
+		other iterators.
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	template<>
 	StringImpl& replace<Iterator>(	const Iterator& rangeBegin,
 									const Iterator& rangeEnd,
@@ -900,7 +906,15 @@ public:
 	}
 
 
+	/** Replaces a section of the string (defined by a start index and a length) with the data between two
+		iterators.
 
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
@@ -922,6 +936,16 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+
+		If replaceWithStartIndex is specified then only the part of \c replaceWith starting from that index is
+		used. If replaceWithStartIndex is bigger than the length of \c replaceWith then an OutOfRangeError is thrown.
+		
+		If \c replaceWithLength is specified then at most this number of characters is used from \c replaceWith.
+		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::npos,
+		then only the part replaceWith up to its end is used.
+	
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
 						const StringImpl& replaceWith,
@@ -947,6 +971,21 @@ public:
 	}
 
 	
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+
+		If replaceWithStartIndex is specified then only the part of \c replaceWith starting from that index is
+		used. If replaceWithStartIndex is bigger than the length of \c replaceWith then an OutOfRangeError is thrown.
+		
+		If \c replaceWithLength is specified then at most this number of characters is used from \c replaceWith.
+		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::npos,
+		then only the part replaceWith up to its end is used.
+
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(size_t rangeStartIndex,
 						size_t rangeLength,
 						const StringImpl& replaceWith,
@@ -972,7 +1011,15 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the data between iterators that provide
+		encoded string data in the format indicated by \c codec.
 
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replace(	const CODEC& codec,
 							size_t rangeStartIndex,
@@ -986,6 +1033,11 @@ public:
 						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the data between iterators that provide
+		encoded string data in the format indicated by \c codec.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replace(	const CODEC& codec,
 							const Iterator& rangeStart,
@@ -1000,7 +1052,18 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-8 format.
 
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in bytes.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char* replaceWith,
@@ -1013,6 +1076,14 @@ public:
 						getStringEndPtr(replaceWith, replaceWithLength) );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-8 format.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in bytes.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char* replaceWith,
@@ -1026,7 +1097,15 @@ public:
 	}
 
 
-	
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-8 format.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::string& replaceWith )
@@ -1038,6 +1117,11 @@ public:
 						replaceWith.end() );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-8 format.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::string& replaceWith )
@@ -1051,6 +1135,18 @@ public:
 
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-16 format.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 16 bit elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char16_t* replaceWith,
@@ -1063,6 +1159,14 @@ public:
 						getStringEndPtr(replaceWith, replaceWithLength) );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-16 format.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 16 bit elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char16_t* replaceWith,
@@ -1076,7 +1180,15 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-16 format.
 
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u16string& replaceWith )
@@ -1088,6 +1200,11 @@ public:
 						replaceWith.end() );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-16 format.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u16string& replaceWith )
@@ -1101,7 +1218,18 @@ public:
 
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
+		
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 32 bit elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char32_t* replaceWith,
@@ -1113,6 +1241,14 @@ public:
 						getStringEndPtr(replaceWith, replaceWithLength) );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 32 bit elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char32_t* replaceWith,
@@ -1125,6 +1261,16 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
+		
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+
+		
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u32string& replaceWith )
@@ -1135,6 +1281,12 @@ public:
 						replaceWith.end() );
 	}
 
+
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
+		
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u32string& replaceWith )
@@ -1146,6 +1298,18 @@ public:
 	}
 
 
+
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in wchar_t elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const wchar_t* replaceWith,
@@ -1158,6 +1322,13 @@ public:
 						getStringEndPtr(replaceWith, replaceWithLength) );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+		
+		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
+		If it is specified then it indicates the length of the string in wchar_t elements.
+			
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const wchar_t* replaceWith,
@@ -1171,6 +1342,14 @@ public:
 	}
 
 
+	/** Replaces a section of this string (defined by a start index and length) with the contents of replaceWith.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::wstring& replaceWith )
@@ -1182,6 +1361,10 @@ public:
 						replaceWith.end() );
 	}
 
+
+	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
+					
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::wstring& replaceWith )
@@ -1194,11 +1377,41 @@ public:
 	}
 	
 
+	/** Replaces a section of this string (defined by two iterators) with a sequence of characters.
+
+		The charList parameters is automatically created by the compiler when you pass the characters as
+		an initializer list.
+
+		Example
+
+		\code
+		replace(start, end, {'a', 'b', 'c'} );
+		\endcode
+
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeStart, const Iterator& rangeEnd, std::initializer_list<char32_t> charList)
 	{
 		return replace(rangeStart, rangeEnd, charList.begin(), charList.end());
 	}
 
+
+	/** Replaces a section of this string (defined by a start index and length) with a sequence of characters.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+
+		The charList parameters is automatically created by the compiler when you pass the characters as
+		an initializer list.
+
+		Example
+
+		\code
+		replace(start, end, {'a', 'b', 'c'} );
+		\endcode
+
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							std::initializer_list<char32_t> charList)
@@ -1208,6 +1421,10 @@ public:
 
 
 
+	/** Replaces a section of this string (defined by two iterators) with \c numChars occurrences of
+		the character \c chr.
+		
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeBegin,
 							const Iterator& rangeEnd,
 							size_t numChars,
@@ -1265,6 +1482,16 @@ public:
 		return *this;
 	}
 
+
+	/** Replaces a section of this string (defined by a start index and length) with \c numChars occurrences of
+		the character \c chr.
+
+		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
+
+		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		of the string.
+		
+		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							size_t numChars,
@@ -1287,63 +1514,122 @@ public:
 
 		
 
-
-	StringImpl& append(const StringImpl& o, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
+	/** Appends the specified string to the end of this string \c other.
+	
+		If otherSubStartIndex is specified then only the part of \c other starting from that index is
+		appended. If otherSubStartIndex is bigger than the length of \c other then an OutOfRangeError is thrown.
+		
+		If otherSubLength is specified then at most this number of characters is copied from \c other.
+		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
+		characters up to the end of \c other are copied.
+	*/
+	StringImpl& append(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
 	{
-		return replace( _endIt, _endIt, o, otherSubStartIndex, otherSubLength);
+		return replace( _endIt, _endIt, other, otherSubStartIndex, otherSubLength);
 	}
 	
+
+	/** Appends the string data between the specified two iterators to the end of this string.*/	
 	template<class IT>
 	StringImpl& append(const IT& beginIt, const IT& endIt)
 	{
 		return replace( _endIt, _endIt, beginIt, endIt);
 	}	
 
-	StringImpl& append(const std::string& o)
+
+	/** Appends the specified string to this string.*/
+	StringImpl& append(const std::string& other)
 	{
-		return replace(_endIt, _endIt, o);
+		return replace(_endIt, _endIt, other);
 	}
 
-	StringImpl& append(const char* o, size_t length=npos)
+
+	/** Appends the specified string to this string.
+	
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string in bytes.
+	*/	
+	StringImpl& append(const char* other, size_t length=npos)
 	{
-		return replace(_endIt, _endIt, o, length);
+		return replace(_endIt, _endIt, other, length);
 	}
 
+
+	/** Appends the specified string to this string.*/
 	StringImpl& append(const std::u16string& o)
 	{
 		return replace(_endIt, _endIt, o);
 	}
 
+
+	/** Appends the specified string to this string.
+	
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 16 bit elements.
+	*/	
 	StringImpl& append(const char16_t* o, size_t length=npos)
 	{
 		return replace(_endIt, _endIt, o, length);
 	}
 
+
+	/** Appends the specified string to this string.
+	*/	
 	StringImpl& append(const std::u32string& o)
 	{
 		return replace( _endIt, _endIt, o );
 	}
 
+
+	/** Appends the specified string to this string.
+	
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string in 32 bit elements.
+	*/	
 	StringImpl& append(const char32_t* o, size_t length=-1)
 	{
 		return replace( _endIt, _endIt, o, length);
 	}
 
+
+	/** Appends the specified string to this string.	
+	*/	
 	StringImpl& append(const std::wstring& o)
 	{
 		return replace(_endIt, _endIt, o );
 	}
 
+
+	/** Appends the specified string to this string.
+	
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string in wchar_t elements.
+	*/	
 	StringImpl& append(const wchar_t* o, size_t length=npos)
 	{
 		return replace(_endIt, _endIt, o, length);
 	}
 
+
+	/** Appends \c numChars occurrences of \c chr to this string.
+	*/	
 	StringImpl& append(size_t numChars, char32_t chr)
 	{
 		return replace(_endIt, _endIt, numChars, chr);
 	}
 
+
+	/** Appends a sequence of characters to this string.
+	
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+		
+		\code
+		myString.append( {'a', 'b', 'c' } );
+		\endcode
+	*/	
 	StringImpl& append(std::initializer_list<char32_t> initializerList)
 	{
 		return append(initializerList.begin(), initializerList.end());
