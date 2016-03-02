@@ -1586,7 +1586,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 	*/	
-	StringImpl& append(const char32_t* o, size_t length=-1)
+	StringImpl& append(const char32_t* o, size_t length=npos)
 	{
 		return replace( _endIt, _endIt, o, length);
 	}
@@ -1637,9 +1637,9 @@ public:
 
 
 	/** Appends a single character to the end of this string.*/
-	void append(char32_t chr)
+	StringImpl& append(char32_t chr)
 	{
-		append(1, chr);
+		return append(1, chr);
 	}
 
 
@@ -1647,6 +1647,294 @@ public:
 	void push_back(char32_t chr)
 	{
 		append(chr);
+	}
+
+
+
+	
+	/** Inserts the specified string at the specified character index.
+		
+		If otherSubStartIndex is specified then only the part of \c other starting from that index is
+		inserted. If otherSubStartIndex is bigger than the length of \c other then an OutOfRangeError is thrown.
+		
+		If otherSubLength is specified then at most this number of characters is copied from \c other.
+		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
+		characters up to the end of \c other are copied.
+	*/
+	StringImpl& insert(size_t atIndex, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = npos)
+	{
+		return insert(begin() + atIndex, other, otherSubStartIndex, otherSubLength);
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.
+
+		If otherSubStartIndex is specified then only the part of \c other starting from that index is
+		inserted. If otherSubStartIndex is bigger than the length of \c other then an OutOfRangeError is thrown.
+
+		If otherSubLength is specified then at most this number of characters is copied from \c other.
+		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
+		characters up to the end of \c other are copied.
+	*/
+	StringImpl& insert(const Iterator& atIt, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = npos)
+	{
+		return replace(atIt, atIt, other, otherSubStartIndex, otherSubLength);
+	}
+
+
+	/** Inserts the specified string at the specified character index.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded 8 bit elements.
+	*/
+	StringImpl& insert(size_t atIndex, const char* o, size_t length=npos)
+	{
+		return insert(begin() + atIndex, o, length);
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded 8 bit elements.
+	*/
+	StringImpl& insert(const Iterator& atIt, const char* o, size_t length = npos)
+	{
+		return replace(atIt, atIt, o, length);
+	}
+
+
+	/** Inserts the specified string at the specified character index.	*/
+	StringImpl& insert(size_t atIndex, const std::string& other)
+	{
+		insert(begin() + atIndex, other);
+		return *this;
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
+	StringImpl& insert(const Iterator& atIt, const std::string& other)
+	{
+		return replace(atIt, atIt, other);
+	}
+
+
+
+	/** Inserts the specified string at the specified character index.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded wchar_t elements.	*/
+	StringImpl& insert(size_t atIndex, const wchar_t* o, size_t length = npos)
+	{
+		return insert(begin() + atIndex, o, length);
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded wchar_t elements.
+	*/
+	StringImpl& insert(const Iterator& atIt, const wchar_t* o, size_t length = npos)
+	{
+		return replace(atIt, atIt, o, length);
+	}
+
+
+	/** Inserts the specified string at the specified character index.	*/
+	StringImpl& insert(size_t atIndex, const std::wstring& other)
+	{
+		insert(begin() + atIndex, other);
+		return *this;
+	}
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
+	StringImpl& insert(const Iterator& atIt, const std::wstring& other)
+	{
+		return replace(WideCodec(), atIt, atIt, other.begin(), other.end());
+	}
+
+
+	/** Inserts the specified string at the specified character index.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded 16 bit elements.	*/
+	StringImpl& insert(size_t atIndex, const char16_t* o, size_t length = npos)
+	{
+		return insert(begin() + atIndex, o, length);
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded 16 bit elements.
+	*/
+	StringImpl& insert(const Iterator& atIt, const char16_t* o, size_t length = npos)
+	{
+		return replace(atIt, atIt, o, length);
+	}
+
+
+
+	/** Inserts the specified string at the specified character index.	*/
+	StringImpl& insert(size_t atIndex, const std::u16string& other)
+	{
+		insert(begin() + atIndex, other);
+		return *this;
+	}
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
+	StringImpl& insert(const Iterator& atIt, const std::u16string& other)
+	{
+		return replace(Utf16Codec<char16_t>(), atIt, atIt, other.begin(), other.end());
+	}
+
+
+
+	/** Inserts the specified string at the specified character index.
+
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string to insert in encoded 32 bit elements.	*/
+	StringImpl& insert(size_t atIndex, const char32_t* other, size_t length = npos)
+	{
+		return insert(begin() + atIndex, other, length);
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.
+
+	If \c length is not specified then other must be a zero terminated string.
+	If it is specified then it indicates the length of the string to insert in encoded 32 bit elements.
+	*/
+	StringImpl& insert(const Iterator& atIt, const char32_t* other, size_t length = npos)
+	{
+		return replace(atIt, atIt, other, length);
+	}
+
+
+	/** Inserts the specified string at the specified character index.	*/
+	StringImpl& insert(size_t atIndex, const std::u32string& other)
+	{
+		insert(begin() + atIndex, other);
+		return *this;
+	}
+
+
+	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
+	StringImpl& insert(const Iterator& atIt, const std::u32string& other)
+	{
+		return replace(Utf32Codec<char32_t>(), atIt, atIt, other.begin(), other.end());
+	}
+
+
+	/** Inserts the specified character numChar times at the specified character index.*/
+	StringImpl& insert(size_t atIndex, size_t numChars, char32_t chr)
+	{
+		insert(begin() + atIndex, numChars, chr);
+		return *this;
+	}
+
+
+	/** Inserts the specified character numChar times at the position indicated by \c atIt.
+	
+		Returns an Iterator that points to the first inserted character. If numChars is 0 and no
+		character is inserted then it returns an iterator pointing to the position indicated by \c atIt.
+	*/
+	Iterator insert(const Iterator& atIt, size_t numChars, char32_t chr)
+	{
+		int encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+
+		replace(atIt, atIt, numChars, chr);
+
+		// we must return an iterator to the first inserted character
+		return Iterator(_beginIt.getInner() + encodedInsertIndex, _beginIt.getInner(), _endIt.getInner());
+	}
+
+
+
+	/** Inserts the specified character at the specified character index.
+	
+		Returns an Iterator that points to the first inserted character. If numChars is 0 and no
+		character is inserted then it returns an iterator pointing to the position indicated by \c atIt.		
+		*/
+	StringImpl& insert(size_t atIndex, char32_t chr)
+	{
+		return insert(atIndex, 1, chr);
+	}
+	
+	/** Inserts the specified character at the position indicated by \c atIt.
+	
+		Returns an Iterator that points to the first inserted character. If numChars is 0 and no
+		character is inserted then it returns an iterator pointing to the position indicated by \c atIt.		
+		*/
+	Iterator insert(const Iterator& atIt, char32_t chr)
+	{
+		return insert(atIt, 1, chr);
+	}
+
+	
+	/** Inserts the data between the two character iterators toInsertBegin and toInsertEnd
+		at the character index \c atIndex.		
+		*/
+	template <class IT>
+	StringImpl& insert(size_t atIndex, const IT& toInsertBegin, const IT& toInsertEnd)
+	{
+		return replace(atIndex, 0, toInsertBegin, toInsertEnd);
+	}
+
+
+	/** Inserts the data between the two character iterators toInsertBegin and toInsertEnd
+		at the position indicated by \c atIt.
+		
+		Returns an Iterator that points to the first inserted character. If numChars is 0 and no
+		character is inserted then it returns an iterator pointing to the position indicated by \c atIt.		
+		*/
+	template <class IT>
+	Iterator insert(Iterator atIt, const IT& toInsertBegin, const IT& toInsertEnd)
+	{
+		int encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+
+		replace(atIt, atIt, toInsertBegin, toInsertEnd);
+
+		// we must return an iterator to the first inserted character
+		return Iterator(_beginIt.getInner() + encodedInsertIndex, _beginIt.getInner(), _endIt.getInner());		
+	}
+
+
+	/** Inserts a sequence of characters at the character index \c atIndex.
+
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+
+		\code
+		myString.insert(atIndex, {'a', 'b', 'c' } );
+		\endcode
+		*/
+	StringImpl& insert(size_t atIndex, std::initializer_list<char32_t> initializerList)
+	{
+		return insert(atIndex, initializerList.begin(), initializerList.end());
+	}
+
+
+
+	/** Inserts a sequence of characters at the position indicated by \c atIt.
+
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+
+		\code
+		myString.insert(atIt, {'a', 'b', 'c' } );
+		\endcode
+		*/
+	StringImpl& insert(const Iterator& atIt, std::initializer_list<char32_t> initializerList)
+	{
+		insert(atIt, initializerList.begin(), initializerList.end());
+		return *this;
 	}
 
 

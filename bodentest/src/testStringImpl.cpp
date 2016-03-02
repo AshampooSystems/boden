@@ -1394,6 +1394,337 @@ inline void testAppend()
 
 
 
+
+
+template<class StringType, class InsertPosType>
+inline void verifyInsert(StringType& s, InsertPosType insertPos, const StringType& toInsert, const StringType& expected)
+{
+	SECTION("iterators")
+	{
+		s.insert(insertPos, toInsert.begin(), toInsert.end());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("iteratorsFromOtherClass")
+	{
+		std::u32string suf = toInsert.asUtf32();
+
+		s.insert(insertPos, suf.begin(), suf.end());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("String")
+	{
+		s.insert(insertPos, toInsert);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("subString")
+	{
+		std::u32string sufUtf32 = U"abc" + toInsert.asUtf32() + U"efg";
+		StringType suf(sufUtf32);
+
+		s.insert(insertPos, suf, 3, toInsert.getLength());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("subStringWithoutLength")
+	{
+		std::u32string sufUtf32 = U"abc" + toInsert.asUtf32();
+		StringType suf(sufUtf32);
+
+		s.insert(insertPos, suf, 3);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("subStringWithLengthTooBig")
+	{
+		std::u32string sufUtf32 = U"abc" + toInsert.asUtf32();
+		StringType suf(sufUtf32);
+
+		s.insert(insertPos, suf, 3, 100);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf8")
+	{
+		s.insert(insertPos, toInsert.asUtf8());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf8Ptr")
+	{
+		s.insert(insertPos, toInsert.asUtf8Ptr());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf8PtrWithLength")
+	{
+		std::string suf = toInsert.asUtf8() + "xyz";
+
+		s.insert(insertPos, suf.c_str(), suf.length() - 3);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf16")
+	{
+		s.insert(insertPos, toInsert.asUtf16());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf16Ptr")
+	{
+		s.insert(insertPos, toInsert.asUtf16Ptr());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf16PtrWithLength")
+	{
+		std::u16string suf = toInsert.asUtf16() + u"xyz";
+
+		s.insert(insertPos, suf.c_str(), suf.length() - 3);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf32")
+	{
+		s.insert(insertPos, toInsert.asUtf32());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf32Ptr")
+	{
+		s.insert(insertPos, toInsert.asUtf32Ptr());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("utf32PtrWithLength")
+	{
+		std::u32string suf = toInsert.asUtf32() + U"xyz";
+
+		s.insert(insertPos, suf.c_str(), suf.length() - 3);
+		REQUIRE(s == expected);
+	}
+
+	SECTION("wide")
+	{
+		s.insert(insertPos, toInsert.asWide());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("widePtr")
+	{
+		s.insert(insertPos, toInsert.asWidePtr());
+		REQUIRE(s == expected);
+	}
+
+	SECTION("widePtrWithLength")
+	{
+		std::wstring suf = toInsert.asWide() + L"xyz";
+
+		s.insert(insertPos, suf.c_str(), suf.length() - 3);
+		REQUIRE(s == expected);
+	}
+
+	if (!toInsert.isEmpty())
+	{
+		if (toInsert == U"BL\U00013333A")
+		{
+			SECTION("charInitializerList")
+			{
+				// must leave out the unicode character
+				s.insert(insertPos, { 'B', 'L', 'A' });
+
+				std::u32string exp = expected;
+				size_t found = exp.find(U'\U00013333');
+				if (found != String::npos)
+					exp.erase(found, 1);
+
+				REQUIRE(s == exp);
+			}
+
+			SECTION("char32InitializerList")
+			{
+				s.insert(insertPos, { U'B', U'L', U'\U00013333', U'A' });
+
+				REQUIRE(s == expected);
+			}
+		}
+		else
+			throw std::runtime_error("Test must be updated for new possible argument toInsert");
+	}
+
+}
+
+template<class DATATYPE>
+inline void testInsertWithString(StringImpl<DATATYPE>& s, const StringImpl<DATATYPE>& toInsert)
+{
+	int insertPosArray[] = { 0, 5, 10 };
+	int insertPosCount = std::extent<decltype(insertPosArray)>().value;
+
+	for(int i=0; i<insertPosCount; i++)
+	{
+		int insertPos = insertPosArray[i];
+
+		std::u32string expected = s.asUtf32();
+
+		expected.insert(insertPos, toInsert.asUtf32() );
+
+		SECTION(std::to_string(insertPos))
+		{
+			SECTION("atIndex")
+				verifyInsert<StringImpl<DATATYPE>, int>(s, insertPos, toInsert, expected);
+
+			SECTION("atIterator")
+				verifyInsert<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(s, s.begin()+insertPos, toInsert, expected);
+		}
+	}
+}
+
+
+template<class DATATYPE>
+inline void testInsertWithString(StringImpl<DATATYPE>& s)
+{
+	SECTION("empty")
+	{
+		testInsertWithString< DATATYPE >(s, "");
+	}
+
+	SECTION("nonEmpty")
+	{
+		testInsertWithString< DATATYPE >(s, U"BL\U00013333A" );
+	}
+}
+
+
+
+template<class DATATYPE>
+inline void verifyInsertNumChars(StringImpl<DATATYPE>& s, int charCount, char32_t chr)
+{
+	int insertPosArray[] = { 0, 5, 10 };
+	int insertPosCount = std::extent<decltype(insertPosArray)>().value;
+
+	for(int i=0; i<insertPosCount; i++)
+	{
+		int insertPos = insertPosArray[i];
+
+		SECTION(std::to_string(insertPos))
+		{
+
+			std::u32string expected = s.asUtf32();
+
+			expected.insert(insertPos, charCount, chr);
+
+			SECTION("atIndex")
+				s.insert(insertPos, charCount, chr);
+
+			SECTION("atIterator")
+				s.insert(s.begin()+insertPos, charCount, chr);
+
+			REQUIRE(s == expected);
+		}
+	}
+}
+
+
+template<class DATATYPE>
+inline void testInsertNumChars_WithCharCount(StringImpl<DATATYPE>& s, int charCount)
+{
+	SECTION("nullChar")
+	{
+		verifyInsertNumChars<DATATYPE>(s, charCount, U'\0');
+	}
+
+	SECTION("asciiChar")
+	{
+		verifyInsertNumChars<DATATYPE>(s, charCount, U'F');
+	}
+
+	SECTION("nonAsciiChar")
+	{
+		verifyInsertNumChars<DATATYPE>(s, charCount, U'\U00011111');
+	}
+}
+
+template<class DATATYPE>
+inline void testInsertNumChars(StringImpl<DATATYPE>& s)
+{
+	SECTION("zero chars")
+		testInsertNumChars_WithCharCount(s, 0);
+	
+	SECTION("1 char")
+		testInsertNumChars_WithCharCount(s, 1);
+
+	SECTION("7 chars")
+		testInsertNumChars_WithCharCount(s, 7);	
+}
+
+
+template<class DATATYPE>
+inline void testInsertSingleChar(StringImpl<DATATYPE>& s)
+{
+	std::u32string expected = s.asUtf32();
+
+	int insertPosArray[] = { 0, 5, 10 };
+	int insertPosCount = std::extent<decltype(insertPosArray)>().value;
+
+	for(int i=0; i<insertPosCount; i++)
+	{
+		int insertPos = insertPosArray[i];
+
+		SECTION(std::to_string(insertPos))
+		{
+			expected.insert(expected.begin()+insertPos, U'\U00012345');
+
+			SECTION("atIndex")
+				s.insert(insertPos, U'\U00012345');
+
+			SECTION("atIterator")
+				s.insert(s.begin()+insertPos, U'\U00012345');
+
+			REQUIRE(s == expected);
+		}
+	}
+}
+
+
+
+
+
+
+template<class DATATYPE>
+inline void testInsert()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+		
+		SECTION("string")
+			testInsertWithString<DATATYPE>(s);
+
+		SECTION("numChars")
+			testInsertNumChars<DATATYPE>(s);
+
+		SECTION("singleChar")
+			testInsertSingleChar<DATATYPE>(s);
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		SECTION("string")
+			testInsertWithString<DATATYPE>(s.subString(2, 10));
+
+		SECTION("numChars")
+			testInsertNumChars<DATATYPE>(s);
+
+		SECTION("singleChar")
+			testInsertSingleChar<DATATYPE>(s);
+	}
+}
+
+
 template<class DATATYPE>
 inline void verifyResizeResult(const StringImpl<DATATYPE>& s, int expectedLength, const char32_t* expected)
 {
@@ -1575,6 +1906,11 @@ inline void testStringImpl()
 	SECTION("append")
 	{
 		testAppend<DATATYPE>();
+	}
+
+	SECTION("insert")
+	{
+		testInsert<DATATYPE>();
 	}
 
 
