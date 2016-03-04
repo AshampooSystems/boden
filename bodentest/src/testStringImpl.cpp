@@ -1717,12 +1717,105 @@ inline void testInsert()
 			testInsertWithString<DATATYPE>(s.subString(2, 10));
 
 		SECTION("numChars")
-			testInsertNumChars<DATATYPE>(s);
+			testInsertNumChars<DATATYPE>(s.subString(2, 10));
 
 		SECTION("singleChar")
-			testInsertSingleChar<DATATYPE>(s);
+			testInsertSingleChar<DATATYPE>(s.subString(2, 10));
 	}
 }
+
+template<class DATATYPE>
+inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t length)
+{
+	std::u32string expected = s.asUtf32();
+
+	expected.erase(atPos, length);
+
+	SECTION("index")
+		s.erase(atPos, length);
+
+	if(length==1 && atPos<10)
+	{
+		SECTION("itOneChar")
+		{
+			StringImpl<DATATYPE>::Iterator resultIt = s.erase( s.begin()+atPos );
+
+			REQUIRE( resultIt==s.begin()+atPos );
+		}
+	}
+
+	SECTION("itRange")
+	{
+		StringImpl<DATATYPE>::Iterator beginIt = s.begin()+atPos;
+		
+		StringImpl<DATATYPE>::Iterator endIt;
+		if(length==StringImpl<DATATYPE>::npos || atPos+length>=s.length())
+			endIt = s.end();
+		else
+			endIt = beginIt+length;
+
+		StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);	
+		REQUIRE( resultIt==s.begin()+atPos );
+	}
+
+
+	REQUIRE( s==expected );
+}
+
+
+template<class DATATYPE>
+inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos)
+{
+	std::u32string expected = s.asUtf32();
+
+	size_t	lengthArray[] ={ 0, 1, 5, 10, 20, StringImpl<DATATYPE>::npos };
+	int		lengthCount = std::extent<decltype(lengthArray)>().value;
+	for(int i=0; i<lengthCount; i++)
+	{
+		size_t length = lengthArray[i];
+
+		SECTION("length"+std::to_string(length))
+			testEraseWithString<DATATYPE>(s, atPos, length);
+	}
+}
+
+
+template<class DATATYPE>
+inline void testEraseWithString(StringImpl<DATATYPE>& s)
+{
+	std::u32string expected = s.asUtf32();
+
+	int atArray[] = { 0, 5, 10 };
+	int atCount = std::extent<decltype(atArray)>().value;
+	for(int i=0; i<atCount; i++)
+	{
+		int atPos = atArray[i];
+
+		SECTION("at"+std::to_string(atPos))
+			testEraseWithString<DATATYPE>(s, atPos);
+	}
+}
+
+
+template<class DATATYPE>
+inline void testErase()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+		
+		testEraseWithString<DATATYPE>(s);
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		testEraseWithString<DATATYPE>(s.subString(2, 10));
+	}
+}
+
+
 
 
 template<class DATATYPE>
@@ -1802,6 +1895,7 @@ inline void testResize()
 		REQUIRE( source=="hihelloworld" );
 	}
 }
+
 
 
 template<class DATATYPE>
@@ -1913,6 +2007,10 @@ inline void testStringImpl()
 		testInsert<DATATYPE>();
 	}
 
+	SECTION("erase")
+	{
+		testErase<DATATYPE>();
+	}
 
 	SECTION("resize")
 	{

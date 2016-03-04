@@ -1939,6 +1939,49 @@ public:
 
 
 
+
+	/** Removes a part of the string, starting at the character index \c cutIndex and 
+		cutting out \c cutLength characters from that position.
+		
+		If cutLength is String::npos or cutPos+cutLength exceed the lengths of the
+		string then the remainder of the string up to the end is removed.
+	*/
+	StringImpl& erase(size_t cutIndex=0, size_t cutLength=npos)
+	{
+		return replace(cutIndex, cutLength, U"", 0);
+	}
+
+
+	/** Removes the character at the position of the specified iterator.
+		Returns an iterator to the character that now occupies the position of the removed
+		character (or end() if it was the last character).*/
+	Iterator erase(const Iterator& it)
+	{
+		int encodedEraseIndex = it.getInner() - _beginIt.getInner();
+
+		replace(it, it+1,  U"", 0);
+
+		// we must return an iterator to the erased position
+		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());		
+	}
+
+
+	/** Removes a part of the string, starting at the position indicated by
+		the \c beginIt iterator and ending at the point just before the position indicated by \c endIt.
+		
+		Returns an iterator to the character that now occupies the position of the first removed
+		character (or end() if the removed part extended to the end of the string).*/	
+	Iterator erase(const Iterator& beginIt, const Iterator& endIt)
+	{
+		int encodedEraseIndex = beginIt.getInner() - _beginIt.getInner();
+
+		replace(beginIt, endIt,  U"", 0);
+
+		// we must return an iterator to the erased position
+		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());		
+	}
+	
+
 	/*
 
 
