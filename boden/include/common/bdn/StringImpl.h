@@ -85,6 +85,7 @@ public:
 	StringImpl()
 		: StringImpl( MainDataType::getEmptyData() )
 	{
+		_lengthIfKnown = 0;
 	}
 
 	StringImpl(const StringImpl& s)
@@ -97,6 +98,14 @@ public:
 
 		_lengthIfKnown = s._lengthIfKnown;
 	}
+
+	StringImpl(const StringImpl&& s) noexcept
+	{
+		_lengthIfKnown = -1;
+
+		assign( std::move(s) );
+	}
+
 
 	StringImpl(const StringImpl& s, const Iterator& beginIt, const Iterator& endIt )
 	{
@@ -1981,6 +1990,333 @@ public:
 		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());		
 	}
 	
+
+	/** Assigns the value of another string to this string.
+		
+		If otherSubStartIndex is specified then only the part of \c other starting from that index is
+		assigned. If otherSubStartIndex is bigger than the length of \c other then an OutOfRangeError is thrown.
+
+		If otherSubLength is specified then at most this number of characters is copied from \c other.
+		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
+		characters up to the end of \c other are copied.
+		*/
+	StringImpl& assign(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
+	{
+		// just copy a reference to the source string's data
+		_pData = other._pData;
+
+		_beginIt = other._beginIt;
+
+		if(otherSubStartIndex>=0)
+			_beginIt += otherSubStartIndex;
+		
+		if(otherSubLength==npos || otherSubStartIndex+otherSubLength>=other.length() )
+		{
+			_endIt = other._endIt;
+
+			if(other._lengthIfKnown==-1)
+				_lengthIfKnown = -1;
+			else
+				_lengthIfKnown = other._lengthIfKnown-otherSubStartIndex;
+
+			if(otherSubStartIndex==0)
+				_pDataInDifferentEncoding = other._pDataInDifferentEncoding;
+			else
+				_pDataInDifferentEncoding = nullptr;
+		}
+		else
+		{
+			_endIt = _beginIt + otherSubLength;
+			_lengthIfKnown = otherSubLength;
+
+			_pDataInDifferentEncoding = nullptr;
+		}
+
+		return *this;
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& assign(const std::string& o)
+	{
+		return replace(_beginIt, _endIt, o );
+	}
+
+
+	/** Assigns the value of a C-style UTF8 string to this string. If length is not npos
+		then it must be the length of the encoded UTF-8 string in bytes.
+		If length is npos then the other string must be zero-terminated.
+		*/
+	StringImpl& assign(const char* o, size_t length=npos)
+	{
+		return replace(_beginIt, _endIt, o, length );
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& assign(const std::wstring& o)
+	{
+		return replace(_beginIt, _endIt, o);
+	}
+
+
+	/** Assigns the value of a C-style wide char string to this string. If length is not npos
+		then it must be the number of encoded wchar_t elements.
+		If length is npos then the other string must be zero-terminated.
+		*/
+	StringImpl& assign(const wchar_t* o, size_t length=npos)
+	{
+		return replace(_beginIt, _endIt, o, length );
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& assign(const std::u16string& o)
+	{
+		return replace(_beginIt, _endIt, o );
+	}
+
+
+	/** Assigns the value of a C-style UTF-16 string to this string. If length is not npos
+		then it must be the number of encoded 16 bit UTF-16 elements.
+		If length is npos then the other string must be zero-terminated.
+		*/
+	StringImpl& assign(const char16_t* o, size_t length=npos)
+	{
+		return replace(_beginIt, _endIt, o, length );
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& assign(const std::u32string& o)
+	{
+		return replace(_beginIt, _endIt, o );
+	}
+
+
+	/** Assigns the value of a C-style UTF-32 string to this string. If length is not npos
+		then it must be the number of encoded 32 bit UTF-32 elements.
+		If length is npos then the other string must be zero-terminated.
+		*/
+	StringImpl& assign(const char32_t* o, size_t length=npos)
+	{
+		return replace(_beginIt, _endIt, o, length );
+	}
+		
+
+
+	/** Sets the contents of this string to be \c numChars times the \c chr character.		
+		*/
+	StringImpl& assign(size_t numChars, char32_t chr)
+	{
+		return replace(_beginIt, _endIt, numChars, chr);
+	}
+
+	
+	/** Assigns the characters between the specified two character iterators to this string.
+		*/
+	template <class IT>
+	StringImpl& assign(IT beginIt, IT endIt)
+	{
+		return replace(_beginIt, _endIt, beginIt, endIt);
+	}
+
+
+	/** Sets the contents of this string to be a sequence of character.
+
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+
+		\code
+		myString.assign( {'a', 'b', 'c' } );
+		\endcode
+		*/
+	StringImpl& assign(std::initializer_list<char32_t> initializerList)
+	{
+		return replace(_beginIt, _endIt, initializerList);
+	}
+
+
+
+	/** Move-optimized version of assign() that "steals" the contents from another string.
+		Sets the contents of this string to the contents of
+		\c moveSource. Afterwards moveSource will contain only the empty string.
+		*/
+	StringImpl& assign(StringImpl&& moveSource) noexcept
+	{
+		// just copy everything over
+		_pData = moveSource._pData;
+		_beginIt = moveSource._beginIt;
+		_endIt = moveSource._endIt;
+		_pDataInDifferentEncoding = moveSource._pDataInDifferentEncoding;
+		_lengthIfKnown = moveSource._lengthIfKnown;
+
+		// we could leave moveSource like this. The result state of moveSource is unspecified, but must be valid.
+		// So it is perfectly OK to leave it at the current value.
+		// BUT most std::string implementation will almost certainly set moveSource to an empty string,
+		// because they cannot implement data sharing. So we do the same.
+		// Also, if we left the data in a shared state and moveSource is not destroyed immediately, then we might
+		// end up having to copy our data at the next modifying operation (because the refCount is not 1).
+		// That is something that we should avoid, since the move operation is intended to be super-fast and
+		// avoid just this kind of copying.
+
+		moveSource._pData = MainDataType::getEmptyData();
+		moveSource._beginIt = moveSource._pData->begin();
+		moveSource._endIt = moveSource._pData->end();
+		moveSource._pDataInDifferentEncoding = nullptr;
+		moveSource._lengthIfKnown = 0;		
+
+		return *this;
+	}
+
+
+
+	/** Swaps the contents between this string and the specified one.
+		Afterwards the string passed in will have the contents of this string and this string
+		will have the contents of the parameter.*/
+	void swap(StringImpl& o)
+	{
+		P<MainDataType> pData = _pData;
+		Iterator		beginIt = _beginIt;
+		Iterator		endIt = _endIt;
+		P<Base>			pDataInDifferentEncoding = _pDataInDifferentEncoding;
+		int				lengthIfKnown = _lengthIfKnown;
+
+		_pData = o._pData;
+		_beginIt = o._beginIt;
+		_endIt = o._endIt;
+		_pDataInDifferentEncoding = o._pDataInDifferentEncoding;
+		_lengthIfKnown = o._lengthIfKnown;
+
+		o._pData = pData;
+		o._beginIt = beginIt;
+		o._endIt = endIt;
+		o._pDataInDifferentEncoding = pDataInDifferentEncoding;
+		o._lengthIfKnown = lengthIfKnown;		
+	}
+
+
+
+
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& operator=(const StringImpl& other)
+	{
+		return assign(other);
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& operator=(const std::string& o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of a zero terminated C-style UTF-8 string to this string. */
+	StringImpl& operator=(const char* o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& operator=(const std::wstring& o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of a zero terminated C-style wide char string to this string. */
+	StringImpl& operator=(const wchar_t* o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of another string to this string. 	*/
+	StringImpl& operator=(const std::u16string& o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of a zero terminated C-style UTF-16 string to this string. */
+	StringImpl& operator=(const char16_t* o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of another string to this string. */
+	StringImpl& operator=(const std::u32string& o)
+	{
+		return assign(o);
+	}
+
+
+	/** Assigns the value of a zero terminated C-style UTF-32 string to this string. */
+	StringImpl& operator=(const char32_t* o)
+	{
+		return assign(o);
+	}
+		
+
+	/** Sets the contents of this string to be a one-character string.
+		*/
+	StringImpl& operator=(char32_t chr)
+	{
+		return assign(1, chr);
+	}
+
+
+
+	/** Sets the contents of this string to be a sequence of character.
+
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+
+		\code
+		myString = {'a', 'b', 'c' };
+		\endcode
+		*/
+	StringImpl& operator=(std::initializer_list<char32_t> initializerList)
+	{
+		return assign(initializerList);
+	}
+
+	
+	/** Move-operator. "Steals" the contents from another string.
+		Sets the contents of this string to the contents of
+		\c moveSource. Afterwards moveSource will contain only the empty string.
+		*/
+	StringImpl& operator=(StringImpl&& moveSource) noexcept
+	{
+		return assign(std::move(moveSource) );
+	}
+
+
+	/** Removes the last character from the string.
+		Has no effect if the string is empty.*/
+	void removeLast()
+	{
+		if(!isEmpty())
+			erase(_endIt-1);
+	}
+
+
+	/** Same as removeLast(). Included for compatibility with std::string.*/
+	void pop_back()
+	{
+		if(!isEmpty())
+			erase(_endIt-1);
+	}
+
 
 	/*
 

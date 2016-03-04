@@ -42,7 +42,7 @@ public:
 	
 	template<class F>
 	inline P(const P<F>& p)
-		: P( p._getPtr() )
+		: P( p.getPtr() )
 	{
 	}
 

@@ -1725,16 +1725,16 @@ inline void testInsert()
 }
 
 template<class DATATYPE>
-inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t length)
+inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t eraseLength)
 {
 	std::u32string expected = s.asUtf32();
 
-	expected.erase(atPos, length);
+	expected.erase(atPos, eraseLength);
 
 	SECTION("index")
-		s.erase(atPos, length);
+		s.erase(atPos, eraseLength);
 
-	if(length==1 && atPos<10)
+	if(eraseLength==1 && atPos<s.getLength())
 	{
 		SECTION("itOneChar")
 		{
@@ -1749,10 +1749,10 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t lengt
 		StringImpl<DATATYPE>::Iterator beginIt = s.begin()+atPos;
 		
 		StringImpl<DATATYPE>::Iterator endIt;
-		if(length==StringImpl<DATATYPE>::npos || atPos+length>=s.length())
+		if(eraseLength==StringImpl<DATATYPE>::npos || atPos+eraseLength>=s.length())
 			endIt = s.end();
 		else
-			endIt = beginIt+length;
+			endIt = beginIt+eraseLength;
 
 		StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);	
 		REQUIRE( resultIt==s.begin()+atPos );
@@ -1815,6 +1815,224 @@ inline void testErase()
 	}
 }
 
+
+template<class DATATYPE, class ARG>
+inline void verifyAssignFull(StringImpl<DATATYPE>& s, ARG arg)
+{
+	SECTION("assignFunction")
+		s.assign(arg);
+
+	SECTION("operator=")
+		s = arg;	
+}
+
+template<class DATATYPE>
+inline void testAssignFull(StringImpl<DATATYPE>& s, const StringImpl<DATATYPE>& source)
+{
+	std::u32string origSource = source.asUtf32();
+
+	SECTION("String")
+		verifyAssignFull(s, source);
+
+	SECTION("utf8")
+		verifyAssignFull(s, source.asUtf8());
+	SECTION("utf8ptr")
+		verifyAssignFull(s, source.asUtf8().c_str());
+
+	SECTION("wide")
+		verifyAssignFull(s, source.asWide());
+	SECTION("wideptr")
+		verifyAssignFull(s, source.asWide().c_str());
+
+	SECTION("utf16")
+		verifyAssignFull(s, source.asUtf16());
+	SECTION("utf16ptr")
+		verifyAssignFull(s, source.asUtf16().c_str());
+
+	SECTION("utf32")
+		verifyAssignFull(s, source.asUtf32());
+	SECTION("utf32ptr")
+		verifyAssignFull(s, source.asUtf32().c_str());
+
+
+	REQUIRE(s==source);
+	REQUIRE(source==origSource);
+}
+
+template<class DATATYPE>
+inline void testAssignWithString(StringImpl<DATATYPE>& s, const StringImpl<DATATYPE>& source)
+{
+	SECTION("full")
+		testAssignFull(s, source);
+
+	SECTION("move")
+	{
+		std::u32string			origSource = source.asUtf32();
+		StringImpl<DATATYPE>	moveSource(source);
+
+		SECTION("assignFunction")				
+			s.assign( std::move(moveSource) );
+
+		SECTION("operator=")
+			s = std::move(moveSource);
+
+		// moveSource should be empty afterwards
+		REQUIRE( moveSource.isEmpty() );
+		REQUIRE( moveSource.getLength()==0 );
+		REQUIRE( moveSource=="" );
+		REQUIRE( moveSource==U"" );
+
+		REQUIRE( s==source );
+		REQUIRE( s.getLength()==source.getLength() );
+
+		REQUIRE( source==origSource );
+	}
+
+	if(source.getLength()>=7)
+	{
+		SECTION("subString")
+		{
+			std::u32string origSource = source.asUtf32();
+
+			s.assign(source, 3, 4);
+
+			REQUIRE( source==origSource );
+
+			REQUIRE( s==source.subString(3,4) );			
+		}
+	}
+
+	SECTION("iterators")
+	{
+		std::u32string origSource = source.asUtf32();
+
+		s.assign(source.begin(), source.end());
+
+		REQUIRE( source==origSource );
+
+		REQUIRE( s==source );			
+	}
+
+	if(source.getLength()>2)
+	{
+		SECTION("ptrWithLength")
+		{
+			std::u32string origSource = source.asUtf32();
+
+			SECTION("utf8PtrWithLength")	
+				s.assign(source.asUtf8().c_str(), 2);			
+
+			SECTION("widePtrWithLength")		
+				s.assign(source.asWide().c_str(), 2);			
+
+			SECTION("utf16PtrWithLength")		
+				s.assign(source.asUtf16().c_str(), 2);			
+
+			SECTION("utf32PtrWithLength")		
+				s.assign(source.asUtf32().c_str(), 2);			
+
+			REQUIRE(source==origSource);
+
+			REQUIRE(s==source.subString(0, 2) );
+		}
+	}
+}
+
+template<class DATATYPE>
+inline void testAssignWithString(StringImpl<DATATYPE>& s)
+{
+	SECTION("sourceEmpty")
+		testAssignWithString<DATATYPE>(s, U"");
+
+	SECTION("sourceNonEmpty")
+		testAssignWithString<DATATYPE>(s, U"");
+
+	SECTION("sourceEmptySlice")
+	{
+		StringImpl<DATATYPE> x(U"worldhe\U00012345lo");
+
+		testAssignWithString<DATATYPE>(s, x.subString(2, 0) );
+	}
+
+	SECTION("sourceNonEmptySlice")
+	{
+		StringImpl<DATATYPE> x(U"worldhe\U00012345lo");
+
+		testAssignWithString(s, x.subString(2, 5) );
+	}
+
+	SECTION("numChars")
+	{
+		std::vector<int> numCharArray( {0, 1, 5, 20} );
+		for(auto it = numCharArray.begin(); it!=numCharArray.end(); ++it)
+		{
+			int numChars = *it;
+
+			SECTION(std::to_string(numChars))
+			{
+				s.assign(numChars, U'\U00012345');
+
+				std::u32string expected;
+				expected.assign(numChars, U'\U00012345');
+
+				REQUIRE( s==expected );
+			}
+		}
+	}
+
+	SECTION("initializerList")
+	{
+		SECTION("assignFunction")
+			s.assign( {'a', 'b', U'\U00012345'} );
+		SECTION("operator=")
+			s = {'a', 'b', U'\U00012345'};
+			
+		std::u32string expected;
+		expected.assign( {'a', 'b', U'\U00012345'} );
+		
+		REQUIRE( s==expected );
+	}	
+
+}
+
+
+template<class DATATYPE>
+inline void testAssign()
+{
+	SECTION("destNotEmpty")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+		
+		testAssignWithString<DATATYPE>(s);
+	}
+
+	SECTION("destEmpty")
+	{
+		StringImpl<DATATYPE> s;
+		
+		testAssignWithString<DATATYPE>(s);
+	}
+
+	SECTION("destNotEmpty-Slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		testAssignWithString<DATATYPE>(s.subString(2, 10));
+
+		// the slice source should not have been modified
+		REQUIRE( s==U"xyhe\U00012345loworldabc" );
+	}
+
+	SECTION("destEmpty-Slice")
+	{
+		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+
+		testAssignWithString<DATATYPE>(s.subString(2, 0));
+
+		// the slice source should not have been modified
+		REQUIRE( s==U"xyhe\U00012345loworldabc" );
+	}
+}
 
 
 
@@ -1896,6 +2114,147 @@ inline void testResize()
 	}
 }
 
+
+template<class DATATYPE>
+inline void testSwapWithAB(StringImpl<DATATYPE>& a, StringImpl<DATATYPE>& b)
+{
+	std::u32string origA = a.asUtf32();
+	std::u32string origB = b.asUtf32();
+
+	SECTION("a.swap(b)")
+	{
+		a.swap(b);
+	}
+
+	SECTION("b.swap(a)")
+	{
+		b.swap(a);
+	}
+
+	REQUIRE( a==origB );
+	REQUIRE( b==origA );
+}
+
+
+template<class DATATYPE>
+inline void testSwapWithA(StringImpl<DATATYPE>& a)
+{
+	SECTION("B-normal")
+	{
+		StringImpl<DATATYPE> b(U"wo\U00012345rld");
+
+		testSwapWithAB<DATATYPE>(a, b);		
+	}
+
+	SECTION("B-slice")
+	{
+		StringImpl<DATATYPE> b(U"xxwo\U00012345rldyy");
+
+		StringImpl<DATATYPE> b2 = b.subString(2, 3);
+
+		testSwapWithAB<DATATYPE>( a, b2 );		
+	}
+
+	SECTION("B-empty")
+	{
+		StringImpl<DATATYPE> b;
+
+		testSwapWithAB<DATATYPE>( a, b );
+	}	
+
+	SECTION("B-emptySlice")
+	{
+		StringImpl<DATATYPE> b(U"xxwo\U00012345rldyy");
+
+		StringImpl<DATATYPE> b2 = b.subString(2, 0);
+
+		testSwapWithAB<DATATYPE>( a, b2 );		
+	}
+	
+}
+
+template<class DATATYPE>
+inline void testSwap()
+{
+	SECTION("A-normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+		testSwapWithA<DATATYPE>(s);		
+	}
+
+	SECTION("A-slice")
+	{
+		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+
+		testSwapWithA<DATATYPE>( s.subString(2, 10) );		
+	}
+
+	SECTION("A-empty")
+	{
+		StringImpl<DATATYPE> s;
+
+		testSwapWithA<DATATYPE>( s );
+	}	
+
+	SECTION("A-emptySlice")
+	{
+		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+
+		testSwapWithA<DATATYPE>( s.subString(2, 0) );		
+	}
+}
+
+
+template<class DATATYPE>
+inline void testRemoveLast(StringImpl<DATATYPE>& s)
+{
+	std::u32string expected=s;
+
+	if(!expected.empty())
+		expected.erase( expected.end()-1 );
+
+	SECTION("actualRemoveLast")
+		s.removeLast();
+
+	SECTION("pop_back")
+		s.pop_back();
+
+	REQUIRE(s==expected);
+}
+
+template<class DATATYPE>
+inline void testRemoveLast()
+{
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+		testRemoveLast<DATATYPE>(s);		
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+
+		testRemoveLast<DATATYPE>( s.subString(2, 10) );		
+	}
+
+	SECTION("empty")
+	{
+		StringImpl<DATATYPE> s;
+
+		testRemoveLast<DATATYPE>( s );
+	}	
+
+	SECTION("emptySlice")
+	{
+		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+
+		testRemoveLast<DATATYPE>( s.subString(2, 0) );		
+	}
+
+}
 
 
 template<class DATATYPE>
@@ -2012,10 +2371,21 @@ inline void testStringImpl()
 		testErase<DATATYPE>();
 	}
 
+	SECTION("assign")
+	{
+		testAssign<DATATYPE>();
+	}
+
 	SECTION("resize")
 	{
 		testResize<DATATYPE>();
 	}
+
+	SECTION("swap")
+		testSwap<DATATYPE>();
+
+	SECTION("removeLast")
+		testRemoveLast<DATATYPE>();
 }
 
 
