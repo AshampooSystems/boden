@@ -17,6 +17,13 @@ public:
 
 	/** The std string type for the encoded string.*/
 	typedef std::basic_string<EncodedElement> EncodedString;
+
+
+	/** Returns the maximum number of encoded elements that can be needed for a character.*/
+	static int getMaxEncodedElementsPerCharacter()
+	{
+		return 6;
+	}
 	
 
 	/** A character iterator that decodes UTF-8 data (char elements) from an

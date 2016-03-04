@@ -30,6 +30,10 @@ public:
 	typedef std::wstring EncodedString;
 
 
+	/** Returns the maximum size in bytes of an encoded character.*/
+	static int getMaxEncodedCharacterSize();
+
+
 	/** A character iterator that decodes wchar data (wchar_t elements) from an
 		arbitrary source iterator into Unicode characters (char32_t).
 	*/

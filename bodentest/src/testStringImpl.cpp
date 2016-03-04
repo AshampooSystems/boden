@@ -2274,6 +2274,118 @@ inline void testRemoveLast()
 
 
 template<class DATATYPE>
+inline void testReserveCapacity()
+{
+	StringImpl<DATATYPE> s;
+
+	SECTION("empty")
+	{
+		SECTION("initial")
+			REQUIRE(s.capacity()==0);
+
+		SECTION("reserve")
+		{
+			s.reserve(20);
+			REQUIRE( s.capacity()>=20 );
+			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+		}
+	}
+
+	SECTION("nonEmpty")
+	{
+		s = U"he\U00012345loworld";
+
+		SECTION("initial")
+		{
+			size_t cap = s.capacity();
+			REQUIRE( s.capacity()>=10 );
+			REQUIRE( s.capacity()<=16 );	// sanity check - not actually forbidden to have bigger values
+		}
+
+		SECTION("reserve")
+		{
+			s.reserve(20);
+			REQUIRE( s.capacity()>=20 );
+			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+		}
+
+		SECTION("reserveReduce")
+		{
+			s.reserve(20);
+
+			size_t cap = s.capacity();
+			REQUIRE( cap>=20 );
+			REQUIRE( cap<=30 );	// sanity check - not actually forbidden to have bigger values
+			
+			s.reserve(15);
+
+			// the second call should have had no effect, since the second value is bigger than the length.
+			REQUIRE( s.capacity()==cap );
+		}
+
+		SECTION("reserveReduceToLess")
+		{
+			s.reserve(20);
+			size_t cap = s.capacity();
+
+			s.reserve(5);
+
+			// the request to reduce the space is actually non-binding. So all we can test that it either stayed the same or got reduced.			
+			REQUIRE( s.capacity()<=cap );
+			REQUIRE( s.capacity()>=10 );
+		}
+
+
+		SECTION("capacityWithCopies")
+		{
+			s.reserve(20);	
+
+			size_t cap = s.capacity();
+			REQUIRE( cap>=20 );
+			REQUIRE( cap<=30 );	// sanity check - not actually forbidden to have bigger values
+
+			{
+				StringImpl<DATATYPE> s2 = s;
+
+				// the capacity should equal the string length again, since the data is now shared between two objects
+				REQUIRE( (s.capacity()==10 || s.capacity()==11) );
+				REQUIRE( (s2.capacity()==10 || s2.capacity()==11) );
+			}
+
+			// now the capacity should be reported as 20 again
+			REQUIRE( s.capacity()==cap );
+		}
+
+		SECTION("reserveWithCopies")
+		{
+			{
+				size_t initialCap = s.capacity();
+
+				StringImpl<DATATYPE> s2 = s;
+
+				// data is shared. So capacity should be reported as exactly the length
+				REQUIRE( s2.capacity()==10 );
+				REQUIRE( s.capacity()==10 );
+
+				s.reserve(20);			
+				REQUIRE( s.capacity()>=20 );
+				REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+
+				// the reserve call should have created its own copy of the data for s.
+				// So the capacity of s2 should still be 10.
+				REQUIRE( s2.capacity()==initialCap );
+			}
+
+			REQUIRE( s.capacity()>=20 );
+			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+		}
+
+		REQUIRE( s == U"he\U00012345loworld" );
+	}
+}
+
+
+template<class DATATYPE>
 inline void testStringImpl()
 {
 	SECTION("construct")
@@ -2402,6 +2514,9 @@ inline void testStringImpl()
 
 	SECTION("removeLast")
 		testRemoveLast<DATATYPE>();
+
+	SECTION("reserve-capacity")
+		testReserveCapacity<DATATYPE>();
 }
 
 

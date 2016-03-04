@@ -267,6 +267,68 @@ public:
 	}
 
 
+
+	/** Used to reserve space for future modifications of the string, or to free previously reserved extra space.
+
+		Reserving space is never necessary. This is a purely optional call that may allow the implementation to 
+		prevent reallocation when multiple smaller modifications are done.		
+
+		If \c reserveChars is less or equal to the length of the string then the call is a non-binding request
+		to free any unneeded excess space.
+
+		If \c reserveChars is bigger than the length of the string then this tells the implementation to reserve
+		enough space for a string of that length (in characters).
+
+		*/		
+	void reserve(size_t reserveChars = 0)
+	{
+		int excessCapacityCharacters = reserveChars-length();
+		if(excessCapacityCharacters<0)
+			excessCapacityCharacters = 0;
+
+		int excessCapacityElements = excessCapacityCharacters * MainDataType::Codec::getMaxEncodedElementsPerCharacter();
+
+		Modify m(this);
+		
+		m.pStd->reserve( m.pStd->length() + excessCapacityElements );
+	}
+
+
+	/** Returns the size of the storage space currently allocated for the string, in characters.
+
+		The capacity is always bigger or equal to the current string length. If it is bigger then that means that the implementation
+		has reserved additional space for future modifications, with the aim to avoid reallocations.
+	*/
+	size_t capacity() const noexcept
+	{
+		int excessCapacityCharacters;
+
+		if(_pData->getRefCount()!=1)
+		{
+			// we are sharing the string with someone else. So every modification will cause us to copy it.
+			// => no excess capacity.
+			excessCapacityCharacters = 0;
+		}
+		else
+		{
+			MainDataType::EncodedString* pStd = &_pData->getEncodedString();
+
+			int excessCapacity = pStd->capacity()-pStd->length();
+			if(excessCapacity<0)
+				excessCapacity = 0;
+
+			excessCapacity += pStd->end() - _endIt.getInner();
+		
+			excessCapacityCharacters = excessCapacity / MainDataType::Codec::getMaxEncodedElementsPerCharacter();
+		}
+
+		return length() + excessCapacityCharacters;
+	}
+
+	
+
+
+
 	/** Returns the theoretical maximum size of a string, given an infinite amount of memory.
 		This is included for compatibility with std::string.
 		*/
@@ -2031,7 +2093,7 @@ public:
 
 			_pDataInDifferentEncoding = nullptr;
 		}
-
+		
 		return *this;
 	}
 
@@ -2152,7 +2214,7 @@ public:
 		_endIt = moveSource._endIt;
 		_pDataInDifferentEncoding = moveSource._pDataInDifferentEncoding;
 		_lengthIfKnown = moveSource._lengthIfKnown;
-
+		
 		// we could leave moveSource like this. The result state of moveSource is unspecified, but must be valid.
 		// So it is perfectly OK to leave it at the current value.
 		// BUT most std::string implementation will almost certainly set moveSource to an empty string,
@@ -2194,7 +2256,7 @@ public:
 		o._beginIt = beginIt;
 		o._endIt = endIt;
 		o._pDataInDifferentEncoding = pDataInDifferentEncoding;
-		o._lengthIfKnown = lengthIfKnown;		
+		o._lengthIfKnown = lengthIfKnown;	
 	}
 
 
