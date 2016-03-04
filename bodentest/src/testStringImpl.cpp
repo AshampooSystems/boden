@@ -1115,7 +1115,17 @@ inline void testReplace()
 
 
 
+template<class StringType, class SuffixArg>
+inline void verifyAppendPlus(StringType& s, SuffixArg suffix, const StringType& expected)
+{
+	SECTION("append")
+		s.append( suffix );
 
+	SECTION("operator+=")
+		s += suffix;
+
+	REQUIRE( s==expected );
+}
 
 
 template<class StringType>
@@ -1137,15 +1147,14 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 	SECTION("String")
 	{
-		s.append( suffix );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix, expected);
 	}
 
 	SECTION("subString")
 	{
 		std::u32string sufUtf32 = U"abc"+suffix.asUtf32()+U"efg";
 		StringType suf( sufUtf32 );
-
+		
 		s.append( suf, 3, suffix.getLength() );
 		REQUIRE( s==expected );
 	}
@@ -1170,14 +1179,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 	SECTION("utf8")
 	{
-		s.append( suffix.asUtf8() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf8(), expected);
 	}
 
 	SECTION("utf8Ptr")
 	{
-		s.append( suffix.asUtf8Ptr() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf8Ptr(), expected);
 	}
 
 	SECTION("utf8PtrWithLength")
@@ -1190,14 +1197,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 	SECTION("utf16")
 	{
-		s.append( suffix.asUtf16() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf16(), expected);
 	}
 
 	SECTION("utf16Ptr")
 	{
-		s.append( suffix.asUtf16Ptr() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf16Ptr(), expected);
 	}
 
 	SECTION("utf16PtrWithLength")
@@ -1210,14 +1215,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 	SECTION("utf32")
 	{
-		s.append( suffix.asUtf32() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf32(), expected);
 	}
 
 	SECTION("utf32Ptr")
 	{
-		s.append( suffix.asUtf32Ptr() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asUtf32Ptr(), expected);
 	}
 
 	SECTION("utf32PtrWithLength")
@@ -1230,14 +1233,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 	SECTION("wide")
 	{
-		s.append( suffix.asWide() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asWide(), expected);
 	}
 
 	SECTION("widePtr")
 	{
-		s.append( suffix.asWidePtr() );
-		REQUIRE( s==expected );
+		verifyAppendPlus(s, suffix.asWidePtr(), expected);
 	}
 
 	SECTION("widePtrWithLength")
@@ -1255,7 +1256,11 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 			SECTION("charInitializerList")
 			{			
 				// must leave out the unicode character
-				s.append( {'B', 'L', 'A'} );
+				SECTION("append")
+					s.append( {'B', 'L', 'A'} );
+
+				SECTION("operator+=")
+					s += {'B', 'L', 'A'};
 
 				std::u32string exp = expected;
 				size_t found = exp.find(U'\U00013333');
@@ -1267,7 +1272,11 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 			SECTION("char32InitializerList")
 			{
-				s.append( {U'B', U'L', U'\U00013333', U'A'} );
+				SECTION("append")
+					s.append( {U'B', U'L', U'\U00013333', U'A'} );
+
+				SECTION("operator+=")
+					s += {U'B', U'L', U'\U00013333', U'A'};
 			
 				REQUIRE( s==expected );
 			}
@@ -1302,9 +1311,16 @@ inline void verifyAppendNumChars(StringImpl<DATATYPE>& s, int charCount, char32_
 
 	expected.append(	charCount,
 						chr );
-	
-	s.append(	charCount,
-				chr );
+
+	if(charCount==1)
+	{
+		SECTION("operator+=")
+			s += chr;
+	}
+
+	SECTION("append")
+		s.append(	charCount, chr );
+
 
 	REQUIRE( s==expected );
 }

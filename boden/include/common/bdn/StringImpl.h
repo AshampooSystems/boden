@@ -2198,7 +2198,23 @@ public:
 	}
 
 
+	
 
+	/** Removes the last character from the string.
+		Has no effect if the string is empty.*/
+	void removeLast()
+	{
+		if(!isEmpty())
+			erase(_endIt-1);
+	}
+
+
+	/** Same as removeLast(). Included for compatibility with std::string.*/
+	void pop_back()
+	{
+		if(!isEmpty())
+			erase(_endIt-1);
+	}
 
 
 
@@ -2301,21 +2317,110 @@ public:
 	}
 
 
-	/** Removes the last character from the string.
-		Has no effect if the string is empty.*/
-	void removeLast()
+
+
+	
+	/** Appends the specified string to the end of this string.
+	*/
+	StringImpl& operator+=(const StringImpl& other)
 	{
-		if(!isEmpty())
-			erase(_endIt-1);
+		return append(other);
+	}
+	
+
+
+	/** Appends the specified string to this string.*/
+	StringImpl& operator+=(const std::string& other)
+	{
+		return append(other);
 	}
 
 
-	/** Same as removeLast(). Included for compatibility with std::string.*/
-	void pop_back()
+	/** Appends the specified string to this string.
+	*/	
+	StringImpl& operator+=(const char* other)
 	{
-		if(!isEmpty())
-			erase(_endIt-1);
+		return append(other);
 	}
+
+
+	/** Appends the specified string to this string.*/
+	StringImpl& operator+=(const std::u16string& o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends the specified string to this string.
+	*/	
+	StringImpl& operator+=(const char16_t* o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends the specified string to this string.
+	*/	
+	StringImpl& operator+=(const std::u32string& o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends the specified string to this string.
+	*/	
+	StringImpl& operator+=(const char32_t* o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends the specified string to this string.	
+	*/	
+	StringImpl& operator+=(const std::wstring& o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends the specified string to this string.
+	
+		If \c length is not specified then other must be a zero terminated string.
+		If it is specified then it indicates the length of the string in wchar_t elements.
+	*/	
+	StringImpl& operator+=(const wchar_t* o)
+	{
+		return append(o);
+	}
+
+
+	/** Appends \c numChars occurrences of \c chr to this string.
+	*/	
+	StringImpl& operator+=(char32_t chr)
+	{
+		return append(chr);
+	}
+
+
+	/** Appends a sequence of characters to this string.
+	
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+		
+		\code
+		myString.append( {'a', 'b', 'c' } );
+		\endcode
+	*/	
+	StringImpl& operator+=(std::initializer_list<char32_t> initializerList)
+	{
+		return append(initializerList);
+	}
+
+
+
+
 
 
 	/*
