@@ -2,6 +2,7 @@
 #define BDN_StringImpl_H_
 
 #include <bdn/StringData.h>
+#include <bdn/NativeStringData.h>
 
 #include <iterator>
 #include <list>
@@ -86,9 +87,31 @@ public:
 	typedef Allocator allocator_type;
 
 
+	
+	/** The type of the C++ std string class for the "native" encoding.
+		
+		The "native" encoding is the one that is used by most operating system functions (see NativeStringData)
+
+		- Windows: NativeEncodedString is an alias for std::wstring (UTF-16 encoded)
+		- Other platforms: NativeEncodedString is an alias for std::string
+		*/
+	typedef typename NativeStringData::EncodedString NativeEncodedString;
+
+
+	/** The type of an encoded element in the system's "native" encoding.
+		
+		The "native" encoding is the one that is used by most operating system functions (see NativeStringData)
+
+		- Windows: NativeEncodedElement is an alias for wchar_t
+		- Other platforms: NativeEncodedElement is an alias char
+		*/
+	typedef NativeStringData::EncodedElement NativeEncodedElement;
+
 
 	/** Included for compatibility with std::string only.*/
 	static const size_t npos = -1;
+
+	
 
 	
 	StringImpl()
@@ -640,7 +663,7 @@ public:
 	}
 
 
-	/** Returns a reference to the string as a std::u16string object in UTF-32 encoding
+	/** Returns a reference to the string as a std::u32string object in UTF-32 encoding
 
 	This operation might invalidate existing iterators. The returned object reference
 	remains valid at least until one of the other asXYZ conversion functions is called
@@ -664,6 +687,42 @@ public:
 	operator const std::u32string&() const
 	{
 		return asUtf32();
+	}
+
+
+
+	/** Returns a reference to the string as a std::basic_string object in "native" encoding.
+
+		The "native" encoding is the one that is used by most operating system functions (see NativeStringData)
+
+		- Windows: std::wstring is returned (UTF-16 encoded)
+		- Other platforms: std::string is returned (UTF-8 encoded)
+		
+		This operation might invalidate existing iterators. The returned object reference
+		remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const NativeEncodedString& asNative() const
+	{
+		return getEncoded<NativeStringData>();
+	}
+
+
+	/** Returns a pointer to the string as a zero terminated c-style string in "native" encoding encoding.
+
+		The "native" encoding is the one that is used by most operating system functions (see NativeStringData)
+
+		- Windows: const wchar_t* is returned (UTF-16 encoded)
+		- Other platforms: const char* is returned (UTF-8 encoded)
+
+		This operation might invalidate existing iterators.
+
+		The pointer remains valid at least until one of the other asXYZ conversion functions is called
+		or the entire string object is destroyed.
+	*/
+	const NativeEncodedElement* asNativePtr() const
+	{
+		return asNative().c_str();
 	}
 
 

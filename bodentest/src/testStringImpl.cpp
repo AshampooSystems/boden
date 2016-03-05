@@ -8,6 +8,34 @@ using namespace bdn;
 
 
 
+template<class DATATYPE>
+inline void testTypes()
+{
+#if BDN_WINDOWS
+	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedString) == typeid(std::wstring) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedElement) == typeid(wchar_t) );
+
+#else
+	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedString) == typeid(std::string) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedElement) == typeid(char) );
+
+#endif
+
+	REQUIRE( typeid(StringImpl<DATATYPE>::Iterator) == typeid(DATATYPE::Iterator) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::iterator) == typeid(DATATYPE::Iterator) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::const_iterator) == typeid(DATATYPE::Iterator) );
+
+	REQUIRE( typeid(StringImpl<DATATYPE>::ReverseIterator) == typeid( std::reverse_iterator<StringImpl<DATATYPE>::Iterator> ) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::reverse_iterator) == typeid( StringImpl<DATATYPE>::ReverseIterator ) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::const_reverse_iterator) == typeid( StringImpl<DATATYPE>::ReverseIterator ) );
+	
+	REQUIRE( typeid(StringImpl<DATATYPE>::Allocator) == typeid(DATATYPE::Allocator) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::allocator_type) == typeid(DATATYPE::Allocator) );
+
+}
+
+
+
 template<class STRINGIMPL>
 inline void verifyContents(STRINGIMPL& s, const std::u32string& expectedResult)
 {
@@ -648,6 +676,44 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
+	}
+
+
+	SECTION("native")
+	{
+		SECTION("asPtr")
+		{
+			const StringImpl<DATATYPE>::NativeEncodedElement* p = s.asNativePtr();
+
+#if BDN_WINDOWS
+			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
+#else
+			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+#endif
+		}
+
+		SECTION("as")
+		{
+			const StringImpl<DATATYPE>::NativeEncodedString& o = s.asNative();
+
+#if BDN_WINDOWS
+			REQUIRE( o==L"he\u0218\u0777\uffffllo" );
+#else
+			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
+#endif
+			
+			const StringImpl<DATATYPE>::NativeEncodedString& o2 = s.asNative();
+
+#if BDN_WINDOWS
+			REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
+#else
+			REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
+#endif
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
+		
 	}
 
 	SECTION("multibyte")
@@ -2479,6 +2545,9 @@ inline void testReserveCapacity()
 }
 
 
+
+
+
 template<class DATATYPE>
 inline void testGetAllocator()
 {
@@ -2494,6 +2563,9 @@ inline void testGetAllocator()
 template<class DATATYPE>
 inline void testStringImpl()
 {
+	SECTION("types")
+		testTypes<DATATYPE>();
+
 	SECTION("construct")
 	{
 		testConstruct<DATATYPE>();
@@ -2625,7 +2697,7 @@ inline void testStringImpl()
 		testReserveCapacity<DATATYPE>();
 
 	SECTION("getAllocator")
-		testGetAllocator<DATATYPE>();
+		testGetAllocator<DATATYPE>();	
 }
 
 
