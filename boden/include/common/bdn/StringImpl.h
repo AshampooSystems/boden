@@ -525,7 +525,14 @@ public:
 	/** Same as asUtf8Ptr(). This function is included for compatibility with std::string.*/
 	const char* c_str() const
 	{
-		return getUtf8Ptr();
+		return asUtf8Ptr();
+	}
+
+
+	/** Same as asUtf8Ptr(). This function is included for compatibility with std::string.*/
+	const char* data() const
+	{
+		return asUtf8Ptr();
 	}
 
 

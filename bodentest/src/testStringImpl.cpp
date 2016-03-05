@@ -462,98 +462,192 @@ inline void testConversion()
 
 	SECTION("utf8")
 	{
-		const char* p = s.asUtf8Ptr();
-		REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+		SECTION("asPtr")
+		{
+			const char* p = s.asUtf8Ptr();
+			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+		}
+
+		SECTION("as")
+		{
+			const std::string& o = s.asUtf8();
+			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
+
+			const std::string& o2 = s.asUtf8();
+			REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
+
+		SECTION("constPtrConversion")
+		{		
+			const char* p( s );
+			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf8Ptr() );
+		}
+
+		SECTION("stdStringConversion")
+		{
+			const std::string& o = s;
+			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
+
+			const std::string& o2 = s.asUtf8();
+			REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
+
+		SECTION("c_str")
+		{		
+			const char* p = s.c_str();
+			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf8Ptr() );
+		}
+
+		SECTION("data")
+		{		
+			const char* p = s.data();
+			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf8Ptr() );
+		}
 		
-		const char* p2( s );
-		REQUIRE( std::string(p2)==u8"he\u0218\u0777\uffffllo" );
+		
 
-		// must be the exact same pointer
-		REQUIRE( p2==p );
-
-		const std::string& o = s.asUtf8();
-		REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
-		const std::string& o2 = s.asUtf8();
-		REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
-
-		const std::string& o3 = s;
-		REQUIRE( o3==u8"he\u0218\u0777\uffffllo" );
-
-		// must be the same object
-		REQUIRE( &o==&o2 );
-		REQUIRE( &o==&o3 );
+		
 	}
 
 	SECTION("utf16")
 	{
-		const char16_t* p = s.asUtf16Ptr();
-		REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+		SECTION("asPtr")
+		{
+			const char16_t* p = s.asUtf16Ptr();
+			REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+		}
 
-		const char16_t* p2( s );
-		REQUIRE( std::u16string(p2)==u"he\u0218\u0777\uffffllo" );
+		SECTION("as")
+		{
+			const std::u16string& o = s.asUtf16();
+			REQUIRE( o==u"he\u0218\u0777\uffffllo" );
 
-		// must be the exact same pointer
-		REQUIRE( p2==p );
+			const std::u16string& o2 = s.asUtf16();
+			REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
 
-		const std::u16string& o = s.asUtf16();
-		REQUIRE( o==u"he\u0218\u0777\uffffllo" );
-		const std::u16string& o2 = s.asUtf16();
-		REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 
-		const std::u16string& o3 = s;
-		REQUIRE( o3==u"he\u0218\u0777\uffffllo" );
+		SECTION("constPtrConversion")
+		{		
+			const char16_t* p( s );
+			REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf16Ptr() );
+		}
 
-		// must be the same object
-		REQUIRE( &o==&o2 );
-		REQUIRE( &o==&o3 );
+		SECTION("stdStringConversion")
+		{
+			const std::u16string& o = s;
+			REQUIRE( o==u"he\u0218\u0777\uffffllo" );
+
+			const std::u16string& o2 = s.asUtf16();
+			REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 	}
 
 	SECTION("utf32")
 	{
-		const char32_t* p = s.asUtf32Ptr();
-		REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+		SECTION("asPtr")
+		{
+			const char32_t* p = s.asUtf32Ptr();
+			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+		}
 
-		const char32_t* p2( s );
-		REQUIRE( std::u32string(p2)==U"he\u0218\u0777\uffffllo" );
+		SECTION("as")
+		{
+			const std::u32string& o = s.asUtf32();
+			REQUIRE( o==U"he\u0218\u0777\uffffllo" );
 
-		// must be the exact same pointer
-		REQUIRE( p2==p );
+			const std::u32string& o2 = s.asUtf32();
+			REQUIRE( o2==U"he\u0218\u0777\uffffllo" );
 
-		const std::u32string& o = s.asUtf32();
-		REQUIRE( o==U"he\u0218\u0777\uffffllo" );
-		const std::u32string& o2 = s.asUtf32();
-		REQUIRE( o2==U"he\u0218\u0777\uffffllo" );
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 
-		const std::u32string& o3 = s;
-		REQUIRE( o3==U"he\u0218\u0777\uffffllo" );
+		SECTION("constPtrConversion")
+		{		
+			const char32_t* p( s );
+			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf32Ptr() );
+		}
 
-		// must be the same object
-		REQUIRE( &o==&o2 );
-		REQUIRE( &o==&o3 );
+		SECTION("stdStringConversion")
+		{
+			const std::u32string& o = s;
+			REQUIRE( o==U"he\u0218\u0777\uffffllo" );
+
+			const std::u32string& o2 = s.asUtf32();
+			REQUIRE( o2==U"he\u0218\u0777\uffffllo" );
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 	}
 
 	SECTION("wide")
 	{
-		const wchar_t* p = s.asWidePtr();
-		REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
+		SECTION("asPtr")
+		{
+			const wchar_t* p = s.asWidePtr();
+			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
+		}
 
-		const wchar_t* p2( s );
-		REQUIRE( std::wstring(p2)==L"he\u0218\u0777\uffffllo" );
+		SECTION("as")
+		{
+			const std::wstring& o = s.asWide();
+			REQUIRE( o==L"he\u0218\u0777\uffffllo" );
 
-		// must be the exact same pointer
-		REQUIRE( p2==p );
+			const std::wstring& o2 = s.asWide();
+			REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
 
-		const std::wstring& o = s.asWide();
-		REQUIRE( o==L"he\u0218\u0777\uffffllo" );
-		const std::wstring& o2 = s.asWide();
-		REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 
-		const std::wstring& o3 = s;
-		REQUIRE( o3==L"he\u0218\u0777\uffffllo" );
+		SECTION("constPtrConversion")
+		{		
+			const wchar_t* p( s );
+			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asWidePtr() );
+		}
 
-		// must be the same object
-		REQUIRE( &o==&o2 );
-		REQUIRE( &o==&o3 );
+		SECTION("stdStringConversion")
+		{
+			const std::wstring& o = s;
+			REQUIRE( o==L"he\u0218\u0777\uffffllo" );
+
+			const std::wstring& o2 = s.asWide();
+			REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
+
+			// must be the same object
+			REQUIRE( &o==&o2 );
+		}
 	}
 
 	SECTION("multibyte")
