@@ -10,26 +10,43 @@ namespace bdn
     
 /** Stores a text string and performs operations on it.
 
-	All operations of the String class work with decoded 32 bit Unicode characters. As a user of String
-	you should forget about the internal encoding of the data (like UTF-8 or UTF-16 or the like).
-
-	The String class is 99% code-compatible with std::basic_string and the various variants of std::string.
-	It provides all the same member functions and types with almost the same semantics.
-
-	The main difference is that the character access functions do not allow the direct modifcation of characters
-	in-place. Iterators, the [] operator and the at() method return character values, not references. So you cannot
-	use them to modify individual characters. You need to use methods like replace() if you want to replace characters.
+	The String class primarily exposes the string as a sequence of fully decoded 32 bit Unicode characters (although other
+	encodings can also be provided).
+	As a user of String you should forget about the internal encoding of the data (like UTF-8 or UTF-16 or the like).
 
 	String objects do store their data internally in a certain encoding (like UTF-8 or UTF-16). But
 	they automatically and efficiently decode them for access and only present full characters to the class user.	
 	This contrasts with the string classes in the standard library (like std::string), which expose the
 	encoded data bytes to the user.
 
-	Conceptually, the String class is most equivalent to std::u32string, which also exposes a sequence of
-	full characters.
-
 	Since the String methods work with decoded characters, that means that its iterators also return
 	full characters and all lengths and indices etc. refer to character counts and indices as well.
+	
+	The String class is 99% code-compatible with std::basic_string and the various variants of std::string.
+	It provides all the same member functions and types with almost the same semantics. Since it exposes the string
+	as a sequence of full 32 bit unicode characters, it is most similar to std::u32string.
+
+	The main difference is that the character access functions do not allow the direct modifcation of characters
+	in-place. Iterators, the [] operator and the at() method return character values, not references. So you cannot
+	use them to modify individual characters. You need to use methods like replace() if you want to replace characters.
+
+	If you do need to implement an algorithm that benefits from direct modification of individual characters then
+	we recommend that you temporarily convert the string to std::u32string, perform your modifications and then convert it
+	back to String. For example:
+
+	\code
+	String			s = ...;
+	std::u32string	t( s.asUtf32() );
+
+	// do your modifications here.
+	t[a] = b;
+	t[x] = y;
+
+	// convert back
+	s = t;
+	\endcode
+
+	
 	
 	When you do need to access raw encoded data (for example, if you want to pass it to a system function
 	or a library that works with encoded strings) then you can call one of the asXYZ functions
@@ -40,6 +57,34 @@ namespace bdn
 	Multiple String objects can share the same internal data as a result of copy or subString() (slicing) operations.
 	So assignment, copying and subString operations are very cheap and fast, since basically only a pointer to the existing data
 	is copied.
+
+
+	The main benefits of String are:
+
+	- String exposes the string as a sequence of full Unicode characters, not encoded data.
+	  This avoids common pitfalls (especially for english-speaking programmers) where your tests work fine
+	  because they happen to use only ASCII characters, but in a real-world scenario with non-ASCII text the code fails.
+	  With String there is no difference between ASCII and non-ASCII characters.
+
+	- String objects implement internal data sharing. So copying and subString operations are very fast and often do not need to copy
+	  any string data.
+
+	- The (hidden) internal primary encoding used for the string data matches the native encoding of the operating system that the
+	  code is running on.
+	
+	- When encoded string data is needed (for example, for passing the string to the operating system or a third party library),
+	  it can be provided in any Unicode encoding. If the desired encoding matches the internal encoding used by String
+	  (which is the case for operating system functions) then no conversion is needed and the access is very efficient. If a different
+	  encoding is requested then conversion is performed automatically and transparently. Then the converted version is cached,
+	  so future requests for that encoding are instantaneous.
+
+	- String is 99% code-compatible with the std::string variants (most compatible with std::u32string). So it can be
+	  used as a drop-in replacement in most cases.
+
+	- String provides more user-friendly method names than std::string (in addition to the std::string names). It tries to
+	  avoid excessive abbreviations (for example, subString() is an alias to substr() ).
+
+	- String provides additional ease-of-use functions that make the programmer's life easier (like findReplace() ).
 
 
 	Implementation notes:
