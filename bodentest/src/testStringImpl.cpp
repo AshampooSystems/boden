@@ -32,6 +32,16 @@ inline void testTypes()
 	REQUIRE( typeid(StringImpl<DATATYPE>::Allocator) == typeid(DATATYPE::Allocator) );
 	REQUIRE( typeid(StringImpl<DATATYPE>::allocator_type) == typeid(DATATYPE::Allocator) );
 
+	REQUIRE( typeid(StringImpl<DATATYPE>::value_type) == typeid(char32_t) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::traits_type) == typeid( std::char_traits<char32_t> ) );
+
+	REQUIRE( typeid(StringImpl<DATATYPE>::pointer) == typeid(char32_t*) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::const_pointer) == typeid(const char32_t*) );
+
+	REQUIRE( typeid(StringImpl<DATATYPE>::reference) == typeid(char32_t&) );
+	REQUIRE( typeid(StringImpl<DATATYPE>::const_reference) == typeid(const char32_t&) );
+
+	REQUIRE( typeid(StringImpl<DATATYPE>::size_type) == typeid(size_t) );
 }
 
 
@@ -528,28 +538,6 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
-
-		SECTION("c_str")
-		{		
-			const char* p = s.c_str();
-			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
-			
-			// must be the exact same pointer
-			REQUIRE( p==s.asUtf8Ptr() );
-		}
-
-		SECTION("data")
-		{		
-			const char* p = s.data();
-			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
-			
-			// must be the exact same pointer
-			REQUIRE( p==s.asUtf8Ptr() );
-		}
-		
-		
-
-		
 	}
 
 	SECTION("utf16")
@@ -633,6 +621,25 @@ inline void testConversion()
 
 			// must be the same object
 			REQUIRE( &o==&o2 );
+		}
+
+
+		SECTION("c_str")
+		{		
+			const char32_t* p = s.c_str();
+			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf32Ptr() );
+		}
+
+		SECTION("data")
+		{		
+			const char32_t* p = s.data();
+			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
+			
+			// must be the exact same pointer
+			REQUIRE( p==s.asUtf32Ptr() );
 		}
 	}
 
@@ -1120,7 +1127,7 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 			
 				if(pTestData->length==-1)
 					end = s.end();
-				else if(pTestData->startIndex+pTestData->length>s.getLength())
+				else if(pTestData->startIndex+pTestData->length>(int)s.getLength())
 				{
 					// some tests pass a length that is too big. We cannot represent that with iterators.
 					end = s.end();
@@ -1166,7 +1173,7 @@ inline void verifyReplaceNumChars(StringImpl<DATATYPE>& s, int startIndex, int l
 			
 		if(length==-1)
 			end = s.end();
-		else if(startIndex+length>s.getLength())
+		else if(startIndex+length>(int)s.getLength())
 		{
 			// some tests pass a length that is too big. We cannot represent that with iterators.
 			end = s.end();
@@ -1910,7 +1917,7 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t erase
 	SECTION("index")
 		s.erase(atPos, eraseLength);
 
-	if(eraseLength==1 && atPos<s.getLength())
+	if(eraseLength==1 && atPos<(int)s.getLength())
 	{
 		SECTION("itOneChar")
 		{

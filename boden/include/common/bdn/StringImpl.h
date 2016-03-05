@@ -108,10 +108,49 @@ public:
 	typedef NativeStringData::EncodedElement NativeEncodedElement;
 
 
-	/** Included for compatibility with std::string only.*/
-	static const size_t npos = -1;
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef char32_t value_type;
 
+
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef std::char_traits<char32_t> traits_type;
+
+
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef char32_t* pointer;
+
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef const char32_t* const_pointer;
+
+
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef char32_t& reference;
+
+	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
+		full unicode characters (char32_t) (even if the actual internal encoding can be different).*/
+	typedef const char32_t& const_reference;
+
+
+	/** Included with compatibility for std::string only.*/
+	typedef size_t size_type;
 	
+
+
+	/** A special constant that is used sometimes for special length, position and character index values.
+
+		When used as a length value it means "until the end of the string".
+
+		It is also sometimes used as a special return value. For example, find() returns it to indicate that the
+		string was not found.
+
+		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+		*/
+	static const size_t npos = -1;	
 
 	
 	StringImpl()
@@ -266,7 +305,7 @@ public:
 
 
 	/** Returns the number of characters in this string.*/
-	int getLength() const
+	size_t getLength() const
 	{
 		if (_lengthIfKnown == -1)
 		{
@@ -282,7 +321,7 @@ public:
 			_lengthIfKnown = c;
 		}
 
-		return _lengthIfKnown;
+		return (size_t)_lengthIfKnown;
 	}
 
 
@@ -554,17 +593,28 @@ public:
 	}
 
 	
-	/** Same as asUtf8Ptr(). This function is included for compatibility with std::string.*/
-	const char* c_str() const
+	/** Same as asUtf32Ptr(). This function is included for compatibility with std::basic_string.
+	
+		Implementation note: it might seem strange that this function returns an UTF32 string. However,
+		in order to be consistent with the interface definition for basic_string there is no other way.
+		For example, there is a requirement that the range [c_str() ... c_str()+size()] is valid
+		and represents the contents of the string. Since our size() implementation returns the length in characters,
+		This function must return an UTF-32 pointer, where each element represents a full character.		
+	*/
+	const char32_t* c_str() const
 	{
-		return asUtf8Ptr();
+		// Implementation note: it might
+
+		return asUtf32Ptr();
 	}
 
 
-	/** Same as asUtf8Ptr(). This function is included for compatibility with std::string.*/
-	const char* data() const
+	/** Same as asUtf32Ptr(). This function is included for compatibility with std::basic_string.
+	
+		See also c_str(). */
+	const char32_t* data() const
 	{
-		return asUtf8Ptr();
+		return asUtf32Ptr();
 	}
 
 
