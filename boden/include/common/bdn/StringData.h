@@ -79,6 +79,10 @@ public:
 	typedef typename Codec::EncodedElement EncodedElement;
 
 
+	/** The allocator type that is used to allocate the internal encoded data.*/
+	typedef typename EncodedString::allocator_type Allocator;
+
+
 	/** Iterator type for the string data. The iterator returns fully decoded 32 bit Unicode characters (char32_t).*/
 	class Iterator : public Codec::DecodingStringIterator
 	{

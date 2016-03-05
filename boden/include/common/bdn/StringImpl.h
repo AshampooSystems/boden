@@ -78,6 +78,15 @@ public:
 
 
 
+	/** The allocator type that is used for memory allocation of the encoded string data.*/
+	typedef typename MainDataType::Allocator Allocator;
+
+
+	/** allocator_type is an alias to Allocator. This is included for std::string compatibility.*/
+	typedef Allocator allocator_type;
+
+
+
 	/** Included for compatibility with std::string only.*/
 	static const size_t npos = -1;
 
@@ -2285,6 +2294,19 @@ public:
 			erase(_endIt-1);
 	}
 
+
+	/** Returns a copy of the allocator object associated with the string.*/
+	Allocator getAllocator() const noexcept
+	{
+		return _pData->getEncodedString().get_allocator();
+	}
+
+	
+	/** Same as getAllocator(). This is included for compatibility with std::string.*/
+	allocator_type get_allocator() const noexcept
+	{
+		return getAllocator();
+	}
 
 
 	/** Assigns the value of another string to this string. 	*/

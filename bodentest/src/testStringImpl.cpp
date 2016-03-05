@@ -2480,6 +2480,18 @@ inline void testReserveCapacity()
 
 
 template<class DATATYPE>
+inline void testGetAllocator()
+{
+	StringImpl<DATATYPE> s;
+
+	// there is not much that we can test here, other than that the functions do not crash.
+
+	StringImpl<DATATYPE>::Allocator alloc = s.getAllocator();
+
+	StringImpl<DATATYPE>::Allocator alloc2 = s.get_allocator();
+}
+
+template<class DATATYPE>
 inline void testStringImpl()
 {
 	SECTION("construct")
@@ -2611,6 +2623,9 @@ inline void testStringImpl()
 
 	SECTION("reserve-capacity")
 		testReserveCapacity<DATATYPE>();
+
+	SECTION("getAllocator")
+		testGetAllocator<DATATYPE>();
 }
 
 
