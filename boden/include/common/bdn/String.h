@@ -66,6 +66,10 @@ namespace bdn
 	  because they happen to use only ASCII characters, but in a real-world scenario with non-ASCII text the code fails.
 	  With String there is no difference between ASCII and non-ASCII characters.
 
+	- Whenever a string value is taken by a String methods, it can take the form of many different encoded string types, like
+	  C-style strings (const char*, const wchar_t*, ...) or std::string objects in any Unicode encoding (UTF-8, UTF-16, UTF-32, widechar).
+	  So String objects can easily interact with other kinds of string objects.
+
 	- String objects implement internal data sharing. So copying and subString operations are very fast and often do not need to copy
 	  any string data.
 
