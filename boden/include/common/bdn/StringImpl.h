@@ -2418,6 +2418,36 @@ public:
 	}
 
 
+	/** Copies characters from the string to the specified buffer. No null-terminator
+		is added to the output buffer.
+
+		maxCopyLength indicates the maximum number of characters to copy. If this exceeds the length of
+		the string then only characters up to the end are copied.
+
+		Returns the number of characters that were copied.
+
+		If copyStartIndex is bigger than the length of the string then OutOfRangeError is thrown.	
+		*/
+	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0)
+	{
+		if(copyStartIndex<0 || copyStartIndex>getLength())
+			throw OutOfRangeError("String::copy called with invalid start index.");
+
+		Iterator it = _beginIt+copyStartIndex;
+		for(size_t i=0; i<maxCopyLength; i++)
+		{
+			if(it==_endIt)
+				return i;
+
+			pDest[i] = *it;
+
+			++it;
+		}
+
+		return maxCopyLength;
+	}
+
+
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
 	{

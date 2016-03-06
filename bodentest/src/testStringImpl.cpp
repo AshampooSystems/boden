@@ -4,6 +4,12 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/Utf32StringData.h>
 
+#ifdef _MSC_VER
+// disable "function may be unsafe" warning in Visual C++. We have to test these
+// "unsafe" functions as well.
+#pragma warning(disable: 4996)
+#endif
+
 using namespace bdn;
 
 
@@ -2553,8 +2559,6 @@ inline void testReserveCapacity()
 
 
 
-
-
 template<class DATATYPE>
 inline void testGetAllocator()
 {
@@ -2565,6 +2569,154 @@ inline void testGetAllocator()
 	StringImpl<DATATYPE>::Allocator alloc = s.getAllocator();
 
 	StringImpl<DATATYPE>::Allocator alloc2 = s.get_allocator();
+}
+
+
+
+template<class DATATYPE>
+inline void testCopy(StringImpl<DATATYPE>& s)
+{
+	std::u32string u32 = s.asUtf32();
+
+	char32_t buffer[30];
+	char32_t expectedBuffer[30];
+
+	memset(buffer, 0xffffffff, 30*sizeof(char32_t) );
+	memset(expectedBuffer, 0xffffffff, 30*sizeof(char32_t) );
+
+	size_t result = StringImpl<DATATYPE>::npos;
+	size_t expectedResult = StringImpl<DATATYPE>::npos;
+
+	SECTION("zeroFromStart")
+	{
+		result = s.copy(buffer, 0);
+		expectedResult = u32.copy(expectedBuffer, 0);
+	}
+
+	SECTION("zeroFromEnd")
+	{
+		result = s.copy(buffer, 0, s.getLength());
+		expectedResult = u32.copy(expectedBuffer, 0, s.getLength());
+	}
+
+	SECTION("zeroFromMiddle")
+	{
+		result = s.copy(buffer, 0, s.getLength()/2);
+		expectedResult = u32.copy(expectedBuffer, 0, s.getLength()/2);
+	}
+
+
+	SECTION("halfFromStart")
+	{
+		result = s.copy(buffer, s.getLength()/2, 0);
+		expectedResult = u32.copy(expectedBuffer, s.getLength()/2, 0);
+	}
+
+	SECTION("halfFromEnd")
+	{
+		result = s.copy(buffer, s.getLength()/2, s.getLength());
+		expectedResult = u32.copy(expectedBuffer, s.getLength()/2, s.getLength());
+	}
+
+	SECTION("halfFromMiddle")
+	{
+		result = s.copy(buffer, s.getLength()/2, s.getLength()/2);
+		expectedResult = u32.copy(expectedBuffer, s.getLength()/2, s.getLength()/2);
+	}
+
+
+	SECTION("fullFromStart")
+	{
+		result = s.copy(buffer, s.getLength(), 0);
+		expectedResult = u32.copy(expectedBuffer, s.getLength(), 0);
+	}
+
+	SECTION("fullFromEnd")
+	{
+		result = s.copy(buffer, s.getLength(), s.getLength());
+		expectedResult = u32.copy(expectedBuffer, s.getLength(), s.getLength());
+	}
+
+	SECTION("fullFromMiddle")
+	{
+		result = s.copy(buffer, s.getLength(), s.getLength()/2);
+		expectedResult = u32.copy(expectedBuffer, s.getLength(), s.getLength()/2);
+	}
+
+
+
+	SECTION("moreThanFullFromStart")
+	{
+		result = s.copy(buffer, s.getLength()+10, 0);
+		expectedResult = u32.copy(expectedBuffer, s.getLength()+10, 0);
+	}
+
+	SECTION("moreThanFullFromEnd")
+	{
+		result = s.copy(buffer, s.getLength()+10, s.getLength());
+		expectedResult = u32.copy(expectedBuffer, s.getLength()+10, s.getLength());
+	}
+
+	SECTION("moreThanFullFromMiddle")
+	{
+		result = s.copy(buffer, s.getLength()+10, s.getLength()/2);
+		expectedResult = u32.copy(expectedBuffer, s.getLength()+10, s.getLength()/2);
+	}
+
+
+	SECTION("nposFromStart")
+	{
+		result = s.copy(buffer, s.npos, 0);
+		expectedResult = u32.copy(expectedBuffer, s.npos, 0);
+	}
+
+	SECTION("nposFromEnd")
+	{
+		result = s.copy(buffer, s.npos, s.getLength());
+		expectedResult = u32.copy(expectedBuffer, s.npos, s.getLength());
+	}
+
+	SECTION("nposFromMiddle")
+	{
+		result = s.copy(buffer, s.npos, s.getLength()/2);
+		expectedResult = u32.copy(expectedBuffer, s.npos, s.getLength()/2);
+	}
+
+
+	REQUIRE( result==expectedResult );
+	
+	for(int i=0; i<30; i++)
+	{
+		REQUIRE( buffer[i] == expectedBuffer[i] );
+	}
+}
+
+template<class DATATYPE>
+inline void testCopy()
+{
+	SECTION("empty")
+	{
+		StringImpl<DATATYPE> s;	
+		testCopy<DATATYPE>(s);
+	}
+
+	SECTION("nonEmpty")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+
+		testCopy<DATATYPE>(s);
+	}
+
+	SECTION("badStartIndex")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+
+		char32_t buffer[1];
+
+		REQUIRE_THROWS_AS( s.copy(buffer, 0, s.getLength()+1), OutOfRangeError );
+
+		REQUIRE_THROWS_AS( s.copy(buffer, 1, s.getLength()+1), OutOfRangeError );
+	}
 }
 
 template<class DATATYPE>
@@ -2705,6 +2857,9 @@ inline void testStringImpl()
 
 	SECTION("getAllocator")
 		testGetAllocator<DATATYPE>();	
+
+	SECTION("copy")
+		testCopy<DATATYPE>();
 }
 
 
