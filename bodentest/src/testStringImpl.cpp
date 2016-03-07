@@ -52,6 +52,15 @@ inline void testTypes()
 
 
 
+template<class DATATYPE>
+inline void testConstants()
+{
+	REQUIRE( StringImpl<DATATYPE>::npos == std::string::npos);
+	REQUIRE( StringImpl<DATATYPE>::noMatch == StringImpl<DATATYPE>::npos );
+	REQUIRE( StringImpl<DATATYPE>::toEnd == StringImpl<DATATYPE>::npos );
+}
+
+
 template<class STRINGIMPL>
 inline void verifyContents(STRINGIMPL& s, const std::u32string& expectedResult)
 {
@@ -2719,11 +2728,680 @@ inline void testCopy()
 	}
 }
 
+
+template<class DATATYPE>
+inline void testIteratorWithIndex()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+
+	StringImpl<DATATYPE>::IteratorWithIndex it(s.begin(), 17);
+
+	REQUIRE( it.getIndex() == 17);
+	it++;
+	REQUIRE( it.getIndex() == 18);
+
+	it+=3;
+	REQUIRE( it.getIndex() == 21);
+
+	REQUIRE( it.getInner() == s.begin()+4);
+
+	REQUIRE( *it == *(s.begin()+4) );
+
+	it-=2;
+	REQUIRE( it.getIndex() == 19);
+
+	it = it+1;
+	REQUIRE( it.getIndex() == 20);
+
+	it = it+3;
+	REQUIRE( it.getIndex() == 23);
+
+	it = it-2;
+	REQUIRE( it.getIndex() == 21);
+
+	it = it-1;
+	REQUIRE( it.getIndex() == 20);
+
+	++it;
+	REQUIRE( it.getIndex() == 21);
+
+	--it;
+	REQUIRE( it.getIndex() == 20);
+
+	REQUIRE( (it++).getIndex() == 20);
+
+	REQUIRE( it.getIndex() == 21);
+
+	REQUIRE( (it--).getIndex() == 21);
+
+	REQUIRE( it.getIndex() == 20);
+
+	it-=3;
+	REQUIRE( it.getIndex() == 17);
+
+	REQUIRE( it.getInner() == s.begin() );
+
+	REQUIRE( *it == *s.begin() );
+}
+
+
+
+template<class STRINGTYPE, class ToFindStringType>
+inline void testFindStringFromIndex()
+{
+	STRINGTYPE s(U"he\U00012345loworld");	
+	STRINGTYPE empty(U"");	
+
+	STRINGTYPE toFindObj(U"\U00012345lo");	
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
+	STRINGTYPE toFindEmptyObj(U"");	
+
+	ToFindStringType toFind = (ToFindStringType)toFindObj;
+	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
+	ToFindStringType toFindEmpty = (ToFindStringType)toFindEmptyObj;
+
+
+	SECTION("fromStart-matching")
+	{
+		size_t result = s.find(toFind, 0);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 0);
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromStartUsingDefaultArg-matching")
+	{
+		size_t result = s.find(toFind);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromStartUsingDefaultArg-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch);
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 2 );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 2 );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromAfterMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 3 );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromAfterMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 3 );
+		REQUIRE( result == s.npos );
+	}
+
+
+
+	SECTION("fromEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length() );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length() );
+		REQUIRE( result == s.npos );
+	}
+
+
+	SECTION("fromAfterEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length()+1 );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length()+1 );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-empty")
+	{
+		size_t result = s.find(toFindEmpty, s.length()+1 );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("empty-fromStart")
+	{
+		size_t result = s.find(toFindEmpty, 0 );
+		REQUIRE( result==0 );
+	}
+
+	SECTION("empty-fromMiddle")
+	{
+		size_t result = s.find(toFindEmpty, 5 );
+		REQUIRE( result==5 );
+	}
+
+	SECTION("empty-fromEnd")
+	{
+		size_t result = s.find(toFindEmpty, s.length() );
+		REQUIRE( result==s.length() );
+	}
+
+
+	SECTION("notEmpty-inEmpty")
+	{
+		size_t result = empty.find(toFind, 0 );
+		REQUIRE( result==empty.npos );
+	}
+
+	SECTION("empty-inEmpty")
+	{
+		size_t result = empty.find(toFindEmpty, 0 );
+		REQUIRE( result==0 );
+	}
+}
+
+
+
+template<class STRINGTYPE>
+inline void testFindCharFromIterator()
+{
+	STRINGTYPE s(U"he\U00012345loworld");	
+	STRINGTYPE empty(U"");	
+
+	char32_t toFind = U'\U00012345';
+	char32_t toFindNonMatch = 'x';
+
+	SECTION("fromStart-matching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFind, s.begin());
+		REQUIRE( it==s.begin()+2 );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin());
+		REQUIRE( it==s.end() );
+	}
+
+	
+	SECTION("fromMatchPos-matching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFind, s.begin()+2 );
+		REQUIRE( it==s.begin()+2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
+		REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("fromAfterMatchPos-matching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFind, s.begin()+3 );
+		REQUIRE( it == s.end() );
+	}
+
+	SECTION("fromAfterMatchPos-notMatching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
+		REQUIRE( it == s.end() );
+	}
+
+
+
+	SECTION("fromEnd-matching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFind, s.end() );
+		REQUIRE( it == s.end() );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.end() );
+		REQUIRE( it == s.end() );
+	}
+
+	
+	SECTION("inEmpty")
+	{
+		STRINGTYPE::Iterator it = empty.find(toFind, empty.begin() );
+		REQUIRE( it==empty.end() );
+	}
+
+}
+
+
+template<class STRINGTYPE>
+inline void testFindCharFromIndex()
+{
+	STRINGTYPE s(U"he\U00012345loworld");	
+	STRINGTYPE empty(U"");	
+
+	char32_t toFind = U'\U00012345';
+	char32_t toFindNonMatch = 'x';
+
+	SECTION("fromStart-matching")
+	{
+		size_t result = s.find(toFind, 0);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 0);
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromStartUsingDefaultArg-matching")
+	{
+		size_t result = s.find(toFind);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromStartUsingDefaultArg-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch);
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 2 );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 2 );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromAfterMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 3 );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromAfterMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 3 );
+		REQUIRE( result == s.npos );
+	}
+
+
+
+	SECTION("fromEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length() );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length() );
+		REQUIRE( result == s.npos );
+	}
+
+
+	SECTION("fromAfterEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length()+1 );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length()+1 );
+		REQUIRE( result==s.npos );
+	}
+
+		
+	SECTION("inEmpty")
+	{
+		size_t result = empty.find(toFind, 0 );
+		REQUIRE( result==empty.npos );
+	}
+
+}
+
+
+
+
+template<class DATATYPE>
+inline void testFind()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
+
+	StringImpl<DATATYPE>::Iterator matchEndIt;
+	
+	SECTION("iterators")
+	{
+		for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
+		{
+			SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
+			{
+				StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+				
+				if(withMatchEndIt==1)
+					pMatchEndIt = &matchEndIt;
+
+				SECTION("fromStart-matching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
+					REQUIRE( it==s.begin()+2 );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+				}
+				
+				SECTION("fromStart-notMatching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end() );
+				}
+
+				SECTION("fromMatchPos-matching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
+					REQUIRE( it==s.begin()+2 );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+				}
+
+				SECTION("fromMatchPos-notMatching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end()  );
+				}
+
+
+				SECTION("fromAfterMatchPos-matching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end() );
+				}
+
+				SECTION("fromAfterMatchPos-notMatching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end() );
+				}
+
+
+
+				SECTION("fromEnd-matching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end() );
+				}
+
+				SECTION("fromEnd-notMatching")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == s.end() );
+				}
+
+
+
+				SECTION("empty-fromStart")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin(), pMatchEndIt );
+					REQUIRE( it==s.begin() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it );
+				}
+
+
+				SECTION("empty-fromMiddle")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin()+5, pMatchEndIt );
+					REQUIRE( it==s.begin()+5 );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it );
+				}
+
+				SECTION("empty-fromEnd")
+				{
+					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.end(), pMatchEndIt );
+					REQUIRE( it==s.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it );
+				}
+
+
+				SECTION("notEmpty-inEmpty")
+				{
+					StringImpl<DATATYPE> empty;
+
+					StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.end(), empty.begin(), pMatchEndIt );
+					REQUIRE( it==empty.end() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == empty.end() );
+				}
+
+				SECTION("empty-inEmpty")
+				{
+					StringImpl<DATATYPE> empty;
+
+					StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.begin(), empty.begin(), pMatchEndIt );
+					REQUIRE( it==empty.begin() );
+
+					if(pMatchEndIt!=nullptr)
+						REQUIRE( *pMatchEndIt == it );
+				}
+			}
+		}
+	}
+
+
+	SECTION("stringFromIt")
+	{
+		SECTION("fromStart-matching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin());
+			REQUIRE( it==s.begin()+2 );
+		}
+
+		SECTION("fromStart-notMatching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin());
+			REQUIRE( it==s.end() );
+		}
+
+		SECTION("fromMatchPos-matching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+2 );
+			REQUIRE( it==s.begin()+2 );
+		}
+
+		SECTION("fromMatchPos-notMatching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
+			REQUIRE( it==s.end() );
+		}
+
+
+		SECTION("fromAfterMatchPos-matching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+3 );
+			REQUIRE( it==s.end() );
+		}
+
+		SECTION("fromAfterMatchPos-notMatching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
+			REQUIRE( it==s.end() );
+		}
+
+
+
+		SECTION("fromEnd-matching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.end());
+			REQUIRE( it==s.end() );
+		}
+
+		SECTION("fromEnd-notMatching")
+		{
+			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.end());
+			REQUIRE( it==s.end() );
+		}
+
+
+
+		SECTION("empty-fromStart")
+		{
+			StringImpl<DATATYPE> empty;
+
+			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin() );
+			REQUIRE( it==s.begin() );
+		}
+
+
+		SECTION("empty-fromMiddle")
+		{
+			StringImpl<DATATYPE> empty;
+
+			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin()+5 );
+			REQUIRE( it==s.begin()+5 );
+		}
+
+		SECTION("empty-fromEnd")
+		{
+			StringImpl<DATATYPE> empty;
+
+			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.end() );
+			REQUIRE( it==s.end() );
+		}
+
+
+		SECTION("notEmpty-inEmpty")
+		{
+			StringImpl<DATATYPE> empty;
+
+			StringImpl<DATATYPE>::Iterator it = empty.find(toFind, empty.begin() );
+			REQUIRE( it==empty.end() );
+		}
+
+		SECTION("empty-inEmpty")
+		{
+			StringImpl<DATATYPE> empty;
+			StringImpl<DATATYPE> empty2;
+
+			StringImpl<DATATYPE>::Iterator it = empty.find(empty2, empty.begin() );
+			REQUIRE( it==empty.begin() );
+		}
+	}
+
+	SECTION("stringFromIndex")
+	{
+		SECTION("String")
+			testFindStringFromIndex<StringImpl<DATATYPE>, StringImpl<DATATYPE> >();
+
+
+		SECTION("std::string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::string >();
+
+		SECTION("std::u16string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::u16string >();
+
+		SECTION("std::u32string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::u32string >();
+
+		SECTION("std::wstring")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::wstring >();
+
+
+		SECTION("const char*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char* >();
+
+		SECTION("const char16_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char16_t* >();
+
+		SECTION("const char32_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char32_t* >();
+
+		SECTION("const wchar_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+	}
+
+	SECTION("charFromIterator")
+		testFindCharFromIterator< StringImpl<DATATYPE> >();
+
+	SECTION("charFromIndex")
+		testFindCharFromIndex< StringImpl<DATATYPE> >();
+
+
+	SECTION("stringFromIndexInU32String")
+	{
+		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
+		testFindStringFromIndex<std::u32string, std::u32string >();
+	}	
+
+	SECTION("charFromIndexInU32String")
+	{
+		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
+		testFindCharFromIndex< std::u32string >();
+	}
+
+}
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
 	SECTION("types")
 		testTypes<DATATYPE>();
+
+	SECTION("constants")
+		testConstants<DATATYPE>();
 
 	SECTION("construct")
 	{
@@ -2860,6 +3538,12 @@ inline void testStringImpl()
 
 	SECTION("copy")
 		testCopy<DATATYPE>();
+
+	SECTION("IteratorWithIndex")
+		testIteratorWithIndex<DATATYPE>();
+
+	SECTION("find")
+		testFind<DATATYPE>();
 }
 
 

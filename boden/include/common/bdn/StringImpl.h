@@ -148,9 +148,30 @@ public:
 		It is also sometimes used as a special return value. For example, find() returns it to indicate that the
 		string was not found.
 
+		It is recommended to use more descriptive aliases for this constant like noMatch and toEnd for better readability.
+
 		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
 		*/
 	static const size_t npos = -1;	
+
+
+	/** A special constant that is used to indicate that a search operation did not find any matches.
+	
+		This is an alias for npos.
+
+		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+		*/
+	static const size_t noMatch = npos;
+
+
+	/** A special constant that can be used in some cases when a sub string length is needed to indicate
+		that the whole remaining part of the string up to the end should be used.
+	
+		This is an alias for npos.
+
+		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+		*/
+	static const size_t toEnd = npos;
 
 	
 	StringImpl()
@@ -519,20 +540,20 @@ public:
 		If the string has less than charCount characters then the sub string up to the end
 		is returned.
 
-		charCount can be -1, in which case the rest of the string up to the end is returned.
+		charCount can be String::toEnd or String::npos, in which case the rest of the string up to the end is returned.
 
 		If startIndex is invalid (<0 or >length) then an OutOfRangeError (which is the same as
 		std::out_of_range) is thrown.
 		startIndex can equal the string length - in that case the resulting sub string is always empty.
 	*/
-	StringImpl subString(int startIndex, int charCount) const
+	StringImpl subString(size_t startIndex, size_t charCount) const
 	{
-		int myCharCount = getLength();
+		size_t myLength = getLength();
 
-		if (startIndex<0 || startIndex>myCharCount)
+		if (startIndex>myLength)
 			throw OutOfRangeError("String::subString: Invalid start index: "+std::to_string(startIndex) );
-		if (charCount<0 || startIndex+charCount>myCharCount)
-			charCount = myCharCount-startIndex;
+		if (charCount==toEnd || startIndex+charCount>myLength)
+			charCount = myLength-startIndex;
 
 		Iterator startIt = _beginIt+startIndex;
 		Iterator endIt = (charCount<0) ? _endIt : (startIt+charCount);
@@ -541,14 +562,11 @@ public:
 	}
 
 
-	/** Similar to subString. This function is included for compatibility with std::string.
-	
-		The only difference to subString is that charCount must be String::npos (instead of
-		the -1) if you want	the rest of the string up to the end.
+	/** An alias for subString(). This function is included for compatibility with std::string.
 	*/
 	StringImpl substr(size_t startIndex, size_t charCount) const
 	{
-		return subString(startIndex, charCount==npos ? -1 : (int)charCount);
+		return subString(startIndex, charCount );
 	}
 
 
@@ -1107,7 +1125,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1124,7 +1142,7 @@ public:
 
 		Iterator rangeStart( _beginIt + rangeStartIndex );
 		
-		Iterator rangeEnd( (rangeLength==npos || rangeStartIndex+rangeLength>=myLength)
+		Iterator rangeEnd( (rangeLength==toEnd || rangeStartIndex+rangeLength>=myLength)
 							? _endIt
 							: (rangeStart+rangeLength) );
 
@@ -1138,17 +1156,17 @@ public:
 		used. If replaceWithStartIndex is bigger than the length of \c replaceWith then an OutOfRangeError is thrown.
 		
 		If \c replaceWithLength is specified then at most this number of characters is used from \c replaceWith.
-		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::npos,
-		then only the part replaceWith up to its end is used.
+		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd
+		or String::npos, then only the part replaceWith up to its end is used.
 	
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
 						const StringImpl& replaceWith,
 						size_t replaceWithStartIndex = 0,
-						size_t replaceWithLength = npos)
+						size_t replaceWithLength = toEnd)
 	{
-		if(replaceWithStartIndex==0 && replaceWithLength==npos)
+		if(replaceWithStartIndex==0 && replaceWithLength==toEnd)
 			return replace(rangeBegin, rangeEnd, replaceWith.begin(), replaceWith.end() );
 		else
 		{
@@ -1158,7 +1176,7 @@ public:
 
 			Iterator replaceWithStart = replaceWith.begin()+replaceWithStartIndex;
 
-			Iterator replaceWithEnd( (replaceWithLength==npos || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
+			Iterator replaceWithEnd( (replaceWithLength==toEnd || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
 									? replaceWith.end()
 									: (replaceWithStart+replaceWithLength) );
 
@@ -1171,14 +1189,14 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
 		If replaceWithStartIndex is specified then only the part of \c replaceWith starting from that index is
 		used. If replaceWithStartIndex is bigger than the length of \c replaceWith then an OutOfRangeError is thrown.
 		
 		If \c replaceWithLength is specified then at most this number of characters is used from \c replaceWith.
-		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::npos,
+		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd or String::npos,
 		then only the part replaceWith up to its end is used.
 
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1186,9 +1204,9 @@ public:
 						size_t rangeLength,
 						const StringImpl& replaceWith,
 						size_t replaceWithStartIndex = 0,
-						size_t replaceWithLength = npos)
+						size_t replaceWithLength = toEnd)
 	{
-		if(replaceWithStartIndex==0 && replaceWithLength==npos)
+		if(replaceWithStartIndex==0 && replaceWithLength==toEnd)
 			return replace(rangeStartIndex, rangeLength, replaceWith.begin(), replaceWith.end() );
 		else
 		{
@@ -1198,7 +1216,7 @@ public:
 
 			Iterator replaceWithStart = replaceWith.begin()+replaceWithStartIndex;
 
-			Iterator replaceWithEnd( (replaceWithLength==npos || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
+			Iterator replaceWithEnd( (replaceWithLength==toEnd || replaceWithStartIndex+replaceWithLength>=actualReplaceWithLength)
 									? replaceWith.end()
 									: (replaceWithStart+replaceWithLength) );
 
@@ -1212,7 +1230,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 			
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1253,7 +1271,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 		
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
@@ -1263,7 +1281,7 @@ public:
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( Utf8Codec(),
 						rangeStartIndex,
@@ -1283,7 +1301,7 @@ public:
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( Utf8Codec(),
 						rangeStart,
@@ -1298,7 +1316,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 					
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1336,7 +1354,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 		
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
@@ -1346,7 +1364,7 @@ public:
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char16_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( Utf16Codec<char16_t>(),
 						rangeStartIndex,
@@ -1366,7 +1384,7 @@ public:
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char16_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( Utf16Codec<char16_t>(),
 						rangeStart,
@@ -1381,7 +1399,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 			
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1419,7 +1437,7 @@ public:
 		
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 		
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
@@ -1429,7 +1447,7 @@ public:
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char32_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( rangeStartIndex,
 						rangeLength,						
@@ -1448,7 +1466,7 @@ public:
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char32_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( rangeStart,
 						rangeEnd,						
@@ -1462,7 +1480,7 @@ public:
 		
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
 		
@@ -1499,7 +1517,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 		
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
@@ -1509,7 +1527,7 @@ public:
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const wchar_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( WideCodec(),
 						rangeStartIndex,
@@ -1528,7 +1546,7 @@ public:
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const wchar_t* replaceWith,
-							size_t replaceWithLength = npos )
+							size_t replaceWithLength = toEnd )
 	{
 		return replace( WideCodec(),
 						rangeStart,
@@ -1542,7 +1560,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 					
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1595,7 +1613,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
 		The charList parameters is automatically created by the compiler when you pass the characters as
@@ -1684,7 +1702,7 @@ public:
 
 		If rangeStartIndex is bigger than the length of the string then an OutOfRange error is thrown.
 
-		If rangeLength is String::npos or exceeds the end of the string then the end of the range is the end
+		If rangeLength is String::toEnd or String::npos3 or exceeds the end of the string then the end of the range is the end
 		of the string.
 		
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
@@ -1700,7 +1718,7 @@ public:
 
 		Iterator rangeStart( _beginIt + rangeStartIndex );
 		
-		Iterator rangeEnd( (rangeLength==npos || rangeStartIndex+rangeLength>=myLength)
+		Iterator rangeEnd( (rangeLength==toEnd || rangeStartIndex+rangeLength>=myLength)
 							? _endIt
 							: (rangeStart+rangeLength) );
 
@@ -1719,7 +1737,7 @@ public:
 		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
 		characters up to the end of \c other are copied.
 	*/
-	StringImpl& append(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
+	StringImpl& append(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=toEnd)
 	{
 		return replace( _endIt, _endIt, other, otherSubStartIndex, otherSubLength);
 	}
@@ -1745,7 +1763,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string in bytes.
 	*/	
-	StringImpl& append(const char* other, size_t length=npos)
+	StringImpl& append(const char* other, size_t length=toEnd)
 	{
 		return replace(_endIt, _endIt, other, length);
 	}
@@ -1763,7 +1781,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 16 bit elements.
 	*/	
-	StringImpl& append(const char16_t* o, size_t length=npos)
+	StringImpl& append(const char16_t* o, size_t length=toEnd)
 	{
 		return replace(_endIt, _endIt, o, length);
 	}
@@ -1782,7 +1800,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 	*/	
-	StringImpl& append(const char32_t* o, size_t length=npos)
+	StringImpl& append(const char32_t* o, size_t length=toEnd)
 	{
 		return replace( _endIt, _endIt, o, length);
 	}
@@ -1801,7 +1819,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string in wchar_t elements.
 	*/	
-	StringImpl& append(const wchar_t* o, size_t length=npos)
+	StringImpl& append(const wchar_t* o, size_t length=toEnd)
 	{
 		return replace(_endIt, _endIt, o, length);
 	}
@@ -1857,7 +1875,7 @@ public:
 		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
 		characters up to the end of \c other are copied.
 	*/
-	StringImpl& insert(size_t atIndex, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = npos)
+	StringImpl& insert(size_t atIndex, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = toEnd)
 	{
 		return insert(begin() + atIndex, other, otherSubStartIndex, otherSubLength);
 	}
@@ -1872,7 +1890,7 @@ public:
 		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
 		characters up to the end of \c other are copied.
 	*/
-	StringImpl& insert(const Iterator& atIt, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = npos)
+	StringImpl& insert(const Iterator& atIt, const StringImpl& other, size_t otherSubStartIndex = 0, size_t otherSubLength = toEnd)
 	{
 		return replace(atIt, atIt, other, otherSubStartIndex, otherSubLength);
 	}
@@ -1883,7 +1901,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded 8 bit elements.
 	*/
-	StringImpl& insert(size_t atIndex, const char* o, size_t length=npos)
+	StringImpl& insert(size_t atIndex, const char* o, size_t length=toEnd)
 	{
 		return insert(begin() + atIndex, o, length);
 	}
@@ -1894,7 +1912,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded 8 bit elements.
 	*/
-	StringImpl& insert(const Iterator& atIt, const char* o, size_t length = npos)
+	StringImpl& insert(const Iterator& atIt, const char* o, size_t length = toEnd)
 	{
 		return replace(atIt, atIt, o, length);
 	}
@@ -1920,7 +1938,7 @@ public:
 
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded wchar_t elements.	*/
-	StringImpl& insert(size_t atIndex, const wchar_t* o, size_t length = npos)
+	StringImpl& insert(size_t atIndex, const wchar_t* o, size_t length = toEnd)
 	{
 		return insert(begin() + atIndex, o, length);
 	}
@@ -1931,7 +1949,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded wchar_t elements.
 	*/
-	StringImpl& insert(const Iterator& atIt, const wchar_t* o, size_t length = npos)
+	StringImpl& insert(const Iterator& atIt, const wchar_t* o, size_t length = toEnd)
 	{
 		return replace(atIt, atIt, o, length);
 	}
@@ -1955,7 +1973,7 @@ public:
 
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded 16 bit elements.	*/
-	StringImpl& insert(size_t atIndex, const char16_t* o, size_t length = npos)
+	StringImpl& insert(size_t atIndex, const char16_t* o, size_t length = toEnd)
 	{
 		return insert(begin() + atIndex, o, length);
 	}
@@ -1966,7 +1984,7 @@ public:
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded 16 bit elements.
 	*/
-	StringImpl& insert(const Iterator& atIt, const char16_t* o, size_t length = npos)
+	StringImpl& insert(const Iterator& atIt, const char16_t* o, size_t length = toEnd)
 	{
 		return replace(atIt, atIt, o, length);
 	}
@@ -1992,7 +2010,7 @@ public:
 
 		If \c length is not specified then other must be a zero terminated string.
 		If it is specified then it indicates the length of the string to insert in encoded 32 bit elements.	*/
-	StringImpl& insert(size_t atIndex, const char32_t* other, size_t length = npos)
+	StringImpl& insert(size_t atIndex, const char32_t* other, size_t length = toEnd)
 	{
 		return insert(begin() + atIndex, other, length);
 	}
@@ -2003,7 +2021,7 @@ public:
 	If \c length is not specified then other must be a zero terminated string.
 	If it is specified then it indicates the length of the string to insert in encoded 32 bit elements.
 	*/
-	StringImpl& insert(const Iterator& atIt, const char32_t* other, size_t length = npos)
+	StringImpl& insert(const Iterator& atIt, const char32_t* other, size_t length = toEnd)
 	{
 		return replace(atIt, atIt, other, length);
 	}
@@ -2139,10 +2157,10 @@ public:
 	/** Removes a part of the string, starting at the character index \c cutIndex and 
 		cutting out \c cutLength characters from that position.
 		
-		If cutLength is String::npos or cutPos+cutLength exceed the lengths of the
+		If cutLength is String::toEnd or String::npos or cutPos+cutLength exceed the lengths of the
 		string then the remainder of the string up to the end is removed.
 	*/
-	StringImpl& erase(size_t cutIndex=0, size_t cutLength=npos)
+	StringImpl& erase(size_t cutIndex=0, size_t cutLength=toEnd)
 	{
 		return replace(cutIndex, cutLength, U"", 0);
 	}
@@ -2187,7 +2205,7 @@ public:
 		If \c other is not long enough for \c otherSubLength characters to be copied then only the available
 		characters up to the end of \c other are copied.
 		*/
-	StringImpl& assign(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=npos)
+	StringImpl& assign(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=toEnd)
 	{
 		// just copy a reference to the source string's data
 		_pData = other._pData;
@@ -2197,7 +2215,7 @@ public:
 		if(otherSubStartIndex>=0)
 			_beginIt += otherSubStartIndex;
 		
-		if(otherSubLength==npos || otherSubStartIndex+otherSubLength>=other.length() )
+		if(otherSubLength==toEnd || otherSubStartIndex+otherSubLength>=other.length() )
 		{
 			_endIt = other._endIt;
 
@@ -2230,11 +2248,11 @@ public:
 	}
 
 
-	/** Assigns the value of a C-style UTF8 string to this string. If length is not npos
+	/** Assigns the value of a C-style UTF8 string to this string. If length is not String::toEnd or String::npos
 		then it must be the length of the encoded UTF-8 string in bytes.
-		If length is npos then the other string must be zero-terminated.
+		If length is String::toEnd or String::npos then the other string must be zero-terminated.
 		*/
-	StringImpl& assign(const char* o, size_t length=npos)
+	StringImpl& assign(const char* o, size_t length=toEnd)
 	{
 		return replace(_beginIt, _endIt, o, length );
 	}
@@ -2247,11 +2265,11 @@ public:
 	}
 
 
-	/** Assigns the value of a C-style wide char string to this string. If length is not npos
+	/** Assigns the value of a C-style wide char string to this string. If length is not String::toEnd or String::npos
 		then it must be the number of encoded wchar_t elements.
-		If length is npos then the other string must be zero-terminated.
+		If length is String::toEnd or String::npos then the other string must be zero-terminated.
 		*/
-	StringImpl& assign(const wchar_t* o, size_t length=npos)
+	StringImpl& assign(const wchar_t* o, size_t length=toEnd)
 	{
 		return replace(_beginIt, _endIt, o, length );
 	}
@@ -2264,11 +2282,11 @@ public:
 	}
 
 
-	/** Assigns the value of a C-style UTF-16 string to this string. If length is not npos
+	/** Assigns the value of a C-style UTF-16 string to this string. If length is not String::toEnd or String::npos
 		then it must be the number of encoded 16 bit UTF-16 elements.
-		If length is npos then the other string must be zero-terminated.
+		If length is String::toEnd or String::npos then the other string must be zero-terminated.
 		*/
-	StringImpl& assign(const char16_t* o, size_t length=npos)
+	StringImpl& assign(const char16_t* o, size_t length=toEnd)
 	{
 		return replace(_beginIt, _endIt, o, length );
 	}
@@ -2281,11 +2299,11 @@ public:
 	}
 
 
-	/** Assigns the value of a C-style UTF-32 string to this string. If length is not npos
+	/** Assigns the value of a C-style UTF-32 string to this string. If length is not String::toEnd or String::npos
 		then it must be the number of encoded 32 bit UTF-32 elements.
-		If length is npos then the other string must be zero-terminated.
+		If length is String::toEnd or String::npos then the other string must be zero-terminated.
 		*/
-	StringImpl& assign(const char32_t* o, size_t length=npos)
+	StringImpl& assign(const char32_t* o, size_t length=toEnd)
 	{
 		return replace(_beginIt, _endIt, o, length );
 	}
@@ -2446,6 +2464,331 @@ public:
 
 		return maxCopyLength;
 	}
+
+
+
+	/** Searches for a sequence of characters in this string, starting at the positing indicated by \c searchFromIt.
+
+		Returns an iterator to the first character of the first occurrence of the sequence if it is found.
+		Returns end() if the sequence is not found.	
+
+		If the sequence of characters between toFindBeginIt and toFindEndIt is empty then searchFromIt is returned.
+
+		If pMatchEndIt is not null and the toFind sequence is found, then *pMatchEndIt is set to the first character
+		following the found sequence. If the sequence ends at the end of the string the *pMatchEndIt is set to end().
+
+		If pMatchEndIt is not null and the toFind sequence is not found then *pMatchEndIt is set to end().
+	*/
+	template<class CHARIT>
+	Iterator find(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
+	{
+		if(pMatchEndIt==nullptr)
+		{
+			// we can use std::search. We assume that it might be more optimized than our algorithm, so we prefer
+			// the standard one.
+			return std::search( searchFromIt, _endIt, toFindBeginIt, toFindEndIt );
+		}
+		else
+		{
+			Iterator matchBeginIt( searchFromIt );
+
+			while(matchBeginIt!=_endIt)
+			{
+				Iterator myIt( matchBeginIt );
+				Iterator toFindIt( toFindBeginIt );
+
+				bool matches = true;
+
+				while(toFindIt!=toFindEndIt)
+				{
+					if(myIt==_endIt)
+					{
+						// no more occurrences possible.
+						*pMatchEndIt = end();
+						return end();
+					}
+
+					if(*myIt != *toFindIt)
+					{
+						// no match
+						matches = false;
+						break;
+					}
+
+					++myIt;
+					++toFindIt;
+				}
+
+				if(matches)
+				{
+					*pMatchEndIt = myIt;
+					return matchBeginIt;
+				}
+
+				++matchBeginIt;
+			}
+
+			*pMatchEndIt = end();
+			return end();
+		}
+	}
+
+
+	/** Searches for another string in this string, starting at the positing indicated by \c searchFromIt.
+
+		Returns an iterator to the first character of the first occurrence of \c toFind if it is found.
+		Returns end() if \c toFind is not found.	
+
+		If \c toFind is empty then searchFromIt is returned.
+	*/
+	Iterator find(const StringImpl& toFind, const Iterator& searchFromIt)
+	{
+		return std::search( searchFromIt, _endIt, toFind._beginIt, toFind._endIt );
+	}
+
+
+	 
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find(const StringImpl& toFind, size_t searchStartIndex = 0) const noexcept
+	{
+		if(searchStartIndex>getLength())
+			return noMatch;
+
+		if(toFind.isEmpty())
+			return searchStartIndex;
+
+		IteratorWithIndex foundIt = std::search( IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
+												 IteratorWithIndex( _endIt, getLength() ),
+												 toFind._beginIt,
+												 toFind._endIt );
+		if(foundIt.getInner()==_endIt)
+			return noMatch;
+		else
+			return foundIt.getIndex();
+	}
+
+
+	/** Searches for a sequence of encoded characters in this string.
+
+		encodedToFindBeginIt and encodedToFindEndIt define the beginning and end of the encoded string data
+		to search for.
+
+		\c codec is a string codec object (like Utf8Codec, ...) that defines the encoding of the encoded
+		string data. The encoding does not have the match the internal encoding of this string. Any encoding
+		can be used.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the character index of the first character of the first occurrence if it is found.
+		Returns String::noMatch (String::npos) if the string is not found.	
+
+		If \c the string to search for is empty then searchStartIndex is returned.
+	*/
+	template<class ToFindCodec, class EncodedIt>
+	size_t find(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = 0) const
+	{
+		if(searchStartIndex>getLength())
+			return noMatch;
+
+		if(encodedToFindBeginIt==encodedToFindEndIt)
+			return searchStartIndex;
+
+		IteratorWithIndex foundIt = std::search( IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
+												 IteratorWithIndex( _endIt, getLength() ),
+												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt) );
+		if(foundIt.getInner()==_endIt)
+			return noMatch;
+		else
+			return foundIt.getIndex();
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find(const std::string& toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find(const std::wstring& toFind, size_t searchStartIndex = 0) const
+	{
+		return find(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find(const std::u16string& toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find(const std::u32string& toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+	
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find (const char* toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf8Codec(), toFind, getStringEndPtr(toFind), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find (const wchar_t* toFind, size_t searchStartIndex = 0) const
+	{
+		return find(WideCodec(), toFind, getStringEndPtr(toFind), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find (const char16_t* toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind), searchStartIndex);
+	}
+
+
+	/** Searches for another string in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned.
+	*/
+	size_t find (const char32_t* toFind, size_t searchStartIndex = 0) const
+	{
+		return find(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind), searchStartIndex);
+	}
+
+
+
+
+	/** Searches for the specified character in this string, starting at the position indicated by the \c searchStartPosIt.
+
+		Returns an Iterator pointing to the first occurrence of \c charToFind, if it is found.
+		Returns end() if \c charToFind is not found.
+	*/
+	Iterator find(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
+	{
+		return std::find( searchStartPosIt, _endIt, charToFind );
+	}
+
+
+	/** Searches for the specified character in this string.
+
+		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
+		(which is the same as String::npos).
+
+		Returns the index of the first occurrence of \c charToFind if it is found.
+		Returns String::noMatch (String::npos) if \c charToFind is not found.	
+	*/
+	size_t find(char32_t charToFind, size_t searchStartIndex = 0) const noexcept
+	{
+		if(searchStartIndex>getLength())
+			return noMatch;
+
+		IteratorWithIndex foundIt = std::find(	IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
+												IteratorWithIndex( _endIt, getLength() ),
+												charToFind );
+		if(foundIt.getInner()==_endIt)
+			return noMatch;
+		else
+			return foundIt.getIndex();		
+	}
+
 
 
 	/** Assigns the value of another string to this string. 	*/
@@ -2724,6 +3067,138 @@ public:
 		return replaceAll(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end());
 	}
 	*/
+
+
+	/** A special iterator for keeping track of the character index associated with its current position.
+
+		Wraps a normal Iterator.		
+	*/
+	class IteratorWithIndex : public std::iterator<	std::bidirectional_iterator_tag,
+													char32_t,
+													std::ptrdiff_t,
+													char32_t*,
+													// this is a bit of a hack. We define Reference to be a value, not
+													// an actual reference. That is necessary, because we return values
+													// generated on the fly that are not actually stored by the underlying
+													// container. While we could return a reference to a member of the iterator,
+													// that would only remain valid while the iterator is alive. And parts of
+													// the standard library (for example std::reverse_iterator) will create
+													// temporary local iterators and return their value references, which would
+													// cause a crash.
+													// By defining reference as a value, we ensure that the standard library functions
+													// return valid objects.
+													char32_t
+													>
+	{
+	public:
+		/** @param innerIt the iterator to wrap
+			@param index the index that corresponds to the current position of \c innerIt.*/
+		IteratorWithIndex(const Iterator& innerIt, size_t index)
+		{
+			_innerIt = innerIt;
+			_index = index;
+		}
+		
+		IteratorWithIndex& operator++()
+		{
+			++_innerIt;
+			++_index;
+
+			return *this;
+		}
+
+		IteratorWithIndex operator++(int)
+		{
+			IteratorWithIndex oldVal = *this;
+			operator++();
+
+			return oldVal;
+		}
+
+		IteratorWithIndex& operator--()
+		{
+			--_innerIt;
+			--_index;
+
+			return *this;
+		}
+
+		IteratorWithIndex operator--(int)
+		{
+			IteratorWithIndex oldVal = *this;
+			operator--();
+
+			return oldVal;
+		}
+
+		IteratorWithIndex& operator+=(int val)
+		{
+			_innerIt += val;
+			_index += val;
+
+			return *this;
+		}
+
+		IteratorWithIndex& operator-=(int val)
+		{
+			_innerIt -= val;
+			_index -= val;
+
+			return *this;
+		}
+
+
+		IteratorWithIndex operator+(int val) const
+		{
+			IteratorWithIndex it = *this;
+			it+=val;
+
+			return it;
+		}
+
+		IteratorWithIndex operator-(int val) const
+		{
+			IteratorWithIndex it = *this;
+			it-=val;
+
+			return it;
+		}
+
+		char32_t operator*()
+		{
+			return *_innerIt;
+		}
+
+		bool operator==(const IteratorWithIndex& o) const
+		{
+			return (_innerIt==o._innerIt);
+		}
+
+		bool operator!=(const IteratorWithIndex& o) const
+		{
+			return !operator==(o);
+		}
+
+
+		/** Returns an iterator to the inner encoded string that the decoding iterator is working on.
+			The inner iterator points to the first encoded element of the character, that the decoding
+			iterator is currently pointing to.*/
+		const Iterator& getInner() const
+		{
+			return _innerIt;
+		}
+
+
+		/** Returns the character index that the iterator it positioned at.*/
+		size_t getIndex() const
+		{
+			return _index;
+		}
+
+	protected:
+		Iterator _innerIt;
+		size_t   _index;
+	};
 
 protected:
 
