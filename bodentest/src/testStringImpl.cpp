@@ -2916,6 +2916,50 @@ inline void testFindStringFromIndex()
 		size_t result = empty.find(toFindEmpty, 0 );
 		REQUIRE( result==0 );
 	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		STRINGTYPE s2 = s;
+		s2 += s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.find(toFind, 0 );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.find(toFind, 2 );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.find(toFind, 3 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.find(toFind, 11 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.find(toFind, 12 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.find(toFind, 13 );
+			REQUIRE( result==s2.npos );
+		}
+
+	}
 }
 
 
@@ -2986,6 +3030,50 @@ inline void testFindCharFromIterator()
 	{
 		STRINGTYPE::Iterator it = empty.find(toFind, empty.begin() );
 		REQUIRE( it==empty.end() );
+	}
+
+
+
+	SECTION("withMultipleMatches")
+	{
+		STRINGTYPE s2 = s;
+		s2 += s;
+
+		SECTION("fromStart")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin() );
+			REQUIRE( it==s2.begin()+2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+2 );
+			REQUIRE( it==s2.begin()+2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+3 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+11 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+12 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+13 );
+			REQUIRE( it==s2.end() );
+		}
 	}
 
 }
@@ -3085,261 +3173,420 @@ inline void testFindCharFromIndex()
 		REQUIRE( result==empty.npos );
 	}
 
+
+
+	SECTION("withMultipleMatches")
+	{
+		STRINGTYPE s2 = s;
+		s2 += s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.find(toFind, 0 );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.find(toFind, 2 );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.find(toFind, 3 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.find(toFind, 11 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.find(toFind, 12 );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.find(toFind, 13 );
+			REQUIRE( result==s2.npos );
+		}
+	}
+
 }
 
 
+template<class DATATYPE>
+inline void testFindStringFromIt()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
+	SECTION("fromStart-matching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin());
+		REQUIRE( it==s.begin()+2 );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin());
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromMatchPos-matching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+2 );
+		REQUIRE( it==s.begin()+2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
+		REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("fromAfterMatchPos-matching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+3 );
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromAfterMatchPos-notMatching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
+		REQUIRE( it==s.end() );
+	}
+
+
+
+	SECTION("fromEnd-matching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.end());
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.end());
+		REQUIRE( it==s.end() );
+	}
+
+
+
+	SECTION("empty-fromStart")
+	{
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin() );
+		REQUIRE( it==s.begin() );
+	}
+
+
+	SECTION("empty-fromMiddle")
+	{
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin()+5 );
+		REQUIRE( it==s.begin()+5 );
+	}
+
+	SECTION("empty-fromEnd")
+	{
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = s.find(empty, s.end() );
+		REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("notEmpty-inEmpty")
+	{
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = empty.find(toFind, empty.begin() );
+		REQUIRE( it==empty.end() );
+	}
+
+	SECTION("empty-inEmpty")
+	{
+		StringImpl<DATATYPE> empty;
+		StringImpl<DATATYPE> empty2;
+
+		StringImpl<DATATYPE>::Iterator it = empty.find(empty2, empty.begin() );
+		REQUIRE( it==empty.begin() );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringImpl<DATATYPE> s2 = s;
+		s2+=s;
+
+		SECTION("fromStart")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin() );
+			REQUIRE( it==s2.begin()+2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+2 );
+			REQUIRE( it==s2.begin()+2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+3 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+11 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+12 );
+			REQUIRE( it==s2.begin()+12 );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+13 );
+			REQUIRE( it==s2.end() );
+		}
+	}
+}
 
 template<class DATATYPE>
-inline void testFind()
+inline void testFindIterators()
 {
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
 	StringImpl<DATATYPE>::Iterator matchEndIt;
-	
-	SECTION("iterators")
+
+	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
-		for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
+		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
-			SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
+			StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+				
+			if(withMatchEndIt==1)
+				pMatchEndIt = &matchEndIt;
+
+			SECTION("fromStart-matching")
 			{
-				StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
+				REQUIRE( it==s.begin()+2 );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+			}
 				
-				if(withMatchEndIt==1)
-					pMatchEndIt = &matchEndIt;
+			SECTION("fromStart-notMatching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
+				REQUIRE( it==s.end() );
 
-				SECTION("fromStart-matching")
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end() );
+			}
+
+			SECTION("fromMatchPos-matching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
+				REQUIRE( it==s.begin()+2 );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+			}
+
+			SECTION("fromMatchPos-notMatching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end()  );
+			}
+
+
+			SECTION("fromAfterMatchPos-matching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end() );
+			}
+
+			SECTION("fromAfterMatchPos-notMatching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end() );
+			}
+
+
+
+			SECTION("fromEnd-matching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end() );
+			}
+
+			SECTION("fromEnd-notMatching")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == s.end() );
+			}
+
+
+
+			SECTION("empty-fromStart")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin(), pMatchEndIt );
+				REQUIRE( it==s.begin() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it );
+			}
+
+
+			SECTION("empty-fromMiddle")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin()+5, pMatchEndIt );
+				REQUIRE( it==s.begin()+5 );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it );
+			}
+
+			SECTION("empty-fromEnd")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.end(), pMatchEndIt );
+				REQUIRE( it==s.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it );
+			}
+
+
+			SECTION("notEmpty-inEmpty")
+			{
+				StringImpl<DATATYPE> empty;
+
+				StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.end(), empty.begin(), pMatchEndIt );
+				REQUIRE( it==empty.end() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == empty.end() );
+			}
+
+			SECTION("empty-inEmpty")
+			{
+				StringImpl<DATATYPE> empty;
+
+				StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.begin(), empty.begin(), pMatchEndIt );
+				REQUIRE( it==empty.begin() );
+
+				if(pMatchEndIt!=nullptr)
+					REQUIRE( *pMatchEndIt == it );
+			}
+
+
+			SECTION("withMultipleMatches")
+			{
+				StringImpl<DATATYPE> s2 = s;
+				s2+=s;
+
+				SECTION("fromStart")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
-					REQUIRE( it==s.begin()+2 );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin(), pMatchEndIt );
+					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+						REQUIRE( *pMatchEndIt == s2.begin()+5 );
 				}
-				
-				SECTION("fromStart-notMatching")
+
+				SECTION("fromFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
-					REQUIRE( it==s.end() );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+2, pMatchEndIt );
+					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end() );
+						REQUIRE( *pMatchEndIt == s2.begin()+5 );
 				}
 
-				SECTION("fromMatchPos-matching")
+				SECTION("fromJustAfterFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
-					REQUIRE( it==s.begin()+2 );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+3, pMatchEndIt );
+					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it+toFind.getLength() );
+						REQUIRE( *pMatchEndIt == s2.begin()+15 );
 				}
 
-				SECTION("fromMatchPos-notMatching")
+				SECTION("fromJustBeforeSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
-					REQUIRE( it==s.end() );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+11, pMatchEndIt );
+					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end()  );
+						REQUIRE( *pMatchEndIt == s2.begin()+15 );
 				}
 
-
-				SECTION("fromAfterMatchPos-matching")
+				SECTION("fromSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
-					REQUIRE( it==s.end() );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+12, pMatchEndIt );
+					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end() );
+						REQUIRE( *pMatchEndIt == s2.begin()+15 );
 				}
 
-				SECTION("fromAfterMatchPos-notMatching")
+				SECTION("fromJustAfterSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
-					REQUIRE( it==s.end() );
+					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+13, pMatchEndIt );
+					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end() );
-				}
-
-
-
-				SECTION("fromEnd-matching")
-				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
-					REQUIRE( it==s.end() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end() );
-				}
-
-				SECTION("fromEnd-notMatching")
-				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
-					REQUIRE( it==s.end() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == s.end() );
-				}
-
-
-
-				SECTION("empty-fromStart")
-				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin(), pMatchEndIt );
-					REQUIRE( it==s.begin() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it );
-				}
-
-
-				SECTION("empty-fromMiddle")
-				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin()+5, pMatchEndIt );
-					REQUIRE( it==s.begin()+5 );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it );
-				}
-
-				SECTION("empty-fromEnd")
-				{
-					StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.end(), pMatchEndIt );
-					REQUIRE( it==s.end() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it );
-				}
-
-
-				SECTION("notEmpty-inEmpty")
-				{
-					StringImpl<DATATYPE> empty;
-
-					StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.end(), empty.begin(), pMatchEndIt );
-					REQUIRE( it==empty.end() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == empty.end() );
-				}
-
-				SECTION("empty-inEmpty")
-				{
-					StringImpl<DATATYPE> empty;
-
-					StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.begin(), empty.begin(), pMatchEndIt );
-					REQUIRE( it==empty.begin() );
-
-					if(pMatchEndIt!=nullptr)
-						REQUIRE( *pMatchEndIt == it );
+						REQUIRE( *pMatchEndIt == s2.end() );
 				}
 			}
 		}
 	}
+}
 
+
+template<class DATATYPE>
+inline void testFind()
+{
+	SECTION("iterators")
+		testFindIterators<DATATYPE>();
+	
 
 	SECTION("stringFromIt")
-	{
-		SECTION("fromStart-matching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin());
-			REQUIRE( it==s.begin()+2 );
-		}
-
-		SECTION("fromStart-notMatching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin());
-			REQUIRE( it==s.end() );
-		}
-
-		SECTION("fromMatchPos-matching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+2 );
-			REQUIRE( it==s.begin()+2 );
-		}
-
-		SECTION("fromMatchPos-notMatching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
-			REQUIRE( it==s.end() );
-		}
-
-
-		SECTION("fromAfterMatchPos-matching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+3 );
-			REQUIRE( it==s.end() );
-		}
-
-		SECTION("fromAfterMatchPos-notMatching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
-			REQUIRE( it==s.end() );
-		}
-
-
-
-		SECTION("fromEnd-matching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.end());
-			REQUIRE( it==s.end() );
-		}
-
-		SECTION("fromEnd-notMatching")
-		{
-			StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.end());
-			REQUIRE( it==s.end() );
-		}
-
-
-
-		SECTION("empty-fromStart")
-		{
-			StringImpl<DATATYPE> empty;
-
-			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin() );
-			REQUIRE( it==s.begin() );
-		}
-
-
-		SECTION("empty-fromMiddle")
-		{
-			StringImpl<DATATYPE> empty;
-
-			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin()+5 );
-			REQUIRE( it==s.begin()+5 );
-		}
-
-		SECTION("empty-fromEnd")
-		{
-			StringImpl<DATATYPE> empty;
-
-			StringImpl<DATATYPE>::Iterator it = s.find(empty, s.end() );
-			REQUIRE( it==s.end() );
-		}
-
-
-		SECTION("notEmpty-inEmpty")
-		{
-			StringImpl<DATATYPE> empty;
-
-			StringImpl<DATATYPE>::Iterator it = empty.find(toFind, empty.begin() );
-			REQUIRE( it==empty.end() );
-		}
-
-		SECTION("empty-inEmpty")
-		{
-			StringImpl<DATATYPE> empty;
-			StringImpl<DATATYPE> empty2;
-
-			StringImpl<DATATYPE>::Iterator it = empty.find(empty2, empty.begin() );
-			REQUIRE( it==empty.begin() );
-		}
-	}
+		testFindStringFromIt<DATATYPE>();
 
 	SECTION("stringFromIndex")
 	{
