@@ -2963,6 +2963,191 @@ inline void testFindStringFromIndex()
 }
 
 
+template<class PType>
+int getCStringLength(PType s)
+{
+	int length=0;
+	while(s[length]!=0)
+		length++;
+	return length;
+}
+
+
+template<class STRINGTYPE, class ToFindStringType>
+inline void testFindStringWithLengthFromIndex()
+{
+	STRINGTYPE s(U"he\U00012345loworld");	
+	STRINGTYPE empty(U"");	
+
+	STRINGTYPE toFindObj(U"\U00012345lo");	
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
+	STRINGTYPE toFindEmptyObj(U"");	
+
+	ToFindStringType toFind = (ToFindStringType)toFindObj;
+	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
+	ToFindStringType toFindEmpty = (ToFindStringType)toFindEmptyObj;
+
+	size_t toFindLength = getCStringLength<ToFindStringType>(toFind);
+	size_t toFindNonMatchLength = getCStringLength<ToFindStringType>(toFindNonMatch);
+	size_t toFindEmptyLength = getCStringLength<ToFindStringType>(toFindEmpty);
+
+	toFindObj += U"xyz";
+	toFindNonMatchObj += U"xyz";
+	toFindEmptyObj += U"xyz";
+
+	toFind = (ToFindStringType)toFindObj;
+	toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
+	toFindEmpty = (ToFindStringType)toFindEmptyObj;	
+
+
+	SECTION("fromStart-matching")
+	{
+		size_t result = s.find(toFind, 0, toFindLength);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 0, toFindNonMatchLength);
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 2, toFindLength );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 2, toFindNonMatchLength );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromAfterMatchPos-matching")
+	{
+		size_t result = s.find(toFind, 3, toFindLength );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromAfterMatchPos-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, 3, toFindNonMatchLength );
+		REQUIRE( result == s.npos );
+	}
+
+
+
+	SECTION("fromEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length(), toFindLength );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length(), toFindNonMatchLength );
+		REQUIRE( result == s.npos );
+	}
+
+
+	SECTION("fromAfterEnd-matching")
+	{
+		size_t result = s.find(toFind, s.length()+1, toFindLength );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-notMatching")
+	{
+		size_t result = s.find(toFindNonMatch, s.length()+1, toFindNonMatchLength );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-empty")
+	{
+		size_t result = s.find(toFindEmpty, s.length()+1, toFindEmptyLength );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("empty-fromStart")
+	{
+		size_t result = s.find(toFindEmpty, 0, toFindEmptyLength );
+		REQUIRE( result==0 );
+	}
+
+	SECTION("empty-fromMiddle")
+	{
+		size_t result = s.find(toFindEmpty, 5, toFindEmptyLength );
+		REQUIRE( result==5 );
+	}
+
+	SECTION("empty-fromEnd")
+	{
+		size_t result = s.find(toFindEmpty, s.length(), toFindEmptyLength );
+		REQUIRE( result==s.length() );
+	}
+
+
+	SECTION("notEmpty-inEmpty")
+	{
+		size_t result = empty.find(toFind, 0, toFindLength );
+		REQUIRE( result==empty.npos );
+	}
+
+	SECTION("empty-inEmpty")
+	{
+		size_t result = empty.find(toFindEmpty, 0, toFindEmptyLength );
+		REQUIRE( result==0 );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		STRINGTYPE s2 = s;
+		s2 += s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.find(toFind, 0, toFindLength );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.find(toFind, 2, toFindLength );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.find(toFind, 3, toFindLength );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.find(toFind, 11, toFindLength );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.find(toFind, 12, toFindLength );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.find(toFind, 13, toFindLength );
+			REQUIRE( result==s2.npos );
+		}
+
+	}
+}
+
+
 
 template<class STRINGTYPE>
 inline void testFindCharFromIterator()
@@ -3618,6 +3803,19 @@ inline void testFind()
 
 		SECTION("const wchar_t*")
 			testFindStringFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+
+
+		SECTION("const char* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char* >();
+
+		SECTION("const char16_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char16_t* >();
+
+		SECTION("const char32_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char32_t* >();
+
+		SECTION("const wchar_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
 	}
 
 	SECTION("charFromIterator")
@@ -3627,16 +3825,15 @@ inline void testFind()
 		testFindCharFromIndex< StringImpl<DATATYPE> >();
 
 
-	SECTION("stringFromIndexInU32String")
+	SECTION("inStdU32String")
 	{
 		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
-		testFindStringFromIndex<std::u32string, std::u32string >();
-	}	
 
-	SECTION("charFromIndexInU32String")
-	{
-		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
-		testFindCharFromIndex< std::u32string >();
+		SECTION("stringFromIndex")			
+			testFindStringFromIndex<std::u32string, std::u32string >();
+
+		SECTION("charFromIndexInU32String")
+			testFindCharFromIndex< std::u32string >();
 	}
 
 }

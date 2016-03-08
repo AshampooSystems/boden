@@ -2687,6 +2687,10 @@ public:
 	
 	/** Searches for another string in this string.
 
+		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
+		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
+		toFindLength indicates the length of toFind in encoded bytes.
+
 		searchStartIndex is the start index in this string, where the search should begin (default is 0).
 		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
 		(which is the same as String::npos).
@@ -2696,14 +2700,18 @@ public:
 
 		If \c toFind is empty then searchStartIndex is returned.
 	*/
-	size_t find (const char* toFind, size_t searchStartIndex = 0) const
+	size_t find (const char* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return find(Utf8Codec(), toFind, getStringEndPtr(toFind), searchStartIndex);
+		return find(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
 	/** Searches for another string in this string.
 
+		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
+		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
+		toFindLength indicates the length of toFind in wchar_t elements.
+
 		searchStartIndex is the start index in this string, where the search should begin (default is 0).
 		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
 		(which is the same as String::npos).
@@ -2713,14 +2721,18 @@ public:
 
 		If \c toFind is empty then searchStartIndex is returned.
 	*/
-	size_t find (const wchar_t* toFind, size_t searchStartIndex = 0) const
+	size_t find (const wchar_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return find(WideCodec(), toFind, getStringEndPtr(toFind), searchStartIndex);
+		return find(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
 	/** Searches for another string in this string.
 
+		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
+		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
+		toFindLength indicates the length of toFind in char16_t elements.
+
 		searchStartIndex is the start index in this string, where the search should begin (default is 0).
 		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
 		(which is the same as String::npos).
@@ -2730,14 +2742,18 @@ public:
 
 		If \c toFind is empty then searchStartIndex is returned.
 	*/
-	size_t find (const char16_t* toFind, size_t searchStartIndex = 0) const
+	size_t find (const char16_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return find(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind), searchStartIndex);
+		return find(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
 	/** Searches for another string in this string.
 
+		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
+		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
+		toFindLength indicates the length of toFind in char32_t elements.
+
 		searchStartIndex is the start index in this string, where the search should begin (default is 0).
 		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
 		(which is the same as String::npos).
@@ -2747,9 +2763,9 @@ public:
 
 		If \c toFind is empty then searchStartIndex is returned.
 	*/
-	size_t find (const char32_t* toFind, size_t searchStartIndex = 0) const
+	size_t find (const char32_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return find(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind), searchStartIndex);
+		return find(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
