@@ -2540,10 +2540,18 @@ public:
 		Returns end() if \c toFind is not found.	
 
 		If \c toFind is empty then searchFromIt is returned.
+
+		If pMatchEndIt is not null and toFind is found, then *pMatchEndIt is set to the first character
+		following the end of the match. If the match ends at the end of the string the *pMatchEndIt is set to end().
+
+		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
 	*/
-	Iterator find(const StringImpl& toFind, const Iterator& searchFromIt)
+	Iterator find(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
 	{
-		return std::search( searchFromIt, _endIt, toFind._beginIt, toFind._endIt );
+		if(pMatchEndIt==nullptr)
+			return std::search( searchFromIt, _endIt, toFind._beginIt, toFind._endIt );
+		else
+			return find(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt );
 	}
 
 
@@ -2884,7 +2892,7 @@ public:
 	}
 
 
-
+	/*
 	/** Searches for the LAST occurrence of a string in this string.
 	
 		searchFromIt is the position of the last character in the string to be considered as the beginning of a match.
@@ -2899,8 +2907,8 @@ public:
 		following the found sequence. If the match ends at the end of the string then *pMatchEndIt is set to end().
 
 		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
-	*/
-	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* XXX find pMatchEndIt = nullptr)
+	* /
+	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
 	{
 		return rfind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
 	}
@@ -2917,7 +2925,7 @@ public:
 
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		If it is npos or bigger than the length of the string then the length of the string is returned.
-	*/
+	* /
 	size_t rfind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
 	{
 		size_t toFindLength = toFind.getLength();
@@ -2991,7 +2999,7 @@ public:
 		Returns String::noMatch (String::npos) if the string is not found.	
 
 		If \c the string to search for is empty then searchStartIndex is returned.
-	*/
+	* /
 	template<class ToFindCodec, class EncodedIt>
 	size_t find(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = 0) const
 	{
@@ -3022,7 +3030,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find(const std::string& toFind, size_t searchStartIndex = 0) const
 	{
 		return find(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
@@ -3039,7 +3047,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find(const std::wstring& toFind, size_t searchStartIndex = 0) const
 	{
 		return find(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
@@ -3056,7 +3064,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find(const std::u16string& toFind, size_t searchStartIndex = 0) const
 	{
 		return find(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
@@ -3073,7 +3081,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find(const std::u32string& toFind, size_t searchStartIndex = 0) const
 	{
 		return find(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
@@ -3094,7 +3102,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find (const char* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
 		return find(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
@@ -3115,7 +3123,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find (const wchar_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
 		return find(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
@@ -3136,7 +3144,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find (const char16_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
 		return find(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
@@ -3157,7 +3165,7 @@ public:
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
 		If \c toFind is empty then searchStartIndex is returned.
-	*/
+	* /
 	size_t find (const char32_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
 		return find(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
@@ -3170,7 +3178,7 @@ public:
 
 		Returns an Iterator pointing to the first occurrence of \c charToFind, if it is found.
 		Returns end() if \c charToFind is not found.
-	*/
+	* /
 	Iterator find(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
 	{
 		return std::find( searchStartPosIt, _endIt, charToFind );
@@ -3185,7 +3193,7 @@ public:
 
 		Returns the index of the first occurrence of \c charToFind if it is found.
 		Returns String::noMatch (String::npos) if \c charToFind is not found.	
-	*/
+	* /
 	size_t find(char32_t charToFind, size_t searchStartIndex = 0) const noexcept
 	{
 		if(searchStartIndex>getLength())
@@ -3200,6 +3208,8 @@ public:
 			return foundIt.getIndex();		
 	}
 
+
+	*/
 
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
