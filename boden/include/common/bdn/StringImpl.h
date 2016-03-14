@@ -3259,58 +3259,176 @@ public:
 
 
 	template<class Predicate>
-	Iterator findCharMatchingCondition(Predicate condition, const Iterator& searchStartPosIt )
+	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt )
 	{
-		return std::find_if<Iterator, decltype(condition)> (	searchStartPosIt,
-																_endIt,		
-																condition
-															);
+		for( auto it=searchStartPosIt; it!=_endIt; ++it)
+		{
+			if( condition(it) )
+				return it;
+		}
+
+		return _endIt;
 	}
 
 	template<class Predicate>
-	Iterator findCharMatchingCondition(Predicate condition )
+	Iterator findCondition(Predicate condition )
 	{
-		return findCharMatchingCondition<Predicate>( condition, begin() );
+		return findCondition<Predicate>( condition, begin() );
 	}
 
 
 	template<class Predicate>
-	Iterator reverseFindCharMatchingCondition(Predicate condition, const Iterator& searchStartPosIt )
+	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt )
 	{
-		return std::find_if<ReverseIterator, decltype(condition)>(	searchStartPosIt==_endIt ? rbegin() : searchStartPosIt,
-																	rend(),		
-																	condition
-																	);
+		if(_beginIt == _endIt)
+			return _endIt;
+
+		Iterator it( searchStartPosIt );
+		
+		if(it==_endIt)
+			--it;
+
+		while(true)
+		{
+			if( condition(it) )
+				return it;
+
+			if(it==_beginIt)
+				break;
+
+			--it;
+		}
+
+		return _endIt;
 	}
 
 	template<class Predicate>
-	Iterator reverseFindCharMatchingCondition(Predicate condition )
+	Iterator reverseFindCondition(Predicate condition )
 	{
-		return reverseFindCharMatchingCondition<Predicate>(condition, end() );
+		return reverseFindCondition<Predicate>(condition, end() );
 	}
 
 
 	template <class InputIterator>
-	Iterator findAnyOf(const InputIterator& toFindBeginIt, const InputIterator& toFindEndIt, const Iterator& searchStartPosIt )
+	Iterator findAnyOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
 	{
-		return findCondition(   [&toFindBeginIt, &toFindEndIt](char32_t chr)
+		return findCondition(   [&charsBeginIt, &charsEndIt](auto it)
 								{
-									return (std::find(toFindBeginIt, toFindEndIt, chr)!=toFindEndIt);
+									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
 								searchStartPosIt
 							);
 	}
 
+
+	template<class InputIterator>
+	size_t findAnyOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
+	{
+		if(searchStartIndex >= length())
+			return noMatch;
+
+		IteratorWithIndex searchBeginIt( _beginIt+searchStartIndex, searchStartIndex );
+		IteratorWithIndex searchEndIt( _endIt, length() );
+
+		IteratorWithIndex it = std::find_if( searchBeginIt,
+											 searchEndIt,
+											  [&charsBeginIt, &charsEndIt](char32_t chr)
+											  {
+												return std::find(charsBeginIt, charsEndIt, chr) != charsEndIt ;
+											  } );
+
+		if(it==searchEndIt)
+			return noMatch;
+		else
+			return it.getIndex();
+	}
+
+
+
+	size_t findAnyOf(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( chars._beginIt, chars._endIt, searchStartIndex);
+	}
+
+	
+
+	template<class InputCodec, class InputIterator>
+	size_t findAnyOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+						  InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+						  searchStartIndex );
+	}
+
+	size_t findAnyOf(const std::string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyOf(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+
+	size_t findAnyOf(const char* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyOf( Utf8Codec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyOf(const wchar_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyOf( WideCodec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyOf(const char16_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyOf(const char32_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+
+
+	/*
+	string (1)	
+size_t find_first_of (const string& str, size_t pos = 0) const noexcept;
+c-string (2)	
+size_t find_first_of (const char* s, size_t pos = 0) const;
+buffer (3)	
+size_t find_first_of (const char* s, size_t pos, size_t n) const;
+character (4)	
+size_t find_first_of (char c, size_t pos = 0) const noexcept;
+
+*/
+
+
+	/*
+
 	template <class InputIterator>
 	Iterator findAnyNotOf(const InputIterator& blackListBeginIt, const InputIterator& blackListEndIt, const Iterator& searchStartPosIt )
 	{
-		return findCondition(	[&blackListBeginIt, &blackListEndIt](char32_t chr)
+		return findCondition(	[&blackListBeginIt, &blackListEndIt](auto it)
 								{
-									return (std::find(blackListBeginIt, blackListEndIt, chr)==blackListEndIt);
+									return (std::find(blackListBeginIt, blackListEndIt, *it)==blackListEndIt);
 								},
 								searchStartPosIt );
 	}
 	
+	*/
 
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
