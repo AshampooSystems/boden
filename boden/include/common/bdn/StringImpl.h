@@ -2913,28 +2913,35 @@ public:
 	}
 
 
-	/*
-	/** Searches for another string in this string.
 
-		searchStartIndex is the index of the last character in the string to be considered as the beginning of a match.
+	/** Searches for the LAST occurrence of another string in this string.
+
+		The string to search for is specified as a pair of iterators. They must yield full Unicode
+		characters (char32_t).
+
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
 		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
 		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
-		If it is npos or bigger than the length of the string then the length of the string is returned.
-	* /
-	size_t rfind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
+		If the \c toFind sequence is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	template<class InputIterator>
+	size_t rfind(const InputIterator& toFindBeginIt, const InputIterator& toFindEndIt, size_t searchStartIndex = npos) const noexcept
 	{
-		size_t toFindLength = toFind.getLength();
 		size_t myLength = getLength();
 
 		if(searchStartIndex==npos || searchStartIndex>myLength)
 			searchStartIndex = myLength;
 
-		if(toFindLength==0)
+		if(toFindBeginIt==toFindEndIt)
 			return searchStartIndex;
+
+		size_t toFindLength = 0;
+		for(InputIterator it(toFindBeginIt); it!=toFindEndIt; ++it)
+			toFindLength++;
 
 		if(myLength<toFindLength)
 			return noMatch;
@@ -2946,12 +2953,12 @@ public:
 
 		while(true)
 		{
-			Iterator myIt( matchBeginIt );
-			Iterator toFindIt( toFind._beginIt );
+			Iterator		myIt( matchBeginIt.getInner() );
+			InputIterator	toFindIt( toFindBeginIt );
 
 			bool matches = true;
 
-			while(toFindIt!=toFindEndIt)
+			while(toFindIt != toFindEndIt )
 			{
 				// we already know that we have enough characters left in the string for a match.
 				// So no need to check myIt boundaries here.
@@ -2979,8 +2986,26 @@ public:
 		return noMatch;
 	}
 
+	
+	/** Searches for the LAST occurrence of another string in this string.
 
-	/** Searches for a sequence of encoded characters in this string.
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
+
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
+		Returns String::noMatch (String::npos) if \c toFind is not found.	
+
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
+	{
+		return rfind(toFind._beginIt, toFind._endIt, searchStartIndex);
+	}
+
+	
+
+	/** Searches for the LAST occurrence of a sequence of encoded characters in this string.
 
 		encodedToFindBeginIt and encodedToFindEndIt define the beginning and end of the encoded string data
 		to search for.
@@ -2989,226 +3014,248 @@ public:
 		string data. The encoding does not have the match the internal encoding of this string. Any encoding
 		can be used.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
+		Returns the index of the first character of the last occurrence of the sequence, if it is found.
+		Returns String::noMatch (String::npos) if it is not found.
 
-		Returns the character index of the first character of the first occurrence if it is found.
-		Returns String::noMatch (String::npos) if the string is not found.	
-
-		If \c the string to search for is empty then searchStartIndex is returned.
-	* /
+		If \c the toFind sequence is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
 	template<class ToFindCodec, class EncodedIt>
-	size_t find(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = 0) const
+	size_t rfind(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = npos) const
 	{
-		if(searchStartIndex>getLength())
-			return noMatch;
-
-		if(encodedToFindBeginIt==encodedToFindEndIt)
-			return searchStartIndex;
-
-		IteratorWithIndex foundIt = std::search( IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
-												 IteratorWithIndex( _endIt, getLength() ),
-												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
-												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt) );
-		if(foundIt.getInner()==_endIt)
-			return noMatch;
-		else
-			return foundIt.getIndex();
+		return rfind( ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+					  ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt),
+					  searchStartIndex );
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find(const std::string& toFind, size_t searchStartIndex = 0) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind(const std::string& toFind, size_t searchStartIndex = npos) const
 	{
-		return find(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
+		return rfind(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find(const std::wstring& toFind, size_t searchStartIndex = 0) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind(const std::wstring& toFind, size_t searchStartIndex = npos) const
 	{
-		return find(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
+		return rfind(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find(const std::u16string& toFind, size_t searchStartIndex = 0) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind(const std::u16string& toFind, size_t searchStartIndex = npos) const
 	{
-		return find(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return rfind(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find(const std::u32string& toFind, size_t searchStartIndex = 0) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind(const std::u32string& toFind, size_t searchStartIndex = npos) const
 	{
-		return find(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return rfind(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 	
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
+
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
 		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
 		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
 		toFindLength indicates the length of toFind in encoded bytes.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
-
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find (const char* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind (const char* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return find(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return rfind(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
+
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
 		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
 		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
-		toFindLength indicates the length of toFind in wchar_t elements.
+		toFindLength indicates the length of toFind in encoded wchar_t elements.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
 
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find (const wchar_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind (const wchar_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return find(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return rfind(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
+
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
 		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
 		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
-		toFindLength indicates the length of toFind in char16_t elements.
+		toFindLength indicates the length of toFind in encoded char16_t.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
-
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find (const char16_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
+	*/
+	size_t rfind (const char16_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return find(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return rfind(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
-	/** Searches for another string in this string.
+	/** Searches for the LAST occurrence of another string in this string.
+
+		searchStartIndex is the index of the last character in the string to be considered as the possible beginning of a match.
+		If searchStartIndex is npos or bigger or equal to the length of the string then the entire string is searched.
 
 		If toFindLength is String::toEnd or String::npos then toFind must be a zero-terminated string
 		and the whole string is searched for. If toFindLength is not String::toEnd / String::npos then
 		toFindLength indicates the length of toFind in char32_t elements.
 
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
-
-		Returns the index of the first character of the first occurrence of \c toFind if it is found.
+		Returns the index of the first character of the last occurrence of \c toFind if it is found.
 		Returns String::noMatch (String::npos) if \c toFind is not found.	
 
-		If \c toFind is empty then searchStartIndex is returned.
-	* /
-	size_t find (const char32_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
-	{
-		return find(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
-	}
-
-
-
-
-	/** Searches for the specified character in this string, starting at the position indicated by the \c searchStartPosIt.
-
-		Returns an Iterator pointing to the first occurrence of \c charToFind, if it is found.
-		Returns end() if \c charToFind is not found.
-	* /
-	Iterator find(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
-	{
-		return std::find( searchStartPosIt, _endIt, charToFind );
-	}
-
-
-	/** Searches for the specified character in this string.
-
-		searchStartIndex is the start index in this string, where the search should begin (default is 0).
-		If searchStartIndex is bigger than the length of the string then the return value is always String::noMatch
-		(which is the same as String::npos).
-
-		Returns the index of the first occurrence of \c charToFind if it is found.
-		Returns String::noMatch (String::npos) if \c charToFind is not found.	
-	* /
-	size_t find(char32_t charToFind, size_t searchStartIndex = 0) const noexcept
-	{
-		if(searchStartIndex>getLength())
-			return noMatch;
-
-		IteratorWithIndex foundIt = std::find(	IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
-												IteratorWithIndex( _endIt, getLength() ),
-												charToFind );
-		if(foundIt.getInner()==_endIt)
-			return noMatch;
-		else
-			return foundIt.getIndex();		
-	}
-
-
+		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
+		in which case the length of the string is returned.
 	*/
+	size_t rfind (const char32_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	{
+		return rfind(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+	}
+
+
+
+
+	/** Searches for the LAST occurrence of the specified character in this string.
+
+		searchStartPosIt indicates the last position to consider for a possible match.
+		If searchStartPosIt is end() then the whole string is searched.
+
+		Returns an Iterator pointing to the last occurrence of \c charToFind, if it is found.
+		Returns end() if \c charToFind is not found.
+	*/
+	Iterator rfind(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
+	{
+		Iterator myIt( searchStartPosIt );		
+
+		if(myIt==_endIt)
+		{
+			if(myIt==_beginIt)
+				return _endIt;
+			
+			--myIt;
+		}
+
+		while(true)
+		{
+			if(*myIt == charToFind)
+				return myIt;
+
+			if(myIt==_beginIt)
+				break;
+
+			--myIt;
+		}
+
+		return _endIt;
+	}
+
+
+	/** Searches for the last occurrence of a character in this string.
+
+		searchStartIndex is the index of the last character in this string that is considered as a possible match.
+		If searchStartIndex is String::npos or bigger or equal to the length of the string then the entire string is searched.
+		
+		Returns the index of the last occurrence of \c charToFind if it is found.
+		Returns String::noMatch (String::npos) if \c charToFind is not found.	
+	*/
+	size_t rfind(char32_t charToFind, size_t searchStartIndex = npos) const noexcept
+	{
+		if(_beginIt==_endIt)
+			return noMatch;
+
+		size_t myLength = length();
+
+		size_t index = (searchStartIndex==npos || searchStartIndex>myLength-1) ? (myLength-1) : searchStartIndex;			
+
+		Iterator myIt( (index==myLength-1) ? (_endIt-1) : (_beginIt+index) );
+
+		while(true)
+		{
+			if(*myIt == charToFind)
+				return index;
+
+			if(myIt==_beginIt)
+				break;
+
+			--myIt;
+			--index;
+		}
+
+		return noMatch;
+	}
+
 
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
