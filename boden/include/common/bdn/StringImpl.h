@@ -2892,7 +2892,6 @@ public:
 	}
 
 
-	/*
 	/** Searches for the LAST occurrence of a string in this string.
 	
 		searchFromIt is the position of the last character in the string to be considered as the beginning of a match.
@@ -2907,14 +2906,14 @@ public:
 		following the found sequence. If the match ends at the end of the string then *pMatchEndIt is set to end().
 
 		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
-	* /
+	*/
 	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
 	{
 		return rfind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
 	}
 
 
-	 
+	/*
 	/** Searches for another string in this string.
 
 		searchStartIndex is the index of the last character in the string to be considered as the beginning of a match.
