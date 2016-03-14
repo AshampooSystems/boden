@@ -3257,6 +3257,61 @@ public:
 	}
 
 
+
+	template<class Predicate>
+	Iterator findCharMatchingCondition(Predicate condition, const Iterator& searchStartPosIt )
+	{
+		return std::find_if<Iterator, decltype(condition)> (	searchStartPosIt,
+																_endIt,		
+																condition
+															);
+	}
+
+	template<class Predicate>
+	Iterator findCharMatchingCondition(Predicate condition )
+	{
+		return findCharMatchingCondition<Predicate>( condition, begin() );
+	}
+
+
+	template<class Predicate>
+	Iterator reverseFindCharMatchingCondition(Predicate condition, const Iterator& searchStartPosIt )
+	{
+		return std::find_if<ReverseIterator, decltype(condition)>(	searchStartPosIt==_endIt ? rbegin() : searchStartPosIt,
+																	rend(),		
+																	condition
+																	);
+	}
+
+	template<class Predicate>
+	Iterator reverseFindCharMatchingCondition(Predicate condition )
+	{
+		return reverseFindCharMatchingCondition<Predicate>(condition, end() );
+	}
+
+
+	template <class InputIterator>
+	Iterator findAnyOf(const InputIterator& toFindBeginIt, const InputIterator& toFindEndIt, const Iterator& searchStartPosIt )
+	{
+		return findCondition(   [&toFindBeginIt, &toFindEndIt](char32_t chr)
+								{
+									return (std::find(toFindBeginIt, toFindEndIt, chr)!=toFindEndIt);
+								},
+								searchStartPosIt
+							);
+	}
+
+	template <class InputIterator>
+	Iterator findAnyNotOf(const InputIterator& blackListBeginIt, const InputIterator& blackListEndIt, const Iterator& searchStartPosIt )
+	{
+		return findCondition(	[&blackListBeginIt, &blackListEndIt](char32_t chr)
+								{
+									return (std::find(blackListBeginIt, blackListEndIt, chr)==blackListEndIt);
+								},
+								searchStartPosIt );
+	}
+	
+
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
 	{

@@ -4928,6 +4928,350 @@ inline void testRFind()
 }
 
 
+template<class DATATYPE, class Predicate>
+inline void testFindCharMatchingConditionWithPred(Predicate pred, bool shouldMatch)
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	SECTION("fromStart")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.findCharMatchingCondition(pred, s.begin());
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromStart-defaultArg")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.findCharMatchingCondition(pred);
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromMatch")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.findCharMatchingCondition(pred, s.begin()+2);
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromAfterMatch")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.findCharMatchingCondition(pred, s.begin()+3);
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromEnd")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.findCharMatchingCondition(pred, s.end() );
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("inEmpty")
+	{	
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = empty.findCharMatchingCondition(pred, empty.begin() );
+		REQUIRE( it==empty.end() );
+	}
+}
+
+template<class DATATYPE>
+inline void testFindCharMatchingCondition()
+{	
+	SECTION("match")
+		testFindCharMatchingConditionWithPred<DATATYPE>( [](char32_t chr){ return chr==U'\U00012345'; }, true );
+
+	SECTION("noMatch")
+		testFindCharMatchingConditionWithPred<DATATYPE>( [](char32_t chr){ return false; }, false );
+}
+
+
+
+
+template<class DATATYPE, class Predicate>
+inline void testReverseFindCharMatchingConditionWithPred(Predicate pred, bool shouldMatch)
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	SECTION("fromEnd")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindCharMatchingCondition(pred, s.end());
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromEnd-defaultArg")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindCharMatchingCondition(pred);
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromMatch")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindCharMatchingCondition(pred, s.begin()+2);
+
+		if(shouldMatch)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromBeforeMatch")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindCharMatchingCondition(pred, s.begin()+1);
+		REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromEnd")
+	{	
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindCharMatchingCondition(pred, s.end() );
+		REQUIRE( it==s.begin()+2);
+	}
+
+	SECTION("inEmpty")
+	{	
+		StringImpl<DATATYPE> empty;
+
+		StringImpl<DATATYPE>::Iterator it = empty.reverseFindCharMatchingCondition(pred, empty.begin() );
+		REQUIRE( it==empty.end() );
+	}
+}
+
+template<class DATATYPE>
+inline void testReverseFindCharMatchingCondition()
+{	
+	SECTION("match")
+		testReverseFindCharMatchingConditionWithPred<DATATYPE>( [](char32_t chr){ return chr==U'\U00012345'; }, true );
+
+	SECTION("noMatch")
+		testReverseFindCharMatchingConditionWithPred<DATATYPE>( [](char32_t chr){ return false; }, false );
+}
+
+template<class DATATYPE>
+inline void testFindAnyOfIterators()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	struct MatchData
+	{
+		const char*			desc;
+		const char32_t*		matchString;
+		bool				matchPossible;
+	};
+
+	std::list<MatchData> matchList = {	{"firstCharMatches",	U"\U00012345xy", true },
+										{"second char matches", U"x\U00012345y", true },
+										{"last char matches", U"xy\U00012345", true },
+										{"single char matches", U"\U00012345", true },
+										{"no char matches", U"xyz", false},
+										{"empty", U"", false},
+										{"single char no match", U"x", false} };
+
+	for( auto matchIt = matchList.begin(); matchIt!=matchList.end(); matchIt++)
+	{
+		const MatchData& matchData = *matchIt;
+
+		SECTION( matchData.desc )
+		{
+			std::u32string toFind( matchData.matchString );
+			bool		   matchPossible = matchData.matchPossible;			
+
+			SECTION("fromStart")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin() );
+				
+				if(matchPossible)
+					REQUIRE( it==s.begin()+2 );
+				else
+					REQUIRE( it==s.end() );				
+			}
+
+			SECTION("fromMatch")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin()+2 );
+
+				if(matchPossible)
+					REQUIRE( it==s.begin()+2 );
+				else
+					REQUIRE( it==s.end() );
+			}
+			
+			SECTION("fromAfterMatch")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin()+3 );
+				
+				REQUIRE( it==s.end() );
+			}
+
+			SECTION("fromEnd")
+			{
+				StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.end() );
+				
+				REQUIRE( it==s.end() );
+			}
+
+
+			SECTION("withMultipleMatches")
+			{
+				StringImpl<DATATYPE> s2 = s;
+				s2+=s;
+
+				SECTION("fromStart")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin() );
+
+					if(matchPossible)
+						REQUIRE( it==s2.begin()+2 );
+					else
+						REQUIRE( it==s2.end() );
+				}
+
+				SECTION("fromFirstMatch")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+
+					if(matchPossible)
+						REQUIRE( it==s2.begin()+2 );
+					else
+						REQUIRE( it==s2.end() );
+				}
+
+				SECTION("fromJustAfterFirstMatch")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+					
+					if(matchPossible)
+						REQUIRE( it==s2.begin()+12 );
+					else
+						REQUIRE( it==s2.end() );
+				}
+
+				SECTION("fromJustBeforeSecondMatch")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+					
+					if(matchPossible)
+						REQUIRE( it==s2.begin()+12 );
+					else
+						REQUIRE( it==s2.end() );
+				}
+
+				SECTION("fromSecondMatch")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+					
+					if(matchPossible)
+						REQUIRE( it==s2.begin()+12 );
+					else
+						REQUIRE( it==s2.end() );
+				}
+
+				SECTION("fromJustAfterSecondMatch")
+				{
+					StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+
+					REQUIRE( it==s2.end() );
+				}
+			}
+		}
+	}	
+}
+
+
+template<class DATATYPE>
+inline void testFindAnyOf()
+{
+	SECTION("iterators")
+		testFindAnyOfIterators<DATATYPE>();
+
+	/*
+
+	SECTION("stringFromIt")
+		testFindStringFromIt<DATATYPE>();
+
+	SECTION("stringFromIndex")
+	{
+		SECTION("String")
+			testFindStringFromIndex<StringImpl<DATATYPE>, StringImpl<DATATYPE> >();
+
+
+		SECTION("std::string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::string >();
+
+		SECTION("std::u16string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::u16string >();
+
+		SECTION("std::u32string")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::u32string >();
+
+		SECTION("std::wstring")
+			testFindStringFromIndex<StringImpl<DATATYPE>, std::wstring >();
+
+
+		SECTION("const char*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char* >();
+
+		SECTION("const char16_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char16_t* >();
+
+		SECTION("const char32_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const char32_t* >();
+
+		SECTION("const wchar_t*")
+			testFindStringFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+
+
+		SECTION("const char* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char* >();
+
+		SECTION("const char16_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char16_t* >();
+
+		SECTION("const char32_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char32_t* >();
+
+		SECTION("const wchar_t* with length")
+			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+	}
+
+	SECTION("charFromIterator")
+		testFindCharFromIterator< StringImpl<DATATYPE> >();
+
+	SECTION("charFromIndex")
+		testFindCharFromIndex< StringImpl<DATATYPE> >();
+
+
+	SECTION("inStdU32String")
+	{
+		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
+
+		SECTION("stringFromIndex")			
+			testFindStringFromIndex<std::u32string, std::u32string >();
+
+		SECTION("charFromIndexInU32String")
+			testFindCharFromIndex< std::u32string >();
+	}*/
+
+}
+
+
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -5081,6 +5425,15 @@ inline void testStringImpl()
 
 	SECTION("rfind")
 		testRFind<DATATYPE>();
+	
+	SECTION("findMatchingCondition")
+		testFindCharMatchingCondition<DATATYPE>();
+
+	SECTION("reverseFindMatchingCondition")
+		testReverseFindMatchingCondition<DATATYPE>();
+	
+	SECTION("findAnyOf")
+		testFindAnyOf<DATATYPE>();
 }
 
 
