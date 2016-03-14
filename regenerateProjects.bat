@@ -1,1 +1,1 @@
-python generateProjects.py - -
+py generateProjects.py - -

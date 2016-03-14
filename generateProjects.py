@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python3
 
 import sys;
 import subprocess;
@@ -8,78 +8,116 @@ import json;
 
 
 def getStatePath():
-	return os.path.join( os.path.dirname(__file__), ".generateProjects.state");
+    return os.path.join( os.path.dirname(__file__), ".generateProjects.state");
 
 
 def loadState():
-	state = {};
+    state = {};
 
-	p = getStatePath();
-	if os.path.exists(p):
-		with open(p, "rb") as f:
-			state = json.load( f );
+    p = getStatePath();
+    if os.path.exists(p):
+        with open(p, "rb") as f:
+            state = json.loads( f.read().decode("utf-8") );
 
-	return state;
+    return state;
 
 
 def storeState(state):
-	p = getStatePath();
-	with open(p, "wb") as f:
-		json.dump( state, f );
+    p = getStatePath();
+    with open(p, "wb") as f:
+        f.write( json.dumps( state ).encode("utf-8") );
 
 
 
 def main():
 
-	print "";
+    print("");
 
-	try:
-		cmakeHelp = subprocess.check_output("cmake --help", shell=True);
+    try:
+        cmakeHelp = subprocess.check_output("cmake --help", shell=True, universal_newlines=True);
 
-	except subprocess.CalledProcessError, e:
-		print "There was a problem calling cmake. Cmake is required and must be installed to run this."
-		return 3;
+    except subprocess.CalledProcessError as e:
+        print("There was a problem calling cmake. Cmake is required and must be installed to run this.")
+        return 3;
 
-	cmakeHelp = cmakeHelp.strip();
+    cmakeHelp = cmakeHelp.strip();
 
 
     # the generator list is at the end of the output. And the entries are all indented.
-	generatorHelpList = [];
-	for line in reversed( cmakeHelp.splitlines() ):
-		if not line or not line.startswith(" "):
-			break;
+    generatorHelpList = [];
+    for line in reversed( cmakeHelp.splitlines() ):
+        if not line or not line.startswith(" "):
+            break;
 
-		generatorHelpList.append(line);
+        generatorHelpList.append(line);
 
-	generatorHelpList.reverse();
+    generatorHelpList.reverse();
 
-	targetInfoList = [ 	("windows", "", [""]),
-						("osx", 	"", [""]),
-						("ios", 	"", ["", "sim64", "sim32"]),
-						("android", "", [""]),
-						("web", 	"", [""]),
-					];
+    generatorNames = [];    
+    for line in generatorHelpList:
+        if line.startswith("  ") and len(line)>2 and line[2]!=" ":
+            line = line.strip();
 
-	targetHelp = "";
-	targetMap = {};
-	for target, info, subTargetList in targetInfoList:
-		targetHelp+="  "+target;
-		if info:
-			targetHelp+="  [%s]" % info;
-		targetHelp+="\n";
+            name, sep, rest = line.partition(" = ");
+            if sep:
+                name = name.strip();
+                if name:
+                    generatorNames.append(name);
 
-		targetMap[target] = subTargetList;
+    generatorAliasMap = {};
+    vsPrefix = "Visual Studio ";
+    for name in generatorNames:        
+        if name.startswith(vsPrefix):
+            words = name[len(vsPrefix):].strip().split();
+            if len(words)>=2:
+                try:
+                    internalVersion = int(words[0]);
+                    yearVersion = int(words[1]);
+
+                    generatorAliasMap[ "vs"+words[1] ] = vsPrefix+words[0]+" "+words[1];
+                except Exception as e:
+                    # ignore exceptions. The generator string does not have the expected format.
+                    pass;
+
+    generatorAliasMap["make"] = "Unix Makefiles"
+    generatorAliasMap["nmake"] = "NMake Makefiles";
+    generatorAliasMap["msysmake"] = "MSYS Makefiles";
+    generatorAliasMap["mingwmake"] = "MinGW Makefiles";
+
+    generatorAliasHelp = "Aliases for toolset names:\n";
+    for aliasName in sorted( generatorAliasMap.keys() ):
+        generatorAliasHelp += "\n%s = %s" % (aliasName, generatorAliasMap[aliasName]);
 
 
-	if len(sys.argv)!=3:
+    targetInfoList = [     ("windows", "", [""]),
+                        ("osx",     "", [""]),
+                        ("ios",     "", ["", "sim64", "sim32"]),
+                        ("android", "", [""]),
+                        ("web",     "", [""]),
+                    ];
 
-		print """Usage: generateProjects.py TARGETNAME TOOLSET
+    targetHelp = "";
+    targetMap = {};
+    for target, info, subTargetList in targetInfoList:
+        targetHelp+="  "+target;
+        if info:
+            targetHelp+="  [%s]" % info;
+        targetHelp+="\n";
+
+        targetMap[target] = subTargetList;
+
+
+    if len(sys.argv)!=3:
+
+        print("""Usage: generateProjects.py TARGETNAME TOOLSET
 
 TARGETNAME can be one of the following:
 
 %s
 TOOLSET is the build toolset / IDE you want to use. This is passed to CMAKE
 as the generator name and can be one of the following values on your system:
+
+%s
 
 %s
 
@@ -94,117 +132,118 @@ as the generator name and can be one of the following values on your system:
 You can also specify "-" for TARGETNAME and/or TOOLSET to use the value from
 the previous execution of generateProjects.py.
 
-  """ % ( targetHelp, "\n".join(generatorHelpList) );
-		return 1;
+  """ % ( targetHelp, "\n".join(generatorHelpList), generatorAliasHelp ));
+        return 1;
 
-	targetName = sys.argv[1].lower();
-	toolsetName = sys.argv[2];
+    targetName = sys.argv[1].lower();
+    toolsetName = sys.argv[2];
 
-	state = loadState();
+    state = loadState();
 
-	if targetName=="-":
-		if "lastTarget" not in state:
-			print "No previous target stored. Specify the target explictly."
-			return 4;			
-		targetName = state["lastTarget"];
+    if targetName=="-":
+        if "lastTarget" not in state:
+            print("No previous target stored. Specify the target explictly.")
+            return 4;            
+        targetName = state["lastTarget"];
 
-	if toolsetName=="-":
-		if "lastToolset" not in state:
-			print "No previous target stored. Specify the target explictly."
-			return 4;			
-		toolsetName = state["lastToolset"];
-
-
-	if targetName not in targetMap:
-		print "Invalid target name."
-		return 1;
+    if toolsetName=="-":
+        if "lastToolset" not in state:
+            print("No previous target stored. Specify the target explictly.")
+            return 4;            
+        toolsetName = state["lastToolset"];
 
 
-	state["lastTarget"] = targetName;
-	state["lastToolset"] = toolsetName;
-	storeState(state);
+    if targetName not in targetMap:
+        print("Invalid target name.")
+        return 1;
 
-	myPath = os.path.abspath(__file__);
-	mainDir = os.path.dirname(myPath);
-	buildDir = os.path.join(mainDir, "build");
-	cmakeDir = os.path.join(mainDir, "cmake");
+    state["lastTarget"] = targetName;
+    state["lastToolset"] = toolsetName;
+    storeState(state);
 
-	if not os.path.isdir(buildDir):
-		os.makedirs(buildDir);
+    fullToolsetName = generatorAliasMap.get(toolsetName, toolsetName);
 
-	fixedConfigList = [];
+    myPath = os.path.abspath(__file__);
+    mainDir = os.path.dirname(myPath);
+    buildDir = os.path.join(mainDir, "build");
+    cmakeDir = os.path.join(mainDir, "cmake");
 
-	if " - " not in toolsetName and ("makefile" in toolsetName.lower() or "ninja" in toolsetName.lower()):
-		# per-configuration generator. I.e. the build type (debug/release) is fixed.
-		fixedConfigList = ["Debug", "Release"];
-	
-	else:
-		# multi-configuration generator. No need to specify build type at config time.
-		fixedConfigList = [""];
+    if not os.path.isdir(buildDir):
+        os.makedirs(buildDir);
+
+    fixedConfigList = [];
+
+    if " - " not in fullToolsetName and ("makefile" in fullToolsetName.lower() or "ninja" in fullToolsetName.lower()):
+        # per-configuration generator. I.e. the build type (debug/release) is fixed.
+        fixedConfigList = ["Debug", "Release"];
+    
+    else:
+        # multi-configuration generator. No need to specify build type at config time.
+        fixedConfigList = [""];
 
 
-	subTargetList = targetMap[targetName];
+    subTargetList = targetMap[targetName];
 
-	for fixedConfig in fixedConfigList:
+    for fixedConfig in fixedConfigList:
 
-		for subTarget in subTargetList:
+        for subTarget in subTargetList:
 
-			toolsetBuildDir = os.path.join(buildDir, targetName+"-"+toolsetName.lower().replace(" ", ""));
-			if subTarget:
-				toolsetBuildDir+="-"+subTarget;
-			if fixedConfig:
-				toolsetBuildDir+="-"+fixedConfig.lower();			
+            toolsetBuildDir = os.path.join(buildDir, targetName+"-"+toolsetName.lower().replace(" ", ""));
+            if subTarget:
+                toolsetBuildDir+="-"+subTarget;
+            if fixedConfig:
+                toolsetBuildDir+="-"+fixedConfig.lower();            
 
-			if not os.path.isdir(toolsetBuildDir):
-				os.makedirs(toolsetBuildDir);
+            if not os.path.isdir(toolsetBuildDir):
+                os.makedirs(toolsetBuildDir);
 
-			args = ["-G", toolsetName, cmakeDir];
+            args = ["-G", fullToolsetName, cmakeDir];
 
-			if targetName=="ios":
+            if targetName=="ios":
 
-				if subTarget=="":
-					platform = "OS";
+                if subTarget=="":
+                    platform = "OS";
 
-				elif subTarget=="sim32":
-					platform = "SIMULATOR";
+                elif subTarget=="sim32":
+                    platform = "SIMULATOR";
 
-				elif subTarget=="sim64":
-					platform = "SIMULATOR64";
+                elif subTarget=="sim64":
+                    platform = "SIMULATOR64";
 
-				else:
-					assert("bad subtarget");
+                else:
+                    assert("bad subtarget");
 
-				args.extend( [	"-DIOS_PLATFORM="+platform,
-								"-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "iOS.cmake")								
-								] );
+                args.extend( [    "-DIOS_PLATFORM="+platform,
+                                "-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "iOS.cmake")                                
+                                ] );
 
-			elif targetName=="web":
-				args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "Emscripten.cmake")] );
+            elif targetName=="web":
+                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "Emscripten.cmake")] );
 
-			elif targetName=="android":
-				args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "android.cmake")] );
+            elif targetName=="android":
+                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "android.cmake")] );
 
-			if fixedConfig:
-				args.extend( ["-DCMAKE_BUILD_TYPE="+fixedConfig ] );
+            if fixedConfig:
+                args.extend( ["-DCMAKE_BUILD_TYPE="+fixedConfig ] );
 
-			# we do not validate the toolset name
-			commandLine = "cmake";
-			for a in args:
-				commandLine += ' "%s"' % (a);
+            # we do not validate the toolset name
+            commandLine = "cmake";
+            for a in args:
+                commandLine += ' "%s"' % (a);
 
-			print "## Calling CMake:\n  "+commandLine+"\n";
+            print("## Calling CMake:\n  "+commandLine+"\n");
 
-			exitCode = subprocess.call(commandLine, cwd=toolsetBuildDir, shell=True);
-			if exitCode!=0:
-				print "\ncmake failed with exit code %d\n" % (exitCode);
-				return 2;
+            exitCode = subprocess.call(commandLine, cwd=toolsetBuildDir, shell=True);
+            if exitCode!=0:
+                print("\ncmake failed with exit code %d\n" % (exitCode));
+                return 2;
 
-			print "";
+            print("");
 
 
 exitCode = main();
 if exitCode!=0:
-	sys.exit(exitCode);
+    sys.exit(exitCode);
 
 
 
