@@ -7651,6 +7651,9 @@ inline void testFindLastNotOfChar()
 	REQUIRE( result==s.getLength()-3 );
 
 	result = s.find_last_not_of(U'l', 0);
+	REQUIRE( result==0 );
+
+	result = s.find_last_not_of(U'h', 0);
 	REQUIRE( result==s.noMatch );
 
 	result = empty.find_last_not_of(U'e');
