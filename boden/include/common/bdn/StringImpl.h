@@ -3404,6 +3404,103 @@ public:
 
 
 
+	
+	template <class InputIterator>
+	Iterator findAnyNotOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	{
+		return findCondition(   [&charsBeginIt, &charsEndIt](auto it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
+								},
+								searchStartPosIt
+							);
+	}
+
+
+	template<class InputIterator>
+	size_t findAnyNotOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
+	{
+		if(searchStartIndex >= length())
+			return noMatch;
+
+		IteratorWithIndex searchBeginIt( _beginIt+searchStartIndex, searchStartIndex );
+		IteratorWithIndex searchEndIt( _endIt, length() );
+
+		IteratorWithIndex it = std::find_if( searchBeginIt,
+											 searchEndIt,
+											  [&charsBeginIt, &charsEndIt](char32_t chr)
+											  {
+												return std::find(charsBeginIt, charsEndIt, chr) == charsEndIt ;
+											  } );
+
+		if(it==searchEndIt)
+			return noMatch;
+		else
+			return it.getIndex();
+	}
+
+
+
+	size_t findAnyNotOf(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( chars._beginIt, chars._endIt, searchStartIndex);
+	}
+
+	
+
+	template<class InputCodec, class InputIterator>
+	size_t findAnyNotOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+						  InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+						  searchStartIndex );
+	}
+
+	size_t findAnyNotOf(const std::string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findAnyNotOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+
+	size_t findAnyNotOf(const char* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyNotOf( Utf8Codec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const wchar_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyNotOf( WideCodec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const char16_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyNotOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t findAnyNotOf(const char32_t* chars, size_t searchStartIndex=0, size_t charLength=toEnd) const noexcept
+	{
+		return findAnyNotOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+
+
+
+
 
 	template <class InputIterator>
 	Iterator reverseFindAnyOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )

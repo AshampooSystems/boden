@@ -5726,6 +5726,545 @@ inline void testFindAnyOf()
 
 
 
+
+
+template<class DATATYPE>
+inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
+{	
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	SECTION("fromStart")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin() );
+				
+		if(matchAllChars)
+			REQUIRE( it==s.begin() );
+		
+		else if(matchThirdChar)
+			REQUIRE( it==s.begin()+2 );
+
+		else
+			REQUIRE( it==s.end() );				
+	}
+
+	SECTION("fromMatch")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin()+2 );
+
+		if(matchThirdChar || matchAllChars)
+			REQUIRE( it==s.begin()+2 );
+
+		else
+			REQUIRE( it==s.end() );	
+	}
+			
+	SECTION("fromAfterMatch")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin()+3 );
+
+		if(matchAllChars)
+			REQUIRE( it==s.begin()+3 );
+		
+		else
+			REQUIRE( it==s.end() );			
+	}
+
+	SECTION("fromEnd")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.end() );
+				
+		REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringImpl<DATATYPE> s2 = s;
+		s2+=s;
+
+		SECTION("fromStart")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin() );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.begin() );
+		
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+2 );
+
+			else
+				REQUIRE( it==s2.end() );	
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( it==s2.begin()+2 );
+
+			else
+				REQUIRE( it==s2.end() );	
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+					
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+3 );
+		
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+12 );
+
+			else
+				REQUIRE( it==s2.end() );	
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+					
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+11 );
+		
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+12 );
+
+			else
+				REQUIRE( it==s2.end() );	
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+					
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( it==s2.begin()+12 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+13 );
+		
+			else
+				REQUIRE( it==s2.end() );	
+		}
+	}
+}
+
+template<class StringType, class ToFindType>
+inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
+{
+	StringType s(U"he\U00012345loworld");
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	SECTION("fromStart")
+	{
+		size_t result = s.findAnyNotOf(toFind, 0 );
+
+		if(matchAllChars)
+			REQUIRE( result==0 );
+
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );					
+	}
+
+	SECTION("fromStart-defaultArg")
+	{
+		size_t result = s.findAnyNotOf(toFind );
+
+		if(matchAllChars)
+			REQUIRE( result==0 );
+
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );	
+	}
+
+	SECTION("fromMatch")
+	{
+		size_t result = s.findAnyNotOf(toFind, 2 );
+
+		if(matchThirdChar || matchAllChars)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );			
+	}
+			
+	SECTION("fromAfterMatch")
+	{
+		size_t result = s.findAnyNotOf(toFind, 3 );
+
+		if(matchAllChars)
+			REQUIRE( result==3 );
+
+		else
+			REQUIRE( result==StringType::noMatch );	
+	}
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.getLength() );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromAfterEnd")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.getLength()+1 );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromNpos")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.npos );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 0 );
+
+			if(matchAllChars)
+				REQUIRE( result==0 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromStart-defaultArg")
+		{
+			size_t result = s2.findAnyNotOf(toFind );
+
+			if(matchAllChars)
+				REQUIRE( result==0 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 2 );
+
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 3 );
+
+			if(matchAllChars)
+				REQUIRE( result==3 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 11 );
+
+			if(matchAllChars)
+				REQUIRE( result==11 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 12 );
+
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 13 );
+
+			if(matchAllChars)
+				REQUIRE( result==13 );
+			
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+	}
+}
+
+
+template<class StringType, class ToFindType>
+inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
+{
+	StringType s(U"he\U00012345loworld");
+
+	StringType toFindObj = toFindObjArg;
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	size_t toFindLength = getCStringLength<ToFindType>(toFind);
+
+	toFindObj += U"abc";
+
+	toFind = (ToFindType)toFindObj;
+
+
+	SECTION("fromStart")
+	{
+		size_t result = s.findAnyNotOf(toFind, 0, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==0 );
+
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+	SECTION("fromMatch")
+	{
+		size_t result = s.findAnyNotOf(toFind, 2, toFindLength );
+
+		if(matchAllChars || matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );					
+	}
+			
+	SECTION("fromAfterMatch")
+	{
+		size_t result = s.findAnyNotOf(toFind, 3, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==3 );
+
+		else
+			REQUIRE( result==StringType::noMatch );	
+	}
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.getLength(), toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromAfterEnd")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.getLength()+1, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromNpos")
+	{
+		size_t result = s.findAnyNotOf(toFind, s.npos, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 0, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==0 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 2, toFindLength );
+
+			if(matchThirdChar || matchAllChars )
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 3, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==3 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 11, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==11 );
+
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 12, toFindLength );
+
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.findAnyNotOf(toFind, 13, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==13 );
+
+			else
+				REQUIRE( result==StringType::noMatch );	
+		}
+	}
+}
+
+template<class DATATYPE>
+inline void testFindAnyNotOf()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	struct MatchData
+	{
+		const char*			desc;
+		const char32_t*		matchString;
+		bool				matchThirdChar;
+		bool				matchAllChars;
+	};
+
+	std::list<MatchData> matchList = {	{"match",	U"\U00033333helowrd", true, false },
+										{"noMatch",	U"\U00012345helowrd", false, false },
+										{"matchAny-empty",	U"", true, true },
+										{"matchAny-otherChars",	U"abc", true, true }
+									};
+
+	for( auto matchIt = matchList.begin(); matchIt!=matchList.end(); matchIt++)
+	{
+		const MatchData& matchData = *matchIt;
+
+		SECTION( matchData.desc )
+		{
+			SECTION("iterators")
+				testFindAnyNotOfIterators<DATATYPE>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
+
+			SECTION("String")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
+
+			SECTION("std::string")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::wstring")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::u16string")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::u32string")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			
+			SECTION("const char*")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char16_t*")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char32_t*")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const wchar_t*")
+				testFindAnyNotOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+
+			SECTION("const char* with length")
+				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char16_t* with length")
+				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char32_t* with length")
+				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const wchar_t* with length")
+				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+
+		}
+	}	
+}
+
+
+
 template<class DATATYPE>
 inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool matchPossible)
 {	
@@ -6394,6 +6933,9 @@ inline void testStringImpl()
 	
 	SECTION("findAnyOf")
 		testFindAnyOf<DATATYPE>();
+
+	SECTION("findAnyNotOf")
+		testFindAnyNotOf<DATATYPE>();
 
 	SECTION("reverseFindAnyOf")
 		testReverseFindAnyOf<DATATYPE>();
