@@ -3709,6 +3709,61 @@ public:
 
 
 
+	
+
+	size_t find_last_of(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_of(const std::string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_last_of(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_last_of(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_of(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_of(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_of(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_of(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_of(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+
+
+	size_t find_last_of(char32_t toFind, size_t searchStartIndex=npos) const noexcept
+	{
+		return rfind(toFind, searchStartIndex);
+	}
+
+
 
 	template <class InputIterator>
 	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )

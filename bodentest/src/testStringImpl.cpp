@@ -4930,6 +4930,16 @@ inline void testRFindCharFromIterator()
 }
 
 
+template<class StringType, class ...Args>
+size_t callRFindChar(StringType& s, Args... args)
+{
+	size_t result = s.rfind(args...);
+	size_t result2 = s.find_last_of(args...);
+	
+	REQUIRE( result2==result );
+
+	return result;
+}
 
 template<class STRINGTYPE>
 inline void testRFindCharFromIndex()
@@ -4942,39 +4952,39 @@ inline void testRFindCharFromIndex()
 
 	SECTION("fromEnd-matching")
 	{
-		size_t result = s.rfind(toFind, s.length());
+		size_t result = callRFindChar(s, toFind, s.length());
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, s.length());
+		size_t result = callRFindChar(s, toFindNonMatch, s.length());
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromNpos-matching")
 	{
-		size_t result = s.rfind(toFind, s.npos );
+		size_t result = callRFindChar(s, toFind, s.npos );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromNpos-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, s.npos );
+		size_t result = callRFindChar(s, toFindNonMatch, s.npos );
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromEndUsingDefaultArg-matching")
 	{
-		size_t result = s.rfind(toFind);
+		size_t result = callRFindChar(s, toFind);
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromEndUsingDefaultArg-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch);
+		size_t result = callRFindChar(s, toFindNonMatch);
 		REQUIRE( result==s.npos );
 	}
 
@@ -4982,39 +4992,39 @@ inline void testRFindCharFromIndex()
 
 	SECTION("fromAfterEnd-matching")
 	{
-		size_t result = s.rfind(toFind, s.length()+1);
+		size_t result = callRFindChar(s, toFind, s.length()+1);
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromAfterEnd-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, s.length()+1);
+		size_t result = callRFindChar(s, toFindNonMatch, s.length()+1);
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromMatchPos-matching")
 	{
-		size_t result = s.rfind(toFind, 2 );
+		size_t result = callRFindChar(s, toFind, 2 );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, 2 );
+		size_t result = callRFindChar(s, toFindNonMatch, 2 );
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromBeforeMatchPos-matching")
 	{
-		size_t result = s.rfind(toFind, 1 );
+		size_t result = callRFindChar(s, toFind, 1 );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromBeforeMatchPos-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, 1 );
+		size_t result = callRFindChar(s, toFindNonMatch, 1 );
 		REQUIRE( result == s.npos );
 	}
 
@@ -5022,13 +5032,13 @@ inline void testRFindCharFromIndex()
 
 	SECTION("fromBegin-matching")
 	{
-		size_t result = s.rfind(toFind, 0 );
+		size_t result = callRFindChar(s, toFind, 0 );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromBegin-notMatching")
 	{
-		size_t result = s.rfind(toFindNonMatch, 0 );
+		size_t result = callRFindChar(s, toFindNonMatch, 0 );
 		REQUIRE( result == s.npos );
 	}
 
@@ -5036,7 +5046,7 @@ inline void testRFindCharFromIndex()
 		
 	SECTION("inEmpty")
 	{
-		size_t result = empty.rfind(toFind, 0 );
+		size_t result = callRFindChar(empty, toFind, 0 );
 		REQUIRE( result==empty.npos );
 	}
 
@@ -5049,43 +5059,43 @@ inline void testRFindCharFromIndex()
 
 		SECTION("fromNpos")
 		{
-			size_t result = s2.rfind(toFind, s2.npos );
+			size_t result = callRFindChar(s2, toFind, s2.npos );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromEnd")
 		{
-			size_t result = s2.rfind(toFind, s2.length() );
+			size_t result = callRFindChar(s2, toFind, s2.length() );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.rfind(toFind, 12 );
+			size_t result = callRFindChar(s2, toFind, 12 );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.rfind(toFind, 11 );
+			size_t result = callRFindChar(s2, toFind, 11 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.rfind(toFind, 3 );
+			size_t result = callRFindChar(s2, toFind, 3 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.rfind(toFind, 2 );
+			size_t result = callRFindChar(s2, toFind, 2 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = s2.rfind(toFind, 1 );
+			size_t result = callRFindChar(s2, toFind, 1 );
 			REQUIRE( result==s2.npos );
 		}
 	}
@@ -6478,6 +6488,18 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 	}
 }
 
+
+template<class StringType, class ...Args>
+size_t callReverseFindOneOf(StringType& s, Args... args)
+{
+	size_t result = s.reverseFindOneOf(args...);
+	size_t result2 = s.find_last_of(args...);
+
+	REQUIRE( result2==result );
+
+	return result;
+}
+
 template<class StringType, class ToFindType>
 inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
@@ -6487,7 +6509,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.getLength() );
+		size_t result = callReverseFindOneOf(s, toFind, s.getLength() );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6497,7 +6519,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-moreThanLength")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.length()+1 );
+		size_t result = callReverseFindOneOf(s, toFind, s.length()+1 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6507,7 +6529,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.npos );
+		size_t result = callReverseFindOneOf(s, toFind, s.npos );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6518,7 +6540,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-defaultArg")
 	{
-		size_t result = s.reverseFindOneOf(toFind );
+		size_t result = callReverseFindOneOf(s, toFind );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6528,7 +6550,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 2 );
+		size_t result = callReverseFindOneOf(s, toFind, 2 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6538,14 +6560,14 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 			
 	SECTION("fromBeforeMatch")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 1 );
+		size_t result = callReverseFindOneOf(s, toFind, 1 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 0 );
+		size_t result = callReverseFindOneOf(s, toFind, 0 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6558,7 +6580,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.length() );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.length() );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6568,7 +6590,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromAfterEnd")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.length()+1 );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.length()+1 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6578,7 +6600,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd-npos")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.npos );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.npos );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6588,7 +6610,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd-defaultArg")
 		{
-			size_t result = s2.reverseFindOneOf(toFind );
+			size_t result = callReverseFindOneOf(s2, toFind );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6598,7 +6620,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 12 );
+			size_t result = callReverseFindOneOf(s2, toFind, 12 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6608,7 +6630,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 11 );
+			size_t result = callReverseFindOneOf(s2, toFind, 11 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6618,7 +6640,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 3 );
+			size_t result = callReverseFindOneOf(s2, toFind, 3 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6628,7 +6650,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 2 );
+			size_t result = callReverseFindOneOf(s2, toFind, 2 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6638,7 +6660,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 1 );
+			size_t result = callReverseFindOneOf(s2, toFind, 1 );
 
 			REQUIRE( result==s2.noMatch );
 		}
@@ -6663,7 +6685,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.length(), toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, s.length(), toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6673,7 +6695,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.npos, toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, s.npos, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6683,7 +6705,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.reverseFindOneOf(toFind, s.length()+1, toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, s.length()+1, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6693,7 +6715,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 	
 	SECTION("fromMatch")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 2, toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, 2, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6703,14 +6725,14 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 			
 	SECTION("fromBeforeMatch")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 1, toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, 1, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
-		size_t result = s.reverseFindOneOf(toFind, 0, toFindLength );
+		size_t result = callReverseFindOneOf(s, toFind, 0, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6723,7 +6745,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromEnd")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.length(), toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.length(), toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6733,7 +6755,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromAfterEnd")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.length()+1, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.length()+1, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6743,7 +6765,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromEnd-npos")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, s2.npos, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, s2.npos, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6753,7 +6775,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 12, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, 12, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6763,7 +6785,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 11, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, 11, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6773,7 +6795,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 3, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, 3, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6783,7 +6805,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 2, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, 2, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6793,7 +6815,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = s2.reverseFindOneOf(toFind, 1, toFindLength );
+			size_t result = callReverseFindOneOf(s2, toFind, 1, toFindLength );
 
 			REQUIRE( result==s2.noMatch );
 		}
