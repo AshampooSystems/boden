@@ -3403,6 +3403,107 @@ public:
 
 
 
+
+
+	template <class InputIterator>
+	Iterator reverseFindAnyOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	{
+		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](auto it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
+								},
+								searchStartPosIt
+							);
+	}
+
+
+	template<class InputIterator>
+	size_t reverseFindAnyOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
+	{
+		size_t myLength = getLength();
+		if(myLength==0)
+			return noMatch;
+
+		if(searchStartIndex==npos || searchStartIndex>=myLength)
+			searchStartIndex = myLength-1;
+
+		IteratorWithIndex it( (searchStartIndex==myLength-1) ? (_endIt-1) : (_beginIt+searchStartIndex), searchStartIndex );
+
+		while(true)
+		{
+			if(std::find(charsBeginIt, charsEndIt, *it) != charsEndIt)
+				return it.getIndex();
+
+			if(it.getInner()==_beginIt)
+				break;
+
+			--it;
+		}
+
+		return noMatch;
+	}
+
+	
+	size_t reverseFindAnyOf(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf( chars._beginIt, chars._endIt, searchStartIndex);
+	}
+
+	
+
+	template<class InputCodec, class InputIterator>
+	size_t reverseFindAnyOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf(InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+								InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+								searchStartIndex );
+	}
+
+	size_t reverseFindAnyOf(const std::string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindAnyOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+	}
+
+
+	size_t reverseFindAnyOf(const char* chars, size_t searchStartIndex=npos, size_t charLength=toEnd) const noexcept
+	{
+		return reverseFindAnyOf( Utf8Codec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const wchar_t* chars, size_t searchStartIndex=npos, size_t charLength=toEnd) const noexcept
+	{
+		return reverseFindAnyOf( WideCodec(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const char16_t* chars, size_t searchStartIndex=npos, size_t charLength=toEnd) const noexcept
+	{
+		return reverseFindAnyOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+	size_t reverseFindAnyOf(const char32_t* chars, size_t searchStartIndex=npos, size_t charLength=toEnd) const noexcept
+	{
+		return reverseFindAnyOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charLength), searchStartIndex);
+	}
+
+
+
+
+
 	/*
 	string (1)	
 size_t find_first_of (const string& str, size_t pos = 0) const noexcept;

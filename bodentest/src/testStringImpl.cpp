@@ -4574,6 +4574,208 @@ inline void testRFindStringFromIndex()
 }
 
 
+template<class STRINGTYPE, class ToFindStringType>
+inline void testRFindStringWithLengthFromIndex()
+{
+	STRINGTYPE s(U"he\U00012345loworld");	
+	STRINGTYPE empty(U"");	
+
+	STRINGTYPE toFindObj(U"\U00012345lo");	
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
+	STRINGTYPE toFindEmptyObj(U"");	
+
+	ToFindStringType toFind = (ToFindStringType)toFindObj;
+	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
+	ToFindStringType toFindEmpty = (ToFindStringType)toFindEmptyObj;
+
+	size_t toFindLength = getCStringLength(toFind);
+	size_t toFindNonMatchLength = getCStringLength(toFindNonMatch);
+	size_t toFindEmptyLength = getCStringLength(toFindEmpty);
+
+	toFindObj += "hexy";
+	toFindNonMatchObj += "hexy";
+	toFindEmptyObj += "hexy";
+
+	toFind = (ToFindStringType)toFindObj;
+	toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
+	toFindEmpty = (ToFindStringType)toFindEmptyObj;
+
+	SECTION("fromNpos-matching")
+	{
+		size_t result = s.rfind(toFind, String::npos, toFindLength);
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromNpos-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, String::npos, toFindNonMatchLength);
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromNpos-empty")
+	{
+		size_t result = s.rfind(toFindEmpty, String::npos, toFindEmptyLength);
+		REQUIRE( result==s.length() );
+	}
+
+
+	SECTION("fromEnd-matching")
+	{
+		size_t result = s.rfind(toFind, s.length(), toFindLength );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromEnd-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, s.length(), toFindNonMatchLength );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromEnd-empty")
+	{
+		size_t result = s.rfind(toFindEmpty, s.length(), toFindEmptyLength );
+		REQUIRE( result==s.length() );
+	}
+
+
+	SECTION("fromAfterEnd-matching")
+	{
+		size_t result = s.rfind(toFind, s.length()+1, toFindLength );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromAfterEnd-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, s.length()+1, toFindNonMatchLength );
+		REQUIRE( result==s.npos );
+	}
+
+	SECTION("fromAfterEnd-empty")
+	{
+		size_t result = s.rfind(toFindEmpty, s.length()+1, toFindEmptyLength );
+		REQUIRE( result==s.length() );
+	}
+
+
+
+	SECTION("fromMatchPos-matching")
+	{
+		size_t result = s.rfind(toFind, 2, toFindLength );
+		REQUIRE( result==2 );
+	}
+
+	SECTION("fromMatchPos-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, 2, toFindNonMatchLength );
+		REQUIRE( result==s.npos );
+	}
+
+
+	SECTION("fromBeforeMatchPos-matching")
+	{
+		size_t result = s.rfind(toFind, 1, toFindLength );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromBeforeMatchPos-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, 1, toFindNonMatchLength );
+		REQUIRE( result == s.npos );
+	}
+
+
+
+	SECTION("fromStart-matching")
+	{
+		size_t result = s.rfind(toFind, 0, toFindLength );
+		REQUIRE( result == s.npos );
+	}
+
+	SECTION("fromStart-notMatching")
+	{
+		size_t result = s.rfind(toFindNonMatch, 0, toFindNonMatchLength );
+		REQUIRE( result == s.npos );
+	}
+
+
+
+	SECTION("empty-fromStart")
+	{
+		size_t result = s.rfind(toFindEmpty, 0, toFindEmptyLength );
+		REQUIRE( result==0 );
+	}
+
+	SECTION("empty-fromMiddle")
+	{
+		size_t result = s.rfind(toFindEmpty, 5, toFindEmptyLength );
+		REQUIRE( result==5 );
+	}
+
+	SECTION("empty-fromEnd")
+	{
+		size_t result = s.rfind(toFindEmpty, s.length(), toFindEmptyLength );
+		REQUIRE( result==s.length() );
+	}
+
+
+	SECTION("notEmpty-inEmpty")
+	{
+		size_t result = empty.rfind(toFind, String::npos, toFindLength );
+		REQUIRE( result==empty.npos );
+	}
+
+	SECTION("empty-inEmpty")
+	{
+		size_t result = empty.rfind(toFindEmpty, String::npos, toFindEmptyLength );
+		REQUIRE( result==0 );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		STRINGTYPE s2 = s;
+		s2 += s;
+
+		SECTION("fromEnd")
+		{
+			size_t result = s2.rfind(toFind, String::npos, toFindLength );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.rfind(toFind, 12, toFindLength );
+			REQUIRE( result==12 );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.rfind(toFind, 11, toFindLength );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.rfind(toFind, 3, toFindLength );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.rfind(toFind, 2, toFindLength );
+			REQUIRE( result==2 );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			size_t result = s2.rfind(toFind, 1, toFindLength );
+			REQUIRE( result==s2.npos );
+		}
+
+	}
+}
+
+
 
 template<class STRINGTYPE>
 inline void testRFindCharFromIterator()
@@ -4896,16 +5098,16 @@ inline void testRFind()
 
 
 		SECTION("const char* with length")
-			testRFindStringFromIndex<StringImpl<DATATYPE>, const char* >();
+			testRFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char* >();
 
 		SECTION("const char16_t* with length")
-			testRFindStringFromIndex<StringImpl<DATATYPE>, const char16_t* >();
+			testRFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char16_t* >();
 
 		SECTION("const char32_t* with length")
-			testRFindStringFromIndex<StringImpl<DATATYPE>, const char32_t* >();
+			testRFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char32_t* >();
 
 		SECTION("const wchar_t* with length")
-			testRFindStringFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+			testRFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
 	}
 
 	SECTION("charFromIterator")
@@ -5315,6 +5517,138 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 
 
+template<class StringType, class ToFindType>
+inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
+{
+	StringType s(U"he\U00012345loworld");
+
+	StringType toFindObj = toFindObjArg;
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	size_t toFindLength = getCStringLength<ToFindType>(toFind);
+
+	toFindObj += U"hexy";
+
+	toFind = (ToFindType)toFindObj;
+
+
+	SECTION("fromStart")
+	{
+		size_t result = s.findAnyOf(toFind, 0, toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+	SECTION("fromMatch")
+	{
+		size_t result = s.findAnyOf(toFind, 2, toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+			
+	SECTION("fromAfterMatch")
+	{
+		size_t result = s.findAnyOf(toFind, 3, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.findAnyOf(toFind, s.getLength(), toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromAfterEnd")
+	{
+		size_t result = s.findAnyOf(toFind, s.getLength()+1, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromNpos")
+	{
+		size_t result = s.findAnyOf(toFind, s.npos, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromStart")
+		{
+			size_t result = s2.findAnyOf(toFind, 0, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.findAnyOf(toFind, 2, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.findAnyOf(toFind, 3, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.findAnyOf(toFind, 11, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );			
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.findAnyOf(toFind, 12, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterSecondMatch")
+		{
+			size_t result = s2.findAnyOf(toFind, 13, toFindLength );
+
+			REQUIRE( result==s2.noMatch );
+		}
+	}
+}
+
+
+
 template<class DATATYPE>
 inline void testFindAnyOf()
 {
@@ -5373,48 +5707,526 @@ inline void testFindAnyOf()
 				testFindAnyOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
 
 
+			SECTION("const char* with length")
+				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char16_t* with length")
+				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char32_t* with length")
+				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const wchar_t* with length")
+				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+
+
 		}
 	}	
 }
 
 
 
-	/*
+template<class DATATYPE>
+inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool matchPossible)
+{	
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
-	SECTION("stringFromIt")
-		testFindStringFromIt<DATATYPE>();
-
-
-		SECTION("const char* with length")
-			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char* >();
-
-		SECTION("const char16_t* with length")
-			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char16_t* >();
-
-		SECTION("const char32_t* with length")
-			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const char32_t* >();
-
-		SECTION("const wchar_t* with length")
-			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
+	SECTION("fromEnd")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.end() );
+				
+		if(matchPossible)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );				
 	}
 
-	SECTION("charFromIterator")
-		testFindCharFromIterator< StringImpl<DATATYPE> >();
-
-	SECTION("charFromIndex")
-		testFindCharFromIndex< StringImpl<DATATYPE> >();
-
-
-	SECTION("inStdU32String")
+	SECTION("fromMatch")
 	{
-		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
-		SECTION("stringFromIndex")			
-			testFindStringFromIndex<std::u32string, std::u32string >();
+		if(matchPossible)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin()+1 );
+				
+		REQUIRE( it==s.end() );
+	}
 
-		SECTION("charFromIndexInU32String")
-			testFindCharFromIndex< std::u32string >();
-	}*/
+	SECTION("fromBegin")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin() );
+				
+		REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringImpl<DATATYPE> s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.end() );
+
+			if(matchPossible)
+				REQUIRE( it==s2.begin()+12 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+
+			if(matchPossible)
+				REQUIRE( it==s2.begin()+12 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+					
+			if(matchPossible)
+				REQUIRE( it==s2.begin()+2 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+					
+			if(matchPossible)
+				REQUIRE( it==s2.begin()+2 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+					
+			if(matchPossible)
+				REQUIRE( it==s2.begin()+2 );
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+1 );
+
+			REQUIRE( it==s2.end() );
+		}
+	}
+}
+
+template<class StringType, class ToFindType>
+inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPossible)
+{
+	StringType s(U"he\U00012345loworld");
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.getLength() );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromEnd-moreThanLength")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.length()+1 );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromEnd-npos")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.npos );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+
+	SECTION("fromEnd-defaultArg")
+	{
+		size_t result = s.reverseFindAnyOf(toFind );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromMatch")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 2 );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 1 );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromBegin")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 0 );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+	
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.length() );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromAfterEnd")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.length()+1 );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromEnd-npos")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.npos );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromEnd-defaultArg")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 12 );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 11 );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 3 );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );			
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 2 );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 1 );
+
+			REQUIRE( result==s2.noMatch );
+		}
+	}
+}
+
+template<class StringType, class ToFindType>
+inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
+{
+	StringType s(U"he\U00012345loworld");
+
+	StringType toFindObj = toFindObjArg;
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	size_t toFindLength = getCStringLength<ToFindType>(toFind);
+
+	toFindObj += U"hexy";
+
+	toFind = (ToFindType)toFindObj;
+
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.length(), toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromEnd-npos")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.npos, toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromAfterEnd")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, s.length()+1, toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+	SECTION("fromMatch")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 2, toFindLength );
+				
+		if(matchPossible)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 1, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+
+	SECTION("fromBegin")
+	{
+		size_t result = s.reverseFindAnyOf(toFind, 0, toFindLength );
+				
+		REQUIRE( result==StringType::noMatch );
+	}
+	
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.length(), toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromAfterEnd")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.length()+1, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromEnd-npos")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, s2.npos, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 12, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 11, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 3, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );			
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 2, toFindLength );
+
+			if(matchPossible)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			size_t result = s2.reverseFindAnyOf(toFind, 1, toFindLength );
+
+			REQUIRE( result==s2.noMatch );
+		}
+	}
+}
+
+
+template<class DATATYPE>
+inline void testReverseFindAnyOf()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	struct MatchData
+	{
+		const char*			desc;
+		const char32_t*		matchString;
+		bool				matchPossible;
+	};
+
+	std::list<MatchData> matchList = {	{"firstCharMatches",	U"\U00012345xy", true },
+										{"second char matches", U"x\U00012345y", true },
+										{"last char matches", U"xy\U00012345", true },
+										{"single char matches", U"\U00012345", true },
+										{"no char matches", U"xyz", false},
+										{"empty", U"", false},
+										{"single char no match", U"x", false} };
+
+	for( auto matchIt = matchList.begin(); matchIt!=matchList.end(); matchIt++)
+	{
+		const MatchData& matchData = *matchIt;
+
+		SECTION( matchData.desc )
+		{
+			SECTION("iterators")
+				testReverseFindAnyOfIterators<DATATYPE>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("String")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchPossible);
+
+			SECTION("std::string")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchPossible);
+
+			SECTION("std::wstring")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchPossible);
+
+			SECTION("std::u16string")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchPossible);
+
+			SECTION("std::u32string")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
+
+			
+			SECTION("const char*")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char16_t*")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char32_t*")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const wchar_t*")
+				testReverseFindAnyOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+
+
+			SECTION("const char* with length")
+				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char16_t* with length")
+				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const char32_t* with length")
+				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+
+			SECTION("const wchar_t* with length")
+				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+
+
+		}
+	}	
+}
 
 
 
@@ -5582,6 +6394,9 @@ inline void testStringImpl()
 	
 	SECTION("findAnyOf")
 		testFindAnyOf<DATATYPE>();
+
+	SECTION("reverseFindAnyOf")
+		testReverseFindAnyOf<DATATYPE>();
 }
 
 
