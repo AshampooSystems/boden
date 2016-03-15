@@ -5910,6 +5910,19 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 	}
 }
 
+
+
+template<class StringType, class ...Args>
+size_t callFindNotOneOf(StringType& s, Args... args)
+{
+	size_t result = s.findNotOneOf(args...);
+	size_t result2 = s.find_first_not_of(args...);
+
+	REQUIRE( result2==result );
+
+	return result;
+}
+
 template<class StringType, class ToFindType>
 inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
@@ -5919,7 +5932,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findNotOneOf(toFind, 0 );
+		size_t result = callFindNotOneOf(s, toFind, 0 );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -5933,7 +5946,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromStart-defaultArg")
 	{
-		size_t result = s.findNotOneOf(toFind );
+		size_t result = callFindNotOneOf(s, toFind );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -5947,7 +5960,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.findNotOneOf(toFind, 2 );
+		size_t result = callFindNotOneOf(s, toFind, 2 );
 
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( result==2 );
@@ -5958,7 +5971,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findNotOneOf(toFind, 3 );
+		size_t result = callFindNotOneOf(s, toFind, 3 );
 
 		if(matchAllChars)
 			REQUIRE( result==3 );
@@ -5969,21 +5982,21 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findNotOneOf(toFind, s.getLength() );
+		size_t result = callFindNotOneOf(s, toFind, s.getLength() );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findNotOneOf(toFind, s.getLength()+1 );
+		size_t result = callFindNotOneOf(s, toFind, s.getLength()+1 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findNotOneOf(toFind, s.npos );
+		size_t result = callFindNotOneOf(s, toFind, s.npos );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -5996,7 +6009,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findNotOneOf(toFind, 0 );
+			size_t result = callFindNotOneOf(s2, toFind, 0 );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -6010,7 +6023,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromStart-defaultArg")
 		{
-			size_t result = s2.findNotOneOf(toFind );
+			size_t result = callFindNotOneOf(s2, toFind );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -6035,7 +6048,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 3 );
+			size_t result = callFindNotOneOf(s2, toFind, 3 );
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
@@ -6049,7 +6062,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 11 );
+			size_t result = callFindNotOneOf(s2, toFind, 11 );
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
@@ -6063,7 +6076,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 12 );
+			size_t result = callFindNotOneOf(s2, toFind, 12 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( result==12 );
@@ -6073,7 +6086,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 13 );
+			size_t result = callFindNotOneOf(s2, toFind, 13 );
 
 			if(matchAllChars)
 				REQUIRE( result==13 );
@@ -6103,7 +6116,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findNotOneOf(toFind, 0, toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, 0, toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -6117,7 +6130,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 	
 	SECTION("fromMatch")
 	{
-		size_t result = s.findNotOneOf(toFind, 2, toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, 2, toFindLength );
 
 		if(matchAllChars || matchThirdChar)
 			REQUIRE( result==2 );
@@ -6128,7 +6141,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findNotOneOf(toFind, 3, toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, 3, toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==3 );
@@ -6139,21 +6152,21 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findNotOneOf(toFind, s.getLength(), toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, s.getLength(), toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findNotOneOf(toFind, s.getLength()+1, toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, s.getLength()+1, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findNotOneOf(toFind, s.npos, toFindLength );
+		size_t result = callFindNotOneOf(s, toFind, s.npos, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6166,7 +6179,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findNotOneOf(toFind, 0, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 0, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -6181,7 +6194,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 2, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 2, toFindLength );
 
 			if(matchThirdChar || matchAllChars )
 				REQUIRE( result==2 );
@@ -6191,7 +6204,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 3, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 3, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
@@ -6205,7 +6218,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 11, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 11, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
@@ -6219,7 +6232,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 12, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 12, toFindLength );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( result==12 );
@@ -6230,7 +6243,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findNotOneOf(toFind, 13, toFindLength );
+			size_t result = callFindNotOneOf(s2, toFind, 13, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==13 );
@@ -6239,6 +6252,46 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==StringType::noMatch );	
 		}
 	}
+}
+
+
+
+
+template<class StringType>
+inline void testFindFirstNotOfChar()
+{
+	StringType s(U"he\U00012345loworld");
+	StringType empty(U"");
+
+	size_t result = s.find_first_not_of(U'h');
+	REQUIRE( result==1 );
+
+	result = s.find_first_not_of(U'e');
+	REQUIRE( result==0 );
+
+	result = s.find_first_not_of(U'e', 1);
+	REQUIRE( result==2 );
+
+	result = s.find_first_not_of(U'e', 3);
+	REQUIRE( result==3 );
+
+	result = s.find_first_not_of(U'e', 10);
+	REQUIRE( result==s.noMatch );
+
+	result = s.find_first_not_of(U'e', s.npos);
+	REQUIRE( result==s.noMatch );
+
+	result = empty.find_first_not_of(U'e');
+	REQUIRE( result==s.noMatch );
+
+	result = empty.find_first_not_of(U'e', 1);
+	REQUIRE( result==s.noMatch );
+
+	result = empty.find_first_not_of(U'e', 10);
+	REQUIRE( result==s.noMatch );
+
+	result = empty.find_first_not_of(U'e', s.npos);
+	REQUIRE( result==s.noMatch );
 }
 
 template<class DATATYPE>
@@ -6313,6 +6366,10 @@ inline void testFindNotOneOf()
 
 		}
 	}	
+
+
+	SECTION("char")
+		testFindFirstNotOfChar<StringImpl<DATATYPE> >();
 }
 
 

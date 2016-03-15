@@ -3459,6 +3459,7 @@ public:
 	}
 
 
+
 	
 	template <class InputIterator>
 	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
@@ -3554,6 +3555,60 @@ public:
 
 
 
+
+	
+	
+	size_t find_first_not_of(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_first_not_of(const std::string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_first_not_of(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_first_not_of(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_first_not_of(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_first_not_of(const char* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_first_not_of(const wchar_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_first_not_of(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_first_not_of(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
+	{
+		return findNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+
+
+	size_t find_first_not_of(char32_t toFind, size_t searchStartIndex=0) const noexcept
+	{
+		return findNotOneOf(&toFind, searchStartIndex, 1);
+	}
 
 
 
