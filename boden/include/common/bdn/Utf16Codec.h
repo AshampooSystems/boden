@@ -160,7 +160,7 @@ public:
 			return oldVal;
 		}
 
-		char32_t operator*()
+		char32_t operator*() const
 		{
 			if(_chr==(char32_t)-1)
 				decode();
@@ -188,7 +188,7 @@ public:
 		}
 
 	protected:
-		void decode()
+		void decode() const
 		{
 			_nextIt = _sourceIt;
 
@@ -242,8 +242,8 @@ public:
 		SourceIterator  _beginSourceIt;
 		SourceIterator  _endSourceIt;
 
-		char32_t         _chr;
-		SourceIterator  _nextIt;
+		mutable char32_t		_chr;
+		mutable SourceIterator  _nextIt;
 	};
 
 
@@ -341,7 +341,7 @@ public:
 			return oldVal;
 		}
 
-		EncodedElement operator*()
+		EncodedElement operator*() const
 		{
 			if(_offset==-1)
 				encode();
@@ -365,7 +365,7 @@ public:
 
 
 	protected:
-		void encode()
+		void encode() const
 		{
 			char32_t chr = *_sourceIt;
 
@@ -393,10 +393,10 @@ public:
 		}
 
 
-		SourceIterator  _sourceIt;
-		uint16_t		_encoded[2];
-		int             _encodedLength;
-		int             _offset;
+		SourceIterator		_sourceIt;
+		mutable uint16_t	_encoded[2];
+		mutable int         _encodedLength;
+		mutable int			_offset;
 	};
 
 

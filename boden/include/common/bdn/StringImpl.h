@@ -3259,7 +3259,7 @@ public:
 
 
 	template<class Predicate>
-	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt )
+	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt ) const
 	{
 		for( auto it=searchStartPosIt; it!=_endIt; ++it)
 		{
@@ -3270,15 +3270,31 @@ public:
 		return _endIt;
 	}
 
+	
+
 	template<class Predicate>
-	Iterator findCondition(Predicate condition )
+	size_t findCondition(Predicate condition, size_t searchStartIndex=0 ) const
 	{
-		return findCondition<Predicate>( condition, begin() );
+		size_t myLength = getLength();
+		if(searchStartIndex==npos || searchStartIndex>=myLength)
+			return noMatch;
+		
+		IteratorWithIndex it( _beginIt+searchStartIndex, searchStartIndex );
+
+		while( it.getInner()!=_endIt )
+		{
+			if( condition(it.getInner() ) )
+				return it.getIndex();
+			
+			++it;
+		}
+
+		return noMatch;
 	}
 
 
 	template<class Predicate>
-	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt )
+	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt ) const
 	{
 		if(_beginIt == _endIt)
 			return _endIt;
@@ -3302,17 +3318,39 @@ public:
 		return _endIt;
 	}
 
+
+
 	template<class Predicate>
-	Iterator reverseFindCondition(Predicate condition )
+	size_t reverseFindCondition(Predicate condition, size_t searchStartIndex=npos ) const
 	{
-		return reverseFindCondition<Predicate>(condition, end() );
+		size_t myLength = getLength();
+		if(myLength==0)
+			return noMatch;
+
+		if(searchStartIndex==npos || searchStartIndex>=myLength)
+			searchStartIndex = myLength-1;
+
+		IteratorWithIndex it( (searchStartIndex==myLength-1) ? (_endIt-1) : (_beginIt+searchStartIndex), searchStartIndex );
+
+		while(true)
+		{
+			if( condition(it.getInner()) )
+				return it.getIndex();
+
+			if(it.getInner()==_beginIt)
+				break;
+
+			--it;
+		}
+
+		return noMatch;
 	}
 
 
 	template <class InputIterator>
 	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](auto it)
+		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -3324,23 +3362,12 @@ public:
 	template<class InputIterator>
 	size_t findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		if(searchStartIndex >= length())
-			return noMatch;
-
-		IteratorWithIndex searchBeginIt( _beginIt+searchStartIndex, searchStartIndex );
-		IteratorWithIndex searchEndIt( _endIt, length() );
-
-		IteratorWithIndex it = std::find_if( searchBeginIt,
-											 searchEndIt,
-											  [&charsBeginIt, &charsEndIt](char32_t chr)
-											  {
-												return std::find(charsBeginIt, charsEndIt, chr) != charsEndIt ;
-											  } );
-
-		if(it==searchEndIt)
-			return noMatch;
-		else
-			return it.getIndex();
+		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
+								},
+								searchStartIndex
+							);
 	}
 
 
@@ -3464,7 +3491,7 @@ public:
 	template <class InputIterator>
 	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](auto it)
+		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -3476,23 +3503,12 @@ public:
 	template<class InputIterator>
 	size_t findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		if(searchStartIndex >= length())
-			return noMatch;
-
-		IteratorWithIndex searchBeginIt( _beginIt+searchStartIndex, searchStartIndex );
-		IteratorWithIndex searchEndIt( _endIt, length() );
-
-		IteratorWithIndex it = std::find_if( searchBeginIt,
-											 searchEndIt,
-											  [&charsBeginIt, &charsEndIt](char32_t chr)
-											  {
-												return std::find(charsBeginIt, charsEndIt, chr) == charsEndIt ;
-											  } );
-
-		if(it==searchEndIt)
-			return noMatch;
-		else
-			return it.getIndex();
+		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
+								},
+								searchStartIndex
+							);
 	}
 
 
@@ -3615,7 +3631,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](auto it)
+		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -3627,27 +3643,12 @@ public:
 	template<class InputIterator>
 	size_t reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		size_t myLength = getLength();
-		if(myLength==0)
-			return noMatch;
-
-		if(searchStartIndex==npos || searchStartIndex>=myLength)
-			searchStartIndex = myLength-1;
-
-		IteratorWithIndex it( (searchStartIndex==myLength-1) ? (_endIt-1) : (_beginIt+searchStartIndex), searchStartIndex );
-
-		while(true)
-		{
-			if(std::find(charsBeginIt, charsEndIt, *it) != charsEndIt)
-				return it.getIndex();
-
-			if(it.getInner()==_beginIt)
-				break;
-
-			--it;
-		}
-
-		return noMatch;
+		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
+								},
+								searchStartIndex
+							);
 	}
 
 	
@@ -3768,7 +3769,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](auto it)
+		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -3780,27 +3781,12 @@ public:
 	template<class InputIterator>
 	size_t reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		size_t myLength = getLength();
-		if(myLength==0)
-			return noMatch;
-
-		if(searchStartIndex==npos || searchStartIndex>=myLength)
-			searchStartIndex = myLength-1;
-
-		IteratorWithIndex it( (searchStartIndex==myLength-1) ? (_endIt-1) : (_beginIt+searchStartIndex), searchStartIndex );
-
-		while(true)
-		{
-			if(std::find(charsBeginIt, charsEndIt, *it) == charsEndIt)
-				return it.getIndex();
-
-			if(it.getInner()==_beginIt)
-				break;
-
-			--it;
-		}
-
-		return noMatch;
+		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+								{
+									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
+								},
+								searchStartIndex
+							);
 	}
 
 	
@@ -3861,6 +3847,65 @@ public:
 	}
 
 
+
+
+	
+
+	size_t find_last_not_of(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_not_of(const std::string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_last_not_of(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex );
+	}
+
+	size_t find_last_not_of(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_not_of(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex );
+	}	
+
+	size_t find_last_not_of(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_not_of(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_not_of(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+	size_t find_last_not_of(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
+	{
+		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
+	}	
+
+
+
+	size_t find_last_not_of(char32_t blackListChar, size_t searchStartIndex=npos) const noexcept
+	{
+		return reverseFindCondition(	[&blackListChar](const Iterator& it)
+										{
+											return (*it!=blackListChar);	
+										},
+										searchStartIndex);
+	}
 
 
 

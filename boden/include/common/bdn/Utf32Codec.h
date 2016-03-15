@@ -98,7 +98,7 @@ public:
 			return oldVal;			
 		}
 
-		char32_t operator*()
+		char32_t operator*() const
 		{
 			return *_sourceIt;
 		}
@@ -197,7 +197,7 @@ public:
 			return oldVal;			
 		}
 
-		EncodedElement operator*()
+		EncodedElement operator*() const
 		{
 			return *_sourceIt;
 		}
