@@ -3277,12 +3277,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind, 0);
 		REQUIRE( result==2 );
+
+		REQUIRE( s.find_first_of(toFind, 0) == result );
 	}
 
 	SECTION("fromStart-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch, 0);
 		REQUIRE( result==s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch, 0) == result );
 	}
 
 
@@ -3290,12 +3294,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind);
 		REQUIRE( result==2 );
+
+		REQUIRE( s.find_first_of(toFind) == result );
 	}
 
 	SECTION("fromStartUsingDefaultArg-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch);
 		REQUIRE( result==s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch) == result );
 	}
 
 
@@ -3303,12 +3311,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind, 2 );
 		REQUIRE( result==2 );
+
+		REQUIRE( s.find_first_of(toFind, 2) == result );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch, 2 );
 		REQUIRE( result==s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch, 2) == result );
 	}
 
 
@@ -3316,12 +3328,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind, 3 );
 		REQUIRE( result == s.npos );
+
+		REQUIRE( s.find_first_of(toFind, 3) == result );
 	}
 
 	SECTION("fromAfterMatchPos-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch, 3 );
 		REQUIRE( result == s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch, 3) == result );
 	}
 
 
@@ -3330,12 +3346,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind, s.length() );
 		REQUIRE( result == s.npos );
+
+		REQUIRE( s.find_first_of(toFind, s.length()) == result );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch, s.length() );
 		REQUIRE( result == s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch, s.length()) == result );
 	}
 
 
@@ -3343,12 +3363,16 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = s.find(toFind, s.length()+1 );
 		REQUIRE( result==s.npos );
+
+		REQUIRE( s.find_first_of(toFind, s.length()+1) == result );
 	}
 
 	SECTION("fromAfterEnd-notMatching")
 	{
 		size_t result = s.find(toFindNonMatch, s.length()+1 );
 		REQUIRE( result==s.npos );
+
+		REQUIRE( s.find_first_of(toFindNonMatch, s.length()+1) == result );
 	}
 
 		
@@ -3356,6 +3380,8 @@ inline void testFindCharFromIndex()
 	{
 		size_t result = empty.find(toFind, 0 );
 		REQUIRE( result==empty.npos );
+
+		REQUIRE( empty.find_first_of(toFind, 0) == result );
 	}
 
 
@@ -3369,36 +3395,48 @@ inline void testFindCharFromIndex()
 		{
 			size_t result = s2.find(toFind, 0 );
 			REQUIRE( result==2 );
+
+			REQUIRE( s2.find_first_of(toFind, 0) == result );
 		}
 
 		SECTION("fromFirstMatch")
 		{
 			size_t result = s2.find(toFind, 2 );
 			REQUIRE( result==2 );
+
+			REQUIRE( s2.find_first_of(toFind, 2) == result );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
 			size_t result = s2.find(toFind, 3 );
 			REQUIRE( result==12 );
+
+			REQUIRE( s2.find_first_of(toFind, 3) == result );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
 			size_t result = s2.find(toFind, 11 );
 			REQUIRE( result==12 );
+
+			REQUIRE( s2.find_first_of(toFind, 11) == result );
 		}
 
 		SECTION("fromSecondMatch")
 		{
 			size_t result = s2.find(toFind, 12 );
 			REQUIRE( result==12 );
+
+			REQUIRE( s2.find_first_of(toFind, 12) == result );
 		}
 
 		SECTION("fromJustAfterSecondMatch")
 		{
 			size_t result = s2.find(toFind, 13 );
 			REQUIRE( result==s2.npos );
+
+			REQUIRE( s2.find_first_of(toFind, 13) == result );
 		}
 	}
 
@@ -5271,14 +5309,16 @@ inline void testReverseFindCondition()
 
 
 
+
+
 template<class DATATYPE>
-inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossible)
+inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
 {	
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 	SECTION("fromStart")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin() );
+		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -5288,7 +5328,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -5298,14 +5338,14 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 			
 	SECTION("fromAfterMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.begin()+3 );
+		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
 				
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyOf(toFind.begin(), toFind.end(), s.end() );
+		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -5318,7 +5358,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromStart")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin() );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin() );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -5328,7 +5368,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -5338,7 +5378,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -5348,7 +5388,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -5358,7 +5398,7 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -5368,15 +5408,27 @@ inline void testFindAnyOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
 
 			REQUIRE( it==s2.end() );
 		}
 	}
 }
 
+
+template<class StringType, class ...Args>
+size_t callFindOneOf(StringType& s, Args... args)
+{
+	size_t result = s.findOneOf(args...);
+	size_t result2 = s.find_first_of(args...);
+
+	REQUIRE( result2==result );
+
+	return result;
+}
+
 template<class StringType, class ToFindType>
-inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
+inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -5384,7 +5436,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findAnyOf(toFind, 0 );
+		size_t result = callFindOneOf(s, toFind, 0 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -5394,7 +5446,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 	SECTION("fromStart-defaultArg")
 	{
-		size_t result = s.findAnyOf(toFind );
+		size_t result = callFindOneOf(s, toFind );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -5404,7 +5456,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.findAnyOf(toFind, 2 );
+		size_t result = callFindOneOf(s, toFind, 2 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -5414,28 +5466,28 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findAnyOf(toFind, 3 );
+		size_t result = callFindOneOf(s, toFind, 3 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findAnyOf(toFind, s.getLength() );
+		size_t result = callFindOneOf(s, toFind, s.getLength() );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findAnyOf(toFind, s.getLength()+1 );
+		size_t result = callFindOneOf(s, toFind, s.getLength()+1 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findAnyOf(toFind, s.npos );
+		size_t result = callFindOneOf(s, toFind, s.npos );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -5448,7 +5500,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findAnyOf(toFind, 0 );
+			size_t result = callFindOneOf(s2, toFind, 0 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -5458,7 +5510,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromStart-defaultArg")
 		{
-			size_t result = s2.findAnyOf(toFind );
+			size_t result = callFindOneOf(s2, toFind );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -5468,7 +5520,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 2 );
+			size_t result = callFindOneOf(s2, toFind, 2 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -5478,7 +5530,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 3 );
+			size_t result = callFindOneOf(s2, toFind, 3 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5488,7 +5540,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 11 );
+			size_t result = callFindOneOf(s2, toFind, 11 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5498,7 +5550,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 12 );
+			size_t result = callFindOneOf(s2, toFind, 12 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5508,7 +5560,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 13 );
+			size_t result = callFindOneOf(s2, toFind, 13 );
 
 			REQUIRE( result==s2.noMatch );
 		}
@@ -5518,7 +5570,7 @@ inline void testFindAnyOfString(const StringType& toFindObj, bool matchPossible)
 
 
 template<class StringType, class ToFindType>
-inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
+inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -5535,7 +5587,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findAnyOf(toFind, 0, toFindLength );
+		size_t result = callFindOneOf(s, toFind, 0, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -5545,7 +5597,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 	
 	SECTION("fromMatch")
 	{
-		size_t result = s.findAnyOf(toFind, 2, toFindLength );
+		size_t result = callFindOneOf(s, toFind, 2, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -5555,28 +5607,28 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findAnyOf(toFind, 3, toFindLength );
+		size_t result = callFindOneOf(s, toFind, 3, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findAnyOf(toFind, s.getLength(), toFindLength );
+		size_t result = callFindOneOf(s, toFind, s.getLength(), toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findAnyOf(toFind, s.getLength()+1, toFindLength );
+		size_t result = callFindOneOf(s, toFind, s.getLength()+1, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findAnyOf(toFind, s.npos, toFindLength );
+		size_t result = callFindOneOf(s, toFind, s.npos, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -5589,7 +5641,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findAnyOf(toFind, 0, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 0, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -5600,7 +5652,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 2, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 2, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -5610,7 +5662,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 3, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 3, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5620,7 +5672,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 11, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 11, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5630,7 +5682,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 12, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 12, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -5640,7 +5692,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findAnyOf(toFind, 13, toFindLength );
+			size_t result = callFindOneOf(s2, toFind, 13, toFindLength );
 
 			REQUIRE( result==s2.noMatch );
 		}
@@ -5650,7 +5702,7 @@ inline void testFindAnyOfStringWithLength(const StringType& toFindObjArg, bool m
 
 
 template<class DATATYPE>
-inline void testFindAnyOf()
+inline void testFindOneOf()
 {
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
@@ -5676,48 +5728,48 @@ inline void testFindAnyOf()
 		SECTION( matchData.desc )
 		{
 			SECTION("iterators")
-				testFindAnyOfIterators<DATATYPE>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfIterators<DATATYPE>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("String")
-				testFindAnyOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::string")
-				testFindAnyOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::wstring")
-				testFindAnyOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::u16string")
-				testFindAnyOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::u32string")
-				testFindAnyOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
 
 			
 			SECTION("const char*")
-				testFindAnyOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char16_t*")
-				testFindAnyOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char32_t*")
-				testFindAnyOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const wchar_t*")
-				testFindAnyOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
 
 
 			SECTION("const char* with length")
-				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char16_t* with length")
-				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char32_t* with length")
-				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const wchar_t* with length")
-				testFindAnyOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+				testFindOneOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
 
 
 		}
@@ -5729,13 +5781,13 @@ inline void testFindAnyOf()
 
 
 template<class DATATYPE>
-inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
+inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
 {	
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 	SECTION("fromStart")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin() );
+		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		if(matchAllChars)
 			REQUIRE( it==s.begin() );
@@ -5749,7 +5801,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( it==s.begin()+2 );
@@ -5760,7 +5812,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 			
 	SECTION("fromAfterMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.begin()+3 );
+		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
 
 		if(matchAllChars)
 			REQUIRE( it==s.begin()+3 );
@@ -5771,7 +5823,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findAnyNotOf(toFind.begin(), toFind.end(), s.end() );
+		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -5784,7 +5836,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromStart")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin() );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin() );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin() );
@@ -5798,7 +5850,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+2 );
@@ -5809,7 +5861,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+3 );
@@ -5823,7 +5875,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+11 );
@@ -5837,7 +5889,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 					
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+12 );
@@ -5847,7 +5899,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findAnyNotOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+13 );
@@ -5859,7 +5911,7 @@ inline void testFindAnyNotOfIterators(const std::u32string& toFind, bool matchTh
 }
 
 template<class StringType, class ToFindType>
-inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
+inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -5867,7 +5919,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findAnyNotOf(toFind, 0 );
+		size_t result = s.findNotOneOf(toFind, 0 );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -5881,7 +5933,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromStart-defaultArg")
 	{
-		size_t result = s.findAnyNotOf(toFind );
+		size_t result = s.findNotOneOf(toFind );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -5895,7 +5947,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.findAnyNotOf(toFind, 2 );
+		size_t result = s.findNotOneOf(toFind, 2 );
 
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( result==2 );
@@ -5906,7 +5958,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findAnyNotOf(toFind, 3 );
+		size_t result = s.findNotOneOf(toFind, 3 );
 
 		if(matchAllChars)
 			REQUIRE( result==3 );
@@ -5917,21 +5969,21 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.getLength() );
+		size_t result = s.findNotOneOf(toFind, s.getLength() );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.getLength()+1 );
+		size_t result = s.findNotOneOf(toFind, s.getLength()+1 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.npos );
+		size_t result = s.findNotOneOf(toFind, s.npos );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -5944,7 +5996,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 0 );
+			size_t result = s2.findNotOneOf(toFind, 0 );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -5958,7 +6010,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromStart-defaultArg")
 		{
-			size_t result = s2.findAnyNotOf(toFind );
+			size_t result = s2.findNotOneOf(toFind );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -5972,7 +6024,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 2 );
+			size_t result = s2.findNotOneOf(toFind, 2 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( result==2 );
@@ -5983,7 +6035,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 3 );
+			size_t result = s2.findNotOneOf(toFind, 3 );
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
@@ -5997,7 +6049,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 11 );
+			size_t result = s2.findNotOneOf(toFind, 11 );
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
@@ -6011,7 +6063,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 12 );
+			size_t result = s2.findNotOneOf(toFind, 12 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( result==12 );
@@ -6021,7 +6073,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 13 );
+			size_t result = s2.findNotOneOf(toFind, 13 );
 
 			if(matchAllChars)
 				REQUIRE( result==13 );
@@ -6034,7 +6086,7 @@ inline void testFindAnyNotOfString(const StringType& toFindObj, bool matchThirdC
 
 
 template<class StringType, class ToFindType>
-inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
+inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -6051,7 +6103,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findAnyNotOf(toFind, 0, toFindLength );
+		size_t result = s.findNotOneOf(toFind, 0, toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==0 );
@@ -6065,7 +6117,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 	
 	SECTION("fromMatch")
 	{
-		size_t result = s.findAnyNotOf(toFind, 2, toFindLength );
+		size_t result = s.findNotOneOf(toFind, 2, toFindLength );
 
 		if(matchAllChars || matchThirdChar)
 			REQUIRE( result==2 );
@@ -6076,7 +6128,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 			
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findAnyNotOf(toFind, 3, toFindLength );
+		size_t result = s.findNotOneOf(toFind, 3, toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==3 );
@@ -6087,21 +6139,21 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.getLength(), toFindLength );
+		size_t result = s.findNotOneOf(toFind, s.getLength(), toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.getLength()+1, toFindLength );
+		size_t result = s.findNotOneOf(toFind, s.getLength()+1, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
-		size_t result = s.findAnyNotOf(toFind, s.npos, toFindLength );
+		size_t result = s.findNotOneOf(toFind, s.npos, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6114,7 +6166,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromStart")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 0, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 0, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==0 );
@@ -6129,7 +6181,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 2, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 2, toFindLength );
 
 			if(matchThirdChar || matchAllChars )
 				REQUIRE( result==2 );
@@ -6139,7 +6191,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 3, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 3, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
@@ -6153,7 +6205,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 11, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 11, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
@@ -6167,7 +6219,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 12, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 12, toFindLength );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( result==12 );
@@ -6178,7 +6230,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			size_t result = s2.findAnyNotOf(toFind, 13, toFindLength );
+			size_t result = s2.findNotOneOf(toFind, 13, toFindLength );
 
 			if(matchAllChars)
 				REQUIRE( result==13 );
@@ -6190,7 +6242,7 @@ inline void testFindAnyNotOfStringWithLength(const StringType& toFindObjArg, boo
 }
 
 template<class DATATYPE>
-inline void testFindAnyNotOf()
+inline void testFindNotOneOf()
 {
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
@@ -6215,48 +6267,48 @@ inline void testFindAnyNotOf()
 		SECTION( matchData.desc )
 		{
 			SECTION("iterators")
-				testFindAnyNotOfIterators<DATATYPE>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
+				testFindNotOneOfIterators<DATATYPE>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
 
 			SECTION("String")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
+				testFindNotOneOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars );
 
 			SECTION("std::string")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("std::wstring")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("std::u16string")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("std::u32string")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			
 			SECTION("const char*")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const char16_t*")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const char32_t*")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const wchar_t*")
-				testFindAnyNotOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 
 			SECTION("const char* with length")
-				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const char16_t* with length")
-				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const char32_t* with length")
-				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 			SECTION("const wchar_t* with length")
-				testFindAnyNotOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+				testFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
 
 		}
@@ -6266,13 +6318,13 @@ inline void testFindAnyNotOf()
 
 
 template<class DATATYPE>
-inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool matchPossible)
+inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
 {	
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.end() );
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -6282,7 +6334,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -6292,14 +6344,14 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 			
 	SECTION("fromBeforeMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin()+1 );
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
 				
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromBegin")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindAnyOf(toFind.begin(), toFind.end(), s.begin() );
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -6312,7 +6364,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromEnd")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.end() );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.end() );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -6322,7 +6374,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -6332,7 +6384,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -6342,7 +6394,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -6352,7 +6404,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -6362,7 +6414,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindAnyOf(toFind.begin(), toFind.end(), s2.begin()+1 );
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
 
 			REQUIRE( it==s2.end() );
 		}
@@ -6370,7 +6422,7 @@ inline void testReverseFindAnyOfIterators(const std::u32string& toFind, bool mat
 }
 
 template<class StringType, class ToFindType>
-inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPossible)
+inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -6378,7 +6430,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.getLength() );
+		size_t result = s.reverseFindOneOf(toFind, s.getLength() );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6388,7 +6440,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-moreThanLength")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.length()+1 );
+		size_t result = s.reverseFindOneOf(toFind, s.length()+1 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6398,7 +6450,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.npos );
+		size_t result = s.reverseFindOneOf(toFind, s.npos );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6409,7 +6461,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromEnd-defaultArg")
 	{
-		size_t result = s.reverseFindAnyOf(toFind );
+		size_t result = s.reverseFindOneOf(toFind );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6419,7 +6471,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 2 );
+		size_t result = s.reverseFindOneOf(toFind, 2 );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6429,14 +6481,14 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 			
 	SECTION("fromBeforeMatch")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 1 );
+		size_t result = s.reverseFindOneOf(toFind, 1 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 0 );
+		size_t result = s.reverseFindOneOf(toFind, 0 );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6449,7 +6501,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.length() );
+			size_t result = s2.reverseFindOneOf(toFind, s2.length() );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6459,7 +6511,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromAfterEnd")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.length()+1 );
+			size_t result = s2.reverseFindOneOf(toFind, s2.length()+1 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6469,7 +6521,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd-npos")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.npos );
+			size_t result = s2.reverseFindOneOf(toFind, s2.npos );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6479,7 +6531,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromEnd-defaultArg")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind );
+			size_t result = s2.reverseFindOneOf(toFind );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6489,7 +6541,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 12 );
+			size_t result = s2.reverseFindOneOf(toFind, 12 );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6499,7 +6551,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 11 );
+			size_t result = s2.reverseFindOneOf(toFind, 11 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6509,7 +6561,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 3 );
+			size_t result = s2.reverseFindOneOf(toFind, 3 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6519,7 +6571,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 2 );
+			size_t result = s2.reverseFindOneOf(toFind, 2 );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6529,7 +6581,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 1 );
+			size_t result = s2.reverseFindOneOf(toFind, 1 );
 
 			REQUIRE( result==s2.noMatch );
 		}
@@ -6537,7 +6589,7 @@ inline void testReverseFindAnyOfString(const StringType& toFindObj, bool matchPo
 }
 
 template<class StringType, class ToFindType>
-inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
+inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
 	StringType s(U"he\U00012345loworld");
 
@@ -6554,7 +6606,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.length(), toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, s.length(), toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6564,7 +6616,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.npos, toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, s.npos, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6574,7 +6626,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, s.length()+1, toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, s.length()+1, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6584,7 +6636,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 	
 	SECTION("fromMatch")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 2, toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, 2, toFindLength );
 				
 		if(matchPossible)
 			REQUIRE( result==2 );
@@ -6594,14 +6646,14 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 			
 	SECTION("fromBeforeMatch")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 1, toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, 1, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
-		size_t result = s.reverseFindAnyOf(toFind, 0, toFindLength );
+		size_t result = s.reverseFindOneOf(toFind, 0, toFindLength );
 				
 		REQUIRE( result==StringType::noMatch );
 	}
@@ -6614,7 +6666,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromEnd")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.length(), toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, s2.length(), toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6624,7 +6676,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromAfterEnd")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.length()+1, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, s2.length()+1, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6634,7 +6686,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromEnd-npos")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, s2.npos, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, s2.npos, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6644,7 +6696,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 12, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, 12, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==12 );
@@ -6654,7 +6706,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 11, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, 11, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6664,7 +6716,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 3, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, 3, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6674,7 +6726,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 2, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, 2, toFindLength );
 
 			if(matchPossible)
 				REQUIRE( result==2 );
@@ -6684,7 +6736,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = s2.reverseFindAnyOf(toFind, 1, toFindLength );
+			size_t result = s2.reverseFindOneOf(toFind, 1, toFindLength );
 
 			REQUIRE( result==s2.noMatch );
 		}
@@ -6693,7 +6745,7 @@ inline void testReverseFindAnyOfStringWithLength(const StringType& toFindObjArg,
 
 
 template<class DATATYPE>
-inline void testReverseFindAnyOf()
+inline void testReverseFindOneOf()
 {
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
@@ -6719,48 +6771,48 @@ inline void testReverseFindAnyOf()
 		SECTION( matchData.desc )
 		{
 			SECTION("iterators")
-				testReverseFindAnyOfIterators<DATATYPE>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfIterators<DATATYPE>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("String")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::string")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::wstring")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::u16string")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchPossible);
 
 			SECTION("std::u32string")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
 
 			
 			SECTION("const char*")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char16_t*")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char32_t*")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const wchar_t*")
-				testReverseFindAnyOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
 
 
 			SECTION("const char* with length")
-				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char16_t* with length")
-				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const char32_t* with length")
-				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchPossible);
 
 			SECTION("const wchar_t* with length")
-				testReverseFindAnyOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
+				testReverseFindOneOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchPossible);
 
 
 		}
@@ -6768,6 +6820,635 @@ inline void testReverseFindAnyOf()
 }
 
 
+
+
+
+
+template<class DATATYPE>
+inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
+{	
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	SECTION("fromEnd")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.end() );
+
+		if(matchAllChars)
+			REQUIRE( it==s.end()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( it==s.begin()+2 );
+
+		else
+			REQUIRE( it==s.end() );				
+	}
+
+	SECTION("fromMatch")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
+
+		if(matchAllChars || matchThirdChar)
+			REQUIRE( it==s.begin()+2 );
+		else
+			REQUIRE( it==s.end() );
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
+
+		if(matchAllChars)
+			REQUIRE( it==s.begin()+1 );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+	SECTION("fromBegin")
+	{
+		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin() );
+
+		if(matchAllChars)
+			REQUIRE( it==s.begin() );
+		else
+			REQUIRE( it==s.end() );
+	}
+
+
+	SECTION("withMultipleMatches")
+	{
+		StringImpl<DATATYPE> s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.end() );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.end()-1 );
+
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+12 );
+
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+
+			if(matchAllChars || matchThirdChar)
+				REQUIRE( it==s2.begin()+12 );
+
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+11 );
+					
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+2 );
+
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+3 );
+					
+			else if(matchThirdChar)
+				REQUIRE( it==s2.begin()+2 );
+
+			else
+				REQUIRE( it==s2.end() );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+
+			if(matchThirdChar || matchAllChars)
+				REQUIRE( it==s2.begin()+2 );
+
+			else
+				REQUIRE( it==s2.end() );			
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
+
+			if(matchAllChars)
+				REQUIRE( it==s2.begin()+1 );					
+
+			else
+				REQUIRE( it==s2.end() );
+		}
+	}
+}
+
+template<class StringType, class ToFindType>
+inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
+{
+	StringType s(U"he\U00012345loworld");
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	SECTION("fromEnd")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.getLength() );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromEnd-moreThanLength")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.length()+1 );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );		
+	}
+
+	SECTION("fromEnd-npos")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.npos );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+
+	SECTION("fromEnd-defaultArg")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );			
+	}
+
+	SECTION("fromMatch")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 2 );
+				
+		if(matchThirdChar || matchAllChars)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 1 );
+
+		if(matchAllChars)
+			REQUIRE( result==1 );
+				
+		else
+			REQUIRE( result==StringType::noMatch );						
+	}
+
+	SECTION("fromBegin")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 0 );
+
+		if(matchAllChars)
+			REQUIRE( result==0 );				
+
+		else
+			REQUIRE( result==StringType::noMatch );		
+	}
+	
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.length() );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );		
+		}
+
+		SECTION("fromAfterEnd")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.length()+1 );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );		
+		}
+
+		SECTION("fromEnd-npos")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.npos );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromEnd-defaultArg")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 12 );
+
+			if(matchAllChars || matchThirdChar)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 11 );
+
+			if(matchAllChars)
+				REQUIRE( result==11 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 3 );
+
+			if(matchAllChars)
+				REQUIRE( result==3 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 2 );
+
+			if(matchAllChars || matchThirdChar)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 1 );
+
+			if(matchAllChars)
+				REQUIRE( result==1 );				
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+	}
+}
+
+template<class StringType, class ToFindType>
+inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
+{
+	StringType s(U"he\U00012345loworld");
+
+	StringType toFindObj = toFindObjArg;
+
+	ToFindType toFind = (ToFindType)toFindObj;
+
+	size_t toFindLength = getCStringLength<ToFindType>(toFind);
+
+	toFindObj += U"hexy";
+
+	toFind = (ToFindType)toFindObj;
+	
+	
+	SECTION("fromEnd")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.getLength(), toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+
+	SECTION("fromEnd-moreThanLength")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.length()+1, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );		
+	}
+
+	SECTION("fromEnd-npos")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, s.npos, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==s.getLength()-1 );
+				
+		else if(matchThirdChar)
+			REQUIRE( result==2 );
+
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+	
+
+	SECTION("fromMatch")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 2, toFindLength );
+				
+		if(matchThirdChar || matchAllChars)
+			REQUIRE( result==2 );
+		else
+			REQUIRE( result==StringType::noMatch );				
+	}
+			
+	SECTION("fromBeforeMatch")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 1, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==1 );
+				
+		else
+			REQUIRE( result==StringType::noMatch );						
+	}
+
+	SECTION("fromBegin")
+	{
+		size_t result = s.reverseFindNotOneOf(toFind, 0, toFindLength );
+
+		if(matchAllChars)
+			REQUIRE( result==0 );				
+
+		else
+			REQUIRE( result==StringType::noMatch );		
+	}
+	
+
+	SECTION("withMultipleMatches")
+	{
+		StringType s2 = s;
+		s2+=s;
+
+		SECTION("fromEnd")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.length(), toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );		
+		}
+
+		SECTION("fromAfterEnd")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.length()+1, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );		
+		}
+
+		SECTION("fromEnd-npos")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, s2.npos, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==s2.getLength()-1 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==12 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+
+		SECTION("fromSecondMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 12, toFindLength );
+
+			if(matchAllChars || matchThirdChar)
+				REQUIRE( result==12 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeSecondMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 11, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==11 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustAfterFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 3, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==3 );
+				
+			else if(matchThirdChar)
+				REQUIRE( result==2 );
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 2, toFindLength );
+
+			if(matchAllChars || matchThirdChar)
+				REQUIRE( result==2 );
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+
+		SECTION("fromJustBeforeFirstMatch")
+		{
+			size_t result = s2.reverseFindNotOneOf(toFind, 1, toFindLength );
+
+			if(matchAllChars)
+				REQUIRE( result==1 );				
+
+			else
+				REQUIRE( result==s2.noMatch );
+		}
+	}
+}
+
+template<class DATATYPE>
+inline void testReverseFindNotOneOf()
+{
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+	struct MatchData
+	{
+		const char*			desc;
+		const char32_t*		matchString;
+		bool				matchThirdChar;
+		bool				matchAllChars;
+	};
+
+	std::list<MatchData> matchList = {	{"match",	U"\U00033333helowrd", true, false },
+										{"noMatch",	U"\U00012345helowrd", false, false },
+										{"matchAny-empty",	U"", true, true },
+										{"matchAny-otherChars",	U"abc", true, true }
+									};
+
+	for( auto matchIt = matchList.begin(); matchIt!=matchList.end(); matchIt++)
+	{
+		const MatchData& matchData = *matchIt;
+
+		SECTION( matchData.desc )
+		{
+			SECTION("iterators")
+				testReverseFindNotOneOfIterators<DATATYPE>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("String")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, StringImpl<DATATYPE> >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::string")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, std::string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::wstring")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, std::wstring >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::u16string")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, std::u16string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("std::u32string")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			
+			SECTION("const char*")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char16_t*")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char32_t*")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const wchar_t*")
+				testReverseFindNotOneOfString<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+
+			SECTION("const char* with length")
+				testReverseFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char16_t* with length")
+				testReverseFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char16_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const char32_t* with length")
+				testReverseFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const char32_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+			SECTION("const wchar_t* with length")
+				testReverseFindNotOneOfStringWithLength<StringImpl<DATATYPE>, const wchar_t*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
+
+
+		}
+	}	
+}
 
 
 
@@ -6931,14 +7612,17 @@ inline void testStringImpl()
 	SECTION("reverseFindCondition")
 		testReverseFindCondition<DATATYPE>();
 	
-	SECTION("findAnyOf")
-		testFindAnyOf<DATATYPE>();
+	SECTION("findOneOf")
+		testFindOneOf<DATATYPE>();
 
-	SECTION("findAnyNotOf")
-		testFindAnyNotOf<DATATYPE>();
+	SECTION("findNotOneOf")
+		testFindNotOneOf<DATATYPE>();
 
-	SECTION("reverseFindAnyOf")
-		testReverseFindAnyOf<DATATYPE>();
+	SECTION("reverseFindOneOf")
+		testReverseFindOneOf<DATATYPE>();
+
+	SECTION("reverseFindNotOneOf")
+		testReverseFindNotOneOf<DATATYPE>();
 }
 
 
