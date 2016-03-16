@@ -848,14 +848,25 @@ public:
 	template<class IT>
 	int compare(IT otherIt, IT otherEnd) const
 	{
-		Iterator myIt = _beginIt;
+		return compare(0, toEnd, otherIt, otherEnd);
+	}
 
-		while(true)
+
+	template<class IT>
+	int compare(size_t compareStartIndex, size_t compareLength, IT otherIt, IT otherEnd) const
+	{
+		size_t myLength = getLength();
+		if(compareStartIndex>myLength)
+			throw OutOfRangeError("Invalid compareStartIndex passed to String::compare.");
+
+		if(compareLength==toEnd || compareStartIndex+compareLength>myLength)
+			compareLength = myLength-compareStartIndex;
+
+		Iterator myIt = _beginIt+compareStartIndex;
+
+		for(size_t i=0; i<compareLength; i++)
 		{
-			if(myIt==_endIt)
-				return (otherIt==otherEnd) ? 0 : -1;
-
-			else if(otherIt==otherEnd)
+			if(otherIt==otherEnd)
 				return 1;
 
 			else
@@ -873,7 +884,7 @@ public:
 			++otherIt;
 		}
 
-		return 0;
+		return (otherIt==otherEnd) ? 0 : -1;
 	}
 
 	
@@ -947,6 +958,105 @@ public:
 		return compare( WideCodec::DecodingIterator<const wchar_t*>(o, o, oEnd),
 						WideCodec::DecodingIterator<const wchar_t*>(oEnd, o, oEnd) );
 	}
+	
+
+	int compare(size_t compareStartIndex, size_t compareLength, const StringImpl& other, size_type otherStartIndex=0, size_type otherCompareLength=toEnd) const
+	{
+		size_t otherLength = other.getLength();
+		if(otherStartIndex>otherLength)
+			throw OutOfRangeError("Invalid otherStartIndex passed to String::compare");
+
+		Iterator otherCompareBegin( other.begin()+otherStartIndex );
+		Iterator otherCompareEnd( (otherCompareLength==toEnd || otherStartIndex+otherCompareLength>=otherLength)
+									? other.end()
+									: (otherCompareBegin+otherCompareLength) );
+
+		return compare( compareStartIndex, compareLength, otherCompareBegin, otherCompareEnd );				
+	}
+
+
+	template<class InputCodec, class InputIterator>
+	int compare(size_t compareStartIndex, size_t compareLength, const InputCodec& otherCodec, const InputIterator& otherEncodedBeginIt, const InputIterator& otherEncodedEndIt) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						InputCodec::DecodingIterator( otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt ),
+						InputCodec::DecodingIterator( otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt ) );
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const std::string& other) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf8Codec(),
+						other.begin(),
+						other.end() );
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const std::wstring& other) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						WideCodec(),
+						other.begin(),
+						other.end() );
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const std::u16string& other) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf16Codec<char16_t>(),
+						other.begin(),
+						other.end() );
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const std::u32string& other) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf32Codec<char32_t>(),
+						other.begin(),
+						other.end() );
+	}
+
+
+	int compare(size_t compareStartIndex, size_t compareLength, const char* other, size_t otherLength=toEnd) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf8Codec(),
+						other,
+						getStringEndPtr(other, otherLength) );		
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const wchar_t* other, size_t otherLength=toEnd) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						WideCodec(),
+						other,
+						getStringEndPtr(other, otherLength) );		
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const char16_t* other, size_t otherLength=toEnd) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf16Codec<char16_t>(),
+						other,
+						getStringEndPtr(other, otherLength) );		
+	}
+
+	int compare(size_t compareStartIndex, size_t compareLength, const char32_t* other, size_t otherLength=toEnd) const
+	{
+		return compare( compareStartIndex,
+						compareLength,
+						Utf32Codec<char32_t>(),
+						other,
+						getStringEndPtr(other, otherLength) );		
+	}
+
 
 
 	/** Returns true if this string and the specified other string are equal.*/

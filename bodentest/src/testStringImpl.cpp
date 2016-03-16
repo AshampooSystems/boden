@@ -797,6 +797,43 @@ void verifyComparison(const STRING& s, OTHER o, int expectedResult)
 
 	REQUIRE( (s>o)==(expectedResult>0) );
 	REQUIRE( (s>=o)==(expectedResult>=0) );
+
+
+	result = s.compare(0, s.npos, o);
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length()+1, o);
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length(), o);
+	REQUIRE(result==expectedResult);
+
+	STRING biggerString = String("hello") + s + String("hello");
+
+	result = biggerString.compare(5, s.length(), o);
+	REQUIRE(result==expectedResult);
+}
+
+
+template<class STRING, class OTHER>
+void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expectedResult)
+{
+	int result = s.compare(o, oLength );
+	REQUIRE(result==expectedResult);
+	
+	result = s.compare(0, s.npos, o, oLength );
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length()+1, o, oLength);
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length(), o, oLength);
+	REQUIRE(result==expectedResult);
+
+	STRING biggerString = String("hello") + s + String("hello");
+
+	result = biggerString.compare(5, s.length(), o, oLength);
+	REQUIRE(result==expectedResult);
 }
 
 
@@ -816,6 +853,7 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("utf8Ptr")
 	{
 		verifyComparison(s, other.asUtf8Ptr(), expectedResult);
+		verifyComparisonWithLength(s, (other+"x").asUtf8Ptr(), other.getLength(), expectedResult )
 	}
 
 	SECTION("utf16")
@@ -847,6 +885,14 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	{
 		verifyComparison(s, other.asWidePtr(), expectedResult);
 	}	
+}
+
+template<class StringType>
+inline void testCompareSubString()
+{
+	StringType s(U"helloworld");
+	StringType 
+	
 }
 
 template<class DATATYPE>
@@ -883,6 +929,9 @@ inline void testComparison()
 
 	SECTION("longer")
 		testComparisonWith<DATATYPE>(s, "HeLLox", -1);
+
+	SECTION("compareSubString")
+		testCompareSubString< StringImpl<DATATYPE> >();
 }
 
 template<class DATATYPE>
