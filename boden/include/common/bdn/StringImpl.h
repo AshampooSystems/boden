@@ -2833,7 +2833,7 @@ public:
 		If pMatchEndIt is not null and the toFind sequence is not found then *pMatchEndIt is set to end().
 	*/
 	template<class CHARIT>
-	Iterator rfind(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
+	Iterator reverseFind(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		if(toFindBeginIt==toFindEndIt)
 		{
@@ -2907,9 +2907,9 @@ public:
 
 		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
 	*/
-	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
+	Iterator reverseFind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
-		return rfind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
+		return reverseFind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
 	}
 
 
@@ -2929,7 +2929,7 @@ public:
 		in which case the length of the string is returned.
 	*/
 	template<class InputIterator>
-	size_t rfind(const InputIterator& toFindBeginIt, const InputIterator& toFindEndIt, size_t searchStartIndex = npos) const noexcept
+	size_t reverseFind(const InputIterator& toFindBeginIt, const InputIterator& toFindEndIt, size_t searchStartIndex = npos) const noexcept
 	{
 		size_t myLength = getLength();
 
@@ -2998,11 +2998,17 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
-	size_t rfind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
+	size_t reverseFind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
 	{
-		return rfind(toFind._beginIt, toFind._endIt, searchStartIndex);
+		return reverseFind(toFind._beginIt, toFind._endIt, searchStartIndex);
 	}
 
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(const StringImpl& toFind, size_t searchStartIndex = npos) const noexcept
+	{
+		return reverseFind(toFind, searchStartIndex);
+	}
 	
 
 	/** Searches for the LAST occurrence of a sequence of encoded characters in this string.
@@ -3024,9 +3030,9 @@ public:
 		in which case the length of the string is returned.
 	*/
 	template<class ToFindCodec, class EncodedIt>
-	size_t rfind(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = npos) const
+	size_t reverseFind(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = npos) const
 	{
-		return rfind( ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+		return reverseFind( ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
 					  ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt),
 					  searchStartIndex );
 	}
@@ -3043,9 +3049,16 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
+	size_t reverseFind(const std::string& toFind, size_t searchStartIndex = npos) const
+	{
+		return reverseFind(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
 	size_t rfind(const std::string& toFind, size_t searchStartIndex = npos) const
 	{
-		return rfind(Utf8Codec(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFind(toFind, searchStartIndex);
 	}
 
 
@@ -3060,9 +3073,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
+	size_t reverseFind(const std::wstring& toFind, size_t searchStartIndex = npos) const
+	{
+		return reverseFind(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
 	size_t rfind(const std::wstring& toFind, size_t searchStartIndex = npos) const
 	{
-		return rfind(WideCodec(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFind(toFind, searchStartIndex);
 	}
 
 
@@ -3077,9 +3096,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
+	size_t reverseFind(const std::u16string& toFind, size_t searchStartIndex = npos) const
+	{
+		return reverseFind(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
 	size_t rfind(const std::u16string& toFind, size_t searchStartIndex = npos) const
 	{
-		return rfind(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFind(toFind, searchStartIndex);
 	}
 
 
@@ -3094,9 +3119,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
+	size_t reverseFind(const std::u32string& toFind, size_t searchStartIndex = npos) const
+	{
+		return reverseFind(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
 	size_t rfind(const std::u32string& toFind, size_t searchStartIndex = npos) const
 	{
-		return rfind(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFind(toFind, searchStartIndex);
 	}
 
 	
@@ -3115,9 +3146,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
-	size_t rfind (const char* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	size_t reverseFind (const char* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return rfind(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFind(Utf8Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(const char* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	{
+		return reverseFind(toFind, searchStartIndex, toFindLength);
 	}
 
 
@@ -3137,9 +3174,16 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
-	size_t rfind (const wchar_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	size_t reverseFind (const wchar_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return rfind(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFind(WideCodec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+	}
+
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(const wchar_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	{
+		return reverseFind(toFind, searchStartIndex, toFindLength);
 	}
 
 
@@ -3158,9 +3202,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
-	size_t rfind (const char16_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	size_t reverseFind (const char16_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return rfind(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFind(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(const char16_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	{
+		return reverseFind(toFind, searchStartIndex, toFindLength);
 	}
 
 
@@ -3179,9 +3229,15 @@ public:
 		If \c toFind is empty then searchStartIndex is returned, unless it is npos or bigger than the length of the string.
 		in which case the length of the string is returned.
 	*/
-	size_t rfind (const char32_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	size_t reverseFind (const char32_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return rfind(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFind(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(const char32_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
+	{
+		return reverseFind(toFind, searchStartIndex, toFindLength);
 	}
 
 
@@ -3195,7 +3251,7 @@ public:
 		Returns an Iterator pointing to the last occurrence of \c charToFind, if it is found.
 		Returns end() if \c charToFind is not found.
 	*/
-	Iterator rfind(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
+	Iterator reverseFind(char32_t charToFind, const Iterator& searchStartPosIt) const noexcept
 	{
 		Iterator myIt( searchStartPosIt );		
 
@@ -3230,7 +3286,7 @@ public:
 		Returns the index of the last occurrence of \c charToFind if it is found.
 		Returns String::noMatch (String::npos) if \c charToFind is not found.	
 	*/
-	size_t rfind(char32_t charToFind, size_t searchStartIndex = npos) const noexcept
+	size_t reverseFind(char32_t charToFind, size_t searchStartIndex = npos) const noexcept
 	{
 		if(_beginIt==_endIt)
 			return noMatch;
@@ -3254,6 +3310,12 @@ public:
 		}
 
 		return noMatch;
+	}
+
+	/** Same as reverseFind(). Included for compatibility with std::string. */
+	size_t rfind(char32_t charToFind, size_t searchStartIndex = npos) const
+	{
+		return reverseFind(charToFind, searchStartIndex);
 	}
 
 
@@ -3761,7 +3823,7 @@ public:
 
 	size_t find_last_of(char32_t toFind, size_t searchStartIndex=npos) const noexcept
 	{
-		return rfind(toFind, searchStartIndex);
+		return reverseFind(toFind, searchStartIndex);
 	}
 
 
