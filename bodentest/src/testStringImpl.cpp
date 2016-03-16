@@ -837,6 +837,28 @@ void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expec
 }
 
 
+template<class STRING, class OTHER>
+void verifyComparisonWithSubString(const STRING& s, OTHER o, int oLength, int expectedResult)
+{
+	int result = s.compare(o, oLength );
+	REQUIRE(result==expectedResult);
+	
+	result = s.compare(0, s.npos, o, oLength );
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length()+1, o, oLength);
+	REQUIRE(result==expectedResult);
+
+	result = s.compare(0, s.length(), o, oLength);
+	REQUIRE(result==expectedResult);
+
+	STRING biggerString = String("hello") + s + String("hello");
+
+	result = biggerString.compare(5, s.length(), o, oLength);
+	REQUIRE(result==expectedResult);
+}
+
+
 template<class DATATYPE>
 void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE>& other, int expectedResult)
 {
@@ -853,7 +875,7 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("utf8Ptr")
 	{
 		verifyComparison(s, other.asUtf8Ptr(), expectedResult);
-		verifyComparisonWithLength(s, (other+"x").asUtf8Ptr(), other.getLength(), expectedResult )
+		verifyComparisonWithLength(s, (other+"x").asUtf8Ptr(), getCStringLength(other.asUtf8Ptr()), expectedResult )
 	}
 
 	SECTION("utf16")
@@ -864,6 +886,7 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("utf16Ptr")
 	{
 		verifyComparison(s, other.asUtf16Ptr(), expectedResult);
+		verifyComparisonWithLength(s, (other+"x").asUtf16Ptr(), getCStringLength(other.asUtf16Ptr()), expectedResult )
 	}
 
 	SECTION("utf32")
@@ -874,6 +897,7 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("utf32Ptr")
 	{
 		verifyComparison(s, other.asUtf32Ptr(), expectedResult);
+		verifyComparisonWithLength(s, (other+"x").asUtf32Ptr(), getCStringLength(other.asUtf32Ptr()), expectedResult )
 	}
 
 	SECTION("wide")
@@ -884,11 +908,12 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("widePtr")
 	{
 		verifyComparison(s, other.asWidePtr(), expectedResult);
+		verifyComparisonWithLength(s, (other+"x").asWidePtr(), getCStringLength(other.asWidePtr()), expectedResult )
 	}	
 }
 
 template<class StringType>
-inline void testCompareSubString()
+inline void testCompareWithSubString()
 {
 	StringType s(U"helloworld");
 	StringType 

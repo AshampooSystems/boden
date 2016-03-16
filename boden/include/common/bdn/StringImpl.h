@@ -949,8 +949,7 @@ public:
 						WideCodec::DecodingStringIterator(o.end(), o.begin(), o.end()) );
 	}
 
-	/** See compare()
-	*/
+	/** See compare() */
 	int compare(const wchar_t* o) const
 	{
 		const wchar_t* oEnd = getStringEndPtr(o);
