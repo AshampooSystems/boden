@@ -2446,7 +2446,7 @@ public:
 
 		If copyStartIndex is bigger than the length of the string then OutOfRangeError is thrown.	
 		*/
-	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0)
+	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0) const
 	{
 		if(copyStartIndex<0 || copyStartIndex>getLength())
 			throw OutOfRangeError("String::copy called with invalid start index.");
@@ -2480,7 +2480,7 @@ public:
 		If pMatchEndIt is not null and the toFind sequence is not found then *pMatchEndIt is set to end().
 	*/
 	template<class CHARIT>
-	Iterator find(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
+	Iterator find(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		if(pMatchEndIt==nullptr)
 		{
@@ -2546,7 +2546,7 @@ public:
 
 		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
 	*/
-	Iterator find(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
+	Iterator find(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		if(pMatchEndIt==nullptr)
 			return std::search( searchFromIt, _endIt, toFind._beginIt, toFind._endIt );
@@ -2833,7 +2833,7 @@ public:
 		If pMatchEndIt is not null and the toFind sequence is not found then *pMatchEndIt is set to end().
 	*/
 	template<class CHARIT>
-	Iterator rfind(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
+	Iterator rfind(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		if(toFindBeginIt==toFindEndIt)
 		{
@@ -2907,7 +2907,7 @@ public:
 
 		If pMatchEndIt is not null and toFind is not found then *pMatchEndIt is set to end().
 	*/
-	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr)
+	Iterator rfind(const StringImpl& toFind, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		return rfind(toFind._beginIt, toFind._endIt, searchFromIt, pMatchEndIt);
 	}
@@ -3348,7 +3348,7 @@ public:
 
 
 	template <class InputIterator>
-	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
 		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
@@ -3489,7 +3489,7 @@ public:
 
 	
 	template <class InputIterator>
-	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
 		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
@@ -3629,7 +3629,7 @@ public:
 
 
 	template <class InputIterator>
-	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
 		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
@@ -3767,7 +3767,7 @@ public:
 
 
 	template <class InputIterator>
-	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt )
+	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
 		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{

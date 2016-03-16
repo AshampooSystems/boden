@@ -278,13 +278,27 @@ inline void testLength()
 			REQUIRE( s.size()==0 );
 		}
 	}
+
+
+	SECTION("const")
+	{
+		// use const reference for tests to ensure that all functions are const
+		StringImpl<DATATYPE> o("helloworld");
+		const StringImpl<DATATYPE>& s = o;
+
+		REQUIRE( s.getLength()==10 );
+		REQUIRE( s.length()==10 );
+		REQUIRE( s.size()==10 );		
+	}
 }
 
 
 template<class DATATYPE>
 inline void testSubString()
 {
-	StringImpl<DATATYPE> s("helloworld");
+	StringImpl<DATATYPE>		stringObj("helloworld");
+	// use const reference for tests to ensure that all functions are const
+	const StringImpl<DATATYPE>& s = stringObj;
 
 	SECTION("empty")
 	{
@@ -453,7 +467,9 @@ inline void testIterators()
 {
 	SECTION("empty")
 	{
-		StringImpl<DATATYPE> s;
+		StringImpl<DATATYPE>			stringObj;
+		// use const reference to ensure that all begin/end are const
+		const StringImpl<DATATYPE>& s = stringObj;
 		
 		REQUIRE( checkEquality(s.begin(), s.end(), true) );
 		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );
@@ -463,7 +479,9 @@ inline void testIterators()
 
 	SECTION("nonEmpty")
 	{
-		StringImpl<DATATYPE> s("hello");
+		StringImpl<DATATYPE>			stringObj("hello");
+		// use const reference to ensure that all begin/end are const
+		const StringImpl<DATATYPE>& s = stringObj;
 
 		REQUIRE( checkEquality(s.begin(), s.end(), false) );
 		REQUIRE( checkEquality(s.cbegin(), s.cend(), false) );
@@ -511,7 +529,9 @@ void verifyMultiByteResult(const StringImpl<DATATYPE>& in, const std::wstring& o
 template<class DATATYPE>
 inline void testConversion()
 {
-	StringImpl<DATATYPE> s(U"he\u0218\u0777\uffffllo");
+	StringImpl<DATATYPE>		stringObj(U"he\u0218\u0777\uffffllo");
+	// use const reference for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>& s = stringObj;
 
 	SECTION("utf8")
 	{
@@ -2583,7 +2603,7 @@ inline void testGetAllocator()
 
 
 template<class DATATYPE>
-inline void testCopy(StringImpl<DATATYPE>& s)
+inline void testCopy(const StringImpl<DATATYPE>& s)
 {
 	std::u32string u32 = s.asUtf32();
 
@@ -2789,8 +2809,12 @@ inline void testIteratorWithIndex()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testFindStringFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj(U"");	
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
 
 	STRINGTYPE toFindObj(U"\U00012345lo");	
 	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
@@ -2976,8 +3000,13 @@ int getCStringLength(PType s)
 template<class STRINGTYPE, class ToFindStringType>
 inline void testFindStringWithLengthFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj(U"");	
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
+
 
 	STRINGTYPE toFindObj(U"\U00012345lo");	
 	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
@@ -3152,8 +3181,12 @@ inline void testFindStringWithLengthFromIndex()
 template<class STRINGTYPE>
 inline void testFindCharFromIterator()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj(U"");	
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
 
 	char32_t toFind = U'\U00012345';
 	char32_t toFindNonMatch = 'x';
@@ -3267,8 +3300,12 @@ inline void testFindCharFromIterator()
 template<class STRINGTYPE>
 inline void testFindCharFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj(U"");	
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
 
 	char32_t toFind = U'\U00012345';
 	char32_t toFindNonMatch = 'x';
@@ -3446,7 +3483,11 @@ inline void testFindCharFromIndex()
 template<class DATATYPE>
 inline void testFindStringFromIt()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");		
+
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
@@ -3663,7 +3704,11 @@ inline void testFindStringFromIt()
 template<class DATATYPE>
 inline void testFindIterators()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
@@ -3953,10 +3998,15 @@ inline void testFind()
 template<class DATATYPE>
 inline void testRFindIterators()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+	const StringImpl<DATATYPE>&	empty = emptyObj;
+
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
-	StringImpl<DATATYPE> empty;
 
 	StringImpl<DATATYPE>::Iterator matchEndIt;
 
@@ -4192,11 +4242,16 @@ inline void testRFindIterators()
 template<class DATATYPE>
 inline void testRFindStringFromIt()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+	const StringImpl<DATATYPE>&	empty = emptyObj;
+
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
-	StringImpl<DATATYPE> empty;
-
+	
 	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
@@ -4412,8 +4467,12 @@ inline void testRFindStringFromIt()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testRFindStringFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
 
 	STRINGTYPE toFindObj(U"\U00012345lo");	
 	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
@@ -4615,8 +4674,13 @@ inline void testRFindStringFromIndex()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testRFindStringWithLengthFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
+
 
 	STRINGTYPE toFindObj(U"\U00012345lo");	
 	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
@@ -4818,8 +4882,13 @@ inline void testRFindStringWithLengthFromIndex()
 template<class STRINGTYPE>
 inline void testRFindCharFromIterator()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
+
 
 	char32_t toFind = U'\U00012345';
 	char32_t toFindNonMatch = 'x';
@@ -4944,8 +5013,13 @@ size_t callRFindChar(StringType& s, Args... args)
 template<class STRINGTYPE>
 inline void testRFindCharFromIndex()
 {
-	STRINGTYPE s(U"he\U00012345loworld");	
-	STRINGTYPE empty(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");		
+	STRINGTYPE			emptyObj;		
+
+	// use const references for the test to ensure that the functions are const
+	const STRINGTYPE&	s = stringObj;
+	const STRINGTYPE&	empty = emptyObj;
+
 
 	char32_t toFind = U'\U00012345';
 	char32_t toFindNonMatch = 'x';
@@ -5181,7 +5255,10 @@ inline void testRFind()
 template<class DATATYPE, class Predicate>
 inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+
 
 	SECTION("fromStart")
 	{	
@@ -5228,7 +5305,9 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 template<class DATATYPE, class Predicate>
 inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
 	{	
@@ -5322,7 +5401,9 @@ inline void testFindCondition()
 template<class DATATYPE, class Predicate>
 inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
 	{	
@@ -5377,7 +5458,9 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 template<class DATATYPE, class Predicate>
 inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
 	{	
@@ -5475,7 +5558,9 @@ inline void testReverseFindCondition()
 template<class DATATYPE>
 inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
 {	
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
 	{
@@ -5591,7 +5676,9 @@ size_t callFindOneOf(StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	ToFindType toFind = (ToFindType)toFindObj;
 
@@ -5733,7 +5820,9 @@ inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 template<class StringType, class ToFindType>
 inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	StringType toFindObj = toFindObjArg;
 
@@ -5865,7 +5954,9 @@ inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool m
 template<class DATATYPE>
 inline void testFindOneOf()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	struct MatchData
 	{
@@ -5944,7 +6035,9 @@ inline void testFindOneOf()
 template<class DATATYPE>
 inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
 {	
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
 	{
@@ -6074,7 +6167,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 
 template<class StringType, class ...Args>
-size_t callFindNotOneOf(StringType& s, Args... args)
+size_t callFindNotOneOf(const StringType& s, Args... args)
 {
 	size_t result = s.findNotOneOf(args...);
 	size_t result2 = s.find_first_not_of(args...);
@@ -6087,7 +6180,9 @@ size_t callFindNotOneOf(StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	ToFindType toFind = (ToFindType)toFindObj;
 
@@ -6262,7 +6357,9 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 template<class StringType, class ToFindType>
 inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	StringType toFindObj = toFindObjArg;
 
@@ -6421,8 +6518,12 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 template<class StringType>
 inline void testFindFirstNotOfChar()
 {
-	StringType s(U"he\U00012345loworld");
-	StringType empty(U"");
+	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			emptyObj(U"");		
+	
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
+	const StringType&	empty = emptyObj;
 
 	size_t result = s.find_first_not_of(U'h');
 	REQUIRE( result==1 );
@@ -6458,7 +6559,10 @@ inline void testFindFirstNotOfChar()
 template<class DATATYPE>
 inline void testFindNotOneOf()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+
 
 	struct MatchData
 	{
@@ -6538,7 +6642,9 @@ inline void testFindNotOneOf()
 template<class DATATYPE>
 inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
 {	
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
 	{
@@ -6641,7 +6747,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 
 template<class StringType, class ...Args>
-size_t callReverseFindOneOf(StringType& s, Args... args)
+size_t callReverseFindOneOf(const StringType& s, Args... args)
 {
 	size_t result = s.reverseFindOneOf(args...);
 	size_t result2 = s.find_last_of(args...);
@@ -6654,7 +6760,9 @@ size_t callReverseFindOneOf(StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	ToFindType toFind = (ToFindType)toFindObj;
 
@@ -6821,7 +6929,9 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 template<class StringType, class ToFindType>
 inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	StringType toFindObj = toFindObjArg;
 
@@ -6977,7 +7087,9 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 template<class DATATYPE>
 inline void testReverseFindOneOf()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	struct MatchData
 	{
@@ -7057,7 +7169,9 @@ inline void testReverseFindOneOf()
 template<class DATATYPE>
 inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
 {	
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
 	{
@@ -7188,7 +7302,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 
 template<class StringType, class ...Args>
-size_t callReverseFindNotOneOf(StringType& s, Args... args)
+size_t callReverseFindNotOneOf(const StringType& s, Args... args)
 {
 	size_t result = s.reverseFindNotOneOf(args...);
 	size_t result2 = s.find_last_not_of(args...);
@@ -7201,7 +7315,9 @@ size_t callReverseFindNotOneOf(StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	ToFindType toFind = (ToFindType)toFindObj;
 
@@ -7420,7 +7536,9 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 template<class StringType, class ToFindType>
 inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
 {
-	StringType s(U"he\U00012345loworld");
+	StringType			stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
 
 	StringType toFindObj = toFindObjArg;
 
@@ -7623,8 +7741,12 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 template<class StringType>
 inline void testFindLastNotOfChar()
 {
-	StringType s(U"he\U00012345loworld");
-	StringType empty(U"");
+	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			emptyObj(U"");		
+	// use const references for the test to ensure that the functions are const
+	const StringType&	s = stringObj;
+	const StringType&	empty = emptyObj;
+
 
 	size_t result = s.find_last_not_of(U'x');
 	REQUIRE( result==s.getLength()-1 );
@@ -7672,7 +7794,10 @@ inline void testFindLastNotOfChar()
 template<class DATATYPE>
 inline void testReverseFindNotOneOf()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");
+	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");		
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+	
 
 	struct MatchData
 	{
