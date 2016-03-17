@@ -173,13 +173,19 @@ public:
 		*/
 	static const size_t toEnd = npos;
 
+
+
 	
+	/** Contructor for an empty string.*/
 	StringImpl()
 		: StringImpl( MainDataType::getEmptyData() )
 	{
 		_lengthIfKnown = 0;
 	}
 
+
+	/** Initializes the string with a copy of the specified string.
+	*/
 	StringImpl(const StringImpl& s)
 	{
 		_pData = s._pData;
@@ -191,7 +197,9 @@ public:
 		_lengthIfKnown = s._lengthIfKnown;
 	}
 
-	StringImpl(const StringImpl&& s) noexcept
+
+	/** Move constructor. Behaves the same as assign(const StringImpl&&). */
+	StringImpl(StringImpl&& s) noexcept
 	{
 		_lengthIfKnown = -1;
 
@@ -199,6 +207,7 @@ public:
 	}
 
 
+	/** Initializes the string with a substring of the specified string.*/
 	StringImpl(const StringImpl& s, const Iterator& beginIt, const Iterator& endIt )
 	{
 		_pData = s._pData;
@@ -211,13 +220,34 @@ public:
 		_lengthIfKnown = -1;
 	}
 
+	/** Initializes the string with a substring of the specified string.
+	
+		If subStringStartIndex is bigger than the length of the string then OutOfRangeError (which is the same as
+		std::out_of_range) is thrown.
+		startIndex can equal the string length - in that case the resulting string is empty.
+		
+		If subStringLength is not String::toEnd or String::npos then at most the specified number of character are copied
+		from the source string. If the specified length exceeds the end of the source string, or if subStringLength is
+		String::toEnd or String::npos then the remaining part of the string after the start index is copied.
+	*/
+	StringImpl(const StringImpl& s, size_t subStringStartIndex, size_t subStringLength = toEnd )
+	{
+		_lengthIfKnown = -1;
+
+		assign(s, subStringStartIndex, subStringLength);
+	}
+
 
 	/** Initializes the object from a C-style UTF-8 encoded string.
+
+		If lengthElements is String::toEnd or String::npos then \c s must be zero-terminated.
+		If lengthElements is not String::toEnd / String::npos then lengthElements indicates the number
+		of encoded UTF-8 bytes of \c s.
 
 		To initialize with data in the locale-dependent multibyte encoding
 		see #fromLocale.
 	*/
-	StringImpl(const char* s, int lengthElements=-1)
+	StringImpl(const char* s, size_t lengthElements = toEnd)
 		: StringImpl( newObj<MainDataType>(s, lengthElements ) )
 	{
 	}
@@ -233,47 +263,58 @@ public:
 	{
 	}
 
+	
+	/** Initializes the object from a C-style wchar_t encoded string.
 
-	/** Static construction method. Initializes the String object from a C-style
-		string in the locale-dependent multibyte encoding.*/
-	static StringImpl fromLocale(const char* s, int lengthElements=-1)
-	{
-		return StringImpl( MainDataType::fromLocale(s, lengthElements) );
-	}
-
-	/** Static construction method. Initializes the String object from a std::string
-	in the locale-dependent multibyte encoding.*/
-	static StringImpl fromLocale(const std::string& s)
-	{
-		return StringImpl( MainDataType::fromLocale(s) );
-	}
-
-
-	StringImpl(const wchar_t* s, int lengthElements=-1)
+		If lengthElements is String::toEnd or String::npos then \c s must be zero-terminated.
+		If lengthElements is not String::toEnd / String::npos then lengthElements indicates the number
+		of encoded wchar_t elements of \c s.
+	*/
+	StringImpl(const wchar_t* s, size_t lengthElements = toEnd)
 		: StringImpl(newObj<MainDataType>(s, lengthElements))
 	{
 	}
 
+
+	/** Initializes the object from a wide-char std::wstring.*/
 	StringImpl(const std::wstring& s)
 		: StringImpl(newObj<MainDataType>(s))
 	{
 	}
 
-	StringImpl(const char16_t* s, int lengthElements=-1)
+
+	/** Initializes the object from a C-style UTF-16 encoded string.
+
+		If lengthElements is String::toEnd or String::npos then \c s must be zero-terminated.
+		If lengthElements is not String::toEnd / String::npos then lengthElements indicates the number
+		of encoded 16 bit elements of \c s.
+	*/
+	StringImpl(const char16_t* s, size_t lengthElements = toEnd)
 		: StringImpl(newObj<MainDataType>(s, lengthElements))
 	{
 	}
 
+
+	/** Initializes the object from a UTF-16 std::u16string.*/
 	StringImpl(const std::u16string& s)
 		: StringImpl(newObj<MainDataType>(s))
 	{
 	}
 
-	StringImpl(const char32_t* s, int lengthElements=-1)
+
+	/** Initializes the object from a C-style UTF-32 encoded string.
+
+		If lengthElements is String::toEnd or String::npos then \c s must be zero-terminated.
+		If lengthElements is not String::toEnd / String::npos then lengthElements indicates the number
+		of 32 bit elements of \c s.
+	*/
+	StringImpl(const char32_t* s, size_t lengthElements = toEnd)
 		: StringImpl( newObj<MainDataType>(s, lengthElements) )
 	{
 	}
 
+
+	/** Initializes the object from a UTF-32 std::u32string.*/
 	StringImpl(const std::u32string& s)
 		: StringImpl(newObj<MainDataType>(s))
 	{
@@ -289,26 +330,60 @@ public:
 	}
 
 
-	/** Initializes the object with the data between two iterators whose data is encoded
-		according to the specified InputCodec codec type.
-
-		The data is first automatically decoded and then re-encoded to this String's data codec.
-		The only exception is if InputCodec is the same codec that this String uses. In that
-		case the data will simply be copied as is.
-	*/
-	template<class InputCodec, class InputEncodedIterator>
-	StringImpl(const InputCodec& codec, InputEncodedIterator inputEncodedBeginIt, InputEncodedIterator inputEncodedEndIt)
-		: StringImpl( newObj<MainDataType>(codec, inputEncodedBeginIt, inputEncodedEndIt) )
+	
+	/** Initializes the string to be \c numChars times the \c chr character.		
+		*/
+	StringImpl(size_t numChars, char32_t chr)
 	{
+		_lengthIfKnown = -1;
+
+		assign(numChars, chr);
+	}
+
+
+	/** Initializes the string with a sequence of characters.
+
+		initializerList is automatically created by the compiler when you call this method
+		with an initializer list.
+
+		Example:
+
+		\code
+		String myString( {'a', 'b', 'c' } );
+		\endcode
+		*/
+	StringImpl(std::initializer_list<char32_t> initializerList)
+	{
+		_lengthIfKnown = -1;
+
+		assign(initializerList);
 	}
 
 	
+	/** Constructs a string that uses the specified string data object.*/
 	StringImpl(MainDataType* pData)
 		: _pData(pData)
 		, _beginIt( pData->begin() )
 		, _endIt( pData->end() )
 	{
 		_lengthIfKnown = -1;
+	}
+
+
+
+	
+	/** Static construction method. Initializes the String object from a C-style
+		string in the locale-dependent multibyte encoding.*/
+	static StringImpl fromLocale(const char* s, int lengthElements=-1)
+	{
+		return StringImpl( MainDataType::fromLocale(s, lengthElements) );
+	}
+
+	/** Static construction method. Initializes the String object from a std::string
+	in the locale-dependent multibyte encoding.*/
+	static StringImpl fromLocale(const std::string& s)
+	{
+		return StringImpl( MainDataType::fromLocale(s) );
 	}
 
 

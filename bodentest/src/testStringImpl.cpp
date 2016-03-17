@@ -159,55 +159,138 @@ void testConstruct()
 		verifyContents(s, U"hello");
 	}
 
+	
 
-	SECTION("fromEncodedIterators-Utf8")
+	SECTION("fromSubString-indices")
 	{
-		std::string input = "hello";
+		SECTION("full-withLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 0, 6);
+			verifyContents(s, U"\U00012345hello");
+		}
 
-		StringImpl<DATATYPE> s(Utf8Codec(), input.begin(), input.end() );
-		verifyContents(s, U"hello");
+		SECTION("full-defaultLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 0);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("full-npos")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 0, StringImpl<DATATYPE>::npos);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("full-moreThanLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 10);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("part-toEnd-withLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345hello"), 4, 6);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("part-toEnd-defaultLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345hello"), 4);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("part-toEnd-npos")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345hello"), 4, StringImpl<DATATYPE>::npos);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("part-toEnd-moreThanLength")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345hello"), 4, 10);
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		
+		SECTION("part")
+		{
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345helloab"), 4, 6);
+			verifyContents(s, U"\U00012345hello");
+		}
 	}
 
-	SECTION("fromEncodedIterators-Utf16")
+	
+	SECTION("fromSubString-iterators")
 	{
-		std::u16string input = u"hello";
+		SECTION("full")
+		{
+			StringImpl<DATATYPE> o(U"\U00012345hello");
 
-		StringImpl<DATATYPE> s(Utf16Codec<char16_t>(), input.begin(), input.end() );
-		verifyContents(s, U"hello");
+			StringImpl<DATATYPE> s( o, o.begin(), o.end() );
+			verifyContents(s, U"\U00012345hello");
+		}
+		
+		SECTION("part-toEnd")
+		{
+			StringImpl<DATATYPE> o(U"x\U00023456yz\U00012345hello");
+
+			StringImpl<DATATYPE> s( o, o.begin()+4, o.end() );
+			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("part")
+		{
+			StringImpl<DATATYPE> o(U"x\U00023456yz\U00012345helloab");
+
+			StringImpl<DATATYPE> s( o, o.begin()+4, o.end()-2 );
+			verifyContents(s, U"\U00012345hello");
+		}
 	}
 
-	SECTION("fromEncodedIterators-Utf32")
-	{
-		std::u32string input = U"hello";
 
-		StringImpl<DATATYPE> s(Utf32Codec<char32_t>(), input.begin(), input.end() );
-		verifyContents(s, U"hello");
+	SECTION("charCount")
+	{
+		SECTION("zero")
+		{
+			StringImpl<DATATYPE> s(0, U'\U00012345' );
+			verifyContents(s, U"");
+		}
+
+		SECTION("one")
+		{
+			StringImpl<DATATYPE> s(1, U'\U00012345' );
+			verifyContents(s, U"\U00012345");
+		}
+
+		SECTION("many")
+		{
+			StringImpl<DATATYPE> s(7, U'\U00012345' );
+			verifyContents(s, U"\U00012345\U00012345\U00012345\U00012345\U00012345\U00012345\U00012345");
+		}		
 	}
 
 
-	SECTION("fromEncodedPtrs-Utf8")
+	SECTION("initializerList")
 	{
-		const char* input = "hello";
+		SECTION("one")
+		{
+			StringImpl<DATATYPE> s( { U'\U00012345' } );
+			verifyContents(s, U"\U00012345");
+		}
 
-		StringImpl<DATATYPE> s(Utf8Codec(), input, input+5 );
-		verifyContents(s, U"hello");
+		SECTION("many")
+		{
+			StringImpl<DATATYPE> s( { U'\U00012345', U'h', 'x', U'\U00019999' } );
+			verifyContents(s, U"\U00012345hx\U00019999");
+		}
+
+		SECTION("normalChars")
+		{
+			StringImpl<DATATYPE> s( { 'x', 'y', 'z'  } );
+			verifyContents(s, U"xyz");
+		}
 	}
 
-	SECTION("fromEncodedPtrs-Utf16")
-	{
-		const char16_t* input = u"hello";
-
-		StringImpl<DATATYPE> s(Utf16Codec<char16_t>(), input, input+5 );
-		verifyContents(s, U"hello");
-	}
-
-	SECTION("fromEncodedPtrs-Utf32")
-	{
-		const char32_t* input = U"hello";
-
-		StringImpl<DATATYPE> s(Utf32Codec<char32_t>(), input, input+5 );
-		verifyContents(s, U"hello");
-	}
 
 }
 
