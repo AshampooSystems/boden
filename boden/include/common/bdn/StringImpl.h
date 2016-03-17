@@ -898,30 +898,30 @@ public:
 
 	/** See compare()
 	*/
-	int compare(const char* o) const
+	int compare(const char* other, size_t otherLength = toEnd) const
 	{
-		const char* oEnd = getStringEndPtr(o);
+		const char* oEnd = getStringEndPtr(other, otherLength);
 
-		return compare( Utf8Codec::DecodingIterator<const char*>(o, o, oEnd),
-						Utf8Codec::DecodingIterator<const char*>(oEnd, o, oEnd) );
+		return compare( Utf8Codec::DecodingIterator<const char*>(other, other, oEnd),
+						Utf8Codec::DecodingIterator<const char*>(oEnd, other, oEnd) );
 	}
 
 	/** See compare()
 	*/
-	int compare(const std::u16string& o) const
+	int compare(const std::u16string& other) const
 	{
-		return compare( Utf16Codec<char16_t>::DecodingStringIterator(o.begin(), o.begin(), o.end()),
-					    Utf16Codec<char16_t>::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+		return compare( Utf16Codec<char16_t>::DecodingStringIterator(other.begin(), other.begin(), other.end()),
+					    Utf16Codec<char16_t>::DecodingStringIterator(other.end(), other.begin(), other.end()) );
 	}
 
 	/** See compare()
 	*/
-	int compare(const char16_t* o) const
+	int compare(const char16_t* other, size_t otherLength = toEnd) const
 	{
-		const char16_t* oEnd = getStringEndPtr(o);
+		const char16_t* oEnd = getStringEndPtr(other, otherLength);
 
-		return compare( Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(o, o, oEnd),
-						Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(oEnd, o, oEnd) );
+		return compare( Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(other, other, oEnd),
+						Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(oEnd, other, oEnd) );
 	}
 
 	/** See compare()
@@ -934,11 +934,11 @@ public:
 
 	/** See compare()
 	*/
-	int compare(const char32_t* o) const
+	int compare(const char32_t* other, size_t otherLength = toEnd) const
 	{
-		const char32_t* oEnd = getStringEndPtr(o);
+		const char32_t* oEnd = getStringEndPtr(other, otherLength);
 
-		return compare( o, oEnd );
+		return compare( other, oEnd );
 	}
 
 	/** See compare()
@@ -950,12 +950,12 @@ public:
 	}
 
 	/** See compare() */
-	int compare(const wchar_t* o) const
+	int compare(const wchar_t* other, size_t otherLength = toEnd) const
 	{
-		const wchar_t* oEnd = getStringEndPtr(o);
+		const wchar_t* oEnd = getStringEndPtr(other, otherLength);
 
-		return compare( WideCodec::DecodingIterator<const wchar_t*>(o, o, oEnd),
-						WideCodec::DecodingIterator<const wchar_t*>(oEnd, o, oEnd) );
+		return compare( WideCodec::DecodingIterator<const wchar_t*>(other, other, oEnd),
+						WideCodec::DecodingIterator<const wchar_t*>(oEnd, other, oEnd) );
 	}
 	
 
@@ -975,46 +975,46 @@ public:
 
 
 	template<class InputCodec, class InputIterator>
-	int compare(size_t compareStartIndex, size_t compareLength, const InputCodec& otherCodec, const InputIterator& otherEncodedBeginIt, const InputIterator& otherEncodedEndIt) const
+	int compare(const InputCodec& otherCodec, size_t compareStartIndex, size_t compareLength, const InputIterator& otherEncodedBeginIt, const InputIterator& otherEncodedEndIt) const
 	{
 		return compare( compareStartIndex,
 						compareLength,
-						InputCodec::DecodingIterator( otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt ),
-						InputCodec::DecodingIterator( otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt ) );
+						InputCodec::DecodingIterator<InputIterator>( otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt ),
+						InputCodec::DecodingIterator<InputIterator>( otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt ) );
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::string& other) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf8Codec(),
+		return compare( Utf8Codec(),
+						compareStartIndex,
+						compareLength,						
 						other.begin(),
 						other.end() );
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::wstring& other) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						WideCodec(),
+		return compare( WideCodec(),
+						compareStartIndex,
+						compareLength,						
 						other.begin(),
 						other.end() );
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::u16string& other) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf16Codec<char16_t>(),
+		return compare( Utf16Codec<char16_t>(),
+						compareStartIndex,
+						compareLength,						
 						other.begin(),
 						other.end() );
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::u32string& other) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf32Codec<char32_t>(),
+		return compare( Utf32Codec<char32_t>(),
+						compareStartIndex,
+						compareLength,						
 						other.begin(),
 						other.end() );
 	}
@@ -1022,36 +1022,36 @@ public:
 
 	int compare(size_t compareStartIndex, size_t compareLength, const char* other, size_t otherLength=toEnd) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf8Codec(),
+		return compare( Utf8Codec(),
+						compareStartIndex,
+						compareLength,						
 						other,
 						getStringEndPtr(other, otherLength) );		
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const wchar_t* other, size_t otherLength=toEnd) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						WideCodec(),
+		return compare( WideCodec(),
+						compareStartIndex,
+						compareLength,						
 						other,
 						getStringEndPtr(other, otherLength) );		
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const char16_t* other, size_t otherLength=toEnd) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf16Codec<char16_t>(),
+		return compare( Utf16Codec<char16_t>(),
+						compareStartIndex,
+						compareLength,						
 						other,
 						getStringEndPtr(other, otherLength) );		
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const char32_t* other, size_t otherLength=toEnd) const
 	{
-		return compare( compareStartIndex,
-						compareLength,
-						Utf32Codec<char32_t>(),
+		return compare( Utf32Codec<char32_t>(),
+						compareStartIndex,
+						compareLength,						
 						other,
 						getStringEndPtr(other, otherLength) );		
 	}

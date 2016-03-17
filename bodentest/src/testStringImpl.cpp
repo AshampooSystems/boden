@@ -783,80 +783,168 @@ inline void testConversion()
 }
 
 
+
 template<class STRING, class OTHER>
 void verifyComparison(const STRING& s, OTHER o, int expectedResult)
 {
-	int result = s.compare(o);
-	REQUIRE(result==expectedResult);
+	SECTION("fullString")
+	{
+		int result = s.compare(o);
+		REQUIRE(result==expectedResult);
 
-	REQUIRE( (s==o)==(expectedResult==0) );
-	REQUIRE( (s!=o)==(expectedResult!=0) );
+		REQUIRE( (s==o)==(expectedResult==0) );
+		REQUIRE( (s!=o)==(expectedResult!=0) );
 
-	REQUIRE( (s<o)==(expectedResult<0) );
-	REQUIRE( (s<=o)==(expectedResult<=0) );
+		REQUIRE( (s<o)==(expectedResult<0) );
+		REQUIRE( (s<=o)==(expectedResult<=0) );
+	
+		REQUIRE( (s>o)==(expectedResult>0) );
+		REQUIRE( (s>=o)==(expectedResult>=0) );
+	}
 
-	REQUIRE( (s>o)==(expectedResult>0) );
-	REQUIRE( (s>=o)==(expectedResult>=0) );
+	SECTION("subString")
+	{
+		SECTION("full-npos")
+		{
+			int result = s.compare(0, s.npos, o);
+			REQUIRE(result==expectedResult);	
+		}
+
+		SECTION("full-length")
+		{
+			int result = s.compare(0, s.length(), o);
+			REQUIRE(result==expectedResult);	
+		}
+
+		SECTION("moreThanLength")
+		{
+			int result = s.compare(0, s.length()+1, o);
+			REQUIRE(result==expectedResult);	
+		}
+
+		SECTION("part")
+		{
+			STRING biggerString = STRING("hello");
+			biggerString += s;
+			biggerString += STRING("hello"); 
+			
+			SECTION("withFull")
+			{
+				int result = biggerString.compare(5, s.length(), o);
+				REQUIRE(result==expectedResult);	
+			}
+		}
+	}
+}
 
 
-	result = s.compare(0, s.npos, o);
-	REQUIRE(result==expectedResult);
+template<class STRING, class OTHER>
+void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expectedResult)
+{
+	STRING biggerString = STRING("hello");
+	biggerString += s;
+	biggerString += STRING("hello"); 
+		
+	SECTION("withSubString-fromMidToEnd")
+	{
+		OTHER prefix = (const OTHER&)STRING("xxx");
+		OTHER otherWithPrefix = prefix;
+		otherWithPrefix += o;
 
-	result = s.compare(0, s.length()+1, o);
-	REQUIRE(result==expectedResult);
+		SECTION("defaultArg")
+		{
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length() );		
+			REQUIRE(result==expectedResult);
+		}
 
-	result = s.compare(0, s.length(), o);
-	REQUIRE(result==expectedResult);
+		SECTION("npos")
+		{
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), biggerString.npos);		
+			REQUIRE(result==expectedResult);	
+		}
 
-	STRING biggerString = String("hello") + s + String("hello");
+		SECTION("length")
+		{
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()-prefix.length() );		
+			REQUIRE(result==expectedResult);	
+		}
 
-	result = biggerString.compare(5, s.length(), o);
-	REQUIRE(result==expectedResult);
+		SECTION("moreThanLength")
+		{
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()+100 );		
+			REQUIRE(result==expectedResult);	
+		}
+	}
+			
+	SECTION("withSubString-fromMidToMid")
+	{
+		OTHER prefix = STRING("xxx");
+		OTHER suffix = STRING("xxx");
+		OTHER otherWithPrefixAndSuffix = prefix;
+		otherWithPrefixAndSuffix += o;
+		otherWithPrefixAndSuffix += suffix;
+
+		int result = biggerString.compare(5, s.length(), otherWithPrefixAndSuffix, prefix.length(), otherWithPrefixAndSuffix.length()-prefix.length()-suffix.length() );		
+		REQUIRE(result==expectedResult);	
+	}
+
+
+	SECTION("withSubString-fromStartToMid")
+	{
+		OTHER suffix = STRING("xxx");
+		OTHER otherWithSuffix = o;
+		otherWithSuffix += suffix;
+
+		int result = biggerString.compare(5, s.length(), otherWithSuffix, 0, otherWithSuffix.length()-suffix.length() );		
+		REQUIRE(result==expectedResult);	
+	}						
+
+	
 }
 
 
 template<class STRING, class OTHER>
 void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expectedResult)
 {
-	int result = s.compare(o, oLength );
-	REQUIRE(result==expectedResult);
-	
-	result = s.compare(0, s.npos, o, oLength );
-	REQUIRE(result==expectedResult);
+	SECTION("full-length")
+	{
+		int result = s.compare(o, oLength );
+		REQUIRE(result==expectedResult);	
+	}
 
-	result = s.compare(0, s.length()+1, o, oLength);
-	REQUIRE(result==expectedResult);
+	SECTION("full-npos")
+	{
+		int result = s.compare(0, s.npos, o, oLength );
+		REQUIRE(result==expectedResult);	
+	}
 
-	result = s.compare(0, s.length(), o, oLength);
-	REQUIRE(result==expectedResult);
+	SECTION("subString")
+	{
+		SECTION("full-length")
+		{
+			int result = s.compare(0, s.length(), o, oLength);
+			REQUIRE(result==expectedResult);	
+		}
 
-	STRING biggerString = String("hello") + s + String("hello");
+		SECTION("full-moreThanLength")
+		{
+			int result = s.compare(0, s.length()+1, o, oLength);
+			REQUIRE(result==expectedResult);	
+		}
 
-	result = biggerString.compare(5, s.length(), o, oLength);
-	REQUIRE(result==expectedResult);
+		SECTION("part")
+		{
+			STRING biggerString = STRING("hello");
+			biggerString += s;
+			biggerString += STRING("hello");
+
+			int result = biggerString.compare(5, s.length(), o, oLength);			
+			REQUIRE(result==expectedResult);	
+		}
+	}
 }
 
 
-template<class STRING, class OTHER>
-void verifyComparisonWithSubString(const STRING& s, OTHER o, int oLength, int expectedResult)
-{
-	int result = s.compare(o, oLength );
-	REQUIRE(result==expectedResult);
-	
-	result = s.compare(0, s.npos, o, oLength );
-	REQUIRE(result==expectedResult);
-
-	result = s.compare(0, s.length()+1, o, oLength);
-	REQUIRE(result==expectedResult);
-
-	result = s.compare(0, s.length(), o, oLength);
-	REQUIRE(result==expectedResult);
-
-	STRING biggerString = String("hello") + s + String("hello");
-
-	result = biggerString.compare(5, s.length(), o, oLength);
-	REQUIRE(result==expectedResult);
-}
 
 
 template<class DATATYPE>
@@ -865,60 +953,61 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	SECTION("String")
 	{
 		verifyComparison(s, other, expectedResult);
+		verifyComparisonSubStringWithSubString(s, other, expectedResult);
 	}
 
 	SECTION("utf8")
 	{
 		verifyComparison(s, other.asUtf8(), expectedResult);
+		verifyComparisonSubStringWithSubString(s, other.asUtf8(), expectedResult);
 	}
+
+	StringImpl<DATATYPE> otherWithX = other;
+	otherWithX += "x";
 
 	SECTION("utf8Ptr")
 	{
 		verifyComparison(s, other.asUtf8Ptr(), expectedResult);
-		verifyComparisonWithLength(s, (other+"x").asUtf8Ptr(), getCStringLength(other.asUtf8Ptr()), expectedResult )
+		verifyComparisonWithLength(s, otherWithX.asUtf8Ptr(), getCStringLength(other.asUtf8Ptr()), expectedResult );
 	}
 
 	SECTION("utf16")
 	{
 		verifyComparison(s, other.asUtf16(), expectedResult);
+		verifyComparisonSubStringWithSubString(s, other.asUtf16(), expectedResult);
 	}
 
 	SECTION("utf16Ptr")
 	{
 		verifyComparison(s, other.asUtf16Ptr(), expectedResult);
-		verifyComparisonWithLength(s, (other+"x").asUtf16Ptr(), getCStringLength(other.asUtf16Ptr()), expectedResult )
+		verifyComparisonWithLength(s, otherWithX.asUtf16Ptr(), getCStringLength(other.asUtf16Ptr()), expectedResult );
 	}
 
 	SECTION("utf32")
 	{
 		verifyComparison(s, other.asUtf32(), expectedResult);
+		verifyComparisonSubStringWithSubString(s, other.asUtf32(), expectedResult);
 	}
 
 	SECTION("utf32Ptr")
 	{
 		verifyComparison(s, other.asUtf32Ptr(), expectedResult);
-		verifyComparisonWithLength(s, (other+"x").asUtf32Ptr(), getCStringLength(other.asUtf32Ptr()), expectedResult )
+		verifyComparisonWithLength(s, otherWithX.asUtf32Ptr(), getCStringLength(other.asUtf32Ptr()), expectedResult );
 	}
 
 	SECTION("wide")
 	{
 		verifyComparison(s, other.asWide(), expectedResult);
+		verifyComparisonSubStringWithSubString(s, other.asWide(), expectedResult);
 	}
 
 	SECTION("widePtr")
 	{
 		verifyComparison(s, other.asWidePtr(), expectedResult);
-		verifyComparisonWithLength(s, (other+"x").asWidePtr(), getCStringLength(other.asWidePtr()), expectedResult )
+		verifyComparisonWithLength(s, otherWithX.asWidePtr(), getCStringLength(other.asWidePtr()), expectedResult );
 	}	
 }
 
-template<class StringType>
-inline void testCompareWithSubString()
-{
-	StringType s(U"helloworld");
-	StringType 
-	
-}
 
 template<class DATATYPE>
 inline void testComparison()
@@ -954,9 +1043,6 @@ inline void testComparison()
 
 	SECTION("longer")
 		testComparisonWith<DATATYPE>(s, "HeLLox", -1);
-
-	SECTION("compareSubString")
-		testCompareSubString< StringImpl<DATATYPE> >();
 }
 
 template<class DATATYPE>
