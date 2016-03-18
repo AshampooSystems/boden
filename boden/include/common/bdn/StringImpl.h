@@ -458,6 +458,23 @@ public:
 	}
 
 
+	/** Requests that the string object reduces its capacity (see capacity()) to fit its size.
+	
+		In other words, requests that internal buffers are re-allocated to a smaller size, if they are
+		bigger than needed.
+
+		This is a non-binding request - the implementation is free to ignore it.
+
+		This function does not alter the string contents.		
+	*/
+	void shrink_to_fit()
+	{
+		Modify m(this);
+		
+		m.pStd->shrink_to_fit();
+	}
+
+
 	/** Returns the size of the storage space currently allocated for the string, in characters.
 
 		The capacity is always bigger or equal to the current string length. If it is bigger then that means that the implementation

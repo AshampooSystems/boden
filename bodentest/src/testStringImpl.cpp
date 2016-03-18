@@ -2876,6 +2876,23 @@ inline void testReserveCapacity()
 
 
 template<class DATATYPE>
+inline void testShrinkToFit()
+{
+	StringImpl<DATATYPE> s("helloworld");
+
+	s+="h";
+
+	size_t startCapacity = s.capacity();
+
+	s.shrink_to_fit();
+
+	// the request is non-binding, so we only test that the capacity did not increase
+	REQUIRE( s.capacity()<=startCapacity );
+
+	verifyContents( s, U"helloworldh");
+}
+
+template<class DATATYPE>
 inline void testGetAllocator()
 {
 	StringImpl<DATATYPE> s;
@@ -8366,6 +8383,9 @@ inline void testStringImpl()
 
 	SECTION("reserve-capacity")
 		testReserveCapacity<DATATYPE>();
+
+	SECTION("shrinkToFit")
+		testShrinkToFit<DATATYPE>();
 
 	SECTION("getAllocator")
 		testGetAllocator<DATATYPE>();	
