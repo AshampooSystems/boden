@@ -651,7 +651,7 @@ public:
 		std::out_of_range) is thrown.
 		startIndex can equal the string length - in that case the resulting sub string is always empty.
 	*/
-	StringImpl subString(size_t startIndex, size_t charCount) const
+	StringImpl subString(size_t startIndex=0, size_t charCount = toEnd) const
 	{
 		size_t myLength = getLength();
 
@@ -669,7 +669,7 @@ public:
 
 	/** An alias for subString(). This function is included for compatibility with std::string.
 	*/
-	StringImpl substr(size_t startIndex, size_t charCount) const
+	StringImpl substr(size_t startIndex=0, size_t charCount = toEnd) const
 	{
 		return subString(startIndex, charCount );
 	}
@@ -1958,8 +1958,8 @@ public:
 	
 
 	/** Appends the string data between the specified two iterators to the end of this string.*/	
-	template<class IT>
-	StringImpl& append(const IT& beginIt, const IT& endIt)
+	template<class InputIterator>
+	StringImpl& append(const InputIterator& beginIt, const InputIterator& endIt)
 	{
 		return replace( _endIt, _endIt, beginIt, endIt);
 	}	
@@ -2550,8 +2550,8 @@ public:
 	
 	/** Assigns the characters between the specified two character iterators to this string.
 		*/
-	template <class IT>
-	StringImpl& assign(IT beginIt, IT endIt)
+	template <class InputIterator>
+	StringImpl& assign(InputIterator beginIt, InputIterator endIt)
 	{
 		return replace(_beginIt, _endIt, beginIt, endIt);
 	}
@@ -2624,7 +2624,7 @@ public:
 		_endIt = o._endIt;
 		_pDataInDifferentEncoding = o._pDataInDifferentEncoding;
 		_lengthIfKnown = o._lengthIfKnown;
-
+		p
 		o._pData = pData;
 		o._beginIt = beginIt;
 		o._endIt = endIt;
@@ -2676,7 +2676,7 @@ public:
 
 		If copyStartIndex is bigger than the length of the string then OutOfRangeError is thrown.	
 		*/
-	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0) const
+	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0) const noexcept
 	{
 		if(copyStartIndex<0 || copyStartIndex>getLength())
 			throw OutOfRangeError("String::copy called with invalid start index.");
