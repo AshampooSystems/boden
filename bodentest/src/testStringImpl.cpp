@@ -2285,6 +2285,42 @@ inline void testErase()
 }
 
 
+
+template<class DATATYPE>
+inline void testClear()
+{
+	SECTION("empty")
+	{
+		StringImpl<DATATYPE> s;
+
+		s.clear();
+
+		verifyContents(s, U"");
+	}
+
+	SECTION("normal")
+	{
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
+
+		s.clear();
+
+		verifyContents(s, U"");
+	}
+
+	SECTION("slice")
+	{
+		StringImpl<DATATYPE> orig(U"xyhe\U00012345loworldabc");
+
+		StringImpl<DATATYPE> s = orig.subString(2, 10);
+
+		s.clear();
+
+		verifyContents(s, U"");
+		verifyContents(orig, U"xyhe\U00012345loworldabc");
+	}
+}
+
+
 template<class DATATYPE, class ARG>
 inline void verifyAssignFull(StringImpl<DATATYPE>& s, ARG arg)
 {
@@ -8308,6 +8344,9 @@ inline void testStringImpl()
 	{
 		testErase<DATATYPE>();
 	}
+
+	SECTION("clear")
+		testClear<DATATYPE>();
 
 	SECTION("assign")
 	{

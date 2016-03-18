@@ -385,20 +385,20 @@ public:
 
 
 	/** Returns true if the string is empty (i.e. if its length is 0).*/
-	bool isEmpty() const
+	bool isEmpty() const noexcept
 	{
 		return (_beginIt == _endIt);
 	}
 
 	/** Same as isEmpty. This is included for compatibility with std::string.*/
-	bool empty() const
+	bool empty() const noexcept
 	{
 		return isEmpty();
 	}
 
 
 	/** Returns the number of characters in this string.*/
-	size_t getLength() const
+	size_t getLength() const noexcept
 	{
 		if (_lengthIfKnown == -1)
 		{
@@ -419,13 +419,13 @@ public:
 
 
 	/** Same as getLength. This is included for compatibility with std::string.*/
-	size_t length() const
+	size_t length() const noexcept
 	{
 		return getLength();
 	}
 
 	/** Same as getLength. This is included for compatibility with std::string.*/
-	size_t size() const
+	size_t size() const noexcept
 	{
 		return getLength();
 	}
@@ -2390,6 +2390,19 @@ public:
 
 		// we must return an iterator to the erased position
 		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());		
+	}
+
+
+	/** Erases the entire contents of the string. The string becomes an empty string.*/
+	void clear() noexcept
+	{
+		_pData = MainDataType::getEmptyData();
+		_beginIt = _pData->begin();
+		_endIt = _pData->end();
+
+		_pDataInDifferentEncoding = nullptr;
+
+		_lengthIfKnown = 0;		
 	}
 	
 
