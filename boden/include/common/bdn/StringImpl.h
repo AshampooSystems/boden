@@ -3550,6 +3550,22 @@ public:
 
 
 
+	/** Searches for the first position at which the specified condition is true.
+	
+		condition must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myCondition(const Iterator& it);
+		\endcode
+
+		findCondition returns an iterator to the first position at which the condition
+		object returned true.
+		It returns end() if the condition did not return true for any checked string position.
+
+		searchStartPosIt is an iterator to the position at which the search should start
+		(i.e. the first position at which the condition is checked).
+	*/
 	template<class Predicate>
 	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt ) const
 	{
@@ -3564,6 +3580,22 @@ public:
 
 	
 
+	/** Searches for the first position at which the specified condition is true.
+	
+		condition must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myCondition(const Iterator& it);
+		\endcode
+
+		findCondition returns an iterator to the first position at which the condition
+		object returned true.
+		It returns end() if the condition did not return true for any checked string position.
+
+		searchStartIndex is the character index where the search should start
+		(i.e. the first position at which the condition is checked).
+	*/
 	template<class Predicate>
 	size_t findCondition(Predicate condition, size_t searchStartIndex=0 ) const
 	{
@@ -3585,6 +3617,24 @@ public:
 	}
 
 
+
+	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	
+		condition must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myCondition(const Iterator& it);
+		\endcode
+
+		reverseFindCondition returns an iterator to the last position at which the condition
+		object returned true.
+		It returns end() if the condition did not return true for any checked string position.
+
+		searchStartPosIt is an iterator to the position at which the search should start
+		(i.e. the first position at which the condition is checked). The search moves backwards through
+		the string from the start position.
+	*/
 	template<class Predicate>
 	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt ) const
 	{
@@ -3612,6 +3662,22 @@ public:
 
 
 
+	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	
+		condition must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myCondition(const Iterator& it);
+		\endcode
+
+		reverseFindCondition returns an iterator to the last position at which the condition
+		object returned true.
+		It returns end() if the condition did not return true for any checked string position.
+
+		searchStartIndex is the character index where the search should start
+		(i.e. the first position at which the condition is checked).
+	*/
 	template<class Predicate>
 	size_t reverseFindCondition(Predicate condition, size_t searchStartIndex=npos ) const
 	{
@@ -3639,6 +3705,16 @@ public:
 	}
 
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartPosIt is an iterator to the position where the search should start.
+
+		Returns an iterator to the first position in the string at which any one of the characters is found.
+		Return end() if none of the characters is found.
+	*/
 	template <class InputIterator>
 	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
@@ -3651,6 +3727,16 @@ public:
 	}
 
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	template<class InputIterator>
 	size_t findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
@@ -3664,13 +3750,32 @@ public:
 
 
 
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars._beginIt, chars._endIt, searchStartIndex);
 	}
 
 	
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as a sequence of encoded characters (\c encodedCharsBeginIt, \c encodedCharsEndIt).
+		The encoding is indicated by the codec object \c codec. It can be any Unicode codec (see Utf8Codec, Utf16Codec, WideCodec, Utf32Codec).
 
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	template<class InputCodec, class InputIterator>
 	size_t findOneOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
 	{
@@ -3679,41 +3784,137 @@ public:
 						  searchStartIndex );
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const std::string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-8 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in encoded bytes.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const char* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style wchar_t string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in wchar_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const wchar_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-16 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char16_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 	size_t findOneOf(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
+
+	/** Searches of the first occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-32 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char32_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index to the first position in the string at which any one of the characters is found.
+		Returns String::noMatch (String::npos) if none of the characters is found.
+	*/
 
 	size_t findOneOf(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
@@ -3723,55 +3924,70 @@ public:
 
 
 
-	
-
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const std::string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const char* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const wchar_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as findOneOf(). Included for compatibility with std::string.*/
 	size_t find_first_of(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findOneOf( chars, searchStartIndex, charsLength );
 	}	
 
 
-
+	/** Same as find(). Included for compatibility with std::string.*/
 	size_t find_first_of(char32_t toFind, size_t searchStartIndex=0) const noexcept
 	{
 		return find(toFind, searchStartIndex);
@@ -3779,7 +3995,15 @@ public:
 
 
 
+	/** Searches of the first character in the string that is NOT one of the specified character set.
 	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartPosIt is an iterator to the position where the search should start.
+
+		Returns an iterator to the first character in the string that is not in the specified set.
+		Return end() if no such character is found.
+	*/
 	template <class InputIterator>
 	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
@@ -3792,6 +4016,16 @@ public:
 	}
 
 
+
+	/** Searches of the first character in the string that is NOT one of the specified character set.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	template<class InputIterator>
 	size_t findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
@@ -3805,13 +4039,32 @@ public:
 
 
 
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars._beginIt, chars._endIt, searchStartIndex);
 	}
 
 	
+	/** Searches of the first character in the string that is NOT one of the specified character set.
+	
+		The set of characters is specified as a sequence of encoded characters (\c encodedCharsBeginIt, \c encodedCharsEndIt).
+		The encoding is indicated by the codec object \c codec. It can be any Unicode codec (see Utf8Codec, Utf16Codec, WideCodec, Utf32Codec).
 
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	template<class InputCodec, class InputIterator>
 	size_t findNotOneOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
 	{
@@ -3820,42 +4073,137 @@ public:
 						  searchStartIndex );
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const std::string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-8 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in encoded bytes.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const char* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style wchar_t string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in wchar_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const wchar_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-16 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char16_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches of the first character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-32 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char32_t elements.
+
+		searchStartIndex indicates the index of the position where the search should start.
+
+		Returns the index of the first character in the string that is not in the specified set.
+		Returns String::noMatch (String::npos) if no such character is found.
+	*/
 	size_t findNotOneOf(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
@@ -3864,55 +4212,62 @@ public:
 
 
 
-	
-	
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const StringImpl& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const std::string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex );
 	}
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const std::wstring& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex );
 	}
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const char* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const wchar_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
 		return findNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
 
-
+	/** Same as findNotOneOf(). Included for compatibility with std::string.*/	
 	size_t find_first_not_of(char32_t toFind, size_t searchStartIndex=0) const noexcept
 	{
 		return findNotOneOf(&toFind, searchStartIndex, 1);
@@ -3920,6 +4275,17 @@ public:
 
 
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartPosIt is an iterator to the position where the search should start. I.e. the first position
+		to be considered for a possible match. If searchStartPosIt is end() then the entire string is searched.
+		
+		Returns an iterator to the last position in the string at which any one of the characters is found.
+		Return end() if none of the characters is found.
+	*/
 	template <class InputIterator>
 	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
@@ -3932,6 +4298,16 @@ public:
 	}
 
 
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	template<class InputIterator>
 	size_t reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
@@ -3943,14 +4319,34 @@ public:
 							);
 	}
 
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
 	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars._beginIt, chars._endIt, searchStartIndex);
 	}
 
 	
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified as a sequence of encoded characters (\c encodedCharsBeginIt, \c encodedCharsEndIt).
+		The encoding is indicated by the codec object \c codec. It can be any Unicode codec (see Utf8Codec, Utf16Codec, WideCodec, Utf32Codec).
 
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	template<class InputCodec, class InputIterator>
 	size_t reverseFindOneOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
@@ -3959,42 +4355,145 @@ public:
 								searchStartIndex );
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const std::string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-8 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in encoded bytes.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style wchar_t string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in wchar_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-16 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char16_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST occurrence of any character in a set of characters.
+	
+		The set of characters is specified as the C-style UTF-32 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char32_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindOneOf(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
@@ -4003,54 +4502,70 @@ public:
 
 
 	
-
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const std::string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindOneOf(). Included for compatibility with std::string.*/
 	size_t find_last_of(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindOneOf( chars, searchStartIndex, charsLength );
 	}	
 
 
-
+	/** Same as reverseFind(). Included for compatibility with std::string.*/
 	size_t find_last_of(char32_t toFind, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFind(toFind, searchStartIndex);
@@ -4058,6 +4573,16 @@ public:
 
 
 
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartPosIt is an iterator to the position where the search should start. I.e. the first position
+		to be considered for a possible match. If searchStartPosIt is end() then the entire string is searched.
+		
+		Returns an iterator to the last position in the string at which any one of the characters is found.
+		Return end() if none of the characters is found.
+	*/
 	template <class InputIterator>
 	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
@@ -4070,6 +4595,17 @@ public:
 	}
 
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified with the two iterators charsBeginIt and charsEndIt.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	template<class InputIterator>
 	size_t reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
@@ -4082,13 +4618,34 @@ public:
 	}
 
 	
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars._beginIt, chars._endIt, searchStartIndex);
 	}
 
 	
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as a sequence of encoded characters (\c encodedCharsBeginIt, \c encodedCharsEndIt).
+		The encoding is indicated by the codec object \c codec. It can be any Unicode codec (see Utf8Codec, Utf16Codec, WideCodec, Utf32Codec).
 
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	template<class InputCodec, class InputIterator>
 	size_t reverseFindNotOneOf(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
@@ -4097,42 +4654,145 @@ public:
 									searchStartIndex );
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const std::string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( Utf8Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( WideCodec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified by the string object \c chars. The order of the characters in
+		\c chars does not matter.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-8 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in encoded bytes.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( Utf8Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style wchar_t string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in wchar_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( WideCodec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-16 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char16_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
+
+	/** Searches backwards from the end of the string for the LAST character in the string that is NOT in the specified character set.
+	
+		The set of characters is specified as the C-style UTF-32 encoded string
+		\c chars. The order of the characters in \c chars does not matter.
+		If charsLength is String::toEnd then chars must be zero terminated. Otherwise charsLength
+		indicates the length of chars, in char32_t elements.
+
+		searchStartIndex is the character index of the search start position. I.e. the index of the first character
+		to be considered for a possible match. If searchStartIndex is String::npos then the entire string is searched.
+		
+		Returns the index of the last position in the string at which any one of the characters is found.
+		Returns String::noMatch if none of the characters is found.
+	*/
 	size_t reverseFindNotOneOf(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
@@ -4142,47 +4802,63 @@ public:
 
 
 	
-
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const StringImpl& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const std::string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const std::wstring& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex );
 	}
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const char* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const wchar_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
 	}	
 
+
+	/** Same as reverseFindNotOneOf() */
 	size_t find_last_not_of(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
 		return reverseFindNotOneOf( chars, searchStartIndex, charsLength );
@@ -4190,6 +4866,7 @@ public:
 
 
 
+	/** Searches for the last character in the string that is NOT the specified blackListChar. */
 	size_t find_last_not_of(char32_t blackListChar, size_t searchStartIndex=npos) const noexcept
 	{
 		return reverseFindCondition(	[&blackListChar](const Iterator& it)
@@ -4199,34 +4876,6 @@ public:
 										searchStartIndex);
 	}
 
-
-
-	/*
-	string (1)	
-size_t find_first_of (const string& str, size_t pos = 0) const noexcept;
-c-string (2)	
-size_t find_first_of (const char* s, size_t pos = 0) const;
-buffer (3)	
-size_t find_first_of (const char* s, size_t pos, size_t n) const;
-character (4)	
-size_t find_first_of (char c, size_t pos = 0) const noexcept;
-
-*/
-
-
-	/*
-
-	template <class InputIterator>
-	Iterator findNotOneOf(const InputIterator& blackListBeginIt, const InputIterator& blackListEndIt, const Iterator& searchStartPosIt )
-	{
-		return findCondition(	[&blackListBeginIt, &blackListEndIt](auto it)
-								{
-									return (std::find(blackListBeginIt, blackListEndIt, *it)==blackListEndIt);
-								},
-								searchStartPosIt );
-	}
-	
-	*/
 
 	/** Assigns the value of another string to this string. 	*/
 	StringImpl& operator=(const StringImpl& other)
