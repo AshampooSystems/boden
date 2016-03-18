@@ -525,30 +525,16 @@ public:
 
 	
 	/** Returns an iterator that points to the start of the string.*/
-	Iterator begin() const
+	Iterator begin() const noexcept
 	{
 		return _beginIt;
 	}
 
 	/** Retuns an iterator that points to the position just after the last character of the string.*/
-	Iterator end() const
+	Iterator end() const noexcept
 	{
 		return _endIt;
 	}
-
-
-	/** Same as begin(). This is included for compatibility with std::string.*/
-	Iterator cbegin() const
-	{
-		return begin();
-	}
-
-	/** Same as end(). This is included for compatibility with std::string.*/
-	Iterator cend() const
-	{
-		return end();
-	}
-
 
 
 	/** Returns an iterator that iterates over the characters of the string in reverse order.
@@ -562,35 +548,65 @@ public:
 
 		\code
 		s = "hello";
-		for(auto it = s.rbegin(); it!=s.rend(); it++)
+		for(auto it = s.reverseBegin(); it!=s.reverseEnd(); it++)
 			print(*it);
 		\endcode
 		
 		This will print out "olleh" (the reverse of "hello").
 
 		*/
-	ReverseIterator rbegin() const
+	ReverseIterator reverseBegin() const noexcept
 	{
 		return std::reverse_iterator<Iterator>( end() );
 	}
-
-
+	
 	/** Returns an iterator that points to the end of a reverse iteration.
 		See rbegin().*/
-	ReverseIterator rend() const
+	ReverseIterator reverseEnd() const noexcept
 	{
 		return std::reverse_iterator<Iterator>( begin() );
 	}
 
 
+	/** Same as reverseBegin(). This is included for compatibility with std::string.*/
+	ReverseIterator rbegin() const noexcept
+	{
+		return std::reverse_iterator<Iterator>( end() );
+	}
+
+
+	/** Same as reverseEnd(). This is included for compatibility with std::string.*/
+	ReverseIterator rend() const noexcept
+	{
+		return std::reverse_iterator<Iterator>( begin() );
+	}
+
+
+	/** Same as begin(). This is included for compatibility with std::string.*/
+	Iterator cbegin() const noexcept
+	{
+		return begin();
+	}
+
+	/** Same as end(). This is included for compatibility with std::string.*/
+	Iterator cend() const noexcept
+	{
+		return end();
+	}
+
+
+
+	
+
+
 	/** Same as rbegin(). This is included for compatibility with std::string.*/
-	ReverseIterator crbegin() const
+	ReverseIterator crbegin() const noexcept
 	{
 		return rbegin();
 	}
 
 	/** Same as rend(). This is included for compatibility with std::string.*/
-	ReverseIterator crend() const
+	ReverseIterator crend() const noexcept
 	{
 		return rend();
 	}

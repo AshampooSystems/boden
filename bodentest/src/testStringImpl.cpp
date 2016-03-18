@@ -560,7 +560,8 @@ inline void testIterators()
 		const StringImpl<DATATYPE>& s = stringObj;
 		
 		REQUIRE( checkEquality(s.begin(), s.end(), true) );
-		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );
+		REQUIRE( checkEquality(s.reverseBegin(), s.reverseEnd(), true) );
+		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );		
 		REQUIRE( checkEquality(s.rbegin(), s.rend(), true) );
 		REQUIRE( checkEquality(s.crbegin(), s.crend(), true) );
 	}
@@ -572,11 +573,13 @@ inline void testIterators()
 		const StringImpl<DATATYPE>& s = stringObj;
 
 		REQUIRE( checkEquality(s.begin(), s.end(), false) );
+		REQUIRE( checkEquality(s.reverseBegin(), s.reverseEnd(), false) );
 		REQUIRE( checkEquality(s.cbegin(), s.cend(), false) );
 		REQUIRE( checkEquality(s.rbegin(), s.rend(), false) );
 		REQUIRE( checkEquality(s.crbegin(), s.crend(), false) );
 
-		verifyIterators( s.begin(), s.end(), U"hello" );
+		verifyIterators( s.begin(), s.end(), U"hello" );		
+		verifyIterators( s.reverseBegin(), s.reverseEnd(), U"olleh" );		
 		verifyIterators( s.cbegin(), s.cend(), U"hello" );
 		verifyIterators( s.rbegin(), s.rend(), U"olleh" );
 		verifyIterators( s.crbegin(), s.crend(), U"olleh" );		
