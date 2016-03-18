@@ -2624,7 +2624,7 @@ public:
 		_endIt = o._endIt;
 		_pDataInDifferentEncoding = o._pDataInDifferentEncoding;
 		_lengthIfKnown = o._lengthIfKnown;
-		p
+		
 		o._pData = pData;
 		o._beginIt = beginIt;
 		o._endIt = endIt;
@@ -2676,7 +2676,7 @@ public:
 
 		If copyStartIndex is bigger than the length of the string then OutOfRangeError is thrown.	
 		*/
-	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0) const noexcept
+	size_t copy(char32_t* pDest, size_t maxCopyLength, size_t copyStartIndex=0) const
 	{
 		if(copyStartIndex<0 || copyStartIndex>getLength())
 			throw OutOfRangeError("String::copy called with invalid start index.");
