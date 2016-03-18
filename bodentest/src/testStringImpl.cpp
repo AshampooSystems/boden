@@ -8240,8 +8240,6 @@ inline void testReverseFindNotOneOf()
 		testFindLastNotOfChar<StringImpl<DATATYPE> >();
 }
 
-
-
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -8422,8 +8420,135 @@ inline void testStringImpl()
 }
 
 
+
+
+template<class LeftType, class RightType>
+inline void verifyGlobalConcatenation()
+{
+	String leftObj("hello");
+	String rightObj("world");
+
+	LeftType  left = (LeftType)leftObj;
+	RightType right = (RightType)rightObj;
+
+	String result = left+right;
+
+	verifyContents(result, U"helloworld");
+}
+
+
+template<class LeftType, class RightType>
+inline void verifyGlobalConcatenationMoveFromLeft()
+{
+	String leftObj("hello");
+	String rightObj("world");
+
+	LeftType  left = (LeftType)leftObj;
+	RightType right = (RightType)rightObj;
+	
+	String result = std::move(left)+right;
+
+	verifyContents(result, U"helloworld");	
+
+	verifyContents(left, U"");
+	verifyContents(rightObj, U"world");
+}
+
+
+inline void testGlobalConcatenation()
+{
+	SECTION("string + string")
+		verifyGlobalConcatenation< String, String >();
+
+
+	SECTION("string + std::string")
+		verifyGlobalConcatenation< String, std::string >();
+
+	SECTION("string + std::wstring")
+		verifyGlobalConcatenation< String, std::wstring >();
+
+	SECTION("string + std::u16string")
+		verifyGlobalConcatenation< String, std::u16string >();
+
+	SECTION("string + std::u32string")
+		verifyGlobalConcatenation< String, std::u16string >();
+
+	SECTION("string + const char*")
+		verifyGlobalConcatenation< String, const char* >();
+
+	SECTION("string + const wchar_t*")
+		verifyGlobalConcatenation< String, const wchar_t* >();
+
+	SECTION("string + const char16_t*")
+		verifyGlobalConcatenation< String, const char16_t* >();
+
+	SECTION("string + const char32_t*")
+		verifyGlobalConcatenation< String, const char32_t* >();
+
+
+
+	SECTION("string&& + string")
+		verifyGlobalConcatenationMoveFromLeft< String, String >();
+
+	SECTION("string&& + std::string")
+		verifyGlobalConcatenationMoveFromLeft< String, std::string >();
+
+	SECTION("string&& + std::wstring")
+		verifyGlobalConcatenationMoveFromLeft< String, std::wstring >();
+
+	SECTION("string&& + std::u16string")
+		verifyGlobalConcatenationMoveFromLeft< String, std::u16string >();
+
+	SECTION("string&& + std::u32string")
+		verifyGlobalConcatenationMoveFromLeft< String, std::u16string >();
+
+	SECTION("string&& + const char*")
+		verifyGlobalConcatenationMoveFromLeft< String, const char* >();
+
+	SECTION("string&& + const wchar_t*")
+		verifyGlobalConcatenationMoveFromLeft< String, const wchar_t* >();
+
+	SECTION("string&& + const char16_t*")
+		verifyGlobalConcatenationMoveFromLeft< String, const char16_t* >();
+
+	SECTION("string&& + const char32_t*")
+		verifyGlobalConcatenationMoveFromLeft< String, const char32_t* >();
+
+
+
+	SECTION("std::string + string")
+		verifyGlobalConcatenation< std::string, String >();
+
+	SECTION("std::wstring + string")
+		verifyGlobalConcatenation< std::wstring, String >();
+
+	SECTION("std::u16string + string")
+		verifyGlobalConcatenation< std::u16string, String >();
+
+	SECTION("std::u32string + string")
+		verifyGlobalConcatenation< std::u32string, String >();
+
+	SECTION("const char* + string")
+		verifyGlobalConcatenation< const char*, String >();
+
+	SECTION("const wchar_t* + string")
+		verifyGlobalConcatenation< const wchar_t*, String >();
+
+	SECTION("const char16_t* + string")
+		verifyGlobalConcatenation< const char16_t*, String >();
+
+	SECTION("const char32_t* + string")
+		verifyGlobalConcatenation< const char32_t*, String >();
+
+
+}
+
+
 TEST_CASE("StringImpl")
 {
+	SECTION("globalConcatenation")
+		testGlobalConcatenation();
+
 	SECTION("utf8")
 	{
 		testStringImpl<Utf8StringData>();
@@ -8448,7 +8573,11 @@ TEST_CASE("StringImpl")
 	{
 		testStringImpl<NativeStringData>();
 	}
+
+	
 }
+
+
 
 void verifyWideMultiByteConversion( const std::wstring& inWide,
 									const std::string& multiByte,
