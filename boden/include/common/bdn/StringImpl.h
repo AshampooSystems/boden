@@ -334,9 +334,8 @@ public:
 	/** Initializes the string to be \c numChars times the \c chr character.		
 		*/
 	StringImpl(size_t numChars, char32_t chr)
+		: StringImpl()
 	{
-		_lengthIfKnown = -1;
-
 		assign(numChars, chr);
 	}
 
@@ -353,10 +352,8 @@ public:
 		\endcode
 		*/
 	StringImpl(std::initializer_list<char32_t> initializerList)
+		: StringImpl(initializerList.begin(), initializerList.end())
 	{
-		_lengthIfKnown = -1;
-
-		assign(initializerList);
 	}
 
 	
@@ -2391,10 +2388,13 @@ public:
 		*/
 	StringImpl& assign(const StringImpl& other, size_t otherSubStartIndex=0, size_t otherSubLength=toEnd)
 	{
+		if(otherSubStartIndex>other.getLength())
+			throw OutOfRangeError("Invalid otherSubStartIndex passed to String::assign");
+
 		// just copy a reference to the source string's data
 		_pData = other._pData;
 
-		_beginIt = other._beginIt;
+		_beginIt = other._beginIt;		
 
 		if(otherSubStartIndex>=0)
 			_beginIt += otherSubStartIndex;

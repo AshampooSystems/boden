@@ -183,8 +183,13 @@ void testConstruct()
 
 		SECTION("full-moreThanLength")
 		{
-			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 10);
+			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 0, 10);
 			verifyContents(s, U"\U00012345hello");
+		}
+
+		SECTION("invalidStartIndex")
+		{
+			REQUIRE_THROWS_AS( StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 7), OutOfRangeError );			
 		}
 
 		SECTION("part-toEnd-withLength")
