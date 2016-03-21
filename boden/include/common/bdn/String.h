@@ -372,6 +372,627 @@ inline bdn::String operator+(const char32_t* a, const bdn::String& b)
 
 
 
+inline bool operator==(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator==(b);
+}
+
+
+inline bool operator==(const bdn::String& a, const std::string& b)
+{
+	return a.operator==(b);
+}
+
+
+inline bool operator==(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator==(b);
+}
+
+inline bool operator==(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator==(b);
+}
+
+inline bool operator==(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator==(b);
+}
+
+
+inline bool operator==(const bdn::String& a, const char* b)
+{
+	return a.operator==(b);
+}
+
+
+inline bool operator==(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator==(b);
+}
+
+
+inline bool operator==(const bdn::String& a, const char16_t* b)
+{
+	return a.operator==(b);
+}
+
+inline bool operator==(const bdn::String& a, const char32_t* b)
+{
+	return a.operator==(b);
+}
+
+
+
+inline bool operator==(const std::string& a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const char* a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+inline bool operator==(const char16_t* a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+inline bool operator==(const char32_t* a, const bdn::String& b)
+{
+	return b.operator==(a);
+}
+
+
+
+
+
+
+inline bool operator!=(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator!=(b);
+}
+
+
+inline bool operator!=(const bdn::String& a, const std::string& b)
+{
+	return a.operator!=(b);
+}
+
+
+inline bool operator!=(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator!=(b);
+}
+
+inline bool operator!=(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator!=(b);
+}
+
+inline bool operator!=(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator!=(b);
+}
+
+
+inline bool operator!=(const bdn::String& a, const char* b)
+{
+	return a.operator!=(b);
+}
+
+
+inline bool operator!=(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator!=(b);
+}
+
+
+inline bool operator!=(const bdn::String& a, const char16_t* b)
+{
+	return a.operator!=(b);
+}
+
+inline bool operator!=(const bdn::String& a, const char32_t* b)
+{
+	return a.operator!=(b);
+}
+
+
+
+inline bool operator!=(const std::string& a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const char* a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+inline bool operator!=(const char16_t* a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+inline bool operator!=(const char32_t* a, const bdn::String& b)
+{
+	return b.operator!=(a);
+}
+
+
+
+
+
+
+
+inline bool operator<(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator<(b);
+}
+
+
+inline bool operator<(const bdn::String& a, const std::string& b)
+{
+	return a.operator<(b);
+}
+
+
+inline bool operator<(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator<(b);
+}
+
+inline bool operator<(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator<(b);
+}
+
+inline bool operator<(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator<(b);
+}
+
+
+inline bool operator<(const bdn::String& a, const char* b)
+{
+	return a.operator<(b);
+}
+
+
+inline bool operator<(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator<(b);
+}
+
+
+inline bool operator<(const bdn::String& a, const char16_t* b)
+{
+	return a.operator<(b);
+}
+
+inline bool operator<(const bdn::String& a, const char32_t* b)
+{
+	return a.operator<(b);
+}
+
+
+
+inline bool operator<(const std::string& a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const char* a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+inline bool operator<(const char16_t* a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+inline bool operator<(const char32_t* a, const bdn::String& b)
+{
+	return b.operator>(a);
+}
+
+
+
+
+
+
+
+
+inline bool operator<=(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator<=(b);
+}
+
+
+inline bool operator<=(const bdn::String& a, const std::string& b)
+{
+	return a.operator<=(b);
+}
+
+
+inline bool operator<=(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator<=(b);
+}
+
+inline bool operator<=(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator<=(b);
+}
+
+inline bool operator<=(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator<=(b);
+}
+
+
+inline bool operator<=(const bdn::String& a, const char* b)
+{
+	return a.operator<=(b);
+}
+
+
+inline bool operator<=(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator<=(b);
+}
+
+
+inline bool operator<=(const bdn::String& a, const char16_t* b)
+{
+	return a.operator<=(b);
+}
+
+inline bool operator<=(const bdn::String& a, const char32_t* b)
+{
+	return a.operator<=(b);
+}
+
+
+
+inline bool operator<=(const std::string& a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const char* a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+inline bool operator<=(const char16_t* a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+inline bool operator<=(const char32_t* a, const bdn::String& b)
+{
+	return b.operator>=(a);
+}
+
+
+
+
+
+
+
+
+inline bool operator>(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator>(b);
+}
+
+
+inline bool operator>(const bdn::String& a, const std::string& b)
+{
+	return a.operator>(b);
+}
+
+
+inline bool operator>(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator>(b);
+}
+
+inline bool operator>(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator>(b);
+}
+
+inline bool operator>(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator>(b);
+}
+
+
+inline bool operator>(const bdn::String& a, const char* b)
+{
+	return a.operator>(b);
+}
+
+
+inline bool operator>(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator>(b);
+}
+
+
+inline bool operator>(const bdn::String& a, const char16_t* b)
+{
+	return a.operator>(b);
+}
+
+inline bool operator>(const bdn::String& a, const char32_t* b)
+{
+	return a.operator>(b);
+}
+
+
+
+inline bool operator>(const std::string& a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const char* a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+inline bool operator>(const char16_t* a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+inline bool operator>(const char32_t* a, const bdn::String& b)
+{
+	return b.operator<(a);
+}
+
+
+
+
+
+
+
+inline bool operator>=(const bdn::String& a, const bdn::String& b)
+{
+	return a.operator>=(b);
+}
+
+
+inline bool operator>=(const bdn::String& a, const std::string& b)
+{
+	return a.operator>=(b);
+}
+
+
+inline bool operator>=(const bdn::String& a, const std::wstring& b)
+{
+	return a.operator>=(b);
+}
+
+inline bool operator>=(const bdn::String& a, const std::u16string& b)
+{
+	return a.operator>=(b);
+}
+
+inline bool operator>=(const bdn::String& a, const std::u32string& b)
+{
+	return a.operator>=(b);
+}
+
+
+inline bool operator>=(const bdn::String& a, const char* b)
+{
+	return a.operator>=(b);
+}
+
+
+inline bool operator>=(const bdn::String& a, const wchar_t* b)
+{
+	return a.operator>=(b);
+}
+
+
+inline bool operator>=(const bdn::String& a, const char16_t* b)
+{
+	return a.operator>=(b);
+}
+
+inline bool operator>=(const bdn::String& a, const char32_t* b)
+{
+	return a.operator>=(b);
+}
+
+
+
+inline bool operator>=(const std::string& a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const std::wstring& a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const std::u16string& a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const std::u32string& a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const char* a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const wchar_t* a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+inline bool operator>=(const char16_t* a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+inline bool operator>=(const char32_t* a, const bdn::String& b)
+{
+	return b.operator<=(a);
+}
+
+
+
 
 
 

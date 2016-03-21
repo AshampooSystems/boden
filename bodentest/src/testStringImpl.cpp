@@ -8539,8 +8539,106 @@ inline void testGlobalConcatenation()
 
 	SECTION("const char32_t* + string")
 		verifyGlobalConcatenation< const char32_t*, String >();
+}
 
 
+
+
+
+template<class LeftType, class RightType>
+inline void verifyGlobalComparison()
+{
+	String hello("hello");
+	String hello2("hello");
+	String Hello("Hello");
+	String world("world");
+
+	
+	REQUIRE( ( ((LeftType)hello) < ((RightType)world) ) );
+	REQUIRE( ( ((LeftType)hello) <= ((RightType)world) ) );
+	REQUIRE( !( ((LeftType)hello) == ((RightType)world) ) );
+	REQUIRE( ( ((LeftType)hello) != ((RightType)world) ) );
+	REQUIRE( !( ((LeftType)hello) > ((RightType)world) ) );
+	REQUIRE( !( ((LeftType)hello) >= ((RightType)world) ) );
+	
+	REQUIRE( !( ((LeftType)hello) < ((RightType)hello2) ) );
+	REQUIRE( ( ((LeftType)hello) <= ((RightType)hello2) ) );
+	REQUIRE( ( ((LeftType)hello) == ((RightType)hello2) ) );
+	REQUIRE( !( ((LeftType)hello) != ((RightType)hello2) ) );
+	REQUIRE( !( ((LeftType)hello) > ((RightType)hello2) ) );
+	REQUIRE( ( ((LeftType)hello) >= ((RightType)hello2) ) );
+	
+	REQUIRE( !( ((LeftType)world) < ((RightType)hello) ) );
+	REQUIRE( !( ((LeftType)world) <= ((RightType)hello) ) );
+	REQUIRE( !( ((LeftType)world) == ((RightType)hello) ) );
+	REQUIRE( ( ((LeftType)world) != ((RightType)hello) ) );
+	REQUIRE( ( ((LeftType)world) > ((RightType)hello) ) );
+	REQUIRE( ( ((LeftType)world) >= ((RightType)hello) ) );	
+
+	REQUIRE( ( ((LeftType)Hello) < ((RightType)hello) ) );
+	REQUIRE( ( ((LeftType)Hello) <= ((RightType)hello) ) );
+	REQUIRE( !( ((LeftType)Hello) == ((RightType)hello) ) );
+	REQUIRE( ( ((LeftType)Hello) != ((RightType)hello) ) );
+	REQUIRE( !( ((LeftType)Hello) > ((RightType)hello) ) );
+	REQUIRE( !( ((LeftType)Hello) >= ((RightType)hello) ) );	
+}
+
+
+inline void testGlobalComparison()
+{
+	SECTION("string + string")
+		verifyGlobalComparison< String, String >();
+
+
+	SECTION("string + std::string")
+		verifyGlobalComparison< String, std::string >();
+
+	SECTION("string + std::wstring")
+		verifyGlobalComparison< String, std::wstring >();
+
+	SECTION("string + std::u16string")
+		verifyGlobalComparison< String, std::u16string >();
+
+	SECTION("string + std::u32string")
+		verifyGlobalComparison< String, std::u16string >();
+
+	SECTION("string + const char*")
+		verifyGlobalComparison< String, const char* >();
+
+	SECTION("string + const wchar_t*")
+		verifyGlobalComparison< String, const wchar_t* >();
+
+	SECTION("string + const char16_t*")
+		verifyGlobalComparison< String, const char16_t* >();
+
+	SECTION("string + const char32_t*")
+		verifyGlobalComparison< String, const char32_t* >();
+
+
+
+	SECTION("std::string + string")
+		verifyGlobalComparison< std::string, String >();
+
+	SECTION("std::wstring + string")
+		verifyGlobalComparison< std::wstring, String >();
+
+	SECTION("std::u16string + string")
+		verifyGlobalComparison< std::u16string, String >();
+
+	SECTION("std::u32string + string")
+		verifyGlobalComparison< std::u32string, String >();
+
+	SECTION("const char* + string")
+		verifyGlobalComparison< const char*, String >();
+
+	SECTION("const wchar_t* + string")
+		verifyGlobalComparison< const wchar_t*, String >();
+
+	SECTION("const char16_t* + string")
+		verifyGlobalComparison< const char16_t*, String >();
+
+	SECTION("const char32_t* + string")
+		verifyGlobalComparison< const char32_t*, String >();
 }
 
 
@@ -8548,6 +8646,9 @@ TEST_CASE("StringImpl")
 {
 	SECTION("globalConcatenation")
 		testGlobalConcatenation();
+
+	SECTION("globalComparison")
+		testGlobalComparison();
 
 	SECTION("utf8")
 	{
