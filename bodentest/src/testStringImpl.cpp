@@ -8641,6 +8641,95 @@ inline void testGlobalComparison()
 		verifyGlobalComparison< const char32_t*, String >();
 }
 
+template<class CharType>
+inline void testStreamOutput()
+{
+	
+}
+
+
+template<class CharType>
+inline void verifyStreamIntegration()
+{	
+	SECTION("output")
+	{
+		std::basic_ostringstream<CharType>	stream;
+		String								s(U"\U00012345hello");
+
+		stream << s;
+
+		REQUIRE( String(stream.str()) == s);		
+	}
+
+	SECTION("input")
+	{
+		String								in(U"\U00012345hello world");
+		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+
+		String				s;
+
+		stream >> s;
+
+		REQUIRE( s == U"\U00012345hello" );
+
+		stream >> s;
+
+		REQUIRE( s == U"world" );
+	}
+
+	SECTION("getline-noDelim")
+	{
+		String								in(U"\U00012345hello world\nbla gubbel");
+		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+
+		String				s;
+
+		std::getline( stream, s);
+
+		REQUIRE( s == U"\U00012345hello world");
+		
+		std::getline( stream, s);
+
+		REQUIRE( s == U"bla gubbel");
+	}
+
+	SECTION("getline-delim")
+	{
+		String								in(U"\U00012345hello world?bla gubbel");
+		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+
+		String				s;
+
+		std::getline( stream, s, '?');
+
+		REQUIRE( s == U"\U00012345hello world");
+		
+		std::getline( stream, s, '?');
+
+		REQUIRE( s == U"bla gubbel");
+	}
+
+}
+
+inline void testStreamIntegration()
+{
+	SECTION("char")
+		verifyStreamIntegration<char>();
+
+	SECTION("wchar_t")
+		verifyStreamIntegration<wchar_t>();
+}
+
+void testStdSwap()
+{
+	String	a(U"\U00012345hello");
+	String	b(U"world");
+
+	std::swap(a, b);
+
+	REQUIRE( a==U"world" );
+	REQUIRE( b==U"\U00012345hello");	
+}
 
 TEST_CASE("StringImpl")
 {
@@ -8649,6 +8738,13 @@ TEST_CASE("StringImpl")
 
 	SECTION("globalComparison")
 		testGlobalComparison();
+
+	SECTION("streamIntegration")
+		testStreamIntegration();
+
+	SECTION("std::swap")
+		testStdSwap();
+	
 
 	SECTION("utf8")
 	{

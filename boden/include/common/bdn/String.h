@@ -4,6 +4,7 @@
 #include <bdn/StringImpl.h>
 #include <bdn/NativeStringData.h>
 
+
 namespace bdn
 {
 
@@ -993,7 +994,175 @@ inline bool operator>=(const char32_t* a, const bdn::String& b)
 
 
 
+/** Behaves the same way as the corresponding operators for std::string and const char*. The string
+	is written in UTF-8 encoding.
+*/
+inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
+{
+	return stream << s.asUtf8();
+}
 
+
+
+/** Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
+*/
+inline std::wostream& operator<<(std::wostream& stream, const bdn::String& s)
+{
+	return stream << s.asWide();
+}
+
+
+
+
+
+/** Behaves the same way as the corresponding operators for std::string and const char*. The string
+	is read in UTF-8 encoding.
+*/
+inline std::istream& operator>>(std::istream& stream, bdn::String& s)
+{
+	std::string temp;
+	stream >> temp;
+	s = temp;
+
+	return stream;
+}
+
+
+
+/** Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
+*/
+inline std::wistream& operator>>(std::wistream& stream, bdn::String& s)
+{
+	std::wstring temp;
+	stream >> temp;
+	s = temp;
+
+	return stream;
+}
+
+
+namespace std
+{
+
+	/** Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+	inline std::istream& getline(std::istream& stream, bdn::String& s, char delimiterChar)
+	{
+		std::string temp;
+
+		std::getline(stream, temp, delimiterChar);
+
+		s = temp;
+
+		return stream;
+	}
+
+	/** Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+	inline std::istream& getline(std::istream& stream, bdn::String& s)
+	{
+		std::string temp;
+
+		std::getline(stream, temp);
+
+		s = temp;
+
+		return stream;
+	}
+
+
+	/** Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+	inline std::istream& getline(std::istream&& stream, bdn::String& s, char delimiterChar)
+	{
+		std::string temp;
+
+		std::getline(std::move(stream), temp, delimiterChar);
+
+		s = temp;
+
+		return stream;
+	}
+
+	/** Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+	inline std::istream& getline(std::istream&& stream, bdn::String& s)
+	{
+		std::string temp;
+
+		std::getline(std::move(stream), temp);
+
+		s = temp;
+
+		return stream;
+	}
+
+
+
+
+	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
+		in a bdn::String object.*/
+	inline std::wistream& getline(std::wistream& stream, bdn::String& s, wchar_t delimiterChar)
+	{
+		std::wstring temp;
+
+		std::getline(stream, temp, delimiterChar);
+
+		s = temp;
+
+		return stream;
+	}
+
+	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
+		in a bdn::String object.*/
+	inline std::wistream& getline(std::wistream& stream, bdn::String& s)
+	{
+		std::wstring temp;
+
+		std::getline(stream, temp);
+
+		s = temp;
+
+		return stream;
+	}
+
+
+	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
+		in a bdn::String object.*/
+	inline std::wistream& getline(std::wistream&& stream, bdn::String& s, wchar_t delimiterChar)
+	{
+		std::wstring temp;
+
+		std::getline(std::move(stream), temp, delimiterChar);
+
+		s = temp;
+
+		return stream;
+	}
+
+	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
+		in a bdn::String object.*/
+	inline std::wistream& getline(std::wistream&& stream, bdn::String& s)
+	{
+		std::wstring temp;
+
+		std::getline(std::move(stream), temp);
+
+		s = temp;
+
+		return stream;
+	}
+
+
+	/** Swaps the values of a and b. Behaves as if a.swap(b) was called.
+		This function causes swapping of strings in standard algorithms like std::sort
+		to be more optimized.*/
+	inline void swap(bdn::String& a, bdn::String& b)
+	{
+		return a.swap(b);
+	}
+
+}
 
 
 

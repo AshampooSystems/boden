@@ -3,6 +3,9 @@
 
 #include <bdn/StringData.h>
 #include <bdn/NativeStringData.h>
+#include <bdn/Utf32StringData.h>
+#include <bdn/Utf16StringData.h>
+#include <bdn/WideStringData.h>
 
 #include <iterator>
 #include <list>
