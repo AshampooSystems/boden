@@ -2712,8 +2712,8 @@ public:
 
 		If pMatchEndIt is not null and the toFind sequence is not found then *pMatchEndIt is set to end().
 	*/
-	template<class CHARIT>
-	Iterator find(const CHARIT& toFindBeginIt, const CHARIT& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
+	template<class ToFindIteratorType>
+	Iterator find(const ToFindIteratorType& toFindBeginIt, const ToFindIteratorType& toFindEndIt, const Iterator& searchFromIt, Iterator* pMatchEndIt = nullptr) const
 	{
 		if(pMatchEndIt==nullptr)
 		{
@@ -2727,8 +2727,8 @@ public:
 
 			while(matchBeginIt!=_endIt)
 			{
-				Iterator myIt( matchBeginIt );
-				Iterator toFindIt( toFindBeginIt );
+				Iterator			myIt( matchBeginIt );
+				ToFindIteratorType	toFindIt( toFindBeginIt );
 
 				bool matches = true;
 
@@ -5083,80 +5083,194 @@ public:
 
 
 
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
 
+		Returns the number of occurrences that were replaced.
 
-	/*
-
-
-	Iterator find(const StringImpl& s) const
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const StringImpl& toFind, const StringImpl& replaceWith)
 	{
-		return find(s._beginIt, s._endIt, _beginIt )
-	}
-
-	Iterator find(const StringImpl& s, const Iterator& searchBeginIt) const
-	{
-		return find(s._beginIt, s._endIt, searchBeginIt )
+		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
-	void replaceAll(char32_t oldChr, char32_t newChr) const
-	{
-		ReplacingCharIterator beginIt(begin(), oldChar, newChr);
-		ReplacingCharIterator endIt(end(), oldChar, newChr);
 
-		*this = String(beginIt, endIt);
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const std::string& toFind, const std::string& replaceWith)
+	{
+		return findReplace(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(), replaceWith.end() );
 	}
 
-	
-	template<class ToFindIterator>
-	void replaceAll(	const ToFindIterator& toFindBegin,
-						const ToFindIterator& toFindEnd,
-						const Iterator& replaceWithBegin,
-						const Iterator& replaceWithEnd,
-						const Iterator& searchBeginIt )
-	{
-		IteratorCombiner result;
 
-		Iterator posIt = searchBeginIt;
-		while (posIt != _endIt)
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const std::wstring& toFind, const std::wstring& replaceWith)
+	{
+		return findReplace(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(), replaceWith.end() );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const std::u16string& toFind, const std::u16string& replaceWith)
+	{
+		return findReplace(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), Utf16Codec<char16_t>(), replaceWith.begin(), replaceWith.end() );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const std::u32string& toFind, const std::u32string& replaceWith)
+	{
+		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const char* toFind, const char* replaceWith)
+	{
+		return findReplace(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith, getStringEndPtr(replaceWith) );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const wchar_t* toFind, const wchar_t* replaceWith)
+	{
+		return findReplace(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith, getStringEndPtr(replaceWith) );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+		*/
+	int findReplace(const char16_t* toFind, const char16_t* replaceWith)
+	{
+		return findReplace(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind), Utf16Codec<char16_t>(), replaceWith, getStringEndPtr(replaceWith) );
+	}
+
+
+	/** Searches for all occurrences of the String \c toFind and replaces them with
+		\c replaceWith.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFind is empty then the function does nothing and returns 0.
+
+		*/
+	int findReplace(const char32_t* toFind, const char32_t* replaceWith)
+	{
+		return findReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith) );
+	}
+
+
+
+
+	/** Searches for all occurrences of the String defined by the iterators \c toFindBegin and \c toFindEnd and replaces them with
+		the string defined by \c replaceWithBegin and \c replaceWithEnd.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFindBegin equals toFindEnd (i.e. the toFind string is empty) then the function does nothing and returns 0.
+		*/
+	template<class ToFindIterator, class ReplaceWithIterator>
+	int findReplace(const ToFindIterator& toFindBegin, const ToFindIterator& toFindEnd, const ReplaceWithIterator& replaceWithBegin, const ReplaceWithIterator& replaceWithEnd)
+	{
+		int	matchCount=0;
+
+		Iterator pos = _beginIt;
+		while(pos!=_endIt)
 		{
 			Iterator matchEnd;
-			Iterator matchBegin = find(toFindBegin, toFindEnd, posIt, &matchEnd);
-
-			if (matchBegin == matchEnd)
+			Iterator matchBegin = find(toFindBegin, toFindEnd, pos, &matchEnd);
+			if(matchBegin==_endIt)
 			{
 				// no more matches.
-
-				if (posIt == searchBeginIt)
-				{
-					// text not found and nothing has been replaced. we are done.
-					return;
-				}
-				else
-				{
-					result.add( posIt, _endIt );
-					break;
-				}
+				break;
 			}
 
-			result.add( posIt, matchBegin );
-			result.add( replaceWithBegin, replaceWithEnd );
+			matchCount++;
 
-			posIt = matchEnd;
+			size_t encodedLengthAfterMatch = _pData->getEncodedString().length() - (matchEnd.getInner()-_beginIt.getInner());
+			
+			replace(matchBegin, matchEnd, replaceWithBegin, replaceWithEnd);
+			
+			size_t replacedEndOffset = _pData->getEncodedString().length() - encodedLengthAfterMatch;
+
+			pos = Iterator(_beginIt.getInner() + replacedEndOffset, _beginIt.getInner(), _endIt.getInner());
 		}
 
-
-		*this = StringImpl( IteratorCombiner.begin(), IteratorCombiner.end() );
+		return matchCount;
 	}
+
+
+
+	/** Searches for all occurrences of the String defined by the iterators \c toFindEncodedBegin and \c toFindEncodedEnd and replaces them with
+		the string defined by \c replaceWithEncodedBegin and \c replaceWithEncodedEnd.
+
+		The toFind and replaceWith iterators return encoded data, which is encoded using the codec indicated by
+		\c toFindCodec and \c replaceWithCodec (see, for example, Utf8Codec, Utf16Codec, WideCodec, etc.).
+		The two codecs can be different.
+		
+		Returns the number of occurrences that were replaced.
+
+		If \c toFindEncodedBegin equals toFindEncodedBegin (i.e. the toFind string is empty) then the function does nothing and returns 0.
+		*/
+	template<class ToFindCodec, class ToFindIterator, class ReplaceWithCodec, class ReplaceWithIterator>
+	int findReplace(const ToFindCodec& toFindCodec,
+					const ToFindIterator& toFindEncodedBegin,
+					const ToFindIterator& toFindEncodedEnd,
+					const ReplaceWithCodec& replaceWithCodec,
+					const ReplaceWithIterator& replaceWithEncodedBegin,
+					const ReplaceWithIterator& replaceWithEncodedEnd)
+	{
+		return findReplace( ToFindCodec::DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
+							ToFindCodec::DecodingIterator<ToFindIterator>( toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
+							ReplaceWithCodec::DecodingIterator<ReplaceWithIterator>( replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
+							ReplaceWithCodec::DecodingIterator<ReplaceWithIterator>( replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd) );
+	}
+
 
 
 	
-	void replaceAll(const StringImpl& toFind, const StringImpl& replaceWith)
-	{
-		return replaceAll(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end());
-	}
-	*/
-
 
 	/** A special iterator for keeping track of the character index associated with its current position.
 

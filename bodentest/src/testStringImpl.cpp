@@ -8240,6 +8240,115 @@ inline void testReverseFindNotOneOf()
 		testFindLastNotOfChar<StringImpl<DATATYPE> >();
 }
 
+
+template<class StringType, class ArgType>
+inline void verifyFindReplace(const StringType& inString, const StringType& toFind, const StringType& replaceWith, int expectedReplacedCount, const StringType& expectedResult)
+{
+	StringType s = inString;
+
+	int replacedCount = s.findReplace( (ArgType)toFind, (ArgType)replaceWith);
+	REQUIRE( s==expectedResult );
+	REQUIRE( replacedCount==expectedReplacedCount );
+}
+	
+
+
+template<class StringType>
+inline void testFindReplace(const StringType& inString, const char32_t* toFindArg, const char32_t* replaceWithArg, int expectedReplacedCount, const char32_t* expectedResultArg)
+{
+	StringType toFind(toFindArg);
+	StringType replaceWith(replaceWithArg);
+	StringType expectedResult(expectedResultArg);
+
+
+	SECTION("string")
+		verifyFindReplace<StringType, StringType>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("std::string")
+		verifyFindReplace<StringType, std::string>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("std::wstring")
+		verifyFindReplace<StringType, std::wstring>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("std::u16string")
+		verifyFindReplace<StringType, std::u16string>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("std::u32string")
+		verifyFindReplace<StringType, std::u32string>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("const char*")
+		verifyFindReplace<StringType, const char*>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("const wchar_t*")
+		verifyFindReplace<StringType, const wchar_t*>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("const char16_t*")
+		verifyFindReplace<StringType, const char16_t*>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("const char32_t*")
+		verifyFindReplace<StringType, const char32_t*>(inString, toFind, replaceWith, expectedReplacedCount, expectedResult);
+
+	SECTION("iterators")
+	{
+		StringType s = inString;
+
+		int replacedCount = s.findReplace( toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		REQUIRE( s==expectedResult );
+		REQUIRE( replacedCount==expectedReplacedCount );
+	}
+}
+
+
+template<class DATATYPE>
+inline void testFindReplace()
+{
+	StringImpl<DATATYPE>	s(U"he\U00012345loworld");		
+
+	SECTION("none")
+		testFindReplace( s, U"x", U"y", 0, U"he\U00012345loworld" );		
+
+	SECTION("oneOccurrenceOneCharWithOne")
+		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );		
+
+	SECTION("oneOccurrenceOneCharWithMulti")
+		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );		
+
+
+	SECTION("twoOccurrencesOneCharWithOne")
+		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );		
+
+	SECTION("oneOccurrenceMultiCharsWithOne")
+		testFindReplace( s, U"\U00012345low", U"\U00023456", 2, U"heU00023456orld" );		
+
+	SECTION("oneOccurrenceMultiCharsWithMulti")
+		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 2, U"heU00023456xyorld" );		
+
+	SECTION("multiOccurrencesMultiCharsWithMulti")
+	{
+		s = U"\U00012345low\U00012345low\U00012345low";
+
+		testFindReplace( s, U"\U00012345low", U"xy", 3, U"xyxyxy" );		
+	}
+
+
+	SECTION("replaceWithEqualsToFind")
+		testFindReplace( s, U"wor", U"wor", 1, U"he\U00012345loxyworxyld" );		
+
+	SECTION("replaceWithContainsToFind")
+		testFindReplace( s, U"wor", U"xyworxy", 1, U"he\U00012345loxyworxyld" );		
+
+	SECTION("inEmpty")
+	{
+		s = U"";
+
+		testFindReplace( s, U"wor", U"xyworxy", 0, U"" );		
+	}
+
+
+	SECTION("toFindEmpty")
+		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loxyworxyld" );		
+}
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -8417,6 +8526,9 @@ inline void testStringImpl()
 
 	SECTION("reverseFindNotOneOf")
 		testReverseFindNotOneOf<DATATYPE>();
+
+	SECTION("findReplace")
+		testFindReplace<DATATYPE>();
 }
 
 
@@ -8733,19 +8845,6 @@ void testStdSwap()
 
 TEST_CASE("StringImpl")
 {
-	SECTION("globalConcatenation")
-		testGlobalConcatenation();
-
-	SECTION("globalComparison")
-		testGlobalComparison();
-
-	SECTION("streamIntegration")
-		testStreamIntegration();
-
-	SECTION("std::swap")
-		testStdSwap();
-	
-
 	SECTION("utf8")
 	{
 		testStringImpl<Utf8StringData>();
@@ -8771,7 +8870,17 @@ TEST_CASE("StringImpl")
 		testStringImpl<NativeStringData>();
 	}
 
-	
+	SECTION("globalConcatenation")
+		testGlobalConcatenation();
+
+	SECTION("globalComparison")
+		testGlobalComparison();
+
+	SECTION("streamIntegration")
+		testStreamIntegration();
+
+	SECTION("std::swap")
+		testStdSwap();	
 }
 
 
