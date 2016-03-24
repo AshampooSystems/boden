@@ -5083,6 +5083,17 @@ public:
 
 
 
+	/** Searches for all occurrences of the character \c toFind and replaces them with
+		the character \c replaceWith.
+
+		Returns the number of occurrences that were replaced.
+		*/
+	int findReplace(char32_t toFind, char32_t replaceWith)
+	{
+		return findReplace(&toFind, (&toFind)+1, &replaceWith, (&replaceWith)+1 );
+	}
+
+
 	/** Searches for all occurrences of the String \c toFind and replaces them with
 		\c replaceWith.
 

@@ -8347,6 +8347,39 @@ inline void testFindReplace()
 
 	SECTION("toFindEmpty")
 		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loworld" );		
+
+	SECTION("chars")
+	{
+		SECTION("noMatch")
+		{
+			int replacedCount = s.findReplace( 'x', 'y' );
+			REQUIRE( s==U"he\U00012345loworld" );
+			REQUIRE( replacedCount==0 );
+		}
+
+		SECTION("oneMatch")
+		{
+			int replacedCount = s.findReplace( 'w', U'\U00014567' );
+			REQUIRE( s==U"he\U00012345lo\U00014567orld" );
+			REQUIRE( replacedCount==1 );
+		}
+
+		SECTION("multiMatches")
+		{
+			int replacedCount = s.findReplace( 'o', U'\U00014567' );
+			REQUIRE( s==U"he\U00012345l\U00014567w\U00014567rld" );
+			REQUIRE( replacedCount==2 );
+		}
+
+		SECTION("inEmpty")
+		{
+			s = U"";
+
+			int replacedCount = s.findReplace( 'x', 'y' );
+			REQUIRE( s==U"" );
+			REQUIRE( replacedCount==0 );
+		}		
+	}
 }
 
 template<class DATATYPE>
