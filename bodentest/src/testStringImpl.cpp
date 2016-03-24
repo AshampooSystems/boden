@@ -8318,10 +8318,10 @@ inline void testFindReplace()
 		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );		
 
 	SECTION("oneOccurrenceMultiCharsWithOne")
-		testFindReplace( s, U"\U00012345low", U"\U00023456", 2, U"heU00023456orld" );		
+		testFindReplace( s, U"\U00012345low", U"\U00023456", 1, U"he\U00023456orld" );		
 
 	SECTION("oneOccurrenceMultiCharsWithMulti")
-		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 2, U"heU00023456xyorld" );		
+		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 1, U"he\U00023456xyorld" );		
 
 	SECTION("multiOccurrencesMultiCharsWithMulti")
 	{
@@ -8332,7 +8332,7 @@ inline void testFindReplace()
 
 
 	SECTION("replaceWithEqualsToFind")
-		testFindReplace( s, U"wor", U"wor", 1, U"he\U00012345loxyworxyld" );		
+		testFindReplace( s, U"wor", U"wor", 1, U"he\U00012345loworld" );		
 
 	SECTION("replaceWithContainsToFind")
 		testFindReplace( s, U"wor", U"xyworxy", 1, U"he\U00012345loxyworxyld" );		
@@ -8346,7 +8346,7 @@ inline void testFindReplace()
 
 
 	SECTION("toFindEmpty")
-		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loxyworxyld" );		
+		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loworld" );		
 }
 
 template<class DATATYPE>
@@ -8860,7 +8860,7 @@ TEST_CASE("StringImpl")
 		testStringImpl<Utf32StringData>();
 	}
 
-	SECTION("WString")
+	SECTION("wide")
 	{
 		testStringImpl<WideStringData>();
 	}

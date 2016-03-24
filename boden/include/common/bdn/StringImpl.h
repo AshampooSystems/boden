@@ -5216,26 +5216,29 @@ public:
 	{
 		int	matchCount=0;
 
-		Iterator pos = _beginIt;
-		while(pos!=_endIt)
+		if(toFindBegin!=toFindEnd)
 		{
-			Iterator matchEnd;
-			Iterator matchBegin = find(toFindBegin, toFindEnd, pos, &matchEnd);
-			if(matchBegin==_endIt)
+			Iterator pos = _beginIt;
+			while(pos!=_endIt)
 			{
-				// no more matches.
-				break;
+				Iterator matchEnd;
+				Iterator matchBegin = find(toFindBegin, toFindEnd, pos, &matchEnd);
+				if(matchBegin==_endIt)
+				{
+					// no more matches.
+					break;
+				}
+
+				matchCount++;
+
+				size_t encodedLengthAfterMatch = _pData->getEncodedString().length() - (matchEnd.getInner()-_beginIt.getInner());
+			
+				replace(matchBegin, matchEnd, replaceWithBegin, replaceWithEnd);
+			
+				size_t replacedEndOffset = _pData->getEncodedString().length() - encodedLengthAfterMatch;
+
+				pos = Iterator(_beginIt.getInner() + replacedEndOffset, _beginIt.getInner(), _endIt.getInner());
 			}
-
-			matchCount++;
-
-			size_t encodedLengthAfterMatch = _pData->getEncodedString().length() - (matchEnd.getInner()-_beginIt.getInner());
-			
-			replace(matchBegin, matchEnd, replaceWithBegin, replaceWithEnd);
-			
-			size_t replacedEndOffset = _pData->getEncodedString().length() - encodedLengthAfterMatch;
-
-			pos = Iterator(_beginIt.getInner() + replacedEndOffset, _beginIt.getInner(), _endIt.getInner());
 		}
 
 		return matchCount;
