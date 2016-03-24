@@ -2699,6 +2699,141 @@ public:
 	}
 
 
+	
+
+	/** Checks if the string contains the character \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(char32_t toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const StringImpl& toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const std::string& toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const std::wstring& toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const std::u16string& toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const std::u32string& toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const char* toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const wchar_t* toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const char16_t* toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string \c toFind.
+
+		Returns true if \c toFind was found and false otherwise.
+
+		Always returns true if \c toFind is empty.
+	*/
+	bool contains(const char32_t* toFind) const
+	{
+		return ( find(toFind, _beginIt) != _endIt );
+	}
+
+
+	/** Checks if the string contains the string specified by the character iterators toFindBegin and toFindEnd.
+
+		Returns true if the string was found and false otherwise.
+
+		Always returns true if the specified string to find is empty.
+	*/
+	template<class ToFindIteratorType>
+	bool contains(const ToFindIteratorType& toFindBegin, const ToFindIteratorType& toFindEnd) const
+	{
+		return ( find<ToFindIteratorType>(toFindBegin, toFindEnd, _beginIt) != _endIt );
+	}
+
+
 
 	/** Searches for a sequence of characters in this string, starting at the positing indicated by \c searchFromIt.
 

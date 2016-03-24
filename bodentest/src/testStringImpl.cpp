@@ -8382,6 +8382,127 @@ inline void testFindReplace()
 	}
 }
 
+
+template<class StringType>
+bool verifyContains(const StringType& s, const char32_t* arg, bool expectedResult )
+{
+	StringType a(arg);
+
+	SECTION("iterators")
+		REQUIRE( s.contains(a.begin(), a.end()) == expectedResult );
+
+	SECTION("String")
+		REQUIRE( s.contains(a) == expectedResult );
+
+	SECTION("std::string")
+		REQUIRE( s.contains( a.asUtf8() ) == expectedResult );
+
+	SECTION("std::wstring")
+		REQUIRE( s.contains( a.asWide() ) == expectedResult );
+
+	SECTION("std::u16string")
+		REQUIRE( s.contains( a.asUtf16() ) == expectedResult );
+
+	SECTION("std::u32string")
+		REQUIRE( s.contains( a.asUtf32() ) == expectedResult );
+
+	SECTION("const char*")
+		REQUIRE( s.contains( a.asUtf8Ptr() ) == expectedResult );
+
+	SECTION("const wchar_t*")
+		REQUIRE( s.contains( a.asWidePtr() ) == expectedResult );
+
+	SECTION("const char16_t*")
+		REQUIRE( s.contains( a.asUtf16Ptr() ) == expectedResult );
+
+	SECTION("const char32_t*")
+		REQUIRE( s.contains( a.asUtf32Ptr() ) == expectedResult );
+}
+
+template<class StringType>
+inline void testContainsString()
+{
+	StringType	s(U"he\U00012345loworldor");		
+
+	SECTION("noMatch")
+	{
+		SECTION("singleChar")
+			verifyContains(s, U"\U00023643", false );
+
+		SECTION("string")
+			verifyContains(s, U"bla", false );
+	}
+
+	SECTION("oneMatch")
+	{
+		SECTION("singleChar")
+			verifyContains(s, U"\U00012345", true );
+
+		SECTION("string")
+			verifyContains(s, U"wor", true );
+	}
+
+	SECTION("multiMatches")
+	{
+		SECTION("singleChar")
+			verifyContains(s, U"o", true );
+
+		SECTION("string")
+			verifyContains(s, U"or", true );
+	}
+
+	SECTION("empty")
+		verifyContains(s, U"", true );
+
+	SECTION("inEmpty")
+	{
+		s = U"";
+
+		SECTION("empty")
+			verifyContains(s, U"", true );
+
+		SECTION("singleChar")
+			verifyContains(s, U"x", false );
+
+		SECTION("string")
+			verifyContains(s, U"bla", false );
+	}
+}
+
+
+template<class StringType>
+inline void testContainsChar()
+{
+	StringType	s(U"he\U00012345loworldor");		
+	
+	SECTION("noMatch")
+		REQUIRE( s.contains( U'\U00023643' ) == false );
+
+	SECTION("oneMatch")
+		REQUIRE( s.contains( U'\U00012345' ) == true );
+	
+	SECTION("multiMatches")
+		REQUIRE( s.contains( 'o' ) == true );
+	
+	SECTION("inEmpty")
+	{
+		s = U"";
+		REQUIRE( s.contains( 'o' ) == false );
+	}
+}
+
+template<class DATATYPE>
+inline void testContains()
+{
+	SECTION("string")
+		testContainsString<StringImpl<DATATYPE> >();
+
+	SECTION("char")
+		testContainsChar<StringImpl<DATATYPE> >();
+}
+
+
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -8562,6 +8683,9 @@ inline void testStringImpl()
 
 	SECTION("findReplace")
 		testFindReplace<DATATYPE>();
+
+	SECTION("contains")
+		testContains<DATATYPE>();
 }
 
 
