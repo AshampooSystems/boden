@@ -8384,7 +8384,7 @@ inline void testFindReplace()
 
 
 template<class StringType>
-bool verifyContains(const StringType& s, const char32_t* arg, bool expectedResult )
+void verifyContains(const StringType& s, const char32_t* arg, bool expectedResult )
 {
 	StringType a(arg);
 
