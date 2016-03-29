@@ -47,9 +47,13 @@ class StringImpl : public Base
 {
 public:
 
-	/** A static string constant containing all whitespace character
+	/** Returns a static string constant containing all whitespace character
 	   (including the unicode whitespace characters).*/
-	static const StringImpl whitespace(U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029\u202F\u205F\u3000");
+	static const StringImpl& getWhitespaceChars()
+	{
+		static StringImpl whitespace( U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029\u202F\u205F\u3000" );
+		return whitespace;
+	}
 
 
 	/** Type of the character iterators used by this string.*/
@@ -5494,52 +5498,52 @@ public:
 		*/
 	StringImpl splitOffToken(const StringImpl& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 
 	StringImpl splitOffToken(const std::string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 
 	StringImpl splitOffToken(const std::wstring& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(WideCodec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(WideCodec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const std::u16string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const std::u32string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 
 
 	StringImpl splitOffToken(const char* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(Utf8Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf8Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
 	}
 
 
 	StringImpl splitOffToken(const wchar_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(WideCodec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(WideCodec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const char16_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const char32_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+		return splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
 	}
 
 
@@ -5550,8 +5554,8 @@ public:
 									bool returnEmptyTokens=true,
 									char32_t* pSeparator=nullptr)
 	{
-		return splitOffToken( InputCodec::DecodingIterator<InputCodec>(separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
-							  InputCodec::DecodingIterator<InputCodec>(separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
+		return splitOffToken( InputCodec::DecodingIterator<InputIterator>(separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
+							  InputCodec::DecodingIterator<InputIterator>(separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
 							  returnEmptyTokens,
 							  pSeparator );
 	}							
@@ -5563,34 +5567,37 @@ public:
 								bool returnEmptyTokens=true,
 								char32_t* pSeparator=nullptr)
 	{
-		_lengthIfKnown = -1;
-		_pDataInDifferentEncoding = nullptr;
-
 		while(_beginIt != _endIt)
 		{
-			Iterator tokenEndIt = findOneOne(separatorCharsBeginIt, separatorCharsEndIt);
+			Iterator tokenEndIt = findOneOf(separatorCharsBeginIt, separatorCharsEndIt, _beginIt);
 			if(tokenEndIt==_beginIt && !returnEmptyTokens)
 			{
 				// empty token. Skip over it.
 				++_beginIt;
+
+				_lengthIfKnown = -1;
+				_pDataInDifferentEncoding = nullptr;
 			}
 			else
 			{
 				StringImpl result = subString(_beginIt, tokenEndIt);
 
 				_beginIt = tokenEndIt;
-				if(_beginIt != _endit)
+				if(_beginIt != _endIt)
 				{
 					if(pSeparator!=nullptr)
 						*pSeparator = *_beginIt;
 
-					++_beginIt;
+					++_beginIt;					
 				}
 				else
 				{
 					if(pSeparator!=nullptr)
 						*pSeparator = U'\0';
 				}
+
+				_lengthIfKnown = -1;
+				_pDataInDifferentEncoding = nullptr;
 
 				return result;
 			}				
@@ -5616,7 +5623,7 @@ public:
 
 		splitOffWord is equivalent to:
 		\code
-		splitOffToken( String::whitespace, false);
+		splitOffToken( String::getWhitespaceChars(), false);
 		\endcode
 						
 		Performance note:
@@ -5643,7 +5650,7 @@ public:
 		*/
 	StringImpl splitOffWord()
 	{
-		return splitOffToken(whitespace, false);
+		return splitOffToken( getWhitespaceChars(), false);
 	}
 
 

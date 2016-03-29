@@ -58,6 +58,13 @@ inline void testConstants()
 	REQUIRE( StringImpl<DATATYPE>::npos == std::string::npos);
 	REQUIRE( StringImpl<DATATYPE>::noMatch == StringImpl<DATATYPE>::npos );
 	REQUIRE( StringImpl<DATATYPE>::toEnd == StringImpl<DATATYPE>::npos );
+
+	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains(" ") );
+	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains("\r") );
+	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains("\n") );
+	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains("\t") );
+	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains(U"\u2001") );
+	REQUIRE( !StringImpl<DATATYPE>::getWhitespaceChars().contains("a") );
 }
 
 
@@ -8502,10 +8509,177 @@ inline void testContains()
 }
 
 
+template<class StringType, class ArgType>
+inline void verifySplitOffToken( StringType& s, ArgType seps, bool returnEmpty, const char* expectedToken, const char* expectedRemaining, char32_t expectedSep)
+{
+	SECTION("returnSep")
+	{
+		char32_t sep = 'x';
+
+		StringType token = s.splitOffToken(seps, returnEmpty, &sep);
+		REQUIRE( token==expectedToken );
+		REQUIRE( s==expectedRemaining );
+
+		REQUIRE( sep==expectedSep );
+
+		REQUIRE( token.getLength()==StringType(expectedToken).getLength() );
+		REQUIRE( s.getLength()==StringType(expectedRemaining).getLength() );
+	}
+
+	SECTION("dontReturnSep")
+	{
+		StringType token = s.splitOffToken(seps, returnEmpty);
+		REQUIRE( token==expectedToken );
+		REQUIRE( s==expectedRemaining );
+
+		REQUIRE( token.getLength()==StringType(expectedToken).getLength() );
+		REQUIRE( s.getLength()==StringType(expectedRemaining).getLength() );
+	}
+}
+
+template<class StringType, class ArgType>
+inline void testSplitOffTokenString()
+{
+	StringType s(U",,hello,x,,bla,,");
+
+	std::vector< StringType > testSeps( {",", "+-,", "-,+", ",+-" } );
+
+	for( auto sepsIt = testSeps.begin(); sepsIt!=testSeps.end(); ++sepsIt)
+	{
+		StringType sepsObj = *sepsIt;
+		
+		SECTION(sepsObj)
+		{
+			ArgType    seps = (ArgType)sepsObj;
+
+			SECTION("returnEmpty")
+			{
+				verifySplitOffToken(s, seps, true, "", ",hello,x,,bla,,", ',');
+
+				verifySplitOffToken(s, seps, true, "", "hello,x,,bla,,", ',');
+
+				verifySplitOffToken(s, seps, true, "hello", "x,,bla,,", ',');
+
+				verifySplitOffToken(s, seps, true, "x", ",bla,,", ',');
+
+				verifySplitOffToken(s, seps, true, "", "bla,,", ',');
+
+				verifySplitOffToken(s, seps, true, "bla", ",", ',');
+
+				verifySplitOffToken(s, seps, true, "", "", ',');
+
+				verifySplitOffToken(s, seps, true, "", "", 0);
+
+				verifySplitOffToken(s, seps, true, "", "", 0);
+			}
+
+			SECTION("dontReturnEmpty")
+			{
+				verifySplitOffToken(s, seps, false, "hello", "x,,bla,,", ',');
+
+				verifySplitOffToken(s, seps, false, "x", ",bla,,", ',');
+
+				verifySplitOffToken(s, seps, false, "bla", ",", ',');
+
+				verifySplitOffToken(s, seps, false, "", "", 0);
+
+				verifySplitOffToken(s, seps, false, "", "", 0);
+			}
+		}
+	}
+
+	SECTION("sepsEmpty")
+	{
+		StringType sepsObj;
+		ArgType    seps = (ArgType)sepsObj;
+
+		SECTION("returnEmpty")
+			verifySplitOffToken( s, seps, true, ",,hello,x,,bla,,", "", 0  );
+
+		SECTION("dontReturnEmpty")
+			verifySplitOffToken( s, seps, false, ",,hello,x,,bla,,", "", 0  );
+	}
+}
+
+
+template<class DATATYPE>
+inline void testSplitOffToken()
+{
+	SECTION("String")
+		testSplitOffTokenString< StringImpl<DATATYPE>, StringImpl<DATATYPE> >();
+
+	SECTION("std::string")
+		testSplitOffTokenString< StringImpl<DATATYPE>, std::string >();
+
+	SECTION("std::wstring")
+		testSplitOffTokenString< StringImpl<DATATYPE>, std::wstring >();
+
+	SECTION("std::u16string")
+		testSplitOffTokenString< StringImpl<DATATYPE>, std::u16string >();
+
+	SECTION("std::u32string")
+		testSplitOffTokenString< StringImpl<DATATYPE>, std::u32string >();
+
+	SECTION("const char*")
+		testSplitOffTokenString< StringImpl<DATATYPE>, const char* >();
+
+	SECTION("const wchar_t*")
+		testSplitOffTokenString< StringImpl<DATATYPE>, const wchar_t* >();
+
+	SECTION("const char16_t*")
+		testSplitOffTokenString< StringImpl<DATATYPE>, const char16_t* >();
+
+	SECTION("const char32_t*")
+		testSplitOffTokenString< StringImpl<DATATYPE>, const char32_t* >();
+
+}
+
+
+
+
+
+template<class StringType>
+inline void verifySplitOffWord( StringType& s, const char* expectedWord, const char32_t* expectedRemaining)
+{
+	StringType word = s.splitOffWord();
+	REQUIRE( word==expectedWord );
+	REQUIRE( s==expectedRemaining );
+	
+	REQUIRE( word.getLength()==StringType(expectedWord).getLength() );
+	REQUIRE( s.getLength()==StringType(expectedRemaining).getLength() );
+}
+
+
+template<class DATATYPE>
+inline void testSplitOffWord()
+{
+	StringImpl<DATATYPE> s(U" hello\u2001blub\t x\rbla\n\nhurz\t ");
+
+	verifySplitOffWord(s, "hello", U"blub\t x\rbla\n\nhurz\t ");
+
+	verifySplitOffWord(s, "blub", U" x\rbla\n\nhurz\t ");
+
+	verifySplitOffWord(s, "x", U"bla\n\nhurz\t ");
+
+	verifySplitOffWord(s, "bla", U"\nhurz\t ");
+
+	verifySplitOffWord(s, "hurz", U" ");
+
+	verifySplitOffWord(s, "", U"");
+
+	verifySplitOffWord(s, "", U"");
+}
+
 
 template<class DATATYPE>
 inline void testStringImpl()
 {
+	SECTION("splitOffToken")
+		testSplitOffToken<DATATYPE>();
+
+	SECTION("splitOffWord")
+		testSplitOffWord<DATATYPE>();
+
 	SECTION("types")
 		testTypes<DATATYPE>();
 
@@ -8686,6 +8860,8 @@ inline void testStringImpl()
 
 	SECTION("contains")
 		testContains<DATATYPE>();
+	
+	
 }
 
 
