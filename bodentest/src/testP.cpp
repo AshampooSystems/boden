@@ -41,6 +41,10 @@ protected:
 };
 
 
+class SubHelper : public Helper
+{
+
+};
 
 TEST_CASE("P")
 {
@@ -91,6 +95,7 @@ TEST_CASE("P")
 
 		helper.verifyCounters(1, 1);
 	}
+
 
 	SECTION("assignNullWhileNull")
 	{
@@ -294,5 +299,92 @@ TEST_CASE("P")
 
 		REQUIRE(pH==&helper);
 	}
+
+
+	SECTION("moveConstructor")
+	{
+		P<Helper> p(&helper);
+		P<Helper> p2( std::move(p) );
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==&helper );
+
+		REQUIRE( helper.getRefCount()==2 );
+	}
+
+	SECTION("moveConstructorNull")
+	{
+		P<Helper> p;
+		P<Helper> p2( std::move(p) );
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==nullptr );
+	}
+
+	SECTION("moveConstructorFromSubClass")
+	{
+		SubHelper subHelper;
+
+		P<SubHelper> p(&subHelper);
+		P<Helper> p2( std::move(p) );
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==(Helper*)&subHelper );
+
+		REQUIRE( subHelper.getRefCount()==2 );
+	}
+
+	SECTION("moveAssignment")
+	{
+		P<Helper> p(&helper);
+		P<Helper> p2;
+
+		SECTION("assign")		
+			p2.assign( std::move(p) );
+
+		SECTION("operator=")		
+			p2 = std::move(p);
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==&helper );
+
+		REQUIRE( helper.getRefCount()==2 );
+	}
+
+	SECTION("moveAssignmentNull")
+	{
+		P<Helper> p;
+		P<Helper> p2;
+
+		SECTION("assign")		
+			p2.assign( std::move(p) );
+
+		SECTION("operator=")		
+			p2 = std::move(p);
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==nullptr );
+	}
+
+	SECTION("moveAssignmentFromSubClass")
+	{
+		SubHelper subHelper;
+
+		P<SubHelper> p(&subHelper);
+
+		P<Helper>	 p2;
+
+		SECTION("assign")		
+			p2.assign( std::move(p) );
+
+		SECTION("operator=")		
+			p2 = std::move(p);
+
+		REQUIRE( p.getPtr()==nullptr );
+		REQUIRE( p2.getPtr()==(Helper*)&subHelper );
+
+		REQUIRE( subHelper.getRefCount()==2 );
+	}
+	
 
 }

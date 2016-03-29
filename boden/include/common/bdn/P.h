@@ -39,12 +39,24 @@ public:
 		: P( p._pObject )
 	{
 	}
+
+	P(P&& p)
+		: _pObject( p.detach() )
+	{
+	}
 	
 	template<class F>
 	inline P(const P<F>& p)
 		: P( p.getPtr() )
 	{
 	}
+
+	template<class F>
+	inline P(P<F>&& p)
+		: _pObject( p.detach() )
+	{
+	}
+
 
 	P(T* p)
 		: _pObject(p)
@@ -82,6 +94,21 @@ public:
 			pMyOld->releaseRef();
 	}
 
+
+	void assign(P&& pObj)
+	{
+		attach(pObj.getPtr() );
+		pObj.detach();
+	}
+
+	template<class F>
+	void assign(P<F>&& pObj)
+	{
+		attach(pObj.getPtr() );
+		pObj.detach();
+	}
+
+
 	P<T>& operator=(T* pObj)
 	{
 		assign(pObj);
@@ -95,11 +122,28 @@ public:
 		return *this;
 	}
 
+	P<T>& operator=(P<T>&& pObj)
+	{
+		attach( pObj.getPtr() );
+		pObj.detach();
+
+		return *this;
+	}
+
 
 	template<class O>
 	inline P<T>& operator=(const P<O>& pObj)
 	{
 		assign(pObj.getPtr());
+		return *this;
+	}
+
+	template<class O>
+	inline P<T>& operator=(P<O>&& pObj)
+	{
+		attach( pObj.getPtr() );
+		pObj.detach();
+
 		return *this;
 	}
 
