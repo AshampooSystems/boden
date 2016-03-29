@@ -10,7 +10,7 @@ namespace bdn
     
 TEST_CASE( "WideCodecType", "[string]" )
 {
-#if BDN_WINDOWS
+#if BDN_TARGET_WINDOWS
     REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
         
 #else

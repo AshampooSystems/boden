@@ -27,7 +27,7 @@ int getCStringLength(PType s)
 template<class DATATYPE>
 inline void testTypes()
 {
-#if BDN_WINDOWS
+#if BDN_TARGET_WINDOWS
 	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedString) == typeid(std::wstring) );
 	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedElement) == typeid(wchar_t) );
 
@@ -835,7 +835,7 @@ inline void testConversion()
 		{
 			const typename StringImpl<DATATYPE>::NativeEncodedElement* p = s.asNativePtr();
 
-#if BDN_WINDOWS
+#if BDN_TARGET_WINDOWS
 			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
 #else
 			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
@@ -846,7 +846,7 @@ inline void testConversion()
 		{
 			const typename StringImpl<DATATYPE>::NativeEncodedString& o = s.asNative();
 
-#if BDN_WINDOWS
+#if BDN_TARGET_WINDOWS
 			REQUIRE( o==L"he\u0218\u0777\uffffllo" );
 #else
 			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
@@ -854,7 +854,7 @@ inline void testConversion()
 			
 			const typename StringImpl<DATATYPE>::NativeEncodedString& o2 = s.asNative();
 
-#if BDN_WINDOWS
+#if BDN_TARGET_WINDOWS
 			REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
 #else
 			REQUIRE( o2==u8"he\u0218\u0777\uffffllo" );
