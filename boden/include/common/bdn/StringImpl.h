@@ -47,6 +47,10 @@ class StringImpl : public Base
 {
 public:
 
+	/** A static string constant containing all whitespace character
+	   (including the unicode whitespace characters).*/
+	static const StringImpl whitespace(U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029\u202F\u205F\u3000");
+
 
 	/** Type of the character iterators used by this string.*/
 	typedef typename MainDataType::Iterator Iterator;
@@ -5448,6 +5452,198 @@ public:
 
 
 
+
+	
+
+
+	/** Can be used to efficiently split the string into parts ("tokens") that are separated by any one character from the given
+		set of separator characters.
+
+		splitOffToken searches for any one of the given separators. When a separator is found, the string is changed
+		to only contain the part after the separator and the part before the separator is returned.
+
+		If returnEmptyTokens is true then two separators following each other will cause an empty token to be returned.
+		If it is false then such empty tokens will be skipped and the first non-empty token is returned.
+		By default empty tokens are returned.
+
+		If pSeparator is not null and a token is found then *pSeparator will be set to the separator that was encountered at the end
+		of the token. If the token ends at the end of the string, or if no token is found then *pSeparator is set to 0.
+
+		Also see splitOffWord().
+		
+		Performance note:
+
+		Some programmers might be afraid that generating a bunch of sub strings during iteration through the tokens might
+		be slow. However, the string is implemented in a way so that sub strings are very light weight and do not need
+		to copy the string data. So this kind of iteration is actually very fast and efficient.
+
+		Example:
+
+		\code
+
+		// Split a string with comma separated values.
+
+		String   remaining = ...;
+		while( !remaining.isEmpty() )
+		{
+			String token = remaining.splitOffToken(",");
+			...
+		}
+
+		\endcode
+		*/
+	StringImpl splitOffToken(const StringImpl& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+	}
+
+
+	StringImpl splitOffToken(const std::string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(Utf8Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+	}
+
+
+	StringImpl splitOffToken(const std::wstring& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(WideCodec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+	}
+
+	StringImpl splitOffToken(const std::u16string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+	}
+
+	StringImpl splitOffToken(const std::u32string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffToken(separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+	}
+
+
+
+	StringImpl splitOffToken(const char* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(Utf8Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+	}
+
+
+	StringImpl splitOffToken(const wchar_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(WideCodec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+	}
+
+	StringImpl splitOffToken(const char16_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+	}
+
+	StringImpl splitOffToken(const char32_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
+	{
+		splitOffToken(separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+	}
+
+
+	template<class InputCodec, class InputIterator>
+	StringImpl splitOffTokenEncoded(const InputCodec& codec,
+									const InputIterator& separatorCharsBeginIt,
+									const InputIterator& separatorCharsEndIt,
+									bool returnEmptyTokens=true,
+									char32_t* pSeparator=nullptr)
+	{
+		return splitOffToken( InputCodec::DecodingIterator<InputCodec>(separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
+							  InputCodec::DecodingIterator<InputCodec>(separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
+							  returnEmptyTokens,
+							  pSeparator );
+	}							
+
+	
+	template<class InputIterator>
+	StringImpl splitOffToken(const InputIterator& separatorCharsBeginIt, const InputIterator& separatorCharsEndIt, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)
+	{
+		_lengthIfKnown = -1;
+		_pDataInDifferentEncoding = nullptr;
+
+		while(_beginIt != _endIt)
+		{
+			Iterator tokenEndIt = findOneOne(separatorCharsBeginIt, separatorCharsEndIt);
+			if(tokenEndIt==_beginIt && !returnEmptyTokens)
+			{
+				// empty token. Skip over it.
+				++_beginIt;
+			}
+			else
+			{
+				StringImpl result = subString(_beginIt, tokenEndIt);
+
+				_beginIt = tokenEndIt;
+				if(_beginIt != _endit)
+				{
+					if(pSeparator!=nullptr)
+						*pSeparator = *_beginIt;
+
+					++_beginIt;
+				}
+				else
+				{
+					if(pSeparator!=nullptr)
+						*pSeparator = U'\0';
+				}
+
+				return result;
+			}				
+		}
+
+		if(pSeparator!=nullptr)
+			*pSeparator = U'\0';
+
+		return StringImpl();
+	}
+
+
+
+	/** Can be used to efficiently split the string into words.
+
+		splitOffWord determines for the first word in the string (the end of the word is indicated by a whitespace character).
+		The string is changed to contain the part after the first wird and then the first word is returned.
+
+		Returns an empty string when there are no more words. Afterwards the string is always empty.
+
+		If multiple whitespace characters follow each other then they are skipped. I.e. the only time an empty string is
+		returned is when there are no more words in the string.
+
+		splitOffWord is equivalent to:
+		\code
+		splitOffToken( String::whitespace, false);
+		\endcode
+						
+		Performance note:
+
+		Some programmers might be afraid that generating a bunch of sub strings during iteration through the words might
+		be slow. However, the string is implemented in a way so that sub strings are very light weight and do not need
+		to copy the string data. So this kind of iteration is actually very fast and efficient.
+
+		Example:
+
+		\code
+		
+		String   remaining = ...;
+		while(true)
+		{
+			String word = remaining.splitOffWord();
+			if(word.isEmpty())
+				break;
+
+			...
+		}
+
+		\endcode
+		*/
+	StringImpl splitOffWord()
+	{
+		return splitOffToken(whitespace, false);
+	}
+
+
 	
 
 	/** A special iterator for keeping track of the character index associated with its current position.
@@ -5583,6 +5779,7 @@ public:
 
 protected:
 
+
 	template<class T>
 	typename const T::EncodedString& getEncoded() const
 	{
@@ -5682,6 +5879,7 @@ protected:
 		_endIt = _pData->end();
 
 		_lengthIfKnown = -1;
+		_pDataInDifferentEncoding = nullptr;
 	}
 
 
