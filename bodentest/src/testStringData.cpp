@@ -173,10 +173,10 @@ inline void verifyEncodedContents(const typename CODEC::EncodedString& encodedSt
 {
 	// verify the contents
 
-	CODEC::DecodingIterator<CODEC::EncodedString::const_iterator> begin(encodedString.begin(), encodedString.begin(), encodedString.end() );
-	CODEC::DecodingIterator<CODEC::EncodedString::const_iterator> end(encodedString.end(), encodedString.begin(), encodedString.end() );
+	typename CODEC::template DecodingIterator<typename CODEC::EncodedString::const_iterator> beginIt(encodedString.begin(), encodedString.begin(), encodedString.end() );
+	typename CODEC::template DecodingIterator<typename CODEC::EncodedString::const_iterator> endIt(encodedString.end(), encodedString.begin(), encodedString.end() );
 
-	std::u32string decResult( begin, end);
+	std::u32string decResult( beginIt, endIt);
 
 	REQUIRE( decResult==expectedContents );
 }
@@ -184,9 +184,9 @@ inline void verifyEncodedContents(const typename CODEC::EncodedString& encodedSt
 template<class CODEC>
 inline void testEncodedContents()
 {
-	CODEC::EncodedString	encodedString;
+	typename CODEC::EncodedString	encodedString;
 
-	StringData<CODEC>		data("hello");
+	StringData<CODEC>               data("hello");
 
 	SECTION("implicit conversion to std string")
 	{
@@ -246,7 +246,7 @@ inline void testStringData()
 	{
 		StringData<CODEC> data("helloworld");
 
-		StringData<CODEC>::Iterator it = data.begin();
+		typename StringData<CODEC>::Iterator it = data.begin();
 
 		REQUIRE(*it==U'h');
 
@@ -274,12 +274,12 @@ inline void testStringData()
 
 		REQUIRE(*it==U'e');
 
-		StringData<CODEC>::Iterator it2 = it+6;
+		typename StringData<CODEC>::Iterator it2 = it+6;
 
 		REQUIRE(*it==U'e');
 		REQUIRE(*it2==U'r');
 
-		StringData<CODEC>::Iterator it3 = it2-6;
+		typename StringData<CODEC>::Iterator it3 = it2-6;
 
 		REQUIRE(*it2==U'r');
 		REQUIRE(*it3==U'e');

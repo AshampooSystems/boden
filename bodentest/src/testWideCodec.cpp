@@ -7,6 +7,18 @@
 
 namespace bdn
 {
+    
+TEST_CASE( "WideCodecType", "[string]" )
+{
+#if BDN_WINDOWS
+    REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
+        
+#else
+    REQUIRE( typeid(WideCodec) == typeid(Utf32CodecImpl<wchar_t>) );
+        
+#endif
+}
+        
 
 TEST_CASE( "WideCodec", "[string]" )
 {
@@ -21,7 +33,7 @@ TEST_CASE( "WideCodec", "[string]" )
 	// We cannote really test incorrect encoding without knowledge of the encoding.
 	// Note that this is not a problem because WideCodec is only a typedef for one
 	// of the other codecs, which are all tested more in-depth.
-
+    
 	SubTestData allData[] = {	{ L"", U"", "empty" },
 								{ L"\u0000", U"\u0000", "zero char" },
 								{ L"h", U"h", "ascii char" },

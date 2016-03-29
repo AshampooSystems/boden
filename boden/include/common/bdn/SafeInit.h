@@ -84,11 +84,11 @@ protected:
 	\endcode
 
 	*/
-template<class T, class ...Arguments >
+template<class T, class ... Arguments >
 class SafeInit : public SafeInitBase
 {
 public:
-	SafeInit()
+	SafeInit(Arguments ... args)
 	{
 		// this constructor might be called by multiple threads at the same time.
 		// So we do not do any construction here!
@@ -110,7 +110,7 @@ public:
 		{
 			try
 			{
-				_pInstance = new(Base::RawNew::Use) T(Arguments...);
+				_pInstance = new(Base::RawNew::Use) T(args...);
 
 				_state = State::ok;
 			}

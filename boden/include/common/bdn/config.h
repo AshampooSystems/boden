@@ -1,9 +1,9 @@
 #ifndef BDN_config_H_
 #define BDN_config_H_
 
-#include <limits.h>
+#include <cstdint>
 
-#if WCHAR_MAX<=0xffff
+#if WCHAR_MAX <= 0xffff
 	#define BDN_WCHAR_SIZE 2
 
 #elif WCHAR_MAX<=0xffffffff

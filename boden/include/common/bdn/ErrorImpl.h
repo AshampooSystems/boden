@@ -110,7 +110,7 @@ public:
 
 
 template<typename T>
-class ErrorImpl<typename T, std::system_error>  : public std::system_error, public _ErrorParamsMixin
+class ErrorImpl<T, std::system_error>  : public std::system_error, public _ErrorParamsMixin
 {
 public:
 	ErrorImpl(	const String& message="",				
@@ -135,7 +135,7 @@ public:
 	ErrorImpl(	const std::error_code& errorCode,
 				const String& message,
 				const std::map<String,String>& paramMap = std::map<String,String>())
-		: std::system_error( errorCode, message.toStd_Utf8() )
+		: std::system_error( errorCode, message.asUtf8() )
 		, _ErrorParamsMixin(paramMap)
 	{
 	}
@@ -152,7 +152,7 @@ public:
 				const std::error_category& errorCategory,				
 				const String& message,
 				const std::map<String,String>& paramMap = std::map<String,String>())
-		: std::system_error( errorNumber, errorCategory, message.toStd_Utf8() )
+		: std::system_error( errorNumber, errorCategory, message.asUtf8() )
 		, _ErrorParamsMixin(paramMap)
 	{
 	}

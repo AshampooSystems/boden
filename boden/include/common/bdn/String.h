@@ -140,7 +140,7 @@ inline bdn::String operator+(const bdn::String& a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -149,7 +149,7 @@ inline bdn::String operator+(const bdn::String& a, const std::string& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -158,7 +158,7 @@ inline bdn::String operator+(const bdn::String& a, const std::wstring& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(const bdn::String& a, const std::u16string& b)
@@ -166,7 +166,7 @@ inline bdn::String operator+(const bdn::String& a, const std::u16string& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(const bdn::String& a, const std::u32string& b)
@@ -174,7 +174,7 @@ inline bdn::String operator+(const bdn::String& a, const std::u32string& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -183,7 +183,7 @@ inline bdn::String operator+(const bdn::String& a, const char* b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -192,7 +192,7 @@ inline bdn::String operator+(const bdn::String& a, const wchar_t* b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -201,7 +201,7 @@ inline bdn::String operator+(const bdn::String& a, const char16_t* b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(const bdn::String& a, const char32_t* b)
@@ -209,7 +209,7 @@ inline bdn::String operator+(const bdn::String& a, const char32_t* b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -222,7 +222,7 @@ inline bdn::String operator+(bdn::String&& a, const bdn::String& b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -231,7 +231,7 @@ inline bdn::String operator+(bdn::String&& a, const std::string& b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -240,7 +240,7 @@ inline bdn::String operator+(bdn::String&& a, const std::wstring& b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(bdn::String&& a, const std::u16string& b)
@@ -248,7 +248,7 @@ inline bdn::String operator+(bdn::String&& a, const std::u16string& b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(bdn::String&& a, const std::u32string& b)
@@ -256,7 +256,7 @@ inline bdn::String operator+(bdn::String&& a, const std::u32string& b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -265,7 +265,7 @@ inline bdn::String operator+(bdn::String&& a, const char* b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -274,7 +274,7 @@ inline bdn::String operator+(bdn::String&& a, const wchar_t* b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -283,7 +283,7 @@ inline bdn::String operator+(bdn::String&& a, const char16_t* b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(bdn::String&& a, const char32_t* b)
@@ -291,7 +291,7 @@ inline bdn::String operator+(bdn::String&& a, const char32_t* b)
 	bdn::String result( std::move(a) );
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -303,7 +303,7 @@ inline bdn::String operator+(const std::string& a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -312,7 +312,7 @@ inline bdn::String operator+(const std::wstring& a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -321,7 +321,7 @@ inline bdn::String operator+(const std::u16string& a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -330,7 +330,7 @@ inline bdn::String operator+(const std::u32string& a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -339,7 +339,7 @@ inline bdn::String operator+(const char* a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -348,7 +348,7 @@ inline bdn::String operator+(const wchar_t* a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -357,7 +357,7 @@ inline bdn::String operator+(const char16_t* a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 inline bdn::String operator+(const char32_t* a, const bdn::String& b)
@@ -365,7 +365,7 @@ inline bdn::String operator+(const char32_t* a, const bdn::String& b)
 	bdn::String result(a);
 	result += b;
 
-	return std::move(result);
+	return result;
 }
 
 

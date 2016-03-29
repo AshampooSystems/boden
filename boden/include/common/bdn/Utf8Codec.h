@@ -397,7 +397,7 @@ public:
 		{
 			char32_t chr = *_sourceIt;
 
-			if(chr<0 || chr>0x7FFFFFFF)
+			if(chr>0x7FFFFFFF)
 			{
 				// invalid unicode character. Use 'replacement character'
 				chr = 0xfffd;

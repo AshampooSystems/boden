@@ -371,7 +371,7 @@ public:
 		{
 			char32_t chr = *_sourceIt;
 
-			if(chr<0 || chr>0x10ffff || (chr>=0xd800 && chr<=0xdfff))
+			if(chr>0x10ffff || (chr>=0xd800 && chr<=0xdfff))
 			{
 				// invalid, unencodable or in the surrogate range. Use 'replacement character'
 				chr = 0xfffd;

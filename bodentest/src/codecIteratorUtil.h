@@ -5,12 +5,12 @@
 template<class CODEC, class ENCSTRING>
 void testCodecDecodingIterator(const ENCSTRING& encoded, const std::u32string& expectedDecoded )
 {
-	typename CODEC::DecodingIterator<typename ENCSTRING::const_iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
-	typename CODEC::DecodingIterator<typename ENCSTRING::const_iterator> end(encoded.end(), encoded.begin(), encoded.end());
+	typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> begin(encoded.begin(), encoded.begin(), encoded.end());
+	typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> end(encoded.end(), encoded.begin(), encoded.end());
 
 	// forward then backward iteration
 	{
-		typename CODEC::DecodingIterator<typename ENCSTRING::const_iterator> it = begin;
+		typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> it = begin;
 
 		for( auto expectedIt = expectedDecoded.begin(); expectedIt!=expectedDecoded.end(); ++expectedIt)
 		{
@@ -35,7 +35,7 @@ void testCodecDecodingIterator(const ENCSTRING& encoded, const std::u32string& e
 
 	// backward then forward iteration
 	{
-		typename CODEC::DecodingIterator<typename ENCSTRING::const_iterator> it = end;
+		typename CODEC::template DecodingIterator<typename ENCSTRING::const_iterator> it = end;
 
 		for( auto expectedIt = expectedDecoded.rbegin(); expectedIt!=expectedDecoded.rend(); ++expectedIt)
 		{
@@ -62,12 +62,12 @@ void testCodecDecodingIterator(const ENCSTRING& encoded, const std::u32string& e
 template <class CODEC, class ENCSTRING>
 void testCodecEncodingIterator(const std::u32string& input, const ENCSTRING& expectedEncoded)
 {
-	typename CODEC::EncodingIterator<std::u32string::const_iterator> begin(input.begin());
-	typename CODEC::EncodingIterator<std::u32string::const_iterator> end(input.end());
+	typename CODEC::template EncodingIterator<std::u32string::const_iterator> begin(input.begin());
+	typename CODEC::template EncodingIterator<std::u32string::const_iterator> end(input.end());
 
 	// forward then backward iteration
 	{
-		typename CODEC::EncodingIterator<std::u32string::const_iterator> it = begin;
+		typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = begin;
 
 		for( auto expectedIt = expectedEncoded.begin(); expectedIt!=expectedEncoded.end(); ++expectedIt)
 		{
@@ -93,7 +93,7 @@ void testCodecEncodingIterator(const std::u32string& input, const ENCSTRING& exp
 
 	// backward then forward iteration
 	{
-		typename CODEC::EncodingIterator<std::u32string::const_iterator> it = end;
+		typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = end;
 
 		for( auto expectedIt = expectedEncoded.rbegin(); expectedIt!=expectedEncoded.rend(); ++expectedIt)
 		{

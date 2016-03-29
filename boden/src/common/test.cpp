@@ -4696,7 +4696,9 @@ bool isDebuggerActive(){
 
 	// We're being debugged if the P_TRACED flag is set.
 
-	return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
+	bool active = ( (info.kp_proc.p_flag & P_TRACED) != 0 );
+    
+    return active;
 }
 } // namespace bdn
 
@@ -5457,7 +5459,7 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 
 	virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {}
 
-	virtual bool assertionEnded( AssertionStats const& assertionStats ) {
+	virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
 		assert( !m_sectionStack.empty() );
 		SectionNode& sectionNode = *m_sectionStack.back();
 		sectionNode.assertions.push_back( assertionStats );

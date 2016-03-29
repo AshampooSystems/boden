@@ -3,7 +3,14 @@
 
 namespace bdn
 {
+    
+ 
+const size_t StringImplBase::npos;
+const size_t StringImplBase::noMatch;
+const size_t StringImplBase::toEnd;
 
+  
+    
 std::string wideToLocaleEncoding(const std::wstring& wideString, const std::locale& loc)
 {
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
@@ -55,13 +62,33 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 
 			const wchar_t* pSourceNext = pSource;
 			char*		   pOutNext = outBuffer;
-
+            
+            
 			int convResult = codec.out(state, pSource, pSourceEnd, pSourceNext, outBuffer, outBuffer+outBufferSize, pOutNext);
 			if(convResult==std::codecvt_base::error)
 			{
-				// a character cannot be converted. pWideNext points to that character.
-				// All others up to that point have been converted. Insert a replacement character
+				// a character cannot be converted. The standard defines that
+                // pWideNext SHOULD point to that character. And all others up to that point should have been converted.
+                
+                // But unfortunately with some standard libraries (e.g. on Mac with libc++) pOutNext always points to
+                // the first character, even if it is not the problem. So to work around that we try to convert character by character
+                // until we hit the problem.
+                if(pOutNext==outBuffer && pSourceNext==pSource)
+                {
+                    while(pSourceNext!=pSourceEnd)
+                    {
+                        int cr = codec.out(state, pSourceNext, pSourceNext+1, pSourceNext, pOutNext, outBuffer+outBufferSize, pOutNext);
+                        if(cr!=std::codecvt_base::ok)
+                        {
+                            // found the actual error. We now know that pSourceNext really does point to the problem character.
+                            break;
+                        }
+                    }
+                }
+                
+                // Insert a replacement character
 				// and skip over the problematic character.
+                
 				if(replacementIndex==-1)
 					pSourceNext++;
 

@@ -1988,9 +1988,11 @@ namespace bdn{
 
 #ifdef BDN_PLATFORM_MAC
 
+
     // The following code snippet based on:
     // http://cocoawithlove.com/2008/03/break-into-debugger.html
-    #ifdef DEBUG
+    #if defined(BDN_DEBUG)
+
         #if defined(__ppc64__) || defined(__ppc__)
             #define BDN_BREAK_INTO_DEBUGGER() \
                 if( bdn::isDebuggerActive() ) { \

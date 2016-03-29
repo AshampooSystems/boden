@@ -37,7 +37,7 @@ def main():
         cmakeHelp = subprocess.check_output("cmake --help", shell=True, universal_newlines=True);
 
     except subprocess.CalledProcessError as e:
-        print("There was a problem calling cmake. Cmake is required and must be installed to run this.")
+        print("There was a problem calling cmake. Cmake is required and must be installed to run this.\n")
         return 3;
 
     cmakeHelp = cmakeHelp.strip();

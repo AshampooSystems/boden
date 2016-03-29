@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include <bdn/Utf8Codec.h>
+#include <bdn/Utf16Codec.h>
+#include <bdn/WideCodec.h>
+
 namespace bdn
 {
 
@@ -90,7 +94,7 @@ public:
 		Iterator(	const typename EncodedString::const_iterator& encodedIt,
 					const typename EncodedString::const_iterator& encodedBegin,
 					const typename EncodedString::const_iterator& encodedEnd)
-			: Codec::DecodingIterator<EncodedString::const_iterator>(encodedIt, encodedBegin, encodedEnd)
+			: Codec::template DecodingIterator<typename EncodedString::const_iterator>(encodedIt, encodedBegin, encodedEnd)
 		{
 		}
 
@@ -101,7 +105,7 @@ public:
 		Iterator& operator+=(int val)
 		{
 			for(int i=0; i<val; i++)
-				operator++();
+				this->operator++();
 
 			return *this;
 		}
@@ -109,11 +113,11 @@ public:
 		Iterator& operator-=(int val)
 		{
 			for(int i=0; i<val; i++)
-				operator--();
+				this->operator--();
 
 			return *this;
 		}
-
+        
 
 		Iterator operator+(int val) const
 		{
@@ -224,18 +228,39 @@ public:
 		: StringData(s.begin(), s.end())
 	{
 	}
-
-
+    
+    
+    
 	/** Initializes the object with the data between two character iterators.
 		The iterators must return fully decoded 32 bit Unicode characters.*/
 	template<class InputDecodedCharIterator>
 	StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt)
 	{
-		Codec::EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
-		Codec::EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
 
 		_encodedString = typename Codec::EncodedString(encodingBeginIt, encodingEndIt );
 	}
+    
+    
+    
+    /** Initializes the object with the data between two iterators whose data is encoded with the same codec
+        as the StringData object.
+    */
+    StringData(const Codec& codec, typename Codec::EncodedString::iterator inputEncodedBeginIt, typename Codec::EncodedString::iterator inputEncodedEndIt)
+    {
+        _encodedString = typename Codec::EncodedString(inputEncodedBeginIt, inputEncodedEndIt);
+    }
+    
+    
+    /** Initializes the object with the data between two data pointers whose data is encoded with the same codec
+        as the StringData object.
+    */
+    StringData(const Codec& codec, typename Codec::EncodedElement* pBegin, typename Codec::EncodedElement* pEnd)
+    {
+        _encodedString = typename Codec::EncodedString(pBegin, (pEnd-pBegin) );
+    }
+
 
 
 	/** Initializes the object with the data between two iterators whose data is encoded
@@ -249,33 +274,16 @@ public:
 	template<class InputCodec, class InputEncodedIterator>
 	StringData(const InputCodec& codec, InputEncodedIterator inputEncodedBeginIt, InputEncodedIterator inputEncodedEndIt)
 	{
-		InputCodec::DecodingIterator<InputEncodedIterator> inputBeginIt(inputEncodedBeginIt, inputEncodedBeginIt, inputEncodedEndIt);
-		InputCodec::DecodingIterator<InputEncodedIterator> inputEndIt(inputEncodedEndIt, inputEncodedBeginIt, inputEncodedEndIt);
+		typename InputCodec::template DecodingIterator<InputEncodedIterator> inputBeginIt(inputEncodedBeginIt, inputEncodedBeginIt, inputEncodedEndIt);
+		typename InputCodec::template DecodingIterator<InputEncodedIterator> inputEndIt(inputEncodedEndIt, inputEncodedBeginIt, inputEncodedEndIt);
 		
-		Codec::EncodingIterator<InputCodec::DecodingIterator<InputEncodedIterator> > encodingBeginIt(inputBeginIt);
-		Codec::EncodingIterator<InputCodec::DecodingIterator<InputEncodedIterator> > encodingEndIt(inputEndIt);
+		typename Codec::template EncodingIterator<typename InputCodec::template DecodingIterator<InputEncodedIterator> > encodingBeginIt(inputBeginIt);
+		typename Codec::template EncodingIterator<typename InputCodec::template DecodingIterator<InputEncodedIterator> > encodingEndIt(inputEndIt);
 
 		_encodedString = typename Codec::EncodedString(encodingBeginIt, encodingEndIt);
 	}
 
 
-	/** Specialized version of the general encoded iterator constructor for the case in which the specified
-		codec matches the one used by this StringData object. This is an implementation optimization - users can ignore this.*/
-	template<>
-	StringData(const Codec& codec, typename Codec::EncodedString::iterator inputEncodedBeginIt, typename Codec::EncodedString::iterator inputEncodedEndIt)
-	{
-		_encodedString = typename Codec::EncodedString(inputEncodedBeginIt, inputEncodedEndIt);
-	}
-
-
-	/** Specialized version of the general encoded iterator constructor for the case in which the specified
-		codec matches the one used by this StringData object and the begin and end iterators are pointers to
-		raw encoded data. This is an implementation optimization - users can ignore this.*/
-	template<>
-	StringData(const Codec& codec, typename Codec::EncodedElement* pBegin, typename Codec::EncodedElement* pEnd)
-	{
-		_encodedString = typename Codec::EncodedString(pBegin, (pEnd-pBegin) );
-	}
 
 	
 	/** Conversion operator that returns a reference to the internal encoded data

@@ -6,9 +6,11 @@
 #include <bdn/Utf32StringData.h>
 #include <bdn/Utf16StringData.h>
 #include <bdn/WideStringData.h>
+#include <bdn/OutOfRangeError.h>
 
 #include <iterator>
 #include <list>
+#include <locale>
 
 namespace bdn
 {
@@ -33,6 +35,46 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 	If that is also unencodable then the character is simply skipped.
 */
 std::wstring localeEncodingToWide(const std::string& multiByteString, const std::locale& loc = std::locale());
+    
+    
+    
+/** Helper base class for StringImpl. It defines some global constants only.*/
+class StringImplBase : public Base
+{
+public:
+    /** A special constant that is used sometimes for special length, position and character index values.
+     
+     When used as a length value it means "until the end of the string".
+     
+     It is also sometimes used as a special return value. For example, find() returns it to indicate that the
+     string was not found.
+     
+     It is recommended to use more descriptive aliases for this constant like noMatch and toEnd for better readability.
+     
+     The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+     */
+    static const size_t npos = -1;
+    
+    
+    /** A special constant that is used to indicate that a search operation did not find any matches.
+     
+     This is an alias for npos.
+     
+     The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+     */
+    static const size_t noMatch = npos;
+    
+    
+    /** A special constant that can be used in some cases when a sub string length is needed to indicate
+     that the whole remaining part of the string up to the end should be used.
+     
+     This is an alias for npos.
+     
+     The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
+     */
+    static const size_t toEnd = npos;
+};
+
 
 
 /** Provides an implementation of a String class with the internal encoding being
@@ -43,7 +85,7 @@ std::wstring localeEncodingToWide(const std::string& multiByteString, const std:
 	See the String documentation for an explanation of how StringImpl objects work.
 */
 template<class MainDataType>
-class StringImpl : public Base
+class StringImpl : public StringImplBase
 {
 public:
 
@@ -150,41 +192,6 @@ public:
 	/** Included with compatibility for std::string only.*/
 	typedef size_t size_type;
 	
-
-
-	/** A special constant that is used sometimes for special length, position and character index values.
-
-		When used as a length value it means "until the end of the string".
-
-		It is also sometimes used as a special return value. For example, find() returns it to indicate that the
-		string was not found.
-
-		It is recommended to use more descriptive aliases for this constant like noMatch and toEnd for better readability.
-
-		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
-		*/
-	static const size_t npos = -1;	
-
-
-	/** A special constant that is used to indicate that a search operation did not find any matches.
-	
-		This is an alias for npos.
-
-		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
-		*/
-	static const size_t noMatch = npos;
-
-
-	/** A special constant that can be used in some cases when a sub string length is needed to indicate
-		that the whole remaining part of the string up to the end should be used.
-	
-		This is an alias for npos.
-
-		The constant's value is the greatest possible value for a size_t variable (note that size_t is an unsigned type).
-		*/
-	static const size_t toEnd = npos;
-
-
 
 	
 	/** Contructor for an empty string.*/
@@ -503,7 +510,7 @@ public:
 		}
 		else
 		{
-			MainDataType::EncodedString* pStd = &_pData->getEncodedString();
+			typename MainDataType::EncodedString* pStd = &_pData->getEncodedString();
 
 			int excessCapacity = pStd->capacity()-pStd->length();
 			if(excessCapacity<0)
@@ -695,7 +702,7 @@ public:
 	*/
 	const char* asUtf8Ptr() const
 	{
-		return getEncoded<Utf8StringData>().c_str();
+		return getEncoded( (Utf8StringData*)nullptr ).c_str();
 	}
 
 	
@@ -707,7 +714,7 @@ public:
 	*/
 	const std::string& asUtf8() const
 	{
-		return getEncoded<Utf8StringData>();
+		return getEncoded( (Utf8StringData*)nullptr );
 	}
 
 
@@ -762,7 +769,7 @@ public:
 	*/
 	const wchar_t* asWidePtr() const
 	{
-		return getEncoded<WideStringData>().c_str();
+		return getEncoded( (WideStringData*)nullptr ).c_str();
 	}
 	
 	
@@ -775,7 +782,7 @@ public:
 	*/
 	const std::wstring& asWide() const
 	{
-		return getEncoded<WideStringData>();
+		return getEncoded( (WideStringData*)nullptr );
 	}
 
 	/** Conversion operator to const wchar_t.
@@ -803,7 +810,7 @@ public:
 	*/
 	const char16_t* asUtf16Ptr() const
 	{
-		return getEncoded<Utf16StringData>().c_str();
+		return getEncoded( (Utf16StringData*)nullptr ).c_str();
 	}
 
 
@@ -815,7 +822,7 @@ public:
 	*/
 	const std::u16string& asUtf16() const
 	{
-		return getEncoded<Utf16StringData>();
+		return getEncoded( (Utf16StringData*)nullptr );
 	}
 	
 
@@ -843,7 +850,7 @@ public:
 	*/
 	const char32_t* asUtf32Ptr() const
 	{
-		return getEncoded<Utf32StringData>().c_str();
+		return getEncoded( (Utf32StringData*)nullptr ).c_str();
 	}
 
 
@@ -855,7 +862,7 @@ public:
 	*/
 	const std::u32string& asUtf32() const
 	{
-		return getEncoded<Utf32StringData>();
+		return getEncoded( (Utf32StringData*)nullptr );
 	}
 
 
@@ -888,7 +895,7 @@ public:
 	*/
 	const NativeEncodedString& asNative() const
 	{
-		return getEncoded<NativeStringData>();
+		return getEncoded( (NativeStringData*)nullptr );
 	}
 
 
@@ -1095,8 +1102,8 @@ public:
 	{
 		return compare( compareStartIndex,
 						compareLength,
-						InputCodec::DecodingIterator<InputIterator>( otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt ),
-						InputCodec::DecodingIterator<InputIterator>( otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt ) );
+						typename InputCodec::template DecodingIterator<InputIterator>( otherEncodedBeginIt, otherEncodedBeginIt, otherEncodedEndIt ),
+						typename InputCodec::template DecodingIterator<InputIterator>( otherEncodedEndIt, otherEncodedBeginIt, otherEncodedEndIt ) );
 	}
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::string& other) const
@@ -1226,7 +1233,7 @@ public:
 	char32_t operator[](size_t index) const
 	{
 		size_t len = getLength();
-		if(index<0 || index>=len)
+		if(index>=len)
 		{
 			if(index==len)
 				return U'\0';
@@ -1247,7 +1254,7 @@ public:
 	char32_t at(size_t index) const
 	{
 		size_t len = getLength();
-		if(index<0 || index>=len)
+		if(index>=len)
 		{
 			if(index==len)
 				return U'\0';
@@ -1312,21 +1319,20 @@ public:
 
 		m.pStd->replace(	m.pStd->begin()+encodedBeginIndex,
 							m.pStd->begin()+encodedBeginIndex+encodedLength,
-							MainDataType::Codec::EncodingIterator<InputIterator>(replaceWithBegin),
-							MainDataType::Codec::EncodingIterator<InputIterator>(replaceWithEnd) );
+							typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithBegin),
+							typename MainDataType::Codec::template EncodingIterator<InputIterator>(replaceWithEnd) );
 
 		return *this;
-	}
+    }
 
 
 	/** Replaces a section of the string (defined by two iterators) with the data between two
 		other iterators.
 		Use findReplace() instead, if you want to search for and replace a certain substring.*/
-	template<>
-	StringImpl& replace<Iterator>(	const Iterator& rangeBegin,
-									const Iterator& rangeEnd,
-									const Iterator& replaceWithBegin,
-									const Iterator& replaceWithEnd)
+	StringImpl& replace(	const Iterator& rangeBegin,
+                            const Iterator& rangeEnd,
+                            const Iterator& replaceWithBegin,
+                            const Iterator& replaceWithEnd)
 	{
 		// we must convert the range to encoded indices because the iterators
 		// can be invalidated by Modify.
@@ -1467,8 +1473,8 @@ public:
 	{
 		return replace( rangeStartIndex,
 						rangeLength,						
-						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
-						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
+						typename CODEC::template DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+						typename CODEC::template DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
 	}
 
 
@@ -1485,8 +1491,8 @@ public:
 	{
 		return replace( rangeStart,
 						rangeEnd, 
-						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
-						CODEC::DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
+						typename CODEC::template DecodingIterator<InputIterator>( encodedReplaceWithBegin, encodedReplaceWithBegin, encodedReplaceWithEnd),
+						typename CODEC::template DecodingIterator<InputIterator>( encodedReplaceWithEnd, encodedReplaceWithBegin, encodedReplaceWithEnd) );
 	}
 
 
@@ -1868,12 +1874,12 @@ public:
 							size_t numChars,
 							char32_t chr )
 	{
-		MainDataType::Codec::EncodingIterator<const char32_t*> encodedBegin( &chr );
-		MainDataType::Codec::EncodingIterator<const char32_t*> encodedEnd( (&chr)+1 );
+		typename MainDataType::Codec::template EncodingIterator<const char32_t*> encodedBegin( &chr );
+		typename MainDataType::Codec::template EncodingIterator<const char32_t*> encodedEnd( (&chr)+1 );
 
 		// get the size of the encoded character
-		int								encodedCharSize = 0;
-		MainDataType::EncodedElement	lastEncodedElement=0;
+		int                                     encodedCharSize = 0;
+		typename MainDataType::EncodedElement	lastEncodedElement=0;
 		for( auto it = encodedBegin; it!=encodedEnd; it++)
 		{
 			lastEncodedElement = *it;
@@ -2452,7 +2458,7 @@ public:
 
 		_beginIt = other._beginIt;		
 
-		if(otherSubStartIndex>=0)
+		if(otherSubStartIndex>0)
 			_beginIt += otherSubStartIndex;
 		
 		if(otherSubLength==toEnd || otherSubStartIndex+otherSubLength>=other.length() )
@@ -3021,8 +3027,8 @@ public:
 
 		IteratorWithIndex foundIt = std::search( IteratorWithIndex( _beginIt+searchStartIndex, searchStartIndex),
 												 IteratorWithIndex( _endIt, getLength() ),
-												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
-												 ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt) );
+												 typename ToFindCodec::template DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+												 typename ToFindCodec::template DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt) );
 		if(foundIt.getInner()==_endIt)
 			return noMatch;
 		else
@@ -3437,8 +3443,8 @@ public:
 	template<class ToFindCodec, class EncodedIt>
 	size_t reverseFindEncoded(const ToFindCodec& codec, const EncodedIt& encodedToFindBeginIt, const EncodedIt& encodedToFindEndIt, size_t searchStartIndex = npos) const
 	{
-		return reverseFind( ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
-							ToFindCodec::DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt),
+		return reverseFind( typename ToFindCodec::template DecodingIterator<EncodedIt>(encodedToFindBeginIt, encodedToFindBeginIt, encodedToFindEndIt),
+							typename ToFindCodec::template DecodingIterator<EncodedIt>(encodedToFindEndIt, encodedToFindBeginIt, encodedToFindEndIt),
 							searchStartIndex );
 	}
 
@@ -3954,8 +3960,8 @@ public:
 	template<class InputCodec, class InputIterator>
 	size_t findOneOfEncoded(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findOneOf( InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
-						  InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+		return findOneOf( typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+						  typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
 						  searchStartIndex );
 	}
 
@@ -4243,8 +4249,8 @@ public:
 	template<class InputCodec, class InputIterator>
 	size_t findNotOneOfEncoded(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findNotOneOf(InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
-							InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+		return findNotOneOf(typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+							typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
 							searchStartIndex );
 	}
 
@@ -4525,8 +4531,8 @@ public:
 	template<class InputCodec, class InputIterator>
 	size_t reverseFindOneOfEncoded(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindOneOf(InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
-								InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+		return reverseFindOneOf(typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+								typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
 								searchStartIndex );
 	}
 
@@ -4824,8 +4830,8 @@ public:
 	template<class InputCodec, class InputIterator>
 	size_t reverseFindNotOneOfEncoded(const InputCodec& codec, const InputIterator& encodedCharsBeginIt, const InputIterator& encodedCharsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindNotOneOf( InputCodec::DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
-									InputCodec::DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
+		return reverseFindNotOneOf( typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsBeginIt, encodedCharsBeginIt, encodedCharsEndIt),
+									typename InputCodec::template DecodingIterator<InputIterator>(encodedCharsEndIt, encodedCharsBeginIt, encodedCharsEndIt),
 									searchStartIndex );
 	}
 
@@ -5448,10 +5454,10 @@ public:
 							const ReplaceWithIterator& replaceWithEncodedBegin,
 							const ReplaceWithIterator& replaceWithEncodedEnd)
 	{
-		return findReplace( ToFindCodec::DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
-							ToFindCodec::DecodingIterator<ToFindIterator>( toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
-							ReplaceWithCodec::DecodingIterator<ReplaceWithIterator>( replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
-							ReplaceWithCodec::DecodingIterator<ReplaceWithIterator>( replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd) );
+		return findReplace( typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
+							typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
+							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
+							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd) );
 	}
 
 
@@ -5554,8 +5560,8 @@ public:
 									bool returnEmptyTokens=true,
 									char32_t* pSeparator=nullptr)
 	{
-		return splitOffToken( InputCodec::DecodingIterator<InputIterator>(separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
-							  InputCodec::DecodingIterator<InputIterator>(separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
+		return splitOffToken( typename InputCodec::template DecodingIterator<InputIterator>(separatorCharsBeginIt, separatorCharsBeginIt, separatorCharsEndIt),
+							  typename InputCodec::template DecodingIterator<InputIterator>(separatorCharsEndIt, separatorCharsBeginIt, separatorCharsEndIt),
 							  returnEmptyTokens,
 							  pSeparator );
 	}							
@@ -5791,7 +5797,7 @@ protected:
 
 
 	template<class T>
-	typename const T::EncodedString& getEncoded() const
+    const typename T::EncodedString& getEncoded(T* dummy) const
 	{
 		T* p = dynamic_cast<T*>(_pDataInDifferentEncoding.getPtr());
 		if (p == nullptr)
@@ -5805,8 +5811,7 @@ protected:
 		return p->getEncodedString();
 	}
 
-	template<>
-	typename const MainDataType::EncodedString& getEncoded<MainDataType>() const
+	const typename MainDataType::EncodedString& getEncoded(MainDataType* dummy) const
 	{
 		if(_endIt!=_pData->end() || _beginIt!=_pData->begin())
 		{
@@ -5845,14 +5850,14 @@ protected:
 		{
 			// we are sharing the data => need to copy.
 			
-			_pData = newObj<MainDataType>( MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner() );
+			_pData = newObj<MainDataType>( typename MainDataType::Codec(), _beginIt.getInner(), _endIt.getInner() );
 
 			_beginIt = _pData->begin();
 			_endIt = _pData->end();			
 		}
 		else
 		{
-			MainDataType::EncodedString* pStd = &_pData->getEncodedString();
+			typename MainDataType::EncodedString* pStd = &_pData->getEncodedString();
 
 			if(_beginIt.getInner()!=pStd->begin()
 				|| _endIt.getInner()!=pStd->end() )

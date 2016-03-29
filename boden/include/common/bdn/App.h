@@ -1,7 +1,7 @@
 #ifndef BDN_APP_H_
 #define BDN_APP_H_
 
-#include <bdn/Base.h>
+#include <bdn/init.h>
 #include <bdn/AppNotInstantiatedError.h>
 
 namespace bdn

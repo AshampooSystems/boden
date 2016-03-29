@@ -1,7 +1,7 @@
 #ifndef BDN_EventSource_H_
 #define BDN_EventSource_H_
 
-#include <bdn/Base.h>
+#include <bdn/init.h>
 
 #include <functional>
 #include <list>

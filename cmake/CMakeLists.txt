@@ -29,9 +29,14 @@ else()
 endif()
 
 
-if(CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Apple"))
-	SET(CMAKE_CXX_FLAGS "-std=c++0x")
+set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
+set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+	SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+
 endif()
+
 
 add_definitions( -DUNICODE -D_UNICODE )
 
@@ -44,6 +49,9 @@ file( GLOB_RECURSE BODEN_SOURCES ${BODEN_SRCDIR}/common/*.cpp ${BODEN_SRCDIR}/co
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
+
+set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
 
 
 set( UIDEMO_SRCDIR "../uidemo/src")
@@ -66,6 +74,8 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 
 
 add_executable(bodentest ${BODENTEST_SOURCES} )
+
+set_property(TARGET bodentest APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
 target_link_libraries(bodentest boden)
 

@@ -14,6 +14,16 @@ using namespace bdn;
 
 
 
+template<class PType>
+int getCStringLength(PType s)
+{
+    int length=0;
+    while(s[length]!=0)
+        length++;
+    return length;
+}
+
+
 template<class DATATYPE>
 inline void testTypes()
 {
@@ -22,32 +32,32 @@ inline void testTypes()
 	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedElement) == typeid(wchar_t) );
 
 #else
-	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedString) == typeid(std::string) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::NativeEncodedElement) == typeid(char) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::NativeEncodedString) == typeid(std::string) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::NativeEncodedElement) == typeid(char) );
 
 #endif
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::Iterator) == typeid(DATATYPE::Iterator) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::iterator) == typeid(DATATYPE::Iterator) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::const_iterator) == typeid(DATATYPE::Iterator) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::Iterator) == typeid(typename DATATYPE::Iterator) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::iterator) == typeid(typename DATATYPE::Iterator) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::const_iterator) == typeid(typename DATATYPE::Iterator) );
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::ReverseIterator) == typeid( std::reverse_iterator<StringImpl<DATATYPE>::Iterator> ) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::reverse_iterator) == typeid( StringImpl<DATATYPE>::ReverseIterator ) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::const_reverse_iterator) == typeid( StringImpl<DATATYPE>::ReverseIterator ) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::ReverseIterator) == typeid( std::reverse_iterator<typename StringImpl<DATATYPE>::Iterator> ) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::reverse_iterator) == typeid( typename StringImpl<DATATYPE>::ReverseIterator ) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::const_reverse_iterator) == typeid( typename StringImpl<DATATYPE>::ReverseIterator ) );
 	
-	REQUIRE( typeid(StringImpl<DATATYPE>::Allocator) == typeid(DATATYPE::Allocator) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::allocator_type) == typeid(DATATYPE::Allocator) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::Allocator) == typeid(typename DATATYPE::Allocator) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::allocator_type) == typeid(typename DATATYPE::Allocator) );
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::value_type) == typeid(char32_t) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::traits_type) == typeid( std::char_traits<char32_t> ) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::value_type) == typeid(char32_t) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::traits_type) == typeid( std::char_traits<char32_t> ) );
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::pointer) == typeid(char32_t*) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::const_pointer) == typeid(const char32_t*) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::pointer) == typeid(char32_t*) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::const_pointer) == typeid(const char32_t*) );
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::reference) == typeid(char32_t&) );
-	REQUIRE( typeid(StringImpl<DATATYPE>::const_reference) == typeid(const char32_t&) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::reference) == typeid(char32_t&) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::const_reference) == typeid(const char32_t&) );
 
-	REQUIRE( typeid(StringImpl<DATATYPE>::size_type) == typeid(size_t) );
+	REQUIRE( typeid(typename StringImpl<DATATYPE>::size_type) == typeid(size_t) );
 }
 
 
@@ -823,7 +833,7 @@ inline void testConversion()
 	{
 		SECTION("asPtr")
 		{
-			const StringImpl<DATATYPE>::NativeEncodedElement* p = s.asNativePtr();
+			const typename StringImpl<DATATYPE>::NativeEncodedElement* p = s.asNativePtr();
 
 #if BDN_WINDOWS
 			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
@@ -834,7 +844,7 @@ inline void testConversion()
 
 		SECTION("as")
 		{
-			const StringImpl<DATATYPE>::NativeEncodedString& o = s.asNative();
+			const typename StringImpl<DATATYPE>::NativeEncodedString& o = s.asNative();
 
 #if BDN_WINDOWS
 			REQUIRE( o==L"he\u0218\u0777\uffffllo" );
@@ -842,7 +852,7 @@ inline void testConversion()
 			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
 #endif
 			
-			const StringImpl<DATATYPE>::NativeEncodedString& o2 = s.asNative();
+			const typename StringImpl<DATATYPE>::NativeEncodedString& o2 = s.asNative();
 
 #if BDN_WINDOWS
 			REQUIRE( o2==L"he\u0218\u0777\uffffllo" );
@@ -1041,7 +1051,6 @@ void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expec
 		}
 	}
 }
-
 
 
 
@@ -1415,8 +1424,8 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 
 			SECTION("rangeIterators")
 			{
-				StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
-				StringImpl<DATATYPE>::Iterator end;
+				typename StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
+				typename StringImpl<DATATYPE>::Iterator end;
 			
 				if(pTestData->length==-1)
 					end = s.end();
@@ -1428,7 +1437,7 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 				else
 					end = start + pTestData->length;
 
-				verifyReplace<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(	s,
+				verifyReplace<StringImpl<DATATYPE>, typename StringImpl<DATATYPE>::Iterator>(	s,
 																						start,
 																						end,
 																						pTestData->replaceWith,
@@ -1461,8 +1470,8 @@ inline void verifyReplaceNumChars(StringImpl<DATATYPE>& s, int startIndex, int l
 	
 	SECTION("rangeIterators")
 	{
-		StringImpl<DATATYPE>::Iterator start = s.begin()+startIndex;
-		StringImpl<DATATYPE>::Iterator end;
+		typename StringImpl<DATATYPE>::Iterator start = s.begin()+startIndex;
+		typename StringImpl<DATATYPE>::Iterator end;
 			
 		if(length==-1)
 			end = s.end();
@@ -1563,13 +1572,15 @@ inline void testReplace()
 
 	SECTION("slice")
 	{
-		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+		StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s = s2.subString(2,10);
+        
 
 		SECTION("string")
-			testReplaceWithString<DATATYPE>( s.subString(2, 10) );
+			testReplaceWithString<DATATYPE>( s );
 
 		SECTION("numChars")
-			testReplaceNumChars<DATATYPE>( s.subString(2, 10) );
+			testReplaceNumChars<DATATYPE>( s );
 	}
 }
 
@@ -1858,7 +1869,11 @@ inline void testAppend()
 		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
 
 		SECTION("string")
-			testAppendWithString<DATATYPE>( s.subString(2, 10) );
+        {
+            StringImpl<DATATYPE> sub = s.subString(2, 10);
+            
+			testAppendWithString<DATATYPE>( sub );
+        }
 
 		SECTION("numChars")
 			testAppendNumChars<DATATYPE>(s);
@@ -2052,7 +2067,7 @@ inline void testInsertWithString(StringImpl<DATATYPE>& s, const StringImpl<DATAT
 				verifyInsert<StringImpl<DATATYPE>, int>(s, insertPos, toInsert, expected);
 
 			SECTION("atIterator")
-				verifyInsert<StringImpl<DATATYPE>, StringImpl<DATATYPE>::Iterator>(s, s.begin()+insertPos, toInsert, expected);
+				verifyInsert<StringImpl<DATATYPE>, typename StringImpl<DATATYPE>::Iterator>(s, s.begin()+insertPos, toInsert, expected);
 		}
 	}
 }
@@ -2187,16 +2202,17 @@ inline void testInsert()
 
 	SECTION("slice")
 	{
-		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+		StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s = s2.subString(2, 10);
 
 		SECTION("string")
-			testInsertWithString<DATATYPE>(s.subString(2, 10));
+			testInsertWithString<DATATYPE>( s );
 
 		SECTION("numChars")
-			testInsertNumChars<DATATYPE>(s.subString(2, 10));
+			testInsertNumChars<DATATYPE>( s );
 
 		SECTION("singleChar")
-			testInsertSingleChar<DATATYPE>(s.subString(2, 10));
+			testInsertSingleChar<DATATYPE>( s );
 	}
 }
 
@@ -2214,7 +2230,7 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t erase
 	{
 		SECTION("itOneChar")
 		{
-			StringImpl<DATATYPE>::Iterator resultIt = s.erase( s.begin()+atPos );
+			typename StringImpl<DATATYPE>::Iterator resultIt = s.erase( s.begin()+atPos );
 
 			REQUIRE( resultIt==s.begin()+atPos );
 		}
@@ -2222,15 +2238,15 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t erase
 
 	SECTION("itRange")
 	{
-		StringImpl<DATATYPE>::Iterator beginIt = s.begin()+atPos;
+		typename StringImpl<DATATYPE>::Iterator beginIt = s.begin()+atPos;
 		
-		StringImpl<DATATYPE>::Iterator endIt;
+		typename StringImpl<DATATYPE>::Iterator endIt;
 		if(eraseLength==StringImpl<DATATYPE>::npos || atPos+eraseLength>=s.length())
 			endIt = s.end();
 		else
 			endIt = beginIt+eraseLength;
 
-		StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);	
+		typename StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);
 		REQUIRE( resultIt==s.begin()+atPos );
 	}
 
@@ -2285,9 +2301,10 @@ inline void testErase()
 
 	SECTION("slice")
 	{
-		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+		StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s = s2.subString(2, 10);
 
-		testEraseWithString<DATATYPE>(s.subString(2, 10));
+		testEraseWithString<DATATYPE>(s);
 	}
 }
 
@@ -2527,22 +2544,24 @@ inline void testAssign()
 
 	SECTION("destNotEmpty-Slice")
 	{
-		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+		StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s = s2.subString(2,10);
 
-		testAssignWithString<DATATYPE>(s.subString(2, 10));
+		testAssignWithString<DATATYPE>(s);
 
 		// the slice source should not have been modified
-		REQUIRE( s==U"xyhe\U00012345loworldabc" );
+		REQUIRE( s2==U"xyhe\U00012345loworldabc" );
 	}
 
 	SECTION("destEmpty-Slice")
 	{
-		StringImpl<DATATYPE> s(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
+        StringImpl<DATATYPE> s = s2.subString(2,10);
 
-		testAssignWithString<DATATYPE>(s.subString(2, 0));
+		testAssignWithString<DATATYPE>(s);
 
 		// the slice source should not have been modified
-		REQUIRE( s==U"xyhe\U00012345loworldabc" );
+		REQUIRE( s2==U"xyhe\U00012345loworldabc" );
 	}
 }
 
@@ -2697,9 +2716,11 @@ inline void testSwap()
 
 	SECTION("A-slice")
 	{
-		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
+        StringImpl<DATATYPE> s = s2.subString(2, 10);
+        
 
-		testSwapWithA<DATATYPE>( s.subString(2, 10) );		
+		testSwapWithA<DATATYPE>( s );
 	}
 
 	SECTION("A-empty")
@@ -2711,9 +2732,10 @@ inline void testSwap()
 
 	SECTION("A-emptySlice")
 	{
-		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
+        StringImpl<DATATYPE> s = s2.subString(2, 0);
 
-		testSwapWithA<DATATYPE>( s.subString(2, 0) );		
+		testSwapWithA<DATATYPE>( s );
 	}
 }
 
@@ -2747,9 +2769,10 @@ inline void testRemoveLast()
 
 	SECTION("slice")
 	{
-		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
+        StringImpl<DATATYPE> s = s2.subString(2,10);
 
-		testRemoveLast<DATATYPE>( s.subString(2, 10) );		
+		testRemoveLast<DATATYPE>( s );
 	}
 
 	SECTION("empty")
@@ -2761,9 +2784,10 @@ inline void testRemoveLast()
 
 	SECTION("emptySlice")
 	{
-		StringImpl<DATATYPE> s(U"xxhe\U00012345loworldyy");
+		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
+        StringImpl<DATATYPE> s = s2.subString(2, 0);
 
-		testRemoveLast<DATATYPE>( s.subString(2, 0) );		
+		testRemoveLast<DATATYPE>( s );		
 	}
 
 }
@@ -2816,7 +2840,10 @@ inline void testReserveCapacity()
 			s.reserve(15);
 
 			// the second call should have had no effect, since the second value is bigger than the length.
-			REQUIRE( s.capacity()==cap );
+            // However, some implementations reduce the capacity whenever any value is passed that is smaller
+            // than the current capacity. So we only check that the capacity has not increased.
+            REQUIRE( s.capacity()<=cap );
+            REQUIRE( s.capacity()>=10 );
 		}
 
 		SECTION("reserveReduceToLess")
@@ -2906,9 +2933,9 @@ inline void testGetAllocator()
 
 	// there is not much that we can test here, other than that the functions do not crash.
 
-	StringImpl<DATATYPE>::Allocator alloc = s.getAllocator();
+	typename StringImpl<DATATYPE>::Allocator alloc = s.getAllocator();
 
-	StringImpl<DATATYPE>::Allocator alloc2 = s.get_allocator();
+	typename StringImpl<DATATYPE>::Allocator alloc2 = s.get_allocator();
 }
 
 
@@ -3065,7 +3092,7 @@ inline void testIteratorWithIndex()
 {
 	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
 
-	StringImpl<DATATYPE>::IteratorWithIndex it(s.begin(), 17);
+	typename StringImpl<DATATYPE>::IteratorWithIndex it(s.begin(), 17);
 
 	REQUIRE( it.getIndex() == 17);
 	it++;
@@ -3298,14 +3325,7 @@ inline void testFindStringFromIndex()
 }
 
 
-template<class PType>
-int getCStringLength(PType s)
-{
-	int length=0;
-	while(s[length]!=0)
-		length++;
-	return length;
-}
+
 
 
 template<class STRINGTYPE, class ToFindStringType>
@@ -3504,39 +3524,39 @@ inline void testFindCharFromIterator()
 
 	SECTION("fromStart-matching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFind, s.begin());
+		typename STRINGTYPE::Iterator it = s.find(toFind, s.begin());
 		REQUIRE( it==s.begin()+2 );
 	}
 
 	SECTION("fromStart-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin());
+		typename STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin());
 		REQUIRE( it==s.end() );
 	}
 
 	
 	SECTION("fromMatchPos-matching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFind, s.begin()+2 );
+		typename STRINGTYPE::Iterator it = s.find(toFind, s.begin()+2 );
 		REQUIRE( it==s.begin()+2 );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
+		typename STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+2 );
 		REQUIRE( it==s.end() );
 	}
 
 
 	SECTION("fromAfterMatchPos-matching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFind, s.begin()+3 );
+		typename STRINGTYPE::Iterator it = s.find(toFind, s.begin()+3 );
 		REQUIRE( it == s.end() );
 	}
 
 	SECTION("fromAfterMatchPos-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
+		typename STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.begin()+3 );
 		REQUIRE( it == s.end() );
 	}
 
@@ -3544,20 +3564,20 @@ inline void testFindCharFromIterator()
 
 	SECTION("fromEnd-matching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFind, s.end() );
+		typename STRINGTYPE::Iterator it = s.find(toFind, s.end() );
 		REQUIRE( it == s.end() );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.end() );
+		typename STRINGTYPE::Iterator it = s.find(toFindNonMatch, s.end() );
 		REQUIRE( it == s.end() );
 	}
 
 	
 	SECTION("inEmpty")
 	{
-		STRINGTYPE::Iterator it = empty.find(toFind, empty.begin() );
+		typename STRINGTYPE::Iterator it = empty.find(toFind, empty.begin() );
 		REQUIRE( it==empty.end() );
 	}
 
@@ -3570,37 +3590,37 @@ inline void testFindCharFromIterator()
 
 		SECTION("fromStart")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin() );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin() );
 			REQUIRE( it==s2.begin()+2 );
 		}
 
 		SECTION("fromFirstMatch")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+2 );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+2 );
 			REQUIRE( it==s2.begin()+2 );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+3 );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+3 );
 			REQUIRE( it==s2.begin()+12 );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+11 );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+11 );
 			REQUIRE( it==s2.begin()+12 );
 		}
 
 		SECTION("fromSecondMatch")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+12 );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+12 );
 			REQUIRE( it==s2.begin()+12 );
 		}
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+13 );
+			typename STRINGTYPE::Iterator it = s2.find(toFind, s2.begin()+13 );
 			REQUIRE( it==s2.end() );
 		}
 	}
@@ -3806,16 +3826,16 @@ inline void testFindStringFromIt()
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
-			StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 
-			StringImpl<DATATYPE>::Iterator matchEndIt;
+			typename StringImpl<DATATYPE>::Iterator matchEndIt;
 				
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
 			SECTION("fromStart-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin(), pMatchEndIt);
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -3824,7 +3844,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromStart-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3833,7 +3853,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -3842,7 +3862,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3852,7 +3872,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromAfterMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3861,7 +3881,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromAfterMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3872,7 +3892,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromEnd-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind, s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3881,7 +3901,7 @@ inline void testFindStringFromIt()
 
 			SECTION("fromEnd-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch, s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3894,7 +3914,7 @@ inline void testFindStringFromIt()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin(), pMatchEndIt );
 				REQUIRE( it==s.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3906,7 +3926,7 @@ inline void testFindStringFromIt()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin()+5, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(empty, s.begin()+5, pMatchEndIt );
 				REQUIRE( it==s.begin()+5 );
 
 				if(pMatchEndIt!=nullptr)
@@ -3917,7 +3937,7 @@ inline void testFindStringFromIt()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = s.find(empty, s.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(empty, s.end(), pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3929,7 +3949,7 @@ inline void testFindStringFromIt()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = empty.find(toFind, empty.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.find(toFind, empty.begin(), pMatchEndIt );
 				REQUIRE( it==empty.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3941,7 +3961,7 @@ inline void testFindStringFromIt()
 				StringImpl<DATATYPE> empty;
 				StringImpl<DATATYPE> empty2;
 
-				StringImpl<DATATYPE>::Iterator it = empty.find(empty2, empty.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.find(empty2, empty.begin(), pMatchEndIt );
 				REQUIRE( it==empty.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -3956,7 +3976,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromStart")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin(), pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -3965,7 +3985,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+2, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+2, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -3974,7 +3994,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromJustAfterFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+3, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+3, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -3983,7 +4003,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromJustBeforeSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+11, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+11, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -3992,7 +4012,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+12, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+12, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4001,7 +4021,7 @@ inline void testFindStringFromIt()
 
 				SECTION("fromJustAfterSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+13, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind, s2.begin()+13, pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4023,20 +4043,20 @@ inline void testFindIterators()
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
-	StringImpl<DATATYPE>::Iterator matchEndIt;
+	typename StringImpl<DATATYPE>::Iterator matchEndIt;
 
 	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
-			StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 				
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
 			SECTION("fromStart-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4045,7 +4065,7 @@ inline void testFindIterators()
 				
 			SECTION("fromStart-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4054,7 +4074,7 @@ inline void testFindIterators()
 
 			SECTION("fromMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4063,7 +4083,7 @@ inline void testFindIterators()
 
 			SECTION("fromMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4073,7 +4093,7 @@ inline void testFindIterators()
 
 			SECTION("fromAfterMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4082,7 +4102,7 @@ inline void testFindIterators()
 
 			SECTION("fromAfterMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4093,7 +4113,7 @@ inline void testFindIterators()
 
 			SECTION("fromEnd-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4102,7 +4122,7 @@ inline void testFindIterators()
 
 			SECTION("fromEnd-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4113,7 +4133,7 @@ inline void testFindIterators()
 
 			SECTION("empty-fromStart")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin(), pMatchEndIt );
 				REQUIRE( it==s.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4123,7 +4143,7 @@ inline void testFindIterators()
 
 			SECTION("empty-fromMiddle")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin()+5, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.begin()+5, pMatchEndIt );
 				REQUIRE( it==s.begin()+5 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4132,7 +4152,7 @@ inline void testFindIterators()
 
 			SECTION("empty-fromEnd")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.find(toFind.begin(), toFind.begin(), s.end(), pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4144,7 +4164,7 @@ inline void testFindIterators()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.end(), empty.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.end(), empty.begin(), pMatchEndIt );
 				REQUIRE( it==empty.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4155,7 +4175,7 @@ inline void testFindIterators()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.begin(), empty.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.find(toFind.begin(), toFind.begin(), empty.begin(), pMatchEndIt );
 				REQUIRE( it==empty.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4170,7 +4190,7 @@ inline void testFindIterators()
 
 				SECTION("fromStart")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin(), pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4179,7 +4199,7 @@ inline void testFindIterators()
 
 				SECTION("fromFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+2, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+2, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4188,7 +4208,7 @@ inline void testFindIterators()
 
 				SECTION("fromJustAfterFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+3, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+3, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4197,7 +4217,7 @@ inline void testFindIterators()
 
 				SECTION("fromJustBeforeSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+11, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+11, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4206,7 +4226,7 @@ inline void testFindIterators()
 
 				SECTION("fromSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+12, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+12, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4215,7 +4235,7 @@ inline void testFindIterators()
 
 				SECTION("fromJustAfterSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+13, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.find(toFind.begin(), toFind.end(), s2.begin()+13, pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4318,20 +4338,20 @@ inline void testReverseFindIterators()
 	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
 	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
 
-	StringImpl<DATATYPE>::Iterator matchEndIt;
+	typename StringImpl<DATATYPE>::Iterator matchEndIt;
 
 	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
-			StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 				
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
 			SECTION("fromStart-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4340,7 +4360,7 @@ inline void testReverseFindIterators()
 				
 			SECTION("fromStart-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4350,7 +4370,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromBeforeMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+1, pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+1, pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4359,7 +4379,7 @@ inline void testReverseFindIterators()
 				
 			SECTION("fromBeforeMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+1, pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+1, pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4368,7 +4388,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4377,7 +4397,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4387,7 +4407,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromAfterMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4396,7 +4416,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromAfterMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+3, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4407,7 +4427,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromEnd-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind.begin(), toFind.end(), s.end(), pMatchEndIt);
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4416,7 +4436,7 @@ inline void testReverseFindIterators()
 
 			SECTION("fromEnd-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4427,7 +4447,7 @@ inline void testReverseFindIterators()
 
 			SECTION("empty-fromStart")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.begin(), pMatchEndIt );
 				REQUIRE( it==s.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4437,7 +4457,7 @@ inline void testReverseFindIterators()
 
 			SECTION("empty-fromMiddle")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.begin()+5, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.begin()+5, pMatchEndIt );
 				REQUIRE( it==s.begin()+5 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4446,7 +4466,7 @@ inline void testReverseFindIterators()
 
 			SECTION("empty-fromEnd")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty.begin(), empty.end(), s.end(), pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4456,7 +4476,7 @@ inline void testReverseFindIterators()
 
 			SECTION("notEmpty-inEmpty")
 			{
-				StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind.begin(), toFind.end(), empty.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind.begin(), toFind.end(), empty.end(), pMatchEndIt );
 				REQUIRE( it==empty.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4467,7 +4487,7 @@ inline void testReverseFindIterators()
 			{
 				StringImpl<DATATYPE> empty;
 
-				StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind.begin(), toFind.begin(), empty.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind.begin(), toFind.begin(), empty.end(), pMatchEndIt );
 				REQUIRE( it==empty.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4482,7 +4502,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromEnd")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.end(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.end(), pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4491,7 +4511,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromLastMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+12, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+12, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4500,7 +4520,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromJustBeforeLastMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+11, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+11, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4509,7 +4529,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromJustAfterFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+3, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+3, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4518,7 +4538,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+2, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+2, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4527,7 +4547,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromJustBeforeFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+1, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin()+1, pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4536,7 +4556,7 @@ inline void testReverseFindIterators()
 
 				SECTION("fromBegin")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind.begin(), toFind.end(), s2.begin(), pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4566,16 +4586,16 @@ inline void testReverseFindStringFromIt()
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
-			StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
+			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 
-			StringImpl<DATATYPE>::Iterator matchEndIt;
+			typename StringImpl<DATATYPE>::Iterator matchEndIt;
 				
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
 			SECTION("fromEnd-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.end(), pMatchEndIt);
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4584,7 +4604,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromEnd-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.end(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.end(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4593,7 +4613,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.begin()+2 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4602,7 +4622,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+2, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+2, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4612,7 +4632,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromBeforeMatchPos-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin()+1, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin()+1, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4621,7 +4641,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromBeforeMatchPos-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+1, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+1, pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4632,7 +4652,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromBegin-matching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFind, s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4641,7 +4661,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("fromBegin-notMatching")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin(), pMatchEndIt);
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch, s.begin(), pMatchEndIt);
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4652,7 +4672,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("empty-fromEnd")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.end(), pMatchEndIt );
 				REQUIRE( it==s.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4662,7 +4682,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("empty-fromMiddle")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.begin()+5, pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.begin()+5, pMatchEndIt );
 				REQUIRE( it==s.begin()+5 );
 
 				if(pMatchEndIt!=nullptr)
@@ -4671,7 +4691,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("empty-fromBegin")
 			{
-				StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.begin(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(empty, s.begin(), pMatchEndIt );
 				REQUIRE( it==s.begin() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4681,7 +4701,7 @@ inline void testReverseFindStringFromIt()
 
 			SECTION("notEmpty-inEmpty")
 			{
-				StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind, empty.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.reverseFind(toFind, empty.end(), pMatchEndIt );
 				REQUIRE( it==empty.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4692,7 +4712,7 @@ inline void testReverseFindStringFromIt()
 			{
 				StringImpl<DATATYPE> empty2;
 
-				StringImpl<DATATYPE>::Iterator it = empty.reverseFind(empty2, empty.end(), pMatchEndIt );
+				typename StringImpl<DATATYPE>::Iterator it = empty.reverseFind(empty2, empty.end(), pMatchEndIt );
 				REQUIRE( it==empty.end() );
 
 				if(pMatchEndIt!=nullptr)
@@ -4707,7 +4727,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromEnd")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.end(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.end(), pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4716,7 +4736,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+12, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+12, pMatchEndIt );
 					REQUIRE( it==s2.begin()+12 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4725,7 +4745,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromJustBeforeSecondMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+11, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+11, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4734,7 +4754,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromJustAfterFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+3, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+3, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4743,7 +4763,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+2, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+2, pMatchEndIt );
 					REQUIRE( it==s2.begin()+2 );
 
 					if(pMatchEndIt!=nullptr)
@@ -4752,7 +4772,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromJustBeforeFirstMatch")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+1, pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin()+1, pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4761,7 +4781,7 @@ inline void testReverseFindStringFromIt()
 
 				SECTION("fromBegin")
 				{
-					StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin(), pMatchEndIt );
+					typename StringImpl<DATATYPE>::Iterator it = s2.reverseFind(toFind, s2.begin(), pMatchEndIt );
 					REQUIRE( it==s2.end() );
 
 					if(pMatchEndIt!=nullptr)
@@ -4774,7 +4794,7 @@ inline void testReverseFindStringFromIt()
 
 
 template<class StringType, class ...Args>
-auto callReverseFind(const StringType& s, Args... args)
+typename StringType::Iterator callReverseFindIt(const StringType& s, Args... args)
 {
 	auto result = s.reverseFind(args...);
 	auto result2 = s.rfind(args...);
@@ -4784,23 +4804,36 @@ auto callReverseFind(const StringType& s, Args... args)
 	return result;	
 }
 
-template<>
-auto callReverseFind<std::u32string, std::u32string, size_t>(const std::u32string& s, std::u32string toFind, size_t searchFromIndex)
+
+template<class StringType, class ...Args>
+size_t callReverseFindSizeT(const StringType& s, Args... args)
 {
-	return s.rfind(toFind, searchFromIndex);
+    auto result = s.reverseFind(args...);
+    auto result2 = s.rfind(args...);
+    
+    REQUIRE( result==result2 );
+    
+    return result;
 }
 
 template<>
-auto callReverseFind<std::u32string, std::u32string, int>(const std::u32string& s, std::u32string toFind, int searchFromIndex)
+size_t callReverseFindSizeT<std::u32string, std::u32string, size_t>(const std::u32string& s, std::u32string toFind, size_t searchFromIndex)
 {
-	return s.rfind(toFind, searchFromIndex);
+    return s.rfind(toFind, searchFromIndex);
 }
 
 template<>
-auto callReverseFind<std::u32string, std::u32string>(const std::u32string& s, std::u32string toFind)
+size_t callReverseFindSizeT<std::u32string, std::u32string, int>(const std::u32string& s, std::u32string toFind, int searchFromIndex)
 {
-	return s.rfind(toFind);
+    return s.rfind(toFind, searchFromIndex);
 }
+
+template<>
+size_t callReverseFindSizeT<std::u32string, std::u32string>(const std::u32string& s, std::u32string toFind)
+{
+    return s.rfind(toFind);
+}
+
 
 template<class STRINGTYPE, class ToFindStringType>
 inline void testReverseFindStringFromIndex()
@@ -4823,96 +4856,96 @@ inline void testReverseFindStringFromIndex()
 
 	SECTION("fromNpos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, String::npos);
+		size_t result = callReverseFindSizeT(s, toFind, String::npos);
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromNpos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, String::npos);
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, String::npos);
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromNpos-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, String::npos);
+		size_t result = callReverseFindSizeT(s, toFindEmpty, String::npos);
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("fromEnd-matching")
 	{
-		size_t result = callReverseFind(s, toFind, s.length() );
+		size_t result = callReverseFindSizeT(s, toFind, s.length() );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, s.length() );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, s.length() );
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromEnd-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length() );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length() );
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("fromAfterEnd-matching")
 	{
-		size_t result = callReverseFind(s, toFind, s.length()+1 );
+		size_t result = callReverseFindSizeT(s, toFind, s.length()+1 );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromAfterEnd-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, s.length()+1 );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, s.length()+1 );
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromAfterEnd-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length()+1 );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length()+1 );
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("fromEndUsingDefaultArg-matching")
 	{
-		size_t result = callReverseFind(s, toFind);
+		size_t result = callReverseFindSizeT(s, toFind);
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromEndUsingDefaultArg-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch);
+		size_t result = callReverseFindSizeT(s, toFindNonMatch);
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromMatchPos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 2 );
+		size_t result = callReverseFindSizeT(s, toFind, 2 );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 2 );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 2 );
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromBeforeMatchPos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 1 );
+		size_t result = callReverseFindSizeT(s, toFind, 1 );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromBeforeMatchPos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 1 );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 1 );
 		REQUIRE( result == s.npos );
 	}
 
@@ -4920,13 +4953,13 @@ inline void testReverseFindStringFromIndex()
 
 	SECTION("fromStart-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 0 );
+		size_t result = callReverseFindSizeT(s, toFind, 0 );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromStart-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 0 );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 0 );
 		REQUIRE( result == s.npos );
 	}
 
@@ -4934,32 +4967,32 @@ inline void testReverseFindStringFromIndex()
 
 	SECTION("empty-fromStart")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, 0 );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, 0 );
 		REQUIRE( result==0 );
 	}
 
 	SECTION("empty-fromMiddle")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, 5 );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, 5 );
 		REQUIRE( result==5 );
 	}
 
 	SECTION("empty-fromEnd")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length() );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length() );
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("notEmpty-inEmpty")
 	{
-		size_t result = callReverseFind(empty, toFind );
+		size_t result = callReverseFindSizeT(empty, toFind );
 		REQUIRE( result==empty.npos );
 	}
 
 	SECTION("empty-inEmpty")
 	{
-		size_t result = callReverseFind(empty, toFindEmpty );
+		size_t result = callReverseFindSizeT(empty, toFindEmpty );
 		REQUIRE( result==0 );
 	}
 
@@ -4971,37 +5004,37 @@ inline void testReverseFindStringFromIndex()
 
 		SECTION("fromEnd")
 		{
-			size_t result = callReverseFind(s2, toFind );
+			size_t result = callReverseFindSizeT(s2, toFind );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 12 );
+			size_t result = callReverseFindSizeT(s2, toFind, 12 );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 11 );
+			size_t result = callReverseFindSizeT(s2, toFind, 11 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 3 );
+			size_t result = callReverseFindSizeT(s2, toFind, 3 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 2 );
+			size_t result = callReverseFindSizeT(s2, toFind, 2 );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 1 );
+			size_t result = callReverseFindSizeT(s2, toFind, 1 );
 			REQUIRE( result==s2.npos );
 		}
 
@@ -5042,57 +5075,57 @@ inline void testReverseFindStringWithLengthFromIndex()
 
 	SECTION("fromNpos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, String::npos, toFindLength);
+		size_t result = callReverseFindSizeT(s, toFind, String::npos, toFindLength);
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromNpos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, String::npos, toFindNonMatchLength);
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, String::npos, toFindNonMatchLength);
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromNpos-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, String::npos, toFindEmptyLength);
+		size_t result = callReverseFindSizeT(s, toFindEmpty, String::npos, toFindEmptyLength);
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("fromEnd-matching")
 	{
-		size_t result = callReverseFind(s, toFind, s.length(), toFindLength );
+		size_t result = callReverseFindSizeT(s, toFind, s.length(), toFindLength );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, s.length(), toFindNonMatchLength );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, s.length(), toFindNonMatchLength );
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromEnd-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length(), toFindEmptyLength );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length(), toFindEmptyLength );
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("fromAfterEnd-matching")
 	{
-		size_t result = callReverseFind(s, toFind, s.length()+1, toFindLength );
+		size_t result = callReverseFindSizeT(s, toFind, s.length()+1, toFindLength );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromAfterEnd-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, s.length()+1, toFindNonMatchLength );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, s.length()+1, toFindNonMatchLength );
 		REQUIRE( result==s.npos );
 	}
 
 	SECTION("fromAfterEnd-empty")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length()+1, toFindEmptyLength );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length()+1, toFindEmptyLength );
 		REQUIRE( result==s.length() );
 	}
 
@@ -5100,26 +5133,26 @@ inline void testReverseFindStringWithLengthFromIndex()
 
 	SECTION("fromMatchPos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 2, toFindLength );
+		size_t result = callReverseFindSizeT(s, toFind, 2, toFindLength );
 		REQUIRE( result==2 );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 2, toFindNonMatchLength );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 2, toFindNonMatchLength );
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("fromBeforeMatchPos-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 1, toFindLength );
+		size_t result = callReverseFindSizeT(s, toFind, 1, toFindLength );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromBeforeMatchPos-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 1, toFindNonMatchLength );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 1, toFindNonMatchLength );
 		REQUIRE( result == s.npos );
 	}
 
@@ -5127,13 +5160,13 @@ inline void testReverseFindStringWithLengthFromIndex()
 
 	SECTION("fromStart-matching")
 	{
-		size_t result = callReverseFind(s, toFind, 0, toFindLength );
+		size_t result = callReverseFindSizeT(s, toFind, 0, toFindLength );
 		REQUIRE( result == s.npos );
 	}
 
 	SECTION("fromStart-notMatching")
 	{
-		size_t result = callReverseFind(s, toFindNonMatch, 0, toFindNonMatchLength );
+		size_t result = callReverseFindSizeT(s, toFindNonMatch, 0, toFindNonMatchLength );
 		REQUIRE( result == s.npos );
 	}
 
@@ -5141,32 +5174,32 @@ inline void testReverseFindStringWithLengthFromIndex()
 
 	SECTION("empty-fromStart")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, 0, toFindEmptyLength );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, 0, toFindEmptyLength );
 		REQUIRE( result==0 );
 	}
 
 	SECTION("empty-fromMiddle")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, 5, toFindEmptyLength );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, 5, toFindEmptyLength );
 		REQUIRE( result==5 );
 	}
 
 	SECTION("empty-fromEnd")
 	{
-		size_t result = callReverseFind(s, toFindEmpty, s.length(), toFindEmptyLength );
+		size_t result = callReverseFindSizeT(s, toFindEmpty, s.length(), toFindEmptyLength );
 		REQUIRE( result==s.length() );
 	}
 
 
 	SECTION("notEmpty-inEmpty")
 	{
-		size_t result = callReverseFind(empty, toFind, String::npos, toFindLength );
+		size_t result = callReverseFindSizeT(empty, toFind, String::npos, toFindLength );
 		REQUIRE( result==empty.npos );
 	}
 
 	SECTION("empty-inEmpty")
 	{
-		size_t result = callReverseFind(empty, toFindEmpty, String::npos, toFindEmptyLength );
+		size_t result = callReverseFindSizeT(empty, toFindEmpty, String::npos, toFindEmptyLength );
 		REQUIRE( result==0 );
 	}
 
@@ -5178,37 +5211,37 @@ inline void testReverseFindStringWithLengthFromIndex()
 
 		SECTION("fromEnd")
 		{
-			size_t result = callReverseFind(s2, toFind, String::npos, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, String::npos, toFindLength );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromSecondMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 12, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, 12, toFindLength );
 			REQUIRE( result==12 );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 11, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, 11, toFindLength );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 3, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, 3, toFindLength );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 2, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, 2, toFindLength );
 			REQUIRE( result==2 );
 		}
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			size_t result = callReverseFind(s2, toFind, 1, toFindLength );
+			size_t result = callReverseFindSizeT(s2, toFind, 1, toFindLength );
 			REQUIRE( result==s2.npos );
 		}
 
@@ -5233,39 +5266,39 @@ inline void testReverseFindCharFromIterator()
 
 	SECTION("fromEnd-matching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFind, s.end());
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFind, s.end());
 		REQUIRE( it==s.begin()+2 );
 	}
 
 	SECTION("fromEnd-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.end());
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.end());
 		REQUIRE( it==s.end() );
 	}
 
 	
 	SECTION("fromMatchPos-matching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin()+2 );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin()+2 );
 		REQUIRE( it==s.begin()+2 );
 	}
 
 	SECTION("fromMatchPos-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+2 );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+2 );
 		REQUIRE( it==s.end() );
 	}
 
 
 	SECTION("fromBeforeMatchPos-matching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin()+1 );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin()+1 );
 		REQUIRE( it == s.end() );
 	}
 
 	SECTION("fromBeforeMatchPos-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+1 );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin()+1 );
 		REQUIRE( it == s.end() );
 	}
 
@@ -5273,20 +5306,20 @@ inline void testReverseFindCharFromIterator()
 
 	SECTION("fromBegin-matching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin() );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin() );
 		REQUIRE( it == s.end() );
 	}
 
 	SECTION("fromBegin-notMatching")
 	{
-		STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin() );
+		typename STRINGTYPE::Iterator it = s.reverseFind(toFindNonMatch, s.begin() );
 		REQUIRE( it == s.end() );
 	}
 
 	
 	SECTION("inEmpty")
 	{
-		STRINGTYPE::Iterator it = empty.reverseFind(toFind, empty.end() );
+		typename STRINGTYPE::Iterator it = empty.reverseFind(toFind, empty.end() );
 		REQUIRE( it==empty.end() );
 	}
 
@@ -5299,37 +5332,37 @@ inline void testReverseFindCharFromIterator()
 
 		SECTION("fromEnd")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.end() );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.end() );
 			REQUIRE( it==s2.begin()+12 );
 		}
 
 		SECTION("fromSecondMatch")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+12 );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+12 );
 			REQUIRE( it==s2.begin()+12 );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+11 );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+11 );
 			REQUIRE( it==s2.begin()+2 );
 		}
 
 		SECTION("fromJusAfterFirstMatch")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+3 );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+3 );
 			REQUIRE( it==s2.begin()+2 );
 		}
 		
 		SECTION("fromFirstMatch")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+2 );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+2 );
 			REQUIRE( it==s2.begin()+2 );
 		}
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+1 );
+			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+1 );
 			REQUIRE( it==s2.end() );
 		}
 	}
@@ -5637,7 +5670,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromStart")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin());
+		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin());
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5648,7 +5681,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromMatch")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+2);
+		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+2);
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5658,13 +5691,13 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromAfterMatch")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+3);
+		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+3);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.end() );
 		REQUIRE( it==s.end() );
 	}
 
@@ -5672,7 +5705,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 	{	
 		StringImpl<DATATYPE> empty;
 
-		StringImpl<DATATYPE>::Iterator it = empty.findCondition(pred, empty.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = empty.findCondition(pred, empty.begin() );
 		REQUIRE( it==empty.end() );
 	}
 }
@@ -5754,19 +5787,19 @@ inline void testFindCondition()
 	SECTION("iterator")
 	{
 		SECTION("match")
-			testFindConditionWithPred<DATATYPE>( [](auto it){ return *it == U'\U00012345'; }, true );
+        testFindConditionWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testFindConditionWithPred<DATATYPE>( [](auto it){ return false; }, false );
+			testFindConditionWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
 	}
 
 	SECTION("index")
 	{
 		SECTION("match")
-			testFindConditionIndexWithPred<DATATYPE>( [](auto it){ return *it == U'\U00012345'; }, true );
+			testFindConditionIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testFindConditionIndexWithPred<DATATYPE>( [](auto it){ return false; }, false );		
+			testFindConditionIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
 	}
 }
 
@@ -5782,7 +5815,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromEnd")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end());
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end());
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5793,7 +5826,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromMatch")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+2);
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+2);
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5803,13 +5836,13 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromBeforeMatch")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+1);
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+1);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{	
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end() );
 		
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5821,7 +5854,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 	{	
 		StringImpl<DATATYPE> empty;
 
-		StringImpl<DATATYPE>::Iterator it = empty.reverseFindCondition(pred, empty.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = empty.reverseFindCondition(pred, empty.begin() );
 		REQUIRE( it==empty.end() );
 	}
 }
@@ -5909,19 +5942,19 @@ inline void testReverseFindCondition()
 	SECTION("iterator")
 	{
 		SECTION("match")
-			testReverseFindConditionWithPred<DATATYPE>( [](auto it){ return *it == U'\U00012345'; }, true );
+        testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
 	
 		SECTION("noMatch")
-			testReverseFindConditionWithPred<DATATYPE>( [](auto it){ return false; }, false );
+			testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
 
 	SECTION("index")
 	{
 		SECTION("match")
-			testReverseFindConditionIndexWithPred<DATATYPE>( [](auto it){ return *it == U'\U00012345'; }, true );
+			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
 	
 		SECTION("noMatch")
-			testReverseFindConditionIndexWithPred<DATATYPE>( [](auto it){ return false; }, false );
+			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
 
 }
@@ -5939,7 +5972,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 	SECTION("fromStart")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -5949,7 +5982,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -5959,14 +5992,14 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 			
 	SECTION("fromAfterMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
+		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
 				
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -5979,7 +6012,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromStart")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin() );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin() );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -5989,7 +6022,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -5999,7 +6032,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -6009,7 +6042,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -6019,7 +6052,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -6029,7 +6062,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
 
 			REQUIRE( it==s2.end() );
 		}
@@ -6416,7 +6449,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 	SECTION("fromStart")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		if(matchAllChars)
 			REQUIRE( it==s.begin() );
@@ -6430,7 +6463,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( it==s.begin()+2 );
@@ -6441,7 +6474,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 			
 	SECTION("fromAfterMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
+		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
 
 		if(matchAllChars)
 			REQUIRE( it==s.begin()+3 );
@@ -6452,7 +6485,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -6465,7 +6498,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromStart")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin() );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin() );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin() );
@@ -6479,7 +6512,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+2 );
@@ -6490,7 +6523,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+3 );
@@ -6504,7 +6537,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+11 );
@@ -6518,7 +6551,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 					
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+12 );
@@ -6528,7 +6561,7 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 		SECTION("fromJustAfterSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+13 );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+13 );
@@ -7023,7 +7056,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.end() );
 				
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -7033,7 +7066,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
@@ -7043,14 +7076,14 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 			
 	SECTION("fromBeforeMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
 				
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromBegin")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin() );
 				
 		REQUIRE( it==s.end() );
 	}
@@ -7063,7 +7096,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromEnd")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.end() );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.end() );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -7073,7 +7106,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
@@ -7083,7 +7116,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -7093,7 +7126,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -7103,7 +7136,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 					
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
@@ -7113,7 +7146,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
 
 			REQUIRE( it==s2.end() );
 		}
@@ -7550,7 +7583,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 	SECTION("fromEnd")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.end() );
 
 		if(matchAllChars)
 			REQUIRE( it==s.end()-1 );
@@ -7564,7 +7597,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 	SECTION("fromMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+2 );
 
 		if(matchAllChars || matchThirdChar)
 			REQUIRE( it==s.begin()+2 );
@@ -7574,7 +7607,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 			
 	SECTION("fromBeforeMatch")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
 
 		if(matchAllChars)
 			REQUIRE( it==s.begin()+1 );
@@ -7584,7 +7617,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 	SECTION("fromBegin")
 	{
-		StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin() );
 
 		if(matchAllChars)
 			REQUIRE( it==s.begin() );
@@ -7600,7 +7633,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromEnd")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.end() );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.end() );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.end()-1 );
@@ -7614,7 +7647,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
 
 			if(matchAllChars || matchThirdChar)
 				REQUIRE( it==s2.begin()+12 );
@@ -7625,7 +7658,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+11 );
@@ -7639,7 +7672,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromJustAfterFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+3 );
@@ -7653,7 +7686,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
 
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+2 );
@@ -7664,7 +7697,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		SECTION("fromJustBeforeFirstMatch")
 		{
-			StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
+			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+1 );					
@@ -8774,7 +8807,7 @@ inline void testStringImpl()
 		REQUIRE( m<=INT_MAX );
 
 		// but it should have a "reasonably high" value.
-		REQUIRE( m>=0x40000000/sizeof(DATATYPE::EncodedElement) );
+		REQUIRE( m>=0x40000000/sizeof(typename DATATYPE::EncodedElement) );
 	}
 
 	SECTION("replace")

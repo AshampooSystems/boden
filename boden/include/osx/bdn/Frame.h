@@ -1,7 +1,7 @@
 #ifndef _BDN_FRAME_H_
 #define _BDN_FRAME_H_
 
-#include <bdn/Base.h>
+#include <bdn/init.h>
 #include <bdn/IWindow.h>
 
 #include <string>
