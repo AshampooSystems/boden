@@ -79,17 +79,22 @@ def main():
                     # ignore exceptions. The generator string does not have the expected format.
                     pass;
 
+
     generatorAliasMap["make"] = "Unix Makefiles"
     generatorAliasMap["nmake"] = "NMake Makefiles";
     generatorAliasMap["msysmake"] = "MSYS Makefiles";
     generatorAliasMap["mingwmake"] = "MinGW Makefiles";
+
+    if "CodeBlocks - Unix Makefiles" in generatorNames:
+        generatorAliasMap["codeblocks"] = "CodeBlocks - Unix Makefiles"
 
     generatorAliasHelp = "Aliases for toolset names:\n";
     for aliasName in sorted( generatorAliasMap.keys() ):
         generatorAliasHelp += "\n%s = %s" % (aliasName, generatorAliasMap[aliasName]);
 
 
-    targetInfoList = [     ("windows", "", [""]),
+    targetInfoList = [  ("windows", "", [""]),
+                        ("linux",     "", [""]),
                         ("osx",     "", [""]),
                         ("ios",     "", ["", "sim64", "sim32"]),
                         ("android", "", [""]),

@@ -2324,8 +2324,20 @@ namespace bdn {
 template<typename T>
 struct IGenerator {
     virtual ~IGenerator() {}
-    virtual T getValue( std::size_t index ) const = 0;
-    virtual std::size_t size () const = 0;
+
+    // note: we cannot use pure virtual functions for the following.
+    // It will cause a compilation error with G++. Instead we add an implementation
+    // that only throws an exception.
+
+    virtual T getValue( std::size_t index ) const
+    {
+        throw std::logic_error("Not implemented: bdn::IGenerator::getValue");
+    }
+
+    virtual std::size_t size () const
+    {
+        throw std::logic_error("Not implemented: bdn::IGenerator::size");
+    }
 };
 
 template<typename T>
@@ -3216,10 +3228,10 @@ namespace bdn
 	/** Checks if an equality comparison of the specified values
 		yields the expected result. This tests both the == and the != operator
 		and also switches the order of operands.
-				
-		This is most often used to test the the == and != operators of 
+
+		This is most often used to test the the == and != operators of
 		a class are properly implemented.
-		
+
 		The call is equivalent to:
 
 		\code

@@ -4,6 +4,9 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/Utf32StringData.h>
 
+
+#include <cstring>
+
 #ifdef _MSC_VER
 // disable "function may be unsafe" warning in Visual C++. We have to test these
 // "unsafe" functions as well.
@@ -44,7 +47,7 @@ inline void testTypes()
 	REQUIRE( typeid(typename StringImpl<DATATYPE>::ReverseIterator) == typeid( std::reverse_iterator<typename StringImpl<DATATYPE>::Iterator> ) );
 	REQUIRE( typeid(typename StringImpl<DATATYPE>::reverse_iterator) == typeid( typename StringImpl<DATATYPE>::ReverseIterator ) );
 	REQUIRE( typeid(typename StringImpl<DATATYPE>::const_reverse_iterator) == typeid( typename StringImpl<DATATYPE>::ReverseIterator ) );
-	
+
 	REQUIRE( typeid(typename StringImpl<DATATYPE>::Allocator) == typeid(typename DATATYPE::Allocator) );
 	REQUIRE( typeid(typename StringImpl<DATATYPE>::allocator_type) == typeid(typename DATATYPE::Allocator) );
 
@@ -176,7 +179,7 @@ void testConstruct()
 		verifyContents(s, U"hello");
 	}
 
-	
+
 
 	SECTION("fromSubString-indices")
 	{
@@ -206,7 +209,7 @@ void testConstruct()
 
 		SECTION("invalidStartIndex")
 		{
-			REQUIRE_THROWS_AS( StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 7), OutOfRangeError );			
+			REQUIRE_THROWS_AS( StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"\U00012345hello"), 7), OutOfRangeError );
 		}
 
 		SECTION("part-toEnd-withLength")
@@ -233,7 +236,7 @@ void testConstruct()
 			verifyContents(s, U"\U00012345hello");
 		}
 
-		
+
 		SECTION("part")
 		{
 			StringImpl<DATATYPE> s( StringImpl<DATATYPE>(U"x\U00023456yz\U00012345helloab"), 4, 6);
@@ -241,7 +244,7 @@ void testConstruct()
 		}
 	}
 
-	
+
 	SECTION("fromSubString-iterators")
 	{
 		SECTION("full")
@@ -251,7 +254,7 @@ void testConstruct()
 			StringImpl<DATATYPE> s( o, o.begin(), o.end() );
 			verifyContents(s, U"\U00012345hello");
 		}
-		
+
 		SECTION("part-toEnd")
 		{
 			StringImpl<DATATYPE> o(U"x\U00023456yz\U00012345hello");
@@ -288,7 +291,7 @@ void testConstruct()
 		{
 			StringImpl<DATATYPE> s(7, U'\U00012345' );
 			verifyContents(s, U"\U00012345\U00012345\U00012345\U00012345\U00012345\U00012345\U00012345");
-		}		
+		}
 	}
 
 
@@ -393,7 +396,7 @@ inline void testLength()
 
 		REQUIRE( s.getLength()==10 );
 		REQUIRE( s.length()==10 );
-		REQUIRE( s.size()==10 );		
+		REQUIRE( s.size()==10 );
 	}
 }
 
@@ -410,7 +413,7 @@ inline void testSubString()
 		SECTION("atStart")
 		{
 			StringImpl<DATATYPE> s2 = s.subString(0, 0);
-			REQUIRE( s2=="" );				
+			REQUIRE( s2=="" );
 
 			StringImpl<DATATYPE> s3 = s.subString(s.begin(), s.begin() );
 			REQUIRE( s3=="" );
@@ -534,7 +537,7 @@ inline void testSubString()
 		REQUIRE( b=="" );
 		REQUIRE( b.getLength()==0 );
 		REQUIRE( b.isEmpty() );
-	}		
+	}
 
 }
 
@@ -575,10 +578,10 @@ inline void testIterators()
 		StringImpl<DATATYPE>			stringObj;
 		// use const reference to ensure that all begin/end are const
 		const StringImpl<DATATYPE>& s = stringObj;
-		
+
 		REQUIRE( checkEquality(s.begin(), s.end(), true) );
 		REQUIRE( checkEquality(s.reverseBegin(), s.reverseEnd(), true) );
-		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );		
+		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );
 		REQUIRE( checkEquality(s.rbegin(), s.rend(), true) );
 		REQUIRE( checkEquality(s.crbegin(), s.crend(), true) );
 	}
@@ -595,11 +598,11 @@ inline void testIterators()
 		REQUIRE( checkEquality(s.rbegin(), s.rend(), false) );
 		REQUIRE( checkEquality(s.crbegin(), s.crend(), false) );
 
-		verifyIterators( s.begin(), s.end(), U"hello" );		
-		verifyIterators( s.reverseBegin(), s.reverseEnd(), U"olleh" );		
+		verifyIterators( s.begin(), s.end(), U"hello" );
+		verifyIterators( s.reverseBegin(), s.reverseEnd(), U"olleh" );
 		verifyIterators( s.cbegin(), s.cend(), U"hello" );
 		verifyIterators( s.rbegin(), s.rend(), U"olleh" );
-		verifyIterators( s.crbegin(), s.crend(), U"olleh" );		
+		verifyIterators( s.crbegin(), s.crend(), U"olleh" );
 	}
 }
 
@@ -662,10 +665,10 @@ inline void testConversion()
 		}
 
 		SECTION("constPtrConversion")
-		{		
+		{
 			const char* p( s );
 			REQUIRE( std::string(p)==u8"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf8Ptr() );
 		}
@@ -704,10 +707,10 @@ inline void testConversion()
 		}
 
 		SECTION("constPtrConversion")
-		{		
+		{
 			const char16_t* p( s );
 			REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf16Ptr() );
 		}
@@ -746,10 +749,10 @@ inline void testConversion()
 		}
 
 		SECTION("constPtrConversion")
-		{		
+		{
 			const char32_t* p( s );
 			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf32Ptr() );
 		}
@@ -768,19 +771,19 @@ inline void testConversion()
 
 
 		SECTION("c_str")
-		{		
+		{
 			const char32_t* p = s.c_str();
 			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf32Ptr() );
 		}
 
 		SECTION("data")
-		{		
+		{
 			const char32_t* p = s.data();
 			REQUIRE( std::u32string(p)==U"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf32Ptr() );
 		}
@@ -807,10 +810,10 @@ inline void testConversion()
 		}
 
 		SECTION("constPtrConversion")
-		{		
+		{
 			const wchar_t* p( s );
 			REQUIRE( std::wstring(p)==L"he\u0218\u0777\uffffllo" );
-			
+
 			// must be the exact same pointer
 			REQUIRE( p==s.asWidePtr() );
 		}
@@ -851,7 +854,7 @@ inline void testConversion()
 #else
 			REQUIRE( o==u8"he\u0218\u0777\uffffllo" );
 #endif
-			
+
 			const typename StringImpl<DATATYPE>::NativeEncodedString& o2 = s.asNative();
 
 #if BDN_TARGET_WINDOWS
@@ -863,7 +866,7 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
-		
+
 	}
 
 	SECTION("multibyte")
@@ -905,7 +908,7 @@ void verifyComparison(const STRING& s, OTHER o, int expectedResult)
 
 		REQUIRE( (s<o)==(expectedResult<0) );
 		REQUIRE( (s<=o)==(expectedResult<=0) );
-	
+
 		REQUIRE( (s>o)==(expectedResult>0) );
 		REQUIRE( (s>=o)==(expectedResult>=0) );
 	}
@@ -915,31 +918,31 @@ void verifyComparison(const STRING& s, OTHER o, int expectedResult)
 		SECTION("full-npos")
 		{
 			int result = s.compare(0, s.npos, o);
-			REQUIRE(result==expectedResult);	
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("full-length")
 		{
 			int result = s.compare(0, s.length(), o);
-			REQUIRE(result==expectedResult);	
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("moreThanLength")
 		{
 			int result = s.compare(0, s.length()+1, o);
-			REQUIRE(result==expectedResult);	
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("part")
 		{
 			STRING biggerString = STRING("hello");
 			biggerString += s;
-			biggerString += STRING("hello"); 
-			
+			biggerString += STRING("hello");
+
 			SECTION("withFull")
 			{
 				int result = biggerString.compare(5, s.length(), o);
-				REQUIRE(result==expectedResult);	
+				REQUIRE(result==expectedResult);
 			}
 		}
 	}
@@ -951,8 +954,8 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 {
 	STRING biggerString = STRING("hello");
 	biggerString += s;
-	biggerString += STRING("hello"); 
-		
+	biggerString += STRING("hello");
+
 	SECTION("withSubString-fromMidToEnd")
 	{
 		OTHER prefix = (const OTHER&)STRING("xxx");
@@ -961,29 +964,29 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 
 		SECTION("defaultArg")
 		{
-			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length() );		
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length() );
 			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("npos")
 		{
-			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), biggerString.npos);		
-			REQUIRE(result==expectedResult);	
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), biggerString.npos);
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("length")
 		{
-			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()-prefix.length() );		
-			REQUIRE(result==expectedResult);	
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()-prefix.length() );
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("moreThanLength")
 		{
-			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()+100 );		
-			REQUIRE(result==expectedResult);	
+			int result = biggerString.compare(5, s.length(), otherWithPrefix, prefix.length(), otherWithPrefix.length()+100 );
+			REQUIRE(result==expectedResult);
 		}
 	}
-			
+
 	SECTION("withSubString-fromMidToMid")
 	{
 		OTHER prefix = STRING("xxx");
@@ -992,8 +995,8 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 		otherWithPrefixAndSuffix += o;
 		otherWithPrefixAndSuffix += suffix;
 
-		int result = biggerString.compare(5, s.length(), otherWithPrefixAndSuffix, prefix.length(), otherWithPrefixAndSuffix.length()-prefix.length()-suffix.length() );		
-		REQUIRE(result==expectedResult);	
+		int result = biggerString.compare(5, s.length(), otherWithPrefixAndSuffix, prefix.length(), otherWithPrefixAndSuffix.length()-prefix.length()-suffix.length() );
+		REQUIRE(result==expectedResult);
 	}
 
 
@@ -1003,11 +1006,11 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 		OTHER otherWithSuffix = o;
 		otherWithSuffix += suffix;
 
-		int result = biggerString.compare(5, s.length(), otherWithSuffix, 0, otherWithSuffix.length()-suffix.length() );		
-		REQUIRE(result==expectedResult);	
-	}						
+		int result = biggerString.compare(5, s.length(), otherWithSuffix, 0, otherWithSuffix.length()-suffix.length() );
+		REQUIRE(result==expectedResult);
+	}
 
-	
+
 }
 
 
@@ -1017,13 +1020,13 @@ void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expec
 	SECTION("full-length")
 	{
 		int result = s.compare(o, oLength );
-		REQUIRE(result==expectedResult);	
+		REQUIRE(result==expectedResult);
 	}
 
 	SECTION("full-npos")
 	{
 		int result = s.compare(0, s.npos, o, oLength );
-		REQUIRE(result==expectedResult);	
+		REQUIRE(result==expectedResult);
 	}
 
 	SECTION("subString")
@@ -1031,13 +1034,13 @@ void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expec
 		SECTION("full-length")
 		{
 			int result = s.compare(0, s.length(), o, oLength);
-			REQUIRE(result==expectedResult);	
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("full-moreThanLength")
 		{
 			int result = s.compare(0, s.length()+1, o, oLength);
-			REQUIRE(result==expectedResult);	
+			REQUIRE(result==expectedResult);
 		}
 
 		SECTION("part")
@@ -1046,8 +1049,8 @@ void verifyComparisonWithLength(const STRING& s, OTHER o, int oLength, int expec
 			biggerString += s;
 			biggerString += STRING("hello");
 
-			int result = biggerString.compare(5, s.length(), o, oLength);			
-			REQUIRE(result==expectedResult);	
+			int result = biggerString.compare(5, s.length(), o, oLength);
+			REQUIRE(result==expectedResult);
 		}
 	}
 }
@@ -1112,7 +1115,7 @@ void testComparisonWith(const StringImpl<DATATYPE>& s, const StringImpl<DATATYPE
 	{
 		verifyComparison(s, other.asWidePtr(), expectedResult);
 		verifyComparisonWithLength(s, otherWithX.asWidePtr(), getCStringLength(other.asWidePtr()), expectedResult );
-	}	
+	}
 }
 
 
@@ -1123,7 +1126,7 @@ inline void testComparison()
 
 	SECTION("empty")
 		testComparisonWith<DATATYPE>(s, "", 1);
-	
+
 	SECTION("shorter")
 		testComparisonWith<DATATYPE>(s, "HeLL", 1);
 
@@ -1138,7 +1141,7 @@ inline void testComparison()
 
 	SECTION("same")
 		testComparisonWith<DATATYPE>(s, "HeLLo", 0);
-	
+
 	SECTION("bigger")
 		testComparisonWith<DATATYPE>(s, "heLLo", -1);
 
@@ -1170,7 +1173,7 @@ inline void verifyCharAccess(const StringImpl<DATATYPE>& s)
 		REQUIRE(s.at(0)==U'h');
 		REQUIRE(s.at(4)==U'o');
 		REQUIRE(s.at(5)==U'\0');
-	
+
 		REQUIRE_THROWS_AS(s.at(6), OutOfRangeError);
 	}
 
@@ -1359,7 +1362,7 @@ inline void verifyReplace(StringType& s, RANGETYPE start, RANGETYPE end, const S
 		else if(replaceWith==U"BL\U00013333A")
 		{
 			s.replace( start, end, {U'B', U'L', U'\U00013333', U'A'} );
-			
+
 			REQUIRE( s==expected );
 		}
 		else
@@ -1383,26 +1386,26 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 							{10, 0, U"", U"he\U00012345loworld", "emptyWithEmptyAtEnd"},
 							{10, -1, U"", U"he\U00012345loworld", "emptyWithEmptyAtEndWithoutLength"},
 							{10, 20, U"", U"he\U00012345loworld", "emptyWithEmptyAtEndWithLengthTooBig"},
-							{5, 0, U"", U"he\U00012345loworld", "emptyWithEmptyInMiddle"},	
+							{5, 0, U"", U"he\U00012345loworld", "emptyWithEmptyInMiddle"},
 
 							{0, 0, U"BL\U00013333A", U"BL\U00013333Ahe\U00012345loworld", "emptyWithNonEmptyAtStart"},
 							{10, 0, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEnd"},
 							{10, -1, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEndWithoutLength"},
 							{10, 20, U"BL\U00013333A", U"he\U00012345loworldBL\U00013333A", "emptyWithNonEmptyAtEndWithLengthTooBig"},
-							{5, 0, U"BL\U00013333A", U"he\U00012345loBL\U00013333Aworld", "emptyWithNonEmptyInMiddle"},	
+							{5, 0, U"BL\U00013333A", U"he\U00012345loBL\U00013333Aworld", "emptyWithNonEmptyInMiddle"},
 
 							{0, 2, U"", U"\U00012345loworld", "nonEmptyWithEmptyAtStart"},
 							{8, 2, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEnd"},
 							{8, -1, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEndWithoutLength"},
 							{8, 20, U"", U"he\U00012345lowor", "nonEmptyWithEmptyAtEndWithLengthTooBig"},
-							{5, 2, U"", U"he\U00012345lorld", "nonEmptyWithEmptyInMiddle"},	
+							{5, 2, U"", U"he\U00012345lorld", "nonEmptyWithEmptyInMiddle"},
 
 							{0, 2, U"BL\U00013333A", U"BL\U00013333A\U00012345loworld", "nonEmptyWithNonEmptyAtStart"},
 							{0, 4, U"BL\U00013333A", U"BL\U00013333Aoworld", "nonEmptyWithNonEmptyAtStartB"},
 							{8, 2, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEnd"},
 							{8, -1, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEndWithoutLength"},
 							{8, 20, U"BL\U00013333A", U"he\U00012345loworBL\U00013333A", "nonEmptyWithNonEmptyAtEndWithLengthTooBig"},
-							{5, 2, U"BL\U00013333A", U"he\U00012345loBL\U00013333Arld", "nonEmptyWithNonEmptyInMiddle"},	
+							{5, 2, U"BL\U00013333A", U"he\U00012345loBL\U00013333Arld", "nonEmptyWithNonEmptyInMiddle"},
 							};
 
 	int testDataCount = std::extent<decltype(testData)>().value;
@@ -1426,7 +1429,7 @@ inline void testReplaceWithString(StringImpl<DATATYPE>& s)
 			{
 				typename StringImpl<DATATYPE>::Iterator start = s.begin()+pTestData->startIndex;
 				typename StringImpl<DATATYPE>::Iterator end;
-			
+
 				if(pTestData->length==-1)
 					end = s.end();
 				else if(pTestData->startIndex+pTestData->length>(int)s.getLength())
@@ -1467,12 +1470,12 @@ inline void verifyReplaceNumChars(StringImpl<DATATYPE>& s, int startIndex, int l
 
 		REQUIRE( s==expected );
 	}
-	
+
 	SECTION("rangeIterators")
 	{
 		typename StringImpl<DATATYPE>::Iterator start = s.begin()+startIndex;
 		typename StringImpl<DATATYPE>::Iterator end;
-			
+
 		if(length==-1)
 			end = s.end();
 		else if(startIndex+length>(int)s.getLength())
@@ -1526,8 +1529,8 @@ inline void testReplaceNumChars( StringImpl<DATATYPE>& s)
 							{10, 0, "empty at end"},
 							{10, -1, "empty at end without length"},
 							{10, 20, "empty at end with length too big"},
-							{5, 0, "empty in middle"},	
-							
+							{5, 0, "empty in middle"},
+
 							{0, 2, "non-empty at start"},
 							{8, 2,  "non-empty at end"},
 							{8, -1, "non-empty at end without length"},
@@ -1563,10 +1566,10 @@ inline void testReplace()
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
-		SECTION("string")		
+		SECTION("string")
 			testReplaceWithString<DATATYPE>(s);
 
-		SECTION("numChars")		
+		SECTION("numChars")
 			testReplaceNumChars<DATATYPE>(s);
 	}
 
@@ -1574,7 +1577,7 @@ inline void testReplace()
 	{
 		StringImpl<DATATYPE> s2(U"xyhe\U00012345loworldabc");
         StringImpl<DATATYPE> s = s2.subString(2,10);
-        
+
 
 		SECTION("string")
 			testReplaceWithString<DATATYPE>( s );
@@ -1625,7 +1628,7 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 	{
 		std::u32string sufUtf32 = U"abc"+suffix.asUtf32()+U"efg";
 		StringType suf( sufUtf32 );
-		
+
 		s.append( suf, 3, suffix.getLength() );
 		REQUIRE( s==expected );
 	}
@@ -1718,14 +1721,14 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 		s.append( suf.c_str(), suf.length()-3 );
 		REQUIRE( s==expected );
-	}	
+	}
 
 	if(!suffix.isEmpty())
-	{	
+	{
 		if(suffix==U"BL\U00013333A")
 		{
 			SECTION("charInitializerList")
-			{			
+			{
 				// must leave out the unicode character
 				SECTION("append")
 					s.append( {'B', 'L', 'A'} );
@@ -1748,7 +1751,7 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 				SECTION("operator+=")
 					s += {U'B', U'L', U'\U00013333', U'A'};
-			
+
 				REQUIRE( s==expected );
 			}
 		}
@@ -1818,7 +1821,7 @@ inline void testAppendNumChars_WithCharCount(StringImpl<DATATYPE>& s, int charCo
 
 template<class DATATYPE>
 inline void testAppendNumChars( StringImpl<DATATYPE>& s)
-{	
+{
 	SECTION("zero chars")
 		testAppendNumChars_WithCharCount(s, 0);
 
@@ -1832,7 +1835,7 @@ inline void testAppendNumChars( StringImpl<DATATYPE>& s)
 
 template<class DATATYPE>
 inline void testAppendSingleChar( StringImpl<DATATYPE>& s)
-{	
+{
 	std::u32string expected = s.asUtf32();
 
 	expected += U'\U00012345';
@@ -1852,7 +1855,7 @@ inline void testAppend()
 	SECTION("normal")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		
+
 
 		SECTION("string")
 			testAppendWithString<DATATYPE>(s);
@@ -1871,7 +1874,7 @@ inline void testAppend()
 		SECTION("string")
         {
             StringImpl<DATATYPE> sub = s.subString(2, 10);
-            
+
 			testAppendWithString<DATATYPE>( sub );
         }
 
@@ -2142,12 +2145,12 @@ inline void testInsertNumChars(StringImpl<DATATYPE>& s)
 {
 	SECTION("zero chars")
 		testInsertNumChars_WithCharCount(s, 0);
-	
+
 	SECTION("1 char")
 		testInsertNumChars_WithCharCount(s, 1);
 
 	SECTION("7 chars")
-		testInsertNumChars_WithCharCount(s, 7);	
+		testInsertNumChars_WithCharCount(s, 7);
 }
 
 
@@ -2189,7 +2192,7 @@ inline void testInsert()
 	SECTION("normal")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		
+
 		SECTION("string")
 			testInsertWithString<DATATYPE>(s);
 
@@ -2239,7 +2242,7 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t erase
 	SECTION("itRange")
 	{
 		typename StringImpl<DATATYPE>::Iterator beginIt = s.begin()+atPos;
-		
+
 		typename StringImpl<DATATYPE>::Iterator endIt;
 		if(eraseLength==StringImpl<DATATYPE>::npos || atPos+eraseLength>=s.length())
 			endIt = s.end();
@@ -2295,7 +2298,7 @@ inline void testErase()
 	SECTION("normal")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		
+
 		testEraseWithString<DATATYPE>(s);
 	}
 
@@ -2352,7 +2355,7 @@ inline void verifyAssignFull(StringImpl<DATATYPE>& s, ARG arg)
 		s.assign(arg);
 
 	SECTION("operator=")
-		s = arg;	
+		s = arg;
 }
 
 template<class DATATYPE>
@@ -2399,7 +2402,7 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s, const StringImpl<DATAT
 		std::u32string			origSource = source.asUtf32();
 		StringImpl<DATATYPE>	moveSource(source);
 
-		SECTION("assignFunction")				
+		SECTION("assignFunction")
 			s.assign( std::move(moveSource) );
 
 		SECTION("operator=")
@@ -2427,7 +2430,7 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s, const StringImpl<DATAT
 
 			REQUIRE( source==origSource );
 
-			REQUIRE( s==source.subString(3,4) );			
+			REQUIRE( s==source.subString(3,4) );
 		}
 	}
 
@@ -2439,7 +2442,7 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s, const StringImpl<DATAT
 
 		REQUIRE( source==origSource );
 
-		REQUIRE( s==source );			
+		REQUIRE( s==source );
 	}
 
 	if(source.getLength()>2)
@@ -2448,17 +2451,17 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s, const StringImpl<DATAT
 		{
 			std::u32string origSource = source.asUtf32();
 
-			SECTION("utf8PtrWithLength")	
-				s.assign(source.asUtf8().c_str(), 2);			
+			SECTION("utf8PtrWithLength")
+				s.assign(source.asUtf8().c_str(), 2);
 
-			SECTION("widePtrWithLength")		
-				s.assign(source.asWide().c_str(), 2);			
+			SECTION("widePtrWithLength")
+				s.assign(source.asWide().c_str(), 2);
 
-			SECTION("utf16PtrWithLength")		
-				s.assign(source.asUtf16().c_str(), 2);			
+			SECTION("utf16PtrWithLength")
+				s.assign(source.asUtf16().c_str(), 2);
 
-			SECTION("utf32PtrWithLength")		
-				s.assign(source.asUtf32().c_str(), 2);			
+			SECTION("utf32PtrWithLength")
+				s.assign(source.asUtf32().c_str(), 2);
 
 			REQUIRE(source==origSource);
 
@@ -2515,12 +2518,12 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s)
 			s.assign( {'a', 'b', U'\U00012345'} );
 		SECTION("operator=")
 			s = {'a', 'b', U'\U00012345'};
-			
+
 		std::u32string expected;
 		expected.assign( {'a', 'b', U'\U00012345'} );
-		
+
 		REQUIRE( s==expected );
-	}	
+	}
 
 }
 
@@ -2531,14 +2534,14 @@ inline void testAssign()
 	SECTION("destNotEmpty")
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
-		
+
 		testAssignWithString<DATATYPE>(s);
 	}
 
 	SECTION("destEmpty")
 	{
 		StringImpl<DATATYPE> s;
-		
+
 		testAssignWithString<DATATYPE>(s);
 	}
 
@@ -2605,7 +2608,7 @@ inline void verifyResize(StringImpl<DATATYPE>& s)
 	{
 		s.resize(10);
 
-		verifyResizeResult(s, 10, U"hello\0\0\0\0\0");		
+		verifyResizeResult(s, 10, U"hello\0\0\0\0\0");
 	}
 
 	SECTION("biggerWithAsciiPaddingDefaultPadding")
@@ -2635,7 +2638,7 @@ inline void testResize()
 
 	SECTION("slice")
 	{
-		StringImpl<DATATYPE> source("hihelloworld");		
+		StringImpl<DATATYPE> source("hihelloworld");
 		StringImpl<DATATYPE> s = source.subString(2, 5);
 
 		verifyResize(s);
@@ -2674,7 +2677,7 @@ inline void testSwapWithA(StringImpl<DATATYPE>& a)
 	{
 		StringImpl<DATATYPE> b(U"wo\U00012345rld");
 
-		testSwapWithAB<DATATYPE>(a, b);		
+		testSwapWithAB<DATATYPE>(a, b);
 	}
 
 	SECTION("B-slice")
@@ -2683,7 +2686,7 @@ inline void testSwapWithA(StringImpl<DATATYPE>& a)
 
 		StringImpl<DATATYPE> b2 = b.subString(2, 3);
 
-		testSwapWithAB<DATATYPE>( a, b2 );		
+		testSwapWithAB<DATATYPE>( a, b2 );
 	}
 
 	SECTION("B-empty")
@@ -2691,7 +2694,7 @@ inline void testSwapWithA(StringImpl<DATATYPE>& a)
 		StringImpl<DATATYPE> b;
 
 		testSwapWithAB<DATATYPE>( a, b );
-	}	
+	}
 
 	SECTION("B-emptySlice")
 	{
@@ -2699,9 +2702,9 @@ inline void testSwapWithA(StringImpl<DATATYPE>& a)
 
 		StringImpl<DATATYPE> b2 = b.subString(2, 0);
 
-		testSwapWithAB<DATATYPE>( a, b2 );		
+		testSwapWithAB<DATATYPE>( a, b2 );
 	}
-	
+
 }
 
 template<class DATATYPE>
@@ -2711,14 +2714,14 @@ inline void testSwap()
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
-		testSwapWithA<DATATYPE>(s);		
+		testSwapWithA<DATATYPE>(s);
 	}
 
 	SECTION("A-slice")
 	{
 		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
         StringImpl<DATATYPE> s = s2.subString(2, 10);
-        
+
 
 		testSwapWithA<DATATYPE>( s );
 	}
@@ -2728,7 +2731,7 @@ inline void testSwap()
 		StringImpl<DATATYPE> s;
 
 		testSwapWithA<DATATYPE>( s );
-	}	
+	}
 
 	SECTION("A-emptySlice")
 	{
@@ -2764,7 +2767,7 @@ inline void testRemoveLast()
 	{
 		StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
-		testRemoveLast<DATATYPE>(s);		
+		testRemoveLast<DATATYPE>(s);
 	}
 
 	SECTION("slice")
@@ -2780,14 +2783,14 @@ inline void testRemoveLast()
 		StringImpl<DATATYPE> s;
 
 		testRemoveLast<DATATYPE>( s );
-	}	
+	}
 
 	SECTION("emptySlice")
 	{
 		StringImpl<DATATYPE> s2(U"xxhe\U00012345loworldyy");
         StringImpl<DATATYPE> s = s2.subString(2, 0);
 
-		testRemoveLast<DATATYPE>( s );		
+		testRemoveLast<DATATYPE>( s );
 	}
 
 }
@@ -2836,7 +2839,7 @@ inline void testReserveCapacity()
 			size_t cap = s.capacity();
 			REQUIRE( cap>=20 );
 			REQUIRE( cap<=30 );	// sanity check - not actually forbidden to have bigger values
-			
+
 			s.reserve(15);
 
 			// the second call should have had no effect, since the second value is bigger than the length.
@@ -2853,7 +2856,7 @@ inline void testReserveCapacity()
 
 			s.reserve(5);
 
-			// the request to reduce the space is actually non-binding. So all we can test that it either stayed the same or got reduced.			
+			// the request to reduce the space is actually non-binding. So all we can test that it either stayed the same or got reduced.
 			REQUIRE( s.capacity()<=cap );
 			REQUIRE( s.capacity()>=10 );
 		}
@@ -2861,7 +2864,7 @@ inline void testReserveCapacity()
 
 		SECTION("capacityWithCopies")
 		{
-			s.reserve(20);	
+			s.reserve(20);
 
 			size_t cap = s.capacity();
 			REQUIRE( cap>=20 );
@@ -2890,7 +2893,7 @@ inline void testReserveCapacity()
 				REQUIRE( s2.capacity()==10 );
 				REQUIRE( s.capacity()==10 );
 
-				s.reserve(20);			
+				s.reserve(20);
 				REQUIRE( s.capacity()>=20 );
 				REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
 
@@ -2948,8 +2951,8 @@ inline void testCopy(const StringImpl<DATATYPE>& s)
 	char32_t buffer[30];
 	char32_t expectedBuffer[30];
 
-	memset(buffer, 0xffffffff, 30*sizeof(char32_t) );
-	memset(expectedBuffer, 0xffffffff, 30*sizeof(char32_t) );
+	std::memset(buffer, 0xffffffff, 30*sizeof(char32_t) );
+	std::memset(expectedBuffer, 0xffffffff, 30*sizeof(char32_t) );
 
 	size_t result = StringImpl<DATATYPE>::npos;
 	size_t expectedResult = StringImpl<DATATYPE>::npos;
@@ -3051,7 +3054,7 @@ inline void testCopy(const StringImpl<DATATYPE>& s)
 
 
 	REQUIRE( result==expectedResult );
-	
+
 	for(int i=0; i<30; i++)
 	{
 		REQUIRE( buffer[i] == expectedBuffer[i] );
@@ -3063,20 +3066,20 @@ inline void testCopy()
 {
 	SECTION("empty")
 	{
-		StringImpl<DATATYPE> s;	
+		StringImpl<DATATYPE> s;
 		testCopy<DATATYPE>(s);
 	}
 
 	SECTION("nonEmpty")
 	{
-		StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 		testCopy<DATATYPE>(s);
 	}
 
 	SECTION("badStartIndex")
 	{
-		StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+		StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 		char32_t buffer[1];
 
@@ -3090,7 +3093,7 @@ inline void testCopy()
 template<class DATATYPE>
 inline void testIteratorWithIndex()
 {
-	StringImpl<DATATYPE> s(U"he\U00012345loworld");	
+	StringImpl<DATATYPE> s(U"he\U00012345loworld");
 
 	typename StringImpl<DATATYPE>::IteratorWithIndex it(s.begin(), 17);
 
@@ -3147,16 +3150,16 @@ inline void testIteratorWithIndex()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testFindStringFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj(U"");
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
 	const STRINGTYPE&	empty = emptyObj;
 
-	STRINGTYPE toFindObj(U"\U00012345lo");	
-	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
-	STRINGTYPE toFindEmptyObj(U"");	
+	STRINGTYPE toFindObj(U"\U00012345lo");
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");
+	STRINGTYPE toFindEmptyObj(U"");
 
 	ToFindStringType toFind = (ToFindStringType)toFindObj;
 	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
@@ -3331,17 +3334,17 @@ inline void testFindStringFromIndex()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testFindStringWithLengthFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj(U"");
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
 	const STRINGTYPE&	empty = emptyObj;
 
 
-	STRINGTYPE toFindObj(U"\U00012345lo");	
-	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
-	STRINGTYPE toFindEmptyObj(U"");	
+	STRINGTYPE toFindObj(U"\U00012345lo");
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");
+	STRINGTYPE toFindEmptyObj(U"");
 
 	ToFindStringType toFind = (ToFindStringType)toFindObj;
 	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
@@ -3357,7 +3360,7 @@ inline void testFindStringWithLengthFromIndex()
 
 	toFind = (ToFindStringType)toFindObj;
 	toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
-	toFindEmpty = (ToFindStringType)toFindEmptyObj;	
+	toFindEmpty = (ToFindStringType)toFindEmptyObj;
 
 
 	SECTION("fromStart-matching")
@@ -3512,8 +3515,8 @@ inline void testFindStringWithLengthFromIndex()
 template<class STRINGTYPE>
 inline void testFindCharFromIterator()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj(U"");
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
@@ -3534,7 +3537,7 @@ inline void testFindCharFromIterator()
 		REQUIRE( it==s.end() );
 	}
 
-	
+
 	SECTION("fromMatchPos-matching")
 	{
 		typename STRINGTYPE::Iterator it = s.find(toFind, s.begin()+2 );
@@ -3574,7 +3577,7 @@ inline void testFindCharFromIterator()
 		REQUIRE( it == s.end() );
 	}
 
-	
+
 	SECTION("inEmpty")
 	{
 		typename STRINGTYPE::Iterator it = empty.find(toFind, empty.begin() );
@@ -3631,8 +3634,8 @@ inline void testFindCharFromIterator()
 template<class STRINGTYPE>
 inline void testFindCharFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj(U"");	
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj(U"");
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
@@ -3743,7 +3746,7 @@ inline void testFindCharFromIndex()
 		REQUIRE( s.find_first_of(toFindNonMatch, s.length()+1) == result );
 	}
 
-		
+
 	SECTION("inEmpty")
 	{
 		size_t result = empty.find(toFind, 0 );
@@ -3814,13 +3817,13 @@ inline void testFindCharFromIndex()
 template<class DATATYPE>
 inline void testFindStringFromIt()
 {
-	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");
 
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
-	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
-	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");
 
 	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
@@ -3829,7 +3832,7 @@ inline void testFindStringFromIt()
 			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 
 			typename StringImpl<DATATYPE>::Iterator matchEndIt;
-				
+
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
@@ -4035,13 +4038,13 @@ inline void testFindStringFromIt()
 template<class DATATYPE>
 inline void testFindIterators()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
-	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
-	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");
 
 	typename StringImpl<DATATYPE>::Iterator matchEndIt;
 
@@ -4050,7 +4053,7 @@ inline void testFindIterators()
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
 			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
-				
+
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
@@ -4062,7 +4065,7 @@ inline void testFindIterators()
 				if(pMatchEndIt!=nullptr)
 					REQUIRE( *pMatchEndIt == it+toFind.getLength() );
 			}
-				
+
 			SECTION("fromStart-notMatching")
 			{
 				typename StringImpl<DATATYPE>::Iterator it = s.find(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
@@ -4252,7 +4255,7 @@ inline void testFind()
 {
 	SECTION("iterators")
 		testFindIterators<DATATYPE>();
-	
+
 
 	SECTION("stringFromIt")
 		testFindStringFromIt<DATATYPE>();
@@ -4313,7 +4316,7 @@ inline void testFind()
 	{
 		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
 
-		SECTION("stringFromIndex")			
+		SECTION("stringFromIndex")
 			testFindStringFromIndex<std::u32string, std::u32string >();
 
 		SECTION("charFromIndexInU32String")
@@ -4328,15 +4331,15 @@ inline void testFind()
 template<class DATATYPE>
 inline void testReverseFindIterators()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
-	StringImpl<DATATYPE>			emptyObj;		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 	const StringImpl<DATATYPE>&	empty = emptyObj;
 
-	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
-	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");
 
 	typename StringImpl<DATATYPE>::Iterator matchEndIt;
 
@@ -4345,7 +4348,7 @@ inline void testReverseFindIterators()
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
 		{
 			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
-				
+
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
@@ -4357,7 +4360,7 @@ inline void testReverseFindIterators()
 				if(pMatchEndIt!=nullptr)
 					REQUIRE( *pMatchEndIt == s.end() );
 			}
-				
+
 			SECTION("fromStart-notMatching")
 			{
 				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin(), pMatchEndIt);
@@ -4376,7 +4379,7 @@ inline void testReverseFindIterators()
 				if(pMatchEndIt!=nullptr)
 					REQUIRE( *pMatchEndIt == s.end() );
 			}
-				
+
 			SECTION("fromBeforeMatchPos-notMatching")
 			{
 				typename StringImpl<DATATYPE>::Iterator it = s.reverseFind(toFindNonMatch.begin(), toFindNonMatch.end(), s.begin()+1, pMatchEndIt);
@@ -4572,16 +4575,16 @@ inline void testReverseFindIterators()
 template<class DATATYPE>
 inline void testReverseFindStringFromIt()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
-	StringImpl<DATATYPE>			emptyObj;		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
+	StringImpl<DATATYPE>			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 	const StringImpl<DATATYPE>&	empty = emptyObj;
 
-	StringImpl<DATATYPE> toFind(U"\U00012345lo");	
-	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");	
-	
+	StringImpl<DATATYPE> toFind(U"\U00012345lo");
+	StringImpl<DATATYPE> toFindNonMatch(U"\U00012345lO");
+
 	for(int withMatchEndIt=0; withMatchEndIt<2; withMatchEndIt++)
 	{
 		SECTION( withMatchEndIt==1 ? "withMatchEndIt" : "noMatchEndIt" )
@@ -4589,7 +4592,7 @@ inline void testReverseFindStringFromIt()
 			typename StringImpl<DATATYPE>::Iterator* pMatchEndIt = nullptr;
 
 			typename StringImpl<DATATYPE>::Iterator matchEndIt;
-				
+
 			if(withMatchEndIt==1)
 				pMatchEndIt = &matchEndIt;
 
@@ -4801,7 +4804,7 @@ typename StringType::Iterator callReverseFindIt(const StringType& s, Args... arg
 
 	REQUIRE( result==result2 );
 
-	return result;	
+	return result;
 }
 
 
@@ -4810,9 +4813,9 @@ size_t callReverseFindSizeT(const StringType& s, Args... args)
 {
     auto result = s.reverseFind(args...);
     auto result2 = s.rfind(args...);
-    
+
     REQUIRE( result==result2 );
-    
+
     return result;
 }
 
@@ -4838,16 +4841,16 @@ size_t callReverseFindSizeT<std::u32string, std::u32string>(const std::u32string
 template<class STRINGTYPE, class ToFindStringType>
 inline void testReverseFindStringFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj;		
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
 	const STRINGTYPE&	empty = emptyObj;
 
-	STRINGTYPE toFindObj(U"\U00012345lo");	
-	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
-	STRINGTYPE toFindEmptyObj(U"");	
+	STRINGTYPE toFindObj(U"\U00012345lo");
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");
+	STRINGTYPE toFindEmptyObj(U"");
 
 	ToFindStringType toFind = (ToFindStringType)toFindObj;
 	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
@@ -5045,17 +5048,17 @@ inline void testReverseFindStringFromIndex()
 template<class STRINGTYPE, class ToFindStringType>
 inline void testReverseFindStringWithLengthFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj;		
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
 	const STRINGTYPE&	empty = emptyObj;
 
 
-	STRINGTYPE toFindObj(U"\U00012345lo");	
-	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");	
-	STRINGTYPE toFindEmptyObj(U"");	
+	STRINGTYPE toFindObj(U"\U00012345lo");
+	STRINGTYPE toFindNonMatchObj(U"\U00012345lO");
+	STRINGTYPE toFindEmptyObj(U"");
 
 	ToFindStringType toFind = (ToFindStringType)toFindObj;
 	ToFindStringType toFindNonMatch = (ToFindStringType)toFindNonMatchObj;
@@ -5253,8 +5256,8 @@ inline void testReverseFindStringWithLengthFromIndex()
 template<class STRINGTYPE>
 inline void testReverseFindCharFromIterator()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj;		
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
@@ -5276,7 +5279,7 @@ inline void testReverseFindCharFromIterator()
 		REQUIRE( it==s.end() );
 	}
 
-	
+
 	SECTION("fromMatchPos-matching")
 	{
 		typename STRINGTYPE::Iterator it = s.reverseFind(toFind, s.begin()+2 );
@@ -5316,7 +5319,7 @@ inline void testReverseFindCharFromIterator()
 		REQUIRE( it == s.end() );
 	}
 
-	
+
 	SECTION("inEmpty")
 	{
 		typename STRINGTYPE::Iterator it = empty.reverseFind(toFind, empty.end() );
@@ -5353,7 +5356,7 @@ inline void testReverseFindCharFromIterator()
 			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+3 );
 			REQUIRE( it==s2.begin()+2 );
 		}
-		
+
 		SECTION("fromFirstMatch")
 		{
 			typename STRINGTYPE::Iterator it = s2.reverseFind(toFind, s2.begin()+2 );
@@ -5376,7 +5379,7 @@ size_t callReverseFindChar(const StringType& s, Args... args)
 	size_t result = s.reverseFind(args...);
 	size_t result2 = s.rfind(args...);
 	size_t result3 = s.find_last_of(args...);
-	
+
 	REQUIRE( result2==result );
 	REQUIRE( result3==result );
 
@@ -5389,7 +5392,7 @@ size_t callReverseFindChar<std::u32string, char32_t, size_t>(const std::u32strin
 {
 	size_t result = s.rfind(toFind, searchFromIndex);
 	size_t result2 = s.find_last_of(toFind, searchFromIndex);
-	
+
 	REQUIRE( result2==result );
 
 	return result;
@@ -5400,7 +5403,7 @@ size_t callReverseFindChar<std::u32string, char32_t, int>(const std::u32string& 
 {
 	size_t result = s.rfind(toFind, searchFromIndex);
 	size_t result2 = s.find_last_of(toFind, searchFromIndex);
-	
+
 	REQUIRE( result2==result );
 
 	return result;
@@ -5411,7 +5414,7 @@ size_t callReverseFindChar<std::u32string, char32_t>(const std::u32string& s, ch
 {
 	size_t result = s.rfind(toFind);
 	size_t result2 = s.find_last_of(toFind);
-	
+
 	REQUIRE( result2==result );
 
 	return result;
@@ -5421,8 +5424,8 @@ size_t callReverseFindChar<std::u32string, char32_t>(const std::u32string& s, ch
 template<class STRINGTYPE>
 inline void testReverseFindCharFromIndex()
 {
-	STRINGTYPE			stringObj(U"he\U00012345loworld");		
-	STRINGTYPE			emptyObj;		
+	STRINGTYPE			stringObj(U"he\U00012345loworld");
+	STRINGTYPE			emptyObj;
 
 	// use const references for the test to ensure that the functions are const
 	const STRINGTYPE&	s = stringObj;
@@ -5525,7 +5528,7 @@ inline void testReverseFindCharFromIndex()
 	}
 
 
-		
+
 	SECTION("inEmpty")
 	{
 		size_t result = callReverseFindChar(empty, toFind, 0 );
@@ -5591,16 +5594,16 @@ inline void testReverseFind()
 {
 	SECTION("iterators")
 		testReverseFindIterators<DATATYPE>();
-	
+
 	SECTION("stringFromIt")
 		testReverseFindStringFromIt<DATATYPE>();
 
-	
+
 	SECTION("stringFromIndex")
 	{
 		SECTION("String")
 			testReverseFindStringFromIndex<StringImpl<DATATYPE>, StringImpl<DATATYPE> >();
-		
+
 		SECTION("std::string")
 			testReverseFindStringFromIndex<StringImpl<DATATYPE>, std::string >();
 
@@ -5651,7 +5654,7 @@ inline void testReverseFind()
 	{
 		// run the same tests we run on our own string on a std::u32string (to ensure that we behave the same way.
 
-		SECTION("stringFromIndex")			
+		SECTION("stringFromIndex")
 			testReverseFindStringFromIndex<std::u32string, std::u32string >();
 
 		SECTION("charFromIndexInU32String")
@@ -5663,13 +5666,13 @@ inline void testReverseFind()
 template<class DATATYPE, class Predicate>
 inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 
 	SECTION("fromStart")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin());
 
 		if(shouldMatch)
@@ -5680,7 +5683,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 
 	SECTION("fromMatch")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+2);
 
 		if(shouldMatch)
@@ -5690,19 +5693,19 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 	}
 
 	SECTION("fromAfterMatch")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+3);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.end() );
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("inEmpty")
-	{	
+	{
 		StringImpl<DATATYPE> empty;
 
 		typename StringImpl<DATATYPE>::Iterator it = empty.findCondition(pred, empty.begin() );
@@ -5713,12 +5716,12 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 template<class DATATYPE, class Predicate>
 inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
-	{	
+	{
 		size_t result = s.findCondition(pred, 0);
 
 		if(shouldMatch)
@@ -5728,7 +5731,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 	}
 
 	SECTION("fromStart-defaultArg")
-	{	
+	{
 		size_t result = s.findCondition(pred);
 
 		if(shouldMatch)
@@ -5739,7 +5742,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 
 	SECTION("fromMatch")
-	{	
+	{
 		size_t result = s.findCondition(pred, 2);
 
 		if(shouldMatch)
@@ -5749,31 +5752,31 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 	}
 
 	SECTION("fromAfterMatch")
-	{	
+	{
 		size_t result = s.findCondition(pred, 3);
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromEnd")
-	{	
+	{
 		size_t result = s.findCondition(pred, s.getLength() );
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromEnd-npos")
-	{	
+	{
 		size_t result = s.findCondition(pred, s.npos );
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromAfter")
-	{	
+	{
 		size_t result = s.findCondition(pred, s.getLength()+1 );
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("inEmpty")
-	{	
+	{
 		StringImpl<DATATYPE> empty;
 
 		size_t result = empty.findCondition(pred, 0 );
@@ -5783,7 +5786,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 template<class DATATYPE>
 inline void testFindCondition()
-{	
+{
 	SECTION("iterator")
 	{
 		SECTION("match")
@@ -5809,12 +5812,12 @@ inline void testFindCondition()
 template<class DATATYPE, class Predicate>
 inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end());
 
 		if(shouldMatch)
@@ -5825,7 +5828,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 
 	SECTION("fromMatch")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+2);
 
 		if(shouldMatch)
@@ -5835,15 +5838,15 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 	}
 
 	SECTION("fromBeforeMatch")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+1);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
-	{	
+	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end() );
-		
+
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
 		else
@@ -5851,7 +5854,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 	}
 
 	SECTION("inEmpty")
-	{	
+	{
 		StringImpl<DATATYPE> empty;
 
 		typename StringImpl<DATATYPE>::Iterator it = empty.reverseFindCondition(pred, empty.begin() );
@@ -5866,12 +5869,12 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 template<class DATATYPE, class Predicate>
 inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred, s.getLength() );
 
 		if(shouldMatch)
@@ -5881,7 +5884,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	}
 
 	SECTION("fromEnd-npos")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred, s.npos );
 
 		if(shouldMatch)
@@ -5891,7 +5894,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	}
 
 	SECTION("fromAfterEnd")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred, s.getLength()+1 );
 
 		if(shouldMatch)
@@ -5901,7 +5904,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	}
 
 	SECTION("fromEnd-defaultArg")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred);
 
 		if(shouldMatch)
@@ -5911,7 +5914,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	}
 
 	SECTION("fromMatch")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred, 2);
 
 		if(shouldMatch)
@@ -5921,14 +5924,14 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	}
 
 	SECTION("fromBeforeMatch")
-	{	
+	{
 		size_t result = s.reverseFindCondition(pred, 1);
 		REQUIRE( result==s.npos );
 	}
 
 
 	SECTION("inEmpty")
-	{	
+	{
 		StringImpl<DATATYPE> empty;
 
 		size_t result = empty.reverseFindCondition(pred, 0 );
@@ -5938,12 +5941,12 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 template<class DATATYPE>
 inline void testReverseFindCondition()
-{	
+{
 	SECTION("iterator")
 	{
 		SECTION("match")
         testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
-	
+
 		SECTION("noMatch")
 			testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
@@ -5952,7 +5955,7 @@ inline void testReverseFindCondition()
 	{
 		SECTION("match")
 			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
-	
+
 		SECTION("noMatch")
 			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
@@ -5965,19 +5968,19 @@ inline void testReverseFindCondition()
 
 template<class DATATYPE>
 inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
-{	
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+{
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin() );
-				
+
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
 		else
-			REQUIRE( it==s.end() );				
+			REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromMatch")
@@ -5989,18 +5992,18 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 		else
 			REQUIRE( it==s.end() );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
-				
+
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findOneOf(toFind.begin(), toFind.end(), s.end() );
-				
+
 		REQUIRE( it==s.end() );
 	}
 
@@ -6033,7 +6036,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 		SECTION("fromJustAfterFirstMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
 			else
@@ -6043,7 +6046,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 		SECTION("fromJustBeforeSecondMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
 			else
@@ -6053,7 +6056,7 @@ inline void testFindOneOfIterators(const std::u32string& toFind, bool matchPossi
 		SECTION("fromSecondMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+12 );
 			else
@@ -6084,7 +6087,7 @@ size_t callFindOneOf(StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -6093,58 +6096,58 @@ inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 	SECTION("fromStart")
 	{
 		size_t result = callFindOneOf(s, toFind, 0 );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromStart-defaultArg")
 	{
 		size_t result = callFindOneOf(s, toFind );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromMatch")
 	{
 		size_t result = callFindOneOf(s, toFind, 2 );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		size_t result = callFindOneOf(s, toFind, 3 );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
 		size_t result = callFindOneOf(s, toFind, s.getLength() );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
 		size_t result = callFindOneOf(s, toFind, s.getLength()+1 );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
 		size_t result = callFindOneOf(s, toFind, s.npos );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
@@ -6201,7 +6204,7 @@ inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 			if(matchPossible)
 				REQUIRE( result==12 );
 			else
-				REQUIRE( result==s2.noMatch );			
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromSecondMatch")
@@ -6228,7 +6231,7 @@ inline void testFindOneOfString(const StringType& toFindObj, bool matchPossible)
 template<class StringType, class ToFindType>
 inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -6246,48 +6249,48 @@ inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool m
 	SECTION("fromStart")
 	{
 		size_t result = callFindOneOf(s, toFind, 0, toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 	SECTION("fromMatch")
 	{
 		size_t result = callFindOneOf(s, toFind, 2, toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		size_t result = callFindOneOf(s, toFind, 3, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
 		size_t result = callFindOneOf(s, toFind, s.getLength(), toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
 		size_t result = callFindOneOf(s, toFind, s.getLength()+1, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
 		size_t result = callFindOneOf(s, toFind, s.npos, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
@@ -6335,7 +6338,7 @@ inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool m
 			if(matchPossible)
 				REQUIRE( result==12 );
 			else
-				REQUIRE( result==s2.noMatch );			
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromSecondMatch")
@@ -6362,7 +6365,7 @@ inline void testFindOneOfStringWithLength(const StringType& toFindObjArg, bool m
 template<class DATATYPE>
 inline void testFindOneOf()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
@@ -6405,7 +6408,7 @@ inline void testFindOneOf()
 			SECTION("std::u32string")
 				testFindOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
 
-			
+
 			SECTION("const char*")
 				testFindOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
@@ -6433,7 +6436,7 @@ inline void testFindOneOf()
 
 
 		}
-	}	
+	}
 }
 
 
@@ -6442,23 +6445,23 @@ inline void testFindOneOf()
 
 template<class DATATYPE>
 inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
-{	
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+{
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromStart")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin() );
-				
+
 		if(matchAllChars)
 			REQUIRE( it==s.begin() );
-		
+
 		else if(matchThirdChar)
 			REQUIRE( it==s.begin()+2 );
 
 		else
-			REQUIRE( it==s.end() );				
+			REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromMatch")
@@ -6469,24 +6472,24 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 			REQUIRE( it==s.begin()+2 );
 
 		else
-			REQUIRE( it==s.end() );	
+			REQUIRE( it==s.end() );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.begin()+3 );
 
 		if(matchAllChars)
 			REQUIRE( it==s.begin()+3 );
-		
+
 		else
-			REQUIRE( it==s.end() );			
+			REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.findNotOneOf(toFind.begin(), toFind.end(), s.end() );
-				
+
 		REQUIRE( it==s.end() );
 	}
 
@@ -6502,12 +6505,12 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin() );
-		
+
 			else if(matchThirdChar)
 				REQUIRE( it==s2.begin()+2 );
 
 			else
-				REQUIRE( it==s2.end() );	
+				REQUIRE( it==s2.end() );
 		}
 
 		SECTION("fromFirstMatch")
@@ -6518,41 +6521,41 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 				REQUIRE( it==s2.begin()+2 );
 
 			else
-				REQUIRE( it==s2.end() );	
+				REQUIRE( it==s2.end() );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
-					
+
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+3 );
-		
+
 			else if(matchThirdChar)
 				REQUIRE( it==s2.begin()+12 );
 
 			else
-				REQUIRE( it==s2.end() );	
+				REQUIRE( it==s2.end() );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
-					
+
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+11 );
-		
+
 			else if(matchThirdChar)
 				REQUIRE( it==s2.begin()+12 );
 
 			else
-				REQUIRE( it==s2.end() );	
+				REQUIRE( it==s2.end() );
 		}
 
 		SECTION("fromSecondMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.findNotOneOf(toFind.begin(), toFind.end(), s2.begin()+12 );
-					
+
 			if(matchThirdChar || matchAllChars)
 				REQUIRE( it==s2.begin()+12 );
 			else
@@ -6565,9 +6568,9 @@ inline void testFindNotOneOfIterators(const std::u32string& toFind, bool matchTh
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+13 );
-		
+
 			else
-				REQUIRE( it==s2.end() );	
+				REQUIRE( it==s2.end() );
 		}
 	}
 }
@@ -6588,7 +6591,7 @@ size_t callFindNotOneOf(const StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -6605,7 +6608,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );					
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromStart-defaultArg")
@@ -6619,7 +6622,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );	
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromMatch")
@@ -6630,9 +6633,9 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );			
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		size_t result = callFindNotOneOf(s, toFind, 3 );
@@ -6641,27 +6644,27 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 			REQUIRE( result==3 );
 
 		else
-			REQUIRE( result==StringType::noMatch );	
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.getLength() );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.getLength()+1 );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.npos );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
@@ -6682,7 +6685,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 				REQUIRE( result==2 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromStart-defaultArg")
@@ -6696,7 +6699,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 				REQUIRE( result==2 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromFirstMatch")
@@ -6707,7 +6710,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 				REQUIRE( result==2 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromJustAfterFirstMatch")
@@ -6721,7 +6724,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
@@ -6735,7 +6738,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromSecondMatch")
@@ -6754,9 +6757,9 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 
 			if(matchAllChars)
 				REQUIRE( result==13 );
-			
+
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 	}
 }
@@ -6765,7 +6768,7 @@ inline void testFindNotOneOfString(const StringType& toFindObj, bool matchThirdC
 template<class StringType, class ToFindType>
 inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -6791,9 +6794,9 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 	SECTION("fromMatch")
 	{
 		size_t result = callFindNotOneOf(s, toFind, 2, toFindLength );
@@ -6802,9 +6805,9 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );					
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromAfterMatch")
 	{
 		size_t result = callFindNotOneOf(s, toFind, 3, toFindLength );
@@ -6813,27 +6816,27 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 			REQUIRE( result==3 );
 
 		else
-			REQUIRE( result==StringType::noMatch );	
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.getLength(), toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.getLength()+1, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromNpos")
 	{
 		size_t result = callFindNotOneOf(s, toFind, s.npos, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
@@ -6854,7 +6857,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==2 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 
@@ -6879,7 +6882,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromJustBeforeSecondMatch")
@@ -6893,7 +6896,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromSecondMatch")
@@ -6904,7 +6907,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 
 		SECTION("fromJustAfterSecondMatch")
@@ -6915,7 +6918,7 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 				REQUIRE( result==13 );
 
 			else
-				REQUIRE( result==StringType::noMatch );	
+				REQUIRE( result==StringType::noMatch );
 		}
 	}
 }
@@ -6926,9 +6929,9 @@ inline void testFindNotOneOfStringWithLength(const StringType& toFindObjArg, boo
 template<class StringType>
 inline void testFindFirstNotOfChar()
 {
-	StringType			stringObj(U"he\U00012345loworld");		
-	StringType			emptyObj(U"");		
-	
+	StringType			stringObj(U"he\U00012345loworld");
+	StringType			emptyObj(U"");
+
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 	const StringType&	empty = emptyObj;
@@ -6967,7 +6970,7 @@ inline void testFindFirstNotOfChar()
 template<class DATATYPE>
 inline void testFindNotOneOf()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
@@ -7010,7 +7013,7 @@ inline void testFindNotOneOf()
 			SECTION("std::u32string")
 				testFindNotOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
-			
+
 			SECTION("const char*")
 				testFindNotOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
@@ -7038,7 +7041,7 @@ inline void testFindNotOneOf()
 
 
 		}
-	}	
+	}
 
 
 	SECTION("char")
@@ -7049,19 +7052,19 @@ inline void testFindNotOneOf()
 
 template<class DATATYPE>
 inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool matchPossible)
-{	
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+{
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
 	SECTION("fromEnd")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.end() );
-				
+
 		if(matchPossible)
 			REQUIRE( it==s.begin()+2 );
 		else
-			REQUIRE( it==s.end() );				
+			REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromMatch")
@@ -7073,18 +7076,18 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 		else
 			REQUIRE( it==s.end() );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
-				
+
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromBegin")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindOneOf(toFind.begin(), toFind.end(), s.begin() );
-				
+
 		REQUIRE( it==s.end() );
 	}
 
@@ -7117,7 +7120,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 		SECTION("fromJustBeforeSecondMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+11 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
 			else
@@ -7127,7 +7130,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 		SECTION("fromJustAfterFirstMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+3 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
 			else
@@ -7137,7 +7140,7 @@ inline void testReverseFindOneOfIterators(const std::u32string& toFind, bool mat
 		SECTION("fromFirstMatch")
 		{
 			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindOneOf(toFind.begin(), toFind.end(), s2.begin()+2 );
-					
+
 			if(matchPossible)
 				REQUIRE( it==s2.begin()+2 );
 			else
@@ -7168,7 +7171,7 @@ size_t callReverseFindOneOf(const StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPossible)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -7177,68 +7180,68 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 	SECTION("fromEnd")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.getLength() );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-moreThanLength")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.length()+1 );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-npos")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.npos );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("fromEnd-defaultArg")
 	{
 		size_t result = callReverseFindOneOf(s, toFind );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromMatch")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 2 );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 1 );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 0 );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("withMultipleMatches")
 	{
@@ -7312,7 +7315,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 			if(matchPossible)
 				REQUIRE( result==2 );
 			else
-				REQUIRE( result==s2.noMatch );			
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromFirstMatch")
@@ -7337,7 +7340,7 @@ inline void testReverseFindOneOfString(const StringType& toFindObj, bool matchPo
 template<class StringType, class ToFindType>
 inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg, bool matchPossible)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -7355,57 +7358,57 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 	SECTION("fromEnd")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.length(), toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-npos")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.npos, toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromAfterEnd")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, s.length()+1, toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 	SECTION("fromMatch")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 2, toFindLength );
-				
+
 		if(matchPossible)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 1, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
 	{
 		size_t result = callReverseFindOneOf(s, toFind, 0, toFindLength );
-				
+
 		REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("withMultipleMatches")
 	{
@@ -7469,7 +7472,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 			if(matchPossible)
 				REQUIRE( result==2 );
 			else
-				REQUIRE( result==s2.noMatch );			
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromFirstMatch")
@@ -7495,7 +7498,7 @@ inline void testReverseFindOneOfStringWithLength(const StringType& toFindObjArg,
 template<class DATATYPE>
 inline void testReverseFindOneOf()
 {
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
@@ -7538,7 +7541,7 @@ inline void testReverseFindOneOf()
 			SECTION("std::u32string")
 				testReverseFindOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchPossible);
 
-			
+
 			SECTION("const char*")
 				testReverseFindOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchPossible);
 
@@ -7566,7 +7569,7 @@ inline void testReverseFindOneOf()
 
 
 		}
-	}	
+	}
 }
 
 
@@ -7576,8 +7579,8 @@ inline void testReverseFindOneOf()
 
 template<class DATATYPE>
 inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool matchThirdChar, bool matchAllChars)
-{	
-	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");		
+{
+	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
 
@@ -7587,12 +7590,12 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 		if(matchAllChars)
 			REQUIRE( it==s.end()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( it==s.begin()+2 );
 
 		else
-			REQUIRE( it==s.end() );				
+			REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromMatch")
@@ -7604,7 +7607,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 		else
 			REQUIRE( it==s.end() );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindNotOneOf(toFind.begin(), toFind.end(), s.begin()+1 );
@@ -7662,7 +7665,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+11 );
-					
+
 			else if(matchThirdChar)
 				REQUIRE( it==s2.begin()+2 );
 
@@ -7676,7 +7679,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 
 			if(matchAllChars)
 				REQUIRE( it==s2.begin()+3 );
-					
+
 			else if(matchThirdChar)
 				REQUIRE( it==s2.begin()+2 );
 
@@ -7692,7 +7695,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 				REQUIRE( it==s2.begin()+2 );
 
 			else
-				REQUIRE( it==s2.end() );			
+				REQUIRE( it==s2.end() );
 		}
 
 		SECTION("fromJustBeforeFirstMatch")
@@ -7700,7 +7703,7 @@ inline void testReverseFindNotOneOfIterators(const std::u32string& toFind, bool 
 			typename StringImpl<DATATYPE>::Iterator it = s2.reverseFindNotOneOf(toFind.begin(), toFind.end(), s2.begin()+1 );
 
 			if(matchAllChars)
-				REQUIRE( it==s2.begin()+1 );					
+				REQUIRE( it==s2.begin()+1 );
 
 			else
 				REQUIRE( it==s2.end() );
@@ -7723,7 +7726,7 @@ size_t callReverseFindNotOneOf(const StringType& s, Args... args)
 template<class StringType, class ToFindType>
 inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matchThirdChar, bool matchAllChars)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -7735,12 +7738,12 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-moreThanLength")
@@ -7749,12 +7752,12 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );		
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-npos")
@@ -7763,14 +7766,14 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("fromEnd-defaultArg")
 	{
@@ -7778,33 +7781,33 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );			
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromMatch")
 	{
 		size_t result = callReverseFindNotOneOf(s, toFind, 2 );
-				
+
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		size_t result = callReverseFindNotOneOf(s, toFind, 1 );
 
 		if(matchAllChars)
 			REQUIRE( result==1 );
-				
+
 		else
-			REQUIRE( result==StringType::noMatch );						
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
@@ -7812,12 +7815,12 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 		size_t result = callReverseFindNotOneOf(s, toFind, 0 );
 
 		if(matchAllChars)
-			REQUIRE( result==0 );				
+			REQUIRE( result==0 );
 
 		else
-			REQUIRE( result==StringType::noMatch );		
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("withMultipleMatches")
 	{
@@ -7830,12 +7833,12 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==s2.noMatch );		
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromAfterEnd")
@@ -7844,12 +7847,12 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==s2.noMatch );		
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromEnd-npos")
@@ -7858,7 +7861,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
@@ -7872,7 +7875,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
@@ -7896,7 +7899,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==2 );
 
@@ -7910,7 +7913,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==2 );
 
@@ -7933,7 +7936,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 			size_t result = callReverseFindNotOneOf(s2, toFind, 1 );
 
 			if(matchAllChars)
-				REQUIRE( result==1 );				
+				REQUIRE( result==1 );
 
 			else
 				REQUIRE( result==s2.noMatch );
@@ -7944,7 +7947,7 @@ inline void testReverseFindNotOneOfString(const StringType& toFindObj, bool matc
 template<class StringType, class ToFindType>
 inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjArg, bool matchThirdChar, bool matchAllChars)
 {
-	StringType			stringObj(U"he\U00012345loworld");		
+	StringType			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 
@@ -7957,20 +7960,20 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 	toFindObj += U"hexy";
 
 	toFind = (ToFindType)toFindObj;
-	
-	
+
+
 	SECTION("fromEnd")
 	{
 		size_t result = callReverseFindNotOneOf(s, toFind, s.getLength(), toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-moreThanLength")
@@ -7979,12 +7982,12 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );		
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromEnd-npos")
@@ -7993,34 +7996,34 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 		if(matchAllChars)
 			REQUIRE( result==s.getLength()-1 );
-				
+
 		else if(matchThirdChar)
 			REQUIRE( result==2 );
 
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("fromMatch")
 	{
 		size_t result = callReverseFindNotOneOf(s, toFind, 2, toFindLength );
-				
+
 		if(matchThirdChar || matchAllChars)
 			REQUIRE( result==2 );
 		else
-			REQUIRE( result==StringType::noMatch );				
+			REQUIRE( result==StringType::noMatch );
 	}
-			
+
 	SECTION("fromBeforeMatch")
 	{
 		size_t result = callReverseFindNotOneOf(s, toFind, 1, toFindLength );
 
 		if(matchAllChars)
 			REQUIRE( result==1 );
-				
+
 		else
-			REQUIRE( result==StringType::noMatch );						
+			REQUIRE( result==StringType::noMatch );
 	}
 
 	SECTION("fromBegin")
@@ -8028,12 +8031,12 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 		size_t result = callReverseFindNotOneOf(s, toFind, 0, toFindLength );
 
 		if(matchAllChars)
-			REQUIRE( result==0 );				
+			REQUIRE( result==0 );
 
 		else
-			REQUIRE( result==StringType::noMatch );		
+			REQUIRE( result==StringType::noMatch );
 	}
-	
+
 
 	SECTION("withMultipleMatches")
 	{
@@ -8046,12 +8049,12 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==s2.noMatch );		
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromAfterEnd")
@@ -8060,12 +8063,12 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
 			else
-				REQUIRE( result==s2.noMatch );		
+				REQUIRE( result==s2.noMatch );
 		}
 
 		SECTION("fromEnd-npos")
@@ -8074,7 +8077,7 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 			if(matchAllChars)
 				REQUIRE( result==s2.getLength()-1 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==12 );
 
@@ -8099,7 +8102,7 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 			if(matchAllChars)
 				REQUIRE( result==11 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==2 );
 
@@ -8113,7 +8116,7 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 
 			if(matchAllChars)
 				REQUIRE( result==3 );
-				
+
 			else if(matchThirdChar)
 				REQUIRE( result==2 );
 
@@ -8136,7 +8139,7 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 			size_t result = callReverseFindNotOneOf(s2, toFind, 1, toFindLength );
 
 			if(matchAllChars)
-				REQUIRE( result==1 );				
+				REQUIRE( result==1 );
 
 			else
 				REQUIRE( result==s2.noMatch );
@@ -8149,8 +8152,8 @@ inline void testReverseFindNotOneOfStringWithLength(const StringType& toFindObjA
 template<class StringType>
 inline void testFindLastNotOfChar()
 {
-	StringType			stringObj(U"he\U00012345loworld");		
-	StringType			emptyObj(U"");		
+	StringType			stringObj(U"he\U00012345loworld");
+	StringType			emptyObj(U"");
 	// use const references for the test to ensure that the functions are const
 	const StringType&	s = stringObj;
 	const StringType&	empty = emptyObj;
@@ -8202,10 +8205,10 @@ inline void testFindLastNotOfChar()
 template<class DATATYPE>
 inline void testReverseFindNotOneOf()
 {
-	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
 	const StringImpl<DATATYPE>&	s = stringObj;
-	
+
 
 	struct MatchData
 	{
@@ -8245,7 +8248,7 @@ inline void testReverseFindNotOneOf()
 			SECTION("std::u32string")
 				testReverseFindNotOneOfString<StringImpl<DATATYPE>, std::u32string >( matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
-			
+
 			SECTION("const char*")
 				testReverseFindNotOneOfString<StringImpl<DATATYPE>, const char*>(matchData.matchString, matchData.matchThirdChar, matchData.matchAllChars);
 
@@ -8273,7 +8276,7 @@ inline void testReverseFindNotOneOf()
 
 
 		}
-	}	
+	}
 
 
 	SECTION("char")
@@ -8290,7 +8293,7 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 	REQUIRE( s==expectedResult );
 	REQUIRE( replacedCount==expectedReplacedCount );
 }
-	
+
 
 
 template<class StringType>
@@ -8342,51 +8345,51 @@ inline void testFindReplace(const StringType& inString, const char32_t* toFindAr
 template<class DATATYPE>
 inline void testFindReplace()
 {
-	StringImpl<DATATYPE>	s(U"he\U00012345loworld");		
+	StringImpl<DATATYPE>	s(U"he\U00012345loworld");
 
 	SECTION("none")
-		testFindReplace( s, U"x", U"y", 0, U"he\U00012345loworld" );		
+		testFindReplace( s, U"x", U"y", 0, U"he\U00012345loworld" );
 
 	SECTION("oneOccurrenceOneCharWithOne")
-		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );		
+		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );
 
 	SECTION("oneOccurrenceOneCharWithMulti")
-		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );		
+		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );
 
 
 	SECTION("twoOccurrencesOneCharWithOne")
-		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );		
+		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );
 
 	SECTION("oneOccurrenceMultiCharsWithOne")
-		testFindReplace( s, U"\U00012345low", U"\U00023456", 1, U"he\U00023456orld" );		
+		testFindReplace( s, U"\U00012345low", U"\U00023456", 1, U"he\U00023456orld" );
 
 	SECTION("oneOccurrenceMultiCharsWithMulti")
-		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 1, U"he\U00023456xyorld" );		
+		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 1, U"he\U00023456xyorld" );
 
 	SECTION("multiOccurrencesMultiCharsWithMulti")
 	{
 		s = U"\U00012345low\U00012345low\U00012345low";
 
-		testFindReplace( s, U"\U00012345low", U"xy", 3, U"xyxyxy" );		
+		testFindReplace( s, U"\U00012345low", U"xy", 3, U"xyxyxy" );
 	}
 
 
 	SECTION("replaceWithEqualsToFind")
-		testFindReplace( s, U"wor", U"wor", 1, U"he\U00012345loworld" );		
+		testFindReplace( s, U"wor", U"wor", 1, U"he\U00012345loworld" );
 
 	SECTION("replaceWithContainsToFind")
-		testFindReplace( s, U"wor", U"xyworxy", 1, U"he\U00012345loxyworxyld" );		
+		testFindReplace( s, U"wor", U"xyworxy", 1, U"he\U00012345loxyworxyld" );
 
 	SECTION("inEmpty")
 	{
 		s = U"";
 
-		testFindReplace( s, U"wor", U"xyworxy", 0, U"" );		
+		testFindReplace( s, U"wor", U"xyworxy", 0, U"" );
 	}
 
 
 	SECTION("toFindEmpty")
-		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loworld" );		
+		testFindReplace( s, U"", U"xyworxy", 0, U"he\U00012345loworld" );
 
 	SECTION("chars")
 	{
@@ -8418,7 +8421,7 @@ inline void testFindReplace()
 			int replacedCount = s.findReplace( 'x', 'y' );
 			REQUIRE( s==U"" );
 			REQUIRE( replacedCount==0 );
-		}		
+		}
 	}
 }
 
@@ -8462,7 +8465,7 @@ void verifyContains(const StringType& s, const char32_t* arg, bool expectedResul
 template<class StringType>
 inline void testContainsString()
 {
-	StringType	s(U"he\U00012345loworldor");		
+	StringType	s(U"he\U00012345loworldor");
 
 	SECTION("noMatch")
 	{
@@ -8513,17 +8516,17 @@ inline void testContainsString()
 template<class StringType>
 inline void testContainsChar()
 {
-	StringType	s(U"he\U00012345loworldor");		
-	
+	StringType	s(U"he\U00012345loworldor");
+
 	SECTION("noMatch")
 		REQUIRE( s.contains( U'\U00023643' ) == false );
 
 	SECTION("oneMatch")
 		REQUIRE( s.contains( U'\U00012345' ) == true );
-	
+
 	SECTION("multiMatches")
 		REQUIRE( s.contains( 'o' ) == true );
-	
+
 	SECTION("inEmpty")
 	{
 		s = U"";
@@ -8580,7 +8583,7 @@ inline void testSplitOffTokenString()
 	for( auto sepsIt = testSeps.begin(); sepsIt!=testSeps.end(); ++sepsIt)
 	{
 		StringType sepsObj = *sepsIt;
-		
+
 		SECTION(sepsObj)
 		{
 			ArgType    seps = (ArgType)sepsObj;
@@ -8677,7 +8680,7 @@ inline void verifySplitOffWord( StringType& s, const char* expectedWord, const c
 	StringType word = s.splitOffWord();
 	REQUIRE( word==expectedWord );
 	REQUIRE( s==expectedRemaining );
-	
+
 	REQUIRE( word.getLength()==StringType(expectedWord).getLength() );
 	REQUIRE( s.getLength()==StringType(expectedRemaining).getLength() );
 }
@@ -8737,7 +8740,7 @@ inline void testStringImpl()
 		REQUIRE( s!="helloworl" );
 		REQUIRE( s!="elloworld" );
 		REQUIRE( s!="helgoworld" );
-		REQUIRE( s!="helloWorld" );		
+		REQUIRE( s!="helloWorld" );
 	}
 
 	SECTION("isEmpty")
@@ -8760,12 +8763,12 @@ inline void testStringImpl()
 
 	SECTION("subString")
 	{
-		testSubString<DATATYPE>();		
+		testSubString<DATATYPE>();
 	}
 
 	SECTION("iterators")
 	{
-		testIterators<DATATYPE>();		
+		testIterators<DATATYPE>();
 	}
 
 	SECTION("conversion")
@@ -8784,7 +8787,7 @@ inline void testStringImpl()
 		{
 			StringImpl<DATATYPE> s("hello");
 
-			verifyCharAccess(s);			
+			verifyCharAccess(s);
 		}
 
 		SECTION("slice")
@@ -8856,7 +8859,7 @@ inline void testStringImpl()
 		testShrinkToFit<DATATYPE>();
 
 	SECTION("getAllocator")
-		testGetAllocator<DATATYPE>();	
+		testGetAllocator<DATATYPE>();
 
 	SECTION("copy")
 		testCopy<DATATYPE>();
@@ -8869,13 +8872,13 @@ inline void testStringImpl()
 
 	SECTION("reverseFind")
 		testReverseFind<DATATYPE>();
-	
+
 	SECTION("findCondition")
 		testFindCondition<DATATYPE>();
 
 	SECTION("reverseFindCondition")
 		testReverseFindCondition<DATATYPE>();
-	
+
 	SECTION("findOneOf")
 		testFindOneOf<DATATYPE>();
 
@@ -8893,8 +8896,8 @@ inline void testStringImpl()
 
 	SECTION("contains")
 		testContains<DATATYPE>();
-	
-	
+
+
 }
 
 
@@ -8923,10 +8926,10 @@ inline void verifyGlobalConcatenationMoveFromLeft()
 
 	LeftType  left = (LeftType)leftObj;
 	RightType right = (RightType)rightObj;
-	
+
 	String result = std::move(left)+right;
 
-	verifyContents(result, U"helloworld");	
+	verifyContents(result, U"helloworld");
 
 	verifyContents(left, U"");
 	verifyContents(rightObj, U"world");
@@ -9031,34 +9034,34 @@ inline void verifyGlobalComparison()
 	String Hello("Hello");
 	String world("world");
 
-	
+
 	REQUIRE( ( ((LeftType)hello) < ((RightType)world) ) );
 	REQUIRE( ( ((LeftType)hello) <= ((RightType)world) ) );
 	REQUIRE( !( ((LeftType)hello) == ((RightType)world) ) );
 	REQUIRE( ( ((LeftType)hello) != ((RightType)world) ) );
 	REQUIRE( !( ((LeftType)hello) > ((RightType)world) ) );
 	REQUIRE( !( ((LeftType)hello) >= ((RightType)world) ) );
-	
+
 	REQUIRE( !( ((LeftType)hello) < ((RightType)hello2) ) );
 	REQUIRE( ( ((LeftType)hello) <= ((RightType)hello2) ) );
 	REQUIRE( ( ((LeftType)hello) == ((RightType)hello2) ) );
 	REQUIRE( !( ((LeftType)hello) != ((RightType)hello2) ) );
 	REQUIRE( !( ((LeftType)hello) > ((RightType)hello2) ) );
 	REQUIRE( ( ((LeftType)hello) >= ((RightType)hello2) ) );
-	
+
 	REQUIRE( !( ((LeftType)world) < ((RightType)hello) ) );
 	REQUIRE( !( ((LeftType)world) <= ((RightType)hello) ) );
 	REQUIRE( !( ((LeftType)world) == ((RightType)hello) ) );
 	REQUIRE( ( ((LeftType)world) != ((RightType)hello) ) );
 	REQUIRE( ( ((LeftType)world) > ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)world) >= ((RightType)hello) ) );	
+	REQUIRE( ( ((LeftType)world) >= ((RightType)hello) ) );
 
 	REQUIRE( ( ((LeftType)Hello) < ((RightType)hello) ) );
 	REQUIRE( ( ((LeftType)Hello) <= ((RightType)hello) ) );
 	REQUIRE( !( ((LeftType)Hello) == ((RightType)hello) ) );
 	REQUIRE( ( ((LeftType)Hello) != ((RightType)hello) ) );
 	REQUIRE( !( ((LeftType)Hello) > ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)Hello) >= ((RightType)hello) ) );	
+	REQUIRE( !( ((LeftType)Hello) >= ((RightType)hello) ) );
 }
 
 
@@ -9122,13 +9125,13 @@ inline void testGlobalComparison()
 template<class CharType>
 inline void testStreamOutput()
 {
-	
+
 }
 
 
 template<class CharType>
 inline void verifyStreamIntegration()
-{	
+{
 	SECTION("output")
 	{
 		std::basic_ostringstream<CharType>	stream;
@@ -9136,7 +9139,7 @@ inline void verifyStreamIntegration()
 
 		stream << s;
 
-		REQUIRE( String(stream.str()) == s);		
+		REQUIRE( String(stream.str()) == s);
 	}
 
 	SECTION("input")
@@ -9165,7 +9168,7 @@ inline void verifyStreamIntegration()
 		std::getline( stream, s);
 
 		REQUIRE( s == U"\U00012345hello world");
-		
+
 		std::getline( stream, s);
 
 		REQUIRE( s == U"bla gubbel");
@@ -9181,7 +9184,7 @@ inline void verifyStreamIntegration()
 		std::getline( stream, s, '?');
 
 		REQUIRE( s == U"\U00012345hello world");
-		
+
 		std::getline( stream, s, '?');
 
 		REQUIRE( s == U"bla gubbel");
@@ -9206,7 +9209,7 @@ void testStdSwap()
 	std::swap(a, b);
 
 	REQUIRE( a==U"world" );
-	REQUIRE( b==U"\U00012345hello");	
+	REQUIRE( b==U"\U00012345hello");
 }
 
 TEST_CASE("StringImpl")
@@ -9246,7 +9249,7 @@ TEST_CASE("StringImpl")
 		testStreamIntegration();
 
 	SECTION("std::swap")
-		testStdSwap();	
+		testStdSwap();
 }
 
 

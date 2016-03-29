@@ -37,6 +37,9 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+
+#include <cstring>
+
 #  ifndef CLARA_CONFIG_MAIN
 #    define CLARA_CONFIG_MAIN_NOT_DEFINED
 #    define CLARA_CONFIG_MAIN
@@ -417,7 +420,7 @@ public: // IStream
 };
 
 class DebugOutStream : public IStream {
-	std::auto_ptr<StreamBufBase> m_streamBuf;
+	std::unique_ptr<StreamBufBase> m_streamBuf;
 	mutable std::ostream m_os;
 public:
 	DebugOutStream();
@@ -565,7 +568,7 @@ private:
 	}
 	ConfigData m_data;
 
-	std::auto_ptr<IStream const> m_stream;
+	std::unique_ptr<IStream const> m_stream;
 	TestSpec m_testSpec;
 };
 
@@ -2759,7 +2762,7 @@ private: // IResultCapture
 		m_reporter->sectionStarting( sectionInfo );
 
 		assertions = m_totals.assertions;
-		
+
 		return true;
 	}
 	bool testForMissingAssertions( Counts& assertions ) {
@@ -2778,7 +2781,7 @@ private: // IResultCapture
 
 		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
-		
+
 		if( !m_activeSections.empty() ) {
 			m_activeSections.back()->close();
 			m_activeSections.pop_back();
@@ -2794,7 +2797,7 @@ private: // IResultCapture
 		else
 			m_activeSections.back()->close();
 		m_activeSections.pop_back();
-		
+
 		m_unfinishedSections.push_back( endInfo );
 	}
 
@@ -2888,7 +2891,7 @@ private:
 		catch(...) {
 			m_totals.tests.failed++;
 			ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
-			unexpectedResultBuilder.useActiveException();			
+			unexpectedResultBuilder.useActiveException();
 			INTERNAL_BDN_REACT( unexpectedResultBuilder );
 		}
 		m_testCaseTracker->close();
@@ -4697,7 +4700,7 @@ bool isDebuggerActive(){
 	// We're being debugged if the P_TRACED flag is set.
 
 	bool active = ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-    
+
     return active;
 }
 } // namespace bdn
@@ -5517,7 +5520,7 @@ template<char C>
 char const* getLineOfChars() {
 	static char line[BDN_CONFIG_CONSOLE_WIDTH] = {0};
 	if( !*line ) {
-		memset( line, C, BDN_CONFIG_CONSOLE_WIDTH-1 );
+		std::memset( line, C, BDN_CONFIG_CONSOLE_WIDTH-1 );
 		line[BDN_CONFIG_CONSOLE_WIDTH-1] = 0;
 	}
 	return line;

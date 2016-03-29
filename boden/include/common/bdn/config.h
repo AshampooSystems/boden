@@ -2,6 +2,8 @@
 #define BDN_config_H_
 
 #include <cstdint>
+#include <climits>
+#include <stddef.h>
 
 #if WCHAR_MAX <= 0xffff
 	#define BDN_WCHAR_SIZE 2
@@ -29,7 +31,7 @@
 
 	#if TARGET_OS_IPHONE
 		#define BDN_TARGET_IOS 1
-		#define BDN_TARGET_OSX 0	
+		#define BDN_TARGET_OSX 0
 	#else
 		#define BDN_TARGET_IOS 0
 		#define BDN_TARGET_OSX 1

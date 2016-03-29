@@ -16,6 +16,9 @@ elseif( ANDROID )
 elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )	
 	SET( BODEN_TARGET "windows" )
 
+elseif( CMAKE_SYSTEM_NAME MATCHES "Linux" )	
+	SET( BODEN_TARGET "linux" )
+
 elseif( CMAKE_SYSTEM_NAME MATCHES "Darwin" )	
 	SET( BODEN_TARGET "osx" )
 
@@ -33,7 +36,7 @@ set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+	SET(CMAKE_CXX_FLAGS "-std=c++0x")
 
 endif()
 
@@ -44,6 +47,7 @@ set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
 file( GLOB_RECURSE BODEN_HEADERS ${BODEN_INCDIR}/common/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.h)
+
 file( GLOB_RECURSE BODEN_SOURCES ${BODEN_SRCDIR}/common/*.cpp ${BODEN_SRCDIR}/common/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
 
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )

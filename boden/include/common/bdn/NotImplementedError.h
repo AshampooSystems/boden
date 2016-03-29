@@ -1,7 +1,7 @@
 #ifndef BDN_NotImplementedError_H_
 #define BDN_NotImplementedError_H_
 
-#include <bdn/Error.h>
+#include <stdexcept>
 
 namespace bdn
 {
