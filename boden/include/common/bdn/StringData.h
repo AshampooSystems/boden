@@ -166,7 +166,7 @@ public:
 		@param lengthElements length of the string data in encoded 16 bit elements. If this is -1
 			then the length is auto detected and the string data must be zero-terminated.*/
 	StringData(const char16_t* s, int lengthElements = -1)
-		: StringData(	Utf16Codec<char16_t>(),
+		: StringData(	Utf16Codec(),
 						s,
 						getStringEndPtr(s, lengthElements) )
 	{
@@ -175,7 +175,7 @@ public:
 
 	/** Initializes the object from the specified UTF-16 encoded string.*/
 	StringData(const std::u16string& s)
-		: StringData(	Utf16Codec<char16_t>(),
+		: StringData(	Utf16Codec(),
 						s.begin(),
 						s.end() )
 	{

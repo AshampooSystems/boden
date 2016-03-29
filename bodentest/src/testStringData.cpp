@@ -128,7 +128,7 @@ void testConstruct()
 	{
 		std::u16string s = u"hello";
 
-		StringData<CODEC> data(Utf16Codec<char16_t>(), s.begin(), s.end() );
+		StringData<CODEC> data(Utf16Codec(), s.begin(), s.end() );
 		verifyContents<CODEC>(data, U"hello");
 	}
 
@@ -136,7 +136,7 @@ void testConstruct()
 	{
 		std::u32string s = U"hello";
 
-		StringData<CODEC> data(Utf32Codec<char32_t>(), s.begin(), s.end() );
+		StringData<CODEC> data(Utf32Codec(), s.begin(), s.end() );
 		verifyContents<CODEC>(data, U"hello");
 	}
 
@@ -153,7 +153,7 @@ void testConstruct()
 	{
 		const char16_t* s = u"hello";
 
-		StringData<CODEC> data(Utf16Codec<char16_t>(), s, s+5 );
+		StringData<CODEC> data(Utf16Codec(), s, s+5 );
 		verifyContents<CODEC>(data, U"hello");
 	}
 
@@ -161,7 +161,7 @@ void testConstruct()
 	{
 		const char32_t* s = U"hello";
 
-		StringData<CODEC> data(Utf32Codec<char32_t>(), s, s+5 );
+		StringData<CODEC> data(Utf32Codec(), s, s+5 );
 		verifyContents<CODEC>(data, U"hello");
 	}
 
@@ -298,12 +298,12 @@ TEST_CASE("StringData")
 
 	SECTION("Utf16")
 	{
-		testStringData< Utf16Codec<char16_t> >();
+		testStringData< Utf16Codec >();
 	}
 
 	SECTION("Utf32")
 	{
-		testStringData< Utf32Codec<char32_t> >();
+		testStringData< Utf32Codec >();
 	}
 
 	SECTION("Wchar")

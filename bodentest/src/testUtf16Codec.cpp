@@ -56,7 +56,7 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		testCodecDecodingIterator< Utf16Codec<char16_t> >(encoded, expectedDecoded);
+		testCodecDecodingIterator< Utf16Codec >(encoded, expectedDecoded);
 	}
 }
 
@@ -109,7 +109,7 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		testCodecEncodingIterator<Utf16Codec<char16_t>>( input, expectedUtf16);		
+		testCodecEncodingIterator<Utf16Codec>( input, expectedUtf16);		
 	}
 }
 

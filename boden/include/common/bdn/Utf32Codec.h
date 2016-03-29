@@ -1,129 +1,75 @@
 #ifndef BDN_Utf32Codec_H_
 #define BDN_Utf32Codec_H_
 
-#include <string>
+#include <bdn/Utf32CodecImpl.h>
 
 namespace bdn
 {
 
-/** The Utf-32 string codec.
+/** Implements the Utf-32 string codec.
 
-	\tparam EL specifies the type of the encoded elements. It
-		must be a 32 bit integer type. Usually either char32_t or wchar_t (on systems
-		where wchar_t is 32 bit). The default is char32_t.
+	Note that this class is actually implemented as a typedef to Utf32CodecImpl<char32_t>
 */
-template<class EL = char32_t>
+#ifdef BDN_GENERATING_DOCS
+
 class Utf32Codec
 {
 public:
 
-	/** The encoded element type. This is a 32 bit integer type, defined by the template parameter EL.*/
-	typedef EL EncodedElement;
+	/** The encoded element type. This is a 32 bit integer type.*/
+	typedef char32_t EncodedElement;
 
 
 	/** The std string type for the encoded string.*/
-	typedef std::basic_string<EncodedElement> EncodedString;
+	typedef std::u32string EncodedString;
 
 
 	/** Returns the maximum number of encoded elements that can be needed for a character.*/
 	static int getMaxEncodedElementsPerCharacter()
 	{
-		return 1;
+		return 2;
 	}
 
 
-	/** A character iterator that decodes UTF-32 data into Unicode characters (also char32_t).
-
-		Implementation note:
-		This does not actually do any real decoding work, since UTF-32 stores all characters in a plain 1:1 way.
-		So this class simply passes the UTF-32 elements (=characters) through.
+	/** A character iterator that decodes UTF-16 data from an
+		arbitrary source iterator into Unicode characters (char32_t).
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<	std::bidirectional_iterator_tag,
+	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag,
 													char32_t,
 													std::ptrdiff_t,
-													char32_t*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
+													char32_t*,													
 													char32_t >
 	{
 	public:
-		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt)
-		{
-			_sourceIt = sourceIt;
+		/** @param sourceIt the source iterator that provides the UTF-16 data.
+			@param beginSourceIt an iterator that points to the beginning of the valid source data.
+				The implementation uses this to avoid overshooting the data boundaries if the UTF-16 data is corrupted.
+				This is often the same as sourceIt.
+			@param endSourceIt an iterator that points to the end of the valid source data
+				(the position after the last valid source element).
+				The implementation uses this to avoid overshooting the data boundaries if the UTF-16 data is corrupted.
+		*/
+		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt);
+		DecodingIterator();
 
-			// we do not need to store the begin or end iterators, since we cannot overshoot them (unless our caller
-			// advances us even though the end has been reached).
-		}
 
-		DecodingIterator()
-		{
-		}
+		DecodingIterator& operator++();
+		DecodingIterator operator++(int);
 
-		DecodingIterator& operator++()
-		{
-			++_sourceIt;
-			return *this;
-		}
+		DecodingIterator& operator--();
+		DecodingIterator operator--(int);
 
-		DecodingIterator operator++(int)
-		{
-			DecodingIterator oldVal(*this);
+		char32_t operator*() const;
 
-			operator++();
-
-			return oldVal;			
-		}
-
-		DecodingIterator& operator--()
-		{
-			_sourceIt--;
-			return *this;
-		}
-
-		DecodingIterator operator--(int)
-		{
-			DecodingIterator oldVal(*this);
-
-			operator--();
-
-			return oldVal;			
-		}
-
-		char32_t operator*() const
-		{
-			return *_sourceIt;
-		}
-
-		bool operator==(const DecodingIterator& o) const
-		{
-			return (_sourceIt==o._sourceIt);
-		}
-
-		bool operator!=(const DecodingIterator& o) const
-		{
-			return !operator==(o);
-		}
+		bool operator==(const DecodingIterator& o) const;
+		bool operator!=(const DecodingIterator& o) const;
 
 
 		/** Returns an iterator to the inner encoded string that the decoding iterator is working on.
 			The inner iterator points to the first encoded element of the character, that the decoding
 			iterator is currently pointing to.*/
-		const SourceIterator& getInner() const
-		{
-			return _sourceIt;
-		}
-
-	protected:
-		SourceIterator  _sourceIt;
+		const SourceIterator& getInner() const;
 	};
 
 
@@ -134,97 +80,39 @@ public:
 
 
 
-	/** Encodes unicode characters to UTF-32.
-
-		Implementation note:
-		This does not actually do any real encoding work, since UTF-32 stores all characters in a plain 1:1 way.
-		So this class simply passes the UTF-32 elements (=characters) through.
-	*/
+	/** Encodes unicode characters to UTF-16.*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag,
-													EncodedElement,
+	class EncodingIterator : public std::iterator<	std::bidirectional_iterator_tag,
+													char32_t,
 													std::ptrdiff_t,
-													EncodedElement*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
-													EncodedElement >
+													char32_t*,
+													char32_t >
 	{
 	public:
-		EncodingIterator(const SourceIterator& sourceIt)
-		{
-			_sourceIt = sourceIt;
-		}
-
-		EncodingIterator()
-		{
-		}
-
-		EncodingIterator& operator++()
-		{
-			++_sourceIt;
-			return *this;
-		}
-
-		EncodingIterator operator++(int)
-		{
-			EncodingIterator oldVal(*this);
-
-			operator++();
-
-			return oldVal;			
-		}
-
-		EncodingIterator& operator--()
-		{
-			--_sourceIt;
-			return *this;
-		}
-
-		EncodingIterator operator--(int)
-		{
-			EncodingIterator oldVal(*this);
-
-			operator--();
-
-			return oldVal;			
-		}
-
-		EncodedElement operator*() const
-		{
-			return *_sourceIt;
-		}
-
-		bool operator==(const EncodingIterator& o) const
-		{
-			return (_sourceIt==o._sourceIt);
-		}
-
-		bool operator!=(const EncodingIterator& o) const
-		{
-			return !operator==(o);
-		}
+		EncodingIterator(const SourceIterator& sourceIt);
+		EncodingIterator();
 
 
-	protected:
-		SourceIterator  _sourceIt;
+		EncodingIterator& operator++();
+		EncodingIterator operator++(int);
+
+		EncodingIterator& operator--();
+		EncodingIterator operator--(int);
+
+		char32_t operator*() const;
+
+		bool operator==(const EncodingIterator<SourceIterator>& o) const;
+		bool operator!=(const EncodingIterator<SourceIterator>& o) const;
 	};
-
-
-
-
 };
+
+#else
+
+typedef Utf32CodecImpl<char32_t> Utf32Codec;
+
+#endif
 
 
 }
 
 #endif
-
-

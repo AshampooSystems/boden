@@ -22,7 +22,7 @@ class Utf32StringData
 
 #else
 
-typedef StringData< Utf32Codec<char32_t> > Utf32StringData;
+typedef StringData< Utf32Codec > Utf32StringData;
 
 #endif
 

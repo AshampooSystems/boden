@@ -2,8 +2,8 @@
 #define BDN_WideCodec_H_
 
 
-#include <bdn/Utf16Codec.h>
-#include <bdn/Utf32Codec.h>
+#include <bdn/Utf16CodecImpl.h>
+#include <bdn/Utf32CodecImpl.h>
 
 namespace bdn
 {
@@ -14,7 +14,7 @@ namespace bdn
 	or UTF-32 (if wchar_t is four bytes - i.e. most other systems).
 
 	Note that WideCodec is actually implemented as a typedef to the actual
-	codec (either Utf16Codec<wchar_t> or Utf32Codec<wchar_t>
+	codec (either Utf16CodecImpl<wchar_t> or Utf32CodecImpl<wchar_t> )
 */
 #ifdef BDN_GENERATING_DOCS
 
@@ -92,10 +92,10 @@ public:
 #else
 
 #if BDN_WCHAR_SIZE==2
-typedef Utf16Codec<wchar_t> WideCodec;
+typedef Utf16CodecImpl<wchar_t> WideCodec;
 
 #elif BDN_WCHAR_SIZE==4
-typedef Utf32Codec<wchar_t> WideCodec;
+typedef Utf32CodecImpl<wchar_t> WideCodec;
 
 #else
 #error Unsupported wchar size

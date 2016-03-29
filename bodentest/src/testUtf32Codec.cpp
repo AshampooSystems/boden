@@ -37,7 +37,7 @@ TEST_CASE( "Utf32Codec", "[string]" )
 	{
 		SECTION(pCurrData->desc)
 		{
-			testCodecDecodingIterator< Utf32Codec<char32_t> >(data, data);
+			testCodecDecodingIterator< Utf32Codec >(data, data);
 		}
 	}
 
@@ -45,7 +45,7 @@ TEST_CASE( "Utf32Codec", "[string]" )
 	{
 		SECTION(pCurrData->desc)
 		{
-			testCodecEncodingIterator< Utf32Codec<char32_t> >(data, data);
+			testCodecEncodingIterator< Utf32Codec >(data, data);
 		}
 	}
 }

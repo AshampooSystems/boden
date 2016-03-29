@@ -1026,8 +1026,8 @@ public:
 	*/
 	int compare(const std::u16string& other) const
 	{
-		return compare( Utf16Codec<char16_t>::DecodingStringIterator(other.begin(), other.begin(), other.end()),
-					    Utf16Codec<char16_t>::DecodingStringIterator(other.end(), other.begin(), other.end()) );
+		return compare( Utf16Codec::DecodingStringIterator(other.begin(), other.begin(), other.end()),
+					    Utf16Codec::DecodingStringIterator(other.end(), other.begin(), other.end()) );
 	}
 
 	/** See compare()
@@ -1036,16 +1036,16 @@ public:
 	{
 		const char16_t* oEnd = getStringEndPtr(other, otherLength);
 
-		return compare( Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(other, other, oEnd),
-						Utf16Codec<char16_t>::DecodingIterator<const char16_t*>(oEnd, other, oEnd) );
+		return compare( Utf16Codec::DecodingIterator<const char16_t*>(other, other, oEnd),
+						Utf16Codec::DecodingIterator<const char16_t*>(oEnd, other, oEnd) );
 	}
 
 	/** See compare()
 	*/
 	int compare(const std::u32string& o) const
 	{
-		return compare( Utf32Codec<char32_t>::DecodingStringIterator(o.begin(), o.begin(), o.end()),
-						Utf32Codec<char32_t>::DecodingStringIterator(o.end(), o.begin(), o.end()) );
+		return compare( Utf32Codec::DecodingStringIterator(o.begin(), o.begin(), o.end()),
+						Utf32Codec::DecodingStringIterator(o.end(), o.begin(), o.end()) );
 	}
 
 	/** See compare()
@@ -1119,7 +1119,7 @@ public:
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::u16string& other) const
 	{
-		return compareEncoded(	Utf16Codec<char16_t>(),
+		return compareEncoded(	Utf16Codec(),
 								compareStartIndex,
 								compareLength,						
 								other.begin(),
@@ -1128,7 +1128,7 @@ public:
 
 	int compare(size_t compareStartIndex, size_t compareLength, const std::u32string& other) const
 	{
-		return compareEncoded(	Utf32Codec<char32_t>(),
+		return compareEncoded(	Utf32Codec(),
 								compareStartIndex,
 								compareLength,						
 								other.begin(),
@@ -1156,7 +1156,7 @@ public:
 
 	int compare(size_t compareStartIndex, size_t compareLength, const char16_t* other, size_t otherLength=toEnd) const
 	{
-		return compareEncoded(	Utf16Codec<char16_t>(),
+		return compareEncoded(	Utf16Codec(),
 								compareStartIndex,
 								compareLength,						
 								other,
@@ -1590,7 +1590,7 @@ public:
 							const char16_t* replaceWith,
 							size_t replaceWithLength = toEnd )
 	{
-		return replaceEncoded(	Utf16Codec<char16_t>(),
+		return replaceEncoded(	Utf16Codec(),
 								rangeStartIndex,
 								rangeLength,						
 								replaceWith,
@@ -1610,7 +1610,7 @@ public:
 							const char16_t* replaceWith,
 							size_t replaceWithLength = toEnd )
 	{
-		return replaceEncoded(	Utf16Codec<char16_t>(),
+		return replaceEncoded(	Utf16Codec(),
 								rangeStart,
 								rangeEnd,						
 								replaceWith,
@@ -1631,7 +1631,7 @@ public:
 							size_t rangeLength,
 							const std::u16string& replaceWith )
 	{
-		return replaceEncoded(	Utf16Codec<char16_t>(),
+		return replaceEncoded(	Utf16Codec(),
 								rangeStartIndex,
 								rangeLength,						
 								replaceWith.begin(),
@@ -1647,7 +1647,7 @@ public:
 							const Iterator& rangeEnd,
 							const std::u16string& replaceWith )
 	{
-		return replaceEncoded(	Utf16Codec<char16_t>(),
+		return replaceEncoded(	Utf16Codec(),
 								rangeStart,
 								rangeEnd,						
 								replaceWith.begin(),
@@ -2225,7 +2225,7 @@ public:
 	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
 	StringImpl& insert(const Iterator& atIt, const std::u16string& other)
 	{
-		return replaceEncoded(Utf16Codec<char16_t>(), atIt, atIt, other.begin(), other.end());
+		return replaceEncoded(Utf16Codec(), atIt, atIt, other.begin(), other.end());
 	}
 
 
@@ -2262,7 +2262,7 @@ public:
 	/** Inserts the specified string at the position corresponding to the \c atIt iterator.*/
 	StringImpl& insert(const Iterator& atIt, const std::u32string& other)
 	{
-		return replaceEncoded(Utf32Codec<char32_t>(), atIt, atIt, other.begin(), other.end());
+		return replaceEncoded(Utf32Codec(), atIt, atIt, other.begin(), other.end());
 	}
 
 
@@ -3077,7 +3077,7 @@ public:
 	*/
 	size_t find(const std::u16string& toFind, size_t searchStartIndex = 0) const
 	{
-		return findEncoded(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return findEncoded(Utf16Codec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 
@@ -3094,7 +3094,7 @@ public:
 	*/
 	size_t find(const std::u32string& toFind, size_t searchStartIndex = 0) const
 	{
-		return findEncoded(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return findEncoded(Utf32Codec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 	
@@ -3157,7 +3157,7 @@ public:
 	*/
 	size_t find (const char16_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return findEncoded(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return findEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
@@ -3178,7 +3178,7 @@ public:
 	*/
 	size_t find (const char32_t* toFind, size_t searchStartIndex = 0, size_t toFindLength = toEnd) const
 	{
-		return findEncoded(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return findEncoded(Utf32Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 
@@ -3503,7 +3503,7 @@ public:
 	*/
 	size_t reverseFind(const std::u16string& toFind, size_t searchStartIndex = npos) const
 	{
-		return reverseFindEncoded(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFindEncoded(Utf16Codec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 	/** Same as reverseFind(). Included for compatibility with std::string. */
@@ -3526,7 +3526,7 @@ public:
 	*/
 	size_t reverseFind(const std::u32string& toFind, size_t searchStartIndex = npos) const
 	{
-		return reverseFindEncoded(Utf32Codec<char32_t>(), toFind.begin(), toFind.end(), searchStartIndex);
+		return reverseFindEncoded(Utf32Codec(), toFind.begin(), toFind.end(), searchStartIndex);
 	}
 
 	/** Same as reverseFind(). Included for compatibility with std::string. */
@@ -3609,7 +3609,7 @@ public:
 	*/
 	size_t reverseFind (const char16_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return reverseFindEncoded(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFindEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 	/** Same as reverseFind(). Included for compatibility with std::string. */
@@ -3636,7 +3636,7 @@ public:
 	*/
 	size_t reverseFind (const char32_t* toFind, size_t searchStartIndex = npos, size_t toFindLength = toEnd) const
 	{
-		return reverseFindEncoded(Utf32Codec<char32_t>(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
+		return reverseFindEncoded(Utf32Codec(), toFind, getStringEndPtr(toFind, toFindLength), searchStartIndex);
 	}
 
 	/** Same as reverseFind(). Included for compatibility with std::string. */
@@ -4004,7 +4004,7 @@ public:
 	*/
 	size_t findOneOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
-		return findOneOfEncoded( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return findOneOfEncoded( Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4020,7 +4020,7 @@ public:
 	*/
 	size_t findOneOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
-		return findOneOfEncoded( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return findOneOfEncoded( Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4075,7 +4075,7 @@ public:
 	*/
 	size_t findOneOf(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
-		return findOneOfEncoded( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return findOneOfEncoded( Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 	/** Searches of the first occurrence of any character in a set of characters.
@@ -4093,7 +4093,7 @@ public:
 
 	size_t findOneOf(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
-		return findOneOfEncoded( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return findOneOfEncoded( Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4293,7 +4293,7 @@ public:
 	*/
 	size_t findNotOneOf(const std::u16string& chars, size_t searchStartIndex=0) const noexcept
 	{
-		return findNotOneOfEncoded( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return findNotOneOfEncoded( Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4309,7 +4309,7 @@ public:
 	*/
 	size_t findNotOneOf(const std::u32string& chars, size_t searchStartIndex=0) const noexcept
 	{
-		return findNotOneOfEncoded( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return findNotOneOfEncoded( Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4363,7 +4363,7 @@ public:
 	*/
 	size_t findNotOneOf(const char16_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
-		return findNotOneOfEncoded( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return findNotOneOfEncoded( Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4381,7 +4381,7 @@ public:
 	*/
 	size_t findNotOneOf(const char32_t* chars, size_t searchStartIndex=0, size_t charsLength=toEnd) const noexcept
 	{
-		return findNotOneOfEncoded( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return findNotOneOfEncoded( Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4578,7 +4578,7 @@ public:
 	*/
 	size_t reverseFindOneOf(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindOneOfEncoded( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return reverseFindOneOfEncoded( Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4595,7 +4595,7 @@ public:
 	*/
 	size_t reverseFindOneOf(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindOneOfEncoded( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return reverseFindOneOfEncoded( Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4652,7 +4652,7 @@ public:
 	*/
 	size_t reverseFindOneOf(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
-		return reverseFindOneOfEncoded( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return reverseFindOneOfEncoded( Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4671,7 +4671,7 @@ public:
 	*/
 	size_t reverseFindOneOf(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
-		return reverseFindOneOfEncoded( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return reverseFindOneOfEncoded( Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4877,7 +4877,7 @@ public:
 	*/
 	size_t reverseFindNotOneOf(const std::u16string& chars, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindNotOneOfEncoded( Utf16Codec<char16_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return reverseFindNotOneOfEncoded( Utf16Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4894,7 +4894,7 @@ public:
 	*/
 	size_t reverseFindNotOneOf(const std::u32string& chars, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindNotOneOfEncoded( Utf32Codec<char32_t>(), chars.begin(), chars.end(), searchStartIndex);
+		return reverseFindNotOneOfEncoded( Utf32Codec(), chars.begin(), chars.end(), searchStartIndex);
 	}
 
 
@@ -4951,7 +4951,7 @@ public:
 	*/
 	size_t reverseFindNotOneOf(const char16_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
-		return reverseFindNotOneOfEncoded( Utf16Codec<char16_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return reverseFindNotOneOfEncoded( Utf16Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -4970,7 +4970,7 @@ public:
 	*/
 	size_t reverseFindNotOneOf(const char32_t* chars, size_t searchStartIndex=npos, size_t charsLength=toEnd) const noexcept
 	{
-		return reverseFindNotOneOfEncoded( Utf32Codec<char32_t>(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
+		return reverseFindNotOneOfEncoded( Utf32Codec(), chars, getStringEndPtr(chars, charsLength), searchStartIndex);
 	}
 
 
@@ -5315,7 +5315,7 @@ public:
 		*/
 	int findReplace(const std::u16string& toFind, const std::u16string& replaceWith)
 	{
-		return findReplaceEncoded(Utf16Codec<char16_t>(), toFind.begin(), toFind.end(), Utf16Codec<char16_t>(), replaceWith.begin(), replaceWith.end() );
+		return findReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5367,7 +5367,7 @@ public:
 		*/
 	int findReplace(const char16_t* toFind, const char16_t* replaceWith)
 	{
-		return findReplaceEncoded(Utf16Codec<char16_t>(), toFind, getStringEndPtr(toFind), Utf16Codec<char16_t>(), replaceWith, getStringEndPtr(replaceWith) );
+		return findReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -5515,7 +5515,7 @@ public:
 
 	StringImpl splitOffToken(const std::u16string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		return splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf16Codec(), separatorChars.begin(), separatorChars.end(), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const std::u32string& separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
@@ -5538,7 +5538,7 @@ public:
 
 	StringImpl splitOffToken(const char16_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
 	{
-		return splitOffTokenEncoded(Utf16Codec<char16_t>(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
+		return splitOffTokenEncoded(Utf16Codec(), separatorChars, getStringEndPtr(separatorChars), returnEmptyTokens, pSeparator );		
 	}
 
 	StringImpl splitOffToken(const char32_t* separatorChars, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)	
