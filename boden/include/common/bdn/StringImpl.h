@@ -5558,7 +5558,10 @@ public:
 
 	
 	template<class InputIterator>
-	StringImpl splitOffToken(const InputIterator& separatorCharsBeginIt, const InputIterator& separatorCharsEndIt, bool returnEmptyTokens=true, char32_t* pSeparator=nullptr)
+	StringImpl splitOffToken(	const InputIterator& separatorCharsBeginIt,
+								const InputIterator& separatorCharsEndIt,
+								bool returnEmptyTokens=true,
+								char32_t* pSeparator=nullptr)
 	{
 		_lengthIfKnown = -1;
 		_pDataInDifferentEncoding = nullptr;
