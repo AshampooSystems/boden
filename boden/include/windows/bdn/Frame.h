@@ -1,57 +1,56 @@
 #ifndef BDN_Frame_H_
 #define BDN_Frame_H_
 
-#include <bdn/Base.h>
+#include <bdn/init.h>
 #include <bdn/IWindow.h>
-
 
 #include <windows.h>
 
 namespace bdn
 {
 
-	class Frame : public Base, virtual public IWindow
+class Frame : public Base, virtual public IWindow
+{
+public:
+	Frame()
 	{
-	public:
-		Frame()
-		{
-			WNDCLASSEX cls;
+		WNDCLASSEX cls;
 
-			memset(&cls, 0, sizeof(cls));
-			cls.cbSize = sizeof(cls);
-			cls.lpfnWndProc = windowProc;
-			cls.lpszClassName = L"bodenFrame";
-			cls.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
+		memset(&cls, 0, sizeof(cls));
+		cls.cbSize = sizeof(cls);
+		cls.lpfnWndProc = windowProc;
+		cls.lpszClassName = L"bodenFrame";
+		cls.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
 
-			::RegisterClassEx(&cls);
+		::RegisterClassEx(&cls);
 
-			_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, L"Hello", WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
-		}
+		_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, L"Hello", WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
+	}
 
 
-		HWND getHandle()
-		{
-			return _handle;
-		}
+	HWND getHandle()
+	{
+		return _handle;
+	}
 
 		
-		virtual void show(bool visible = true) override
-		{
-			::ShowWindow(_handle, visible ? SW_SHOW : SW_HIDE);
-		}
+	virtual void show(bool visible = true) override
+	{
+		::ShowWindow(_handle, visible ? SW_SHOW : SW_HIDE);
+	}
 
-		virtual void hide() override
-		{
-			show(false);
-		}
+	virtual void hide() override
+	{
+		show(false);
+	}
 
-	protected:
+protected:
 
-		static LRESULT CALLBACK windowProc(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK windowProc(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam);
 		
 
-		HWND _handle;
-	};
+	HWND _handle;
+};
 
 
 }
