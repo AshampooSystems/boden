@@ -12,13 +12,15 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 {
 	struct SubTestData
 	{
-		const char16_t*	utf16;
-		const char32_t*	expectedDecoded;
+		std::u16string	utf16;
+		std::u32string	expectedDecoded;
 		const char*		desc;
 	};
 
 	SubTestData allData[] = {	{ u"", U"", "empty" },
-								{ u"\u0000", U"\u0000", "zero char" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::u16string(u"\0", 1), std::u32string(U"\0", 1), "zero char" },
 								{ u"h", U"h", "ascii char" },
 								{ u"hx", U"hx", "ascii 2 chars" },
 								{ u"\u0345", U"\u0345", "non-ascii below surrogate range" },
@@ -27,7 +29,7 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 								{ u"\uE000", U"\uE000", "above surrogate range A" },
 								{ u"\uF123", U"\uF123", "above surrogate range B" },
 								{ u"\uFFFF", U"\uFFFF", "above surrogate range C" },
-								
+
 								{ u"\xD801", U"\ufffd", "only high surrogate" },
 								{ u"\xDC37", U"\ufffd", "only low surrogate" },
 
@@ -65,17 +67,20 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 TEST_CASE( "Utf16Codec.encoding", "[string]" )
 {
 	struct SubTestData
-	{		
-		const char32_t*	input;
-		const char16_t*	expectedUtf16;
+	{
+		std::u32string	input;
+		std::u16string	expectedUtf16;
 		const char*		desc;
+
+		int             inputChars;
+
 	};
 
-	SubTestData allData[] = {	{ U"", u"", "empty" },		
-								{ U"\u0000", u"\x00", "zero char" },
+	SubTestData allData[] = {	{ U"", u"", "empty" },
+								{ std::u32string(U"\0", 1), std::u16string(u"\x00", 1), "zero char" },
 								{ U"h", u"h", "ascii char" },
 								{ U"hx", u"hx", "ascii 2 chars" },
-								{ U"\u0181", u"\u0181", "non-ascii single" },								
+								{ U"\u0181", u"\u0181", "non-ascii single"},
 								{ U"\u0181\u0810", u"\u0181\u0810", "two singles" },
 								{ U"\U0000e000", u"\U0000e000", "single above surrogate range A" },
 								{ U"\U0000ffff", u"\U0000ffff", "single above surrogate range B" },
@@ -103,13 +108,11 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 
 	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
 
-	std::u32string input(pCurrData->input);
-	std::u16string expectedUtf16(pCurrData->expectedUtf16);
 
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		testCodecEncodingIterator<Utf16Codec>( input, expectedUtf16);		
+		testCodecEncodingIterator<Utf16Codec>( pCurrData->input, pCurrData->expectedUtf16);
 	}
 }
 

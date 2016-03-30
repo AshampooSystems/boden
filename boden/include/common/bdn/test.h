@@ -1972,10 +1972,16 @@ namespace bdn {
 
 #if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
 #define BDN_PLATFORM_MAC
+
 #elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 #define BDN_PLATFORM_IPHONE
+
 #elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
 #define BDN_PLATFORM_WINDOWS
+
+#else
+#define BDN_PLATFORM_UNIX
+
 #endif
 
 #include <string>
@@ -1991,24 +1997,58 @@ namespace bdn{
 
     // The following code snippet based on:
     // http://cocoawithlove.com/2008/03/break-into-debugger.html
-    #if defined(BDN_DEBUG)
-
-        #if defined(__ppc64__) || defined(__ppc__)
-            #define BDN_BREAK_INTO_DEBUGGER() \
-                if( bdn::isDebuggerActive() ) { \
-                    __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
-                    : : : "memory","r0","r3","r4" ); \
-                }
-        #else
-            #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) {__asm__("int $3\n" : : );}
-        #endif
+    #if defined(__ppc64__) || defined(__ppc__)
+        #define BDN_BREAK_INTO_DEBUGGER() \
+            if( bdn::isDebuggerActive() ) { \
+                __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
+                : : : "memory","r0","r3","r4" ); \
+            }
+    #else
+        #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) {__asm__("int $3\n" : : );}
     #endif
 
 #elif defined(_MSC_VER)
     #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { __debugbreak(); }
+
 #elif defined(__MINGW32__)
     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
     #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
+
+#elif defined(BDN_PLATFORM_UNIX)
+
+    // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
+    // However, we do not need it since we can raise a SIGTRAP that
+    // will stop a debugger and not have any effect on
+    // a program that is not being debugged. For that
+    // we disable the SIGTRAP for the process,
+    // and then raise that signal. If the process is being debugged
+    // the signal will be delivered to the debugger instead
+	// of this process and cause it to break.
+	// If not it is ignored.
+	// Note that we simply disable the SIGTRAP signal and leave
+	// it at that. It is only used for debugging and if we are
+	// not debugged it should not be a problem to ignore it.
+	// If we were to restore the old signal action then we'd have
+	// to deal with race conditions when multiple threads execute
+	// a debugBreak at the same time.
+
+	#include <signal.h>
+
+	inline void raiseSigTrap()
+	{
+        struct sigaction newAction;
+
+        newAction.sa_handler = SIG_IGN;
+        sigemptyset(&newAction.sa_mask);
+        newAction.sa_flags = 0;
+
+        int result = sigaction(SIGTRAP, &newAction, NULL);
+        if(result==0)
+            raise(SIGTRAP);
+	}
+
+	#define BDN_BREAK_INTO_DEBUGGER() raiseSigTrap();
+
 #endif
 
 #ifndef BDN_BREAK_INTO_DEBUGGER

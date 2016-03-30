@@ -451,7 +451,7 @@ struct ConfigData {
 		listReporters( false ),
 		listTestNamesOnly( false ),
 		showSuccessfulTests( false ),
-		shouldDebugBreak( false ),
+		doNotDebugBreak( false ),
 		noThrow( false ),
 		showHelp( false ),
 		showInvisibles( false ),
@@ -471,7 +471,7 @@ struct ConfigData {
 	bool listTestNamesOnly;
 
 	bool showSuccessfulTests;
-	bool shouldDebugBreak;
+	bool doNotDebugBreak;
 	bool noThrow;
 	bool showHelp;
 	bool showInvisibles;
@@ -530,7 +530,7 @@ public:
 
 	std::string getProcessName() const { return m_data.processName; }
 
-	bool shouldDebugBreak() const { return m_data.shouldDebugBreak; }
+	bool shouldDebugBreak() const { return !m_data.doNotDebugBreak; }
 
 	std::vector<std::string> getReporterNames() const { return m_data.reporterNames; }
 
@@ -1523,9 +1523,9 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 		.describe( "include successful tests in output" )
 		.bind( &ConfigData::showSuccessfulTests );
 
-	cli["-b"]["--break"]
-		.describe( "break into debugger on failure" )
-		.bind( &ConfigData::shouldDebugBreak );
+	cli["--no-break"]
+		.describe( "do not break into debugger on failure" )
+		.bind( &ConfigData::doNotDebugBreak );
 
 	cli["-e"]["--nothrow"]
 		.describe( "skip exception tests" )

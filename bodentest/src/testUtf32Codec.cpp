@@ -12,12 +12,14 @@ TEST_CASE( "Utf32Codec", "[string]" )
 {
 	struct SubTestData
 	{
-		const char32_t* utf32;
-		const char*		desc;
+		const std::u32string    utf32;
+		const char*		        desc;
 	};
 
 	SubTestData allData[] = {	{ U"", "empty" },
-								{ U"\u0000", "zero char" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::u32string(U"\0", 1), "zero char" },
 								{ U"h", "ascii char" },
 								{ U"hx", "ascii 2 chars" },
 								{ U"\U00024B62", "non-ascii" },

@@ -7,25 +7,25 @@
 
 namespace bdn
 {
-    
+
 TEST_CASE( "WideCodecType", "[string]" )
 {
 #if BDN_TARGET_WINDOWS
     REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
-        
+
 #else
     REQUIRE( typeid(WideCodec) == typeid(Utf32CodecImpl<wchar_t>) );
-        
+
 #endif
 }
-        
+
 
 TEST_CASE( "WideCodec", "[string]" )
 {
 	struct SubTestData
 	{
-		const wchar_t*	wdata;
-		const char32_t*	expectedDecoded;
+		std::wstring	wdata;
+		std::u32string	expectedDecoded;
 		const char*		desc;
 	};
 
@@ -33,9 +33,11 @@ TEST_CASE( "WideCodec", "[string]" )
 	// We cannote really test incorrect encoding without knowledge of the encoding.
 	// Note that this is not a problem because WideCodec is only a typedef for one
 	// of the other codecs, which are all tested more in-depth.
-    
+
 	SubTestData allData[] = {	{ L"", U"", "empty" },
-								{ L"\u0000", U"\u0000", "zero char" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::wstring(L"\0", 1), std::u32string(U"\0", 1), "zero char" },
 								{ L"h", U"h", "ascii char" },
 								{ L"hx", U"hx", "ascii 2 chars" },
 								{ L"\u0345", U"\u0345", "non-ascii below surrogate range" },
@@ -56,7 +58,7 @@ TEST_CASE( "WideCodec", "[string]" )
 	SECTION("decoding")
 	{
 		SECTION(pCurrData->desc)
-		{	
+		{
 			testCodecDecodingIterator< WideCodec >(encoded, expectedDecoded);
 		}
 	}
@@ -64,7 +66,7 @@ TEST_CASE( "WideCodec", "[string]" )
 	SECTION("encoding")
 	{
 		SECTION(pCurrData->desc)
-		{	
+		{
 			testCodecEncodingIterator< WideCodec >(expectedDecoded, encoded);
 		}
 	}

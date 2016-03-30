@@ -88,6 +88,11 @@ def main():
     if "CodeBlocks - Unix Makefiles" in generatorNames:
         generatorAliasMap["codeblocks"] = "CodeBlocks - Unix Makefiles"
 
+
+    if "CodeLite - Unix Makefiles" in generatorNames:
+        generatorAliasMap["codelite"] = "CodeLite - Unix Makefiles"
+        
+
     generatorAliasHelp = "Aliases for toolset names:\n";
     for aliasName in sorted( generatorAliasMap.keys() ):
         generatorAliasHelp += "\n%s = %s" % (aliasName, generatorAliasMap[aliasName]);
@@ -178,7 +183,7 @@ the previous execution of generateProjects.py.
 
     fixedConfigList = [];
 
-    if " - " not in fullToolsetName and ("makefile" in fullToolsetName.lower() or "ninja" in fullToolsetName.lower()):
+    if "makefile" in fullToolsetName.lower() or "ninja" in fullToolsetName.lower():
         # per-configuration generator. I.e. the build type (debug/release) is fixed.
         fixedConfigList = ["Debug", "Release"];
     

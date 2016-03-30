@@ -9322,12 +9322,14 @@ TEST_CASE("wideLocaleEncodingConversion")
 
 	struct SubTestData
 	{
-		const wchar_t*	wide;
-		const char*		desc;
+		std::wstring wide;
+		const char*	 desc;
 	};
 
 	SubTestData allData[] = {	{ L"", "empty" },
-								{ L"\u0000", "zero char" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::wstring(L"\0", 1), "zero char" },
 								{ L"h", "ascii char" },
 								{ L"hx", "ascii 2 chars" },
 								{ L"\u0345", "non-ascii below surrogate range" },

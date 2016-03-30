@@ -13,16 +13,18 @@ TEST_CASE( "Utf8Codec.decoding", "[string]" )
 {
 	struct SubTestData
 	{
-		const char*		utf8;
-		const char32_t*	expectedDecoded;
+		std::string		utf8;
+		std::u32string	expectedDecoded;
 		const char*		desc;
 	};
 
 	SubTestData allData[] = {	{ "", U"", "empty" },
-								{ "\u0000", U"\u0000", "zero char" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::string("\0", 1), std::u32string(U"\0", 1), "zero char" },
 								{ "h", U"h", "ascii char" },
 								{ "hi", U"hi", "ascii 2 chars" },
-								{ u8"\u0181", U"\u0181", "2 byte" },								
+								{ u8"\u0181", U"\u0181", "2 byte" },
 								{ u8"\u0810", U"\u0810", "3 bytes"},
 								{ u8"\U00010010", U"\U00010010", "4 bytes"},
 								// C++ literals do not recognize characters in the 5 and 6 byte range.
@@ -68,17 +70,19 @@ TEST_CASE( "Utf8Codec.decoding", "[string]" )
 TEST_CASE( "Utf8Codec.encoding", "[string]" )
 {
 	struct SubTestData
-	{		
-		const char32_t*	input;
-		const char*		expectedUtf8;
+	{
+		std::u32string	input;
+		std::string		expectedUtf8;
 		const char*		desc;
 	};
 
-	SubTestData allData[] = {	{ U"", "", "empty" },		
-								{ U"\u0000", "\x00", "zero char" },
+	SubTestData allData[] = {	{ U"", "", "empty" },
+                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
+                                // Use \0 instead.
+								{ std::u32string(U"\0", 1), std::string("\0", 1), "zero char" },
 								{ U"h", "h", "ascii char" },
 								{ U"hi", "hi", "ascii 2 chars" },
-								{ U"\u0181", u8"\u0181", "2 byte" },								
+								{ U"\u0181", u8"\u0181", "2 byte" },
 								{ U"\u0810", u8"\u0810", "3 bytes"},
 								{ U"\U00010010", u8"\U00010010", "4 bytes"},
 									// C++ literals do not recognize characters in the 5 and 6 byte range.
@@ -98,7 +102,7 @@ TEST_CASE( "Utf8Codec.encoding", "[string]" )
 	// start a section here so that we will know which subtest failed
 	SECTION(pCurrData->desc)
 	{
-		testCodecEncodingIterator<Utf8Codec>( input, expectedUtf8);		
+		testCodecEncodingIterator<Utf8Codec>( input, expectedUtf8);
 	}
 }
 

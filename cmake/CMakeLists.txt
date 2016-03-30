@@ -5,7 +5,9 @@ if(${CMAKE_VERSION} VERSION_GREATER 3.0)
 	cmake_policy(SET CMP0054 NEW)
 endif()
 
+
 project (boden)
+
 
 if( IOS )
 	SET( BODEN_TARGET "ios" )
@@ -57,7 +59,6 @@ add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
 
-
 set( UIDEMO_SRCDIR "../uidemo/src")
 file( GLOB_RECURSE UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
@@ -70,6 +71,7 @@ if(APPLE)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(uidemo ${COCOA_LIBRARY})
 endif()
+
 
 
 set( BODENTEST_SRCDIR "../bodentest/src")
