@@ -8,7 +8,7 @@
 namespace bdn
 {
 
-    
+
 /** Stores a text string and performs operations on it.
 
 	The String class primarily exposes the string as a sequence of fully decoded 32 bit Unicode characters (although other
@@ -16,13 +16,13 @@ namespace bdn
 	As a user of String you should forget about the internal encoding of the data (like UTF-8 or UTF-16 or the like).
 
 	String objects do store their data internally in a certain encoding (like UTF-8 or UTF-16). But
-	they automatically and efficiently decode them for access and only present full characters to the class user.	
+	they automatically and efficiently decode them for access and only present full characters to the class user.
 	This contrasts with the string classes in the standard library (like std::string), which expose the
 	encoded data bytes to the user.
 
 	Since the String methods work with decoded characters, that means that its iterators also return
 	full characters and all lengths and indices etc. refer to character counts and indices as well.
-	
+
 	The String class is 99% code-compatible with std::basic_string and the various variants of std::string.
 	It provides all the same member functions and types with almost the same semantics. Since it exposes the string
 	as a sequence of full 32 bit unicode characters, it is most similar to std::u32string.
@@ -47,8 +47,8 @@ namespace bdn
 	s = t;
 	\endcode
 
-	
-	
+
+
 	When you do need to access raw encoded data (for example, if you want to pass it to a system function
 	or a library that works with encoded strings) then you can call one of the asXYZ functions
 	(e.g. asUtf8(), asUtf8Ptr(), asNative(), ...). The String implementation will provide the data in the requested
@@ -79,7 +79,7 @@ namespace bdn
 
 	- The (hidden) internal primary encoding used for the string data matches the native encoding of the operating system that the
 	  code is running on.
-	
+
 	- When encoded string data is needed (for example, for passing the string to the operating system or a third party library),
 	  it can be provided in any Unicode encoding. If the desired encoding matches the internal encoding used by String
 	  (which is the case for operating system functions) then no conversion is needed and the access is very efficient. If a different
@@ -109,11 +109,11 @@ namespace bdn
 	depending on which encoding is requested. For example, if you call #asUtf8Ptr() on a UTF-16 string
 	then it will automatically create a copy of the data in UTF-8 and return a pointer to that.
 	This copy is cached, so if you request the same encoding again then no further conversion is necessary.
-		
+
 	If you request a different non-native encoding then any previously cached non-native copy is replaced.
 
 	Note that the String will never replace their copy of the data in the primary encoding. That one always remains.
-			
+
 	Note that this class is actually implemented as a typedef to StringImpl<NativeStringData> instead of being
 	derived from it.
 */
@@ -1071,6 +1071,9 @@ namespace std
 	}
 
 
+// g++ before version 5 did not have the move overloads for getline. Work around that bug.
+#if !defined(__GNUC__) || __GNUC__>=5
+
 	/** Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
 	inline std::istream& getline(std::istream&& stream, bdn::String& s, char delimiterChar)
@@ -1097,7 +1100,7 @@ namespace std
 		return stream;
 	}
 
-
+#endif
 
 
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
@@ -1127,6 +1130,11 @@ namespace std
 	}
 
 
+
+// g++ before version 5 did not have the move overloads for getline. Work around that bug.
+#if !defined(__GNUC__) || __GNUC__>=5
+
+
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
 		in a bdn::String object.*/
 	inline std::wistream& getline(std::wistream&& stream, bdn::String& s, wchar_t delimiterChar)
@@ -1153,6 +1161,7 @@ namespace std
 		return stream;
 	}
 
+#endif
 
 	/** Swaps the values of a and b. Behaves as if a.swap(b) was called.
 		This function causes swapping of strings in standard algorithms like std::sort

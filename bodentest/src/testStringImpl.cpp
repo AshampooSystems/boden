@@ -691,16 +691,22 @@ inline void testConversion()
 		SECTION("asPtr")
 		{
 			const char16_t* p = s.asUtf16Ptr();
-			REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( std::u16string(p)==u"he\u0218\u0777\xffffllo" );
 		}
 
 		SECTION("as")
 		{
 			const std::u16string& o = s.asUtf16();
-			REQUIRE( o==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( o==u"he\u0218\u0777\xffffllo" );
 
 			const std::u16string& o2 = s.asUtf16();
-			REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( o2==u"he\u0218\u0777\xffffllo" );
 
 			// must be the same object
 			REQUIRE( &o==&o2 );
@@ -709,7 +715,9 @@ inline void testConversion()
 		SECTION("constPtrConversion")
 		{
 			const char16_t* p( s );
-			REQUIRE( std::u16string(p)==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( std::u16string(p)==u"he\u0218\u0777\xffffllo" );
 
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf16Ptr() );
@@ -718,10 +726,14 @@ inline void testConversion()
 		SECTION("stdStringConversion")
 		{
 			const std::u16string& o = s;
-			REQUIRE( o==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( o==u"he\u0218\u0777\xffffllo" );
 
 			const std::u16string& o2 = s.asUtf16();
-			REQUIRE( o2==u"he\u0218\u0777\uffffllo" );
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( o2==u"he\u0218\u0777\xffffllo" );
 
 			// must be the same object
 			REQUIRE( &o==&o2 );

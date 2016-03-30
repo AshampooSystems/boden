@@ -17,6 +17,10 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 		const char*		desc;
 	};
 
+	// \uFFFF yields and incorrect string with G++ 4.8. So we work around it.
+	char16_t u16ffff[2] = {0xffff, 0};
+	char32_t u32ffff[2] = {0xffff, 0};
+
 	SubTestData allData[] = {	{ u"", U"", "empty" },
                                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                                 // Use \0 instead.
@@ -28,7 +32,9 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 								{ u"\U00024B62", U"\U00024B62", "surrogate pair B" },
 								{ u"\uE000", U"\uE000", "above surrogate range A" },
 								{ u"\uF123", U"\uF123", "above surrogate range B" },
-								{ u"\uFFFF", U"\uFFFF", "above surrogate range C" },
+
+								// \uFFFF yields and incorrect string with G++ 4.8. So we work around it.
+								{ u16ffff, u32ffff, "above surrogate range C" },
 
 								{ u"\xD801", U"\ufffd", "only high surrogate" },
 								{ u"\xDC37", U"\ufffd", "only low surrogate" },
@@ -76,14 +82,24 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 
 	};
 
+
+	// \U0000e000 yields and incorrect string with G++ 4.8. So we work around it.
+	char16_t u16e000[2] = {0xe000, 0};
+	char32_t u32e000[2] = {0xe000, 0};
+
+	// same with \U0000ffff
+	char16_t u16ffff[2] = {0xffff, 0};
+	char32_t u32ffff[2] = {0xffff, 0};
+
 	SubTestData allData[] = {	{ U"", u"", "empty" },
 								{ std::u32string(U"\0", 1), std::u16string(u"\x00", 1), "zero char" },
 								{ U"h", u"h", "ascii char" },
 								{ U"hx", u"hx", "ascii 2 chars" },
 								{ U"\u0181", u"\u0181", "non-ascii single"},
 								{ U"\u0181\u0810", u"\u0181\u0810", "two singles" },
-								{ U"\U0000e000", u"\U0000e000", "single above surrogate range A" },
-								{ U"\U0000ffff", u"\U0000ffff", "single above surrogate range B" },
+								// \U0000e000 yields and incorrect string with G++ 4.8. So we work around it.
+								{ u32e000, u16e000, "single above surrogate range A" },
+								{ u32ffff, u16ffff, "single above surrogate range B" },
 
 								// MSVC in Visual Studio 2015 has a bug that causes it to NOT encode
 								// U00010000 as a pair. Instead it encodes it as 0x0001 0x0000.

@@ -517,7 +517,7 @@ public:
 			if(excessCapacity<0)
 				excessCapacity = 0;
 
-			excessCapacity += pStd->end() - _endIt.getInner();
+			excessCapacity += pStd->cend() - _endIt.getInner();
 
 			excessCapacityCharacters = excessCapacity / MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 		}
@@ -5860,8 +5860,8 @@ protected:
 		{
 			typename MainDataType::EncodedString* pStd = &_pData->getEncodedString();
 
-			if(_beginIt.getInner()!=pStd->begin()
-				|| _endIt.getInner()!=pStd->end() )
+			if(_beginIt.getInner()!=pStd->cbegin()
+				|| _endIt.getInner()!=pStd->cend() )
 			{
 				// we are working on a substring of the data. Throw away the other parts.
 				// Note that we want to avoid re-allocation, so we want to do this in place.
@@ -5869,10 +5869,22 @@ protected:
 				// Unfortunately, cutting off from the end will invalidate our begin iterator,
 				// so we need to save its value as an index.
 
-				int startIndex = _beginIt.getInner() - pStd->begin();
+				int startIndex = _beginIt.getInner() - pStd->cbegin();
 
-				if(_endIt.getInner()!=pStd->end())
-					pStd->erase( _endIt.getInner(), pStd->end() );
+				if(_endIt.getInner()!=pStd->cend())
+				{
+                    // there is a bug in g++ 4.8. Erase only takes normal iterators, instead of const_iterators.
+                    // work around it.
+                    #if defined(__GNUC__) && __GNUC__ < 5
+
+                    pStd->erase( pStd->begin() + (_endIt.getInner()-pStd->cbegin()), pStd->end() );
+
+                    #else
+
+					pStd->erase( _endIt.getInner(), pStd->cend() );
+
+					#endif
+                }
 
 				if(startIndex>0)
 					pStd->erase( pStd->begin(), pStd->begin()+startIndex );

@@ -24,7 +24,7 @@ public:
 	{
 		return 6;
 	}
-	
+
 
 	/** A character iterator that decodes UTF-8 data (char elements) from an
 		arbitrary source iterator into Unicode characters (char32_t).
@@ -382,7 +382,7 @@ public:
 				// See if o is at the first byte.
 				return (_encoded[_offset-1]==0xff);
 			}
-			
+
 			return false;
 		}
 
@@ -413,7 +413,7 @@ public:
 			else
 			{
 				int firstBytePayloadMask = 0x3f;
-			
+
 				do
 				{
 					firstBytePayloadMask >>= 1;
@@ -421,7 +421,7 @@ public:
 					_encoded[_offset] = (uint8_t)(0x80 | (chr & 0x3f));
 
 					chr>>=6;
-					_offset--;					
+					_offset--;
 				}
 				while((chr & firstBytePayloadMask)!=chr);
 
@@ -443,7 +443,7 @@ public:
 
 
 };
-	
+
 
 }
 
