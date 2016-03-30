@@ -141,7 +141,7 @@ public:
 		}
 	}
 
-	P<T> get()
+	T* get()
 	{
 		while(isUninitialized())
 		{
