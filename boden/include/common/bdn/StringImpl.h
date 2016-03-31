@@ -390,14 +390,14 @@ public:
 
 	/** Static construction method. Initializes the String object from a C-style
 		string in the locale-dependent multibyte encoding.*/
-	static StringImpl fromLocaleEncoding(const char* s, std::locale& loc = std::locale(), size_t lengthElements=toEnd)
+	static StringImpl fromLocaleEncoding(const char* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
 	{
 		return localeEncodingToWide( (lengthElements==toEnd) ? std::string(s) : std::string(s, lengthElements), loc );
 	}
 
 	/** Static construction method. Initializes the String object from a std::string
 	in the locale-dependent multibyte encoding.*/
-	static StringImpl fromLocaleEncoding(const std::string& s, std::locale& loc = std::locale() )
+	static StringImpl fromLocaleEncoding(const std::string& s, const std::locale& loc = std::locale() )
 	{
 		return localeEncodingToWide( s, loc );
 	}

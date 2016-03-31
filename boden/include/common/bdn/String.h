@@ -4,6 +4,8 @@
 #include <bdn/StringImpl.h>
 #include <bdn/NativeStringData.h>
 
+#include <ostream>
+
 
 namespace bdn
 {
