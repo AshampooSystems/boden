@@ -56,15 +56,18 @@ TEST_CASE( "Utf16Codec.decoding", "[string]" )
 
 	int dataCount = std::extent<decltype(allData)>().value;
 
-	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
-
-	std::u16string encoded(pCurrData->utf16);
-	std::u32string expectedDecoded(pCurrData->expectedDecoded);
-
-	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc)
+	for(int dataIndex=0; dataIndex<dataCount; dataIndex++)
 	{
-		testCodecDecodingIterator< Utf16Codec >(encoded, expectedDecoded);
+		SubTestData* pCurrData = &allData[dataIndex];
+
+		SECTION( pCurrData->desc )
+		{
+			std::u16string encoded(pCurrData->utf16);
+			std::u32string expectedDecoded(pCurrData->expectedDecoded);
+
+			testCodecDecodingIterator< Utf16Codec >(encoded, expectedDecoded);
+		}
+
 	}
 }
 
@@ -122,13 +125,14 @@ TEST_CASE( "Utf16Codec.encoding", "[string]" )
 
 	int dataCount = std::extent<decltype(allData)>().value;
 
-	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
-
-
-	// start a section here so that we will know which subtest failed
-	SECTION(pCurrData->desc)
+	for(int dataIndex=0; dataIndex<dataCount; dataIndex++)
 	{
-		testCodecEncodingIterator<Utf16Codec>( pCurrData->input, pCurrData->expectedUtf16);
+		SubTestData* pCurrData = &allData[dataIndex];
+
+		SECTION( pCurrData->desc )
+		{
+			testCodecEncodingIterator<Utf16Codec>( pCurrData->input, pCurrData->expectedUtf16);
+		}
 	}
 }
 

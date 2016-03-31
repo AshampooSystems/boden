@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#if 0
+
 #include <bdn/Console.h>
 
 using namespace bdn;
@@ -33,3 +35,5 @@ TEST_CASE("Console")
 	
 }
 
+
+#endif //0

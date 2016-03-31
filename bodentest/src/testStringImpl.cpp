@@ -4,8 +4,9 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/Utf32StringData.h>
 
-
 #include <cstring>
+#include <codecvt>
+
 
 #ifdef _MSC_VER
 // disable "function may be unsafe" warning in Visual C++. We have to test these
@@ -606,17 +607,17 @@ inline void testIterators()
 	}
 }
 
-template<class DATATYPE>
-void verifyMultiByteResult(const StringImpl<DATATYPE>& in, const std::wstring& outWide)
+template<class StringType1, class StringType2>
+void verifyMultiByteResult(const StringType1& in, const StringType2& out)
 {
 	auto inIt = in.begin();
-	auto outIt = outWide.begin();
+	auto outIt = out.begin();
 
 	while(inIt!=in.end())
 	{
-		REQUIRE( outIt != outWide.end() );
+		REQUIRE( outIt != out.end() );
 
-		char32_t	inChr = *inIt;
+		char32_t	inChr = (char32_t)*inIt;
 		char32_t	outChr = (char32_t)(*outIt);
 
 		if(inChr<0x80)
@@ -634,7 +635,65 @@ void verifyMultiByteResult(const StringImpl<DATATYPE>& in, const std::wstring& o
 		++outIt;
 	}
 
-	REQUIRE( outIt == outWide.end() );
+	REQUIRE( outIt == out.end() );
+}
+
+
+template<class StringType>
+void verifyConvertBackFromMultiByteResult(const StringType& s, const StringType& convBack, bool knownUnicodeEncoding)
+{
+	if(knownUnicodeEncoding)
+	{
+		// must match exactly
+		REQUIRE( convBack==s );
+	}
+	else
+		verifyMultiByteResult( s, convBack );
+}
+
+template<class StringType>
+void verifyConvertBackFromMultiByte(const std::string& m, const StringType& s, std::locale* pLocale, bool knownUnicodeEncoding)
+{
+	SECTION("std::string")
+	{	
+		StringType convBack;
+
+		if(pLocale==nullptr)
+			convBack = s.fromLocaleEncoding(m);
+		else
+			convBack = s.fromLocaleEncoding(m, *pLocale);
+
+		verifyConvertBackFromMultiByteResult(s, convBack, knownUnicodeEncoding);
+	}
+
+	SECTION("const char*")
+	{	
+		StringType convBack;
+
+		if(pLocale==nullptr)
+			convBack = s.fromLocaleEncoding(m.c_str());
+		else
+			convBack = s.fromLocaleEncoding(m.c_str(), *pLocale);
+
+		verifyConvertBackFromMultiByteResult(s, convBack, knownUnicodeEncoding);
+	}
+
+	if(pLocale!=nullptr)
+	{
+		SECTION("const char* with length")
+		{	
+			StringType convBack;
+
+			int length = m.length();
+
+			std::string m2 = m;
+			m2+="xyz";
+
+			convBack = s.fromLocaleEncoding(m2.c_str(), *pLocale, length);
+
+			verifyConvertBackFromMultiByteResult(s, convBack, knownUnicodeEncoding);
+		}
+	}
 }
 
 template<class DATATYPE>
@@ -887,6 +946,8 @@ inline void testConversion()
 		{
 			std::string m = s.toLocaleEncoding();
 			verifyMultiByteResult(s, localeEncodingToWide(m) );
+
+			verifyConvertBackFromMultiByte( m, s, nullptr, false);
 		}
 
 		SECTION("global")
@@ -894,6 +955,8 @@ inline void testConversion()
 			std::locale loc;
 			std::string m = s.toLocaleEncoding(loc);
 			verifyMultiByteResult(s, localeEncodingToWide(m, loc) );
+
+			verifyConvertBackFromMultiByte( m, s, &loc, false);
 		}
 
 		SECTION("classic")
@@ -901,6 +964,20 @@ inline void testConversion()
 			std::locale loc = std::locale::classic();
 			std::string m = s.toLocaleEncoding(loc);
 			verifyMultiByteResult(s, localeEncodingToWide(m, loc) );
+
+			verifyConvertBackFromMultiByte( m, s, &loc, false);
+		}
+
+		SECTION("utf8")
+		{
+			std::locale loc( std::locale(), new std::codecvt_utf8<wchar_t> );
+
+			std::string m = s.toLocaleEncoding(loc);
+
+			// Must be an exact conversion with UTF-8
+			REQUIRE( s==localeEncodingToWide(m, loc) );
+
+			verifyConvertBackFromMultiByte( m, s, &loc, true);
 		}
 	}
 }
@@ -8719,6 +8796,8 @@ inline void testSplitOffWord()
 }
 
 
+
+
 template<class DATATYPE>
 inline void testStringImpl()
 {
@@ -8908,7 +8987,6 @@ inline void testStringImpl()
 
 	SECTION("contains")
 		testContains<DATATYPE>();
-
 
 }
 
@@ -9134,16 +9212,54 @@ inline void testGlobalComparison()
 		verifyGlobalComparison< const char32_t*, String >();
 }
 
-template<class CharType>
-inline void testStreamOutput()
-{
 
+template<class CharType>
+String fromStreamData( const std::basic_string<CharType>& data)
+{
+	return String( data );
+}
+
+template<>
+String fromStreamData<char>( const std::basic_string<char>& data)
+{
+	return String::fromLocaleEncoding(data);
 }
 
 
 template<class CharType>
-inline void verifyStreamIntegration()
+std::basic_string<CharType> toStreamData(const String& s)
 {
+	return (const std::basic_string<CharType>&)s;
+}
+
+template<>
+std::basic_string<char> toStreamData<char>(const String& s)
+{
+	// special version for char. This uses the locale encoding.
+	return s.toLocaleEncoding();
+}
+
+
+template<class CharType>
+void verifyStringFromStream(const String& s, const String& expectedValue)
+{
+	REQUIRE( s==expectedValue );	
+}
+
+template<>
+void verifyStringFromStream<char>(const String& s, const String& expectedValue)
+{
+	String expectedValueAfterLocaleRoundTrip = fromStreamData<char>( toStreamData<char>(expectedValue) );
+
+	// sanity check
+	REQUIRE( expectedValueAfterLocaleRoundTrip.getLength()>=expectedValue.getLength() );
+
+	REQUIRE( s==expectedValueAfterLocaleRoundTrip );	
+}
+
+template<class CharType>
+inline void verifyStreamIntegration()
+{	
 	SECTION("output")
 	{
 		std::basic_ostringstream<CharType>	stream;
@@ -9151,55 +9267,60 @@ inline void verifyStreamIntegration()
 
 		stream << s;
 
-		REQUIRE( String(stream.str()) == s);
+		std::basic_string<CharType> streamData = stream.str();
+
+		REQUIRE( streamData==toStreamData<CharType>(s) );
+
+		String fromStream = fromStreamData(streamData);
+		verifyStringFromStream<CharType>(fromStream, s);		
 	}
 
 	SECTION("input")
 	{
 		String								in(U"\U00012345hello world");
-		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
 
 		String				s;
 
 		stream >> s;
 
-		REQUIRE( s == U"\U00012345hello" );
+		verifyStringFromStream<CharType>(s, U"\U00012345hello");
 
 		stream >> s;
 
-		REQUIRE( s == U"world" );
+		verifyStringFromStream<CharType>(s, U"world");
 	}
 
 	SECTION("getline-noDelim")
 	{
 		String								in(U"\U00012345hello world\nbla gubbel");
-		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
 
 		String				s;
 
 		std::getline( stream, s);
 
-		REQUIRE( s == U"\U00012345hello world");
+		verifyStringFromStream<CharType>(s, U"\U00012345hello world" );
 
 		std::getline( stream, s);
 
-		REQUIRE( s == U"bla gubbel");
+		verifyStringFromStream<CharType>(s, U"bla gubbel" );
 	}
 
 	SECTION("getline-delim")
 	{
-		String								in(U"\U00012345hello world?bla gubbel");
-		std::basic_istringstream<CharType>	stream( (const std::basic_string<CharType>&)in );
+		String								in(U"\U00012345hello world!bla gubbel");
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
 
 		String				s;
 
-		std::getline( stream, s, '?');
+		std::getline( stream, s, '!');
 
-		REQUIRE( s == U"\U00012345hello world");
+		verifyStringFromStream<CharType>( s, U"\U00012345hello world");
 
-		std::getline( stream, s, '?');
+		std::getline( stream, s, '!');
 
-		REQUIRE( s == U"bla gubbel");
+		verifyStringFromStream<CharType>(s, U"bla gubbel");
 	}
 
 }

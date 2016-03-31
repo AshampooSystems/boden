@@ -2,8 +2,8 @@
 #define BDN_Console_H_
 
 #include <iostream>
-#include <datetimeapi.h>
-#include <wincon.h>
+
+#if 0
 
 namespace bdn
 {
@@ -90,17 +90,19 @@ public:
 
 		gray = darkRed | darkGreen | darkBlue,
 
-		darkGray = black | 8,
+		brightBit = 8,
 
-		red = darkRed | 8,
-		green = darkGreen | 8,		
-		blue = darkBlue | 8,
+		darkGray = black | brightBit,
 
-		yellow = darkYellow | 8 ,
-		magenta = darkMagenta | 8,
-		cyan = darkCyan | 8,
+		red = darkRed | brightBit,
+		green = darkGreen | brightBit,		
+		blue = darkBlue | brightBit,
 
-		white = gray | 8,
+		yellow = darkYellow | brightBit,
+		magenta = darkMagenta | brightBit,
+		cyan = darkCyan | brightBit,
+
+		white = gray | brightBit,
 
 		brown = darkYellow,
 		purple = darkMagenta
@@ -445,6 +447,8 @@ protected:
 extern Console console;
 
 }
+
+#endif //0
 
 #endif
 

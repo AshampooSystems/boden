@@ -999,7 +999,7 @@ inline bool operator>=(const char32_t* a, const bdn::String& b)
 */
 inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
 {
-	return stream << s.asUtf8();
+	return stream << s.toLocaleEncoding( stream.getloc() );
 }
 
 

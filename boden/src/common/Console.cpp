@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/Console.h>
 
+#if 0
+
 namespace bdn
 {
 
@@ -175,5 +177,7 @@ void Console::setBackgroundColor( Console::Color color)
 
 
 }
+
+#endif //0
 
 

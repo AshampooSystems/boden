@@ -50,24 +50,20 @@ TEST_CASE( "WideCodec", "[string]" )
 
 	int dataCount = std::extent<decltype(allData)>().value;
 
-	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
-
-	std::wstring	encoded(pCurrData->wdata);
-	std::u32string	expectedDecoded(pCurrData->expectedDecoded);
-
-	SECTION("decoding")
+	for(int dataIndex=0; dataIndex<dataCount; dataIndex++)
 	{
-		SECTION(pCurrData->desc)
-		{
-			testCodecDecodingIterator< WideCodec >(encoded, expectedDecoded);
-		}
-	}
+		SubTestData* pCurrData = &allData[dataIndex];
 
-	SECTION("encoding")
-	{
-		SECTION(pCurrData->desc)
+		SECTION( pCurrData->desc )
 		{
-			testCodecEncodingIterator< WideCodec >(expectedDecoded, encoded);
+			std::wstring	encoded(pCurrData->wdata);
+			std::u32string	expectedDecoded(pCurrData->expectedDecoded);
+
+			SECTION("decoding")
+				testCodecDecodingIterator< WideCodec >(encoded, expectedDecoded);
+
+			SECTION("encoding")
+				testCodecEncodingIterator< WideCodec >(expectedDecoded, encoded);
 		}
 	}
 }

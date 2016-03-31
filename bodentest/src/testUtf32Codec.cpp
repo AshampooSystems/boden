@@ -27,27 +27,22 @@ TEST_CASE( "Utf32Codec", "[string]" )
 							};
 
 	int dataCount = std::extent<decltype(allData)>().value;
-
-	SubTestData* pCurrData = GENERATE( between( allData, &allData[dataCount-1] ) );
-
-	std::u32string data(pCurrData->utf32);
-
-	// Utf 32 decoding and encoding is very straight forward. Both decoder and encoder
-	// should simply pass each character through
-
-	SECTION("decoding")
+	for(int dataIndex=0; dataIndex<dataCount; dataIndex++)
 	{
-		SECTION(pCurrData->desc)
-		{
-			testCodecDecodingIterator< Utf32Codec >(data, data);
-		}
-	}
+		SubTestData* pCurrData = &allData[dataIndex];
 
-	SECTION("encoding")
-	{
-		SECTION(pCurrData->desc)
+		SECTION( pCurrData->desc )
 		{
-			testCodecEncodingIterator< Utf32Codec >(data, data);
+			std::u32string data(pCurrData->utf32);
+
+			// Utf 32 decoding and encoding is very straight forward. Both decoder and encoder
+			// should simply pass each character through
+
+			SECTION("decoding")
+				testCodecDecodingIterator< Utf32Codec >(data, data);
+
+			SECTION("encoding")
+				testCodecEncodingIterator< Utf32Codec >(data, data);
 		}
 	}
 }
