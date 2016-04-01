@@ -1,4 +1,4 @@
-#!python3
+#! /usr/bin/python
 
 import sys;
 import subprocess;
@@ -209,6 +209,8 @@ the previous execution of generateProjects.py.
 
             args = ["-G", fullToolsetName, cmakeDir];
 
+            toolChainFileName = None;
+
             if targetName=="ios":
 
                 if subTarget=="":
@@ -223,15 +225,30 @@ the previous execution of generateProjects.py.
                 else:
                     assert("bad subtarget");
 
-                args.extend( [    "-DIOS_PLATFORM="+platform,
-                                "-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "iOS.cmake")                                
-                                ] );
+                args.extend( [    "-DIOS_PLATFORM="+platform ] );
+
+                toolChainFileName = "iOS.cmake";
 
             elif targetName=="web":
-                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "Emscripten.cmake")] );
+
+                # verify that the EMSCRIPTEN environment variable is set.
+                emSdkPath = os.environ.get("EMSCRIPTEN", "");
+                if not emSdkPath:
+                    print("The Emscripten SDK is not installed on your system, or the EMSCRIPTEN\nenvironment variable is not set.\nPlease install Emscripten and set the EMSCRIPTEN environment variable to the\nSDK directory path.\n")
+                    return 5;
+
+                toolChainFileName = "Emscripten.cmake";
 
             elif targetName=="android":
-                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+os.path.join(cmakeDir, "android.cmake")] );
+                toolChainFileName = "android.cmake";
+
+            if toolChainFileName:
+                toolChainFilePath = os.path.join(cmakeDir, toolChainFileName);
+                if not os.path.isfile(toolChainFilePath):
+                    print("Required CMake toolchain file not found: "+toolChainFilePath);
+                    return 5;
+
+                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath] );
 
             if fixedConfig:
                 args.extend( ["-DCMAKE_BUILD_TYPE="+fixedConfig ] );
