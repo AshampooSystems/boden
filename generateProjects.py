@@ -7,14 +7,14 @@ import shutil;
 import json;
 
 
-def getStatePath():
-    return os.path.join( os.path.dirname(__file__), ".generateProjects.state");
+def getStatePath(dir):
+    return os.path.join(dir, ".generateProjects.state");
 
 
-def loadState():
+def loadState(dir):
     state = {};
 
-    p = getStatePath();
+    p = getStatePath(dir);
     if os.path.exists(p):
         with open(p, "rb") as f:
             state = json.loads( f.read().decode("utf-8") );
@@ -22,8 +22,8 @@ def loadState():
     return state;
 
 
-def storeState(state):
-    p = getStatePath();
+def storeState(dir, state):
+    p = getStatePath(dir);
     with open(p, "wb") as f:
         f.write( json.dumps( state ).encode("utf-8") );
 
@@ -149,15 +149,17 @@ def main():
         targetMap[target] = subTargetList;
 
 
-    if len(sys.argv)!=3:
+    if len(sys.argv)<2 or len(sys.argv)>3:
 
-        print("""Usage: generateProjects.py TARGETNAME TOOLSET
+        print("""Usage: generateProjects.py TARGETNAME [TOOLSET]
 
 TARGETNAME can be one of the following:
 
 %s
-TOOLSET is the build toolset / IDE you want to use. This is passed to CMAKE
-as the generator name and can be one of the following values on your system:
+TOOLSET is the build toolset / IDE you want to use. This MUST be specified when
+generateProjects is first called. It can be omitted on latter calls.
+The toolset is passed to CMAKE as the generator name and can be one of the
+following values on your system:
 
 %s
 
@@ -178,9 +180,15 @@ the previous execution of generateProjects.py.
         return 1;
 
     targetName = sys.argv[1].lower();
-    toolsetName = sys.argv[2];
+    if len(sys.argv)>=3:
+        toolsetName = sys.argv[2];
+    else:
+        toolsetName = "-";
 
-    state = loadState();
+    myPath = os.path.abspath(__file__);
+    mainDir = os.path.dirname(myPath);
+
+    state = loadState(mainDir);
 
     if targetName=="-":
         if "lastTarget" not in state:
@@ -188,30 +196,51 @@ the previous execution of generateProjects.py.
             return 4;            
         targetName = state["lastTarget"];
 
-    if toolsetName=="-":
-        if "lastToolset" not in state:
-            print("No previous target stored. Specify the target explictly.")
-            return 4;            
-        toolsetName = state["lastToolset"];
-
 
     if targetName not in targetMap:
         print("Invalid target name.")
         return 1;
 
     state["lastTarget"] = targetName;
-    state["lastToolset"] = toolsetName;
-    storeState(state);
 
-    fullToolsetName = generatorAliasMap.get(toolsetName, toolsetName);
+    storeState(mainDir, state);
 
-    myPath = os.path.abspath(__file__);
-    mainDir = os.path.dirname(myPath);
+    
     buildDir = os.path.join(mainDir, "build");
     cmakeDir = os.path.join(mainDir, "cmake");
 
     if not os.path.isdir(buildDir):
         os.makedirs(buildDir);
+
+
+    targetBuildDir = os.path.join(buildDir, targetName);
+    if os.path.isdir(targetBuildDir):
+        targetState = loadState(targetBuildDir);
+    else:
+        targetState = {};
+
+    toolsetNameFromTargetState = targetState.get("toolset", None);
+
+    if toolsetName=="-":
+        if not toolsetNameFromTargetState:
+            print("No previous toolset stored. Specify the toolset option explictly.\n")
+            return 4; 
+        toolsetName = toolsetNameFromTargetState;
+
+    else:
+        if toolsetNameFromTargetState and toolsetName!=toolsetNameFromTargetState:
+            print("Toolset does not match the one used when the projects for this target were first created. Cleaning existing build files.");
+
+            shutil.rmdir(targetBuildDir);
+
+    if not os.path.isdir(targetBuildDir):
+        os.makedirs(targetBuildDir);
+        
+    targetState["toolset"] = toolsetName;
+
+    storeState( targetBuildDir, state);
+    
+    fullToolsetName = generatorAliasMap.get(toolsetName, toolsetName);    
 
     fixedConfigList = [];
 
@@ -230,11 +259,19 @@ the previous execution of generateProjects.py.
 
         for subTarget in subTargetList:
 
-            toolsetBuildDir = os.path.join(buildDir, targetName+"-"+toolsetName.lower().replace(" ", ""));
-            if subTarget:
-                toolsetBuildDir+="-"+subTarget;
+            toolsetBuildDir = os.path.join(buildDir, targetName);
+
+            subDirNameParts = [];
+
             if fixedConfig:
-                toolsetBuildDir+="-"+fixedConfig.lower();            
+                subDirNameParts.append(fixedConfig);
+
+            if subTarget:
+                subDirNameParts.append(subTarget);                
+
+            if len(subDirNameParts)>0:
+                subDirName = "-".join(subDirNameParts);            
+                toolsetBuildDir = os.path.join(toolsetBuildDir, subDirName);
 
             if not os.path.isdir(toolsetBuildDir):
                 os.makedirs(toolsetBuildDir);
