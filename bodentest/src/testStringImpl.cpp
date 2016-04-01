@@ -5,7 +5,11 @@
 #include <bdn/Utf32StringData.h>
 
 #include <cstring>
+
+// GCC 4.8 does not have the standard codecvt header.
+#if !defined(__GNUC__) || __GNUC__>=5
 #include <codecvt>
+#endif
 
 
 #ifdef _MSC_VER
@@ -655,7 +659,7 @@ template<class StringType>
 void verifyConvertBackFromMultiByte(const std::string& m, const StringType& s, std::locale* pLocale, bool knownUnicodeEncoding)
 {
 	SECTION("std::string")
-	{	
+	{
 		StringType convBack;
 
 		if(pLocale==nullptr)
@@ -667,7 +671,7 @@ void verifyConvertBackFromMultiByte(const std::string& m, const StringType& s, s
 	}
 
 	SECTION("const char*")
-	{	
+	{
 		StringType convBack;
 
 		if(pLocale==nullptr)
@@ -681,7 +685,7 @@ void verifyConvertBackFromMultiByte(const std::string& m, const StringType& s, s
 	if(pLocale!=nullptr)
 	{
 		SECTION("const char* with length")
-		{	
+		{
 			StringType convBack;
 
 			int length = m.length();
@@ -968,6 +972,10 @@ inline void testConversion()
 			verifyConvertBackFromMultiByte( m, s, &loc, false);
 		}
 
+		// GCC 4.8 does not have the standard codecvt header.
+        // So we cannot use std::codecvt_utf8. Just skip the test here.
+        // GCC 4.8 does not have the standard codecvt header.
+#if !defined(__GNUC__) || __GNUC__>=5
 		SECTION("utf8")
 		{
 			std::locale loc( std::locale(), new std::codecvt_utf8<wchar_t> );
@@ -979,6 +987,7 @@ inline void testConversion()
 
 			verifyConvertBackFromMultiByte( m, s, &loc, true);
 		}
+#endif
 	}
 }
 
@@ -9214,52 +9223,53 @@ inline void testGlobalComparison()
 
 
 template<class CharType>
-String fromStreamData( const std::basic_string<CharType>& data)
+String fromStreamData( const std::basic_string<CharType>& data, const std::locale& loc)
 {
 	return String( data );
 }
 
 template<>
-String fromStreamData<char>( const std::basic_string<char>& data)
+String fromStreamData<char>( const std::basic_string<char>& data, const std::locale& loc)
 {
-	return String::fromLocaleEncoding(data);
+	return String::fromLocaleEncoding(data, loc);
 }
 
 
 template<class CharType>
-std::basic_string<CharType> toStreamData(const String& s)
+std::basic_string<CharType> toStreamData(const String& s, const std::locale& loc)
 {
 	return (const std::basic_string<CharType>&)s;
 }
 
 template<>
-std::basic_string<char> toStreamData<char>(const String& s)
+std::basic_string<char> toStreamData<char>(const String& s, const std::locale& loc)
 {
 	// special version for char. This uses the locale encoding.
-	return s.toLocaleEncoding();
+	return s.toLocaleEncoding(loc);
 }
 
 
 template<class CharType>
-void verifyStringFromStream(const String& s, const String& expectedValue)
+void verifyStringFromStream(const String& s, const String& expectedValue, const std::locale& loc)
 {
-	REQUIRE( s==expectedValue );	
+	REQUIRE( s==expectedValue );
 }
 
 template<>
-void verifyStringFromStream<char>(const String& s, const String& expectedValue)
+void verifyStringFromStream<char>(const String& s, const String& expectedValue, const std::locale& loc)
 {
-	String expectedValueAfterLocaleRoundTrip = fromStreamData<char>( toStreamData<char>(expectedValue) );
+    std::string streamData = toStreamData<char>(expectedValue, loc);
+	String expectedValueAfterLocaleRoundTrip = fromStreamData<char>( streamData, loc );
 
 	// sanity check
 	REQUIRE( expectedValueAfterLocaleRoundTrip.getLength()>=expectedValue.getLength() );
 
-	REQUIRE( s==expectedValueAfterLocaleRoundTrip );	
+	REQUIRE( s==expectedValueAfterLocaleRoundTrip );
 }
 
 template<class CharType>
 inline void verifyStreamIntegration()
-{	
+{
 	SECTION("output")
 	{
 		std::basic_ostringstream<CharType>	stream;
@@ -9269,58 +9279,58 @@ inline void verifyStreamIntegration()
 
 		std::basic_string<CharType> streamData = stream.str();
 
-		REQUIRE( streamData==toStreamData<CharType>(s) );
+		REQUIRE( streamData==toStreamData<CharType>(s, stream.getloc()) );
 
-		String fromStream = fromStreamData(streamData);
-		verifyStringFromStream<CharType>(fromStream, s);		
+		String fromStream = fromStreamData(streamData, stream.getloc());
+		verifyStringFromStream<CharType>(fromStream, s, stream.getloc());
 	}
 
 	SECTION("input")
 	{
 		String								in(U"\U00012345hello world");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
 
 		String				s;
 
 		stream >> s;
 
-		verifyStringFromStream<CharType>(s, U"\U00012345hello");
+		verifyStringFromStream<CharType>(s, U"\U00012345hello", stream.getloc());
 
 		stream >> s;
 
-		verifyStringFromStream<CharType>(s, U"world");
+		verifyStringFromStream<CharType>(s, U"world", stream.getloc());
 	}
 
 	SECTION("getline-noDelim")
 	{
 		String								in(U"\U00012345hello world\nbla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc())  );
 
 		String				s;
 
 		std::getline( stream, s);
 
-		verifyStringFromStream<CharType>(s, U"\U00012345hello world" );
+		verifyStringFromStream<CharType>(s, U"\U00012345hello world", stream.getloc() );
 
 		std::getline( stream, s);
 
-		verifyStringFromStream<CharType>(s, U"bla gubbel" );
+		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
 	}
 
 	SECTION("getline-delim")
 	{
 		String								in(U"\U00012345hello world!bla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in) );
+		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
 
 		String				s;
 
 		std::getline( stream, s, '!');
 
-		verifyStringFromStream<CharType>( s, U"\U00012345hello world");
+		verifyStringFromStream<CharType>( s, U"\U00012345hello world", stream.getloc() );
 
 		std::getline( stream, s, '!');
 
-		verifyStringFromStream<CharType>(s, U"bla gubbel");
+		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
 	}
 
 }

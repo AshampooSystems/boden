@@ -2034,20 +2034,14 @@ namespace bdn{
 
 	#include <signal.h>
 
-	inline void raiseSigTrap()
-	{
-        struct sigaction newAction;
-
-        newAction.sa_handler = SIG_IGN;
-        sigemptyset(&newAction.sa_mask);
-        newAction.sa_flags = 0;
-
-        int result = sigaction(SIGTRAP, &newAction, NULL);
-        if(result==0)
-            raise(SIGTRAP);
-	}
-
-	#define BDN_BREAK_INTO_DEBUGGER() raiseSigTrap();
+	#define BDN_BREAK_INTO_DEBUGGER() { \
+                                        struct sigaction dbrk_newAction_; \
+                                        dbrk_newAction_.sa_handler = SIG_IGN; \
+                                        sigemptyset(&dbrk_newAction_.sa_mask); \
+                                        dbrk_newAction_.sa_flags = 0; \
+                                        if(sigaction(SIGTRAP, &dbrk_newAction_, NULL)==0) \
+                                            raise(SIGTRAP); \
+                                    }
 
 #endif
 

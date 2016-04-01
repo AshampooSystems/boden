@@ -1,14 +1,17 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+// GCC 4.8 does not have the standard codecvt header.
+#if !defined(__GNUC__) || __GNUC__>=5
 #include <codecvt>
+#endif
 
 using namespace bdn;
 
 
 String getStreamString( std::ostringstream& stream)
 {
-	return String::fromLocaleEncoding( stream.str(), stream.getloc());	
+	return String::fromLocaleEncoding( stream.str(), stream.getloc());
 }
 
 String getStreamString( std::wostringstream& stream)
@@ -19,7 +22,7 @@ String getStreamString( std::wostringstream& stream)
 template<class StreamType, class StringType>
 void writeStringToStream(StreamType& stream, StringType in )
 {
-	stream << in;	
+	stream << in;
 }
 
 template<>
@@ -27,7 +30,7 @@ void writeStringToStream<std::ostringstream, std::string>(std::ostringstream& st
 {
 	// this is a special case. The stream will assume that a std::string is in its locale encoding, but ours is in UTF-8.
 	// We need to pass it in in locale encoding.
-	stream << String(in).toLocaleEncoding( stream.getloc() );	
+	stream << String(in).toLocaleEncoding( stream.getloc() );
 }
 
 template<>
@@ -35,7 +38,7 @@ void writeStringToStream<std::ostringstream, const char*>(std::ostringstream& st
 {
 	// this is a special case. The stream will assume that a const char* is in its locale encoding, but ours is in UTF-8.
 	// We need to pass it in in locale encoding.
-	stream << String(in).toLocaleEncoding( stream.getloc() );	
+	stream << String(in).toLocaleEncoding( stream.getloc() );
 }
 
 template<class StreamType, class StringType>
@@ -48,13 +51,19 @@ inline void testStreamStringOutput(bool useUtf8Locale)
 
 	if(useUtf8Locale)
 	{
+        // GCC 4.8 does not have the standard codecvt header.
+        // So we cannot use std::codecvt_utf8. Just skip the test here.
+#if defined(__GNUC__) && __GNUC__<5
+        return;
+#else
 		std::locale utf8Locale( std::locale(), new std::codecvt_utf8<wchar_t> );
 
-		stream.imbue(utf8Locale);	
+		stream.imbue(utf8Locale);
+#endif
 	}
 
 	writeStringToStream(stream, in);
-	
+
 	String result = getStreamString(stream);
 
 	if(useUtf8Locale)
@@ -65,9 +74,9 @@ inline void testStreamStringOutput(bool useUtf8Locale)
 	else
 	{
 		// the non-ascii char may have been replaced with a unicode replacement character or a question mark.
-				
+
 		REQUIRE( (result==inObj || result==U"he\xfffdllo" || result=="he?llo") );
-	}	
+	}
 }
 
 
@@ -110,5 +119,5 @@ TEST_CASE("std stream string output")
 		testStreamOutput<std::ostringstream>();
 
 	SECTION("wostringstream")
-		testStreamOutput<std::wostringstream>();	
+		testStreamOutput<std::wostringstream>();
 }
