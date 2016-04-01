@@ -37,7 +37,7 @@ endif()
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 	SET(CMAKE_CXX_FLAGS "-std=c++11")
 endif()
 
@@ -64,6 +64,11 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+	# make sure that we also generate a HTML file
+	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html")
+endif()
+
 target_link_libraries(uidemo boden)
 if(APPLE)
 	find_library(COCOA_LIBRARY Cocoa)
@@ -81,6 +86,11 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 add_executable(bodentest ${BODENTEST_SOURCES} )
 
 set_property(TARGET bodentest APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+	# make sure that we also generate a HTML file
+	set_property(TARGET bodentest APPEND PROPERTY LINK_FLAGS "-o bodentest.html")
+endif()
 
 target_link_libraries(bodentest boden)
 

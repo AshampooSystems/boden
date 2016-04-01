@@ -29,6 +29,38 @@ def storeState(state):
 
 
 
+def changePython2ToPython(dirPath):
+    prefix = "#!/usr/bin/env python2\n";
+    # note that the replacement prefix MUST be the same size!
+    replacementPrefix = prefix.replace("python2", "python ");
+
+    prefix = prefix.encode("utf-8");
+    replacementPrefix = replacementPrefix.encode("utf-8");
+
+    for name in os.listdir(dirPath):
+        if name!="." and name!="..":
+            itemPath = os.path.join(dirPath, name);
+
+            if os.path.isdir(itemPath):
+                if name!="include":
+                    changePython2ToPython(itemPath);
+
+            else:
+                title, extension = os.path.splitext(name);
+                if not extension or extension==".py":
+
+                    # could be a python file.
+                    with file(itemPath, "r+") as f:
+                        data = f.read(len(prefix));
+                        if data==prefix:
+                            f.seek(0);
+                            f.write(replacementPrefix);
+
+                            print("Updated %s" % itemPath);
+
+                        f.close();
+
+
 def main():
 
     print("");
@@ -210,6 +242,9 @@ the previous execution of generateProjects.py.
             args = ["-G", fullToolsetName, cmakeDir];
 
             toolChainFileName = None;
+            toolChainFilePath = None;
+
+            envSetupPrefix = "";
 
             if targetName=="ios":
 
@@ -231,24 +266,78 @@ the previous execution of generateProjects.py.
 
             elif targetName=="web":
 
-                # verify that the EMSCRIPTEN environment variable is set.
-                emSdkPath = os.environ.get("EMSCRIPTEN", "");
-                if not emSdkPath:
-                    print("The Emscripten SDK is not installed on your system, or the EMSCRIPTEN\nenvironment variable is not set.\nPlease install Emscripten and set the EMSCRIPTEN environment variable to the\nSDK directory path.\n")
-                    return 5;
+                # prepare the emscripten SDK (if not yet prepared)
+                emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+
+                if not os.path.isdir(emsdkDir):
+                    print("Setting up emscripten...")
+
+                    try:
+                        emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
+
+                        shutil.copytree(emsdkSourceDir, emsdkDir);
+
+                        emsdkExePath = os.path.join(emsdkDir, "emsdk");
+
+                        subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                        subprocess.check_call( '"%s" install latest' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                        subprocess.check_call( '"%s" activate latest' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+
+                    except:
+
+                        for i in range(30):
+
+                            try:
+                                shutil.rmtree(emsdkDir);
+                                break;
+
+                            except:                                
+                                time.sleep(1);
+
+                        raise;
+
+                    print("Emscripten was successfully set up.");
+
+                if sys.platform=="win32":
+                    envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
+                else:
+                    envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+
+
+                # the emscripten scrips call python2. However, python is not available
+                # under that name on all platforms. So we add an alias
+                try:
+                    subprocess.check_call("python2 --version", shell="True");
+                    havePython2 = True;
+                except Exception:
+                    havePython2 = False;
+
+                if not havePython2:
+                    print("Python2 executable is named just 'python'. Changing references...")
+                    
+                    # change python2 references to python
+                    changePython2ToPython(emsdkDir);
+
 
                 toolChainFileName = "Emscripten.cmake";
 
             elif targetName=="android":
                 toolChainFileName = "android.cmake";
 
+
             if toolChainFileName:
-                toolChainFilePath = os.path.join(cmakeDir, toolChainFileName);
+                toolChainFilePath = os.path.join(cmakeDir, toolChainFileName);               
+
+            if toolChainFilePath:
                 if not os.path.isfile(toolChainFilePath):
                     print("Required CMake toolchain file not found: "+toolChainFilePath);
                     return 5;
 
                 args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath] );
+
 
             if fixedConfig:
                 args.extend( ["-DCMAKE_BUILD_TYPE="+fixedConfig ] );
@@ -257,6 +346,9 @@ the previous execution of generateProjects.py.
             commandLine = "cmake";
             for a in args:
                 commandLine += ' "%s"' % (a);
+
+            commandLine = envSetupPrefix+commandLine;
+
 
             print("## Calling CMake:\n  "+commandLine+"\n");
 
