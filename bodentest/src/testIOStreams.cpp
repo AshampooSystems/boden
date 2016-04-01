@@ -64,9 +64,9 @@ inline void testStreamStringOutput(bool useUtf8Locale)
 	}
 	else
 	{
-		// the non-ascii char may have been replaced with a question mark.
+		// the non-ascii char may have been replaced with a unicode replacement character or a question mark.
 				
-		REQUIRE( (result==inObj || result=="he?llo") );
+		REQUIRE( (result==inObj || result==U"he\xfffdllo" || result=="he?llo") );
 	}	
 }
 

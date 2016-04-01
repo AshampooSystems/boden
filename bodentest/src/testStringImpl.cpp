@@ -9463,6 +9463,7 @@ TEST_CASE("wideLocaleEncodingConversion")
                                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                                 // Use \0 instead.
 								{ std::wstring(L"\0", 1), "zero char" },
+                                { std::wstring(L"he\0llo", 6), "zero char in middle" },
 								{ L"h", "ascii char" },
 								{ L"hx", "ascii 2 chars" },
 								{ L"\u0345", "non-ascii below surrogate range" },
