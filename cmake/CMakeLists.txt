@@ -9,28 +9,32 @@ endif()
 project (boden)
 
 
-if( IOS )
-	SET( BODEN_TARGET "ios" )
+if(not BODEN_TARGET)
 
-elseif( ANDROID )
-	SET( BODEN_TARGET "android" )
+	if( IOS )
+		SET( BODEN_TARGET "ios" )
 
-elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )	
-	SET( BODEN_TARGET "windows" )
+	elseif( ANDROID )
+		SET( BODEN_TARGET "android" )
 
-elseif( CMAKE_SYSTEM_NAME MATCHES "Linux" )	
-	SET( BODEN_TARGET "linux" )
+	elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )	
+		SET( BODEN_TARGET "windows" )
 
-elseif( CMAKE_SYSTEM_NAME MATCHES "Darwin" )	
-	SET( BODEN_TARGET "osx" )
+	elseif( CMAKE_SYSTEM_NAME MATCHES "Linux" )	
+		SET( BODEN_TARGET "linux" )
 
-elseif( CMAKE_SYSTEM_NAME MATCHES "Emscripten" )		
-	SET( BODEN_TARGET "web" )
+	elseif( CMAKE_SYSTEM_NAME MATCHES "Darwin" )	
+		SET( BODEN_TARGET "osx" )
 
-else()
-	# assume some Unix variant
-	SET( BODEN_TARGET "unix" )    
-	
+	elseif( CMAKE_SYSTEM_NAME MATCHES "Emscripten" )		
+		SET( BODEN_TARGET "web" )
+
+	else()
+		# assume some Unix variant
+		SET( BODEN_TARGET "unix" )    
+		
+	endif()
+
 endif()
 
 
@@ -38,8 +42,15 @@ set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-	SET(CMAKE_CXX_FLAGS "-std=c++11 -s DISABLE_EXCEPTION_CATCHING=0")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -s DISABLE_EXCEPTION_CATCHING=0")
 endif()
+
+
+if( ${BODEN_TARGET} EQUAL "dotnet")
+	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr /EHa")
+endif
+
 
 
 add_definitions( -DUNICODE -D_UNICODE )
@@ -70,12 +81,16 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 target_link_libraries(uidemo boden)
+
 if(APPLE)
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(uidemo ${COCOA_LIBRARY})
 endif()
 
+if( ${BODEN_TARGET} EQUAL "dotnet")
+	set_target_properties(TARGET uidemo APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
 
 
 set( BODENTEST_SRCDIR "../bodentest/src")
@@ -95,10 +110,13 @@ endif()
 target_link_libraries(bodentest boden)
 
 if(APPLE)
-
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(bodentest ${COCOA_LIBRARY})
-
 endif()
+
+if( ${BODEN_TARGET} EQUAL "dotnet")
+	set_target_properties(TARGET uidemo APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
 
