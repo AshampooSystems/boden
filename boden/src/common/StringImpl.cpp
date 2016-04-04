@@ -1,6 +1,9 @@
 #include <bdn/init.h>
 
 
+// XXX
+#include <iostream>
+
 namespace bdn
 {
     
@@ -59,11 +62,14 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 		{
 			const wchar_t* pInNext = pCurrIn;
 			char*		   pOutNext = outBuffer;
-            
+           
 			int convResult = callCodecOut(codec, state, pCurrIn, pInEnd, pInNext, outBuffer, outBuffer+outBufferSize, pOutNext);
-            
 			if(convResult==std::codecvt_base::error)
 			{
+                // XXX
+                std::cout << std::endl << "Error " << (int)(pInNext-pCurrIn) << " " << (int)(pOutNext-outBuffer) << std::endl;
+                
+                
 				// a character cannot be converted. The standard defines that
                 // pInNext SHOULD point to that character. And all others up to that point should have been converted.
                 
@@ -127,6 +133,10 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
                 if(pOutNext!=outBuffer)
                     resultString.append( outBuffer, pOutNext-outBuffer );
             }
+            
+            // XXX
+            std::cout << "Consumed " << (int)(pInNext-pCurrIn) << " produced " << (int)(pOutNext-outBuffer) << std::endl;
+            
            
             pCurrIn = pInNext;
         }

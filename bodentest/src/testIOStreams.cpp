@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <iostream>
+
 // GCC 4.8 does not have the standard codecvt header.
 #if !defined(__GNUC__) || __GNUC__>=5
 #include <codecvt>
@@ -74,8 +76,7 @@ inline void testStreamStringOutput(bool useUtf8Locale)
 	else
 	{
 		// the non-ascii char may have been replaced with a unicode replacement character or a question mark.
-
-		REQUIRE( (result==inObj || result==U"he\xfffdllo" || result=="he?llo") );
+  		REQUIRE( (result==inObj || result==U"he\xfffdllo" || result=="he?llo") );
 	}
 }
 

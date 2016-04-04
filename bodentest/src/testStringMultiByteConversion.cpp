@@ -3,6 +3,8 @@
 
 #include "testStringImpl.h"
 
+#include <iostream>
+
 void verifyWideMultiByteConversion( const std::wstring& inWide,
 									const std::string& multiByte,
 									const std::wstring& outWide)
@@ -14,7 +16,7 @@ void verifyWideMultiByteConversion( const std::wstring& inWide,
 	for(size_t i=0; i<inWide.length(); i++)
 	{
 		wchar_t inChr = inWide[i];
-
+        
 		REQUIRE( i<outWide.length() );
 
 		wchar_t outChr = outWide[i];
@@ -43,6 +45,12 @@ void verifyWideLocaleEncodingConversion(const std::wstring& inWide)
 	{
 		multiByte = wideToLocaleEncoding(inWide);
 		outWide = localeEncodingToWide(multiByte);
+
+        std::cout << std::endl;
+        for(int i=0; i<multiByte.length(); i++)
+            std::cout << (int)multiByte[i] << std::endl;
+        std::cout << std::endl;
+
 
 		verifyWideMultiByteConversion(inWide, multiByte, outWide);
 	}

@@ -68,6 +68,11 @@ endif()
 
 add_definitions( -DUNICODE -D_UNICODE )
 
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+	add_definitions( -DBDN_TARGET_WEB )
+endif()
+
+
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
@@ -80,15 +85,6 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
-
-
-set(FLAAAGS "x")
-
-# set_property(TARGET boden PROPERTY COMPILE_FLAGS "/XXX")
-get_property(FLAAAGS GLOBAL PROPERTY COMPILE_OPTIONS)
-message("${FLAAAGS}")
-get_property(FLAAAGS TARGET boden PROPERTY COMPILE_OPTIONS)
-message("${FLAAAGS}")
 
 
 set( UIDEMO_SRCDIR "../uidemo/src")

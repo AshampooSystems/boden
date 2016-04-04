@@ -257,26 +257,26 @@ def isSingleConfigBuildSystem(buildSystem):
 
 
 
-def commandPrepare(args):
+def commandPrepare(commandArgs):
 
-    buildSystem = args.buildsystem;
-
-    targetAndArchList = getTargetAndArchListForCommand(args);
+    targetAndArchList = getTargetAndArchListForCommand(commandArgs);
 
     if len(targetAndArchList)==0:
 
-        if args.target:
-            arch = args.arch;
+        if commandArgs.target:
+            arch = commandArgs.arch;
             if not arch:
                 arch = "std";
 
-            targetAndArchList = [ (args.target, "std") ];
+            targetAndArchList = [ (commandArgs.target, "std") ];
 
         else:
             raise IncorrectCallError("TARGET must be specified when prepare is first called.");
 
 
     for target, arch in targetAndArchList:
+
+    	buildSystem = commandArgs.buildsystem;
 
         if target not in targetMap:
             raise InvalidTargetNameError(target);
@@ -288,6 +288,8 @@ def commandPrepare(args):
 
         targetState = loadState(targetBuildDir);
         oldBuildSystem = targetState.get("buildSystem", "");
+
+        print("oldBuildSystem="+oldBuildSystem)
 
         if buildSystem and oldBuildSystem and buildSystem!=oldBuildSystem:
 
@@ -304,6 +306,8 @@ def commandPrepare(args):
                 raise IncorrectCallError("BUILDSYSTEM must be specified when prepare is first called for a target.");
 
             buildSystem = oldBuildSystem;
+
+        print("buildSystem="+buildSystem)
 
         targetState["buildSystem"] = buildSystem;
 
@@ -480,7 +484,7 @@ def commandPrepare(args):
 
 
             if toolChainFileName:
-                toolChainFilePath = os.path.join(cmakeDir, toolChainFileName);               
+                toolChainFilePath = os.path.join(getCMakeDir(), toolChainFileName);               
 
             if toolChainFilePath:
                 if not os.path.isfile(toolChainFilePath):

@@ -3777,9 +3777,9 @@ struct NoColourImpl : IColourImpl {
 } // namespace bdn
 
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
-#   ifdef BDN_PLATFORM_WINDOWS
+#   ifdef BDN_TARGET_WINDOWS
 #       define BDN_CONFIG_COLOUR_WINDOWS
-#   else
+#   elif !defined(BDN_TARGET_WEB)
 #       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
@@ -3891,6 +3891,7 @@ private:
 
 IColourImpl* platformColourInstance() {
 	Ptr<IConfig const> config = getCurrentContext().getConfig();
+
 	return (config && config->forceColour()) || isatty(STDOUT_FILENO)
 		? PosixColourImpl::instance()
 		: NoColourImpl::instance();
