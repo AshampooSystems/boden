@@ -31,7 +31,7 @@ namespace bdn
 	\tparam PTR a string pointer type (for example char32_*, const char*, ...)
 	*/
 template<class PTR>
-PTR getStringEndPtr(PTR p, int length=-1)
+PTR getStringEndPtr(PTR p, size_t length=std::string::npos)
 {
 	if(length<0)
 	{
@@ -102,24 +102,24 @@ public:
 		{
 		}
 
-		Iterator& operator+=(int val)
+		Iterator& operator+=(std::ptrdiff_t val)
 		{
-			for(int i=0; i<val; i++)
+			for(std::ptrdiff_t i=0; i<val; i++)
 				this->operator++();
 
 			return *this;
 		}
 
-		Iterator& operator-=(int val)
+		Iterator& operator-=(std::ptrdiff_t val)
 		{
-			for(int i=0; i<val; i++)
+			for(std::ptrdiff_t i=0; i<val; i++)
 				this->operator--();
 
 			return *this;
 		}
         
 
-		Iterator operator+(int val) const
+		Iterator operator+(std::ptrdiff_t val) const
 		{
 			Iterator it = *this;
 			it+=val;
@@ -127,7 +127,7 @@ public:
 			return it;
 		}
 
-		Iterator operator-(int val) const
+		Iterator operator-(std::ptrdiff_t val) const
 		{
 			Iterator it = *this;
 			it-=val;
@@ -144,10 +144,10 @@ public:
 
 	/** Initializes the object from the specified UTF-8 encoded string.
 	
-		@param s UTF-8 encoded string data. If lengthElements is -1 then this must be zero terminated.
-		@param lengthElements length of the string data in bytes. If this is -1 then the length is
+		@param s UTF-8 encoded string data. If lengthElements is std::string::npos then this must be zero terminated.
+		@param lengthBytes length of the string data in bytes. If this is std::string::npos then the length is
 			auto detected and the string data must be zero-terminated.*/
-	StringData(const char* s, int lengthBytes = -1)
+	StringData(const char* s, size_t lengthBytes = std::string::npos)
 		: StringData(	Utf8Codec(),
 						s,
 						getStringEndPtr(s, lengthBytes) )
@@ -166,10 +166,10 @@ public:
 
 	/** Initializes the object from the specified UTF-16 encoded string.
 
-		@param s UTF-16 encoded string data. If lengthElements is -1 then this must be zero terminated.
-		@param lengthElements length of the string data in encoded 16 bit elements. If this is -1
+		@param s UTF-16 encoded string data. If lengthElements is std::string::npos then this must be zero terminated.
+		@param lengthElements length of the string data in encoded 16 bit elements. If this is std::string::npos
 			then the length is auto detected and the string data must be zero-terminated.*/
-	StringData(const char16_t* s, int lengthElements = -1)
+	StringData(const char16_t* s, size_t lengthElements = std::string::npos)
 		: StringData(	Utf16Codec(),
 						s,
 						getStringEndPtr(s, lengthElements) )
@@ -190,10 +190,10 @@ public:
 
 		@param s wchar string data. This must be either UTF-16 or UTF-32 encoded (depending on whether wchar_t is
 			2 bytes long or 4 bytes long).
-			If lengthElements is -1 then this must be zero terminated.
-		@param lengthElements length of the string data in encoded wchar_t elements. If this is -1
+			If lengthElements is std::string::npos then this must be zero terminated.
+		@param lengthElements length of the string data in encoded wchar_t elements. If this is std::string::npos
 			then the length is auto detected and the string data must be zero-terminated.*/
-	StringData(const wchar_t* s, int lengthElements = -1)
+	StringData(const wchar_t* s, size_t lengthElements = std::string::npos)
 		: StringData(	WideCodec(),
 						s,
 						getStringEndPtr(s, lengthElements) )
@@ -213,10 +213,10 @@ public:
 	
 	/** Initializes the object from the specified UTF-32 encoded string.
 
-		@param s UTF-32 encoded string data. If lengthElements is -1 then this must be zero terminated.
-		@param lengthElements length of the string data in encoded 32 bit elements. If this is -1
+		@param s UTF-32 encoded string data. If lengthElements is std::string::npos then this must be zero terminated.
+		@param lengthElements length of the string data in encoded 32 bit elements. If this is std::string::npos
 			then the length is auto detected and the string data must be zero-terminated.*/
-	StringData(const char32_t* s, int lengthElements = -1)
+	StringData(const char32_t* s, size_t lengthElements = std::string::npos)
 		: StringData(	s,
 						getStringEndPtr(s, lengthElements))
 	{

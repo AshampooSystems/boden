@@ -688,7 +688,7 @@ void verifyConvertBackFromMultiByte(const std::string& m, const StringType& s, s
 		{
 			StringType convBack;
 
-			int length = m.length();
+			size_t length = m.length();
 
 			std::string m2 = m;
 			m2+="xyz";

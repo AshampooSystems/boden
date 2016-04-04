@@ -340,19 +340,44 @@ def commandPrepare(args):
             if config:
                 cmakeBuildDir = os.path.join(cmakeBuildDir, config);
 
-            args = ["-G", generatorName, getCMakeDir() ];
-
             toolChainFileName = None;
             toolChainFilePath = None;
 
             envSetupPrefix = "";
 
-            if arch=="std":
-                cmakeArch = None;
-            else:
-                cmakeArch = arch;
+            cmakeArch = None;
 
-            if target=="ios":
+            args = [];
+            
+            if target=="windows":
+
+                if arch!="std":
+
+                    if "Visual Studio" in generatorName:
+
+                        # note: passing the architecture with -A does not work properly.
+                        # Cmake cannot find a compiler if we do it that way. does not find a compiler.
+                        # So instead we pass it in the generator name.
+
+                        if arch=="x64":
+                            #cmakeArch = "x64";
+                            generatorName += " Win64"
+                            
+                        elif arch=="arm":
+                            #cmakeArch = "ARM";
+                            generatorName += " ARM"                            
+                        else:
+                            raise InvalidArchitectureError(arch);
+
+                    else:
+                        raise InvalidArchitectureError(arch);
+
+            elif target=="osx":
+
+                if arch!="std":
+                    raise InvalidArchitectureError(arch);
+
+            elif target=="ios":
 
                 if arch=="std":
                     platform = "OS";
@@ -439,11 +464,18 @@ def commandPrepare(args):
             elif target=="android":
                 toolChainFileName = "android.cmake";
 
-                args.extend( ['-DANDROID_ABI='+arch ] );
+                if arch!="std":
+                    args.extend( ['-DANDROID_ABI='+arch ] );
 
 
             elif target=="dotnet":
                 args.extend( ['-DBODEN_TARGET=dotnet' ] );
+
+                if arch!="std":
+                    raise InvalidArchitectureError(arch);
+
+
+            args = ["-G", generatorName, getCMakeDir() ] + args[:];
 
 
             if toolChainFileName:
@@ -459,6 +491,9 @@ def commandPrepare(args):
 
             if config:
                 args.extend( ["-DCMAKE_BUILD_TYPE="+config ] );
+
+            if cmakeArch:
+                args.extend( ["-A "+cmakeArch ] );
 
             # we do not validate the toolset name
             commandLine = "cmake";
@@ -522,7 +557,7 @@ class Toolset(object):
 
             workDir = buildDir;
 
-        print "Calling CMake --build for config %s:\n%s" % (configName, commandLine);
+        print("Calling CMake --build for config %s:\n%s" % (configName, commandLine));
 
         exitCode = subprocess.call(commandLine, shell=True, cwd=workDir);
         if exitCode!=0:

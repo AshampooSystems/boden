@@ -28,7 +28,7 @@ inline int callCodecOut(    Codec& codec,
         if(pInBegin!=pInEnd && pOutBegin!=pOutEnd && pInNext==pInBegin && pOutNext==pOutBegin)
         {
             // just copy the input character over. It is most likely a zero character.
-            *pOutNext = *pInNext;
+            *pOutNext = (char)*pInNext;
             pOutNext++;
             pInNext++;
         }
@@ -42,7 +42,7 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 {
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
 	
-	int len = wideString.length();
+	size_t len = wideString.length();
 	if(len==0)
 		return std::string();
 	else
@@ -149,7 +149,7 @@ std::wstring localeEncodingToWide(const std::string& multiByte, const std::local
 {
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
 
-	int	len = multiByte.length();
+	size_t	len = multiByte.length();
 	if(len==0)
 		return std::wstring();
 	else

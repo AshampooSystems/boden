@@ -220,7 +220,7 @@ public:
 	/** Move constructor. Behaves the same as assign(const StringImpl&&). */
 	StringImpl(StringImpl&& s) noexcept
 	{
-		_lengthIfKnown = -1;
+		_lengthIfKnown = npos;
 
 		assign( std::move(s) );
 	}
@@ -236,7 +236,7 @@ public:
 		_beginIt = beginIt;
 		_endIt = endIt;
 
-		_lengthIfKnown = -1;
+		_lengthIfKnown = npos;
 	}
 
 	/** Initializes the string with a substring of the specified string.
@@ -251,7 +251,7 @@ public:
 	*/
 	StringImpl(const StringImpl& s, size_t subStringStartIndex, size_t subStringLength = toEnd )
 	{
-		_lengthIfKnown = -1;
+		_lengthIfKnown = npos;
 
 		assign(s, subStringStartIndex, subStringLength);
 	}
@@ -382,7 +382,7 @@ public:
 		, _beginIt( pData->begin() )
 		, _endIt( pData->end() )
 	{
-		_lengthIfKnown = -1;
+		_lengthIfKnown = npos;
 	}
 
 
@@ -419,10 +419,10 @@ public:
 	/** Returns the number of characters in this string.*/
 	size_t getLength() const noexcept
 	{
-		if (_lengthIfKnown == -1)
+		if (_lengthIfKnown == npos)
 		{
 			// character count is unknown. We need to count it first.
-			int c = 0;
+			size_t   c = 0;
 			Iterator it = _beginIt;
 			while (it != _endIt)
 			{
@@ -433,7 +433,7 @@ public:
 			_lengthIfKnown = c;
 		}
 
-		return (size_t)_lengthIfKnown;
+		return _lengthIfKnown;
 	}
 
 
@@ -465,11 +465,11 @@ public:
 		*/
 	void reserve(size_t reserveChars = 0)
 	{
-		int excessCapacityCharacters = reserveChars-length();
+		typename MainDataType::EncodedString::difference_type excessCapacityCharacters = reserveChars-length();
 		if(excessCapacityCharacters<0)
 			excessCapacityCharacters = 0;
 
-		int excessCapacityElements = excessCapacityCharacters * MainDataType::Codec::getMaxEncodedElementsPerCharacter();
+		typename MainDataType::EncodedString::difference_type excessCapacityElements = excessCapacityCharacters * MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 
 		Modify m(this);
 
@@ -501,7 +501,7 @@ public:
 	*/
 	size_t capacity() const noexcept
 	{
-		int excessCapacityCharacters;
+		typename MainDataType::EncodedString::difference_type excessCapacityCharacters;
 
 		if(_pData->getRefCount()!=1)
 		{
@@ -513,7 +513,7 @@ public:
 		{
 			typename MainDataType::EncodedString* pStd = &_pData->getEncodedString();
 
-			int excessCapacity = pStd->capacity()-pStd->length();
+			typename MainDataType::EncodedString::difference_type excessCapacity = pStd->capacity()-pStd->length();
 			if(excessCapacity<0)
 				excessCapacity = 0;
 
@@ -2288,7 +2288,7 @@ public:
 	*/
 	Iterator insert(const Iterator& atIt, size_t numChars, char32_t chr)
 	{
-		int encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+		typename MainDataType::EncodedString::difference_type encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
 
 		replace(atIt, atIt, numChars, chr);
 
@@ -2338,7 +2338,7 @@ public:
 	template <class IT>
 	Iterator insert(Iterator atIt, const IT& toInsertBegin, const IT& toInsertEnd)
 	{
-		int encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
+		typename MainDataType::EncodedString::difference_type encodedInsertIndex = atIt.getInner() - _beginIt.getInner();
 
 		replace(atIt, atIt, toInsertBegin, toInsertEnd);
 
@@ -2402,7 +2402,7 @@ public:
 		character (or end() if it was the last character).*/
 	Iterator erase(const Iterator& it)
 	{
-		int encodedEraseIndex = it.getInner() - _beginIt.getInner();
+		typename MainDataType::EncodedString::difference_type encodedEraseIndex = it.getInner() - _beginIt.getInner();
 
 		replace(it, it+1,  U"", 0);
 
@@ -2418,7 +2418,7 @@ public:
 		character (or end() if the removed part extended to the end of the string).*/
 	Iterator erase(const Iterator& beginIt, const Iterator& endIt)
 	{
-		int encodedEraseIndex = beginIt.getInner() - _beginIt.getInner();
+		typename MainDataType::EncodedString::difference_type encodedEraseIndex = beginIt.getInner() - _beginIt.getInner();
 
 		replace(beginIt, endIt,  U"", 0);
 
@@ -2466,8 +2466,8 @@ public:
 		{
 			_endIt = other._endIt;
 
-			if(other._lengthIfKnown==-1)
-				_lengthIfKnown = -1;
+			if(other._lengthIfKnown==npos)
+				_lengthIfKnown = npos;
 			else
 				_lengthIfKnown = other._lengthIfKnown-otherSubStartIndex;
 
@@ -2634,7 +2634,7 @@ public:
 		Iterator		beginIt = _beginIt;
 		Iterator		endIt = _endIt;
 		P<Base>			pDataInDifferentEncoding = _pDataInDifferentEncoding;
-		int				lengthIfKnown = _lengthIfKnown;
+		size_t			lengthIfKnown = _lengthIfKnown;
 
 		_pData = o._pData;
 		_beginIt = o._beginIt;
@@ -5582,7 +5582,7 @@ public:
 				// empty token. Skip over it.
 				++_beginIt;
 
-				_lengthIfKnown = -1;
+				_lengthIfKnown = npos;
 				_pDataInDifferentEncoding = nullptr;
 			}
 			else
@@ -5603,7 +5603,7 @@ public:
 						*pSeparator = U'\0';
 				}
 
-				_lengthIfKnown = -1;
+				_lengthIfKnown = npos;
 				_pDataInDifferentEncoding = nullptr;
 
 				return result;
@@ -5725,7 +5725,7 @@ public:
 			return oldVal;
 		}
 
-		IteratorWithIndex& operator+=(int val)
+		IteratorWithIndex& operator+=(std::ptrdiff_t val)
 		{
 			_innerIt += val;
 			_index += val;
@@ -5733,7 +5733,7 @@ public:
 			return *this;
 		}
 
-		IteratorWithIndex& operator-=(int val)
+		IteratorWithIndex& operator-=(std::ptrdiff_t val)
 		{
 			_innerIt -= val;
 			_index -= val;
@@ -5742,7 +5742,7 @@ public:
 		}
 
 
-		IteratorWithIndex operator+(int val) const
+		IteratorWithIndex operator+(std::ptrdiff_t val) const
 		{
 			IteratorWithIndex it = *this;
 			it+=val;
@@ -5750,7 +5750,7 @@ public:
 			return it;
 		}
 
-		IteratorWithIndex operator-(int val) const
+		IteratorWithIndex operator-(std::ptrdiff_t val) const
 		{
 			IteratorWithIndex it = *this;
 			it-=val;
@@ -5826,7 +5826,7 @@ protected:
 		return _pData->getEncodedString();
 	}
 
-	void setEnd( const Iterator& newEnd, int newLengthIfKnown)
+	void setEnd( const Iterator& newEnd, size_t newLengthIfKnown)
 	{
 		_endIt = newEnd;
 		_lengthIfKnown = newLengthIfKnown;
@@ -5869,7 +5869,7 @@ protected:
 				// Unfortunately, cutting off from the end will invalidate our begin iterator,
 				// so we need to save its value as an index.
 
-				int startIndex = _beginIt.getInner() - pStd->cbegin();
+				typename MainDataType::EncodedString::difference_type startIndex = _beginIt.getInner() - pStd->cbegin();
 
 				if(_endIt.getInner()!=pStd->cend())
 				{
@@ -5906,7 +5906,7 @@ protected:
 		_beginIt = _pData->begin();
 		_endIt = _pData->end();
 
-		_lengthIfKnown = -1;
+		_lengthIfKnown = npos;
 		_pDataInDifferentEncoding = nullptr;
 	}
 
@@ -5939,7 +5939,7 @@ protected:
 
 	mutable P<Base>			_pDataInDifferentEncoding;
 
-	mutable int				_lengthIfKnown;
+	mutable size_t			_lengthIfKnown;
 };
 
 }
