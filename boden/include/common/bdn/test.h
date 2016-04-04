@@ -196,7 +196,9 @@
 // C++ language feature support
 
 // catch all support for C++11
-#if defined(__cplusplus) && __cplusplus >= 201103L
+
+
+#if defined(__cplusplus) && (__cplusplus >= 201103L || defined(__cplusplus_cli) )
 
 #  define BDN_CPP11_OR_GREATER
 
@@ -1298,6 +1300,7 @@ namespace Internal {
     inline std::nullptr_t opCast(std::nullptr_t) { return nullptr; }
 #endif // BDN_CONFIG_CPP11_NULLPTR
 
+
     // So the compare overloads can be operator agnostic we convey the operator as a template
     // enum, which is used to specialise an Evaluator for doing the comparison.
     template<typename T1, typename T2, Operator Op>
@@ -1415,6 +1418,7 @@ namespace Internal {
     }
 
 #ifdef BDN_CONFIG_CPP11_LONG_LONG
+
     // long long to unsigned X
     template<Operator Op> bool compare( long long lhs, unsigned int rhs ) {
         return applyEvaluator<Op>( static_cast<unsigned long>( lhs ), rhs );
@@ -1461,6 +1465,8 @@ namespace Internal {
         return Evaluator<T*, T*, Op>::evaluate( lhs, rhs );
     }
 #endif // BDN_CONFIG_CPP11_NULLPTR
+
+	
 
 } // end of namespace Internal
 } // end of namespace bdn
@@ -1793,6 +1799,15 @@ public:
     ResultBuilder& operator == ( std::nullptr_t rhs ) {
         return captureExpression<Internal::IsEqualTo>( rhs );
     }
+		
+#ifdef __cplusplus_cli
+	// needed to work around a compiler bug in the Visual Studio C++/CLI compiler.
+	ResultBuilder& operator == ( size_t rhs ) {
+        return captureExpression<Internal::IsEqualTo>( rhs );
+    }
+#endif
+
+	
 
     template<typename RhsT>
     ResultBuilder& operator != ( RhsT const& rhs ) {
@@ -1802,6 +1817,13 @@ public:
     ResultBuilder& operator != (std::nullptr_t rhs) {
         return captureExpression<Internal::IsNotEqualTo>( rhs );
     }
+
+#ifdef __cplusplus_cli
+	// needed to work around a compiler bug in the Visual Studio C++/CLI compiler.
+	ResultBuilder& operator != (size_t rhs) {
+        return captureExpression<Internal::IsNotEqualTo>( (size_t)rhs );
+    }
+#endif
 
     template<typename RhsT>
     ResultBuilder& operator < ( RhsT const& rhs ) {

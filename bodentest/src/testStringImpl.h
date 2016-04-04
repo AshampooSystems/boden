@@ -76,9 +76,12 @@ inline void testTypes()
 template<class DATATYPE>
 inline void testConstants()
 {
-	REQUIRE( StringImpl<DATATYPE>::npos == std::string::npos);
-	REQUIRE( StringImpl<DATATYPE>::noMatch == StringImpl<DATATYPE>::npos );
-	REQUIRE( StringImpl<DATATYPE>::toEnd == StringImpl<DATATYPE>::npos );
+	// note: the explicit cast to size_t it needed for working around
+	// a compiler bug in the CLR/.net C++ compiler from Visual Studio.
+	// The compiler will exit with an internal error otherwise.
+	REQUIRE( ((size_t)StringImpl<DATATYPE>::npos) == ((size_t)std::string::npos) );
+	REQUIRE( ((size_t)StringImpl<DATATYPE>::noMatch) == ((size_t)StringImpl<DATATYPE>::npos) );
+	REQUIRE( ((size_t)StringImpl<DATATYPE>::toEnd) == ((size_t)StringImpl<DATATYPE>::npos) );
 
 	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains(" ") );
 	REQUIRE( StringImpl<DATATYPE>::getWhitespaceChars().contains("\r") );
@@ -4356,11 +4359,11 @@ inline void testFind()
 {
 	SECTION("iterators")
 		testFindIterators<DATATYPE>();
-
+	
 
 	SECTION("stringFromIt")
 		testFindStringFromIt<DATATYPE>();
-
+	
 	SECTION("stringFromIndex")
 	{
 		SECTION("String")
@@ -4405,13 +4408,13 @@ inline void testFind()
 		SECTION("const wchar_t* with length")
 			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
 	}
-
+	
 	SECTION("charFromIterator")
 		testFindCharFromIterator< StringImpl<DATATYPE> >();
 
 	SECTION("charFromIndex")
 		testFindCharFromIndex< StringImpl<DATATYPE> >();
-
+		
 
 	SECTION("inStdU32String")
 	{
@@ -4423,7 +4426,6 @@ inline void testFind()
 		SECTION("charFromIndexInU32String")
 			testFindCharFromIndex< std::u32string >();
 	}
-
 }
 
 
@@ -8813,18 +8815,12 @@ inline void testSplitOffWord()
 template<class DATATYPE>
 inline void testStringImpl()
 {
-	SECTION("splitOffToken")
-		testSplitOffToken<DATATYPE>();
-
-	SECTION("splitOffWord")
-		testSplitOffWord<DATATYPE>();
-
 	SECTION("types")
 		testTypes<DATATYPE>();
 
 	SECTION("constants")
 		testConstants<DATATYPE>();
-
+	
 	SECTION("construct")
 	{
 		testConstruct<DATATYPE>();
@@ -8883,7 +8879,7 @@ inline void testStringImpl()
 	{
 		testComparison<DATATYPE>();
 	}
-
+	
 	SECTION("charAccess")
 	{
 		SECTION("normal")
@@ -8925,7 +8921,7 @@ inline void testStringImpl()
 	{
 		testAppend<DATATYPE>();
 	}
-
+	
 	SECTION("insert")
 	{
 		testInsert<DATATYPE>();
@@ -8948,7 +8944,7 @@ inline void testStringImpl()
 	{
 		testResize<DATATYPE>();
 	}
-
+	
 	SECTION("swap")
 		testSwap<DATATYPE>();
 
@@ -8960,22 +8956,32 @@ inline void testStringImpl()
 
 	SECTION("shrinkToFit")
 		testShrinkToFit<DATATYPE>();
+		
+	SECTION("splitOffToken")
+		testSplitOffToken<DATATYPE>();
 
+	SECTION("splitOffWord")
+		testSplitOffWord<DATATYPE>();
+	
 	SECTION("getAllocator")
 		testGetAllocator<DATATYPE>();
-
+	
 	SECTION("copy")
 		testCopy<DATATYPE>();
 
 	SECTION("IteratorWithIndex")
 		testIteratorWithIndex<DATATYPE>();
-
+	
+	
 	SECTION("find")
 		testFind<DATATYPE>();
-
+		
+	
 	SECTION("reverseFind")
 		testReverseFind<DATATYPE>();
-
+		
+	
+	
 	SECTION("findCondition")
 		testFindCondition<DATATYPE>();
 
@@ -8996,6 +9002,7 @@ inline void testStringImpl()
 
 	SECTION("findReplace")
 		testFindReplace<DATATYPE>();
+		
 
 	SECTION("contains")
 		testContains<DATATYPE>();
