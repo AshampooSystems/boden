@@ -50,8 +50,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
-	# we might need to add this flag in the future, but at the moment it is not needed.
-    # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
 if( "${BODEN_TARGET}" MATCHES "dotnet")
