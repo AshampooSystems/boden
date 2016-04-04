@@ -10,7 +10,7 @@ project (boden)
 
 
 if(BODEN_TARGET)
-	# do nothing
+	# do nothing	
 
 else()
 
@@ -40,6 +40,7 @@ else()
 
 endif()
 
+message("Boden target is ${BODEN_TARGET}")
 
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
@@ -49,13 +50,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+	# we might need to add this flag in the future, but at the moment it is not needed.
+    # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
-
-if( ${BODEN_TARGET} EQUAL "dotnet")
+if( "${BODEN_TARGET}" MATCHES "dotnet")
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr /EHa")
+	string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr:pure /EHa")
+
+	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /ASSEMBLYDEBUG")
+
 endif()
 
 
@@ -74,6 +80,15 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+
+set(FLAAAGS "x")
+
+# set_property(TARGET boden PROPERTY COMPILE_FLAGS "/XXX")
+get_property(FLAAAGS GLOBAL PROPERTY COMPILE_OPTIONS)
+message("${FLAAAGS}")
+get_property(FLAAAGS TARGET boden PROPERTY COMPILE_OPTIONS)
+message("${FLAAAGS}")
 
 
 set( UIDEMO_SRCDIR "../uidemo/src")

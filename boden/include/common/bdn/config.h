@@ -16,6 +16,19 @@
 
 #endif
 
+
+#if !defined(BDN_TARGET_DETECTED) && defined(__cplusplus_cli)
+	#define BDN_TARGET_DOTNET 1
+	#define BDN_TARGET_DETECTED 1
+
+#else
+	#define BDN_TARGET_DOTNET 0	
+
+#endif
+
+
+
+
 #if !defined(BDN_TARGET_DETECTED) && (defined(WIN32) || defined(_WINDOWS))
 	#define BDN_TARGET_WINDOWS 1
 	#define BDN_TARGET_DETECTED 1

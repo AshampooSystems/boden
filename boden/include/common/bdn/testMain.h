@@ -40,6 +40,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/test.h>
 
+
 #ifndef __OBJC__
 
 // Standard C/C++ main entry point

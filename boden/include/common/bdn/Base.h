@@ -3,7 +3,9 @@
 
 #include <bdn/IBase.h>
 
+#if !BDN_TARGET_DOTNET
 #include <atomic>
+#endif
 
 namespace bdn
 {
@@ -34,12 +36,21 @@ public:
 
 	void addRef() const override
 	{
+#if BDN_TARGET_DOTNET
+		System::Threading::Interlocked::Increment(_refCount);
+#else
 		_refCount++;
+#endif
 	}
 
 	void releaseRef() const override
 	{
+#if BDN_TARGET_DOTNET
+		// cannot use std::atomic. So we used Interlocked instead.		
+		if(System::Threading::Interlocked::Decrement(_refCount)==0)
+#else
 		if(_refCount.fetch_sub(1)==1)
+#endif
 		{
 			// the reference count has reached 0.
 
@@ -52,6 +63,7 @@ public:
 
 			const_cast<Base*>(this)->deleteThis();
 		}
+
 	}
 
 
@@ -157,7 +169,11 @@ protected:
 		return pRef;
 	}
 
+#if BDN_TARGET_DOTNET
+	mutable int _refCount;
+#else
 	mutable volatile std::atomic<int> _refCount;
+#endif
 };
     
     

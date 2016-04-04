@@ -1,3 +1,6 @@
+#ifndef BDN_testStringImpl_H_
+#define BDN_testStringImpl_H_
+
 #include <bdn/init.h>
 #include <bdn/test.h>
 
@@ -4895,7 +4898,7 @@ inline void testReverseFindStringFromIt()
 
 
 template<class StringType, class ...Args>
-typename StringType::Iterator callReverseFindIt(const StringType& s, Args... args)
+inline typename StringType::Iterator callReverseFindIt(const StringType& s, Args... args)
 {
 	auto result = s.reverseFind(args...);
 	auto result2 = s.rfind(args...);
@@ -4907,7 +4910,7 @@ typename StringType::Iterator callReverseFindIt(const StringType& s, Args... arg
 
 
 template<class StringType, class ...Args>
-size_t callReverseFindSizeT(const StringType& s, Args... args)
+inline size_t callReverseFindSizeT(const StringType& s, Args... args)
 {
     auto result = s.reverseFind(args...);
     auto result2 = s.rfind(args...);
@@ -4918,19 +4921,19 @@ size_t callReverseFindSizeT(const StringType& s, Args... args)
 }
 
 template<>
-size_t callReverseFindSizeT<std::u32string, std::u32string, size_t>(const std::u32string& s, std::u32string toFind, size_t searchFromIndex)
+inline size_t callReverseFindSizeT<std::u32string, std::u32string, size_t>(const std::u32string& s, std::u32string toFind, size_t searchFromIndex)
 {
     return s.rfind(toFind, searchFromIndex);
 }
 
 template<>
-size_t callReverseFindSizeT<std::u32string, std::u32string, int>(const std::u32string& s, std::u32string toFind, int searchFromIndex)
+inline size_t callReverseFindSizeT<std::u32string, std::u32string, int>(const std::u32string& s, std::u32string toFind, int searchFromIndex)
 {
     return s.rfind(toFind, searchFromIndex);
 }
 
 template<>
-size_t callReverseFindSizeT<std::u32string, std::u32string>(const std::u32string& s, std::u32string toFind)
+inline size_t callReverseFindSizeT<std::u32string, std::u32string>(const std::u32string& s, std::u32string toFind)
 {
     return s.rfind(toFind);
 }
@@ -5472,7 +5475,7 @@ inline void testReverseFindCharFromIterator()
 
 
 template<class StringType, class ...Args>
-size_t callReverseFindChar(const StringType& s, Args... args)
+inline size_t callReverseFindChar(const StringType& s, Args... args)
 {
 	size_t result = s.reverseFind(args...);
 	size_t result2 = s.rfind(args...);
@@ -5486,7 +5489,7 @@ size_t callReverseFindChar(const StringType& s, Args... args)
 
 
 template<>
-size_t callReverseFindChar<std::u32string, char32_t, size_t>(const std::u32string& s, char32_t toFind, size_t searchFromIndex)
+inline size_t callReverseFindChar<std::u32string, char32_t, size_t>(const std::u32string& s, char32_t toFind, size_t searchFromIndex)
 {
 	size_t result = s.rfind(toFind, searchFromIndex);
 	size_t result2 = s.find_last_of(toFind, searchFromIndex);
@@ -5497,7 +5500,7 @@ size_t callReverseFindChar<std::u32string, char32_t, size_t>(const std::u32strin
 }
 
 template<>
-size_t callReverseFindChar<std::u32string, char32_t, int>(const std::u32string& s, char32_t toFind, int searchFromIndex)
+inline size_t callReverseFindChar<std::u32string, char32_t, int>(const std::u32string& s, char32_t toFind, int searchFromIndex)
 {
 	size_t result = s.rfind(toFind, searchFromIndex);
 	size_t result2 = s.find_last_of(toFind, searchFromIndex);
@@ -5508,7 +5511,7 @@ size_t callReverseFindChar<std::u32string, char32_t, int>(const std::u32string& 
 }
 
 template<>
-size_t callReverseFindChar<std::u32string, char32_t>(const std::u32string& s, char32_t toFind)
+inline size_t callReverseFindChar<std::u32string, char32_t>(const std::u32string& s, char32_t toFind)
 {
 	size_t result = s.rfind(toFind);
 	size_t result2 = s.find_last_of(toFind);
@@ -9001,508 +9004,5 @@ inline void testStringImpl()
 
 
 
-
-template<class LeftType, class RightType>
-inline void verifyGlobalConcatenation()
-{
-	String leftObj("hello");
-	String rightObj("world");
-
-	LeftType  left = (LeftType)leftObj;
-	RightType right = (RightType)rightObj;
-
-	String result = left+right;
-
-	verifyContents(result, U"helloworld");
-}
-
-
-template<class LeftType, class RightType>
-inline void verifyGlobalConcatenationMoveFromLeft()
-{
-	String leftObj("hello");
-	String rightObj("world");
-
-	LeftType  left = (LeftType)leftObj;
-	RightType right = (RightType)rightObj;
-
-	String result = std::move(left)+right;
-
-	verifyContents(result, U"helloworld");
-
-	verifyContents(left, U"");
-	verifyContents(rightObj, U"world");
-}
-
-
-inline void testGlobalConcatenation()
-{
-	SECTION("string + string")
-		verifyGlobalConcatenation< String, String >();
-
-
-	SECTION("string + std::string")
-		verifyGlobalConcatenation< String, std::string >();
-
-	SECTION("string + std::wstring")
-		verifyGlobalConcatenation< String, std::wstring >();
-
-	SECTION("string + std::u16string")
-		verifyGlobalConcatenation< String, std::u16string >();
-
-	SECTION("string + std::u32string")
-		verifyGlobalConcatenation< String, std::u16string >();
-
-	SECTION("string + const char*")
-		verifyGlobalConcatenation< String, const char* >();
-
-	SECTION("string + const wchar_t*")
-		verifyGlobalConcatenation< String, const wchar_t* >();
-
-	SECTION("string + const char16_t*")
-		verifyGlobalConcatenation< String, const char16_t* >();
-
-	SECTION("string + const char32_t*")
-		verifyGlobalConcatenation< String, const char32_t* >();
-
-
-
-	SECTION("string&& + string")
-		verifyGlobalConcatenationMoveFromLeft< String, String >();
-
-	SECTION("string&& + std::string")
-		verifyGlobalConcatenationMoveFromLeft< String, std::string >();
-
-	SECTION("string&& + std::wstring")
-		verifyGlobalConcatenationMoveFromLeft< String, std::wstring >();
-
-	SECTION("string&& + std::u16string")
-		verifyGlobalConcatenationMoveFromLeft< String, std::u16string >();
-
-	SECTION("string&& + std::u32string")
-		verifyGlobalConcatenationMoveFromLeft< String, std::u16string >();
-
-	SECTION("string&& + const char*")
-		verifyGlobalConcatenationMoveFromLeft< String, const char* >();
-
-	SECTION("string&& + const wchar_t*")
-		verifyGlobalConcatenationMoveFromLeft< String, const wchar_t* >();
-
-	SECTION("string&& + const char16_t*")
-		verifyGlobalConcatenationMoveFromLeft< String, const char16_t* >();
-
-	SECTION("string&& + const char32_t*")
-		verifyGlobalConcatenationMoveFromLeft< String, const char32_t* >();
-
-
-
-	SECTION("std::string + string")
-		verifyGlobalConcatenation< std::string, String >();
-
-	SECTION("std::wstring + string")
-		verifyGlobalConcatenation< std::wstring, String >();
-
-	SECTION("std::u16string + string")
-		verifyGlobalConcatenation< std::u16string, String >();
-
-	SECTION("std::u32string + string")
-		verifyGlobalConcatenation< std::u32string, String >();
-
-	SECTION("const char* + string")
-		verifyGlobalConcatenation< const char*, String >();
-
-	SECTION("const wchar_t* + string")
-		verifyGlobalConcatenation< const wchar_t*, String >();
-
-	SECTION("const char16_t* + string")
-		verifyGlobalConcatenation< const char16_t*, String >();
-
-	SECTION("const char32_t* + string")
-		verifyGlobalConcatenation< const char32_t*, String >();
-}
-
-
-
-
-
-template<class LeftType, class RightType>
-inline void verifyGlobalComparison()
-{
-	String hello("hello");
-	String hello2("hello");
-	String Hello("Hello");
-	String world("world");
-
-
-	REQUIRE( ( ((LeftType)hello) < ((RightType)world) ) );
-	REQUIRE( ( ((LeftType)hello) <= ((RightType)world) ) );
-	REQUIRE( !( ((LeftType)hello) == ((RightType)world) ) );
-	REQUIRE( ( ((LeftType)hello) != ((RightType)world) ) );
-	REQUIRE( !( ((LeftType)hello) > ((RightType)world) ) );
-	REQUIRE( !( ((LeftType)hello) >= ((RightType)world) ) );
-
-	REQUIRE( !( ((LeftType)hello) < ((RightType)hello2) ) );
-	REQUIRE( ( ((LeftType)hello) <= ((RightType)hello2) ) );
-	REQUIRE( ( ((LeftType)hello) == ((RightType)hello2) ) );
-	REQUIRE( !( ((LeftType)hello) != ((RightType)hello2) ) );
-	REQUIRE( !( ((LeftType)hello) > ((RightType)hello2) ) );
-	REQUIRE( ( ((LeftType)hello) >= ((RightType)hello2) ) );
-
-	REQUIRE( !( ((LeftType)world) < ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)world) <= ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)world) == ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)world) != ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)world) > ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)world) >= ((RightType)hello) ) );
-
-	REQUIRE( ( ((LeftType)Hello) < ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)Hello) <= ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)Hello) == ((RightType)hello) ) );
-	REQUIRE( ( ((LeftType)Hello) != ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)Hello) > ((RightType)hello) ) );
-	REQUIRE( !( ((LeftType)Hello) >= ((RightType)hello) ) );
-}
-
-
-inline void testGlobalComparison()
-{
-	SECTION("string + string")
-		verifyGlobalComparison< String, String >();
-
-
-	SECTION("string + std::string")
-		verifyGlobalComparison< String, std::string >();
-
-	SECTION("string + std::wstring")
-		verifyGlobalComparison< String, std::wstring >();
-
-	SECTION("string + std::u16string")
-		verifyGlobalComparison< String, std::u16string >();
-
-	SECTION("string + std::u32string")
-		verifyGlobalComparison< String, std::u16string >();
-
-	SECTION("string + const char*")
-		verifyGlobalComparison< String, const char* >();
-
-	SECTION("string + const wchar_t*")
-		verifyGlobalComparison< String, const wchar_t* >();
-
-	SECTION("string + const char16_t*")
-		verifyGlobalComparison< String, const char16_t* >();
-
-	SECTION("string + const char32_t*")
-		verifyGlobalComparison< String, const char32_t* >();
-
-
-
-	SECTION("std::string + string")
-		verifyGlobalComparison< std::string, String >();
-
-	SECTION("std::wstring + string")
-		verifyGlobalComparison< std::wstring, String >();
-
-	SECTION("std::u16string + string")
-		verifyGlobalComparison< std::u16string, String >();
-
-	SECTION("std::u32string + string")
-		verifyGlobalComparison< std::u32string, String >();
-
-	SECTION("const char* + string")
-		verifyGlobalComparison< const char*, String >();
-
-	SECTION("const wchar_t* + string")
-		verifyGlobalComparison< const wchar_t*, String >();
-
-	SECTION("const char16_t* + string")
-		verifyGlobalComparison< const char16_t*, String >();
-
-	SECTION("const char32_t* + string")
-		verifyGlobalComparison< const char32_t*, String >();
-}
-
-
-template<class CharType>
-String fromStreamData( const std::basic_string<CharType>& data, const std::locale& loc)
-{
-	return String( data );
-}
-
-template<>
-String fromStreamData<char>( const std::basic_string<char>& data, const std::locale& loc)
-{
-	return String::fromLocaleEncoding(data, loc);
-}
-
-
-template<class CharType>
-std::basic_string<CharType> toStreamData(const String& s, const std::locale& loc)
-{
-	return (const std::basic_string<CharType>&)s;
-}
-
-template<>
-std::basic_string<char> toStreamData<char>(const String& s, const std::locale& loc)
-{
-	// special version for char. This uses the locale encoding.
-	return s.toLocaleEncoding(loc);
-}
-
-
-template<class CharType>
-void verifyStringFromStream(const String& s, const String& expectedValue, const std::locale& loc)
-{
-	REQUIRE( s==expectedValue );
-}
-
-template<>
-void verifyStringFromStream<char>(const String& s, const String& expectedValue, const std::locale& loc)
-{
-    std::string streamData = toStreamData<char>(expectedValue, loc);
-	String expectedValueAfterLocaleRoundTrip = fromStreamData<char>( streamData, loc );
-
-	// sanity check
-	REQUIRE( expectedValueAfterLocaleRoundTrip.getLength()>=expectedValue.getLength() );
-
-	REQUIRE( s==expectedValueAfterLocaleRoundTrip );
-}
-
-template<class CharType>
-inline void verifyStreamIntegration()
-{
-	SECTION("output")
-	{
-		std::basic_ostringstream<CharType>	stream;
-		String								s(U"\U00012345hello");
-
-		stream << s;
-
-		std::basic_string<CharType> streamData = stream.str();
-
-		REQUIRE( streamData==toStreamData<CharType>(s, stream.getloc()) );
-
-		String fromStream = fromStreamData(streamData, stream.getloc());
-		verifyStringFromStream<CharType>(fromStream, s, stream.getloc());
-	}
-
-	SECTION("input")
-	{
-		String								in(U"\U00012345hello world");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
-
-		String				s;
-
-		stream >> s;
-
-		verifyStringFromStream<CharType>(s, U"\U00012345hello", stream.getloc());
-
-		stream >> s;
-
-		verifyStringFromStream<CharType>(s, U"world", stream.getloc());
-	}
-
-	SECTION("getline-noDelim")
-	{
-		String								in(U"\U00012345hello world\nbla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc())  );
-
-		String				s;
-
-		std::getline( stream, s);
-
-		verifyStringFromStream<CharType>(s, U"\U00012345hello world", stream.getloc() );
-
-		std::getline( stream, s);
-
-		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
-	}
-
-	SECTION("getline-delim")
-	{
-		String								in(U"\U00012345hello world!bla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
-
-		String				s;
-
-		std::getline( stream, s, '!');
-
-		verifyStringFromStream<CharType>( s, U"\U00012345hello world", stream.getloc() );
-
-		std::getline( stream, s, '!');
-
-		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
-	}
-
-}
-
-inline void testStreamIntegration()
-{
-	SECTION("char")
-		verifyStreamIntegration<char>();
-
-	SECTION("wchar_t")
-		verifyStreamIntegration<wchar_t>();
-}
-
-void testStdSwap()
-{
-	String	a(U"\U00012345hello");
-	String	b(U"world");
-
-	std::swap(a, b);
-
-	REQUIRE( a==U"world" );
-	REQUIRE( b==U"\U00012345hello");
-}
-
-TEST_CASE("StringImpl")
-{
-	SECTION("utf8")
-	{
-		testStringImpl<Utf8StringData>();
-	}
-
-	SECTION("utf16")
-	{
-		testStringImpl<Utf16StringData>();
-	}
-
-	SECTION("utf32")
-	{
-		testStringImpl<Utf32StringData>();
-	}
-
-	SECTION("wide")
-	{
-		testStringImpl<WideStringData>();
-	}
-
-	SECTION("native")
-	{
-		testStringImpl<NativeStringData>();
-	}
-
-	SECTION("globalConcatenation")
-		testGlobalConcatenation();
-
-	SECTION("globalComparison")
-		testGlobalComparison();
-
-	SECTION("streamIntegration")
-		testStreamIntegration();
-
-	SECTION("std::swap")
-		testStdSwap();
-}
-
-
-
-void verifyWideMultiByteConversion( const std::wstring& inWide,
-									const std::string& multiByte,
-									const std::wstring& outWide)
-{
-	// the back-converted string should have the same length at least. Unencodable character
-	// should have been replaced with a replacement character.
-
-	// note that the wide versions should have the same lengths
-	for(size_t i=0; i<inWide.length(); i++)
-	{
-		wchar_t inChr = inWide[i];
-
-		REQUIRE( i<outWide.length() );
-
-		wchar_t outChr = outWide[i];
-
-		// we assume that ASCII characters are representable in the multibyte encoding.
-		if(inChr<0x80)
-		{
-			REQUIRE( outChr==inChr );
-		}
-		else
-		{
-			// non-ASCII characters might have been replaced with one of the replacement characters
-			REQUIRE( (outChr==inChr || outChr==U'\ufffd' || outChr==U'?') );
-		}
-	}
-
-	REQUIRE(outWide.length() == inWide.length());
-}
-
-void verifyWideLocaleEncodingConversion(const std::wstring& inWide)
-{
-	std::string  multiByte;
-	std::wstring outWide;
-
-	SECTION("defaultLocale")
-	{
-		multiByte = wideToLocaleEncoding(inWide);
-		outWide = localeEncodingToWide(multiByte);
-
-		verifyWideMultiByteConversion(inWide, multiByte, outWide);
-	}
-
-	SECTION("globalLocale")
-	{
-		multiByte = wideToLocaleEncoding(inWide, std::locale());
-		outWide = localeEncodingToWide(multiByte, std::locale());
-
-		verifyWideMultiByteConversion(inWide, multiByte, outWide);
-	}
-
-	SECTION("classicLocale")
-	{
-		multiByte = wideToLocaleEncoding(inWide, std::locale::classic());
-		outWide = localeEncodingToWide(multiByte, std::locale::classic());
-
-		verifyWideMultiByteConversion(inWide, multiByte, outWide);
-	}
-
-}
-
-
-TEST_CASE("wideLocaleEncodingConversion")
-{
-
-	struct SubTestData
-	{
-		std::wstring wide;
-		const char*	 desc;
-	};
-
-	SubTestData allData[] = {	{ L"", "empty" },
-                                // note that gcc has a bug. \u0000 is represented as 1, not 0.
-                                // Use \0 instead.
-								{ std::wstring(L"\0", 1), "zero char" },
-                                { std::wstring(L"he\0llo", 6), "zero char in middle" },
-								{ L"h", "ascii char" },
-								{ L"hx", "ascii 2 chars" },
-								{ L"\u0345", "non-ascii below surrogate range" },
-								{ L"\U00010437", "surrogate range A" },
-								{ L"\U00024B62", "surrogate range B" },
-								{ L"\uE000", "above surrogate range A" },
-								{ L"\uF123", "above surrogate range B" },
-								{ L"\uFFFF", "above surrogate range C" }
-	};
-
-	int dataCount = std::extent<decltype(allData)>().value;
-
-	for(int t=0; t<dataCount; t++)
-	{
-		SubTestData* pCurrData = &allData[t];
-
-		SECTION(pCurrData->desc)
-		{
-			verifyWideLocaleEncodingConversion( pCurrData->wide );
-		}
-
-		SECTION(std::string(pCurrData->desc) +" mixed")
-		{
-			verifyWideLocaleEncodingConversion( L"hello" + std::wstring(pCurrData->wide)
-											+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
-											+ L"rld");
-		}
-	}
-}
-
-
+#endif
 

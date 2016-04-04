@@ -24,16 +24,16 @@ namespace bdn
 	\endcode
 
 	@param p string pointer
-	@param length If this is -1 then the string must be zero-terminated. The zero terminator
+	@param length If this is std::string::npos then the string must be zero-terminated. The zero terminator
 		is not considered part of the string (i.e. the result will be a pointer to the zero terminator).
-		If this not -1 then it is the length of the string in elements (e.g. in wchars for a wchar_t*, chars for a char*, etc.).
+		If this not std::string::npos then it is the length of the string in elements (e.g. in wchars for a wchar_t*, chars for a char*, etc.).
 
 	\tparam PTR a string pointer type (for example char32_*, const char*, ...)
 	*/
 template<class PTR>
 PTR getStringEndPtr(PTR p, size_t length=std::string::npos)
 {
-	if(length<0)
+	if(length==std::string::npos)
 	{
 		while( (*p) != 0)
 			p++;

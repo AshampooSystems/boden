@@ -203,6 +203,7 @@ class Target(object):
 
 
 targetList = [ ("windows", "Win32 program"),
+               ("dotnet", ".NET program" ),
                ("linux", "Linux" ),
                ("osx", "Mac OSX" ),
                ("ios", "iPhone, iPad" ),
@@ -511,6 +512,38 @@ def commandPrepare(args):
             exitCode = subprocess.call(commandLine, cwd=cmakeBuildDir, shell=True);
             if exitCode!=0:
                 raise ToolFailedError("cmake", exitCode);
+
+
+            if target=="dotnet":
+                # the project must have an empty calling convention in order to be compilable with /clr:pure.
+                # By default it does not contain ANY calling convention entry, which will cause Visual Studio
+                # to treat it like /Gd (which causes an error during compilation). There does not seem to be
+                # a way to cause CMake to generate the Callingconvention entry, so we have to do it ourselves.
+
+                for name in os.listdir(cmakeBuildDir):
+                    if name.endswith(".vcxproj"):
+                        filePath = os.path.join(cmakeBuildDir, name);
+
+                        with open( filePath, "rb") as f:
+                            data = f.read().decode("utf-8");
+
+                        modified = False;
+                        if "<CallingConvention />" not in data and "</ClCompile>" in data:
+
+                            print("Modifying %s (adding required empty CallingConvention entry)..." % name);
+                            data = data.replace("</ClCompile>", "  <CallingConvention />\n    </ClCompile>");                            
+
+                            modified = True;
+
+                        if "<CLRSupport>" not in data and "<UseOfMfc>" in data:
+                            print("Modifying %s (adding CLRSupport entry)..." % name);
+                            data = data.replace("<UseOfMfc>", "<CLRSupport>Pure</CLRSupport>\n    <UseOfMfc>");                            
+
+                            modifed = True;
+
+                        if modified:
+                            with open( filePath, "wb") as f:
+                                f.write(data.encode("utf-8"));
 
 
 

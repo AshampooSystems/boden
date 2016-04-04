@@ -1292,7 +1292,7 @@ namespace Internal {
 
     template<typename T>
     inline T& opCast(T const& t) { return const_cast<T&>(t); }
-
+	
 // nullptr_t support based on pull request #154 from Konstantin Baumann
 #ifdef BDN_CONFIG_CPP11_NULLPTR
     inline std::nullptr_t opCast(std::nullptr_t) { return nullptr; }
@@ -1454,11 +1454,11 @@ namespace Internal {
 
 #ifdef BDN_CONFIG_CPP11_NULLPTR
     // pointer to nullptr_t (when comparing against nullptr)
-    template<Operator Op, typename T> bool compare( std::nullptr_t, T* rhs ) {
-        return Evaluator<T*, T*, Op>::evaluate( nullptr, rhs );
+    template<Operator Op, typename T> bool compare( std::nullptr_t lhs, T* rhs ) {
+        return Evaluator<T*, T*, Op>::evaluate( lhs, rhs );
     }
-    template<Operator Op, typename T> bool compare( T* lhs, std::nullptr_t ) {
-        return Evaluator<T*, T*, Op>::evaluate( lhs, nullptr );
+    template<Operator Op, typename T> bool compare( T* lhs, std::nullptr_t rhs ) {
+        return Evaluator<T*, T*, Op>::evaluate( lhs, rhs );
     }
 #endif // BDN_CONFIG_CPP11_NULLPTR
 
@@ -1790,8 +1790,16 @@ public:
         return captureExpression<Internal::IsEqualTo>( rhs );
     }
 
+    ResultBuilder& operator == ( std::nullptr_t rhs ) {
+        return captureExpression<Internal::IsEqualTo>( rhs );
+    }
+
     template<typename RhsT>
     ResultBuilder& operator != ( RhsT const& rhs ) {
+        return captureExpression<Internal::IsNotEqualTo>( rhs );
+    }
+
+    ResultBuilder& operator != (std::nullptr_t rhs) {
         return captureExpression<Internal::IsNotEqualTo>( rhs );
     }
 
@@ -1800,8 +1808,16 @@ public:
         return captureExpression<Internal::IsLessThan>( rhs );
     }
 
+	ResultBuilder& operator < ( std::nullptr_t rhs ) {
+        return captureExpression<Internal::IsLessThan>( rhs );
+    }
+
     template<typename RhsT>
     ResultBuilder& operator > ( RhsT const& rhs ) {
+        return captureExpression<Internal::IsGreaterThan>( rhs );
+    }
+
+	ResultBuilder& operator > ( std::nullptr_t rhs ) {
         return captureExpression<Internal::IsGreaterThan>( rhs );
     }
 
@@ -1810,8 +1826,16 @@ public:
         return captureExpression<Internal::IsLessThanOrEqualTo>( rhs );
     }
 
+	ResultBuilder& operator <= ( std::nullptr_t rhs ) {
+        return captureExpression<Internal::IsLessThanOrEqualTo>( rhs );
+    }
+
     template<typename RhsT>
     ResultBuilder& operator >= ( RhsT const& rhs ) {
+        return captureExpression<Internal::IsGreaterThanOrEqualTo>( rhs );
+    }
+
+	ResultBuilder& operator >= ( std::nullptr_t rhs ) {
         return captureExpression<Internal::IsGreaterThanOrEqualTo>( rhs );
     }
 

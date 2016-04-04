@@ -1,6 +1,8 @@
 #ifndef BDN_SafeInit_H_
 #define BDN_SafeInit_H_
 
+#include <string>
+
 namespace bdn
 {
 
@@ -36,7 +38,7 @@ protected:
 		destructed = 0x788d0da5f79a5214 
 	};
 
-	void gotInitError();
+	void gotInitError(std::exception& e);
 	void throwError();
 	void threadYield();
 
@@ -46,7 +48,16 @@ protected:
 	}
 
 
+
+#if BDN_TARGET_DOTNET
+	// std::exception_ptr is not supported when we compile for .NET.
+	// Just store the error message instead.
+	std::string _errorMessage;
+
+#else
 	std::exception_ptr _error;
+
+#endif
 
 	State	_state;
 };
@@ -114,11 +125,11 @@ public:
 
 				_state = State::ok;
 			}
-			catch(std::exception&)
+			catch(std::exception& e)
 			{
 				_pInstance = nullptr;
 
-				gotInitError();
+				gotInitError(e);
 			}
 		}
 	}

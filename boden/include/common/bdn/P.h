@@ -34,6 +34,11 @@ public:
 	{
 	}
 
+	P(std::nullptr_t)
+		: _pObject(nullptr)
+	{
+	}
+
 
 	P(const P& p)
 		: P( p._pObject )
@@ -194,7 +199,6 @@ public:
 		return _pObject;
 	}
 
-
 	bool operator==(const P<T>& p) const
 	{
 		return _pObject == p._pObject;
@@ -204,6 +208,11 @@ public:
 	bool operator==(const T* p) const
 	{
 		return _pObject==p;
+	}
+
+	bool operator==(std::nullptr_t) const
+	{
+		return _pObject==nullptr;
 	}
 
 
@@ -216,6 +225,11 @@ public:
 	bool operator!=(const T* pObj) const
 	{
 		return _pObject != pObj;
+	}
+
+	bool operator!=(std::nullptr_t) const
+	{
+		return _pObject!=nullptr;
 	}
 
 
