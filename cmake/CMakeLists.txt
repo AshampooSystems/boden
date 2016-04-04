@@ -9,7 +9,10 @@ endif()
 project (boden)
 
 
-if(not BODEN_TARGET)
+if(BODEN_TARGET)
+	# do nothing
+
+else()
 
 	if( IOS )
 		SET( BODEN_TARGET "ios" )
@@ -49,7 +52,7 @@ endif()
 if( ${BODEN_TARGET} EQUAL "dotnet")
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr /EHa")
-endif
+endif()
 
 
 

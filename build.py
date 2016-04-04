@@ -989,7 +989,8 @@ CONFIG values:
 
 ARCH values:
 
-  Supported values depend on the build system and target.
+  Supported values depend on the build system and target. If a target is not
+  listed then it only supports the "std" architecture.
 
   windows with Visual Studio build system:
     std: 32 bit Windows program
