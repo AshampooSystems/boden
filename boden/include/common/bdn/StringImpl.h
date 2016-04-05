@@ -15,6 +15,7 @@
 
 namespace bdn
 {
+    
 
 /** Converts a wide char string into the multibyte encoding of the specified locale.
 	If the locale is not specified then the global locale is used.
@@ -25,8 +26,8 @@ namespace bdn
 
 	*/
 std::string wideToLocaleEncoding(const std::wstring& wideString, const std::locale& loc = std::locale());
-
-
+    
+    
 /** Converts a string that is encoded with the multibyte encoding of the specified locale
 	to a wide char string.
 	If the locale is not specified then the global locale is used.
@@ -36,6 +37,15 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 	If that is also unencodable then the character is simply skipped.
 */
 std::wstring localeEncodingToWide(const std::string& multiByteString, const std::locale& loc = std::locale());
+    
+    
+    
+/** Converts a wide char string to Utf-8. */
+std::string wideToUtf8(const std::wstring& wideString);
+    
+/** Converts an Utf-8 string to wide char. */
+std::wstring utf8ToWide(const std::string& utf8String);
+
 
 
 

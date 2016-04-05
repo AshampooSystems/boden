@@ -69,6 +69,13 @@ add_definitions( -DUNICODE -D_UNICODE )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 	add_definitions( -DBDN_TARGET_WEB )
+
+	# the C++ standard library provided by Emscripten has a bug in codecvt.
+	# In encodes the data in UTF-8, but when multi-byte sequences are generated
+	# then it only counts 1 byte. Thus the end of the resulting string is cut off.
+	# To work around that we use our own UTF-8 implementation. We know that the
+	# locale encoding is always UTF-8 with Emscripten.
+	add_definitions( -DBDN_OVERRIDE_LOCALE_ENCODING_UTF8 )
 endif()
 
 
