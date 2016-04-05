@@ -358,6 +358,15 @@ struct IConfig : IShared {
 	virtual std::ostream& stream() const = 0;
 	virtual std::string name() const = 0;
 	virtual bool includeSuccessfulResults() const = 0;
+    
+    /** printLevel 0 means no printing of current action.
+        printLevel 1 means print just the test cases when they are run
+        printLevel 2 means print the first level of sections when they are run
+        printLevel 3 second level of sections
+        etc.
+     */
+    virtual int printLevel() const = 0;
+    
 	virtual bool shouldDebugBreak() const = 0;
 	virtual bool warnAboutMissingAssertions() const = 0;
 	virtual int abortAfter() const = 0;
@@ -451,6 +460,7 @@ struct ConfigData {
 		listReporters( false ),
 		listTestNamesOnly( false ),
 		showSuccessfulTests( false ),
+        printLevel( 0 ),
 		doNotDebugBreak( false ),
 		noThrow( false ),
 		showHelp( false ),
@@ -471,6 +481,7 @@ struct ConfigData {
 	bool listTestNamesOnly;
 
 	bool showSuccessfulTests;
+    int  printLevel;
 	bool doNotDebugBreak;
 	bool noThrow;
 	bool showHelp;
@@ -546,6 +557,7 @@ public:
 	virtual std::ostream& stream() const    { return m_stream->stream(); }
 	virtual std::string name() const        { return m_data.name.empty() ? m_data.processName : m_data.name; }
 	virtual bool includeSuccessfulResults() const   { return m_data.showSuccessfulTests; }
+    virtual int printLevel() const   { return m_data.printLevel; }
 	virtual bool warnAboutMissingAssertions() const { return m_data.warnings & WarnAbout::NoAssertions; }
 	virtual ShowDurations::OrNot showDurations() const { return m_data.showDurations; }
 	virtual RunTests::InWhatOrder runOrder() const  { return m_data.runOrder; }
@@ -1447,6 +1459,11 @@ inline void abortAfterX( ConfigData& config, int x ) {
 		throw std::runtime_error( "Value after -x or --abortAfter must be greater than zero" );
 	config.abortAfter = x;
 }
+inline void printLevel( ConfigData& config, int l ) {
+    if( l < 0 )
+        throw std::runtime_error( "Value after --print-level must be >=0" );
+    config.printLevel = l;
+}
 inline void addTestOrTags( ConfigData& config, std::string const& _testSpec ) { config.testsOrTags.push_back( _testSpec ); }
 inline void addReporterName( ConfigData& config, std::string const& _reporterName ) { config.reporterNames.push_back( _reporterName ); }
 
@@ -1522,6 +1539,10 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 	cli["-s"]["--success"]
 		.describe( "include successful tests in output" )
 		.bind( &ConfigData::showSuccessfulTests );
+    
+    cli["--print-level"]
+        .describe( "prints information about test cases and sections being run.\n0 no printing (default)\n1 print test cases\n2 also print first level sections\n3 second level sections\n etc." )
+        .bind( &printLevel, "print level" );
 
 	cli["--no-break"]
 		.describe( "do not break into debugger on failure" )
@@ -2670,6 +2691,8 @@ public:
 		m_context.setConfig( m_config );
 		m_context.setResultCapture( this );
 		m_reporter->testRunStarting( m_runInfo );
+        
+        m_printLevel = m_config->printLevel();
 	}
 
 	virtual ~RunContext() {
@@ -2694,13 +2717,17 @@ public:
 		m_reporter->testCaseStarting( testInfo );
 
 		m_activeTestCase = &testCase;
+        
+        if(m_printLevel>=1)
+            std::cout << "Test case: "+getCurrentTestName() << std::endl;
+        
 
 		do {
 			m_trackerContext.startRun();
 			do {
 				m_trackerContext.startCycle();
-
-				m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, testInfo.name );
+                
+                m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, testInfo.name );
 				runCurrentTest( redirectedCout, redirectedCerr );
 			}
 			while( !m_testCaseTracker->isSuccessfullyCompleted() && !aborting() );
@@ -2715,7 +2742,8 @@ public:
 			redirectedCout,
 			redirectedCerr,
 			aborting() ) );
-
+        
+        
 		m_activeTestCase = BDN_NULL;
 		m_testCaseTracker = BDN_NULL;
 
@@ -2751,11 +2779,29 @@ private: // IResultCapture
 	{
 		std::ostringstream oss;
 		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
-
+        
 		ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
 		if( !sectionTracker.isOpen() )
 			return false;
 		m_activeSections.push_back( &sectionTracker );
+        
+        // print level 0 means no printing.
+        // print level 1 means just test cases
+        // print level 2 means first level of sections
+        // etc.
+        // the section tracker will have no children when the section is first entered.
+        // On subsequent enters it will have children. So this is a good way to filter
+        // out the subsequent enters.
+        if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= m_printLevel )
+        {
+            for(int i=0; i<m_activeSections.size(); i++)
+                std::cout << " ";
+            if(sectionInfo.name.empty())
+                std::cout << "@" << sectionInfo.lineInfo;
+            else
+                std::cout << sectionInfo.name;
+            std::cout << std::endl;
+        }
 
 		m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
 
@@ -2952,6 +2998,8 @@ private:
 	std::vector<SectionEndInfo> m_unfinishedSections;
 	std::vector<ITracker*> m_activeSections;
 	TrackerContext m_trackerContext;
+    
+    int  m_printLevel;
 };
 
 IResultCapture& getResultCapture() {
@@ -6007,6 +6055,7 @@ public: // StreamingReporterBase
 	}
 
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
+        
 		StreamingReporterBase::testCaseEnded( testCaseStats );
 		XmlWriter::ScopedElement e = m_xml.scopedElement( "OverallResult" );
 		e.writeAttribute( "success", testCaseStats.totals.assertions.allOk() );

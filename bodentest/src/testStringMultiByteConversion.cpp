@@ -46,12 +46,6 @@ void verifyWideLocaleEncodingConversion(const std::wstring& inWide)
 		multiByte = wideToLocaleEncoding(inWide);
 		outWide = localeEncodingToWide(multiByte);
 
-        std::cout << std::endl;
-        for(int i=0; i<multiByte.length(); i++)
-            std::cout << (int)multiByte[i] << std::endl;
-        std::cout << std::endl;
-
-
 		verifyWideMultiByteConversion(inWide, multiByte, outWide);
 	}
 
@@ -74,7 +68,30 @@ void verifyWideLocaleEncodingConversion(const std::wstring& inWide)
 }
 
 
-TEST_CASE("wideLocaleEncodingConversion")
+void verifyWideUtf8EncodingConversion(const std::wstring& inWide)
+{
+    std::string  utf8;
+    std::wstring outWide;
+    
+    utf8 = wideToUtf8(inWide);
+    
+    REQUIRE( String(utf8)==String(inWide) );
+    
+    outWide = utf8ToWide(utf8);
+    
+    REQUIRE( outWide==inWide );
+}
+
+void verifyWideConversion(const std::wstring& inWide)
+{
+    SECTION("utf8")
+        verifyWideUtf8EncodingConversion(inWide);
+
+    SECTION("localeEncoding")
+        verifyWideLocaleEncodingConversion(inWide);
+}
+
+TEST_CASE("wideStringConversion")
 {
 
 	struct SubTestData
@@ -106,14 +123,14 @@ TEST_CASE("wideLocaleEncodingConversion")
 
 		SECTION(pCurrData->desc)
 		{
-			verifyWideLocaleEncodingConversion( pCurrData->wide );
+			verifyWideConversion( pCurrData->wide );
 		}
 
 		SECTION(std::string(pCurrData->desc) +" mixed")
 		{
-			verifyWideLocaleEncodingConversion( L"hello" + std::wstring(pCurrData->wide)
-											+ L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
-											+ L"rld");
+			verifyWideConversion( L"hello" + std::wstring(pCurrData->wide)
+                                    + L"wo" + std::wstring(pCurrData->wide)+std::wstring(pCurrData->wide)
+                                    + L"rld");
 		}
 	}
 }

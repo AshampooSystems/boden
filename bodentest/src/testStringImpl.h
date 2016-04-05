@@ -9,6 +9,8 @@
 
 #include <cstring>
 
+#include <iostream>
+
 // GCC 4.8 does not have the standard codecvt header.
 #if !defined(__GNUC__) || __GNUC__>=5
 #include <codecvt>
@@ -1062,7 +1064,7 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 
 	SECTION("withSubString-fromMidToEnd")
 	{
-		OTHER prefix = (const OTHER&)STRING("xxx");
+		OTHER prefix = (const OTHER&)STRING("xyz");
 		OTHER otherWithPrefix = prefix;
 		otherWithPrefix += o;
 
@@ -1093,8 +1095,8 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 
 	SECTION("withSubString-fromMidToMid")
 	{
-		OTHER prefix = STRING("xxx");
-		OTHER suffix = STRING("xxx");
+		OTHER prefix = STRING("xyz");
+		OTHER suffix = STRING("xyz");
 		OTHER otherWithPrefixAndSuffix = prefix;
 		otherWithPrefixAndSuffix += o;
 		otherWithPrefixAndSuffix += suffix;
@@ -1106,7 +1108,7 @@ void verifyComparisonSubStringWithSubString(const STRING& s, OTHER o, int expect
 
 	SECTION("withSubString-fromStartToMid")
 	{
-		OTHER suffix = STRING("xxx");
+		OTHER suffix = STRING("xyz");
 		OTHER otherWithSuffix = o;
 		otherWithSuffix += suffix;
 

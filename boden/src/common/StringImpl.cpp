@@ -1,9 +1,6 @@
 #include <bdn/init.h>
 
 
-// XXX
-#include <iostream>
-
 namespace bdn
 {
     
@@ -11,6 +8,27 @@ namespace bdn
 const size_t StringImplBase::npos;
 const size_t StringImplBase::noMatch;
 const size_t StringImplBase::toEnd;
+    
+    
+    
+std::string wideToUtf8(const std::wstring& wideString)
+{
+    WideCodec::DecodingIterator<std::wstring::const_iterator> beginCharIt( wideString.begin(), wideString.begin(), wideString.end() );
+    WideCodec::DecodingIterator<std::wstring::const_iterator> endCharIt( wideString.end(), wideString.begin(), wideString.end() );
+    
+    return std::string( Utf8Codec::EncodingIterator< decltype(beginCharIt) >(beginCharIt),
+                        Utf8Codec::EncodingIterator< decltype(endCharIt) >(endCharIt) );
+}
+
+    
+std::wstring utf8ToWide(const std::string& utf8String)
+{
+    Utf8Codec::DecodingIterator<std::string::const_iterator> beginCharIt( utf8String.begin(), utf8String.begin(), utf8String.end() );
+    Utf8Codec::DecodingIterator<std::string::const_iterator> endCharIt( utf8String.end(), utf8String.begin(), utf8String.end() );
+    
+    return std::wstring( WideCodec::EncodingIterator< decltype(beginCharIt) >(beginCharIt),
+                         WideCodec::EncodingIterator< decltype(endCharIt) >(endCharIt) );
+}
 
   
 template<class Codec, class InType, class OutType>
@@ -40,9 +58,18 @@ inline int callCodecOut(    Codec& codec,
     return result;
 }
     
+  
     
 std::string wideToLocaleEncoding(const std::wstring& wideString, const std::locale& loc)
 {
+#ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
+    // This to work around bugs in the codecvt implementation when it is known that all locales
+    // use UTF-8 as their encoding.
+    
+    // we use our own UTF-8 implementation here.
+    return wideToUtf8(wideString);
+    
+#else
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
 	
 	size_t len = wideString.length();
@@ -66,11 +93,7 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 			int convResult = callCodecOut(codec, state, pCurrIn, pInEnd, pInNext, outBuffer, outBuffer+outBufferSize, pOutNext);
 			if(convResult==std::codecvt_base::error)
 			{
-                // XXX
-                std::cout << std::endl << "Error " << (int)(pInNext-pCurrIn) << " " << (int)(pOutNext-outBuffer) << std::endl;
-                
-                
-				// a character cannot be converted. The standard defines that
+                // a character cannot be converted. The standard defines that
                 // pInNext SHOULD point to that character. And all others up to that point should have been converted.
                 
                 // But unfortunately with some standard libraries (e.g. on Mac with libc++) pInNext and pOutNext always point to
@@ -134,9 +157,6 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
                     resultString.append( outBuffer, pOutNext-outBuffer );
             }
             
-            // XXX
-            std::cout << "Consumed " << (int)(pInNext-pCurrIn) << " produced " << (int)(pOutNext-outBuffer) << std::endl;
-            
            
             pCurrIn = pInNext;
         }
@@ -152,11 +172,19 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 	
 		return resultString;
 	}
+#endif
 }
 
 
 std::wstring localeEncodingToWide(const std::string& multiByte, const std::locale& loc)
 {
+#ifdef BDN_OVERRIDE_LOCALE_ENCODING_UTF8
+    // This to work around bugs in the codecvt implementation when it is known that all locales
+    // use UTF-8 as their encoding.
+    
+    return utf8ToWide(multiByte);
+    
+#else
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
 
 	size_t	len = multiByte.length();
@@ -213,6 +241,7 @@ std::wstring localeEncodingToWide(const std::string& multiByte, const std::local
 		// no need to unshift. wchar does not use shifting.
 		return resultString;
 	}
+#endif
 }
 
 
