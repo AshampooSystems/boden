@@ -101,7 +101,7 @@ public:
 			// a sequence.
 			bool invalid = false;
 
-			_sourceIt--;
+			--_sourceIt;
 			for(int i=0; ((*_sourceIt) & 0xc0)==0x80; i++ )
 			{
 				if(_sourceIt==_beginSourceIt || i==5)
@@ -112,7 +112,7 @@ public:
 					break;
 				}
 
-				_sourceIt--;
+				--_sourceIt;
 			}
 
 			if(!invalid)
@@ -133,7 +133,7 @@ public:
 				// result we only go back a single byte.
 				_nextIt = startIt;
 				_sourceIt = startIt;
-				_sourceIt--;
+				--_sourceIt;
 
 				_chr = 0xfffd;
 			}

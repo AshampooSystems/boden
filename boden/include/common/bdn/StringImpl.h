@@ -13,6 +13,7 @@
 #include <locale>
 #include <algorithm>
 
+
 namespace bdn
 {
     
@@ -1281,11 +1282,12 @@ public:
 	char32_t getLastChar() const
 	{
 		if(_beginIt==_endIt)
-			throw OutOfRangeError("String::getLastChar called on empty string.");
-
+    		throw OutOfRangeError("String::getLastChar called on empty string.");
+        
+    
 		Iterator it = _endIt;
-		--it;
-
+    	--it;
+    
 		return *it;
 	}
 
