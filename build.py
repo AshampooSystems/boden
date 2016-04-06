@@ -15,6 +15,26 @@ EXIT_TOOL_FAILED = 11;
 EXIT_INCORRECT_CALL = 12;
 
 
+
+targetList = [ ("windows-uwp", "Universal Windows app (Windows 10 and later)" ),
+               ("windows-win32", "Classic Win32 desktop program (can also be 64 bit)"),               
+               ("dotnet", ".NET program" ),
+               ("linux", "Linux" ),
+               ("osx", "Mac OSX" ),
+               ("ios", "iPhone, iPad" ),
+               ("android", "Android devices" ),
+               ("web", """\
+Compiles the C++ code to a Javascript-based web app or Javascript
+    library that can be run either in a web browser or on a Node.js system.
+    The resulting JS code is pure Javascript. No native components or
+    plugins are needed to execute it.""") ];
+
+targetMap = {};
+for targetName, targetInfo in targetList:
+    targetMap[targetName] = targetInfo;
+
+
+
 def deleteDirTree(dirPath):
 
     for i in range(10):
@@ -194,30 +214,6 @@ class GeneratorInfo(object):
 
 
 
-class Target(object):
-    def __init__(self, name, subTargetList = None ):
-        self.name = name;        
-        self.subTargetList = subTargetList;
-        if self.subTargetList is None:
-            self.subTargetList = [""];
-
-
-targetList = [ ("windows", "Win32 program"),
-               ("dotnet", ".NET program" ),
-               ("linux", "Linux" ),
-               ("osx", "Mac OSX" ),
-               ("ios", "iPhone, iPad" ),
-               ("android", "Android devices" ),
-               ("web", """\
-Compiles the C++ code to a Javascript-based web app or Javascript
-    library that can be run either in a web browser or on a Node.js system.
-    The resulting JS code is pure Javascript. No native components or
-    plugins are needed to execute it.""") ];
-
-targetMap = {};
-for targetName, targetInfo in targetList:
-    targetMap[targetName] = targetInfo;
-
 
 def getTargetHelp():
     targetHelp = "";
@@ -236,9 +232,27 @@ def getTargetBuildDir(targetName, arch):
 
     targetBuildDirName = targetName;
     if arch and arch!="std":
-        targetBuildDirName += "-"+arch;
+        targetBuildDirName += "_"+arch;
 
     return os.path.join( getBaseBuildDir(), targetBuildDirName );
+
+
+
+def splitBuildDirName(name):
+
+    target, sep, arch = name.partition("_");
+
+    if target not in targetMap:
+        target = None;
+        arch = None;
+
+    else:
+        if not arch:
+            arch = "std";
+
+    return (target, arch);
+
+
 
 def getCMakeDir():
     return os.path.join( getMainDir(), "cmake");
@@ -354,7 +368,7 @@ def commandPrepare(commandArgs):
 
             args = [];
             
-            if target=="windows":
+            if target=="windows-win32" or target=="windows-uwp":
 
                 if arch!="std":
 
@@ -376,6 +390,11 @@ def commandPrepare(commandArgs):
 
                     else:
                         raise InvalidArchitectureError(arch);
+
+
+                if target=="windows-uwp":
+                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ])
+                     
 
             elif target=="osx":
 
@@ -556,20 +575,6 @@ def commandPrepare(commandArgs):
 def getFullToolsetName(toolsetName):
     return generatorInfo.generatorAliasMap.get(toolsetName, toolsetName);    
 
-
-def splitBuildDirName(name):
-
-    target, sep, arch = name.partition("-");
-
-    if target not in targetMap:
-        target = None;
-        arch = None;
-
-    else:
-        if not arch:
-            arch = "std";
-
-    return (target, arch);
 
 
 def getPreparedTargetsAndArchs():
@@ -774,10 +779,10 @@ ARCH values:
   Supported values depend on the build system and target. If a target is not
   listed then it only supports the "std" architecture.
 
-  windows with Visual Studio build system:
-    std: 32 bit Windows program
-    x64: 64 bit Windows program
-    arm: Windows program for ARM processors
+  windows-win32 or windows-uwp with Visual Studio build system:
+    std: 32 bit program (x86)
+    x64: 64 bit program (x64)
+    arm: program for ARM processors
 
   ios:
     std: normal iOS app (combined 32 and 64 bit binary)

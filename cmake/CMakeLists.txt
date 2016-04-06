@@ -8,7 +8,6 @@ endif()
 
 project (boden)
 
-
 if(BODEN_TARGET)
 	# do nothing	
 
@@ -20,16 +19,21 @@ else()
 	elseif( ANDROID )
 		SET( BODEN_TARGET "android" )
 
-	elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )	
-		SET( BODEN_TARGET "windows" )
+	elseif( CMAKE_SYSTEM_NAME STREQUAL "Windows" )	
+		SET( BODEN_TARGET "windows-win32" )
+		SET( BODEN_TARGET_FAMILY "windows")
 
-	elseif( CMAKE_SYSTEM_NAME MATCHES "Linux" )	
+	elseif( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
+		SET( BODEN_TARGET "windows-uwp" )
+		SET( BODEN_TARGET_FAMILY "windows")
+
+	elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )	
 		SET( BODEN_TARGET "linux" )
 
-	elseif( CMAKE_SYSTEM_NAME MATCHES "Darwin" )	
+	elseif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )	
 		SET( BODEN_TARGET "osx" )
 
-	elseif( CMAKE_SYSTEM_NAME MATCHES "Emscripten" )		
+	elseif( CMAKE_SYSTEM_NAME STREQUAL "Emscripten" )		
 		SET( BODEN_TARGET "web" )
 
 	else()
@@ -45,7 +49,7 @@ message("Boden target is ${BODEN_TARGET}")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
@@ -53,7 +57,7 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
-if( "${BODEN_TARGET}" MATCHES "dotnet")
+if( "${BODEN_TARGET}" STREQUAL "dotnet")
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
@@ -64,11 +68,15 @@ if( "${BODEN_TARGET}" MATCHES "dotnet")
 endif()
 
 
+if( "${BODEN_TARGET}" STREQUAL "windows-uwp")
+	SET(VS_WINRT_COMPONENT "TRUE")
+endif()
+
 
 add_definitions( -DUNICODE -D_UNICODE )
 
-if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-	add_definitions( -DBDN_TARGET_WEB )
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+	add_definitions( -DBDN_PLATFORM_WEB )
 
 	# the C++ standard library provided by Emscripten has a bug in codecvt.
 	# In encodes the data in UTF-8, but when multi-byte sequences are generated
@@ -85,11 +93,24 @@ endif()
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
+
 file( GLOB_RECURSE BODEN_HEADERS ${BODEN_INCDIR}/common/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.h)
+if(BODEN_TARGET_FAMILY)
+	file( GLOB_RECURSE BODEN_FAMILY_HEADERS ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY}/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_FAMILY_HEADERS} )
+endif()
 
 file( GLOB_RECURSE BODEN_SOURCES ${BODEN_SRCDIR}/common/*.cpp ${BODEN_SRCDIR}/common/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
+if(BODEN_TARGET_FAMILY)
+	file( GLOB_RECURSE BODEN_FAMILY_SOURCES ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.m)
+	list( APPEND BODEN_SOURCES ${BODEN_FAMILY_SOURCES} )
+endif()
 
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+if(BODEN_TARGET_FAMILY)
+	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
+endif()
+
 
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
@@ -99,10 +120,13 @@ set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:
 set( UIDEMO_SRCDIR "../uidemo/src")
 file( GLOB_RECURSE UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+if(BODEN_TARGET_FAMILY)
+	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
+endif()
 
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
-if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file
 	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html")
 endif()
@@ -123,13 +147,16 @@ endif()
 set( BODENTEST_SRCDIR "../bodentest/src")
 file( GLOB_RECURSE BODENTEST_SOURCES ${BODENTEST_SRCDIR}/*.cpp ${BODENTEST_SRCDIR}/*.h)
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+if(BODEN_TARGET_FAMILY)
+	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
+endif()
 
 
 add_executable(bodentest ${BODENTEST_SOURCES} )
 
 set_property(TARGET bodentest APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
-if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file
 	set_property(TARGET bodentest APPEND PROPERTY LINK_FLAGS "-o bodentest.html")
 endif()

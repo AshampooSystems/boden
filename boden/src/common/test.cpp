@@ -2585,7 +2585,7 @@ inline void fatal( std::string const& message, int exitCode ) {
 
 } // namespace bdn
 
-#if defined ( BDN_PLATFORM_WINDOWS ) /////////////////////////////////////////
+#if !defined ( BDN_PLATFORM_POSIX ) /////////////////////////////////////////
 
 namespace bdn {
 
@@ -2595,7 +2595,7 @@ struct FatalConditionHandler {
 
 } // namespace bdn
 
-#else // Not Windows - assumed to be POSIX compatible //////////////////////////
+#else
 
 #include <signal.h>
 
@@ -2641,7 +2641,7 @@ struct FatalConditionHandler {
 
 } // namespace bdn
 
-#endif // not Windows
+#endif
 
 #include <set>
 #include <string>
@@ -2792,9 +2792,9 @@ private: // IResultCapture
         // the section tracker will have no children when the section is first entered.
         // On subsequent enters it will have children. So this is a good way to filter
         // out the subsequent enters.
-        if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= m_printLevel )
+        if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
         {
-            for(int i=0; i<m_activeSections.size(); i++)
+            for(size_t i=0; i<m_activeSections.size(); i++)
                 std::cout << " ";
             if(sectionInfo.name.empty())
                 std::cout << "@" << sectionInfo.lineInfo;
@@ -3825,9 +3825,9 @@ struct NoColourImpl : IColourImpl {
 } // namespace bdn
 
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
-#   ifdef BDN_TARGET_WINDOWS
+#   ifdef BDN_PLATFORM_WIN32
 #       define BDN_CONFIG_COLOUR_WINDOWS
-#   elif !defined(BDN_TARGET_WEB)
+#   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_FAMILY_WINDOWS)
 #       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
@@ -4514,7 +4514,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 #pragma clang diagnostic ignored "-Wc++11-long-long"
 #endif
 
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 #include <windows.h>
 #else
 #include <sys/time.h>
@@ -4523,7 +4523,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 namespace bdn {
 
 namespace {
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 uint64_t getCurrentTicks() {
 	static uint64_t hz=0, hzo=0;
 	if (!hz) {
@@ -4704,7 +4704,7 @@ Section::operator bool() const {
 
 #include <iostream>
 
-#ifdef BDN_PLATFORM_MAC
+#ifdef BDN_PLATFORM_OSX
 
 #include <assert.h>
 #include <stdbool.h>
@@ -4774,7 +4774,7 @@ inline bool isDebuggerActive() { return false; }
 }
 #endif // Platform
 
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
 namespace bdn {
 void writeToDebugConsole( std::string const& text ) {
@@ -6878,7 +6878,7 @@ private:
 
 		static Colour::Code dimColour() { return Colour::FileName; }
 
-#ifdef BDN_PLATFORM_MAC
+#ifdef BDN_PLATFORM_OSX
 		static const char* failedString() { return "FAILED"; }
 		static const char* passedString() { return "PASSED"; }
 #else

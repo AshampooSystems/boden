@@ -2,7 +2,7 @@
 #define BDN_Mutex_H_
 
 // <mutex> header is not supported when we compile a .NET app.
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
   #include <msclr/lock.h>
 
 #else
@@ -25,14 +25,14 @@ class Mutex : public Base
 public:
 	Mutex()
 	{
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		_lockRef = gcnew msclr::lock(gcnew System::Object, msclr::lock_later);
 #endif
 	}
 
 	void lock()
 	{
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		_lockRef->acquire();
 
 #else
@@ -42,7 +42,7 @@ public:
 
 	void unlock()
 	{
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		_lockRef->release();
 
 #else
@@ -55,7 +55,7 @@ protected:
 	// mutex objects cannot be copied.
 	Mutex(const Mutex&) = delete;
 
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 	gcroot<msclr::lock ^>	_lockRef;
 
 #else	

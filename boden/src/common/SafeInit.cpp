@@ -1,6 +1,6 @@
 #include <bdn/init.h>
 
-#if !BDN_TARGET_DOTNET
+#if !BDN_PLATFORM_DOTNET
 #include <thread>
 #endif
 
@@ -12,7 +12,7 @@ void SafeInitBase::gotInitError(std::exception& e)
 {
 	_state = State::error;
 
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 	// std::exception_ptr is not supported when we compile for .NET
 	_errorMessage = e.what();
 
@@ -28,7 +28,7 @@ void SafeInitBase::throwError()
 	if(_state==State::error)
 	{
 		// throw the original error.	
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		throw std::exception(_errorMessage.c_str());
 #else
 		std::rethrow_exception( _error );
@@ -44,7 +44,7 @@ void SafeInitBase::throwError()
 
 void SafeInitBase::threadYield()
 {
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 	System::Threading::Thread::Yield();
 
 #else

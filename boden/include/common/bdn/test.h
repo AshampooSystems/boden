@@ -2016,19 +2016,6 @@ namespace bdn {
 // #included from: catch_platform.h
 #define TWOBLUECUBES_BDN_PLATFORM_H_INCLUDED
 
-#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-#define BDN_PLATFORM_MAC
-
-#elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-#define BDN_PLATFORM_IPHONE
-
-#elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
-#define BDN_PLATFORM_WINDOWS
-
-#else
-#define BDN_PLATFORM_UNIX
-
-#endif
 
 #include <string>
 
@@ -2038,7 +2025,7 @@ namespace bdn{
     void writeToDebugConsole( std::string const& text );
 }
 
-#ifdef BDN_PLATFORM_MAC
+#ifdef BDN_PLATFORM_OSX
 
 
     // The following code snippet based on:
@@ -2060,7 +2047,7 @@ namespace bdn{
     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
     #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
 
-#elif defined(BDN_PLATFORM_UNIX)
+#elif defined(BDN_PLATFORM_POSIX)
 
     // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
     // However, we do not need it since we can raise a SIGTRAP that
@@ -2338,7 +2325,7 @@ namespace bdn {
 // #included from: catch_timer.h
 #define TWOBLUECUBES_BDN_TIMER_H_INCLUDED
 
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 typedef unsigned long long uint64_t;
 #else
 #include <stdint.h>

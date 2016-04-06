@@ -49,7 +49,7 @@ protected:
 
 
 
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 	// std::exception_ptr is not supported when we compile for .NET.
 	// Just store the error message instead.
 	std::string _errorMessage;

@@ -3,7 +3,7 @@
 
 #include <bdn/IBase.h>
 
-#if !BDN_TARGET_DOTNET
+#if !BDN_PLATFORM_DOTNET
 #include <atomic>
 #endif
 
@@ -36,7 +36,7 @@ public:
 
 	void addRef() const override
 	{
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		System::Threading::Interlocked::Increment(_refCount);
 #else
 		_refCount++;
@@ -45,7 +45,7 @@ public:
 
 	void releaseRef() const override
 	{
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 		// cannot use std::atomic. So we used Interlocked instead.		
 		if(System::Threading::Interlocked::Decrement(_refCount)==0)
 #else
@@ -169,7 +169,7 @@ protected:
 		return pRef;
 	}
 
-#if BDN_TARGET_DOTNET
+#if BDN_PLATFORM_DOTNET
 	mutable int _refCount;
 #else
 	mutable volatile std::atomic<int> _refCount;
