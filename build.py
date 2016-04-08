@@ -16,8 +16,9 @@ EXIT_INCORRECT_CALL = 12;
 
 
 
-targetList = [ ("windows-uwp", "Universal Windows app (Windows 10 and later)" ),
-               ("windows-win32", "Classic Win32 desktop program (can also be 64 bit)"),               
+targetList = [ ("windows-universal", "Universal Windows app (Windows 10 and later)" ),
+               ("windows-store", "Windows Store app (Windows 8.1 and later)" ),
+               ("windows-classic", "Classic Windows desktop program"),               
                ("dotnet", ".NET program" ),
                ("linux", "Linux" ),
                ("osx", "Mac OSX" ),
@@ -290,7 +291,7 @@ def commandPrepare(commandArgs):
 
     for target, arch in targetAndArchList:
 
-    	buildSystem = commandArgs.buildsystem;
+        buildSystem = commandArgs.buildsystem;
 
         if target not in targetMap:
             raise InvalidTargetNameError(target);
@@ -302,8 +303,6 @@ def commandPrepare(commandArgs):
 
         targetState = loadState(targetBuildDir);
         oldBuildSystem = targetState.get("buildSystem", "");
-
-        print("oldBuildSystem="+oldBuildSystem)
 
         if buildSystem and oldBuildSystem and buildSystem!=oldBuildSystem:
 
@@ -320,8 +319,6 @@ def commandPrepare(commandArgs):
                 raise IncorrectCallError("BUILDSYSTEM must be specified when prepare is first called for a target.");
 
             buildSystem = oldBuildSystem;
-
-        print("buildSystem="+buildSystem)
 
         targetState["buildSystem"] = buildSystem;
 
@@ -368,7 +365,7 @@ def commandPrepare(commandArgs):
 
             args = [];
             
-            if target=="windows-win32" or target=="windows-uwp":
+            if target.startswith("windows-"):
 
                 if arch!="std":
 
@@ -391,10 +388,11 @@ def commandPrepare(commandArgs):
                     else:
                         raise InvalidArchitectureError(arch);
 
-
-                if target=="windows-uwp":
-                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ])
-                     
+                if target=="windows-store":
+                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
+                    
+                elif target=="windows-universal":
+                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
 
             elif target=="osx":
 
@@ -779,7 +777,7 @@ ARCH values:
   Supported values depend on the build system and target. If a target is not
   listed then it only supports the "std" architecture.
 
-  windows-win32 or windows-uwp with Visual Studio build system:
+  windows with Visual Studio build system:
     std: 32 bit program (x86)
     x64: 64 bit program (x64)
     arm: program for ARM processors

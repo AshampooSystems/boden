@@ -20,11 +20,16 @@ else()
 		SET( BODEN_TARGET "android" )
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Windows" )	
-		SET( BODEN_TARGET "windows-win32" )
-		SET( BODEN_TARGET_FAMILY "windows")
+		SET( BODEN_TARGET "windows-classic" )
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
-		SET( BODEN_TARGET "windows-uwp" )
+
+		if(CMAKE_SYSTEM_VERSION STREQUAL "10.0")
+			SET( BODEN_TARGET "windows-universal" )
+		else()
+			SET( BODEN_TARGET "windows-store" )
+		endif()
+
 		SET( BODEN_TARGET_FAMILY "windows")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )	
@@ -68,7 +73,7 @@ if( "${BODEN_TARGET}" STREQUAL "dotnet")
 endif()
 
 
-if( "${BODEN_TARGET}" STREQUAL "windows-uwp")
+if( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
 	SET(VS_WINRT_COMPONENT "TRUE")
 endif()
 

@@ -2325,7 +2325,7 @@ namespace bdn {
 // #included from: catch_timer.h
 #define TWOBLUECUBES_BDN_TIMER_H_INCLUDED
 
-#ifdef BDN_PLATFORM_FAMILY_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 typedef unsigned long long uint64_t;
 #else
 #include <stdint.h>

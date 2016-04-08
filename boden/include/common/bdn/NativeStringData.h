@@ -24,7 +24,7 @@ class NativeStringData
 
 #else
 
-#if BDN_PLATFORM_FAMILY_WINDOWS
+#if BDN_PLATFORM_WINDOWS
 
 // native string data is wide char.
 typedef WideStringData NativeStringData;

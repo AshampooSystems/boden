@@ -3825,9 +3825,9 @@ struct NoColourImpl : IColourImpl {
 } // namespace bdn
 
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
-#   ifdef BDN_PLATFORM_WIN32
+#   ifdef BDN_PLATFORM_WINDOWS_CLASSIC
 #       define BDN_CONFIG_COLOUR_WINDOWS
-#   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_FAMILY_WINDOWS)
+#   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_WINDOWS)
 #       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
@@ -4514,7 +4514,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 #pragma clang diagnostic ignored "-Wc++11-long-long"
 #endif
 
-#ifdef BDN_PLATFORM_FAMILY_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 #include <windows.h>
 #else
 #include <sys/time.h>
@@ -4523,7 +4523,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 namespace bdn {
 
 namespace {
-#ifdef BDN_PLATFORM_FAMILY_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 uint64_t getCurrentTicks() {
 	static uint64_t hz=0, hzo=0;
 	if (!hz) {
@@ -4774,7 +4774,7 @@ inline bool isDebuggerActive() { return false; }
 }
 #endif // Platform
 
-#ifdef BDN_PLATFORM_FAMILY_WINDOWS
+#ifdef BDN_PLATFORM_WINDOWS
 extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
 namespace bdn {
 void writeToDebugConsole( std::string const& text ) {
