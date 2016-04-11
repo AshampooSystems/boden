@@ -98,6 +98,8 @@ endif()
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
+set( WEBDRIVERXX_INCDIR "../3rdparty/webdriverxx/include")
+
 
 file( GLOB_RECURSE BODEN_HEADERS ${BODEN_INCDIR}/common/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.h)
 if(BODEN_TARGET_FAMILY)
@@ -115,6 +117,7 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 if(BODEN_TARGET_FAMILY)
 	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
 endif()
+include_directories( ${WEBDRIVERXX_INCDIR} )
 
 
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
@@ -128,6 +131,7 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 if(BODEN_TARGET_FAMILY)
 	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
 endif()
+include_directories( ${WEBDRIVERXX_INCDIR} )
 
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
@@ -155,6 +159,7 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 if(BODEN_TARGET_FAMILY)
 	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
 endif()
+include_directories( ${WEBDRIVERXX_INCDIR} )
 
 
 add_executable(bodentest ${BODENTEST_SOURCES} )
