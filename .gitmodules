@@ -1,0 +1,3 @@
+[submodule "3rdparty/webdriverxx"]
+	path = 3rdparty/webdriverxx
+	url = https://github.com/sekogan/webdriverxx.git
