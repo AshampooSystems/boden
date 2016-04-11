@@ -22,7 +22,7 @@ public:
 
     virtual void initUI() override
     {
-        Frame* pFrame = new Frame;
+        Frame* pFrame = new Frame("hello");
 
         Button* pButton = new Button(pFrame, "Hello World");
         pButton->getClickEventSource()->subscribeMember<MyApp>(this, &MyApp::onClick );

@@ -3077,36 +3077,90 @@ Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& config, Ptr<IStr
 		reporters = addReporter(reporters, (*it)->create( ReporterConfig( config ) ) );
 	return reporters;
 }
+    
+class TestRunner
+{
+public:
+    TestRunner(Ptr<Config> const& config)
+    {
+        _calledTestGroupEnded = false;
+        
+        _iconfig = config.get();
+        
+        Ptr<IStreamingReporter> _reporter = makeReporter( config );
+        _reporter = addListeners( _iconfig, _reporter );
+        
+        _pContext = new RunContext( _iconfig, _reporter );
+        
+        _pContext->testGroupStarting( config->name(), 1, 1 );
+        
+        _testSpec = config->testSpec();
+        if( !_testSpec.hasFilters() )
+            _testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "~[.]" ).testSpec(); // All not hidden tests
+        
+        std::vector<TestCase> const& allTestCases = getAllTestCasesSorted( *iconfig );
+        
+        _currTestIt = allTestCases.begin();
+        _endTestIt = allTestCases.end();
+    }
+    
+    ~TestRunner()
+    {
+        delete _pContext;
+    }
+    
+    
+    bool runNextTest()
+    {
+        if(_currTestIt==_endTestIt)
+        {
+            // no more tests
+            
+            if(!_calledTestGroupEnded)
+            {
+                _calledTestGroupEnded = true;
+                _pContext->testGroupEnded( _iconfig->name(), _totals, 1, 1 );
+            }
+            
+            return false;
+        }
+        else
+        {
+            if( !_pContext->aborting() && matchTest( *_currTestIt, _testSpec, *_iconfig ) )
+                _totals += context.runTest( *_currTestIt );
+            else
+                _reporter->skipTest( *_currTestIt );
+            
+            ++_currTestIt;
+            
+            return true;
+        }
+    }
+        
+protected:
+    Ptr<IConfig const>      _iconfig;
+    Ptr<IStreamingReporter> _reporter;
+    
+    RunContext*             _pContext;
+    
+    Totals                  _totals;
+    
+    TestSpec                _testSpec;
+    
+    std::vector<TestCase>::const_iterator _currTestIt;
+    std::vector<TestCase>::const_iterator _endTestIt;
+    
+    bool                    _calledTestGroupEnded;
+    
+};
 
 Totals runTests( Ptr<Config> const& config ) {
-
-	Ptr<IConfig const> iconfig = config.get();
-
-	Ptr<IStreamingReporter> reporter = makeReporter( config );
-	reporter = addListeners( iconfig, reporter );
-
-	RunContext context( iconfig, reporter );
-
-	Totals totals;
-
-	context.testGroupStarting( config->name(), 1, 1 );
-
-	TestSpec testSpec = config->testSpec();
-	if( !testSpec.hasFilters() )
-		testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "~[.]" ).testSpec(); // All not hidden tests
-
-	std::vector<TestCase> const& allTestCases = getAllTestCasesSorted( *iconfig );
-	for( std::vector<TestCase>::const_iterator it = allTestCases.begin(), itEnd = allTestCases.end();
-	it != itEnd;
-		++it ) {
-		if( !context.aborting() && matchTest( *it, testSpec, *iconfig ) )
-			totals += context.runTest( *it );
-		else
-			reporter->skipTest( *it );
-	}
-
-	context.testGroupEnded( iconfig->name(), totals, 1, 1 );
-	return totals;
+    
+    TestRunner runner(config);
+    
+    while(runner.runNextTest())
+    {
+    }
 }
 
 void applyFilenamesAsTags( IConfig const& config ) {
@@ -3190,24 +3244,33 @@ public:
 			returnCode = run();
 		return returnCode;
 	}
+    
+    
+    bool prepareRun()
+    {
+        if( m_configData.showHelp )
+            return false;
+        
+        config(); // Force config to be constructed
+        
+        seedRng( *m_config );
+        
+        if( m_configData.filenamesAsTags )
+            applyFilenamesAsTags( *m_config );
+        
+        // Handle list request
+        if( Option<std::size_t> listed = list( config() ) )
+            return static_cast<int>( *listed );
+        
+        return true;
+    }
 
 	int run() {
-		if( m_configData.showHelp )
-			return 0;
-
 		try
 		{
-			config(); // Force config to be constructed
-
-			seedRng( *m_config );
-
-			if( m_configData.filenamesAsTags )
-				applyFilenamesAsTags( *m_config );
-
-			// Handle list request
-			if( Option<std::size_t> listed = list( config() ) )
-				return static_cast<int>( *listed );
-
+            if(!prepareRun())
+                return 0;
+            
 			return static_cast<int>( runTests( m_config ).assertions.failed );
 		}
 		catch( std::exception& ex ) {

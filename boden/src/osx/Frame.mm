@@ -7,16 +7,15 @@ namespace bdn
 {
     
     
+Frame::Frame(const String& title)
+{
+    _impl = new Impl(title);
+}
     
-    Frame::Frame()
-    {
-        _impl = new Impl;
-    }
-        
-    void Frame::show(bool visible)
-    {
-        _impl->show(visible);
-    }
+void Frame::show(bool visible)
+{
+    _impl->show(visible);
+}
     
 
 

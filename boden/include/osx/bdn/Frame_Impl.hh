@@ -11,14 +11,14 @@ namespace bdn
 class Frame::Impl
 {
 public:
-    Impl()
+    Impl(const String& title)
     {
         NSRect frame = NSMakeRect(0, 0, 200, 200);
         _window  = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
                                                  backing:NSBackingStoreBuffered
                                                    defer:NO];
-        /*[_window setTitle: [NSString stringWithCString:title.c_str() encoding:NSUTF8StringEncoding] ];*/
+        [_window setTitle: [NSString stringWithCString:title.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
         
         [_window center];
     }

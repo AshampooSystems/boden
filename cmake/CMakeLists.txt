@@ -95,11 +95,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif()
 
 
+set( WEBDRIVERXX_INCDIR "../3rdparty/webdriverxx/include")
+set( CURL_INCDIR "../3rdparty/curl/include")
+
+set( DEPENDENCIES_INCDIR ${WEBDRIVERXX_INCDIR} ${CURL_INCDIR} )
+
+
+# boden
+
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
-
-set( WEBDRIVERXX_INCDIR "../3rdparty/webdriverxx/include")
-
 
 file( GLOB_RECURSE BODEN_HEADERS ${BODEN_INCDIR}/common/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.h)
 if(BODEN_TARGET_FAMILY)
@@ -117,7 +122,7 @@ include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 if(BODEN_TARGET_FAMILY)
 	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
 endif()
-include_directories( ${WEBDRIVERXX_INCDIR} )
+include_directories( ${DEPENDENCIES_INCDIR} )
 
 
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
@@ -125,13 +130,82 @@ add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
 
+
+# testboden
+
+set( TESTBODEN_SRCDIR "../testboden/src")
+file( GLOB_RECURSE TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h)
+include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+if(BODEN_TARGET_FAMILY)
+	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
+endif()
+include_directories( ${DEPENDENCIES_INCDIR} )
+
+add_executable(testboden ${TESTBODEN_SOURCES} )
+
+set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+	# make sure that we also generate a HTML file
+	set_property(TARGET testboden APPEND PROPERTY LINK_FLAGS "-o testboden.html")
+endif()
+
+target_link_libraries(testboden boden)
+
+if(APPLE)
+	find_library(COCOA_LIBRARY Cocoa)
+	mark_as_advanced(COCOA_LIBRARY)
+	target_link_libraries(testboden ${COCOA_LIBRARY})
+endif()
+
+if( ${BODEN_TARGET} EQUAL "dotnet")
+	set_target_properties(TARGET testboden APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
+
+
+# testbodenui
+
+set( TESTBODENUI_SRCDIR "../testbodenui/src")
+file( GLOB_RECURSE TESTBODENUI_SOURCES ${TESTBODENUI_SRCDIR}/*.cpp ${TESTBODENUI_SRCDIR}/*.h)
+include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
+if(BODEN_TARGET_FAMILY)
+	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
+endif()
+include_directories( ${DEPENDENCIES_INCDIR} )
+
+add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+
+set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+	# make sure that we also generate a HTML file
+	set_property(TARGET testbodenui APPEND PROPERTY LINK_FLAGS "-o testbodenui.html")
+endif()
+
+target_link_libraries(testbodenui boden)
+
+if(APPLE)
+	find_library(COCOA_LIBRARY Cocoa)
+	mark_as_advanced(COCOA_LIBRARY)
+	target_link_libraries(testbodenui ${COCOA_LIBRARY})
+endif()
+
+if( ${BODEN_TARGET} EQUAL "dotnet")
+	set_target_properties(TARGET testbodenui APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
+
+
+# uidemo
+
 set( UIDEMO_SRCDIR "../uidemo/src")
 file( GLOB_RECURSE UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
 include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
 if(BODEN_TARGET_FAMILY)
 	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
 endif()
-include_directories( ${WEBDRIVERXX_INCDIR} )
+include_directories( ${DEPENDENCIES_INCDIR} )
 
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
@@ -153,34 +227,6 @@ if( ${BODEN_TARGET} EQUAL "dotnet")
 endif()
 
 
-set( BODENTEST_SRCDIR "../bodentest/src")
-file( GLOB_RECURSE BODENTEST_SOURCES ${BODENTEST_SRCDIR}/*.cpp ${BODENTEST_SRCDIR}/*.h)
-include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
-if(BODEN_TARGET_FAMILY)
-	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
-endif()
-include_directories( ${WEBDRIVERXX_INCDIR} )
 
-
-add_executable(bodentest ${BODENTEST_SOURCES} )
-
-set_property(TARGET bodentest APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-	# make sure that we also generate a HTML file
-	set_property(TARGET bodentest APPEND PROPERTY LINK_FLAGS "-o bodentest.html")
-endif()
-
-target_link_libraries(bodentest boden)
-
-if(APPLE)
-	find_library(COCOA_LIBRARY Cocoa)
-	mark_as_advanced(COCOA_LIBRARY)
-	target_link_libraries(bodentest ${COCOA_LIBRARY})
-endif()
-
-if( ${BODEN_TARGET} EQUAL "dotnet")
-	set_target_properties(TARGET uidemo APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
-endif()
 
 
