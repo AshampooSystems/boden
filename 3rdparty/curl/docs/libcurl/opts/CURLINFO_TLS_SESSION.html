@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<title>CURLINFO_TLS_SESSION man page</title>
+<meta name="generator" content="roffit">
+<STYLE type="text/css">
+pre {
+  overflow: auto;
+  margin: 0;
+}
+
+P.level0, pre.level0 {
+ padding-left: 2em;
+}
+
+P.level1, pre.level1 {
+ padding-left: 4em;
+}
+
+P.level2, pre.level2 {
+ padding-left: 6em;
+}
+
+span.emphasis {
+ font-style: italic;
+}
+
+span.bold {
+ font-weight: bold;
+}
+
+span.manpage {
+ font-weight: bold;
+}
+
+h2.nroffsh {
+ background-color: #e0e0e0;
+}
+
+span.nroffip {
+ font-weight: bold;
+ font-size: 120%;
+ font-family: monospace;
+}
+
+p.roffit {
+ text-align: center;
+ font-size: 80%;
+}
+</STYLE>
+</head><body>
+
+<p class="level0"><a name="NAME"></a><h2 class="nroffsh">NAME</h2>
+<p class="level0">CURLINFO_TLS_SESSION - get TLS session info <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
+<p class="level0"><pre class="level0">
+&#35;include &lt;curl/curl.h&gt;
+&nbsp;
+CURLcode curl_easy_getinfo(CURL *handle, CURLINFO_TLS_SESSION,
+&nbsp;                          struct curl_tlssessioninfo **session);
+</pre>
+<a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
+<p class="level0"><span Class="bold">This option has been superseded</span> by <a Class="emphasis" href="./CURLINFO_TLS_SSL_PTR.html">CURLINFO_TLS_SSL_PTR</a> which was added in 7.48.0. The only reason you would use this option instead is if you could be using a version of libcurl earlier than 7.48.0. 
+<p class="level0">This option is exactly the same as <a Class="emphasis" href="./CURLINFO_TLS_SSL_PTR.html">CURLINFO_TLS_SSL_PTR</a> except in the case of OpenSSL. If the session <span Class="emphasis">backend</span> is CURLSSLBACKEND_OPENSSL the session <span Class="emphasis">internals</span> pointer varies depending on the option: 
+<p class="level0">CURLINFO_TLS_SESSION OpenSSL session <span Class="emphasis">internals</span> is SSL_CTX *. 
+<p class="level0">CURLINFO_TLS_SSL_PTR OpenSSL session <span Class="emphasis">internals</span> is SSL *. 
+<p class="level0">You can obtain an SSL_CTX pointer from an SSL pointer using OpenSSL function SSL_get_SSL_CTX. Therefore unless you need compatibility with older versions of libcurl use <a Class="emphasis" href="./CURLINFO_TLS_SSL_PTR.html">CURLINFO_TLS_SSL_PTR</a>. Refer to that document for more information. <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
+<p class="level0">All TLS-based <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0">TODO <a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
+<p class="level0">Added in 7.34.0 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
+<p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
+<p class="level0"><span Class="manpage">curl_easy_getinfo (3)</span>, <span Class="manpage">curl_easy_setopt (3)</span>, <a Class="manpage" href="./CURLINFO_TLS_SSL_PTR.html">CURLINFO_TLS_SSL_PTR</a><p class="roffit">
+ This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
+</body></html>

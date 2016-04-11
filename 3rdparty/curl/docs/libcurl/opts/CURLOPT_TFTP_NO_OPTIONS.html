@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<title>CURLOPT_TFTP_NO_OPTIONS man page</title>
+<meta name="generator" content="roffit">
+<STYLE type="text/css">
+pre {
+  overflow: auto;
+  margin: 0;
+}
+
+P.level0, pre.level0 {
+ padding-left: 2em;
+}
+
+P.level1, pre.level1 {
+ padding-left: 4em;
+}
+
+P.level2, pre.level2 {
+ padding-left: 6em;
+}
+
+span.emphasis {
+ font-style: italic;
+}
+
+span.bold {
+ font-weight: bold;
+}
+
+span.manpage {
+ font-weight: bold;
+}
+
+h2.nroffsh {
+ background-color: #e0e0e0;
+}
+
+span.nroffip {
+ font-weight: bold;
+ font-size: 120%;
+ font-family: monospace;
+}
+
+p.roffit {
+ text-align: center;
+ font-size: 80%;
+}
+</STYLE>
+</head><body>
+
+<p class="level0"><a name="NAME"></a><h2 class="nroffsh">NAME</h2>
+<p class="level0">CURLOPT_TFTP_NO_OPTIONS - Do not send TFTP options requests. <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
+<p class="level0">&#35;include &lt;curl/curl.h&gt; 
+<p class="level0">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_TFTP_NO_OPTIONS, long onoff); <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
+<p class="level0">Set <span Class="emphasis">onoff</span> to 1L to exclude all TFTP options defined in <a href="http://www.ietf.org/rfc/rfc2347.txt">RFC 2347</a>, <a href="http://www.ietf.org/rfc/rfc2348.txt">RFC 2348</a> and <a href="http://www.ietf.org/rfc/rfc2349.txt">RFC 2349</a> from read and write requests (RRQs/WRQs). 
+<p class="level0">This option improves interop with some legacy servers that do not acknowledge or properly implement TFTP options. When this option is used <a Class="emphasis" href="./CURLOPT_TFTP_BLKSIZE.html">CURLOPT_TFTP_BLKSIZE</a> is ignored. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
+<p class="level0">0 <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
+<p class="level0">TFTP <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0"><pre class="level0">
+size_t write_callback(char *ptr, size_t size, size_t nmemb, void *fp)
+{
+&nbsp; return fwrite(ptr, size, nmemb, (FILE *)fp);
+}
+&nbsp;
+CURL *curl = curl_easy_init();
+if(curl) {
+&nbsp; FILE *fp = fopen("foo.bin", "wb");
+&nbsp; if(fp) {
+&nbsp;   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
+&nbsp;   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+&nbsp;
+&nbsp;   curl_easy_setopt(curl, CURLOPT_URL, "tftp://example.com/foo.bin");
+&nbsp;
+&nbsp;   /* do not send TFTP options requests */
+&nbsp;   curl_easy_setopt(curl, CURLOPT_TFTP_NO_OPTIONS, 1L);
+&nbsp;
+&nbsp;   /* Perform the request */
+&nbsp;   curl_easy_perform(curl);
+&nbsp;
+&nbsp;   fclose(fp);
+&nbsp; }
+&nbsp; curl_easy_cleanup(curl);
+}
+</pre>
+
+<p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
+<p class="level0">Added in 7.48.0 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
+<p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <p class="roffit">
+ This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
+</body></html>
