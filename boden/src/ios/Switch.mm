@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 
+#include <bdn/init.h>
 #include <bdn/Switch.h>
 #include <bdn/Frame.h>
 

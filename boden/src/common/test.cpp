@@ -3098,7 +3098,7 @@ public:
         if( !_testSpec.hasFilters() )
             _testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "~[.]" ).testSpec(); // All not hidden tests
         
-        std::vector<TestCase> const& allTestCases = getAllTestCasesSorted( *iconfig );
+        std::vector<TestCase> const& allTestCases = getAllTestCasesSorted( *_iconfig );
         
         _currTestIt = allTestCases.begin();
         _endTestIt = allTestCases.end();
@@ -3127,7 +3127,7 @@ public:
         else
         {
             if( !_pContext->aborting() && matchTest( *_currTestIt, _testSpec, *_iconfig ) )
-                _totals += context.runTest( *_currTestIt );
+                _totals += _pContext->runTest( *_currTestIt );
             else
                 _reporter->skipTest( *_currTestIt );
             
@@ -3135,6 +3135,11 @@ public:
             
             return true;
         }
+    }
+    
+    const Totals& getTotals() const
+    {
+        return _totals;
     }
         
 protected:
@@ -3161,6 +3166,8 @@ Totals runTests( Ptr<Config> const& config ) {
     while(runner.runNextTest())
     {
     }
+    
+    return runner.getTotals();
 }
 
 void applyFilenamesAsTags( IConfig const& config ) {

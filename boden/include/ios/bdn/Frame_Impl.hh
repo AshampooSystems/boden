@@ -13,12 +13,12 @@ namespace bdn
 class Frame::Impl
 {
 public:
-    Impl()
+    Impl(const String& title)
     {
         _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         
-        //MainViewController* controller = [MainViewController alloc];
-        //_window.rootViewController = controller;
+        MainViewController* controller = [MainViewController alloc];
+        _window.rootViewController = controller;
         
         _window.backgroundColor = [UIColor whiteColor];
         //controller.view.backgroundColor = [UIColor whiteColor];

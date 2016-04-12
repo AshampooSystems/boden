@@ -2,42 +2,62 @@
 #include <bdn/Frame.h>
 #include <bdn/Button.h>
 #include <bdn/Switch.h>
-#include <bdn/App.h>
 
-#include <string>
+#include <bdn/appInit.h>
+
 
 using namespace bdn;
 
 
-class MyApp : public App
+class MainViewController : public ViewControllerBase
 {
 public:
-
-    void onClick(ClickEvent& evt)
+    MainViewController()
     {
-        _counter++;
-
-        dynamic_cast<Button*>(evt.getWindow())->setLabel("Hello World: "+std::to_string(_counter));
+        _pFrame = newObj<Frame>("hello");
+        
+        _pButton = newObj<Button>(pFrame, "Hello World");
+        
+        _pSwitch = newObj<Switch>(pFrame, "This is a switch/checkbox");
     }
-
-    virtual void initUI() override
-    {
-        Frame* pFrame = new Frame("hello");
-
-        Button* pButton = new Button(pFrame, "Hello World");
-        pButton->getClickEventSource()->subscribeMember<MyApp>(this, &MyApp::onClick );
-
-        Switch* pSwitch = new Switch(pFrame, "This is a switch/checkbox");
-
-        pFrame->show();
-    }
-
+    
 protected:
-    int _counter = 0;
+    P<Frame>    _pFrame;
+    P<Button>   _pButton;
+    P<Switch>   _pSwitch;
 };
 
 
-MyApp _app;
+class AppController : public AppControllerBase
+{
+public:
+    
+    void onClick(ClickEvent& evt)
+    {
+        _counter++;
+        
+        dynamic_cast<Button*>(evt.getWindow())->setLabel("Hello World: "+std::to_string(_counter));
+    }
+    
+    void beginLaunch(const std::map<String,String>& launchInfo) override
+    {
+        _pMainViewController = newObj<MainViewController>();       
+        
+        
+        pButton->getClickEventSource()->subscribeMember<UiDemoAppController>(this, &UiDemoAppController::onClick );
+        
+        Switch* pSwitch =
+        
+        pFrame->show();
+    }
+    
+protected:
+    P<MainViewController> _pMainViewController;
+};
+
+
+BDN_INIT_UI_APP( AppController )
+
 
 
 

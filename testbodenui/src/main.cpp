@@ -1,4 +1,6 @@
 #include <bdn/init.h>
+#include <bdn/appInit.h>
+
 #include <bdn/Frame.h>
 #include <bdn/Button.h>
 #include <bdn/Switch.h>
@@ -6,10 +8,70 @@
 
 #include <bdn/EventDispatcher.h>
 
+#include <bdn/test.h>
+
 #include <string>
 
 using namespace bdn;
 
+
+class TestBodenUIAppController : public AppControllerBase
+{
+public:
+    
+    void beginLaunch(const std::map<String,String>& launchInfo) override
+    {
+        /*
+        try
+        {
+
+            _pTestSession = new bdn::Session;
+            
+            int exitCode = _pTestSession->applyCommandLine(argc, argv);
+            if(exitCode!=0)
+            {
+                // invalid commandline arguments. Exit.
+                return;
+            }
+            
+            if(!_pTestSession->prepareRun())
+            {
+                // only showing help. Just exit.
+                return;
+            }
+            
+            _pTestRunner = new TestRunner( _pTestSession->config() );
+            
+            // this is just a place holder frame so that we have something visible.
+            Frame* pFrame = new Frame("Running tests...");
+            pFrame->show();
+            
+            
+            // schedule an event to call our first test.
+            EventDispatcher::asyncCallFromMainThread( [this]()
+                                                     {
+                                                         this->runNextTest();
+                                                     } );
+            
+            
+        }
+        catch( std::exception& ex )
+        {
+            bdn::cerr() << ex.what() << std::endl;
+            
+            int exitCode = (std::numeric_limits<int>::max)();
+            
+            // we want to exit
+            exitIfPossible( exitCode );
+        }*/
+    }
+    
+};
+
+
+BDN_INIT_UI_APP( TestBodenUIAppController )
+
+/*
 
 class MyApp : public App
 {
@@ -67,48 +129,7 @@ public:
     
     virtual void initUI() override
     {
-        try
-        {
-            _pTestSession = new bdn::Session;
-            
-            int exitCode = _pTestSession->applyCommandLine(argc, argv);
-            if(exitCode!=0)
-            {
-                // invalid commandline arguments. Exit.
-                return;
-            }
-            
-            if(!_pTestSession->prepareRun())
-            {
-                // only showing help. Just exit.
-                return;
-            }
-            
-            _pTestRunner = new TestRunner( _pTestSession->config() );
-            
-            // this is just a place holder frame so that we have something visible.
-            Frame* pFrame = new Frame("Running tests...");
-            pFrame->show();
-            
-            
-            // schedule an event to call our first test.
-            EventDispatcher::asyncCallFromMainThread( [this]()
-                                                     {
-                                                         this->runNextTest();
-                                                     } );
-
-            
-        }
-        catch( std::exception& ex )
-        {
-            bdn::cerr() << ex.what() << std::endl;
-            
-            int exitCode = (std::numeric_limits<int>::max)();
-            
-            // we want to exit
-            exitIfPossible( exitCode );
-        }
-    }
+           }
     
     
 protected:
@@ -120,5 +141,6 @@ protected:
 
 MyApp _app;
 
+ */
 
 

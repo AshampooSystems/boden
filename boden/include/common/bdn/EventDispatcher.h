@@ -17,7 +17,8 @@ public:
         This is often used to schedule UI elements to be updated from
         a worker thread.
      */
-    static void asyncCallFromMainThread( std::function func );
+    template<class FuncType>
+    static void asyncCallFromMainThread( FuncType func );
 
     
     

@@ -12,7 +12,7 @@ namespace bdn
 class Frame : public Base, virtual public IWindow
 {
 public:
-    Frame();
+    Frame(const String& title);
     
     class Impl;
     Impl* getImpl()

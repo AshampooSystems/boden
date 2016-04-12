@@ -1,22 +1,24 @@
-//
-//  main.m
-//  hello
-//
-//  Created by Hauke Duden on 19/07/2015.
-//  Copyright (c) 2015 Hauke Duden. All rights reserved.
-//
-
 #import <Cocoa/Cocoa.h>
+
+#include <bdn/init.h>
+#include <bdn/appInit.h>
 
 #include "AppDelegate.h"
 
-int main(int argc, const char * argv[])
+namespace bdn
+{
+
+int _osxUiAppMain(AppControllerBase* pAppController, int argc, char * argv[])
 {
     [NSApplication sharedApplication];
     
     AppDelegate* appDelegate = [[AppDelegate alloc] init];
+    [appDelegate setAppController:pAppController];
     [NSApp setDelegate:appDelegate];
     [NSApp run];
     
     return 0;
 }
+
+}
+

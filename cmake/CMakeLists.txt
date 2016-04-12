@@ -129,6 +129,14 @@ add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
+if( BODEN_TARGET STREQUAL "ios")
+	# there is a bug in cmake that causes debug symbols to not be generated for ios
+	# builds. So we have to set it manually. Unfortunately we can apparently only
+	# set it for all builds - waiting for a fix from ios cmake maintainer.
+	# XXX needs to be removed for release build
+	set_xcode_property(boden GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+endif()
+
 
 
 # testboden
@@ -141,7 +149,12 @@ if(BODEN_TARGET_FAMILY)
 endif()
 include_directories( ${DEPENDENCIES_INCDIR} )
 
-add_executable(testboden ${TESTBODEN_SOURCES} )
+# we cannot build commandline tools on iOS. So we have to build a UI app
+if(BODEN_TARGET STREQUAL "ios")
+	add_executable(testboden WIN32 MACOSX_BUNDLE ${TESTBODEN_SOURCES} )
+else()
+	add_executable(testboden ${TESTBODEN_SOURCES} )
+endif()
 
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
@@ -152,13 +165,16 @@ endif()
 
 target_link_libraries(testboden boden)
 
-if(APPLE)
-	find_library(COCOA_LIBRARY Cocoa)
-	mark_as_advanced(COCOA_LIBRARY)
-	target_link_libraries(testboden ${COCOA_LIBRARY})
+
+if( BODEN_TARGET STREQUAL "ios")
+	# there is a bug in cmake that causes debug symbols to not be generated for ios
+	# builds. So we have to set it manually. Unfortunately we can apparently only
+	# set it for all builds - waiting for a fix from ios cmake maintainer.
+	# XXX needs to be removed for release build
+	set_xcode_property(testboden GCC_GENERATE_DEBUGGING_SYMBOLS YES)
 endif()
 
-if( ${BODEN_TARGET} EQUAL "dotnet")
+if( BODEN_TARGET STREQUAL "dotnet")
 	set_target_properties(TARGET testboden APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
 endif()
 
@@ -174,6 +190,12 @@ if(BODEN_TARGET_FAMILY)
 endif()
 include_directories( ${DEPENDENCIES_INCDIR} )
 
+IF ( APPLE )
+	SET(APP_TYPE MACOSX_BUNDLE)
+	SET(MACOSX_BUNDLE_BUNDLE_NAME testbodenui)
+	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testbodenui")
+endif()
+
 add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
 
 set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
@@ -185,16 +207,34 @@ endif()
 
 target_link_libraries(testbodenui boden)
 
-if(APPLE)
+if( BODEN_TARGET STREQUAL "osx")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(testbodenui ${COCOA_LIBRARY})
 endif()
 
-if( ${BODEN_TARGET} EQUAL "dotnet")
+if( BODEN_TARGET STREQUAL "ios")
+	find_library(FOUNDATION_LIBRARY Foundation)
+	mark_as_advanced(FOUNDATION_LIBRARY)
+
+	find_library(UIKIT_LIBRARY UIKit)
+	mark_as_advanced(UIKIT_LIBRARY)	
+
+	target_link_libraries(testbodenui ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+endif()
+
+if( BODEN_TARGET STREQUAL "dotnet")
 	set_target_properties(TARGET testbodenui APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
 endif()
 
+
+if( BODEN_TARGET STREQUAL "ios")
+	# there is a bug in cmake that causes debug symbols to not be generated for ios
+	# builds. So we have to set it manually. Unfortunately we can apparently only
+	# set it for all builds - waiting for a fix from ios cmake maintainer.
+	# XXX needs to be removed for release build
+	set_xcode_property(testbodenui GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+endif()
 
 
 # uidemo
@@ -207,6 +247,13 @@ if(BODEN_TARGET_FAMILY)
 endif()
 include_directories( ${DEPENDENCIES_INCDIR} )
 
+IF ( APPLE )
+	SET(APP_TYPE MACOSX_BUNDLE)
+	SET(MACOSX_BUNDLE_BUNDLE_NAME uidemo)
+	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.uidemo")
+endif()
+
+
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -216,14 +263,33 @@ endif()
 
 target_link_libraries(uidemo boden)
 
-if(APPLE)
+if( BODEN_TARGET STREQUAL "osx")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(uidemo ${COCOA_LIBRARY})
 endif()
 
-if( ${BODEN_TARGET} EQUAL "dotnet")
+if( BODEN_TARGET STREQUAL "ios")
+	find_library(FOUNDATION_LIBRARY Foundation)
+	mark_as_advanced(FOUNDATION_LIBRARY)
+
+	find_library(UIKIT_LIBRARY UIKit)
+	mark_as_advanced(UIKIT_LIBRARY)	
+
+	target_link_libraries(uidemo ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+	
+endif()
+
+if( BODEN_TARGET STREQUAL "dotnet")
 	set_target_properties(TARGET uidemo APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
+if( BODEN_TARGET STREQUAL "ios")
+	# there is a bug in cmake that causes debug symbols to not be generated for ios
+	# builds. So we have to set it manually. Unfortunately we can apparently only
+	# set it for all builds - waiting for a fix from ios cmake maintainer.
+	# XXX needs to be removed for release build
+	set_xcode_property(uidemo GCC_GENERATE_DEBUGGING_SYMBOLS YES)
 endif()
 
 

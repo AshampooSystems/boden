@@ -1,31 +1,49 @@
-//
-//  AppDelegate.m
-//  hello
-//
-//  Created by Hauke Duden on 19/07/2015.
-//  Copyright (c) 2015 Hauke Duden. All rights reserved.
-//
+#include <bdn/init.h>
+#include <bdn/AppControllerBase.h>
 
 #import "AppDelegate.h"
 
-#include <bdn/App.h>
 
-@interface AppDelegate ()
+using namespace bdn;
 
-@end
 
 @implementation AppDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    
-    bdn::App* pApp = bdn::App::get();
-    pApp->init();
+    std::map<bdn::String,bdn::String>   _launchInfo;
+
+- (void)setAppController:(bdn::AppControllerBase*) pController {
+    AppControllerBase::get() = pController;
+}
+                          
+                          
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+    AppControllerBase::get()->beginLaunch(_launchInfo);
 }
 
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    AppControllerBase::get()->finishLaunch(_launchInfo);
+}
+                          
+                          
+- (void)applicationDidBecomeActive:(NSNotification *)aNotification {
+    AppControllerBase::get()->onActivate();
+}
+
+                          
+- (void)applicationDidResignActive:(NSNotification *)aNotification {
+    AppControllerBase::get()->onDeactivate();
+}
+                          
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
+    AppControllerBase::get()->onTerminate();
+    
+    AppControllerBase::_set(nullptr);
 }
+                          
+                          
+                          
 
 
 @end
