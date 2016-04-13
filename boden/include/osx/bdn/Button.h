@@ -14,7 +14,12 @@ namespace bdn
 class Button : public Base, virtual public IWindow
 {
 public:
-    Button(IWindow* pParent, const std::string& label);
+    Button(IWindow* pParent, const String& label);
+    
+    Property<String>& label()
+    {
+        return _pImpl->label();
+    }
     
     void setLabel(const std::string& label);
     

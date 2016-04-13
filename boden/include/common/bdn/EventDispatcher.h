@@ -17,8 +17,15 @@ public:
         This is often used to schedule UI elements to be updated from
         a worker thread.
      */
-    template<class FuncType>
-    static void asyncCallFromMainThread( FuncType func );
+    template<class FuncType, class... Args>
+    static void asyncCallFromMainThread( FuncType func, Args&&... args )
+    {
+        // bind the arguments to the function.
+        // Note that std::bind always copies the arguments, so this is safe to call later.
+        auto resultFunc = std::bind(func, args...);
+        
+        XXX post to main thread
+    }
 
     
     

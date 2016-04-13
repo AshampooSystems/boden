@@ -37,7 +37,7 @@ namespace bdn
     class Button::Impl
     {
     public:
-        Impl(Button* pOuter, IWindow* pParent, const std::string& label)
+        Impl(Button* pOuter, IWindow* pParent, const String& label)
         {
             _pOuter = pOuter;
             
@@ -50,13 +50,16 @@ namespace bdn
             [_button setButtonType:NSMomentaryLightButton];
             [_button setBezelStyle:NSRoundedBezelStyle];
             
-            setLabel(label);
+            _label.onChange.subscribeMember<Button>(this, callFromMainThread(onLabelChanged) );
+            
+            _label = label;
         }
         
-        void setLabel(const std::string& label)
+        Property<String>& label()
         {
-            [_button setTitle: [NSString stringWithCString:label.c_str() encoding:NSUTF8StringEncoding] ];
+            return _label;
         }
+        
         
         NSButton* getButton()
         {
@@ -84,8 +87,15 @@ namespace bdn
         }
         
     protected:
+        void onLabelChanged()
+        {
+            [_button setTitle: [NSString stringWithCString:_label.get().asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
+        }
+        
         Button*   _pOuter;
         NSButton* _button;
+        
+        Property<String> _label;
         
         ClickManager* _clickManager;
         EventSource<ClickEvent>* _pClickEventSource;
@@ -95,7 +105,12 @@ namespace bdn
     
     
     
-    Button::Button(IWindow* pParent, const std::string& label)
+    Button::Button(IWindow* pParent, const String& label)
+    {
+        _pImpl = new Impl(this, pParent, label);
+    }
+    
+    Button::Button(IWindow* pParent, ObservableString& label)
     {
         _pImpl = new Impl(this, pParent, label);
     }
