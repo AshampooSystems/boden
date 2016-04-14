@@ -16,7 +16,7 @@ EXIT_INCORRECT_CALL = 12;
 
 
 
-targetList = [ ("windows-universal", "Universal Windows app (Windows 10 and later)" ),
+platformList = [ ("windows-universal", "Universal Windows app (Windows 10 and later)" ),
                ("windows-store", "Windows Store app (Windows 8.1 and later)" ),
                ("windows-classic", "Classic Windows desktop program"),               
                ("dotnet", ".NET program" ),
@@ -30,9 +30,9 @@ Compiles the C++ code to a Javascript-based web app or Javascript
     The resulting JS code is pure Javascript. No native components or
     plugins are needed to execute it.""") ];
 
-targetMap = {};
-for targetName, targetInfo in targetList:
-    targetMap[targetName] = targetInfo;
+platformMap = {};
+for platformName, platformInfo in platformList:
+    platformMap[platformName] = platformInfo;
 
 
 
@@ -77,13 +77,13 @@ class ToolFailedError(ErrorWithExitCode):
         self.toolExitCode = toolExitCode;
 
 
-class InvalidTargetNameError(ProgramArgumentError):
-    def __init__(self, targetName):
-        ProgramArgumentError.__init__(self, "Invalid target name: '%s'" % targetName);
+class InvalidPlatformNameError(ProgramArgumentError):
+    def __init__(self, platformName):
+        ProgramArgumentError.__init__(self, "Invalid platform name: '%s'" % platformName);
 
 
 class InvalidConfigNameError(ProgramArgumentError):
-    def __init__(self, targetName):
+    def __init__(self, platformName):
         ProgramArgumentError.__init__(self, "Invalid config name: '%s'" % configName);
 
 
@@ -216,12 +216,12 @@ class GeneratorInfo(object):
 
 
 
-def getTargetHelp():
-    targetHelp = "";
-    for targetName, targetInfo in targetList:
-        targetHelp+="  %s: %s\n" % (targetName, targetInfo)
+def getPlatformHelp():
+    platformHelp = "";
+    for platformName, platformInfo in platformList:
+        platformHelp+="  %s: %s\n" % (platformName, platformInfo)
 
-    return targetHelp;
+    return platformHelp;
 
 def getMainDir():
     return os.path.dirname( os.path.abspath(__file__) );
@@ -229,29 +229,29 @@ def getMainDir():
 def getBaseBuildDir():
     return os.path.join(getMainDir(), "build");
 
-def getTargetBuildDir(targetName, arch):
+def getPlatformBuildDir(platformName, arch):
 
-    targetBuildDirName = targetName;
+    platformBuildDirName = platformName;
     if arch and arch!="std":
-        targetBuildDirName += "_"+arch;
+        platformBuildDirName += "_"+arch;
 
-    return os.path.join( getBaseBuildDir(), targetBuildDirName );
+    return os.path.join( getBaseBuildDir(), platformBuildDirName );
 
 
 
 def splitBuildDirName(name):
 
-    target, sep, arch = name.partition("_");
+    platform, sep, arch = name.partition("_");
 
-    if target not in targetMap:
-        target = None;
+    if platform not in platformMap:
+        platform = None;
         arch = None;
 
     else:
         if not arch:
             arch = "std";
 
-    return (target, arch);
+    return (platform, arch);
 
 
 
@@ -274,60 +274,60 @@ def isSingleConfigBuildSystem(buildSystem):
 
 def commandPrepare(commandArgs):
 
-    targetAndArchList = getTargetAndArchListForCommand(commandArgs);
+    platformAndArchList = getPlatformAndArchListForCommand(commandArgs);
 
-    if len(targetAndArchList)==0:
+    if len(platformAndArchList)==0:
 
-        if commandArgs.target:
+        if commandArgs.platform:
             arch = commandArgs.arch;
             if not arch:
                 arch = "std";
 
-            targetAndArchList = [ (commandArgs.target, "std") ];
+            platformAndArchList = [ (commandArgs.platform, "std") ];
 
         else:
-            raise IncorrectCallError("TARGET must be specified when prepare is first called.");
+            raise IncorrectCallError("--platform PLATFORM must be specified when prepare is first called.");
 
 
-    for target, arch in targetAndArchList:
+    for platform, arch in platformAndArchList:
 
-        buildSystem = commandArgs.buildsystem;
+        buildSystem = commandArgs.build_system;
 
-        if target not in targetMap:
-            raise InvalidTargetNameError(target);
+        if platform not in platformMap:
+            raise InvalidPlatformNameError(platform);
 
         if not arch:
             arch = "std";
 
-        targetBuildDir = getTargetBuildDir(target, arch);
+        platformBuildDir = getPlatformBuildDir(platform, arch);
 
-        targetState = loadState(targetBuildDir);
-        oldBuildSystem = targetState.get("buildSystem", "");
+        platformState = loadState(platformBuildDir);
+        oldBuildSystem = platformState.get("buildSystem", "");
 
         if buildSystem and oldBuildSystem and buildSystem!=oldBuildSystem:
 
-            # user wants to switch toolset. We must delete the target build dir.
-            print("Build system does not match the one used when the projects for this target were first prepared. Cleaning existing build files.");
+            # user wants to switch toolset. We must delete the platform build dir.
+            print("Build system does not match the one used when the projects for this platform were first prepared. Cleaning existing build files.");
 
-            shutil.rmtree(targetBuildDir);
+            shutil.rmtree(platformBuildDir);
             oldBuildSystem = "";
 
         if not buildSystem:
 
-            # use default for target.
+            # use default for platform.
             if not oldBuildSystem:
-                raise IncorrectCallError("BUILDSYSTEM must be specified when prepare is first called for a target.");
+                raise IncorrectCallError("--build-system BUILDSYSTEM must be specified when prepare is first called for a platform.");
 
             buildSystem = oldBuildSystem;
 
-        targetState["buildSystem"] = buildSystem;
+        platformState["buildSystem"] = buildSystem;
 
         singleConfig = isSingleConfigBuildSystem(buildSystem);
-        targetState["singleConfigBuildSystem"] = singleConfig;
+        platformState["singleConfigBuildSystem"] = singleConfig;
 
-        if not os.path.isdir(targetBuildDir):
-            os.makedirs(targetBuildDir);
-        storeState(targetBuildDir, targetState);
+        if not os.path.isdir(platformBuildDir):
+            os.makedirs(platformBuildDir);
+        storeState(platformBuildDir, platformState);
 
         configList = [];
         if singleConfig:
@@ -345,14 +345,14 @@ def commandPrepare(commandArgs):
                 verb = "Preparing"
 
 
-            msg = "%s target %s for arch '%s'" % (verb, target, arch);            
+            msg = "%s platform %s for arch '%s'" % (verb, platform, arch);            
             if config:
                 msg += " and config %s " % config;
             msg += " (build system: '%s')..." %  buildSystem;
 
             print(msg);
 
-            cmakeBuildDir = targetBuildDir;
+            cmakeBuildDir = platformBuildDir;
             if config:
                 cmakeBuildDir = os.path.join(cmakeBuildDir, config);
 
@@ -365,7 +365,7 @@ def commandPrepare(commandArgs):
 
             args = [];
             
-            if target.startswith("windows-"):
+            if platform.startswith("windows-"):
 
                 if arch!="std":
 
@@ -388,18 +388,18 @@ def commandPrepare(commandArgs):
                     else:
                         raise InvalidArchitectureError(arch);
 
-                if target=="windows-store":
+                if platform=="windows-store":
                     args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
                     
-                elif target=="windows-universal":
+                elif platform=="windows-universal":
                     args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
 
-            elif target=="osx":
+            elif platform=="osx":
 
                 if arch!="std":
                     raise InvalidArchitectureError(arch);
 
-            elif target=="ios":
+            elif platform=="ios":
 
                 if arch=="std":
                     platform = "OS";
@@ -419,7 +419,7 @@ def commandPrepare(commandArgs):
 
                 toolChainFileName = "iOS.cmake";
 
-            elif target=="web":
+            elif platform=="web":
 
                 if arch!="std":
                     raise InvalidArchitectureError(arch);
@@ -483,15 +483,15 @@ def commandPrepare(commandArgs):
 
                 toolChainFileName = "Emscripten.cmake";
 
-            elif target=="android":
+            elif platform=="android":
                 toolChainFileName = "android.cmake";
 
                 if arch!="std":
                     args.extend( ['-DANDROID_ABI='+arch ] );
 
 
-            elif target=="dotnet":
-                args.extend( ['-DBODEN_TARGET=dotnet' ] );
+            elif platform=="dotnet":
+                args.extend( ['-DBODEN_PLATFORM=dotnet' ] );
 
                 if arch!="std":
                     raise InvalidArchitectureError(arch);
@@ -535,7 +535,7 @@ def commandPrepare(commandArgs):
                 raise ToolFailedError("cmake", exitCode);
 
 
-            if target=="dotnet":
+            if platform=="dotnet":
                 # the project must have an empty calling convention in order to be compilable with /clr:pure.
                 # By default it does not contain ANY calling convention entry, which will cause Visual Studio
                 # to treat it like /Gd (which causes an error during compilation). There does not seem to be
@@ -575,61 +575,61 @@ def getFullToolsetName(toolsetName):
 
 
 
-def getPreparedTargetsAndArchs():
+def getPreparedPlatformsAndArchs():
     buildDir = getBaseBuildDir();
 
     preparedList = [];
 
     if os.path.isdir(buildDir):
         for name in os.listdir(buildDir):            
-            target, arch = splitBuildDirName(name);
-            if target and target in targetMap:
-                preparedList.append( (target, arch) );
+            platform, arch = splitBuildDirName(name);
+            if platform and platform in platformMap:
+                preparedList.append( (platform, arch) );
 
     return preparedList;
 
 
-def getTargetAndArchListForCommand(args):
+def getPlatformAndArchListForCommand(args):
 
-    preparedTargetsAndArchs = getPreparedTargetsAndArchs();
+    preparedPlatformsAndArchs = getPreparedPlatformsAndArchs();
 
-    targetList = [];
-    if args.target:
-        targetList.append( args.target );
+    platformList = [];
+    if args.platform:
+        platformList.append( args.platform );
 
     else:
-        for preparedTarget, preparedArch in preparedTargetsAndArchs:
-            targetList.append( preparedTarget );
+        for preparedPlatform, preparedArch in preparedPlatformsAndArchs:
+            platformList.append( preparedPlatform );
 
 
-    targetAndArchList = [];
+    platformAndArchList = [];
 
-    for target in targetList:
+    for platform in platformList:
         if args.arch:
-            targetAndArchList.append( (target, args.arch) );
+            platformAndArchList.append( (platform, args.arch) );
 
         else:
 
-            for preparedTarget, preparedArch in preparedTargetsAndArchs:
-                if preparedTarget==target:
-                    targetAndArchList.append( (target, preparedArch) );
+            for preparedPlatform, preparedArch in preparedPlatformsAndArchs:
+                if preparedPlatform==platform:
+                    platformAndArchList.append( (platform, preparedArch) );
 
 
-    return targetAndArchList;
+    return platformAndArchList;
 
 
 
 def commandBuildOrClean(command, args):
 
-    for targetName, arch in getTargetAndArchListForCommand(args):
+    for platformName, arch in getPlatformAndArchListForCommand(args):
 
-        if targetName not in targetMap:
-            raise InvalidTargetNameError(targetName);
+        if platformName not in platformMap:
+            raise InvalidPlatformNameError(platformName);
 
-        targetBuildDir = getTargetBuildDir(targetName, arch);
+        platformBuildDir = getPlatformBuildDir(platformName, arch);
 
-        targetState = loadState(targetBuildDir);
-        singleConfigBuildSystem = targetState.get("singleConfigBuildSystem", False);
+        platformState = loadState(platformBuildDir);
+        singleConfigBuildSystem = platformState.get("singleConfigBuildSystem", False);
 
         if singleConfigBuildSystem and not args.config:
             configList = ["Debug", "Release"];
@@ -639,14 +639,14 @@ def commandBuildOrClean(command, args):
         for config in configList:
 
             if singleConfigBuildSystem:
-                cmakeBuildDir = os.path.join(targetBuildDir, config);
+                cmakeBuildDir = os.path.join(platformBuildDir, config);
             else:
-                cmakeBuildDir = targetBuildDir;
+                cmakeBuildDir = platformBuildDir;
 
             commandLine = "cmake --build "+cmakeBuildDir;
 
             if command=="clean":
-                commandLine += " --target clean";
+                commandLine += " --platform clean";
 
             if config:
                 commandLine += " --config "+config;
@@ -673,13 +673,13 @@ def commandClean(args):
 
 
 def commandDistClean(args):
-    for targetName, arch in getTargetAndArchListForCommand(args):
-        if targetName not in targetMap:
-            raise InvalidTargetNameError(targetName);
+    for platformName, arch in getPlatformAndArchListForCommand(args):
+        if platformName not in platformMap:
+            raise InvalidPlatformNameError(platformName);
 
-        targetBuildDir = getTargetBuildDir(targetName, arch);
-        if os.path.isdir(targetBuildDir):
-            shutil.rmtree(targetBuildDir);
+        platformBuildDir = getPlatformBuildDir(platformName, arch);
+        if os.path.isdir(platformBuildDir):
+            shutil.rmtree(platformBuildDir);
 
 
 def commandBuildDeps(args):
@@ -718,54 +718,54 @@ COMMAND can be one of the following:
 
 --- Command: prepare ---
 
-build.py prepare [--target TARGET] [--buildsystem BUILDSYSTEM] [--arch ARCH]
+build.py prepare [--platform TARGET] [--buildsystem BUILDSYSTEM] [--arch ARCH]
 
 Pepares the project files for the specified TARGET (see below). BUILDSYSTEM
 specifies the build system or IDE you would like to use (see below for
 possible values).
 
 ARCH is the name of the architecture / ABI to build for.
-"std" is supported for all targets and all build systems. It causes the
+"std" is supported for all platforms and all build systems. It causes the
 build to be done for the "standard" architecture(s). Which architectures that
-will be depends on the build system and target.
+will be depends on the build system and platform.
 
 If ARCH is not specified then "std" is used.
 
-prepare can be called multiple times with different targets to set
-up the project files for multiple targets.
+prepare can be called multiple times with different platforms to set
+up the project files for multiple platforms.
 
 When you first execute the prepare command you must specify both the
 TARGET and BUILDSYSTEM parameters. On latter calls you can omit BUILDSYSTEM or
 both TARGET and BUILDSYSTEM.
 
 When prepare is called without parameters then it refreshes the project
-files for all targets for which project files have been previously prepared.
+files for all platforms for which project files have been previously prepared.
 
-When target is specified and BUILDSYSTEM is omitted then only the project files
-for the specified target are refreshed.
+When platform is specified and BUILDSYSTEM is omitted then only the project files
+for the specified platform are refreshed.
 
-You can also call prepare with a different BUILDSYSTEM for a target that is
+You can also call prepare with a different BUILDSYSTEM for a platform that is
 already prepared. That will remove the existing project files and build
-files and switch to a different build system for this target.
+files and switch to a different build system for this platform.
 
 
 --- Command: build ---
 
-build.py build [--target TARGET] [--config CONFIG] [--arch ARCH]
+build.py build [--platform TARGET] [--config CONFIG] [--arch ARCH]
 
-Builds the specified configuration of the specified target for the specified
+Builds the specified configuration of the specified platform for the specified
 architecture (ARCH).
 
-If TARGET is omitted then all prepared targets are built.
+If TARGET is omitted then all prepared platforms are built.
 
 If CONFIG is omitted then all configurations are built.
 
-If ARCH is omitted then all prepared architectures for the target are built.
+If ARCH is omitted then all prepared architectures for the platform are built.
 
 
 --- Command: clean ---
 
-build.py clean [--target TARGET] [--config CONFIG] [--arch ARCH]
+build.py clean [--platform TARGET] [--config CONFIG] [--arch ARCH]
 
 Removes all intermediate and output files that are generated during building.
 The project files remain.
@@ -776,16 +776,16 @@ The parameters TARGET, CONFIG and ARCH work exactly the same as with the
 
 --- Command: distclean ---
 
-build.py distclean [--target TARGET] [--arch ARCH]
+build.py distclean [--platform TARGET] [--arch ARCH]
 
 Like 'clean' but also removes the project files. This undoes everything
 that 'build' and 'prepare' do.
-If you want to use this target again afterwards then you have to call
+If you want to use this platform again afterwards then you have to call
 'prepare' again.
 
-If TARGET is omitted then all prepared targets are distcleaned.
+If TARGET is omitted then all prepared platforms are distcleaned.
 
-If ARCH is omitted then all architectures for the selected target(s) are
+If ARCH is omitted then all architectures for the selected platform(s) are
 distcleaned.
 
 
@@ -807,7 +807,7 @@ CONFIG values:
 
 ARCH values:
 
-  Supported values depend on the build system and target. If a target is not
+  Supported values depend on the build system and platform. If a platform is not
   listed then it only supports the "std" architecture.
 
   windows with Visual Studio build system:
@@ -845,15 +845,15 @@ BUILDSYSTEM values:
 %s
 
 RESTRICTIONS:
-  ios target: only the Xcode build system is supported
-  web target: only the Makefile build systems are supported
-  android target: only the Makefile build systems are supported
+  ios platform: only the Xcode build system is supported
+  web platform: only the Makefile build systems are supported
+  android platform: only the Makefile build systems are supported
 
 IMPORTANT: Remember to enclose the build system names that consist of multiple
 words in quotation marks!
 
 
-  """ % ( getTargetHelp(), "\n".join(generatorInfo.generatorHelpList), generatorInfo.generatorAliasHelp );
+  """ % ( getPlatformHelp(), "\n".join(generatorInfo.generatorHelpList), generatorInfo.generatorAliasHelp );
 
 
 
@@ -895,8 +895,8 @@ def main():
         argParser = MyArgParser();
         argParser.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps"] );
 
-        argParser.add_argument("--target" );
-        argParser.add_argument("--buildsystem" );
+        argParser.add_argument("--platform" );
+        argParser.add_argument("--build-system" );
         argParser.add_argument("--config", choices=["Debug", "Release"] );
         argParser.add_argument("--arch" );
 
