@@ -682,6 +682,34 @@ def commandDistClean(args):
             shutil.rmtree(targetBuildDir);
 
 
+def commandBuildDeps(args):
+
+    # build curl
+    srcDir = os.path.join( getMainDir(), "3rdparty", "curl");
+    buildDir = os.path.join( getMainDir(), "3rdparty_build", "curl");
+
+    if not os.path.isdir(buildDir):
+        try:
+            os.makedirs( os.path.dirname(buildDir) );
+
+            shutil.copytree( srcDir, buildDir);
+
+        except:
+
+            if os.path.isdir(buildDir):
+                deleteDirTree(buildDir);
+
+            raise;
+
+    if sys.platform=="win32":
+        winBuildDir = os.path.join(buildDir, "winbuild");
+        subprocess.check_call("nmake /f Makefile.vc mode=dll", cwd=winBuildDir, shell=True);
+
+    else:
+        subprocess.check_call("./configure", cwd=buildDir, shell=True);
+        subprocess.check_call("./make", cwd=buildDir, shell=True);
+
+
 
 def getUsage():
     return """Usage: build.py COMMAND [PARAMS]
@@ -759,6 +787,11 @@ If TARGET is omitted then all prepared targets are distcleaned.
 
 If ARCH is omitted then all architectures for the selected target(s) are
 distcleaned.
+
+
+--- Command: builddeps ---
+
+Builds the necessary dependencies from the 3rdparty directory.
 
 
 --- Parameter values ---
@@ -860,7 +893,7 @@ def main():
 
         
         argParser = MyArgParser();
-        argParser.add_argument("command", choices=["prepare", "build", "clean", "distclean"] );
+        argParser.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps"] );
 
         argParser.add_argument("--target" );
         argParser.add_argument("--buildsystem" );
@@ -882,6 +915,9 @@ def main():
 
         elif command=="distclean":
             commandDistClean(args);
+
+        elif command=="builddeps":
+            commandBuildDeps(args);
 
         else:
             raise ProgramArgumentError("Invalid command: '%s'" % command);
