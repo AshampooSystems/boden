@@ -10,14 +10,14 @@ namespace bdn
 {
 
 template<class EventType>
-class EventSource : public Base
+class Notifier : public Base
 {
 public:
-    EventSource()
+    Notifier()
     {
     }
     
-    ~EventSource()
+    ~Notifier()
     {
         MutexLock lock(_mutex);
         

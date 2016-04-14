@@ -56,9 +56,6 @@ public:
         bindSourceChanged(sourceProperty);
     }
     
-    
-    EventSource< Property > onChange;
-    
     Property& operator=(const ValType& val)
     {
         set(val);
