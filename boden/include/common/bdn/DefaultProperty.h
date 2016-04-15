@@ -9,12 +9,21 @@ namespace bdn
 
 
 /** The default implementation of a Property.
+
+	The initial value of the property is the default-constructed ValType.
+	For integers that is 0.
+
 	*/
 template<class ValType>
-class SimpleProperty : public Property<ValType>
+class DefaultProperty : public Property<ValType>
 {
 public:
-	~SimpleProperty()
+	DefaultProperty(ValType value = ValType() )
+	{
+		_value = value;
+	}
+
+	~DefaultProperty()
     {
         // ensure that we unsubscribe from the bound property
 		// before any of our members get destroyed
@@ -64,6 +73,8 @@ protected:
     {
         set( prop.get() );
     }
+
+	ValType						_value;
     
 	Notifier<ReadOnlyProperty>	_onChange;
 	P<IBase>					_pBindSourceSubscription;

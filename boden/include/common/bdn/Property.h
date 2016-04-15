@@ -2,7 +2,7 @@
 #define BDN_Property_H_
 
 
-#include <bdn/ReadOnlyProperty.h>
+#include <bdn/ReadProperty.h>
 
 namespace bdn
 {
@@ -13,20 +13,22 @@ namespace bdn
 	Properties wrap an inner value like a String or an int (the value type
 	is specified via the template parameter).
 
+	The default / most common implementation of Property is DefaultProperty. 
+
 	Usage
 	=====
 
 	When you want to expose a value in your class as a property then you should write
 	a function that returns a reference to Property. Note that Property is an abstract base class,
-	so the actual object you return must be an instance of one of its subclasses (usually SimpleProperty).
+	so the actual object you return must be an instance of one of its subclasses (usually DefaultProperty).
 	But you should return it as a more general Property reference, so allow you to switch to another
 	Property subclass later (see the section about setters and getters below).
 
 	Read-only properties
 	--------------------
 
-	If the value is read-only then you should return ReadOnlyProperty instead (also an abstract base
-	class). ReadOnlyProperty is a base class of Property.
+	If the value is read-only then you should return ReadProperty instead (also an abstract base
+	class). ReadProperty is a base class of Property.
 
 	Example
 	-------
@@ -43,7 +45,7 @@ namespace bdn
 		}
 
 	protected:
-		SimpleProperty<String> _name;	// note that the object is actually a SimplePropery instance
+		DefaultProperty<String> _name;	// note that the object is actually a DefaultProperty instance
 	};
 
 	// Usage:
@@ -118,13 +120,13 @@ namespace bdn
 
 	*/
 template<class ValType>
-class Property : public ReadOnlyProperty<ValType>
+class Property : public ReadProperty<ValType>
 {
 public:
         
     virtual void set(const ValType& val)=0;
     
-    virtual void bind(ReadOnlyProperty<ValType>& sourceProperty)=0;
+    virtual void bind(ReadProperty<ValType>& sourceProperty)=0;
         
     virtual Property& operator=(const ValType& val)
     {

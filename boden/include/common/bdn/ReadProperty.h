@@ -1,20 +1,28 @@
-#ifndef BDN_ReadOnlyProperty_H_
-#define BDN_ReadOnlyProperty_H_
+#ifndef BDN_ReadProperty_H_
+#define BDN_ReadProperty_H_
 
 #include <bdn/Notifier.h>
 
 namespace bdn
 {
 
-/** Base class for properties that can only be read. See Property for
+/** Base class for properties which only allow the value to be read. See Property for
 	more information.*/
 template<class ValType>
-class ReadOnlyProperty : public Base
+class ReadProperty : public Base
 {
 public:
     
 	/** Returns the property value.*/
     virtual ValType get() const=0;
+
+
+	/** Allows implicit conversion to the inner value type.*/
+	operator ValType() const
+	{
+		return get();
+	}
+
 
 	/** Returns a reference to a notifier object that can be used to
 		register for change notifications.
