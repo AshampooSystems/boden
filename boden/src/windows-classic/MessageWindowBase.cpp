@@ -1,11 +1,11 @@
 #include <bdn/init.h>
-#include <bdn/MessageWindow.h>
+#include <bdn/MessageWindowBase.h>
 
 namespace bdn
 {
 
 
-MessageWindow::MessageWindowClass::MessageWindowClass()
+MessageWindowBase::MessageWindowClass::MessageWindowClass()
 {
 	_name = "bdn::MessageWindow";
 
@@ -19,7 +19,7 @@ MessageWindow::MessageWindowClass::MessageWindowClass()
 	::RegisterClassEx(&cls);	
 }
 
-MessageWindow::MessageWindow(const String& windowName)
+MessageWindowBase::MessageWindow(const String& windowName)
 {
 	// ensure that class is registered
 	String className = MessageWindowClass::get()->getName();
@@ -42,13 +42,7 @@ MessageWindow::MessageWindow(const String& windowName)
 		throwLastSysError();
 }
 	
-void MessageWindow::postCall(ISimpleCallable* pCallable)
-{
-	pCallable->addRef();
-	::PostMessage(_windowHandle, MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
-}
-
-LRESULT CALLBACK MessageWindow::windowProcCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MessageWindowBase::windowProcCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	MessageWindow* pThis;
 
@@ -70,27 +64,9 @@ LRESULT CALLBACK MessageWindow::windowProcCallback(HWND windowHandle, UINT messa
 }
 
 
-LRESULT MessageWindow::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT MessageWindowBase::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if(message==MessageCall)
-	{
-		ISimpleCallable* pCallable = reinterpret_cast<ISimpleCallable*>(lParam);
-
-		try
-		{
-			pCallable->call();
-		}
-		catch(std::exception& e)
-		{
-			// ignore exceptions
-		}
-
-		pCallable->release();
-
-		return 0;
-	}
-
-
+	
 	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
 }
 

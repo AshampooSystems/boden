@@ -4,7 +4,7 @@
 
 #include <bdn/Base.h>
 #include <bdn/Frame.h>
-#include <bdn/EventSource.h>
+#include <bdn/Notifier.h>
 #include <bdn/ClickEvent.h>
 
 #include <windows.h>
@@ -57,9 +57,9 @@ namespace bdn
 			_pClickEventSource->deliver(evt);
 		}
 
-		EventSource<ClickEvent>* getClickEventSource()
+		Notifier<ClickEvent>& onClick()
 		{
-			return _pClickEventSource;
+			return _onClick;
 		}
 
 	protected:
@@ -72,7 +72,7 @@ namespace bdn
 
 		HWND _handle;
 
-		EventSource<ClickEvent>* _pClickEventSource;
+		Notifier<ClickEvent> _onClick;
 	};
 
 

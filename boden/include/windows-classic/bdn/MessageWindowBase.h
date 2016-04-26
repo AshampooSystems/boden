@@ -1,5 +1,5 @@
-#ifndef BDN_MessageWindow_H_
-#define BDN_MessageWindow_H_
+#ifndef BDN_MessageWindowBase_H_
+#define BDN_MessageWindowBase_H_
 
 #include <windows.h>
 
@@ -11,13 +11,13 @@ namespace bdn
 
 	This class is only available on Windows Classic / Win32 platforms.
 */
-class MessageWindow : public Base
+class MessageWindowBase : public Base
 {
 public:
 	/** @param windowName the name of the window. Since the window is invisible
 			this is mainly useful for debugging and logging and if some process needs to find the window
 			by its name.*/
-	MessageWindow(const String& windowName);
+	MessageWindowBase(const String& windowName);
 
 
 	/** Returns the window handle.*/

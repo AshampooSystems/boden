@@ -6,7 +6,7 @@ namespace bdn
 
 
 GlobalMessageWindow::GlobalMessageWindow()
-	: MessageWindow("bdn::GlobalMessageWindow")
+	: MessageWindowBase("bdn::GlobalMessageWindow")
 {
 }
 	
@@ -31,12 +31,12 @@ LRESULT GlobalMessageWindow::windowProc(HWND windowHandle, UINT message, WPARAM 
 			// ignore exceptions
 		}
 
-		pCallable->release();
+		pCallable->releaseRef();
 
 		return 0;
 	}
 
-	return MessageWindow::windowProc(windowHandle, message, wParam, lParam);
+	return MessageWindowBase::windowProc(windowHandle, message, wParam, lParam);
 }
 
 

@@ -1,7 +1,7 @@
 #ifndef BDN_GlobalMessageWindow_H_
 #define BDN_GlobalMessageWindow_H_
 
-#include <bdn/MessageWindow.h>
+#include <bdn/MessageWindowBase.h>
 #include <bdn/ISimpleCallable.h>
 
 namespace bdn
@@ -13,7 +13,7 @@ namespace bdn
 
 	This class is only available on Windows Classic / Win32 platforms.
 */
-class GlobalMessageWindow : public MessageWindow
+class GlobalMessageWindow : public MessageWindowBase
 {
 public:
 

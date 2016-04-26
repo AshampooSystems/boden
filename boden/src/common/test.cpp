@@ -3267,7 +3267,7 @@ public:
         
         // Handle list request
         if( Option<std::size_t> listed = list( config() ) )
-            return static_cast<int>( *listed );
+            return static_cast<int>( *listed )!=0;
         
         return true;
     }
