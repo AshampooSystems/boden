@@ -76,17 +76,6 @@ protected:
 			::SetWindowLongPtr(_windowHandle, (LONG_PTR)pInfo->lpCreateParams);
 		}
 
-		if(message==CallMessage)
-		{
-			ICallable* pCallable = (ICallable*)lParam;
-
-			pCallable->call();
-
-			pCallable->release();
-
-			return 0;
-		}
-
 		return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
 	}
 
