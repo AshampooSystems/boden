@@ -38,6 +38,7 @@ DEALINGS IN THE SOFTWARE.
 #ifndef BDN_testMain_H_
 #define BDN_testMain_H_
 
+#include <bdn/init.h>
 #include <bdn/test.h>
 
 

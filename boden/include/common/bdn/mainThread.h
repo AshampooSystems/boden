@@ -1,12 +1,14 @@
 #ifndef BDN_Dispatcher_H_
 #define BDN_Dispatcher_H_
 
+#include <bdn/ISimpleCallable.h>
+
 #include <future>
 
 namespace bdn
 {
 
-class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ICallable
+class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ISimpleCallable
 {
 public:
 	void dispatch();
@@ -54,7 +56,7 @@ protected:
 template <class FuncType, class... Args>
 std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType&& func, Args&&... args)
 {
-	P<CallFromMainThread_> pCall = newObj<CallFromMainThread>(func, args...);
+	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(func, args...);
 
 	pCall->dispatch();
 

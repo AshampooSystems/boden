@@ -23,8 +23,6 @@ namespace bdn
 			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 			std::wstring labelW = converter.from_bytes(label);
 
-			_pClickEventSource = new EventSource<ClickEvent>;
-
 			_handle = ::CreateWindow(L"BUTTON", labelW.c_str(), BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, 20, 20, 200, 30, pParent->getHandle(), NULL, NULL, NULL);
 
 			::SetWindowLongPtr(_handle, GWLP_USERDATA, (LONG_PTR)((Base*)this));
@@ -50,14 +48,14 @@ namespace bdn
 			show(false);
 		}
 
-		void onClick()
+		void generateClick()
 		{
 			ClickEvent evt(this);
 
-			_pClickEventSource->deliver(evt);
+			_onClick.notify(evt);
 		}
 
-		Notifier<ClickEvent>& onClick()
+		Notifier<const ClickEvent&>& onClick()
 		{
 			return _onClick;
 		}
@@ -72,7 +70,7 @@ namespace bdn
 
 		HWND _handle;
 
-		Notifier<ClickEvent> _onClick;
+		Notifier<const ClickEvent&> _onClick;
 	};
 
 

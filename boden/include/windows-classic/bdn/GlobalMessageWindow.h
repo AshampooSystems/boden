@@ -16,6 +16,7 @@ namespace bdn
 class GlobalMessageWindow : public MessageWindowBase
 {
 public:
+	GlobalMessageWindow();
 
 	/** Returns a pointer to the global message window instance. This instance is used
 		to receive messages that are relevant for the app as a whole (like system notifications
@@ -24,7 +25,7 @@ public:
 	{
 		static SafeInit<GlobalMessageWindow> init;
 
-		init.get();
+		return init.get();
 	}
 	
 	/** Causes the specified callable object to be called from the main thread.
@@ -34,7 +35,6 @@ public:
 	void postCall(ISimpleCallable* pCallable);	
 
 protected:
-	GlobalMessageWindow();
 	
 	enum
 	{

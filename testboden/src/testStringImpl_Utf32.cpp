@@ -4,7 +4,7 @@
 // multiple CPP files. Some C++ compilers can otherwise choke on the huge amounts of template
 // variations generated in a single file.
 
-TEST_CASE("StringImpl-utf32", "[String]")
+TEST_CASE("StringImpl-utf32", "[.][long][String]")
 {
 	testStringImpl<Utf32StringData>();
 }

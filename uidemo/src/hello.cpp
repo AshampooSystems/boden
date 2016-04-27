@@ -4,12 +4,16 @@
 #include <bdn/Switch.h>
 
 #include <bdn/appInit.h>
-#include <bdn/EventDispatcher.h>
+#include <bdn/AppControllerBase.h>
 
 #include <list>
 #include <functional>
 
 using namespace bdn;
+
+#if 0
+
+
 
 
 
@@ -30,14 +34,14 @@ class ReadableProperty : public Base
 public:
     typedef ValType ValueType;
     
-    virtual ValType   get() const=0;
+    virtual ValType get() const=0;
     
-    EventSource< ReadableProperty > onChange;
+    Notifier<const ReadableProperty&> onChange;
 };
 
 
 template<class ValType>
-class Property : public ReadableProperty<Base>
+class Property : public ReadableProperty<ValType>
 {
 public:
     
@@ -83,7 +87,7 @@ public:
         _value = val;
     }
     
-    void      set(const ValType& val)
+    virtual void set(const ValType& val) override
     {
         if(val!=_value)
         {
@@ -93,7 +97,7 @@ public:
         }
     }
     
-    ValType   get() const
+    virtual ValType get() const override
     {
         return _value;
     }
@@ -286,183 +290,6 @@ protected:
 
 
 
-
-class StringProperty : public String
-{
-public:
-    
-    EventSource<ObservableString> onChange;
-    
-    using String::operator=;
-
-protected:
-    virtual void onModified() override
-    {
-        onChange.deliver(*this);
-    }
-};
-
-
-template<class NumType>
-class ObservableNum : public Base
-{
-public:
-    ObservableNum(NumType value=0)
-    {
-        _value_ = value;
-    }
-    
-    ObservableNum(const ObservableNum& o)
-    {
-        _value_ = o.getValue();
-    }
-    
-    template<class InputNumType>
-    ObservableNum(const ObservableNum<InputNumType>& o)
-    {
-        _value_ = o.getValue();
-    }
-    
-    
-    EventSource< ObservableNum > onChange;
-    
-    
-    NumType getValue() const
-    {
-        return _value_;
-    }
-    
-    void setValue(NumType val)
-    {
-        _value_ = val;
-        
-        onChange.deliver(*this);
-    }
-    
-    
-    
-    operator NumType() const
-    {
-        return getValue();
-    }
-    
-    
-    ObservableNum& operator=(NumType val)
-    {
-        setValue(val);
-        return *this;
-    }
-    
-    ObservableNum& operator=(const ObservableNum& o)
-    {
-        setValue(o.getValue());
-        return *this;
-    }
-    
-    template<class InputNumType>
-    ObservableNum& operator=(const ObservableNum<InputNumType>& o)
-    {
-        setValue(o.getValue());
-        return *this;
-    }
-    
-    
-    ObservableNum& operator++()
-    {
-        setValue( getValue()+1 );
-        return *this;
-    }
-    
-    ObservableNum operator++(int)
-    {
-        ObservableNum oldVal(*this);
-        
-        operator++();
-        
-        return oldVal;
-    }
-
-    
-    ObservableNum& operator--()
-    {
-        setValue( getValue()-1 );
-        return *this;
-    }
-    
-    ObservableNum operator--(int)
-    {
-        ObservableNum oldVal(*this);
-        
-        operator--();
-        
-        return oldVal;
-    }
-
-
-    
-    
-    ObservableNum& operator+=(NumType val)
-    {
-        setValue( getValue()+val );
-        return *this;
-    }
-    
-    ObservableNum& operator-=(NumType val)
-    {
-        setValue( getValue()-val );
-        return *this;
-    }
-    
-    ObservableNum operator+(NumType val) const
-    {
-        return ObservableInt( getValue()+val );
-    }
-    
-    ObservableNum operator-(NumType val) const
-    {
-        return ObservableInt( getValue()-val );
-    }
-    
-    
-    bool operator==(NumType val) const
-    {
-        return getValue()==val;
-    }
-    
-    bool operator!=(NumType val) const
-    {
-        return getValue()!=val;
-    }
-    
-    bool operator<(NumType val) const
-    {
-        return getValue()<val;
-    }
-    
-    bool operator<=(NumType val) const
-    {
-        return getValue()<=val;
-    }
-    
-    bool operator>(NumType val) const
-    {
-        return getValue()>val;
-    }
-    
-    bool operator>=(NumType val) const
-    {
-        return getValue()>=val;
-    }
-    
-    
-    
-private:
-    // should not be accessed directly. Only use setValue and getValue!
-    NumType _value_;
-};
-
-
-
 class Model : public Base
 {
 public:
@@ -491,10 +318,10 @@ public:
     
     void increaseHelloCounter()
     {
-        _pModel->helloCounter().set( pModel->helloCounter().get()+1 );
+        _pModel->helloCounter().set( _pModel->helloCounter().get()+1 );
     }
     
-    ReadableProperty& helloMessage()
+    ReadableProperty<String>& helloMessage()
     {
         return _helloMessage;
     }
@@ -515,29 +342,30 @@ protected:
     DerivedProperty<String, ReadableProperty<int> >     _helloMessage;
 };
 
+#endif
 
-class MainViewController : public ViewControllerBase
+class MainViewController : public Base //ViewControllerBase
 {
 public:
-    MainViewController(ViewModel* pViewModel)
+    MainViewController()//ViewModel* pViewModel)
     {
         _pFrame = newObj<Frame>("hello");
         
-        _pButton = newObj<Button>(pFrame, "" );
-        _pButton->label().bind( pViewModel->helloMessage() );
+        _pButton = newObj<Button>(_pFrame, "" );
+        //_pButton->label().bind( pViewModel->helloMessage() );
         
-        _pSwitch = newObj<Switch>(pFrame, "This is a switch/checkbox");
+        _pSwitch = newObj<Switch>(_pFrame, "This is a switch/checkbox");
         
-        _pButton->onClick += MainViewController::onButtonClick;
+        //_pButton->onClick().subscribeMember<MainViewController>(this, &MainViewController::onButtonClick);
     }
     
     void onButtonClick()
     {
-        _pViewModel->increaseHelloCounter();
+        //_pViewModel->increaseHelloCounter();
     }
     
 protected:
-    P<ViewModel> _pViewModel;
+    //P<ViewModel> _pViewModel;
     
     P<Frame>    _pFrame;
     P<Button>   _pButton;
@@ -548,24 +376,11 @@ protected:
 class AppController : public AppControllerBase
 {
 public:
-    
-    void onClick(ClickEvent& evt)
-    {
-        _counter++;
-        
-        dynamic_cast<Button*>(evt.getWindow())->setLabel("Hello World: "+std::to_string(_counter));
-    }
+   
     
     void beginLaunch(const std::map<String,String>& launchInfo) override
     {
         _pMainViewController = newObj<MainViewController>();
-        
-        
-        pButton->getClickEventSource()->subscribeMember<UiDemoAppController>(this, &UiDemoAppController::onClick );
-        
-        Switch* pSwitch =
-        
-        pFrame->show();
     }
     
 protected:
@@ -574,7 +389,6 @@ protected:
 
 
 BDN_INIT_UI_APP( AppController )
-
 
 
 

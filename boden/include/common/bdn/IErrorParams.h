@@ -14,6 +14,7 @@ namespace bdn
 	Example:
 
 	\code
+	
 	try
 	{
 		int result = someFunc(filePath);

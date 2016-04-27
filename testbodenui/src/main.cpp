@@ -4,9 +4,6 @@
 #include <bdn/Frame.h>
 #include <bdn/Button.h>
 #include <bdn/Switch.h>
-#include <bdn/App.h>
-
-#include <bdn/EventDispatcher.h>
 
 #include <bdn/test.h>
 

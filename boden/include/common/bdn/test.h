@@ -1546,12 +1546,19 @@ std::string toString( T const& value );
 
 // Built in overloads
 
+std::string toString( String const& value );
 std::string toString( std::string const& value );
 std::string toString( std::wstring const& value );
+std::string toString( std::u16string const& value );
+std::string toString( std::u32string const& value );
 std::string toString( const char* const value );
 std::string toString( char* const value );
 std::string toString( const wchar_t* const value );
 std::string toString( wchar_t* const value );
+std::string toString( const char16_t* const value );
+std::string toString( char16_t* const value );
+std::string toString( const char32_t* const value );
+std::string toString( char32_t* const value );
 std::string toString( int value );
 std::string toString( unsigned long value );
 std::string toString( unsigned int value );

@@ -59,7 +59,9 @@ int _uiAppMain( AppControllerBase* pAppController,
     #define BDN_INIT_UI_APP( appControllerClass )  \
     int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
     { \
-        return _uiAppMain(newObj<AppControllerClass>(), 0, nullptr, {"windows.showCommand", toString(showCommand) } ); \
+		std::map<String,String> launchInfo; \
+		launchInfo["windows.showCommand"] = std::to_string(showCommand); \
+        return _uiAppMain(newObj<appControllerClass>(), 0, nullptr, launchInfo ); \
     }
 
 #else

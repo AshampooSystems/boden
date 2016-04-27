@@ -23,5 +23,6 @@
 #include <bdn/ProgrammingError.h>
 #include <bdn/InvalidArgumentError.h>
 #include <bdn/OutOfRangeError.h>
+#include <bdn/SystemError.h>
 
 #endif

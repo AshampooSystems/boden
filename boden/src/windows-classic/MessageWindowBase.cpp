@@ -1,6 +1,11 @@
 #include <bdn/init.h>
 #include <bdn/MessageWindowBase.h>
 
+#include <bdn/sysError.h>
+#include <bdn/log.h>
+
+
+
 namespace bdn
 {
 
@@ -13,13 +18,13 @@ MessageWindowBase::MessageWindowClass::MessageWindowClass()
 	memset(&cls, 0, sizeof(cls));
 
 	cls.cbSize = sizeof(WNDCLASSEX);
-	cls.lpfnWndProc = MessageWindow::windowProcCallback;
+	cls.lpfnWndProc = MessageWindowBase::windowProcCallback;
 	cls.lpszClassName = _name.asWidePtr();
 
 	::RegisterClassEx(&cls);	
 }
 
-MessageWindowBase::MessageWindow(const String& windowName)
+MessageWindowBase::MessageWindowBase(const String& windowName)
 {
 	// ensure that class is registered
 	String className = MessageWindowClass::get()->getName();
@@ -39,36 +44,52 @@ MessageWindowBase::MessageWindow(const String& windowName)
 		this );
 
 	if(_windowHandle==NULL)
-		throwLastSysError();
+	{
+		BDN_throwLastSysError( ErrorFields().add("func", "CreateWindowEx")
+											.add("context", "MessageWindowBase constructor") );
+	}
 }
+
+
+LRESULT MessageWindowBase::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+{	
+	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
+}
+
 	
 LRESULT CALLBACK MessageWindowBase::windowProcCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	MessageWindow* pThis;
+	MessageWindowBase* pThis;
 
 	if(message==WM_CREATE)
 	{
 		CREATESTRUCT* pInfo = reinterpret_cast<CREATESTRUCT*>(lParam);
 
-		pThis = reinterpret_cast<MessageWindow*>(pInfo->lpCreateParams);
+		pThis = static_cast<MessageWindowBase*>(pInfo->lpCreateParams);
 
 		::SetWindowLongPtr(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
 	}
 	else
-		pThis = reinterpret_cast<MessageWindow*>(::GetWindowLongPtr(windowHandle, GWLP_USERDATA));
+		pThis = reinterpret_cast<MessageWindowBase*>(::GetWindowLongPtr(windowHandle, GWLP_USERDATA));
 
 	if(pThis!=NULL)
-		return pThis->windowProc(windowHandle, message, wParam, lParam);
-	else		
-		return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
+	{
+		try
+		{
+			return pThis->windowProc(windowHandle, message, wParam, lParam);
+		}
+		catch(std::exception& e)
+		{
+			logError(e, "Exception thrown by in MessageWindowBase::windowProc. Ignoring.");
+
+			// fall through and call DefWindowProc
+		}
+	}
+
+	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);	
 }
 
 
-LRESULT MessageWindowBase::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	
-	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
-}
 
 
 

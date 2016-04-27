@@ -12,7 +12,7 @@ namespace bdn
 class Frame : public Base, virtual public IWindow
 {
 public:
-	Frame()
+	Frame(const String& title)
 	{
 		WNDCLASSEX cls;
 
@@ -24,7 +24,7 @@ public:
 
 		::RegisterClassEx(&cls);
 
-		_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, L"Hello", WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
+		_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, title.asWidePtr(), WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
 	}
 
 

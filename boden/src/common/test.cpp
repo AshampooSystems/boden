@@ -3087,7 +3087,7 @@ public:
         
         _iconfig = config.get();
         
-        Ptr<IStreamingReporter> _reporter = makeReporter( config );
+        _reporter = makeReporter( config );
         _reporter = addListeners( _iconfig, _reporter );
         
         _pContext = new RunContext( _iconfig, _reporter );
@@ -4905,6 +4905,8 @@ std::string rawMemoryToString( const void *object, std::size_t size )
 }
 }
 
+
+
 std::string toString( std::string const& value ) {
 	std::string s = value;
 	if( getCurrentContext().getConfig()->showInvisibles() ) {
@@ -4925,11 +4927,21 @@ std::string toString( std::string const& value ) {
 }
 std::string toString( std::wstring const& value ) {
 
-	std::string s;
-	s.reserve( value.size() );
-	for(size_t i = 0; i < value.size(); ++i )
-		s += value[i] <= 0xff ? static_cast<char>( value[i] ) : '?';
-	return bdn::toString( s );
+	return toString(String(value) );
+}
+
+std::string toString( std::u16string const& value ) {
+
+	return toString(String(value) );
+}
+
+std::string toString( std::u32string const& value ) {
+
+	return toString(String(value) );
+}
+
+std::string toString( String const& value ) {
+	return bdn::toString(value.asUtf8());
 }
 
 std::string toString( const char* const value ) {
@@ -4948,6 +4960,27 @@ std::string toString( const wchar_t* const value )
 std::string toString( wchar_t* const value )
 {
 	return bdn::toString( static_cast<const wchar_t*>( value ) );
+}
+
+std::string toString( const char16_t* const value )
+{
+	return value ? bdn::toString( std::u16string(value) ) : std::string( "{null string}" );
+}
+
+std::string toString( char16_t* const value )
+{
+	return bdn::toString( static_cast<const char16_t*>( value ) );
+}
+
+
+std::string toString( const char32_t* const value )
+{
+	return value ? bdn::toString( std::u32string(value) ) : std::string( "{null string}" );
+}
+
+std::string toString( char32_t* const value )
+{
+	return bdn::toString( static_cast<const char32_t*>( value ) );
 }
 
 std::string toString( int value ) {

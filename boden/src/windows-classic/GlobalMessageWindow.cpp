@@ -26,7 +26,7 @@ LRESULT GlobalMessageWindow::windowProc(HWND windowHandle, UINT message, WPARAM 
 		{
 			pCallable->call();
 		}
-		catch(std::exception& e)
+		catch(std::exception&)
 		{
 			// ignore exceptions
 		}

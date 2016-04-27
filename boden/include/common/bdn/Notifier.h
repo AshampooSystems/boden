@@ -78,18 +78,14 @@ public:
     public:
         ~Sub()
         {
-            onDelete.call(*this);
-            
-            MutexLock lock(_parentMutex);
+			MutexLock lock(_parentMutex);
             
             if(_pParent!=nullptr)
                 _pParent->unsubscribe(this);
         }
         
-        EventSource<Sub> onDelete;
-        
     protected:
-        Sub(EventSource* pParent, const std::function<void(const EventType&)>& func)
+        Sub(Notifier* pParent, const std::function<void(ArgTypes...)>& func)
         {
             _pParent = pParent;
             _func = func;
@@ -102,16 +98,16 @@ public:
             _pParent = nullptr;
         }
         
-        void call(const EventType& e)
+        void call(ArgTypes... args)
         {
-            _func(e);
+            _func(args...);
         }
         
-        Mutex                                   _parentMutex;
-        EventSource*                            _pParent;
-        std::function<void(const EventType&)>   _func;
+        Mutex							 _parentMutex;
+        Notifier*						 _pParent;
+        std::function<void(ArgTypes...)> _func;
         
-        friend class EventSource;
+        friend class Notifier;
     };
     friend class Sub;
     
@@ -171,7 +167,7 @@ public:
 		if your function is not interested in the event parameters and only cares about when the event
 		itself happens.		.
 		*/
-    P<IBase> subscribe( const std::function<void()>& func)
+    P<IBase> subscribeVoid( const std::function<void()>& func)
     {
         return subscribe( VoidFunctionAdapter(func) );
     }
@@ -184,13 +180,13 @@ public:
     }
     
     template<class OwnerType>
-    P<Sub> subscribeMember( OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
+    P<Sub> subscribeVoidMember( OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
     {
         return subscribe( VoidFunctionAdapter( std::bind(func, pOwner, std::placeholders::_1 ) ) );
     }
     
     
-    void fire(ArgTypes... args)
+    void notify(ArgTypes... args)
     {
         MutexLock lock(_mutex);
         
