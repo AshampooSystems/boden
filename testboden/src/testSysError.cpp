@@ -158,7 +158,47 @@ void testMakeThrowSysError()
 	}	
 }
 
+bool setAccessError()
+{
+#ifdef BDN_PLATFORM_WINDOWS
+	SetLastError(ERROR_ACCESS_DENIED);
+#else
+	errno = EACCES;
+#endif			
 
+	return true;
+}
+
+void testThrowLastSysError()
+{
+	// set the last error to "not found"
+#if BDN_PLATFORM_WINDOWS
+	SetLastError( getNotFoundErrorCode() );
+#else
+	errno = getNotFoundErrorCode();
+#endif
+
+	try
+	{
+		// then call BDN_throwLastSysError with a parameter object that will modify
+		// the last sys error
+
+		BDN_throwLastSysError( ErrorFields()
+			// construct the ErrorFields object in a way so that it modifies the last error
+			.add(setAccessError() ? "bla" : "blax", "blub")
+			.add("gubbel", "hurz") );		
+
+		REQUIRE(false);
+	}
+	catch(SystemError& e)
+	{
+		// sanity check. Last error at this point should NOT be "not found"
+		REQUIRE( getLastSysError()!=getNotFoundErrorCode() );	
+
+		// but the exception object should still have the not found error.
+		verifyMakeThrowSysError(e);		
+	}
+}
 
 TEST_CASE("sysError")
 {
@@ -167,5 +207,9 @@ TEST_CASE("sysError")
 	
 	SECTION("makeThrowSysError")
 		testMakeThrowSysError();
+
+	SECTION("throwLastSysError")
+		testThrowLastSysError();
+
 }
 
