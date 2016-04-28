@@ -36,7 +36,7 @@ void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHand
 
 		pCallable->releaseRef();
 
-		context.overrideResult(0, false);
+		context.setResult(0, false);
 	}
 }
 

@@ -7289,6 +7289,16 @@ protected:
 		callFromMainThread( std::bind(&Impl::runNextTest, this) );			            
 	}
 
+	void waitAndClose(int exitCode)
+	{
+		callFromMainThread(
+			[exitCode]()
+			{
+				std::this_thread::sleep_for( std::chrono::duration<int>(5) );    
+				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+			} );
+	}
+
 	void runNextTest()
     {
         try
@@ -7310,7 +7320,7 @@ protected:
 
 				_pFrame->setTitle("Done ("+bdn::toString(failedCount)+" failed)" );
 
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+				waitAndClose(exitCode);
 			}
         }
         catch( std::exception& ex )
@@ -7322,7 +7332,7 @@ protected:
             int exitCode = (std::numeric_limits<int>::max)();
             
             // we want to exit
-            AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
+			waitAndClose(exitCode);
         }
         
     }

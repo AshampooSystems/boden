@@ -76,7 +76,7 @@ LRESULT MessageWindowBase::windowProc(HWND windowHandle, UINT message, WPARAM wP
 	if(context.getCallDefaultHandler())
 		result = CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
 	
-	context.getOverrideResult(result);
+	context.getResultIfSet(result);
 
 	return result;
 }

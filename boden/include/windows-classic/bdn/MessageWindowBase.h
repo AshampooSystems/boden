@@ -59,8 +59,8 @@ protected:
 		MessageContext()
 		{
 			_callDefaultHandler = true;
-			_overrideResultSet = false;
-			_overrideResult = 0;
+			_resultSet = false;
+			_result = 0;
 		}
 
 		/** Sets the result value of the message that is being processed.
@@ -73,18 +73,25 @@ protected:
 				for this message. Note that even if this is true then the result value set with this function
 				will be used instead of the one from the default handler.
 		*/
-		void overrideResult(LRESULT result, bool callDefaultHandler )
+		void setResult(LRESULT result, bool callDefaultHandler )
 		{
-			_overrideResult = result;
-			_overrideResultSet = true;
+			_result = result;
+			_resultSet = true;
+			_callDefaultHandler = callDefaultHandler;
 		}
 
 		
-		bool getOverrideResult(LRESULT& result) const
+		/** If the result was set with setResult() then this function stores it in the result
+			parameter and returns true.
+			
+			If the result was not set with setResult() then the result parameter is not modified
+			and the function returns false.			
+		*/
+		bool getResultIfSet(LRESULT& result) const
 		{
-			if(_overrideResultSet)
+			if(_resultSet)
 			{
-				result = _overrideResult;
+				result = _result;
 				return true;
 			}
 
@@ -97,8 +104,8 @@ protected:
 		}
 
 	protected:
-		LRESULT _overrideResult;
-		bool    _overrideResultSet;
+		LRESULT _result;
+		bool    _resultSet;
 		bool	_callDefaultHandler;
 	};
 
