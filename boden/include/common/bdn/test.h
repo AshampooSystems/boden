@@ -2184,11 +2184,42 @@ namespace bdn {
         INTERNAL_BDN_REACT( __catchResult ) \
     } while( bdn::alwaysFalse() )
 
+
+///////////////////////////////////////////////////////////////////////////////
+#define INTERNAL_BDN_IN( val, container, negate, resultDisposition, macroName ) \
+	do { \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #val ", " #container, resultDisposition ); \
+        try { \
+			bool _result = false; \
+			std::string _rhs; \
+			for(auto item: container) \
+			{ \
+				if(val==item) \
+					_result = true; \
+				if(!_rhs.empty()) \
+					_rhs += ", "; \
+				_rhs += bdn::toString(item); \
+			} \
+			_rhs = "["+_rhs+"]"; \
+			__catchResult.setLhs(bdn::toString(val) ); \
+			__catchResult.setRhs(_rhs ); \
+			__catchResult.setOp( negate ? "not in" : "in");  \
+			if(negate) \
+				_result = !_result; \
+			__catchResult.captureResult( _result ? bdn::ResultWas::Ok : bdn::ResultWas::ExpressionFailed ); \
+        } \
+        catch( ... ) { \
+            __catchResult.useActiveException( bdn::ResultDisposition::Normal ); \
+        } \
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
+
+
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef BDN_CONFIG_VARIADIC_MACROS
     #define INTERNAL_BDN_MSG( messageType, resultDisposition, macroName, ... ) \
         do { \
-            bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition ); \
+            bdn::ResultBuilder __catchREResult( macroName, BDN_INTERNAL_LINEINFO, "", resultDisposition ); \
             __catchResult << __VA_ARGS__ + ::bdn::StreamEndStop(); \
             __catchResult.captureResult( messageType ); \
             INTERNAL_BDN_REACT( __catchResult ) \
@@ -3224,6 +3255,9 @@ return @ desc; \
 #define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
 #define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
 #define REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
+
+#define REQUIRE_IN( value, container ) INTERNAL_BDN_IN( value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
+#define REQUIRE_NOT_IN( value, container ) INTERNAL_BDN_IN( value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")
 
 #define CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK" )
 #define CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "CHECK_FALSE" )
