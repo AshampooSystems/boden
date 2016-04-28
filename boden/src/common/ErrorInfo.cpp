@@ -19,22 +19,34 @@ ErrorInfo::ErrorInfo(const String& errorMessage)
 	auto startIt = _message.find("[[", _message.begin());
 	if(startIt != _message.end())
 	{
-		auto fieldsStartIt = startIt+2;
-
-		auto fieldsEndIt = _message.find("]]", fieldsStartIt);
-		if(fieldsEndIt != _message.end() )
+		auto endIt = _message.find("]]", startIt);
+		if(endIt != _message.end() )
 		{
-			auto endIt = fieldsEndIt+2;
+			endIt+=2;
 			
-			String fieldString = _message.subString(fieldsStartIt, fieldsEndIt);
+			String fieldString = _message.subString(startIt, endIt);
 			_fields = ErrorFields(fieldString);
 		
+			bool removedSpace = false;
 			if(startIt!=_message.begin())
 			{
 				// if a space precedes the fields string then we remove that as well
 				--startIt;
-				if(*startIt!=' ')
+				if(*startIt==' ')
+					removedSpace = true;
+				else
 					++startIt;
+			}
+
+			if(!removedSpace && endIt!=_message.end())
+			{
+				// if a space follows the fields string and we have not removed one before the
+				// fields string then we remove the space.
+				if(*endIt==' ')
+				{
+					++endIt;
+					removedSpace = true;
+				}
 			}
 			
 			_message.erase(startIt, endIt);			
