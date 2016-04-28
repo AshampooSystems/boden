@@ -2890,6 +2890,313 @@ public:
 	}
 
 
+	
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const StringImpl& s) const
+	{
+		if(s.isEmpty())
+			return true;
+
+		if(s.getLength() > getLength())
+			return false;
+
+		return startsWith( s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const std::string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return startsWith(Utf8Codec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const std::wstring& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return startsWith(WideCodec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const std::u16string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return startsWith(Utf16Codec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const std::u32string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return startsWith(Utf32Codec(), s.begin(), s.end() );
+	}
+
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const char* s) const
+	{
+		return startsWith(Utf8Codec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const wchar_t* s) const
+	{
+		return startsWith(WideCodec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const char16_t* s) const
+	{
+		return startsWith(Utf16Codec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string starts with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool startsWith(const char32_t* s) const
+	{
+		return startsWith(Utf32Codec(), s, getStringEndPtr(s) );
+	}
+
+
+
+	/** Returns true if the string starts with the specified substring. The substring to
+		check for is represented by a pair or character iterators toCheckBegin and toCheckEnd.
+	
+		Always returns true if the string represented by toCheckBegin/toCheckEnd is empty.
+	*/
+	template<class InputIteratorType>
+	bool startsWith(const InputIteratorType& toCheckBegin, const InputIteratorType& toCheckEnd) const
+	{
+		InputIteratorType	toCheckIt = toCheckBegin;
+		Iterator			myIt = _beginIt;
+
+		while(toCheckIt!=toCheckEnd)
+		{
+			if(myIt==_endIt)
+				return false;
+
+			if( *toCheckIt != *myIt )
+				return false;
+
+			++toCheckIt;
+			++myIt;
+		}
+
+		return true;
+	}
+
+
+
+	/** Returns true if the string starts with the specified substring. The substring to
+		check for is encoded with the codec specified by the \c codec parameter.
+	
+		Always returns true if the string represented by toCheckBegin/toCheckEnd is empty.
+	*/
+	template<class CodecType, class EncodedInputIteratorType>
+	bool startsWith(const CodecType& codec, const EncodedInputIteratorType& encodedToCheckBegin, const EncodedInputIteratorType& encodedToCheckEnd) const
+	{
+		return startsWith(	CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+							CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
+	}
+
+
+
+
+	
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const StringImpl& s) const
+	{
+		if(s.isEmpty())
+			return true;
+
+		if(s.getLength() > getLength())
+			return false;
+
+		return endsWith( s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const std::string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return endsWith(Utf8Codec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const std::wstring& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return endsWith(WideCodec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const std::u16string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return endsWith(Utf16Codec(), s.begin(), s.end() );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const std::u32string& s) const
+	{
+		if(s.empty())
+			return true;
+
+		return endsWith(Utf32Codec(), s.begin(), s.end() );
+	}
+
+
+
+	/** Returns true if the string ends with the specified substring.
+		
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const char* s) const
+	{
+		return endsWith(Utf8Codec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const wchar_t* s) const
+	{
+		return endsWith(WideCodec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const char16_t* s) const
+	{
+		return endsWith(Utf16Codec(), s, getStringEndPtr(s) );
+	}
+
+
+	/** Returns true if the string ends with the specified substring.
+	
+		Always returns true if \c s is empty.
+	*/
+	bool endsWith(const char32_t* s) const
+	{
+		return endsWith(Utf32Codec(), s, getStringEndPtr(s) );
+	}
+
+
+
+	/** Returns true if the string ends with the specified substring. The substring to
+		check for is represented by a pair or character iterators toCheckBegin and toCheckEnd.
+	
+		Always returns true if the string represented by toCheckBegin/toCheckEnd is empty.
+	*/
+	template<class InputIteratorType>
+	bool endsWith(const InputIteratorType& toCheckBegin, const InputIteratorType& toCheckEnd) const
+	{
+		InputIteratorType	toCheckIt = toCheckEnd;
+		Iterator			myIt = _endIt;
+
+		while(toCheckIt != toCheckBegin)
+		{
+			if(myIt==_beginIt)
+				return false;
+
+			--toCheckIt;
+			--myIt;
+
+			if( *toCheckIt != *myIt )
+				return false;
+		}
+
+		return true;
+	}
+
+
+
+	/** Returns true if the string ends with the specified substring. The substring to
+		check for is encoded with the codec specified by the \c codec parameter.
+	
+		Always returns true if the string represented by toCheckBegin/toCheckEnd is empty.
+	*/
+	template<class CodecType, class EncodedInputIteratorType>
+	bool endsWith(const CodecType& codec, const EncodedInputIteratorType& encodedToCheckBegin, const EncodedInputIteratorType& encodedToCheckEnd) const
+	{
+		return endsWith(	CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+							CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
+	}
+
+
 
 	/** Searches for a sequence of characters in this string, starting at the positing indicated by \c searchFromIt.
 
@@ -5069,6 +5376,10 @@ public:
 										},
 										searchStartIndex);
 	}
+
+
+
+
 
 
 	/** Assigns the value of another string to this string. 	*/

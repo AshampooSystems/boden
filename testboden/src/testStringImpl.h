@@ -8650,6 +8650,223 @@ inline void testContains()
 }
 
 
+
+template<class StringType>
+void verifyStartsWith(const StringType& s, const char32_t* arg, bool expectedResult )
+{
+	StringType a(arg);
+
+	SECTION("iterators")
+		REQUIRE( s.startsWith(a.begin(), a.end()) == expectedResult );
+
+	SECTION("String")
+		REQUIRE( s.startsWith(a) == expectedResult );
+
+	SECTION("std::string")
+		REQUIRE( s.startsWith( a.asUtf8() ) == expectedResult );
+
+	SECTION("std::wstring")
+		REQUIRE( s.startsWith( a.asWide() ) == expectedResult );
+
+	SECTION("std::u16string")
+		REQUIRE( s.startsWith( a.asUtf16() ) == expectedResult );
+
+	SECTION("std::u32string")
+		REQUIRE( s.startsWith( a.asUtf32() ) == expectedResult );
+
+	SECTION("const char*")
+		REQUIRE( s.startsWith( a.asUtf8Ptr() ) == expectedResult );
+
+	SECTION("const wchar_t*")
+		REQUIRE( s.startsWith( a.asWidePtr() ) == expectedResult );
+
+	SECTION("const char16_t*")
+		REQUIRE( s.startsWith( a.asUtf16Ptr() ) == expectedResult );
+
+	SECTION("const char32_t*")
+		REQUIRE( s.startsWith( a.asUtf32Ptr() ) == expectedResult );
+}
+
+template<class DATATYPE>
+inline void testStartsWith()
+{
+	StringImpl<DATATYPE> s(U"\U00012345heloworld");
+
+	SECTION("noMatch")
+	{
+		SECTION("singleChar")
+		{
+			SECTION("notInString")
+				verifyStartsWith(s, U"\U00023643", false );
+			SECTION("notAtStart")
+				verifyStartsWith(s, U"h", false );
+			SECTION("atEnd")
+				verifyStartsWith(s, U"d", false );
+		}
+
+		SECTION("string")
+		{
+			SECTION("notInString")
+				verifyStartsWith(s, U"bla", false );
+			SECTION("notAtStart")
+				verifyStartsWith(s, U"he", false );
+			SECTION("atEnd")
+				verifyStartsWith(s, U"world", false );
+		}
+	}
+
+	SECTION("matches")
+	{
+		SECTION("singleChar")
+			verifyStartsWith(s, U"\U00012345", true );
+
+		SECTION("string")
+			verifyStartsWith(s, U"\U00012345he", true );
+	}
+
+	SECTION("matchesFirstCharsButNotLast")
+	{
+		verifyStartsWith(s, U"\U00012345hx", false );
+	}
+	
+	SECTION("equal")
+	{
+		verifyStartsWith(s, U"\U00012345heloworld", true );
+	}
+
+	SECTION("prefixEqualButCheckStringLonger")
+	{
+		verifyStartsWith(s, U"\U00012345heloworldx", false );
+	}
+
+	SECTION("empty")
+		verifyStartsWith(s, U"", true );
+
+	SECTION("inEmpty")
+	{
+		s = U"";
+
+		SECTION("empty")
+			verifyStartsWith(s, U"", true );
+
+		SECTION("singleChar")
+			verifyStartsWith(s, U"x", false );
+
+		SECTION("string")
+			verifyStartsWith(s, U"bla", false );
+	}
+}
+
+
+
+
+template<class StringType>
+void verifyEndsWith(const StringType& s, const char32_t* arg, bool expectedResult )
+{
+	StringType a(arg);
+
+	SECTION("iterators")
+		REQUIRE( s.endsWith(a.begin(), a.end()) == expectedResult );
+
+	SECTION("String")
+		REQUIRE( s.endsWith(a) == expectedResult );
+
+	SECTION("std::string")
+		REQUIRE( s.endsWith( a.asUtf8() ) == expectedResult );
+
+	SECTION("std::wstring")
+		REQUIRE( s.endsWith( a.asWide() ) == expectedResult );
+
+	SECTION("std::u16string")
+		REQUIRE( s.endsWith( a.asUtf16() ) == expectedResult );
+
+	SECTION("std::u32string")
+		REQUIRE( s.endsWith( a.asUtf32() ) == expectedResult );
+
+	SECTION("const char*")
+		REQUIRE( s.endsWith( a.asUtf8Ptr() ) == expectedResult );
+
+	SECTION("const wchar_t*")
+		REQUIRE( s.endsWith( a.asWidePtr() ) == expectedResult );
+
+	SECTION("const char16_t*")
+		REQUIRE( s.endsWith( a.asUtf16Ptr() ) == expectedResult );
+
+	SECTION("const char32_t*")
+		REQUIRE( s.endsWith( a.asUtf32Ptr() ) == expectedResult );
+}
+
+template<class DATATYPE>
+inline void testEndsWith()
+{
+	StringImpl<DATATYPE> s(U"helloworld\U00012345");
+
+	SECTION("noMatch")
+	{
+		SECTION("singleChar")
+		{
+			SECTION("notInString")
+				verifyEndsWith(s, U"\U00023643", false );
+			SECTION("notAtEnd")
+				verifyEndsWith(s, U"d", false );
+			SECTION("atStart")
+				verifyEndsWith(s, U"h", false );
+		}
+
+		SECTION("string")
+		{
+			SECTION("notInString")
+				verifyEndsWith(s, U"bla", false );
+			SECTION("notAtEnd")
+				verifyEndsWith(s, U"ld", false );
+			SECTION("atStart")
+				verifyEndsWith(s, U"hello", false );
+		}
+	}
+
+	SECTION("matches")
+	{
+		SECTION("singleChar")
+			verifyEndsWith(s, U"\U00012345", true );
+
+		SECTION("string")
+			verifyEndsWith(s, U"ld\U00012345", true );
+	}
+
+	SECTION("matchesLastCharsButNotFirst")
+	{
+		verifyEndsWith(s, U"xd\U00012345", false );
+	}
+
+	SECTION("equal")
+	{
+		verifyEndsWith(s, U"helloworld\U00012345", true );
+	}
+
+	SECTION("suffixEqualButCheckStringLonger")
+	{
+		verifyEndsWith(s, U"xhelloworld\U00012345", false );
+	}
+	
+	SECTION("empty")
+		verifyEndsWith(s, U"", true );
+
+	SECTION("inEmpty")
+	{
+		s = U"";
+
+		SECTION("empty")
+			verifyEndsWith(s, U"", true );
+
+		SECTION("singleChar")
+			verifyEndsWith(s, U"x", false );
+
+		SECTION("string")
+			verifyEndsWith(s, U"bla", false );
+	}
+}
+
+
 template<class StringType, class ArgType>
 inline void verifySplitOffToken( StringType& s, ArgType seps, bool returnEmpty, const char* expectedToken, const char* expectedRemaining, char32_t expectedSep)
 {
@@ -9004,10 +9221,15 @@ inline void testStringImpl()
 
 	SECTION("findReplace")
 		testFindReplace<DATATYPE>();
-		
-
+	
 	SECTION("contains")
 		testContains<DATATYPE>();
+	
+	SECTION("startsWith")
+		testStartsWith<DATATYPE>();
+	
+	SECTION("endsWith")
+		testEndsWith<DATATYPE>();
 
 }
 
