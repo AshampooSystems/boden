@@ -34,20 +34,20 @@ ErrorFields::ErrorFields(const String& fieldString)
 				break;
 
 			String value = fieldString.subString(pos, found);
+			pos = found;
 			++pos;
-
-			if(*pos!=',')
-				break;
-
-			++pos;
-
-			if(*pos==' ')
-				++pos;
 
 			name = unescape(name);
 			value = unescape(value);
 
 			add(name, value);
+
+			if(*pos!=',')
+				break;
+			++pos;
+
+			if(*pos==' ')
+				++pos;			
 		}	
 	}		
 }
@@ -68,6 +68,8 @@ String ErrorFields::toString() const
 				result+=", ";
 
 			result += escapeName(item.first)+": \""+escapeValue(item.second)+"\"";
+
+			first = false;
 		}
 
 		result += "]]";
