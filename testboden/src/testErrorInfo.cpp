@@ -42,6 +42,12 @@ void testConstruct()
 	SECTION("fieldsAtStart")
 		verifyConstruct("[[bla: \"blub\"]] hello world", "hello world", "[[bla: \"blub\"]]");
 
+	SECTION("fieldsAtStartWithColon")
+		verifyConstruct("[[bla: \"blub\"]]: hello world", "hello world", "[[bla: \"blub\"]]");
+
+	SECTION("fieldsAtStartWithSpaceAndColon")
+		verifyConstruct("[[bla: \"blub\"]] : hello world", "hello world", "[[bla: \"blub\"]]");
+
 	SECTION("fieldsInMiddleAtStart")
 		verifyConstruct("hello [[bla: \"blub\"]] world", "hello world", "[[bla: \"blub\"]]");
 }

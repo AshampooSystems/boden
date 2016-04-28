@@ -2,6 +2,7 @@
 #define BDN_sysError_H_
 
 #include <bdn/ErrorFields.h>
+#include <bdn/SystemError.h>
 
 namespace bdn
 {
@@ -13,6 +14,39 @@ namespace bdn
 	- On Unix platforms it is errno.
 	*/
 int getLastSysError();
+
+
+/** Creates a SystemError / std::system_error object for the system error with the specified code.
+
+	The error object will have the type std::system_error and bdn::SystemError (which are actually the
+	same type).
+
+	@param errorCode On Windows this must be a standard windows error code,
+		as returned by GetLastError. On Unix platforms it must be an errno error code.
+
+	@param fields an ErrorFields instance contains arbitrary additional information
+		about the error. For example, if the error occurred while accessing a file you
+		could add a "path" field with the file path.
+
+		The fields object is encoded into the message returned by std::exception::what().
+		You can use ErrorInfo to access the fields from an exception object.
+
+		The easiest way to construct the params object is to create an ad-hoc temporary object
+		and call ErrorFields::add() on it, as shown in the following example.
+
+	Example:
+
+	\code
+
+	makeSysError(errorCode, ErrorFields().add("path", filePath)
+										.add("anotherArbitraryValue", "some more info") );
+
+	\endcode
+
+	*/
+SystemError makeSysError(int errorCode, const ErrorFields& fields = ErrorFields() );
+
+
 
 	
 /** Throws an appropriate exception for the system error with the specified code.

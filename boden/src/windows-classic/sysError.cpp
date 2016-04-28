@@ -11,9 +11,14 @@ int getLastSysError()
 	return ::GetLastError();
 }
 
+SystemError makeSysError(int errorCode, const ErrorFields& infoFields )
+{
+	return SystemError(errorCode, std::system_category(), infoFields.toString() );
+}
+
 void throwSysError(int errorCode, const ErrorFields& infoFields )
 {
-	throw SystemError(errorCode, std::system_category(), infoFields.toString() );
+	throw makeSysError(errorCode, infoFields );
 }
 
 }
