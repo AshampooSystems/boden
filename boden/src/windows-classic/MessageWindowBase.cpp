@@ -4,8 +4,6 @@
 #include <bdn/sysError.h>
 #include <bdn/log.h>
 
-
-
 namespace bdn
 {
 
@@ -50,6 +48,17 @@ MessageWindowBase::MessageWindowBase(const String& windowName)
 	}
 }
 
+MessageWindowBase::~MessageWindowBase()
+{
+	if(_windowHandle!=NULL)
+	{
+		::SetWindowLongPtr(_windowHandle, GWLP_USERDATA, NULL );
+		::DestroyWindow(_windowHandle);		
+		_windowHandle = NULL;
+	}
+}
+
+
 void MessageWindowBase::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	// do nothing by default
@@ -88,11 +97,17 @@ LRESULT CALLBACK MessageWindowBase::windowProcCallback(HWND windowHandle, UINT m
 	else
 		pThis = reinterpret_cast<MessageWindowBase*>(::GetWindowLongPtr(windowHandle, GWLP_USERDATA));
 
+	LRESULT result = 0;
+	bool    callDefault = true;
+
 	if(pThis!=NULL)
 	{
 		try
 		{
-			return pThis->windowProc(windowHandle, message, wParam, lParam);
+			result = pThis->windowProc(windowHandle, message, wParam, lParam);
+			
+			// windowProc automatically calls the default handler. So nothing more to do here.
+			callDefault = false;
 		}
 		catch(std::exception& e)
 		{
@@ -102,7 +117,18 @@ LRESULT CALLBACK MessageWindowBase::windowProcCallback(HWND windowHandle, UINT m
 		}
 	}
 
-	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);	
+	if(message==WM_DESTROY)
+	{
+		::SetWindowLongPtr(windowHandle, GWLP_USERDATA, NULL );
+
+		if(pThis!=NULL)
+			pThis->_windowHandle = NULL;
+	}
+
+	if(callDefault)
+		result = CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);	
+
+	return result;
 }
 
 

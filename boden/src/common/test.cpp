@@ -7277,6 +7277,11 @@ public:
 		scheduleNextTest();
 	}
 
+	void deinit()
+	{
+		_pFrame = nullptr;
+	}
+
 protected:
 
 	void scheduleNextTest()
@@ -7355,6 +7360,10 @@ void TestAppWithUiController::finishLaunch()
 	_pImpl->start();
 }
 
+void TestAppWithUiController::onTerminate()
+{
+	_pImpl->deinit();
+}
 
 }
 

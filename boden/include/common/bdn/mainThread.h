@@ -50,7 +50,8 @@ protected:
 	If you do not want to wait until the function finishes then simply do not store the returned
 	future object.
 
-	If asyncMain is called from the main thread then the function is called immediately.
+	Even if callFromMainThread is called from the main thread then the function is still not executed
+	immediately. It is still added to the normal event loop and executed from there.
 	
 */
 template <class FuncType, class... Args>

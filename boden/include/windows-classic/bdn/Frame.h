@@ -27,6 +27,15 @@ public:
 		_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, title.asWidePtr(), WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
 	}
 
+	~Frame()
+	{
+		if(_handle!=NULL)
+		{
+			::DestroyWindow(_handle);
+			_handle = NULL;
+		}
+	}
+
 
 	HWND getHandle()
 	{

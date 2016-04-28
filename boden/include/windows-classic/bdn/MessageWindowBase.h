@@ -19,6 +19,8 @@ public:
 			by its name.*/
 	MessageWindowBase(const String& windowName);
 
+	~MessageWindowBase();
+
 
 	/** Returns the window handle.*/
 	HWND getHandle()

@@ -14,8 +14,9 @@ TEST_CASE("Frame", "[ui]")
     
     pFrame->show();
     
-    std::this_thread::sleep_for( std::chrono::duration<int>(2) );
-    
+    std::this_thread::sleep_for( std::chrono::duration<int>(2) );    
+
+	pFrame = nullptr;
 }
 
 

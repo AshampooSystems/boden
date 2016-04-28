@@ -21,6 +21,8 @@ public:
 	virtual void beginLaunch() override;
 	virtual void finishLaunch() override;
 
+	virtual void onTerminate() override;
+
 protected:
 	std::vector<String> _args;
 
