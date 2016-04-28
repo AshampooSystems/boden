@@ -4,7 +4,7 @@
 using namespace bdn;
 
 
-TEST_CASE("checkEquality")
+TEST_CASE("test.checkEquality")
 {
 	class Comparer
 	{
@@ -78,6 +78,20 @@ TEST_CASE("checkEquality")
 	REQUIRE( !checkEquality(c, a, true) );
 	a.invertNotEqual = false;
 	
+}
+
+
+TEST_CASE("test.inNotIn")
+{
+	std::list<int> container( {1, 10, 20});
+
+	REQUIRE_IN(1, container );
+	REQUIRE_IN(10, container );	
+	REQUIRE_IN(20, container );
+
+	REQUIRE_NOT_IN(2, container );
+	REQUIRE_NOT_IN(11, container );
+	REQUIRE_NOT_IN(21, container );
 }
 
 
