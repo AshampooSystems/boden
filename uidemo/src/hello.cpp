@@ -373,12 +373,12 @@ protected:
 };
 
 
-class AppController : public AppControllerBase
+class AppController : public UiAppControllerBase
 {
 public:
    
     
-    void beginLaunch(const std::map<String,String>& launchInfo) override
+    void beginLaunch() override
     {
         _pMainViewController = newObj<MainViewController>();
     }

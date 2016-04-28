@@ -9,16 +9,12 @@
 using namespace bdn;
 
 TEST_CASE("Frame", "[ui]")
-{
-    
+{   
     P<Frame> pFrame = newObj<Frame>("Test");
     
     pFrame->show();
     
-    std::this_thread::sleep_for( std::chrono::duration<int>(10) );
-    
-    
-    
+    std::this_thread::sleep_for( std::chrono::duration<int>(2) );
     
 }
 

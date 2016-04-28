@@ -20,7 +20,7 @@ class CallFromMainThread_ : public CallFromMainThreadBase_
 {
 public:
 	CallFromMainThread_(FuncType&& func, Args&&... args)
-		: _packagedTask( std::bind(std::forward(func), std::forward(args)...) )
+		: _packagedTask( std::bind(std::forward<FuncType>(func), std::forward<Args>(args)...) )
 	{
 	}
 
@@ -56,7 +56,7 @@ protected:
 template <class FuncType, class... Args>
 std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType&& func, Args&&... args)
 {
-	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(func, args...);
+	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(std::forward<FuncType>(func), std::forward<Args>(args)... );
 
 	pCall->dispatch();
 

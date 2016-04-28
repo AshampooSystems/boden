@@ -37,6 +37,10 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <bdn/TestAppWithUIController.h>
+#include <bdn/Frame.h>
+#include <bdn/mainThread.h>
+
 
 #include <cstring>
 
@@ -7211,6 +7215,146 @@ int runTestSession( int argc, char const* const argv[] )
 {
 	return bdn::Session().run( argc, argv );
 }
+
+class TestAppWithUiController::Impl
+{
+public:
+	Impl()
+	{
+		_pTestSession = nullptr;
+        _pTestRunner = nullptr;
+	}
+
+
+	void init(const std::vector<String>& args)
+	{	
+		try
+        {
+            _pTestSession = new bdn::Session;
+
+			// this is just a place holder frame so that we have something visible.
+            _pFrame = newObj<Frame>("Running tests...");
+            _pFrame->show();
+
+			std::vector<const char*> argPtrs;
+			for(auto arg: args)
+				argPtrs.push_back( arg.asUtf8Ptr() );
+
+            int exitCode = _pTestSession->applyCommandLine(argPtrs.size(), &argPtrs[0] );
+            if(exitCode!=0)
+            {
+                // invalid commandline arguments. Exit.
+				_pFrame->setTitle("Invalid commandline");
+				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);				
+                return;
+            }
+            
+            if(!_pTestSession->prepareRun())
+            {
+                // only showing help. Just exit.
+				_pFrame->setTitle("Done");
+				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
+				return;
+            }
+            
+            _pTestRunner = new TestRunner( &_pTestSession->config() );
+        }
+        catch( std::exception& ex )
+        {
+            bdn::cerr() << ex.what() << std::endl;
+            
+            int exitCode = (std::numeric_limits<int>::max)();
+            
+            // we want to exit
+            AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
+        }
+
+	}
+
+	void start()
+	{	
+		// schedule our first test to be called
+		scheduleNextTest();
+	}
+
+protected:
+
+	void scheduleNextTest()
+	{		
+		callFromMainThread( std::bind(&Impl::runNextTest, this) );			            
+	}
+
+	void runNextTest()
+    {
+        try
+        {
+            if(_pTestRunner->runNextTest())
+            {
+                // this was not the last test. So schedule another call.
+				// Note that we do it this way (bit by bit) to ensure that
+                // normal application events are still processed normally
+				// in between tests
+				scheduleNextTest();
+            }
+            else
+            {
+                // no more tests. We want to exit.          
+				int failedCount = static_cast<int>( _pTestRunner->getTotals().assertions.failed );
+                
+				int exitCode = failedCount;
+
+				_pFrame->setTitle("Done ("+bdn::toString(failedCount)+" failed)" );
+
+				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+			}
+        }
+        catch( std::exception& ex )
+        {
+            bdn::cerr() << ex.what() << std::endl;
+
+			_pFrame->setTitle("Fatal Error");
+            
+            int exitCode = (std::numeric_limits<int>::max)();
+            
+            // we want to exit
+            AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
+        }
+        
+    }
+	
+protected:
+	Session*    _pTestSession;
+    TestRunner* _pTestRunner; 
+
+	P<Frame>	_pFrame;
+};
+
+
+TestAppWithUiController::TestAppWithUiController()
+{
+	_pImpl = new Impl;
+}
+		
+TestAppWithUiController::~TestAppWithUiController()
+{
+	delete _pImpl;
+}
+
+void TestAppWithUiController::setArguments(const std::vector<String>& args)
+{
+	_args = args;
+}
+
+void TestAppWithUiController::beginLaunch()
+{
+	_pImpl->init(_args);
+}
+
+void TestAppWithUiController::finishLaunch()
+{
+	_pImpl->start();
+}
+
 
 }
 

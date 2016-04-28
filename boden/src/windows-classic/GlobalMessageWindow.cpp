@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/GlobalMessageWindow.h>
 
+#include <bdn/log.h>
+
 namespace bdn
 {
 
@@ -16,7 +18,7 @@ void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 	::PostMessage(_windowHandle, MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
 }
 
-LRESULT GlobalMessageWindow::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if(message==MessageCall)
 	{
@@ -26,17 +28,16 @@ LRESULT GlobalMessageWindow::windowProc(HWND windowHandle, UINT message, WPARAM 
 		{
 			pCallable->call();
 		}
-		catch(std::exception&)
+		catch(std::exception& e)
 		{
-			// ignore exceptions
+			// log and ignore exceptions
+			logError(e, "Exception thrown by ISimpleCallable::call during GlobalMessageWindow MessageCall handling. Ignoring.");
 		}
 
 		pCallable->releaseRef();
 
-		return 0;
+		context.overrideResult(0, false);
 	}
-
-	return MessageWindowBase::windowProc(windowHandle, message, wParam, lParam);
 }
 
 

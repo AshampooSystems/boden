@@ -50,16 +50,32 @@ MessageWindowBase::MessageWindowBase(const String& windowName)
 	}
 }
 
+void MessageWindowBase::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	// do nothing by default
+}
+
 
 LRESULT MessageWindowBase::windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {	
-	return CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
+	MessageContext context;
+
+	handleMessage(context, windowHandle, message, wParam, lParam);
+
+	LRESULT result=0;
+
+	if(context.getCallDefaultHandler())
+		result = CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
+	
+	context.getOverrideResult(result);
+
+	return result;
 }
 
 	
 LRESULT CALLBACK MessageWindowBase::windowProcCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	MessageWindowBase* pThis;
+	MessageWindowBase* pThis = NULL;
 
 	if(message==WM_CREATE)
 	{

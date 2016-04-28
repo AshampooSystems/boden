@@ -3327,11 +3327,10 @@ namespace bdn
 {
 	/** Executes a test session (runs all tests). This can be called
 		from a custom main function.
-		Instead of calling this manually you can also
-		include <bdn/testMain.h> to get the default implementation of
-		a main function.
+		Instead of calling this manually you can also use the macro #BDN_INIT_COMMANDLINE_TEST_APP().
 		*/
 	int runTestSession( int argc, char const* const argv[] );
+
 
 	/** Checks if an equality comparison of the specified values
 		yields the expected result. This tests both the == and the != operator

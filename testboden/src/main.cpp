@@ -1,3 +1,5 @@
+#include <bdn/init.h>
+#include <bdn/appInit.h>
 
-#include <bdn/testMain.h>
+BDN_INIT_COMMANDLINE_TEST_APP();
 

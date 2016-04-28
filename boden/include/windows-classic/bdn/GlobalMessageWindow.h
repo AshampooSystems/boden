@@ -41,7 +41,7 @@ protected:
 		MessageCall = WM_USER+100
 	};
 
-	virtual LRESULT windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 };
 

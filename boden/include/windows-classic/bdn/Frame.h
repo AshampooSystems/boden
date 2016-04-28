@@ -33,6 +33,11 @@ public:
 		return _handle;
 	}
 
+	void setTitle(const String& title)
+	{
+		::SetWindowText(_handle, title.asWidePtr() );
+	}
+
 		
 	virtual void show(bool visible = true) override
 	{

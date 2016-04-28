@@ -49,15 +49,81 @@ protected:
 		String _name;
 	};
 	friend class MessageWindowClass;
+
+
+	class MessageContext
+	{
+	public:
+		MessageContext()
+		{
+			_callDefaultHandler = true;
+			_overrideResultSet = false;
+			_overrideResult = 0;
+		}
+
+		/** Sets the result value of the message that is being processed.
+			
+			Note that it is NOT required to call this. When you do not call this then
+			the system's default handler for the message is called and its result value is used.
+		
+			@param result result value of the message
+			@param callDefaultHandler indicates whether or not the system's default handler should be called
+				for this message. Note that even if this is true then the result value set with this function
+				will be used instead of the one from the default handler.
+		*/
+		void overrideResult(LRESULT result, bool callDefaultHandler )
+		{
+			_overrideResult = result;
+			_overrideResultSet = true;
+		}
+
+		
+		bool getOverrideResult(LRESULT& result) const
+		{
+			if(_overrideResultSet)
+			{
+				result = _overrideResult;
+				return true;
+			}
+
+			return false;
+		}
+
+		bool getCallDefaultHandler() const
+		{
+			return _callDefaultHandler;
+		}
+
+	protected:
+		LRESULT _overrideResult;
+		bool    _overrideResultSet;
+		bool	_callDefaultHandler;
+	};
+
+
+	/** Called when a message is received. Derived classes can override this.
 	
+		By default the default message handler of the system is automatically called after this
+		and its return value is the result of the message.
+
+		If you want to override the default result, or if you want to prevent the default handler
+		from being called altogether, then you can call MessageContext::overrideResult on the provided
+		context object.
+	*/
+	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	
+
+	LRESULT windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);	
 
 	static LRESULT CALLBACK windowProcCallback(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 	
-	virtual LRESULT windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-
 	
+	HWND	_windowHandle;
+	
+	LRESULT _messageResult;
+	bool	_messageResultSet;
 
-	HWND _windowHandle;
+	bool	_callDefaultHandler;
 };
 
 
