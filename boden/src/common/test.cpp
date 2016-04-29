@@ -7355,17 +7355,13 @@ TestAppWithUiController::~TestAppWithUiController()
 	delete _pImpl;
 }
 
-void TestAppWithUiController::setArguments(const std::vector<String>& args)
+
+void TestAppWithUiController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
-	_args = args;
+	_pImpl->init( launchInfo.getArguments() );
 }
 
-void TestAppWithUiController::beginLaunch()
-{
-	_pImpl->init(_args);
-}
-
-void TestAppWithUiController::finishLaunch()
+void TestAppWithUiController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->start();
 }

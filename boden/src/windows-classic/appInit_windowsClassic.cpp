@@ -16,7 +16,9 @@ int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 
 	try
     {
-		// initialize app parameters
+		AppLaunchInfo launchInfo;
+
+		// commandline arguments
 
 		const wchar_t* commandLine = ::GetCommandLineW();
 
@@ -36,17 +38,15 @@ int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 
 		::LocalFree(argPtrs);
 
-		pAppController->setArguments(args);
+		launchInfo.setArguments(args);
 
-		// initialize launch info
-		std::map<String,String> launchInfo;	
-		launchInfo["windows.showCommand"] = std::to_string(showCommand);
 
-		pAppController->setLaunchInfo(launchInfo);
+		// windows show command
+		launchInfo.setWindowsShowCommand(showCommand);
 
-		
-        pAppController->beginLaunch();
-        pAppController->finishLaunch();
+				
+        pAppController->beginLaunch(launchInfo);
+        pAppController->finishLaunch(launchInfo);
     
         MSG msg;
         while(true)

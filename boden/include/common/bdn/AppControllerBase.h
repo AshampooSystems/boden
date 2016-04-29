@@ -1,6 +1,8 @@
 #ifndef BDN_AppControllerBase_H_
 #define BDN_AppControllerBase_H_
 
+#include <bdn/AppLaunchInfo.h>
+
 #include <vector>
 #include <map>
 
@@ -28,48 +30,7 @@ namespace bdn
 class AppControllerBase : public Base
 {
 public:
-    
-	/** Sets the app's execution arguments. These are usually passed as commandline arguments when
-		the app is executed.
-
-		The first item in the argument list is a representation of the program name and/or path.
-		You should not depend on this first entry, though. It is highly dependent on the platform
-		and on how the app was called. Sometimes the first entry can be a full path. Sometimes it
-		is a relative path or just a file name. On some platforms it can also simply be an empty string.
-
-		The remaining items are the parameters passed to the app by the caller.
-
-		The default implementation of this function does nothing. Derived classes can override
-		this function if they need access to the arguments.
-		*/
-	virtual void setArguments(const std::vector<String>& args)
-	{
-		// do nothing by default
-	}
-
-	
-	/** Sets the app's launch information. 
-
-		This is called by the system before beginLaunch().
-
-		The launch information is a system-dependent map with name-value entries.
-
-		The controller implementation can use the launch information to optimize startup.
-        For example, the launch information might contain an entry that indicates that the app
-        is launched to handle a specific URL - in that case the controller might skip
-		preparing its normal start screen because it knows that it will most likely not be shown.
-
-		The possible value names and their contents depend on the platform.
-
-		The default implementation does nothing and does not store the launch information. Derived
-		classes can override this to handle the information..
-		*/
-	virtual void setLaunchInfo(const std::map<String,String>& launchInfo)
-	{
-		// do nothing by default
-	}
-
-			
+  		
 
     /** Called when the app launch has begun.
      
@@ -79,13 +40,10 @@ public:
         the app's UI (for example, on iOS) then the restoration has NOT yet happened
         yet when this function is called.
 
-		Note that additional information about how and why the app is run might
-		be available in the launch information. See setLaunchInfo().
-
-		If you need to access the app's commandline arguments then you capture them
-		by overriding setArguments().
+		Note that additional information about how and why the app is run (including
+		the commandline arguments) is available in the launchInfo parameter.
         */
-    virtual void beginLaunch()
+    virtual void beginLaunch(const AppLaunchInfo& launchInfo)
     {
         // do nothing by default
     }
@@ -100,13 +58,10 @@ public:
         This function is intended for making final UI tweaks, just before the app
         becomes active and visible.
      
-        Note that additional information about how and why the app is run might
-		be available in the launch information. See setLaunchInfo().
-
-		If you need to access the app's commandline arguments then you capture them
-		by overriding setArguments().
+        Note that additional information about how and why the app is run (including
+		the commandline arguments) is available in the launchInfo parameter.
      */
-    virtual void finishLaunch()
+    virtual void finishLaunch(const AppLaunchInfo& launchInfo)
     {
         // do nothing by default
     }
@@ -238,7 +193,7 @@ public:
     /** Returns the global app controller instance.*/
     static P<AppControllerBase> get()
     {
-        return _getGlobal();
+        return _getGlobalRef();
     }
     
     
@@ -248,12 +203,12 @@ public:
      */
     static void _set(AppControllerBase* pAppController)
     {
-        _getGlobal() = pAppController;
+        _getGlobalRef() = pAppController;
     }
     
     
 private:
-    static P<AppControllerBase>& _getGlobal()
+    static P<AppControllerBase>& _getGlobalRef()
     {
         static P<AppControllerBase> pController;
         

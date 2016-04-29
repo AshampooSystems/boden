@@ -9,7 +9,7 @@ namespace bdn
 {
     
 	
-int _commandLineAppMain(	std::function< int(const std::vector<String>&) > appFunc,
+int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 							AppControllerBase* pAppController,
 							int argCount,
 							char* argv[] )
@@ -20,6 +20,8 @@ int _commandLineAppMain(	std::function< int(const std::vector<String>&) > appFun
         
     try
     {
+		AppLaunchInfo launchInfo;
+
 		std::vector<String> args;
 
 		for(int i=0; i<argCount; i++)
@@ -27,16 +29,12 @@ int _commandLineAppMain(	std::function< int(const std::vector<String>&) > appFun
 		if(argCount==0)
 			args.push_back("");	// always add the first entry.
 
-		pAppController->setArguments(args);
+		launchInfo.setArguments(args);
+				
+        pAppController->beginLaunch(launchInfo);
+        pAppController->finishLaunch(launchInfo);			
 
-		// launchInfo is empty
-		std::map<String,String> launchInfo;
-		pAppController->setLaunchInfo(launchInfo);
-		
-        pAppController->beginLaunch();
-        pAppController->finishLaunch();			
-
-		result = appFunc(args);
+		result = appFunc(launchInfo);
     }
     catch(std::exception& e)
     {
@@ -55,14 +53,14 @@ int _commandLineAppMain(	std::function< int(const std::vector<String>&) > appFun
 }
 
 
-int _commandLineTestAppFunc( const std::vector<String>& params )
+int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo )
 {
 	String programName = "";
 	
 	std::vector<const char*> args;
 	args.push_back( programName.asUtf8Ptr() );
 
-	for(auto p: params)
+	for(auto p: launchInfo.getArguments() )
 		args.push_back( p.asUtf8Ptr() );
 
 	return bdn::runTestSession( args.size(), &args[0] );

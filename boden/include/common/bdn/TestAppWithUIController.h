@@ -16,15 +16,12 @@ public:
 	TestAppWithUiController();
 	~TestAppWithUiController();
 
-	virtual void setArguments(const std::vector<String>& args) override;
-		
-	virtual void beginLaunch() override;
-	virtual void finishLaunch() override;
+	virtual void beginLaunch(const AppLaunchInfo& launchInfo) override;
+	virtual void finishLaunch(const AppLaunchInfo& launchInfo) override;
 
 	virtual void onTerminate() override;
 
 protected:
-	std::vector<String> _args;
 
 	class Impl;
 	Impl* _pImpl;

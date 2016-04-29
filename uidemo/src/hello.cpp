@@ -378,7 +378,7 @@ class AppController : public UiAppControllerBase
 public:
    
     
-    void beginLaunch() override
+    void beginLaunch(const AppLaunchInfo& launchInfo) override
     {
         _pMainViewController = newObj<MainViewController>();
     }

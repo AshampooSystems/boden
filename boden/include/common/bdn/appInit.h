@@ -14,7 +14,7 @@ namespace bdn
 
 
 
-int _commandLineAppMain(	std::function< int(const std::vector<String>&) > appFunc,
+int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 							AppControllerBase* pAppController,
 							int argCount,
 							char* argv[] );
@@ -27,7 +27,7 @@ inline P<ControllerType> _createCommandLineAppController()
 }
     
 
-int _commandLineTestAppFunc( const std::vector<String>& params );
+int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 
 #if BDN_PLATFORM_WINDOWS_CLASSIC
@@ -108,18 +108,11 @@ int _commandLineTestAppFunc( const std::vector<String>& params );
     appFunc must have the following interface:
  
     \code
-    int myApp(const Array<String>& args)
+    int myApp(const AppLaunchInfo& launchInfo)
     \endcode
  
-    args is an array with the commandline arguments that the app got
-    from its caller.
-
-	The first item of args is a representation of the program name and/or path.
-	You should not depend on this first entry, though. It is highly dependent on the platform
-	and on how the app was called. Sometimes the first entry can be a full path. Sometimes it
-	is a relative path or just a file name. On some platforms it can also simply be an empty string.
- 
-
+    The launchInfo object contains the commandline arguments (and possibly other information).
+	
     The return value of the appFunc is returned as the "exit code" of the program to
     the commandline caller. You should return 0 if the program executed successfully
     and an error code otherwise.
@@ -197,13 +190,15 @@ int _commandLineTestAppFunc( const std::vector<String>& params );
 
 /** \def BDN_INIT_INVISIBLE_APP( appFunc, appControllerClass )
  
-    Sets up an app that is intended to run invisibly. It does not have a user interface
-    (neither a graphical UI, nor a commandline interface).
+    Sets up an app that is similar to a commandline app in its structure.
+	However, it is intended to run invisibly and not interact with the user at all.
+	It does not have a user interface (neither a graphical UI, nor a commandline interface).
  
-    On some systems the implementation is similar to a commandline app.
-    The main difference is that an invisible app will not take extra steps to show its
-    output to the user on systems that do not support traditional commandline apps.
- 
+    The main difference to a commandline app is that an invisible app will not take extra
+	steps to show its output to the user. For example, on Windows systems normal commandline apps
+	will automatically create a new commandline window if they are run from Windows Explorer or a
+	graphical app. An invisible app will not do that.
+
     See #BDN_INIT_COMMANDLINE_APP() for more information on the parameters.
     */
 #define BDN_INIT_INVISIBLE_APP( appFunc, appControllerClass )
@@ -213,3 +208,5 @@ int _commandLineTestAppFunc( const std::vector<String>& params );
 
 
 #endif
+
+
