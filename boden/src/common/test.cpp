@@ -2710,49 +2710,27 @@ public:
 		m_reporter->testGroupEnded( TestGroupStats( GroupInfo( testSpec, groupIndex, groupsCount ), totals, aborting() ) );
 	}
 
-	Totals runTest( TestCase const& testCase ) {
-		Totals prevTotals = m_totals;
+	void beginRunTest( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
+	{
+		_testPrevTotals = m_totals;
 
-		std::string redirectedCout;
-		std::string redirectedCerr;
+		_testRedirectedCout = "";
+		_testRedirectedCerr = "";
 
-		TestCaseInfo testInfo = testCase.getTestCaseInfo();
+		_testInfo = testCase.getTestCaseInfo();
 
-		m_reporter->testCaseStarting( testInfo );
+		m_reporter->testCaseStarting( _testInfo );
 
 		m_activeTestCase = &testCase;
         
         if(m_printLevel>=1)
             std::cout << "Test case: "+getCurrentTestName() << std::endl;
-        
 
-		do {
-			m_trackerContext.startRun();
-			do {
-				m_trackerContext.startCycle();
-                
-                m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, testInfo.name );
-				runCurrentTest( redirectedCout, redirectedCerr );
-			}
-			while( !m_testCaseTracker->isSuccessfullyCompleted() && !aborting() );
-		}
-		// !TBD: deprecated - this will be replaced by indexed trackers
-		while( getCurrentContext().advanceGeneratorsForCurrentTest() && !aborting() );
+		_testDoneCallback = doneCallback;
 
-		Totals deltaTotals = m_totals.delta( prevTotals );
-		m_totals.testCases += deltaTotals.testCases;
-		m_reporter->testCaseEnded( TestCaseStats(   testInfo,
-			deltaTotals,
-			redirectedCout,
-			redirectedCerr,
-			aborting() ) );
-        
-        
-		m_activeTestCase = BDN_NULL;
-		m_testCaseTracker = BDN_NULL;
-
-		return deltaTotals;
+		runTestCase_Continue();
 	}
+
 
 	Ptr<IConfig const> config() const {
 		return m_config;
@@ -2764,8 +2742,11 @@ private: // IResultCapture
 		if( result.getResultType() == ResultWas::Ok ) {
 			m_totals.assertions.passed++;
 		}
-		else if( !result.isOk() ) {
+		else if( !result.isOk() )
+		{
 			m_totals.assertions.failed++;
+
+			_currentTestAssertionFailed = true;
 		}
 
 		if( m_reporter->assertionEnded( AssertionStats( result, m_messages, m_totals ) ) )
@@ -2909,38 +2890,137 @@ public:
 
 	void beginUiTest(IBase* pObjectToKeepAlive) override
 	{
-		XXX
+		if(_currentTestIsUiTest)
+			throw ProgrammingError("BDN_BEGIN_UI_TEST() called twice in same test.");
+		
+		_currentTestIsUiTest = true;
+		_pCurrentTestObjectToKeepAlive = pObjectToKeepAlive;
+
+		_currentUiTestEnded = false;
 	}
 
 	void endUiTest() override
 	{
-		XXX
+		if(!_currentTestIsUiTest)
+			throw ProgrammingError("BDN_END_UI_TEST() called without calling BDN_BEGIN_UI_TEST() before for this test.");
+
+		if(_currentUiTestEnded)
+		{
+			// already ended. That is Ok. Ignore this call and do nothing.
+		}
+		else
+		{
+			_currentUiTestEnded = true;
+
+			asyncCallFromMainThread(
+				[this]()
+				{
+					// we pass "passed" here. If an assertion fired then currentTestEnded
+					// will automatically change this to Failed.
+					currentTestEnded( CurrentTestResult::Passed );
+					runTestCase_AsyncIterationEnded();
+				} );
+		}
 	}
 
 private:
 
-	void runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
-	{
-		bool testOK = runCurrentTest_Begin(redirectedCout, redirectedCerr);
 
-		if(testOK && !_inUiTest)
-			runCurrentTest_EndSuccess();
+	
+	bool shouldContinueTestCaseIteration()
+	{
+		return ( !m_testCaseTracker->isSuccessfullyCompleted() && !aborting() );
 	}
-			
 
-	bool runCurrentTest_Begin( std::string& redirectedCout, std::string& redirectedCerr )
+	void runTestCase_Continue()
 	{
-		TestCaseInfo const& testCaseInfo = m_activeTestCase->getTestCaseInfo();
-		SectionInfo testCaseSection( testCaseInfo.lineInfo, testCaseInfo.name, testCaseInfo.description );
-		m_reporter->sectionStarting( testCaseSection );
-		Counts prevAssertions = m_totals.assertions;		
-		try {
-			m_lastAssertionInfo = AssertionInfo( "TEST_CASE", testCaseInfo.lineInfo, "", ResultDisposition::Normal );
+		do
+		{	
+			m_trackerContext.startCycle();
+                
+			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _testInfo.name );
+
+			if(!runCurrentTest( _testRedirectedCout, _testRedirectedCerr ))
+			{
+				// test is running asynchronously.
+				// runTestCase_AsyncIterationEnded will be called when it is done.
+				// So, return here.
+				return;
+			}
+		}
+		while(shouldContinueTestCaseIteration());
+
+		// the test case has finished. Finalize it.
+		runTestCase_Finalize();
+
+		// done.
+	}
+
+	void runTestCase_AsyncIterationEnded()
+	{
+		if(shouldContinueTestCaseIteration())
+		{
+			// do the next iteration.
+			runTestCase_Continue();
+		}
+		else
+			runTestCase_Finalize();		
+	}
+
+	Totals runTestCase_Finalize()
+	{		
+		Totals deltaTotals = m_totals.delta( _testPrevTotals );
+
+		m_totals.testCases += deltaTotals.testCases;
+
+		m_reporter->testCaseEnded(
+			TestCaseStats(   _testInfo,
+							deltaTotals,
+							_testRedirectedCout,
+							_testRedirectedCerr,
+							aborting() ) );        
+        
+		m_activeTestCase = BDN_NULL;
+		m_testCaseTracker = BDN_NULL;
+
+		_testDoneCallback( deltaTotals );
+
+		return deltaTotals;
+	}
+	
+
+
+	enum class CurrentTestResult
+	{
+		Unfinished,
+		Passed,
+		Failed,
+		Exception		
+	};
+				
+
+	/** Returns true if the test has finished (no matter whether failed or passed). Returns false if the
+		test runs asynchronously.*/
+	bool runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
+	{
+		_currentTestIsUiTest = false;
+		_currentTestResult = CurrentTestResult::Unfinished;
+		_currentTestAssertionFailed = false;
+
+		_pCurrentTestCaseInfo = &m_activeTestCase->getTestCaseInfo();
+
+		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
+		
+		m_reporter->sectionStarting( *_pCurrentTestCaseSection );
+
+		_currentTestPrevAssertions = m_totals.assertions;		
+		try
+		{
+			m_lastAssertionInfo = AssertionInfo( "TEST_CASE", _pCurrentTestCaseInfo->lineInfo, "", ResultDisposition::Normal );
 
 			seedRng( *m_config );
 
-			Timer timer;
-			timer.start();
+			_currentTestTimer.start();
 			if( m_reporter->getPreferences().shouldRedirectStdOut ) {
 				StreamRedirect coutRedir( bdn::cout(), redirectedCout );
 				StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
@@ -2953,53 +3033,99 @@ private:
 		catch( TestFailureException& )
 		{
 			// This just means the test was aborted due to failure
-			m_totals.tests.failed++;
-			
-			runCurrentTest_Cleanup();
-
-			return false;
+			currentTestEnded(CurrentTestResult::Failed);
+			return true;	// test is done
 		}
 		catch(...)
 		{
-			m_totals.tests.failed++;
-			ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
-			unexpectedResultBuilder.useActiveException();
-			INTERNAL_BDN_REACT( unexpectedResultBuilder );
-
-			runCurrentTest_Cleanup();
-
-			return false;
+			currentTestEnded(CurrentTestResult::Exception);
+			return true;	// test is done
 		}
 
-		return true;
+		if(_currentTestIsUiTest)
+		{
+			// the test is a UI test. I.e. it will run asynchronously and
+			// endUiTest will be called when it finishes.
+			// So, nothing else to do here. Just end and tell our caller that the
+			// test has not finished yet.
+			return false;
+		}
+		else
+		{
+			// not a Ui test => the test executed synchronously and has
+			// already finished.
+			currentTestEnded( CurrentTestResult::Passed );
+			return true;	// test is done
+		}
 	}
 
-	void runCurrentTest_EndSuccess()
+	void currentTestEnded(CurrentTestResult result)
 	{
-		m_totals.tests.passed++;
+		// we must hold a mutex here. If the test uses multiple threads
+		// then we might get failures from multiple threads at once.
+		
+		{
+			MutexLock lock(_currentTestResultMutex);
 
-		runCurrentTest_Cleanup();
-	}
+			if(_currentTestResult != CurrentTestResult::Unfinished)
+			{
+				// the current test was already finished. So the new result we got is
+				// from a different thread. We ignore the new result.
+				return;
+			}
 
-	void runCurrentTest_Cleanup()
-	{
-		double duration = timer.getElapsedSeconds();
+			if(result==CurrentTestResult::Passed && _currentTestAssertionFailed)
+			{
+				// an assertion has failed, but the caller thinks the test case passed.
+				// This usually means that the failed exception happened in another thread and
+				// the caller has not checked that thread or not propagated its TestFailureException.
+				// That is OK. We simply switch the result to failed.
+				result = CurrentTestResult::Failed;			
+			}
+		
+			_currentTestResult = result;
+		}
+
+		if(result == CurrentTestResult::Passed)
+			m_totals.tests.passed++;
+		else
+		{
+			m_totals.tests.failed++;
+
+			if(result == CurrentTestResult::Exception)
+			{
+				ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
+				unexpectedResultBuilder.useActiveException();
+				INTERNAL_BDN_REACT( unexpectedResultBuilder );
+			}
+		}
+
+		_pCurrentTestObjectToKeepAlive = nullptr;
+		_currentTestIsUiTest = false;
+
+		double duration = _currentTestTimer.getElapsedSeconds();
 
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
 		m_messages.clear();
 
-		Counts assertions = m_totals.assertions - prevAssertions;
+		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
 
-		if( testCaseInfo.okToFail() ) {
+		if( _pCurrentTestCaseInfo->okToFail() ) {
 			std::swap( assertions.failedButOk, assertions.failed );
 			m_totals.assertions.failed -= assertions.failedButOk;
 			m_totals.assertions.failedButOk += assertions.failedButOk;
 		}
 
-		SectionStats testCaseSectionStats( testCaseSection, assertions, duration, missingAssertions );
+		SectionStats testCaseSectionStats( *_pCurrentTestCaseSection, assertions, duration, missingAssertions );
 		m_reporter->sectionEnded( testCaseSectionStats );
+
+		if(_pCurrentTestCaseSection!=nullptr)
+		{
+			delete _pCurrentTestCaseSection;
+			_pCurrentTestCaseSection = nullptr;
+		}
 	}
 
 	void invokeActiveTestCase() {
@@ -3045,6 +3171,26 @@ private:
 	TrackerContext m_trackerContext;
     
     int  m_printLevel;
+
+	const TestCaseInfo* _pCurrentTestCaseInfo = nullptr;
+	SectionInfo*		_pCurrentTestCaseSection = nullptr;
+	Timer				_currentTestTimer;
+	Counts				_currentTestPrevAssertions;
+	bool				_currentTestIsUiTest = false;
+	bool				_currentUiTestEnded = false;
+	P<IBase>			_pCurrentTestObjectToKeepAlive;
+
+	bool				_currentTestAssertionFailed;
+	CurrentTestResult	_currentTestResult;
+	Mutex				_currentTestResultMutex;
+
+	std::string			_testRedirectedCout;
+	std::string			_testRedirectedCerr;
+	Totals				_testPrevTotals;
+	TestCaseInfo		_testInfo;
+
+
+	std::function< void(const Totals&) > _testDoneCallback;
 };
 
 IResultCapture& getResultCapture() {
@@ -3155,7 +3301,7 @@ public:
     }
     
     
-    bool runNextTest()
+    bool beginNextTest( std::function<void()> doneCallback )
     {
         if(_currTestIt==_endTestIt)
         {
@@ -3171,16 +3317,33 @@ public:
         }
         else
         {
+			_testDoneCallback = doneCallback;
+
             if( !_pContext->aborting() && matchTest( *_currTestIt, _testSpec, *_iconfig ) )
-                _totals += _pContext->runTest( *_currTestIt );
-            else
+			{
+				_pContext->beginRunTest( *_currTestIt,
+										[this](Totals testTotals){ onTestDone(testTotals); } );
+			}r
+			else
+			{
                 _reporter->skipTest( *_currTestIt );
-            
-            ++_currTestIt;
+
+				onTestDone( Totals() );
+			}
             
             return true;
         }
     }
+
+	void onTestDone(Totals testTotals)
+	{
+		_totals += testTotals;
+
+		++_currTestIt;
+
+		_testDoneCallback();
+	}
+		
     
     const Totals& getTotals() const
     {
@@ -3201,15 +3364,34 @@ protected:
     std::vector<TestCase>::const_iterator _endTestIt;
     
     bool                    _calledTestGroupEnded;
+
+	std::function<void()>	_testDoneCallback;
     
 };
 
 Totals runTests( Ptr<Config> const& config ) {
     
     TestRunner runner(config);
-    
-    while(runner.runNextTest())
+
+
+
+	while(true)
     {
+		bool doneCalled = false;
+
+		if(! runner.beginNextTest( [&doneCalled](){ doneCalled=true; } ) )
+		{
+			// no more tests.
+			break;
+		}
+
+		if(!doneCalled)
+		{
+			// we cannot support asynchronous tests with this interface.
+			// Caller should use the TestAppWithUiController app controller
+			// or use the TestRunner object directly.
+			throw ProgrammingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
+		}
     }
     
     return runner.getTotals();
@@ -7340,17 +7522,20 @@ protected:
 			} );
 	}
 
+	void onTestDone()
+	{
+		scheduleNextTest();
+	}
+
 	void runNextTest()
     {
         try
         {
-            if(_pTestRunner->runNextTest())
+            if(_pTestRunner->beginNextTest( std::bind(&Impl::onTestDone, this) ) )
             {
-                // this was not the last test. So schedule another call.
-				// Note that we do it this way (bit by bit) to ensure that
-                // normal application events are still processed normally
-				// in between tests
-				scheduleNextTest();
+				// this was not the last test.
+
+				// onTestDone will be called when it finishes. So nothing to do here.
             }
             else
             {

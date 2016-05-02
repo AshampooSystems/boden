@@ -39,29 +39,57 @@ protected:
 };
 
 
-/** Schedules the specified function to be called from the main thread. The main thread is the
+/** Causes the specified function to be called from the main thread. The main thread is the
 	thread that runs the user interface and the event loop.
 
-	If you want to wait until the function finishes in the main thread, store the returned
+	If callFromMainThread is called from the main thread then the function \c func is executed immediately.
+	If you do not want that consider using asyncCallFromMainThread() instead.
+
+	If callFromMainThread is called from another (non-main) thread then the actual call happens
+	asynchronously. If you want to wait until the function finishes in the main thread, store the returned
 	std::future object and call std::future::get or one of its wait functions.
-
-	When func throws an exception then std::future::get will throw that exception when you call it.
-
-	If you do not want to wait until the function finishes then simply do not store the returned
+	If you do not want to wait until the function finishes then you should simply not store the returned
 	future object.
 
-	Even if callFromMainThread is called from the main thread then the function is still not executed
-	immediately. It is still added to the normal event loop and executed from there.
-	
+	When \c func throws an exception then std::future::get will throw that exception when you call it.		
 */
 template <class FuncType, class... Args>
 std::future<typename std::result_of<FuncType(Args...)>::type> callFromMainThread(FuncType&& func, Args&&... args)
 {
 	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(std::forward<FuncType>(func), std::forward<Args>(args)... );
 
-	pCall->dispatch();
+	// we return a future object that will block until the function finishes.
+	// So if we are called from the main thread there is a potential for a deadlock here, since 
+	// no events will be processed while we wait blocking.
+	// So if we are on the main thread then we must execute the function immediately.
+	if(Thread::isCurrentMain())
+		pCall->call();
+	else
+		pCall->dispatch();
 
 	return pCall->getFuture();
+}
+
+
+/** Schedules the specified function to be called from the main thread asynchronously.
+
+	The main thread is the thread that runs the user interface and the event loop.
+
+	The function \c func is ALWAYS called asynchronously, even if asyncCallFromMainThread
+	is already called from the main thread. \c func will be run during the normal event
+	processing loop on the main thread.
+
+	It is not possible to access the return value of the function \c func. If you need access to
+	that, consider using callFromMainThread() instead.	
+*/
+template <class FuncType, class... Args>
+void asyncCallFromMainThread(FuncType&& func, Args&&... args)
+{
+	// always dispatch to the event loop.
+
+	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(std::forward<FuncType>(func), std::forward<Args>(args)... );
+
+	pCall->dispatch();
 }
 
 
