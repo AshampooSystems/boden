@@ -2906,15 +2906,34 @@ public:
 		return m_totals.assertions.failed == static_cast<std::size_t>( m_config->abortAfter() );
 	}
 
+
+	void beginUiTest(IBase* pObjectToKeepAlive) override
+	{
+		XXX
+	}
+
+	void endUiTest() override
+	{
+		XXX
+	}
+
 private:
 
-	void runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr ) {
+	void runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
+	{
+		bool testOK = runCurrentTest_Begin(redirectedCout, redirectedCerr);
 
+		if(testOK && !_inUiTest)
+			runCurrentTest_EndSuccess();
+	}
+			
+
+	bool runCurrentTest_Begin( std::string& redirectedCout, std::string& redirectedCerr )
+	{
 		TestCaseInfo const& testCaseInfo = m_activeTestCase->getTestCaseInfo();
 		SectionInfo testCaseSection( testCaseInfo.lineInfo, testCaseInfo.name, testCaseInfo.description );
 		m_reporter->sectionStarting( testCaseSection );
-		Counts prevAssertions = m_totals.assertions;
-		double duration = 0;
+		Counts prevAssertions = m_totals.assertions;		
 		try {
 			m_lastAssertionInfo = AssertionInfo( "TEST_CASE", testCaseInfo.lineInfo, "", ResultDisposition::Normal );
 
@@ -2930,20 +2949,42 @@ private:
 			else {
 				invokeActiveTestCase();
 			}
-			duration = timer.getElapsedSeconds();
-
-			m_totals.tests.passed++;
 		}
-		catch( TestFailureException& ) {
+		catch( TestFailureException& )
+		{
 			// This just means the test was aborted due to failure
 			m_totals.tests.failed++;
+			
+			runCurrentTest_Cleanup();
+
+			return false;
 		}
-		catch(...) {
+		catch(...)
+		{
 			m_totals.tests.failed++;
 			ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
 			unexpectedResultBuilder.useActiveException();
 			INTERNAL_BDN_REACT( unexpectedResultBuilder );
+
+			runCurrentTest_Cleanup();
+
+			return false;
 		}
+
+		return true;
+	}
+
+	void runCurrentTest_EndSuccess()
+	{
+		m_totals.tests.passed++;
+
+		runCurrentTest_Cleanup();
+	}
+
+	void runCurrentTest_Cleanup()
+	{
+		double duration = timer.getElapsedSeconds();
+
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
 		m_messages.clear();

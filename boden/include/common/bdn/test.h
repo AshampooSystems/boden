@@ -742,6 +742,9 @@ void registerTestCaseFunction
         bdn::AutoReg( Function, BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) );
 #endif
 
+
+
+
 // #included from: internal/catch_capture.hpp
 #define TWOBLUECUBES_BDN_CAPTURE_HPP_INCLUDED
 
@@ -2098,6 +2101,9 @@ namespace bdn {
     struct IRunner {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
+
+		virtual void beginUiTest(IBase* pObjectToKeepAlive)=0;
+		virtual void endUiTest()=0;
     };
 }
 
@@ -2255,6 +2261,13 @@ namespace bdn {
         } \
         INTERNAL_BDN_REACT( __catchResult ) \
     } while( bdn::alwaysFalse() )
+
+
+
+
+#define INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive ) getCurrentContext()->getRunner()->beginUiTest(objectToKeepAlive)
+#define INTERNAL_BDN_END_UI_TEST() getCurrentContext()->getRunner()->endUiTest()
+
 
 // #included from: internal/catch_section.h
 #define TWOBLUECUBES_BDN_SECTION_H_INCLUDED
@@ -3245,6 +3258,12 @@ return @ desc; \
 #define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
+
+#define BDN_BEGIN_UI_TEST( objectToKeepAlive ) INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive )
+#define BDN_END_UI_TEST() INTERNAL_BDN_END_UI_TEST()
+
+
+
 // If BDN_CONFIG_PREFIX_ALL is not defined then the BDN_ prefix is not required
 #else
 
@@ -3286,7 +3305,7 @@ return @ desc; \
     #define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
     #define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
     #define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
+    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )	
 #else
     #define TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
     #define TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
@@ -3297,6 +3316,10 @@ return @ desc; \
     #define SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
 #endif
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
+
+
+#define BEGIN_UI_TEST( objectToKeepAlive ) INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive )
+#define END_UI_TEST() INTERNAL_BDN_END_UI_TEST()
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
 #define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )
