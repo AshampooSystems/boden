@@ -1,6 +1,9 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <thread>
+#include <future>
+
 using namespace bdn;
 
 
@@ -95,3 +98,18 @@ TEST_CASE("test.inNotIn")
 }
 
 
+TEST_CASE("test.failsInOtherThreads", "[!shouldfail]")
+{
+	SECTION("exceptionPropagatedToMainThread")
+	{
+		std::future<void> result = std::async( std::launch::async, [](){ REQUIRE(false); } );
+
+		result.get();
+	}
+
+	SECTION("exceptionNotPropagatedToMainThread")
+	{
+		std::future<void> result = std::async( std::launch::async, [](){ REQUIRE(false); } );
+		result.wait();
+	}
+}

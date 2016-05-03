@@ -80,7 +80,7 @@ private:
 };
 
 
-TEST_CASE("AsyncTestTimeout", "[!shouldfail]")
+TEST_CASE("AsyncTest Timeout", "[!shouldfail]")
 {
 	// we test here that the async test timeout works.
 
@@ -90,4 +90,6 @@ TEST_CASE("AsyncTestTimeout", "[!shouldfail]")
 	
 	MAKE_ASYNC_TEST(5, pChecker);
 }
+
+
 
