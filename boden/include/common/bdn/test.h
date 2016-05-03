@@ -858,6 +858,8 @@ namespace bdn {
         SourceLineInfo getSourceInfo() const;
         std::string getTestMacroName() const;
 
+		void suppressFailure();
+
     protected:
         AssertionInfo m_info;
         AssertionResultData m_resultData;
@@ -1244,6 +1246,8 @@ namespace bdn {
         void react();
         bool shouldDebugBreak() const;
         bool allowThrows() const;
+
+		void markFailed();
 
     private:
         AssertionInfo m_assertionInfo;
@@ -2014,6 +2018,8 @@ namespace bdn {
         virtual std::string getCurrentTestName() const = 0;
         virtual const AssertionResult* getLastResult() const = 0;
 
+		virtual bool isCurrentTestExpectedToFail() const=0;
+
         virtual void handleFatalErrorCondition( std::string const& message ) = 0;
     };
 
@@ -2102,7 +2108,7 @@ namespace bdn {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 
-		virtual void makeAsyncTest(IBase* pObjectToKeepAlive)=0;
+		virtual void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive)=0;
 		virtual void endAsyncTest()=0;
     };
 }
@@ -2265,8 +2271,8 @@ namespace bdn {
 
 
 
-#define INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive ) getCurrentContext().getRunner()->makeAsyncTest(pObjectToKeepAlive)
-#define INTERNAL_BDN_END_ASYNC_TEST() getCurrentContext().getRunner()->endAsyncTest()
+#define INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) bdn::getCurrentContext().getRunner()->makeAsyncTest( timeoutSeconds, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
+#define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
 
 
 // #included from: internal/catch_section.h
@@ -3258,41 +3264,21 @@ return @ desc; \
 #define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
-/** \def BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+/** \def BDN_MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
 	
-	Makes the current test an asynchronous test. This is useful when testing
-	user interface components or components that rely on the normal event processing
-	to work.
-
-	When MAKE_ASYN_TEST has been called then the current test is still considered to
-	be running, even after the test case function has returned.
-	
-	The normal event processing	will be performed after the test function returns,
-	so user interface components will function normally.
-
-	The pObjectToKeepAlive parameter should be a pointer to an object derived from bdn::Base. This
-	object will be kept alive as long as the test runs. Usually this is a container object that
-	holds references to all the components that are needed during the test.
-	
-	For example, if you wanted to test a button implementation then you could create a Frame
-	with the button in it and pass a pointer to the frame as pObjectToKeepAlive. That ensures that
-	the frame will not be automatically closed when the test function exits and that it will
-	remain valid for the duration of the test.
-
-	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
-	is no difference to a synchronous test in this regard. The REQUIRE macros can also be used from
-	other threads.
-
-	When the asynchronous test is done then BDN_END_ASYNC_TEST() must be called. That signals that the end
-	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
-	the test will be considered to have failed. Otherwise it will be considered to have passed.
+	\copybrief MAKE_ASYNC_TEST()
+	\copydetailed MAKE_ASYNC_TEST()	
 
 	*/
-#define BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive ) INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+#define BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
 
 
 /** \def BDN_END_ASYNC_TEST()
-	Ends an asynchronous test. See BDN_MAKE_ASYNC_TEST() for a detailed explanation.*/
+
+	\copybrief END_ASYNC_TEST()
+	\copydetailed END_ASYNC_TEST()	
+	
+	*/
 #define BDN_END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
 
 
@@ -3311,6 +3297,8 @@ return @ desc; \
 #define REQUIRE_IN( value, container ) INTERNAL_BDN_IN( value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
 #define REQUIRE_NOT_IN( value, container ) INTERNAL_BDN_IN( value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")
 
+/** Checks the specified condition and records failures, but does not abort the test if the condition failed (i.e. does not throw TestFailureException
+	like REQUIRE would).*/
 #define CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECK" )
 #define CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "CHECK_FALSE" )
 #define CHECKED_IF( expr ) INTERNAL_BDN_IF( expr, bdn::ResultDisposition::ContinueOnFailure, "CHECKED_IF" )
@@ -3351,25 +3339,37 @@ return @ desc; \
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def END_ASYNC_TEST( pObjectToKeepAlive )
+/** \def MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
 	
 	Makes the current test an asynchronous test. This is useful when testing
 	user interface components or components that rely on the normal event processing
 	to work.
 
-	When MAKE_ASYN_TEST has been called then the current test is still considered to
+	When MAKE_ASYNC_TEST has been called then the current test is still considered to
 	be running, even after the test case function has returned.
 	
 	The normal event processing	will be performed after the test function returns,
 	so user interface components will function normally.
 
-	The pObjectToKeepAlive parameter should be a pointer to an object derived from bdn::Base. This
-	object will be kept alive as long as the test runs. Usually this is a container object that
-	holds references to all the components that are needed during the test.
+	The timeoutSeconds parameter is used to set up a timeout period (in seconds). When the async test
+	does not end within this timeframe then it is considered to have failed and will be aborted.
+	-1 means "no timeout", i.e. the test will run indefinitely.
+	timeoutSeconds is a floating point parameter, so you can pass something like 1.5 there to wait
+	1500 milliseconds.
+	It is recommended to use pretty high timeouts to account for cases when there are small interruptions
+	on the system that runs the test. If the timeout is too low then tests that would have passed might be
+	considered to have failed, simply because the host system had a small performance hiccup.
+	A 10 second timeout is recommended as a minimum for a test that is actually meant to finish	immediately.
+	
+	The MAKE_ASYNC_TEST macro takes an arbitrary number of additional parameters after the timeout.
+	Each of these additional parameters must be a pointer to an object derived from bdn::Base.
+	These objects will be kept alive as long as the test runs. You should pass pointers to all the objects
+	that are needed during the test to the function. Otherwise the objects will be deleted as soon as the test
+	case function exits	and thus the test will not work.
 	
 	For example, if you wanted to test a button implementation then you could create a Frame
-	with the button in it and pass a pointer to the frame as pObjectToKeepAlive. That ensures that
-	the frame will not be automatically closed when the test function exits and that it will
+	with the button in it and pass a pointer to the frame and the button to MAKE_ASYNC_TEST.
+	That ensures that the frame will not be automatically closed when the test function exits and that it will
 	remain valid for the duration of the test.
 
 	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
@@ -3380,8 +3380,43 @@ return @ desc; \
 	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
 	the test will be considered to have failed. Otherwise it will be considered to have passed.
 
+	Example:
+
+	\code
+
+	void onMyButtonClicked()
+	{
+		// the click handler was called. That is all we wanted to test.
+		// End the test here.
+		END_ASYNC_TEST();
+	}
+
+	TEST_CASE("MyButton")
+	{
+		P<Frame>	pFrame = newObj<Frame>("test frame");
+		P<MyButton> pMyButton = newObj<MyButton>(pFrame);
+
+		pMyButton->onClick().subscribeVoid( onMyButtonClicked );
+
+		// cause the button to be clicked in 5 seconds.
+		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
+		pClicker->clickButtonIn5Seconds(pMyButton);
+
+		// pass all the objects that are needed during the test to MAKE_ASYNC_TEST
+		// to keep them alive.
+		MAKE_ASYNC_TEST( 20, pFrame, pMyButton, pClicker );
+
+		// simply return. MAKE_ASYNC_TEST was called, so the test will be considered
+		// to be still running, even when we return.
+		// The normal event processing will happen after we return, so the timer
+		// event we set up will fire and the button click will be simulated
+		// (and onMyButtonClicked will be called).
+	}
+
+	\endcode
+
 	*/
-#define MAKE_ASYNC_TEST( pObjectToKeepAlive ) INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+#define MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
 
 /** \def END_ASYNC_TEST()
 	Ends an asynchronous test. See MAKE_ASYNC_TEST() for a detailed explanation.*/

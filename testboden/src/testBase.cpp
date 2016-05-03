@@ -6,7 +6,7 @@ using namespace bdn;
 TEST_CASE("Base")
 {
 	Base base;
-
+	
 	SECTION("refcount")
 	{
 		REQUIRE(base.getRefCount()==1);

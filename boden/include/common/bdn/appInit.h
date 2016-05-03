@@ -171,6 +171,45 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 			bdn::_commandLineAppMain(appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>(), argc, argv); \
 		}
 
+
+
+/** \def BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass )
+ 
+    Sets up a commandline app that can nevertheless have graphical user interface components.
+	
+	The internal structure of the app is the same as a normal UI app: an app controller
+	controls the app and there is a normal event processing loop / message loop.
+
+	See BDN_INIT_UI_APP() for more information about the parameters.
+
+	The only difference to a normal UI app is, that the app is marked for the operating system to be
+	a commandline app. On some systems this makes no difference at all. But on Windows, for example,
+	this has the effect that the app will also automatically open a console window if it is run
+	from a graphical app like Windows Explorer.
+ 
+ */
+#if BDN_PLATFORM_WINDOWS_CLASSIC
+
+	// the entry function must be called main on Windows as well.
+	// But the _uiAppMain has a different signature on Windows, so we
+	// must call it differently.
+
+#define BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass ) \
+		int main(int argc, char* argv[]) \
+		{ \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), 1 /*SW_SHOWNORMAL*/ ); \
+		}
+
+#else
+
+#define BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass ) \
+		int main(int argc, char* argv[]) \
+		{ \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), argc, argv ); \
+		}
+
+#endif
+
 		
 /** \def BDN_INIT_COMMANDLINE_TEST_APP()
 
@@ -181,10 +220,10 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 /** \def BDN_INIT_UI_TEST_APP()
 
-	Sets up a test app with a graphical user interface that runs 
-	runs the test cases defined with the boden test framework.	
+	Sets up a commandline test app that nevertheless supports a graphical user
+	interface. The app will have a UI event loop / message loop.
 	*/
-#define BDN_INIT_UI_TEST_APP() BDN_INIT_UI_APP( bdn::TestAppWithUiController );
+#define BDN_INIT_UI_TEST_APP() BDN_INIT_COMMANDLINE_APP_WITH_UI( bdn::TestAppWithUiController );
 
 
 

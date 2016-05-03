@@ -21,19 +21,15 @@ public:
 
 void testPostCall()
 {
-	struct TestObjects : public Base	
-	{
-		GlobalMessageWindow window;
-		P<TestCallable>		pCallable = newObj<TestCallable>();		
-	};
+	P<GlobalMessageWindow>	pWindow = newObj<GlobalMessageWindow>();
 
-	P<TestObjects> pObjects = newObj<TestObjects>();
-	
-	pObjects->window.postCall( pObjects->pCallable );
+	P<TestCallable>			pCallable = newObj<TestCallable>();		
+		
+	pWindow->postCall( pCallable );
 
-	REQUIRE( pObjects->pCallable->callCount==0 );
+	REQUIRE( pCallable->callCount==0 );
 
-	MAKE_ASYNC_TEST(pObjects);
+	MAKE_ASYNC_TEST( 10, pWindow, pCallable );
 }
 
 

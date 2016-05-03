@@ -5,6 +5,24 @@ namespace bdn
 {
 	
 
+void Thread::sleepSeconds(double seconds)
+{
+	sleepMillis( (int64_t) (seconds*1000) );
+}
+
+void Thread::sleepMillis( int64_t millis)
+{
+	if(millis<=0)
+		yield();
+	else		
+		std::this_thread::sleep_for( std::chrono::milliseconds::duration( millis ) );
+}
+
+void Thread::yield() noexcept
+{
+	std::this_thread::yield();
+}
+
 Thread::Id Thread::getCurrentId()
 {
 	return std::this_thread::get_id();

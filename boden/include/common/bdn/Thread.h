@@ -19,6 +19,38 @@ public:
 	typedef std::thread::id Id;
 
 
+
+	/** Lets the current thread sleep for the specified number of seconds.
+		The seconds parameter is a double, so you can also pass fractional values here.
+
+		If \c seconds is negative or 0 then the call is equivalent to yield().
+		
+		\code
+
+		Thread::sleepSeconds( 1.5 );	// sleep for 1500 milliseconds.
+
+		\endcode
+		*/
+	static void sleepSeconds(double seconds);
+
+
+	/** Lets the current thread sleep for the specified number of milliseconds.
+	
+		If \c millis is negative or 0 then the call is equivalent to yield().
+	*/
+	static void sleepMillis(int64_t millis );
+
+
+	/** Causes the thread to yield the remainder of its current execution time slice
+		to another thread. This gives other threads the opportunity to execute.
+
+		Sometimes when a thread runs in a tight loop and does not call certain operating
+		system functions it can prevent other threads from running. This is where yield
+		is useful: it gives other threads an opportunity to get their share of the system's
+		processing power.*/
+	static void yield() noexcept;
+
+
 	/** Static function that returns the id of the current thread.*/
 	static Thread::Id getCurrentId();
 

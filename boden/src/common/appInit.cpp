@@ -58,10 +58,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo )
 {
-	String programName = "";
-	
 	std::vector<const char*> args;
-	args.push_back( programName.asUtf8Ptr() );
 
 	for(auto p: launchInfo.getArguments() )
 		args.push_back( p.asUtf8Ptr() );

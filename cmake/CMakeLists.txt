@@ -196,7 +196,13 @@ IF ( APPLE )
 	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testbodenui")
 endif()
 
-add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+
+# we cannot build commandline tools on iOS. So we have to build a UI app
+if(BODEN_TARGET STREQUAL "ios")
+    add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+else()
+    add_executable(testbodenui ${TESTBODENUI_SOURCES} )
+endif()
 
 set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 

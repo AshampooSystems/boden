@@ -2740,23 +2740,39 @@ public:
 
 private: // IResultCapture
 
-	virtual void assertionEnded( AssertionResult const& result ) {
+	virtual void assertionEnded( AssertionResult const& result )
+	{
+		const AssertionResult*	pResultToReport = &result;
+		AssertionResult			changedResult;
+
 		if( result.getResultType() == ResultWas::Ok ) {
 			m_totals.assertions.passed++;
 		}
 		else if( !result.isOk() )
 		{
-			m_totals.assertions.failed++;
+			if( isCurrentTestExpectedToFail() )
+			{
+				m_totals.assertions.failedButOk++;
+
+				// ensure that we do not report the expected failure as a "real" failure.
+
+				changedResult = result;
+				changedResult.suppressFailure();
+
+				pResultToReport = &changedResult;
+			}
+			else
+				m_totals.assertions.failed++;
 
 			_currentTestAssertionFailed = true;
 		}
 
-		if( m_reporter->assertionEnded( AssertionStats( result, m_messages, m_totals ) ) )
+		if( m_reporter->assertionEnded( AssertionStats( *pResultToReport, m_messages, m_totals ) ) )
 			m_messages.clear();
 
 		// Reset working state
 		m_lastAssertionInfo = AssertionInfo( "", m_lastAssertionInfo.lineInfo, "{Unknown expression after the reported line}" , m_lastAssertionInfo.resultDisposition );
-		m_lastResult = result;
+		m_lastResult = *pResultToReport;
 	}
 
 	virtual bool sectionStarted (
@@ -2848,6 +2864,11 @@ private: // IResultCapture
 			: "";
 	}
 
+	virtual bool isCurrentTestExpectedToFail() const override
+	{
+		return !_currentTestIgnoreExpectedToFail && (m_activeTestCase ? m_activeTestCase->expectedToFail() : false);
+	}
+
 	virtual const AssertionResult* getLastResult() const {
 		return &m_lastResult;
 	}
@@ -2890,7 +2911,55 @@ public:
 	}
 
 
-	void makeAsyncTest(IBase* pObjectToKeepAlive) override
+	class DelayedCallFromMainThread : public Base
+	{
+	public:
+		DelayedCallFromMainThread(double waitSeconds, std::function<void()> func)
+		{
+			_waitSeconds = waitSeconds;
+			_func = func;
+
+			_shouldAbort = false;
+
+			_result = std::async( std::launch::async, std::bind(&DelayedCallFromMainThread::doDelayedCall, this) );
+		}
+
+		~DelayedCallFromMainThread()
+		{
+			_shouldAbort = true;
+			_shouldAbortCondition.notify_all();
+
+			_result.get();
+		}
+
+	protected:
+		void doDelayedCall()
+		{
+			std::unique_lock<std::mutex> initiateWaitLock(_shouldAbortInitiateWaitMutex);
+
+			if( _shouldAbortCondition.wait_for(	initiateWaitLock,
+												std::chrono::milliseconds::duration((int64_t)(_waitSeconds*1000)),
+												[this](){ return _shouldAbort; }) )
+			{
+				// we should abort.
+				return;
+			}
+
+			// cause the function to be called from the main thread.
+			asyncCallFromMainThread( _func );
+		}
+
+		std::function<void()>	_func;
+		double					_waitSeconds;
+
+		std::future<void>		_result;		
+		std::condition_variable	_shouldAbortCondition;
+		volatile bool			_shouldAbort;
+		std::mutex				_shouldAbortInitiateWaitMutex;
+	};
+
+
+	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
 	{
 		if(_currentTestIsAsync)
 		{
@@ -2901,12 +2970,40 @@ public:
 			throw ProgrammingError("BDN_MAKE_ASYNC_TEST() called twice in same test.");
 		}
 		
-		_currentTestIsAsync = true;
-		_pCurrentTestObjectToKeepAlive = pObjectToKeepAlive;
+		_currentTestIsAsync = true;		
+		_currentTestObjectsToKeepAlive = objectsToKeepAlive;
 
 		_currentAsyncTestEnded = false;
+		
+		if(timeoutSeconds>0)
+			_pCurrentAsyncTestTimeoutCaller = newObj<DelayedCallFromMainThread>( timeoutSeconds, std::bind(&RunContext::onAsyncTestTimeout, this, _currentAsyncTestId ) );		
 	}
 
+	void onAsyncTestTimeout(int64_t asyncTestId)
+	{
+		// note that this is always called from the main thread. So no need for synchronization.
+		
+		if(asyncTestId != _currentAsyncTestId )
+		{
+			// this call was for a test that has already ended in the meantime.
+			// Ignore it.
+			return;
+		}
+				
+		// test failed. Timeout did not fire.
+		// We use a dummy variable here to communicate the reason
+		// for the test failure.
+		
+		bool asyncTestFinishedBeforeTimeout = false;
+
+		// use CHECK instead of REQUIRE, because we do not want a TestFailureException
+		CHECK( asyncTestFinishedBeforeTimeout ); 
+		
+		// call endAsyncTest. This will destroy the "objects to keep alive"
+		// and thus (hopefully, if implemented properly) abort the test.
+		endAsyncTest();
+	}
+	
 	void endAsyncTest() override
 	{
 		if(!_currentTestIsAsync)
@@ -2918,20 +3015,24 @@ public:
 			// after the first end call, this means that the second call could potentially be connected
 			// to the following test. So the test code MUST be written in a way that ensures that 
 			// endAsync is only called once.
+			throw ProgrammingError("BDN_END_ASYNC_TEST() called twice in the same test.");
 		}
-		else
-		{
-			_currentAsyncTestEnded = true;
 
-			asyncCallFromMainThread(
-				[this]()
-				{
-					// we pass "passed" here. If an assertion fired then currentTestEnded
-					// will automatically change this to Failed.
-					currentTestEnded( CurrentTestResult::Passed );
-					runTestCase_AsyncIterationEnded();
-				} );
-		}
+		
+		// destroy the timeout caller first to ensure that the timeout will not fire.
+		_pCurrentAsyncTestTimeoutCaller = nullptr;
+
+		_currentAsyncTestEnded = true;
+		_currentAsyncTestId++;
+
+		asyncCallFromMainThread(
+			[this]()
+			{
+				// we pass "passed" here. If an assertion fired then currentTestEnded
+				// will automatically change this to Failed.
+				currentTestEnded( CurrentTestResult::Passed );
+				runTestCase_AsyncIterationEnded();
+			} );
 	}
 
 private:
@@ -2979,7 +3080,7 @@ private:
 	}
 
 	Totals runTestCase_Finalize()
-	{		
+	{	
 		Totals deltaTotals = m_totals.delta( _testPrevTotals );
 
 		m_totals.testCases += deltaTotals.testCases;
@@ -3019,6 +3120,8 @@ private:
 		_currentTestIsAsync = false;
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
+
+		_currentTestIgnoreExpectedToFail = false;
 		
 		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
 		
@@ -3111,7 +3214,7 @@ private:
 			}
 		}
 
-		_pCurrentTestObjectToKeepAlive = nullptr;
+		_currentTestObjectsToKeepAlive.clear();
 		_currentTestIsAsync = false;
 
 		double duration = _currentTestTimer.getElapsedSeconds();
@@ -3123,10 +3226,37 @@ private:
 		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
 
-		if( _pCurrentTestCaseInfo->okToFail() ) {
-			std::swap( assertions.failedButOk, assertions.failed );
-			m_totals.assertions.failed -= assertions.failedButOk;
-			m_totals.assertions.failedButOk += assertions.failedButOk;
+		if( _pCurrentTestCaseInfo->okToFail() )
+		{
+			// convert "failed" assertions to "failed but ok" assertions
+			m_totals.assertions.failed -= assertions.failed;
+			m_totals.assertions.failedButOk += assertions.failed;
+
+			assertions.failedButOk += assertions.failed;
+			assertions.failed = 0;
+		
+			if( _pCurrentTestCaseInfo->expectedToFail() && assertions.failedButOk==0)
+			{
+				// test case was supposed to fail, but it did not fail
+
+				// set a flag that we actually DO want the following failure to be recorded.
+				// If we do not set this then the following failure would be ignored.
+				_currentTestIgnoreExpectedToFail = true;
+					
+				ResultBuilder shouldFailResultBuilder(	"testShouldHaveFailed",
+														_pCurrentTestCaseInfo->lineInfo,
+														"testResult",
+														// we must use the disposition "ContinueOnFailure" here. Otherwise the react
+														// call below will throw an exception
+														ResultDisposition::ContinueOnFailure );
+				
+				shouldFailResultBuilder.setLhs("didNotFail");
+			
+				// cause error message to be printed and debugger to break.
+				shouldFailResultBuilder.captureResult( ResultWas::ExplicitFailure );			
+			
+				INTERNAL_BDN_REACT( shouldFailResultBuilder );
+			}
 		}
 
 		SectionStats testCaseSectionStats( *_pCurrentTestCaseSection, assertions, duration, missingAssertions );
@@ -3188,8 +3318,14 @@ private:
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
 	bool				_currentTestIsAsync = false;
+
+	bool				_currentTestIgnoreExpectedToFail = false;
+	
+	int64_t				_currentAsyncTestId = 0;
 	bool				_currentAsyncTestEnded = false;
-	P<IBase>			_pCurrentTestObjectToKeepAlive;
+	P<DelayedCallFromMainThread> _pCurrentAsyncTestTimeoutCaller;	
+
+	std::list< P<IBase>	> _currentTestObjectsToKeepAlive;
 
 	bool				_currentTestAssertionFailed;
 	CurrentTestResult	_currentTestResult;
@@ -4387,6 +4523,11 @@ bool AssertionResult::isOk() const {
 	return bdn::isOk( m_resultData.resultType ) || shouldSuppressFailure( m_info.resultDisposition );
 }
 
+void AssertionResult::suppressFailure()
+{
+	m_info.resultDisposition = static_cast<ResultDisposition::Flags>( static_cast<int>(m_info.resultDisposition) | ResultDisposition::SuppressFail );
+}
+
 ResultWas::OfType AssertionResult::getResultType() const {
 	return m_resultData.resultType;
 }
@@ -5408,19 +5549,29 @@ void ResultBuilder::handleResult( AssertionResult const& result )
 {
 	getResultCapture().assertionEnded( result );
 
-	if( !result.isOk() ) {
-		if( getCurrentContext().getConfig()->shouldDebugBreak() )
-			m_shouldDebugBreak = true;
-		if( getCurrentContext().getRunner()->aborting() || (m_assertionInfo.resultDisposition & ResultDisposition::Normal) )
-			m_shouldThrow = true;
-	}
+	if( !result.isOk() )
+		markFailed();
 }
+
+void ResultBuilder::markFailed()
+{
+	// if the current test is marked as "shouldFail" then we should not debug break.
+	if( !getCurrentContext().getResultCapture()->isCurrentTestExpectedToFail() && getCurrentContext().getConfig()->shouldDebugBreak() )
+		m_shouldDebugBreak = true;
+	if( getCurrentContext().getRunner()->aborting() || (m_assertionInfo.resultDisposition & ResultDisposition::Normal) )
+		m_shouldThrow = true;
+}
+
 void ResultBuilder::react() {
 	if( m_shouldThrow )
 		throw bdn::TestFailureException();
 }
 
-bool ResultBuilder::shouldDebugBreak() const { return m_shouldDebugBreak; }
+bool ResultBuilder::shouldDebugBreak() const
+{
+	return m_shouldDebugBreak;
+}
+
 bool ResultBuilder::allowThrows() const { return getCurrentContext().getConfig()->allowThrows(); }
 
 AssertionResult ResultBuilder::build() const
