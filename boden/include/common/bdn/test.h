@@ -2102,8 +2102,8 @@ namespace bdn {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 
-		virtual void beginUiTest(IBase* pObjectToKeepAlive)=0;
-		virtual void endUiTest()=0;
+		virtual void makeAsyncTest(IBase* pObjectToKeepAlive)=0;
+		virtual void endAsyncTest()=0;
     };
 }
 
@@ -2265,8 +2265,8 @@ namespace bdn {
 
 
 
-#define INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive ) getCurrentContext()->getRunner()->beginUiTest(objectToKeepAlive)
-#define INTERNAL_BDN_END_UI_TEST() getCurrentContext()->getRunner()->endUiTest()
+#define INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive ) getCurrentContext().getRunner()->makeAsyncTest(pObjectToKeepAlive)
+#define INTERNAL_BDN_END_ASYNC_TEST() getCurrentContext().getRunner()->endAsyncTest()
 
 
 // #included from: internal/catch_section.h
@@ -3258,9 +3258,42 @@ return @ desc; \
 #define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
+/** \def BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+	
+	Makes the current test an asynchronous test. This is useful when testing
+	user interface components or components that rely on the normal event processing
+	to work.
 
-#define BDN_BEGIN_UI_TEST( objectToKeepAlive ) INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive )
-#define BDN_END_UI_TEST() INTERNAL_BDN_END_UI_TEST()
+	When MAKE_ASYN_TEST has been called then the current test is still considered to
+	be running, even after the test case function has returned.
+	
+	The normal event processing	will be performed after the test function returns,
+	so user interface components will function normally.
+
+	The pObjectToKeepAlive parameter should be a pointer to an object derived from bdn::Base. This
+	object will be kept alive as long as the test runs. Usually this is a container object that
+	holds references to all the components that are needed during the test.
+	
+	For example, if you wanted to test a button implementation then you could create a Frame
+	with the button in it and pass a pointer to the frame as pObjectToKeepAlive. That ensures that
+	the frame will not be automatically closed when the test function exits and that it will
+	remain valid for the duration of the test.
+
+	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
+	is no difference to a synchronous test in this regard. The REQUIRE macros can also be used from
+	other threads.
+
+	When the asynchronous test is done then BDN_END_ASYNC_TEST() must be called. That signals that the end
+	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
+	the test will be considered to have failed. Otherwise it will be considered to have passed.
+
+	*/
+#define BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive ) INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+
+
+/** \def BDN_END_ASYNC_TEST()
+	Ends an asynchronous test. See BDN_MAKE_ASYNC_TEST() for a detailed explanation.*/
+#define BDN_END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
 
 
 
@@ -3318,8 +3351,41 @@ return @ desc; \
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-#define BEGIN_UI_TEST( objectToKeepAlive ) INTERNAL_BDN_BEGIN_UI_TEST( objectToKeepAlive )
-#define END_UI_TEST() INTERNAL_BDN_END_UI_TEST()
+/** \def END_ASYNC_TEST( pObjectToKeepAlive )
+	
+	Makes the current test an asynchronous test. This is useful when testing
+	user interface components or components that rely on the normal event processing
+	to work.
+
+	When MAKE_ASYN_TEST has been called then the current test is still considered to
+	be running, even after the test case function has returned.
+	
+	The normal event processing	will be performed after the test function returns,
+	so user interface components will function normally.
+
+	The pObjectToKeepAlive parameter should be a pointer to an object derived from bdn::Base. This
+	object will be kept alive as long as the test runs. Usually this is a container object that
+	holds references to all the components that are needed during the test.
+	
+	For example, if you wanted to test a button implementation then you could create a Frame
+	with the button in it and pass a pointer to the frame as pObjectToKeepAlive. That ensures that
+	the frame will not be automatically closed when the test function exits and that it will
+	remain valid for the duration of the test.
+
+	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
+	is no difference to a synchronous test in this regard. The REQUIRE macros can also be used from
+	other threads.
+
+	When the asynchronous test is done then END_ASYNC_TEST() must be called. That signals that the end
+	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
+	the test will be considered to have failed. Otherwise it will be considered to have passed.
+
+	*/
+#define MAKE_ASYNC_TEST( pObjectToKeepAlive ) INTERNAL_BDN_MAKE_ASYNC_TEST( pObjectToKeepAlive )
+
+/** \def END_ASYNC_TEST()
+	Ends an asynchronous test. See MAKE_ASYNC_TEST() for a detailed explanation.*/
+#define END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
 #define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )

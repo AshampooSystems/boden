@@ -2710,16 +2710,16 @@ public:
 		m_reporter->testGroupEnded( TestGroupStats( GroupInfo( testSpec, groupIndex, groupsCount ), totals, aborting() ) );
 	}
 
-	void beginRunTest( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
+	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
 	{
 		_testPrevTotals = m_totals;
 
 		_testRedirectedCout = "";
 		_testRedirectedCerr = "";
 
-		_testInfo = testCase.getTestCaseInfo();
+		_pCurrentTestCaseInfo = &testCase.getTestCaseInfo();
 
-		m_reporter->testCaseStarting( _testInfo );
+		m_reporter->testCaseStarting( *_pCurrentTestCaseInfo );
 
 		m_activeTestCase = &testCase;
         
@@ -2727,6 +2727,8 @@ public:
             std::cout << "Test case: "+getCurrentTestName() << std::endl;
 
 		_testDoneCallback = doneCallback;
+
+		m_trackerContext.startRun();
 
 		runTestCase_Continue();
 	}
@@ -2888,29 +2890,38 @@ public:
 	}
 
 
-	void beginUiTest(IBase* pObjectToKeepAlive) override
+	void makeAsyncTest(IBase* pObjectToKeepAlive) override
 	{
-		if(_currentTestIsUiTest)
-			throw ProgrammingError("BDN_BEGIN_UI_TEST() called twice in same test.");
+		if(_currentTestIsAsync)
+		{
+			// if a test is already async then we issue an error here.
+			// We would have two objects to keep alive. And, more importantly,
+			// it indicates that there is something wrong with the calling code.
+			// So we simply disallow this.
+			throw ProgrammingError("BDN_MAKE_ASYNC_TEST() called twice in same test.");
+		}
 		
-		_currentTestIsUiTest = true;
+		_currentTestIsAsync = true;
 		_pCurrentTestObjectToKeepAlive = pObjectToKeepAlive;
 
-		_currentUiTestEnded = false;
+		_currentAsyncTestEnded = false;
 	}
 
-	void endUiTest() override
+	void endAsyncTest() override
 	{
-		if(!_currentTestIsUiTest)
-			throw ProgrammingError("BDN_END_UI_TEST() called without calling BDN_BEGIN_UI_TEST() before for this test.");
+		if(!_currentTestIsAsync)
+			throw ProgrammingError("BDN_END_ASYNC_TEST() called without calling BDN_MAKE_ASYNC_TEST() before for this test.");
 
-		if(_currentUiTestEnded)
+		if(_currentAsyncTestEnded)
 		{
-			// already ended. That is Ok. Ignore this call and do nothing.
+			// already ended. This is an error. Since the next test can potentially start immediately
+			// after the first end call, this means that the second call could potentially be connected
+			// to the following test. So the test code MUST be written in a way that ensures that 
+			// endAsync is only called once.
 		}
 		else
 		{
-			_currentUiTestEnded = true;
+			_currentAsyncTestEnded = true;
 
 			asyncCallFromMainThread(
 				[this]()
@@ -2938,7 +2949,7 @@ private:
 		{	
 			m_trackerContext.startCycle();
                 
-			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _testInfo.name );
+			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _pCurrentTestCaseInfo->name );
 
 			if(!runCurrentTest( _testRedirectedCout, _testRedirectedCerr ))
 			{
@@ -2974,7 +2985,7 @@ private:
 		m_totals.testCases += deltaTotals.testCases;
 
 		m_reporter->testCaseEnded(
-			TestCaseStats(   _testInfo,
+			TestCaseStats(   *_pCurrentTestCaseInfo,
 							deltaTotals,
 							_testRedirectedCout,
 							_testRedirectedCerr,
@@ -2982,6 +2993,8 @@ private:
         
 		m_activeTestCase = BDN_NULL;
 		m_testCaseTracker = BDN_NULL;
+
+		_pCurrentTestCaseInfo = nullptr;
 
 		_testDoneCallback( deltaTotals );
 
@@ -3003,12 +3016,10 @@ private:
 		test runs asynchronously.*/
 	bool runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
 	{
-		_currentTestIsUiTest = false;
+		_currentTestIsAsync = false;
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
-
-		_pCurrentTestCaseInfo = &m_activeTestCase->getTestCaseInfo();
-
+		
 		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
 		
 		m_reporter->sectionStarting( *_pCurrentTestCaseSection );
@@ -3042,7 +3053,7 @@ private:
 			return true;	// test is done
 		}
 
-		if(_currentTestIsUiTest)
+		if(_currentTestIsAsync)
 		{
 			// the test is a UI test. I.e. it will run asynchronously and
 			// endUiTest will be called when it finishes.
@@ -3101,7 +3112,7 @@ private:
 		}
 
 		_pCurrentTestObjectToKeepAlive = nullptr;
-		_currentTestIsUiTest = false;
+		_currentTestIsAsync = false;
 
 		double duration = _currentTestTimer.getElapsedSeconds();
 
@@ -3176,8 +3187,8 @@ private:
 	SectionInfo*		_pCurrentTestCaseSection = nullptr;
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
-	bool				_currentTestIsUiTest = false;
-	bool				_currentUiTestEnded = false;
+	bool				_currentTestIsAsync = false;
+	bool				_currentAsyncTestEnded = false;
 	P<IBase>			_pCurrentTestObjectToKeepAlive;
 
 	bool				_currentTestAssertionFailed;
@@ -3187,8 +3198,6 @@ private:
 	std::string			_testRedirectedCout;
 	std::string			_testRedirectedCerr;
 	Totals				_testPrevTotals;
-	TestCaseInfo		_testInfo;
-
 
 	std::function< void(const Totals&) > _testDoneCallback;
 };
@@ -3321,9 +3330,9 @@ public:
 
             if( !_pContext->aborting() && matchTest( *_currTestIt, _testSpec, *_iconfig ) )
 			{
-				_pContext->beginRunTest( *_currTestIt,
+				_pContext->beginRunTestCase( *_currTestIt,
 										[this](Totals testTotals){ onTestDone(testTotals); } );
-			}r
+			}
 			else
 			{
                 _reporter->skipTest( *_currTestIt );
@@ -7509,12 +7518,12 @@ protected:
 
 	void scheduleNextTest()
 	{		
-		callFromMainThread( std::bind(&Impl::runNextTest, this) );			            
+		asyncCallFromMainThread( std::bind(&Impl::runNextTest, this) );			            
 	}
 
 	void waitAndClose(int exitCode)
 	{
-		callFromMainThread(
+		asyncCallFromMainThread(
 			[exitCode]()
 			{
 				std::this_thread::sleep_for( std::chrono::duration<int>(5) );    

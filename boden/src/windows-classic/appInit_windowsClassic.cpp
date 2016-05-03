@@ -2,6 +2,7 @@
 #include <bdn/appInit.h>
 
 #include <bdn/sysError.h>
+#include <bdn/Thread.h>
 
 #include <windows.h>
 
@@ -12,6 +13,8 @@ namespace bdn
 
 int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 {
+	Thread::_setMainId( Thread::getCurrentId() );
+
 	AppControllerBase::_set(pAppController);
 
 	try

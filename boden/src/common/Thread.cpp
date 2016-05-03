@@ -15,7 +15,11 @@ Thread::Id Thread::getMainId()
 {
 	// The main ID is set only once and then never changed again.
 	// So there is no need for any synchronization or mutexes.
-	return *getMainIdRef();
+	Id mainId = getMainIdRef();
+	if(mainId==Id())
+		throw ProgrammingError("Thread::getMainId called but main thread ID was not set yet.");
+
+	return mainId;
 }
 
 void Thread::_setMainId(const Thread::Id& id)

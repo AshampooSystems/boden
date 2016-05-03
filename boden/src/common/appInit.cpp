@@ -2,6 +2,7 @@
 #include <bdn/appInit.h>
 
 #include <bdn/test.h>
+#include <bdn/Thread.h>
 
 #include <iostream>
 
@@ -14,6 +15,8 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 							int argCount,
 							char* argv[] )
 {
+	Thread::_setMainId( Thread::getCurrentId() );
+
     AppControllerBase::_set(pAppController);
 
 	int result=0;

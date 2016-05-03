@@ -2,6 +2,7 @@
 #define BDN_Dispatcher_H_
 
 #include <bdn/ISimpleCallable.h>
+#include <bdn/Thread.h>
 
 #include <future>
 

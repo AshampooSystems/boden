@@ -46,9 +46,9 @@ public:
 private:
 	static Id& getMainIdRef()
 	{
-		SafeInit< Id > init;
+		static Id mainId;
 
-		return init.get();
+		return mainId;
 	}
 };
 	
