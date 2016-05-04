@@ -20,11 +20,11 @@
     _pButton = pButton;
 }
 
--(void)onClick
+-(void)clicked
 {
     bdn::ClickEvent evt(_pButton);
     
-    _pButton->getClickEventSource()->deliver(evt);
+    _pButton->onClick().notify(evt);
 }
 
 @end
@@ -41,8 +41,6 @@ namespace bdn
         {
             _pOuter = pOuter;
             
-            _pClickEventSource = new EventSource<ClickEvent>;
-            
             NSWindow* pParentWindow = dynamic_cast<Frame*>(pParent)->getImpl()->getWindow();
             
             _button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 80, 200, 40)];
@@ -50,23 +48,23 @@ namespace bdn
             [_button setButtonType:NSMomentaryLightButton];
             [_button setBezelStyle:NSRoundedBezelStyle];
             
-            _label.onChange.subscribeMember<Button>(this, callFromMainThread(onLabelChanged) );
+            //_label.onChange.subscribeMember<Button>(this, callFromMainThread(onLabelChanged) );
             
-            _label = label;
+//            _label = label;
         }
         
-        Property<String>& label()
+        /*Property<String>& label()
         {
             return _label;
         }
-        
+        */
         
         NSButton* getButton()
         {
             return _button;
         }
         
-        EventSource<ClickEvent>* getClickEventSource()
+        Notifier<const ClickEvent&>& onClick()
         {
             if(_clickManager==nil)
             {
@@ -74,11 +72,11 @@ namespace bdn
                 [_clickManager setButton:_pOuter];
                 
                 [_button setTarget:_clickManager];
-                [_button setAction:@selector(onClick)];
+                [_button setAction:@selector(clicked)];
             }
 
             
-            return _pClickEventSource;
+            return _onClick;
         }
         
         void show(bool visible)
@@ -86,19 +84,25 @@ namespace bdn
             _button.hidden=visible ? TRUE : FALSE;
         }
         
-    protected:
-        void onLabelChanged()
+        void setLabel(const String& label)
         {
-            [_button setTitle: [NSString stringWithCString:_label.get().asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
+            [_button setTitle: [NSString stringWithCString:label.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
+            
         }
+        
+    protected:
+        /*void onLabelChanged()
+        {
+            setLabel( _label.get() );
+        }*/
         
         Button*   _pOuter;
         NSButton* _button;
         
-        Property<String> _label;
+        //Property<String> _label;
         
-        ClickManager* _clickManager;
-        EventSource<ClickEvent>* _pClickEventSource;
+        ClickManager*               _clickManager;
+        Notifier<const ClickEvent&> _onClick;
     };
     
     
@@ -110,19 +114,14 @@ namespace bdn
         _pImpl = new Impl(this, pParent, label);
     }
     
-    Button::Button(IWindow* pParent, ObservableString& label)
-    {
-        _pImpl = new Impl(this, pParent, label);
-    }
-    
     void Button::setLabel(const std::string& label)
     {
         _pImpl->setLabel(label);
     }
     
-    EventSource<ClickEvent>* Button::getClickEventSource()
+    Notifier<const ClickEvent&>& Button::onClick()
     {
-        return _pImpl->getClickEventSource();
+        return _pImpl->onClick();
     }
     
     void Button::show(bool visible)

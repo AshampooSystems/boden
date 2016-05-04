@@ -2,8 +2,9 @@
 #define _BDN_BUTTON_H_
 
 #include <bdn/IWindow.h>
-#include <bdn/EventSource.h>
+#include <bdn/Notifier.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/Property.h>
 
 #include <string>
 #include <functional>
@@ -16,10 +17,7 @@ class Button : public Base, virtual public IWindow
 public:
     Button(IWindow* pParent, const String& label);
     
-    Property<String>& label()
-    {
-        return _pImpl->label();
-    }
+    Property<String>& label();
     
     void setLabel(const std::string& label);
     
@@ -31,7 +29,7 @@ public:
     }
     
     
-    EventSource<ClickEvent>* getClickEventSource();
+    Notifier<const ClickEvent&>& onClick();
         
     virtual void show(bool visible=true) override;
     

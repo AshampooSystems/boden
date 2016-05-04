@@ -2740,7 +2740,7 @@ public:
 
 private: // IResultCapture
 
-	virtual void assertionEnded( AssertionResult const& result )
+	virtual void assertionEnded( AssertionResult const& result ) override
 	{
 		const AssertionResult*	pResultToReport = &result;
 		AssertionResult			changedResult;
@@ -2778,7 +2778,7 @@ private: // IResultCapture
 	virtual bool sectionStarted (
 		SectionInfo const& sectionInfo,
 		Counts& assertions
-		)
+		) override
 	{
 		std::ostringstream oss;
 		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
@@ -2826,7 +2826,7 @@ private: // IResultCapture
 		return true;
 	}
 
-	virtual void sectionEnded( SectionEndInfo const& endInfo ) {
+	virtual void sectionEnded( SectionEndInfo const& endInfo ) override {
 
 		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
@@ -2840,7 +2840,7 @@ private: // IResultCapture
 		m_messages.clear();
 	}
 
-	virtual void sectionEndedEarly( SectionEndInfo const& endInfo ) {
+	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override {
 		if( m_unfinishedSections.empty() )
 			m_activeSections.back()->fail();
 		else
@@ -2850,15 +2850,15 @@ private: // IResultCapture
 		m_unfinishedSections.push_back( endInfo );
 	}
 
-	virtual void pushScopedMessage( MessageInfo const& message ) {
+	virtual void pushScopedMessage( MessageInfo const& message ) override {
 		m_messages.push_back( message );
 	}
 
-	virtual void popScopedMessage( MessageInfo const& message ) {
+	virtual void popScopedMessage( MessageInfo const& message ) override {
 		m_messages.erase( std::remove( m_messages.begin(), m_messages.end(), message ), m_messages.end() );
 	}
 
-	virtual std::string getCurrentTestName() const {
+	virtual std::string getCurrentTestName() const override {
 		return m_activeTestCase
 			? m_activeTestCase->getTestCaseInfo().name
 			: "";
@@ -2869,11 +2869,11 @@ private: // IResultCapture
 		return !_currentTestIgnoreExpectedToFail && (m_activeTestCase ? m_activeTestCase->expectedToFail() : false);
 	}
 
-	virtual const AssertionResult* getLastResult() const {
+	virtual const AssertionResult* getLastResult() const override {
 		return &m_lastResult;
 	}
 
-	virtual void handleFatalErrorCondition( std::string const& message ) {
+	virtual void handleFatalErrorCondition( std::string const& message ) override {
 		ResultBuilder resultBuilder = makeUnexpectedResultBuilder();
 		resultBuilder.setResultType( ResultWas::FatalErrorCondition );
 		resultBuilder << message;
@@ -2906,7 +2906,7 @@ private: // IResultCapture
 
 public:
 	// !TBD We need to do this another way!
-	bool aborting() const {
+	bool aborting() const override {
 		return m_totals.assertions.failed == static_cast<std::size_t>( m_config->abortAfter() );
 	}
 

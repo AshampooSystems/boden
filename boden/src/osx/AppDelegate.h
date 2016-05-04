@@ -13,6 +13,7 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
     - (void)setAppController:(bdn::AppControllerBase*)pController;
+    - (void)setLaunchInfo:(const bdn::AppLaunchInfo&)info;
         
 @end
 

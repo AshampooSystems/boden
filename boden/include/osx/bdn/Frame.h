@@ -36,10 +36,12 @@ public:
     class Impl;
     Impl* getImpl()
     {
-        return _impl;
+        return _pImpl;
     }
     
     void center();
+    
+    void setTitle(const String& title);
     
     virtual void show(bool visible=true) override;
     
@@ -49,7 +51,7 @@ public:
     }
     
 protected:
-    Impl* _impl;
+    Impl* _pImpl;
 };
 
 }

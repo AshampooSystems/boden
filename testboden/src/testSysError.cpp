@@ -77,18 +77,18 @@ void testErrorCodeMapping()
 
 #else
 
-	std::map<int, std::list<int> > expectedMap =
+	std::list<ExpectedMapping> expectedMappings =
 	{
-		{ENOENT, {ENOENT} ),
-		{ENOTDIR, {ENOTDIR} ),
+		EXPECTED_MAPPING(ENOENT, {ENOENT} ),
+		EXPECTED_MAPPING(ENOTDIR, {ENOTDIR} ),
 
-		{EEXIST, {EEXIST} ),
+		EXPECTED_MAPPING(EEXIST, {EEXIST} ),
 
-		{ENOTEMPTY, {ENOTEMPTY} ),
+		EXPECTED_MAPPING(ENOTEMPTY, {ENOTEMPTY} ),
 
-		{EACCES, {EACCES} ),
+		EXPECTED_MAPPING(EACCES, {EACCES} ),
 
-		{ENOSPC, {ENOSPC} ),
+		EXPECTED_MAPPING(ENOSPC, {ENOSPC} ),
 	};
 
 #endif

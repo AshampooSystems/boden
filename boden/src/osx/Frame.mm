@@ -9,14 +9,18 @@ namespace bdn
     
 Frame::Frame(const String& title)
 {
-    _impl = new Impl(title);
+    _pImpl = new Impl(title);
 }
     
 void Frame::show(bool visible)
 {
-    _impl->show(visible);
+    _pImpl->show(visible);
 }
     
+void Frame::setTitle(const String& title)
+{
+    _pImpl->setTitle(title);
+}
 
 
 }

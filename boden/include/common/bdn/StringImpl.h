@@ -3038,8 +3038,8 @@ public:
 	template<class CodecType, class EncodedInputIteratorType>
 	bool startsWith(const CodecType& codec, const EncodedInputIteratorType& encodedToCheckBegin, const EncodedInputIteratorType& encodedToCheckEnd) const
 	{
-		return startsWith(	CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
-							CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
+		return startsWith(	typename CodecType::template DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+							typename CodecType::template DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
 	}
 
 
@@ -3192,8 +3192,8 @@ public:
 	template<class CodecType, class EncodedInputIteratorType>
 	bool endsWith(const CodecType& codec, const EncodedInputIteratorType& encodedToCheckBegin, const EncodedInputIteratorType& encodedToCheckEnd) const
 	{
-		return endsWith(	CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
-							CodecType::DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
+		return endsWith(	typename CodecType::template DecodingIterator<EncodedInputIteratorType>(encodedToCheckBegin, encodedToCheckBegin, encodedToCheckEnd),
+							typename CodecType::template DecodingIterator<EncodedInputIteratorType>(encodedToCheckEnd, encodedToCheckBegin, encodedToCheckEnd) );
 	}
 
 

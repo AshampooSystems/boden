@@ -32,7 +32,7 @@ public:
 		The callback function you register here must be able to deal with that.
 		As an alternative, you can wrap your callback function with divertToMainThread().
 		*/
-	virtual Notifier< ReadOnlyProperty >& onChange()=0;
+	virtual Notifier< ReadProperty >& onChange()=0;
 
 
 	virtual bool operator==(const ValType& val) const

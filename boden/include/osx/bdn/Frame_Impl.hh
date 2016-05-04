@@ -18,7 +18,7 @@ public:
                                                styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
                                                  backing:NSBackingStoreBuffered
                                                    defer:NO];
-        [_window setTitle: [NSString stringWithCString:title.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
+        setTitle(title);
         
         [_window center];
     }
@@ -35,6 +35,11 @@ public:
             [_window makeKeyAndOrderFront:NSApp];
         else
             [_window orderOut:NSApp];
+    }
+    
+    void setTitle(const String& title)
+    {
+         [_window setTitle: [NSString stringWithCString:title.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
     }
     
 protected:

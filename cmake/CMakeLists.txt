@@ -166,6 +166,12 @@ endif()
 target_link_libraries(testboden boden)
 
 
+if( BODEN_TARGET STREQUAL "osx")
+	find_library(COCOA_LIBRARY Cocoa)
+	mark_as_advanced(COCOA_LIBRARY)
+	target_link_libraries(testboden ${COCOA_LIBRARY})
+endif()
+
 if( BODEN_TARGET STREQUAL "ios")
 	# there is a bug in cmake that causes debug symbols to not be generated for ios
 	# builds. So we have to set it manually. Unfortunately we can apparently only

@@ -45,7 +45,7 @@ public:
 		return _shouldExitRef();
 	}
 
-	virtual void onTerminate()
+	virtual void onTerminate() override
     {
 		_shouldExitRef() = true;
     }
