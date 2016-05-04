@@ -2,6 +2,7 @@
 
 #include <bdn/init.h>
 #include <bdn/appInit.h>
+#include <bdn/Thread.h>
 
 #include "AppDelegate.h"
 
@@ -10,6 +11,9 @@ namespace bdn
 
 int _uiAppMain(AppControllerBase* pAppController, int argCount, char* argv[])
 {
+    Thread::_setMainId( Thread::getCurrentId() );
+    
+    
     // init app launch info
     
     AppLaunchInfo       launchInfo;

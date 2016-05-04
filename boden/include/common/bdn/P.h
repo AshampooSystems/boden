@@ -46,7 +46,7 @@ public:
 	}
 
 	P(P&& p)
-		: _pObject( p.detach() )
+		: _pObject( p.detachPtr() )
 	{
 	}
 	
@@ -58,7 +58,7 @@ public:
 
 	template<class F>
 	inline P(P<F>&& p)
-		: _pObject( p.detach() )
+		: _pObject( p.detachPtr() )
 	{
 	}
 
@@ -102,15 +102,15 @@ public:
 
 	void assign(P&& pObj)
 	{
-		attach(pObj.getPtr() );
-		pObj.detach();
+		attachPtr(pObj.getPtr() );
+		pObj.detachPtr();
 	}
 
 	template<class F>
 	void assign(P<F>&& pObj)
 	{
-		attach(pObj.getPtr() );
-		pObj.detach();
+		attachPtr(pObj.getPtr() );
+		pObj.detachPtr();
 	}
 
 
@@ -129,8 +129,8 @@ public:
 
 	P<T>& operator=(P<T>&& pObj)
 	{
-		attach( pObj.getPtr() );
-		pObj.detach();
+		attachPtr( pObj.getPtr() );
+		pObj.detachPtr();
 
 		return *this;
 	}
@@ -146,8 +146,8 @@ public:
 	template<class O>
 	inline P<T>& operator=(P<O>&& pObj)
 	{
-		attach( pObj.getPtr() );
-		pObj.detach();
+		attachPtr( pObj.getPtr() );
+		pObj.detachPtr();
 
 		return *this;
 	}
@@ -160,7 +160,7 @@ public:
 
 		Returns a plain pointer to the object that the smart pointer pointed to.
 		*/
-	T* detach()
+	T* detachPtr()
 	{
 		T* pObj = _pObject;
 
@@ -175,7 +175,7 @@ public:
 		The object's reference count will be released as normal when the smart pointer is deleted
 		or gets another pointer assigned.
 	*/
-	P& attach(T* pObj)
+	P& attachPtr(T* pObj)
 	{
 		if(_pObject != nullptr)
 			_pObject->releaseRef();
