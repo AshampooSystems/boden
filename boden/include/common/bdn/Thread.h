@@ -86,6 +86,7 @@ public:
 		The Id object can also be serialized into std ostream objects using the << operator.
 		*/
 	typedef std::thread::id Id;
+    
 
     /** The type of the native operating system handle to the thread. This is implementation-specific.*/
     typedef std::thread::native_handle_type Handle;
@@ -146,7 +147,11 @@ public:
      
         The Thread object becomes invalid afterwards (see isValid()).
      
-        join has no effect if the Thread object is already invalid.*/
+        join has no effect if the Thread object is already invalid.
+     
+     
+        This function can be called from any thread.
+     */
     void join();
     
     
@@ -157,6 +162,8 @@ public:
         not do that then stop can potentially block for a long time.
         See run() for more information.
      
+        This function can be called from any thread.
+     
         */
     void stop();
     
@@ -165,11 +172,21 @@ public:
      
         The default implementation simply sets a flag that can be checked with shouldStop().
         A derived class can override this to implement a custom way to communicate the
-        stop command to the run() implementation.*/
+        stop command to the run() implementation.
+     
+        This function can be called from any thread.
+     */
     virtual void signalStop();
      
      
     
+    
+    /** Returns true if someone signalled the thread to stop.
+     
+        This function can be called from any thread.
+     */
+    virtual bool shouldStop();
+     
     
     
     
@@ -321,11 +338,11 @@ protected:
         work the thread is supposed to perform.
      
         The run implementation should take care to regularly check shouldStop()
-        and aborts its work when it returns true. Otherwise the stop() method
-        and potentially the Thread destructor can block for a long time, waiting
-        for the thread to exit.
+        and aborts when that returns true. If the thread does not stop when
+        shouldStop returns true then the stop() method and potentially the
+        Thread destructor could block for a long time while waiting for the thread to exit.
      
-        Alternatively one can also override signalStop() and implement a custom
+        It is also possible to override signalStop() and implement a custom
         way to communicate the stop signal to the run implementation.
      
         It is ok for run() to throw an exception in case of errors. The exception
