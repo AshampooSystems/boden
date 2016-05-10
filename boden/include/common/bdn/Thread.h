@@ -3,6 +3,11 @@
 
 #include <thread>
 #include <future>
+#include <utility>
+
+#include <bdn/IThreadRunnable.h>
+#include <bdn/ThreadRunnableBase.h>
+#include <bdn/ThreadDetachedError.h>
 
 namespace bdn
 {
@@ -15,27 +20,23 @@ namespace bdn
  
     The static method Thread::exec() can be used to quickly run a function in another thread.
  
-    If more control is desired then one should derive a class from Thread instead.
  
+    Using a Thread object
+    =====================
  
-    Using via a derived class
-    =========================
- 
-    run method
-    ----------
- 
-    To implement a thread you should derive your own class from Thread
-    and then override the run() method.
- 
-    The run() method implementation should regularly call shouldStop() to check 
-    if it should abort execution and exit.
- 
- 
+    If you need more control than Thread::exec() provides (for example, if you want the ability to
+    abort the thread) then you should create an object that implements IThreadRunnable and pass that object
+    to the #Thread constructor.
+    
+    ThreadRunnableBase is a good starting point for implementing IThreadRunnable.
+    
+    See IThreadRunnable for more information on how exactly to implement it.
+    
     Starting the thread
     -------------------
  
-    The actual thread is not created automatically. It must be started manually
-    by calling start().
+    The thread starts automatically immediately when the Thread object is constructed with the runnable
+    object. It is not necessary to start it manually.
  
  
     Stopping the thread
@@ -63,7 +64,7 @@ namespace bdn
     Exceptions in threads
     ---------------------
  
-    When the implementation of run() throws an exception then that exception is stored.
+    When the implementation of IThreadRunnable::run() throws an exception then that exception is stored.
     join() and stop() can re-throw this exception, thus allowing their caller to handle
     them from the managing thread.
  
@@ -93,26 +94,37 @@ public:
 
     
     
-    Thread() noexcept
-    {
-    }
+    /** Constructs a dummy Thread object that is not actually connected to a real
+        thread. It behaves like an object of a thread that has already finished.*/
+    Thread() noexcept;
+    
+    
+    /** Creates a thread which calls the IThreadRunnable::run() method of the specified runnable object.
+     
+        The thread will keep a reference to the runnable object. The object is released when the thread ends.
+     
+        If you prefer to pass a function pointer or function object directly then please look
+        at the static function Thread::exec() instead.
+     */
+    Thread( IThreadRunnable* pRunnable );
+    
     
     Thread(const Thread&) = delete;
     
     
-    /** Destructs the thread object. If the thread is still running then it is stopped and
-        the destructor waits for it to end (like calling stop() ).*/
+    /** Destructs the thread object. If the thread was not detached then
+        then it is stopped and the destructor waits for it to end (like calling stop() ). */
     ~Thread() noexcept;
     
     
     /** Returns the thread's id.
      
-        If the Thread object is invalid (see isValid()) then a default-constructed Id object
-        is returned.
+        If the Thread object was default-constructed (without parameters) or detach() has been called on it
+        then this is a dummy id that equals a default-constructed Id-object.
      */
     Id getId() const
     {
-        return _thread.get_id();
+        return _threadId;
     }
     
     
@@ -123,70 +135,84 @@ public:
     }
     
     
-    /** Causes the thread to run in detached mode.
+    /** Detaches the thread from the Thread object.
      
-        When detach is called, the running background thread will take ownership
-        of the Thread object and keep it alive while the thread is running. That ensures
-        that the run() implementation can still rely on the Thread object remaining
-        valid.
-     
-        After detach has been called, it is fine for the caller to release its
-        last reference to the Thread object. Since the background thread keeps the
-        Thread object alive on its own, the Thread object will NOT be destructed, even if
-        there are no more outside references to it.
+        The thread will continue to run independently of the Thread object.
         
-        The thread will simply keep running, until its run() method finishes. Once run()
-        has returned the Thread object will release its self-reference and at that point
-        the Thread object will be destroyed (assuming that there are no more outside references
-        to it).
+        After detaching the join() and stop() methods will throw an exception.
+     
+        This function can be called from any thread.
+     
+        It is no problem to call detach multiple times. The latter calls have no effect.
+     
      */
-    void detach();
+    void detach() noexcept;
+    
+    
+    enum ExceptionForwarding
+    {
+        /** If the thread aborted with an exception then re-throw it.*/
+        ExceptionThrow,
+        
+        /** Ignore it if the thread aborted with an exception. Do not re-throw it.*/
+        ExceptionIgnore,
+    };
     
     
     /** Waits for the thread to end.
      
-        The Thread object becomes invalid afterwards (see isValid()).
+        If the thread has already ended then join returns immediately.
      
-        join has no effect if the Thread object is already invalid.
+        If detach() has been called on the Thread object then join() always throws a ThreadDetachedError.
      
+        If the thread aborted with an exception then exceptionForwarding controls how join will handle this.
+        A value of Thread::ExceptionThrow will cause join to re-throw that exception. A value
+        of Thread::ExceptionIgnore will cause join to ignore such an exception.
      
         This function can be called from any thread.
-     */
-    void join();
-    
-    
-    /** Signals the thread to stop and waits for it to end.
      
-        Note that it is the responsibility of the run() method implementation
+        It is no problem to call join multiple times. The latter calls have no effect.
+     */
+    void join( ExceptionForwarding exceptionForwarding );
+    
+    
+    /** Signals the thread to stop/abort and waits for it to end.
+
+        If the thread has already ended then stop returns immediately.
+     
+        If detach() has been called on the Thread object then stop() always throws a ThreadDetachedError.
+     
+        If the thread aborted with an exception then exceptionForwarding controls how join will handle this.
+        A value of Thread::ExceptionThrow will cause join to re-throw that exception. A value
+        of Thread::ExceptionIgnore will cause join to ignore such an exception.
+
+        Note that it is the responsibility of the IThreadRunnable::run() method implementation
         to regularly check the stop condition and end when it is true. If it does
         not do that then stop can potentially block for a long time.
-        See run() for more information.
+        See IThreadRunnable::run() for more information.
      
         This function can be called from any thread.
+     
+        It is no problem to call stop multiple times. The latter calls have no effect.
      
         */
-    void stop();
+    void stop( ExceptionForwarding exceptionForwarding );
     
     
-    /** Signals the thread to stop.
-     
-        The default implementation simply sets a flag that can be checked with shouldStop().
-        A derived class can override this to implement a custom way to communicate the
-        stop command to the run() implementation.
+    /** Signals the thread to stop and end as soon as possible. Note that it is the responsibility
+        of the IThreadRunnable implementation to react to the stop signal and abort its work.
+        See IThreadRunnable::run() for more information.
      
         This function can be called from any thread.
-     */
-    virtual void signalStop();
      
+        If stop has already been signalled, or if the thread has already ended then
+        signalStop has no effect.
+        
+        If detach() has been called on the Thread object then stop() always throws a ThreadDetachedError.
+     */
+    void signalStop();
      
     
-    
-    /** Returns true if someone signalled the thread to stop.
-     
-        This function can be called from any thread.
-     */
-    virtual bool shouldStop();
-     
     
     
     
@@ -244,7 +270,10 @@ public:
     
     /** A static convenience function that executes the specified function with the specified arguments in a new thread.
      
-        Returns a future object that can be used to access the result of the function and/or
+        IMPORTANT: This function is only meant to be used for threads that do not need to support premature stopping or aborting.
+        For longer running threads one should instead implement the IThreadRunnable interface and use a #Thread object instead.
+     
+        Thread::exec returns a future object that can be used to access the result of the function and/or
         to wait for it to finish.
      
         If you are not interested in the result of the function it is not necessary to store the returned
@@ -288,37 +317,39 @@ public:
     template <class FuncType, class... Args>
     static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType&& func, Args&&... args)
     {
-        class ExecThread : public Thread
+        std::function<typename std::result_of<FuncType(Args...)>::type ()> boundFunc = std::bind(std::forward<FuncType>(func), std::forward(args)...);
+    
+        class ExecThreadRunnable : public ThreadRunnableBase
         {
         public:
-            ExecThread( std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* pTask )
+            ExecThreadRunnable( std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* pTask )
             {
                 _pTask = pTask;
             }
             
-            ~ExecThread()
+            ~ExecThreadRunnable()
             {
                 delete _pTask;
             }
             
             void run()
             {
-                _pTask->make_ready_at_thread_exit();
+                (*_pTask)();
             }
             
         protected:
             std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* _pTask;
         };
         
+        
+        
         std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* pTask
             = new std::packaged_task< typename std::result_of<FuncType(Args...)>::type >(
-                std::bind(func, args...) );
+                boundFunc );
         
-        P<ExecThread> pThread = newObj<ExecThread>(pTask);
+        Thread execThread( newObj<ExecThreadRunnable>(pTask) );
         
-        pThread->start();
-        
-        pThread->detach();
+        execThread.detach();
         
         // note that pTask is guaranteed to still be exist here. ExecThread deletes the object
         // in its destructor, but we still hold a reference to ExecThread at this point. So the
@@ -332,28 +363,19 @@ public:
 	/** For internal use only - do not call. Sets the Id of the main thread.*/
 	static void _setMainId( const Id& id);
     
-protected:
-    
-    /** This must be overridden in a derived class to implement the actual
-        work the thread is supposed to perform.
-     
-        The run implementation should take care to regularly check shouldStop()
-        and aborts when that returns true. If the thread does not stop when
-        shouldStop returns true then the stop() method and potentially the
-        Thread destructor could block for a long time while waiting for the thread to exit.
-     
-        It is also possible to override signalStop() and implement a custom
-        way to communicate the stop signal to the run implementation.
-     
-        It is ok for run() to throw an exception in case of errors. The exception
-        will automatically be stored and can be accessed via join() or stop().
-     */
-    virtual void run()=0;
-    
     
 private:
     
-    void runWrapper();
+
+    struct ThreadData : public Base
+    {
+        Mutex               runnableMutex;
+        P<IThreadRunnable>  pRunnable;
+        std::exception_ptr  threadException;
+    };
+    
+    
+    static void run( P<ThreadData> pThreadData );
     
 	static Id& getMainIdRef()
 	{
@@ -362,7 +384,13 @@ private:
 		return mainId;
 	}
     
-    std::thread _thread;
+    std::future<void>   _future;
+    
+    P<ThreadData>       _pThreadData;
+    std::thread         _thread;
+    Id                  _threadId;
+    
+    bool                _detached = false;
 };
 	
 

@@ -165,7 +165,7 @@ protected:
 		_refCount += _deleteThisRefCountDelta + 1;
 
 		P<IBase> pRef;
-		pRef.attach(this);
+		pRef.attachPtr(this);
 		return pRef;
 	}
 

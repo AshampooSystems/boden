@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/mainThread.h>
+#include <bdn/Thread.h>
 
 #include <chrono>
 
@@ -27,8 +28,7 @@ TEST_CASE("callFromMainThread")
 	{
 		auto startTime = std::chrono::system_clock::now();
 
-		std::async(
-			std::launch::async,
+		Thread::exec(
 			[]()
 			{
 				volatile int callCount = 0;
@@ -50,9 +50,7 @@ TEST_CASE("callFromMainThread")
 
 				auto waitStart = std::chrono::system_clock::now();
 
-				// REQUIRE( result.wait_for( std::chrono::milliseconds::duration(5000) ) == std::future_status::ready );
-				// XXX
-				result.wait();
+				REQUIRE( result.wait_for( std::chrono::milliseconds::duration(5000) ) == std::future_status::ready );
 
 				auto	waitDuration = std::chrono::system_clock::now() - waitStart;
 				int64_t waitMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitDuration ).count();
