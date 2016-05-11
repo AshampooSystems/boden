@@ -3,8 +3,7 @@
 
 #include <bdn/mainThread.h>
 #include <bdn/Thread.h>
-
-#include <chrono>
+#include <bdn/StopWatch.h>
 
 using namespace bdn;
 
@@ -26,7 +25,7 @@ TEST_CASE("callFromMainThread")
 
 	SECTION("otherThreadNotStoringFuture")
 	{
-		auto startTime = std::chrono::system_clock::now();
+        StopWatch watch;
 
 		Thread::exec(
 			[]()
@@ -47,26 +46,27 @@ TEST_CASE("callFromMainThread")
 				// should NOT have been called immediately, since we are in a different thread.
 				// Instead the call should have been deferred to the main thread.
 				REQUIRE( callCount==0 );
-
-				auto waitStart = std::chrono::system_clock::now();
+                
+                StopWatch threadWatch;
 
 				REQUIRE( result.wait_for( std::chrono::milliseconds::duration(5000) ) == std::future_status::ready );
-
-				auto	waitDuration = std::chrono::system_clock::now() - waitStart;
-				int64_t waitMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitDuration ).count();
-
-				REQUIRE( waitMillis>=500 );
-				REQUIRE( waitMillis<=5500 );
+                
+                REQUIRE( threadWatch.getMillis()>=500 );
+                REQUIRE( threadWatch.getMillis()<=5500 );
 
 				REQUIRE( callCount==1 );
+                
+                threadWatch.start();
 
-				REQUIRE( result.get()==84 );			
+				REQUIRE( result.get()==84 );
+                
+                // should not have waited
+                REQUIRE( threadWatch.getMillis()<=500 );
 			} );
+        
+        int64_t startMillis = watch.getMillis();
 
-		auto	threadStartDuration = std::chrono::system_clock::now() - startTime;
-		int64_t threadStartMillis = std::chrono::duration_cast<std::chrono::milliseconds>( threadStartDuration ).count();
-
-		REQUIRE( threadStartMillis<=2000 );
+		REQUIRE( startMillis<1000 );
 		
 		MAKE_ASYNC_TEST(10);
 	}

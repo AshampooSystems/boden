@@ -345,21 +345,22 @@ void testDetach()
     REQUIRE( thread.getId()==id );
 }
 
-void testExec()
+
+void verifyExec(bool throwException)
 {
     StopWatch watch;
     
     SECTION("dontStoreResult")
     {
-        Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
-    
+        Thread::exec( [throwException](int val){ Thread::sleepSeconds(2); if(throwException){ throw InvalidArgumentError("hello"); } return val; }, 42 );
+        
         REQUIRE( watch.getMillis()<1000 );
     }
     
     SECTION("storeResultThenDestructImmediately")
     {
         {
-            std::future<int> result = Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
+            std::future<int> result = Thread::exec( [throwException](int val){ Thread::sleepSeconds(2); if(throwException){ throw InvalidArgumentError("hello"); } return val; }, 42 );
         }
         
         REQUIRE( watch.getMillis()<1000 );
@@ -367,15 +368,19 @@ void testExec()
     
     SECTION("storeResult")
     {
-        std::future<int> result = Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
+        std::future<int> result = Thread::exec( [throwException](int val){ Thread::sleepSeconds(2); if(throwException){ throw InvalidArgumentError("hello"); } return val; }, 42 );
         
         REQUIRE( watch.getMillis()<1000 );
         
         SECTION("get")
         {
-            int val = result.get();
-            
-            REQUIRE( val==42 );
+            if(throwException)
+                REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+            else
+            {
+                int val = result.get();
+                REQUIRE( val==42 );
+            }
             
             REQUIRE( watch.getMillis()>=2000-10 );
             REQUIRE( watch.getMillis()<3000 );
@@ -388,6 +393,25 @@ void testExec()
             
             REQUIRE( watch.getMillis()>=500-10 );
             REQUIRE( watch.getMillis()<1500 );
+            
+            waitStatus = result.wait_for( std::chrono::milliseconds::duration(2000) );
+            REQUIRE( waitStatus == std::future_status::ready );
+            
+            REQUIRE( watch.getMillis()>=2000-10 );
+            REQUIRE( watch.getMillis()<3000 );
+            
+            watch.start();
+            
+            if(throwException)
+                REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+            else
+            {
+                int val = result.get();
+                REQUIRE( val==42 );
+            }
+            
+            // should have returned immediately.
+            REQUIRE( watch.getMillis()<500 );
         }
         
         SECTION("wait_until")
@@ -397,6 +421,26 @@ void testExec()
             
             REQUIRE( watch.getMillis()>=500-10 );
             REQUIRE( watch.getMillis()<1500 );
+            
+            waitStatus = result.wait_until( std::chrono::system_clock::now() + std::chrono::milliseconds::duration(2000) );
+            REQUIRE( waitStatus == std::future_status::ready );
+            
+            REQUIRE( watch.getMillis()>=2000-10 );
+            REQUIRE( watch.getMillis()<3000 );
+            
+            watch.start();
+            
+            if(throwException)
+                REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+            else
+            {
+                int val = result.get();
+                REQUIRE( val==42 );
+            }
+
+            
+            // should have returned immediately.
+            REQUIRE( watch.getMillis()<500 );
         }
         
         SECTION("wait")
@@ -408,9 +452,13 @@ void testExec()
             
             watch.start();
             
-            int val = result.get();
-            
-            REQUIRE( val==42 );
+            if(throwException)
+                REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+            else
+            {
+                int val = result.get();
+                REQUIRE( val==42 );
+            }
             
             // should have returned immediately.
             REQUIRE( watch.getMillis()<500 );
@@ -425,6 +473,16 @@ void testExec()
         }
     }
 }
+
+void testExec()
+{
+    SECTION("noException")
+        verifyExec(false);
+    
+    SECTION("exception")
+        verifyExec(true);
+}
+
 
 TEST_CASE( "Thread", "[.][long]" )
 {
