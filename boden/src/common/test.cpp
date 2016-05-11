@@ -2994,10 +2994,10 @@ public:
 		// We use a dummy variable here to communicate the reason
 		// for the test failure.
 		
-		bool asyncTestFinishedBeforeTimeout = false;
+		bool asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST = false;
 
 		// use CHECK instead of REQUIRE, because we do not want a TestFailureException
-		CHECK( asyncTestFinishedBeforeTimeout ); 
+		CHECK( asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST );
 		
 		// call endAsyncTest. This will destroy the "objects to keep alive"
 		// and thus (hopefully, if implemented properly) abort the test.
