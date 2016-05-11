@@ -5,7 +5,7 @@
 
 namespace bdn
 {
-	
+
 
 /** A default implementation for an app controller for commandline applications.
 
@@ -35,7 +35,7 @@ public:
 	CommandLineAppController()
 	{
 		// ensure that the static variable for shouldExit is initialized.
-		_shouldExitRef();
+		volatile bool& r = _shouldExitRef();
 	}
 
 

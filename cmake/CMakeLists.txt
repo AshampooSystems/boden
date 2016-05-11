@@ -101,6 +101,20 @@ set( CURL_INCDIR "../3rdparty/curl/include")
 set( DEPENDENCIES_INCDIR ${WEBDRIVERXX_INCDIR} ${CURL_INCDIR} )
 
 
+if( BODEN_TARGET STREQUAL "linux")
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	
+	include_directories(${GTK3_INCLUDE_DIRS})
+	link_directories(${GTK3_LIBRARY_DIRS})
+	
+	# Add other flags to the compiler
+	add_definitions(${GTK3_CFLAGS_OTHER})
+
+endif()
+
+
+
 # boden
 
 set( BODEN_INCDIR "../boden/include")
@@ -185,6 +199,10 @@ if( BODEN_TARGET STREQUAL "dotnet")
 endif()
 
 
+if( BODEN_TARGET STREQUAL "linux")
+	target_link_libraries(testboden ${GTK3_LIBRARIES})
+endif()
+
 if( BODEN_TARGET STREQUAL "ios")
 	find_library(FOUNDATION_LIBRARY Foundation)
 	mark_as_advanced(FOUNDATION_LIBRARY)
@@ -250,6 +268,9 @@ if( BODEN_TARGET STREQUAL "dotnet")
 	set_target_properties(TARGET testbodenui APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
 endif()
 
+if( BODEN_TARGET STREQUAL "linux")
+	target_link_libraries(testbodenui ${GTK3_LIBRARIES})
+endif()
 
 if( BODEN_TARGET STREQUAL "ios")
 	# there is a bug in cmake that causes debug symbols to not be generated for ios
@@ -305,6 +326,10 @@ endif()
 
 if( BODEN_TARGET STREQUAL "dotnet")
 	set_target_properties(TARGET uidemo APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
+if( BODEN_TARGET STREQUAL "linux")
+	target_link_libraries(uidemo ${GTK3_LIBRARIES})
 endif()
 
 if( BODEN_TARGET STREQUAL "ios")

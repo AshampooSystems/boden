@@ -3,26 +3,26 @@
 
 namespace bdn
 {
-	
-    
-    
+
+
+
 Thread::Thread() noexcept
 {
 }
-    
-    
+
+
 Thread::Thread( IThreadRunnable* pRunnable )
 {
     _pThreadData = newObj<ThreadData>();
-    
+
     _pThreadData->pRunnable = pRunnable;
 
     _thread = std::thread(&Thread::run, _pThreadData );
-    
+
     _threadId = _thread.get_id();
 }
 
-   
+
 Thread::~Thread() noexcept
 {
     if(!_detached)
@@ -44,10 +44,10 @@ void Thread::run( P<ThreadData> pThreadData )
     {
         pThreadData->threadException = std::current_exception();
     }
-    
+
     {
         MutexLock lock(pThreadData->runnableMutex);
-    
+
         try
         {
             pThreadData->pRunnable = nullptr;
@@ -58,7 +58,7 @@ void Thread::run( P<ThreadData> pThreadData )
             // If we do not have one yet then we store it.
             if(!pThreadData->threadException)
                 pThreadData->threadException = std::current_exception();
-            
+
             // otherwise we ignore it. We must never let an exception through
             // to std::thread.
             // To be safe we also call detach on the pointer to ensure that
@@ -73,10 +73,10 @@ void Thread::detach() noexcept
     if(_thread.joinable())
     {
         _thread.detach();
-        
+
         _thread = std::thread();
         _pThreadData = nullptr;
-        
+
         _detached = true;
     }
 }
@@ -88,7 +88,7 @@ void Thread::join(Thread::ExceptionForwarding exceptionForwarding )
 
     if( _thread.joinable() )
         _thread.join();
-    
+
     if(exceptionForwarding==ExceptionThrow && _pThreadData!=nullptr && _pThreadData->threadException )
         std::rethrow_exception( _pThreadData->threadException );
 }
@@ -103,13 +103,13 @@ void Thread::signalStop()
 {
     if(_detached)
         throw ThreadDetachedError();
-        
+
     if(_pThreadData!=nullptr)
     {
         // lock a mutex here because the runnable object is automatically
         // released at the end of the thread.
         MutexLock lock(_pThreadData->runnableMutex);
-        
+
         if(_pThreadData->pRunnable!=nullptr)
             _pThreadData->pRunnable->signalStop();
     }
@@ -125,8 +125,8 @@ void Thread::sleepMillis( int64_t millis)
 {
 	if(millis<=0)
 		yield();
-	else		
-		std::this_thread::sleep_for( std::chrono::milliseconds::duration( millis ) );
+	else
+		std::this_thread::sleep_for( std::chrono::milliseconds( millis ) );
 }
 
 void Thread::yield() noexcept
@@ -161,7 +161,7 @@ void Thread::_setMainId(const Thread::Id& id)
 bool Thread::isCurrentMain()
 {
 	return getCurrentId() == getMainId();
-	
+
 }
 
 }

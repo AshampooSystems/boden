@@ -25,8 +25,14 @@ void verifyErrorCodeMapping(int errorCode, const std::list<int>& expectedPosixCo
 	}
 	else
 	{
+#if BDN_PLATFORM_LINUX
+        // some implementations return system_category here. Since we are on a posix system
+        // it is the same.
+		REQUIRE( ( cond.category()==std::generic_category() || cond.category()==std::system_category() ) );
+#else
 		REQUIRE( cond.category()==std::generic_category() );
-	
+#endif
+
 		int posixValue = cond.value();
 		REQUIRE_IN( posixValue, expectedPosixCodeList );
 	}
@@ -66,13 +72,13 @@ void testErrorCodeMapping()
 
 		EXPECTED_MAPPING(ERROR_DIR_NOT_EMPTY, {ENOTEMPTY} ),
 
-		EXPECTED_MAPPING(ERROR_ACCESS_DENIED, {EACCES} ),		
+		EXPECTED_MAPPING(ERROR_ACCESS_DENIED, {EACCES} ),
 		EXPECTED_MAPPING(ERROR_SHARING_VIOLATION, {EACCES} ),
 
 		EXPECTED_MAPPING(ERROR_DISK_FULL, {ENOSPC} ),
 
 		EXPECTED_MAPPING(ERROR_USER_MAPPED_FILE, {} ),
-		
+
 	} );
 
 #else
@@ -120,13 +126,13 @@ void verifyMakeThrowSysError(const SystemError& err)
 	String combinedMessage = err.what();
 
 	ErrorInfo info(err);
-		
+
 	REQUIRE( info.getField("bla") == "blub");
 	REQUIRE( info.getField("gubbel") == "hurz");
 
 	String message = info.getMessage();
 	REQUIRE( message.getLength()>=5 );	// should not be empty
-				
+
 }
 
 void testMakeThrowSysError()
@@ -155,7 +161,7 @@ void testMakeThrowSysError()
 		{
 			verifyMakeThrowSysError(e);
 		}
-	}	
+	}
 }
 
 bool setAccessError()
@@ -164,7 +170,7 @@ bool setAccessError()
 	SetLastError(ERROR_ACCESS_DENIED);
 #else
 	errno = EACCES;
-#endif			
+#endif
 
 	return true;
 }
@@ -186,17 +192,17 @@ void testThrowLastSysError()
 		BDN_throwLastSysError( ErrorFields()
 			// construct the ErrorFields object in a way so that it modifies the last error
 			.add(setAccessError() ? "bla" : "blax", "blub")
-			.add("gubbel", "hurz") );		
+			.add("gubbel", "hurz") );
 
 		REQUIRE(false);
 	}
 	catch(SystemError& e)
 	{
 		// sanity check. Last error at this point should NOT be "not found"
-		REQUIRE( getLastSysError()!=getNotFoundErrorCode() );	
+		REQUIRE( getLastSysError()!=getNotFoundErrorCode() );
 
 		// but the exception object should still have the not found error.
-		verifyMakeThrowSysError(e);		
+		verifyMakeThrowSysError(e);
 	}
 }
 
@@ -204,7 +210,7 @@ TEST_CASE("sysError")
 {
 	SECTION("codeMapping")
 		testErrorCodeMapping();
-	
+
 	SECTION("makeThrowSysError")
 		testMakeThrowSysError();
 

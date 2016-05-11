@@ -37,7 +37,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/TestAppWithUIController.h>
+#include <bdn/TestAppWithUiController.h>
 #include <bdn/Frame.h>
 #include <bdn/mainThread.h>
 
@@ -362,7 +362,7 @@ struct IConfig : IShared {
 	virtual std::ostream& stream() const = 0;
 	virtual std::string name() const = 0;
 	virtual bool includeSuccessfulResults() const = 0;
-    
+
     /** printLevel 0 means no printing of current action.
         printLevel 1 means print just the test cases when they are run
         printLevel 2 means print the first level of sections when they are run
@@ -370,7 +370,7 @@ struct IConfig : IShared {
         etc.
      */
     virtual int printLevel() const = 0;
-    
+
 	virtual bool shouldDebugBreak() const = 0;
 	virtual bool warnAboutMissingAssertions() const = 0;
 	virtual int abortAfter() const = 0;
@@ -1543,7 +1543,7 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 	cli["-s"]["--success"]
 		.describe( "include successful tests in output" )
 		.bind( &ConfigData::showSuccessfulTests );
-    
+
     cli["--print-level"]
         .describe( "prints information about test cases and sections being run.\n0 no printing (default)\n1 print test cases\n2 also print first level sections\n3 second level sections\n etc." )
         .bind( &printLevel, "print level" );
@@ -2695,7 +2695,7 @@ public:
 		m_context.setConfig( m_config );
 		m_context.setResultCapture( this );
 		m_reporter->testRunStarting( m_runInfo );
-        
+
         m_printLevel = m_config->printLevel();
 	}
 
@@ -2724,7 +2724,7 @@ public:
 		m_reporter->testCaseStarting( *_pCurrentTestCaseInfo );
 
 		m_activeTestCase = &testCase;
-        
+
         if(m_printLevel>=1)
             std::cout << "Test case: "+getCurrentTestName() << std::endl;
 
@@ -2745,7 +2745,7 @@ private: // IResultCapture
 	virtual void assertionEnded( AssertionResult const& result ) override
 	{
         MutexLock lock( _resultCaptureMutex );
-    
+
 		const AssertionResult*	pResultToReport = &result;
 		AssertionResult			changedResult;
 
@@ -2785,15 +2785,15 @@ private: // IResultCapture
 		) override
 	{
         MutexLock lock( _resultCaptureMutex );
-    
+
 		std::ostringstream oss;
 		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
-        
+
 		ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
 		if( !sectionTracker.isOpen() )
 			return false;
 		m_activeSections.push_back( &sectionTracker );
-        
+
         // print level 0 means no printing.
         // print level 1 means just test cases
         // print level 2 means first level of sections
@@ -2823,7 +2823,7 @@ private: // IResultCapture
 	bool testForMissingAssertions( Counts& assertions )
     {
         MutexLock lock( _resultCaptureMutex );
-        
+
 		if( assertions.total() != 0 )
 			return false;
 		if( !m_config->warnAboutMissingAssertions() )
@@ -2854,7 +2854,7 @@ private: // IResultCapture
 	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override
     {
         MutexLock lock( _resultCaptureMutex );
-        
+
 		if( m_unfinishedSections.empty() )
 			m_activeSections.back()->fail();
 		else
@@ -2879,7 +2879,7 @@ private: // IResultCapture
 	virtual std::string getCurrentTestName() const override
     {
         MutexLock lock( _resultCaptureMutex );
-        
+
 		return m_activeTestCase
 			? m_activeTestCase->getTestCaseInfo().name
 			: "";
@@ -2899,7 +2899,7 @@ private: // IResultCapture
 	virtual void handleFatalErrorCondition( std::string const& message ) override
     {
         MutexLock lock( _resultCaptureMutex );
-        
+
 		ResultBuilder resultBuilder = makeUnexpectedResultBuilder();
 		resultBuilder.setResultType( ResultWas::FatalErrorCondition );
 		resultBuilder << message;
@@ -2966,7 +2966,7 @@ public:
 			std::unique_lock<std::mutex> initiateWaitLock(_shouldAbortInitiateWaitMutex);
 
 			if( _shouldAbortCondition.wait_for(	initiateWaitLock,
-												std::chrono::milliseconds::duration((int64_t)(_waitSeconds*1000)),
+												std::chrono::milliseconds((int64_t)(_waitSeconds*1000)),
 												[this](){ return _shouldAbort; }) )
 			{
 				// we should abort.
@@ -2980,7 +2980,7 @@ public:
 		std::function<void()>	_func;
 		double					_waitSeconds;
 
-		std::future<void>		_result;		
+		std::future<void>		_result;
 		std::condition_variable	_shouldAbortCondition;
 		volatile bool			_shouldAbort;
 		std::mutex				_shouldAbortInitiateWaitMutex;
@@ -2990,7 +2990,7 @@ public:
 	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
 	{
         MutexLock lock( _resultCaptureMutex );
-        
+
 		if(_currentTestIsAsync)
 		{
 			// if a test is already async then we issue an error here.
@@ -2999,47 +2999,47 @@ public:
 			// So we simply disallow this.
 			throw ProgrammingError("BDN_MAKE_ASYNC_TEST() called twice in same test.");
 		}
-		
-		_currentTestIsAsync = true;		
+
+		_currentTestIsAsync = true;
 		_currentTestObjectsToKeepAlive = objectsToKeepAlive;
 
 		_currentAsyncTestEnded = false;
-		
+
 		if(timeoutSeconds>0)
-			_pCurrentAsyncTestTimeoutCaller = newObj<DelayedCallFromMainThread>( timeoutSeconds, std::bind(&RunContext::onAsyncTestTimeout, this, _currentAsyncTestId ) );		
+			_pCurrentAsyncTestTimeoutCaller = newObj<DelayedCallFromMainThread>( timeoutSeconds, std::bind(&RunContext::onAsyncTestTimeout, this, _currentAsyncTestId ) );
 	}
 
 	void onAsyncTestTimeout(int64_t asyncTestId)
 	{
         MutexLock lock( _resultCaptureMutex );
-        
+
 		// note that this is always called from the main thread. So no need for synchronization.
-		
+
 		if(asyncTestId != _currentAsyncTestId )
 		{
 			// this call was for a test that has already ended in the meantime.
 			// Ignore it.
 			return;
 		}
-				
+
 		// test failed. Timeout did not fire.
 		// We use a dummy variable here to communicate the reason
 		// for the test failure.
-		
+
 		bool asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST = false;
 
 		// use CHECK instead of REQUIRE, because we do not want a TestFailureException
 		CHECK( asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST );
-		
+
 		// call endAsyncTest. This will destroy the "objects to keep alive"
 		// and thus (hopefully, if implemented properly) abort the test.
 		endAsyncTest();
 	}
-	
+
 	void endAsyncTest() override
 	{
         MutexLock lock( _resultCaptureMutex );
-        
+
 		if(!_currentTestIsAsync)
 			throw ProgrammingError("BDN_END_ASYNC_TEST() called without calling BDN_MAKE_ASYNC_TEST() before for this test.");
 
@@ -3047,12 +3047,12 @@ public:
 		{
 			// already ended. This is an error. Since the next test can potentially start immediately
 			// after the first end call, this means that the second call could potentially be connected
-			// to the following test. So the test code MUST be written in a way that ensures that 
+			// to the following test. So the test code MUST be written in a way that ensures that
 			// endAsync is only called once.
 			throw ProgrammingError("BDN_END_ASYNC_TEST() called twice in the same test.");
 		}
 
-		
+
 		// destroy the timeout caller first to ensure that the timeout will not fire.
 		_pCurrentAsyncTestTimeoutCaller = nullptr;
 
@@ -3072,19 +3072,19 @@ public:
 private:
 
 
-	
+
 	bool shouldContinueTestCaseIteration()
 	{
-        
+
 		return ( !m_testCaseTracker->isSuccessfullyCompleted() && !aborting() );
 	}
 
 	void runTestCase_Continue()
 	{
 		do
-		{	
+		{
 			m_trackerContext.startCycle();
-                
+
 			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _pCurrentTestCaseInfo->name );
 
 			if(!runCurrentTest( _testRedirectedCout, _testRedirectedCerr ))
@@ -3111,11 +3111,11 @@ private:
 			runTestCase_Continue();
 		}
 		else
-			runTestCase_Finalize();		
+			runTestCase_Finalize();
 	}
 
 	Totals runTestCase_Finalize()
-	{	
+	{
 		Totals deltaTotals = m_totals.delta( _testPrevTotals );
 
 		m_totals.testCases += deltaTotals.testCases;
@@ -3125,8 +3125,8 @@ private:
 							deltaTotals,
 							_testRedirectedCout,
 							_testRedirectedCerr,
-							aborting() ) );        
-        
+							aborting() ) );
+
 		m_activeTestCase = BDN_NULL;
 		m_testCaseTracker = BDN_NULL;
 
@@ -3136,7 +3136,7 @@ private:
 
 		return deltaTotals;
 	}
-	
+
 
 
 	enum class CurrentTestResult
@@ -3144,9 +3144,9 @@ private:
 		Unfinished,
 		Passed,
 		Failed,
-		Exception		
+		Exception
 	};
-				
+
 
 	/** Returns true if the test has finished (no matter whether failed or passed). Returns false if the
 		test runs asynchronously.*/
@@ -3157,12 +3157,12 @@ private:
 		_currentTestAssertionFailed = false;
 
 		_currentTestIgnoreExpectedToFail = false;
-		
+
 		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
-		
+
 		m_reporter->sectionStarting( *_pCurrentTestCaseSection );
 
-		_currentTestPrevAssertions = m_totals.assertions;		
+		_currentTestPrevAssertions = m_totals.assertions;
 		try
 		{
 			m_lastAssertionInfo = AssertionInfo( "TEST_CASE", _pCurrentTestCaseInfo->lineInfo, "", ResultDisposition::Normal );
@@ -3212,7 +3212,7 @@ private:
 	{
 		// we must hold a mutex here. If the test uses multiple threads
 		// then we might get failures from multiple threads at once.
-		
+
 		{
 			MutexLock lock(_currentTestResultMutex);
 
@@ -3229,9 +3229,9 @@ private:
 				// This usually means that the failed exception happened in another thread and
 				// the caller has not checked that thread or not propagated its TestFailureException.
 				// That is OK. We simply switch the result to failed.
-				result = CurrentTestResult::Failed;			
+				result = CurrentTestResult::Failed;
 			}
-		
+
 			_currentTestResult = result;
 		}
 
@@ -3269,7 +3269,7 @@ private:
 
 			assertions.failedButOk += assertions.failed;
 			assertions.failed = 0;
-		
+
 			if( _pCurrentTestCaseInfo->expectedToFail() && assertions.failedButOk==0)
 			{
 				// test case was supposed to fail, but it did not fail
@@ -3277,19 +3277,19 @@ private:
 				// set a flag that we actually DO want the following failure to be recorded.
 				// If we do not set this then the following failure would be ignored.
 				_currentTestIgnoreExpectedToFail = true;
-					
+
 				ResultBuilder shouldFailResultBuilder(	"testShouldHaveFailed",
 														_pCurrentTestCaseInfo->lineInfo,
 														"testResult",
 														// we must use the disposition "ContinueOnFailure" here. Otherwise the react
 														// call below will throw an exception
 														ResultDisposition::ContinueOnFailure );
-				
+
 				shouldFailResultBuilder.setLhs("didNotFail");
-			
+
 				// cause error message to be printed and debugger to break.
-				shouldFailResultBuilder.captureResult( ResultWas::ExplicitFailure );			
-			
+				shouldFailResultBuilder.captureResult( ResultWas::ExplicitFailure );
+
 				INTERNAL_BDN_REACT( shouldFailResultBuilder );
 			}
 		}
@@ -3345,7 +3345,7 @@ private:
 	std::vector<SectionEndInfo> m_unfinishedSections;
 	std::vector<ITracker*> m_activeSections;
 	TrackerContext m_trackerContext;
-    
+
     int  m_printLevel;
 
 	const TestCaseInfo* _pCurrentTestCaseInfo = nullptr;
@@ -3355,17 +3355,17 @@ private:
 	bool				_currentTestIsAsync = false;
 
 	bool				_currentTestIgnoreExpectedToFail = false;
-	
+
 	int64_t				_currentAsyncTestId = 0;
 	bool				_currentAsyncTestEnded = false;
-	P<DelayedCallFromMainThread> _pCurrentAsyncTestTimeoutCaller;	
+	P<DelayedCallFromMainThread> _pCurrentAsyncTestTimeoutCaller;
 
 	std::list< P<IBase>	> _currentTestObjectsToKeepAlive;
 
 	bool				_currentTestAssertionFailed;
 	CurrentTestResult	_currentTestResult;
 	Mutex				_currentTestResultMutex;
-    
+
     mutable Mutex       _resultCaptureMutex;
 
 	std::string			_testRedirectedCout;
@@ -3450,51 +3450,51 @@ Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& config, Ptr<IStr
 		reporters = addReporter(reporters, (*it)->create( ReporterConfig( config ) ) );
 	return reporters;
 }
-    
+
 class TestRunner
 {
 public:
     TestRunner(Ptr<Config> const& config)
     {
         _calledTestGroupEnded = false;
-        
+
         _iconfig = config.get();
-        
+
         _reporter = makeReporter( config );
         _reporter = addListeners( _iconfig, _reporter );
-        
+
         _pContext = new RunContext( _iconfig, _reporter );
-        
+
         _pContext->testGroupStarting( config->name(), 1, 1 );
-        
+
         _testSpec = config->testSpec();
         if( !_testSpec.hasFilters() )
             _testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "~[.]" ).testSpec(); // All not hidden tests
-        
+
         std::vector<TestCase> const& allTestCases = getAllTestCasesSorted( *_iconfig );
-        
+
         _currTestIt = allTestCases.begin();
         _endTestIt = allTestCases.end();
     }
-    
+
     ~TestRunner()
     {
         delete _pContext;
     }
-    
-    
+
+
     bool beginNextTest( std::function<void()> doneCallback )
     {
         if(_currTestIt==_endTestIt)
         {
             // no more tests
-            
+
             if(!_calledTestGroupEnded)
             {
                 _calledTestGroupEnded = true;
                 _pContext->testGroupEnded( _iconfig->name(), _totals, 1, 1 );
             }
-            
+
             return false;
         }
         else
@@ -3512,7 +3512,7 @@ public:
 
 				onTestDone( Totals() );
 			}
-            
+
             return true;
         }
     }
@@ -3525,34 +3525,34 @@ public:
 
 		_testDoneCallback();
 	}
-		
-    
+
+
     const Totals& getTotals() const
     {
         return _totals;
     }
-        
+
 protected:
     Ptr<IConfig const>      _iconfig;
     Ptr<IStreamingReporter> _reporter;
-    
+
     RunContext*             _pContext;
-    
+
     Totals                  _totals;
-    
+
     TestSpec                _testSpec;
-    
+
     std::vector<TestCase>::const_iterator _currTestIt;
     std::vector<TestCase>::const_iterator _endTestIt;
-    
+
     bool                    _calledTestGroupEnded;
 
 	std::function<void()>	_testDoneCallback;
-    
+
 };
 
 Totals runTests( Ptr<Config> const& config ) {
-    
+
     TestRunner runner(config);
 
 
@@ -3575,7 +3575,7 @@ Totals runTests( Ptr<Config> const& config ) {
 			throw ProgrammingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
 		}
     }
-    
+
     return runner.getTotals();
 }
 
@@ -3660,24 +3660,24 @@ public:
 			returnCode = run();
 		return returnCode;
 	}
-    
-    
+
+
     bool prepareRun()
     {
         if( m_configData.showHelp )
             return false;
-        
+
         config(); // Force config to be constructed
-        
+
         seedRng( *m_config );
-        
+
         if( m_configData.filenamesAsTags )
             applyFilenamesAsTags( *m_config );
-        
+
         // Handle list request
         if( Option<std::size_t> listed = list( config() ) )
             return static_cast<int>( *listed )!=0;
-        
+
         return true;
     }
 
@@ -3686,7 +3686,7 @@ public:
 		{
             if(!prepareRun())
                 return 0;
-            
+
 			return static_cast<int>( runTests( m_config ).assertions.failed );
 		}
 		catch( std::exception& ex ) {
@@ -6582,7 +6582,7 @@ public: // StreamingReporterBase
 	}
 
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
-        
+
 		StreamingReporterBase::testCaseEnded( testCaseStats );
 		XmlWriter::ScopedElement e = m_xml.scopedElement( "OverallResult" );
 		e.writeAttribute( "success", testCaseStats.totals.assertions.allOk() );
@@ -7184,7 +7184,7 @@ private:
 			columns.push_back( SummaryColumn( "", Colour::None )
 				.addRow( totals.testCases.total() )
 				.addRow( totals.assertions.total() ) );
-            
+
             // we print "failed as expected" as passed. It is a pass-condition, after all.
 			columns.push_back( SummaryColumn( "passed", Colour::Success )
 				.addRow( totals.testCases.passed + totals.testCases.failedButOk )
@@ -7646,7 +7646,7 @@ public:
 
 
 	void init(const std::vector<String>& args)
-	{	
+	{
 		try
         {
             _pTestSession = new bdn::Session;
@@ -7664,10 +7664,10 @@ public:
             {
                 // invalid commandline arguments. Exit.
 				_pFrame->setTitle("Invalid commandline");
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);				
+				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
                 return;
             }
-            
+
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
@@ -7675,15 +7675,15 @@ public:
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
 				return;
             }
-            
+
             _pTestRunner = new TestRunner( &_pTestSession->config() );
         }
         catch( std::exception& ex )
         {
             bdn::cerr() << ex.what() << std::endl;
-            
+
             int exitCode = (std::numeric_limits<int>::max)();
-            
+
             // we want to exit
             AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
         }
@@ -7691,7 +7691,7 @@ public:
 	}
 
 	void start()
-	{	
+	{
 		// schedule our first test to be called
 		scheduleNextTest();
 	}
@@ -7704,8 +7704,8 @@ public:
 protected:
 
 	void scheduleNextTest()
-	{		
-		asyncCallFromMainThread( std::bind(&Impl::runNextTest, this) );			            
+	{
+		asyncCallFromMainThread( std::bind(&Impl::runNextTest, this) );
 	}
 
 	void waitAndClose(int exitCode)
@@ -7714,7 +7714,7 @@ protected:
 			[exitCode]()
 			{
 				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
-                
+
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
 			} );
 	}
@@ -7736,9 +7736,9 @@ protected:
             }
             else
             {
-                // no more tests. We want to exit.          
+                // no more tests. We want to exit.
 				int failedCount = static_cast<int>( _pTestRunner->getTotals().assertions.failed );
-                
+
 				int exitCode = failedCount;
 
 				_pFrame->setTitle("Done ("+bdn::toString(failedCount)+" failed)" );
@@ -7751,18 +7751,18 @@ protected:
             bdn::cerr() << ex.what() << std::endl;
 
 			_pFrame->setTitle("Fatal Error");
-            
+
             int exitCode = (std::numeric_limits<int>::max)();
-            
+
             // we want to exit
 			waitAndClose(exitCode);
         }
-        
+
     }
-	
+
 protected:
 	Session*    _pTestSession;
-    TestRunner* _pTestRunner; 
+    TestRunner* _pTestRunner;
 
 	P<Frame>	_pFrame;
 };
@@ -7772,7 +7772,7 @@ TestAppWithUiController::TestAppWithUiController()
 {
 	_pImpl = new Impl;
 }
-		
+
 TestAppWithUiController::~TestAppWithUiController()
 {
 	delete _pImpl;
