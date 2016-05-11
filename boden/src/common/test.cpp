@@ -7147,15 +7147,14 @@ private:
 			columns.push_back( SummaryColumn( "", Colour::None )
 				.addRow( totals.testCases.total() )
 				.addRow( totals.assertions.total() ) );
+            
+            // we print "failed as expected" as passed. It is a pass-condition, after all.
 			columns.push_back( SummaryColumn( "passed", Colour::Success )
-				.addRow( totals.testCases.passed )
-				.addRow( totals.assertions.passed ) );
+				.addRow( totals.testCases.passed + totals.testCases.failedButOk )
+				.addRow( totals.assertions.passed + totals.assertions.failedButOk ) );
 			columns.push_back( SummaryColumn( "failed", Colour::ResultError )
 				.addRow( totals.testCases.failed )
 				.addRow( totals.assertions.failed ) );
-			columns.push_back( SummaryColumn( "failed as expected", Colour::ResultExpectedFailure )
-				.addRow( totals.testCases.failedButOk )
-				.addRow( totals.assertions.failedButOk ) );
 
 			printSummaryRow( "test cases", columns, 0 );
 			printSummaryRow( "assertions", columns, 1 );
