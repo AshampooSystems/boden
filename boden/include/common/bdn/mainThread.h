@@ -95,21 +95,24 @@ void asyncCallFromMainThread(FuncType&& func, Args&&... args)
 
 
 /** Wraps a function (called the "inner function") into a wrapper function. When the returned wrapper function
-	is called it causes the inner function to be executed in the main thread (see also callFromMainThread() ).
-
-	The generated wrapper function takes the parameters specified in the template parameters Args and passes
+	is called it causes the inner function to be executed in the main thread (as if by calling callFromMainThread() ).
+    Note that there is a variation of this function that is often simpler to use. See wrapAsyncCallFromMainThread().
+    
+ 	The generated wrapper function takes the parameters specified in the template parameters Args and passes
 	those on to the inner function when the inner function is called from the main thread.
     
     The last template is the function type. You can usually leave that out - it is normally deduced automatically.
  
+	If the wrapper is called from the main thread then the wrapped function is executed immediately. The returned
+    future object is then immediately in finished state and its value can be accessed directly.
 
-	When the wrapper is called, it does NOT automatically wait for the inner function to
-	complete in the main thread. It merely schedules it to be called and then returns a std::future object that
+    If the wrapper is called from another thread then it schedules the inner function to be called from the main
+    thread. It does NOT automatically wait for the inner function to complete in the main thread.
+    It merely schedules it to be called and then returns a std::future object that
 	can be used to wait for the execution to end, if desired. See the documentation of callFromMainThread() for
 	an explanation of how the future object is used.
-
-	Note that there are two variations of this function that are often simpler to use than wrapCallFromMainThread:
-	wrapCallFromMainThreadAsync() and wrapCallFromMainThreadSync().
+	
+    If the inner function throws an exception then std::future::get will throw that exception if you call it.
 
 	Example:
 
@@ -191,15 +194,19 @@ std::function< std::future< typename std::result_of<InnerFuncType(Args...)>::typ
     
 
 /** Wraps a function (called the "inner function") into a wrapper function. When the returned wrapper function
-	is called it causes the inner function to be executed in the main thread (see also callFromMainThread() ).
+	is called it causes the inner function to be executed asynchronously in the main thread (see also asyncCallFromMainThread() ).
 
 	The generated wrapper function takes the parameters specified in the template parameters Args and passes
 	those on to the inner function when the inner function is called from the main thread.
+    
+    The last template is the function type. You can usually leave that out - it is normally deduced automatically.
 
-	The wrapper does not wait for the inner function to complete and it does not return the result of the function.
-	The return type of the wrapper is void.
-
-	Also see wrapCallFromMainThreadSync() and wrapCallFromMainThread().
+	The wrapper never waits for the inner function to complete and it does not return the result of the function.
+	The return type of the wrapper function is void.
+    
+    Even if the wrapper function is called from the main thread, it still schedules the inner function to be executed
+    asynchronously at a later time (during the normal event processing). If you do not want this then take a look
+    at wrapCallFromMainThread().
 
 
 	Example:
@@ -211,7 +218,7 @@ std::function< std::future< typename std::result_of<InnerFuncType(Args...)>::typ
 		... do something.
 	}
 
-	auto wrapped = wrapCallFromMainThreadAsync(myFunc);
+	auto wrapped = wrapAsyncCallFromMainThread(myFunc);
 
 	// The following will schedule myFunc to be executed in the main thread. We will not wait for
 	// it to finish and we cannot access its return value.
@@ -231,7 +238,7 @@ std::function< std::future< typename std::result_of<InnerFuncType(Args...)>::typ
 		... do something.
 	}
 
-	auto wrapped = wrapCallFromMainThreadAsync<decltype(myFunc), String, double>(myFunc);
+	auto wrapped = wrapAsyncCallFromMainThread<String, double>(myFunc);
 
 	// The following will schedule myFunc to be executed in the main thread. We will not wait for
 	// it to finish and we cannot access its return value.
@@ -242,74 +249,15 @@ std::function< std::future< typename std::result_of<InnerFuncType(Args...)>::typ
 	\endcode
 	
 	*/
-template <class InnerFuncType, class... Args>
-std::function< void(Args...) > wrapCallFromMainThreadAsync(InnerFuncType&& innerFunc)
+template <class... Args, class InnerFuncType>
+std::function< void(Args...) > wrapAsyncCallFromMainThread(InnerFuncType&& innerFunc)
 {
 	return	[innerFunc](Args... args)
 			{
-				callFromMainThread( innerFunc, args... );	
+				asyncCallFromMainThread( innerFunc, args... );
 			};
 }
 
-
-
-/** Wraps a function (called the "inner function") into a wrapper function. When the returned wrapper function
-	is called it causes the inner function to be executed in the main thread (see also callFromMainThread() ).
-
-	The generated wrapper function takes the parameters specified in the template parameters Args and passes
-	those on to the inner function when the inner function is called from the main thread.
-
-	When the wrapper is called, it schedules the inner function to be called from the main thread and waits
-	for it to complete. The wrapper returns the return value of the inner function.
-
-	Example:
-
-	\code
-
-	int myFunc()
-	{
-		... do something.
-	}
-
-	auto wrapped = wrapCallFromMainThreadSync(myFunc);
-
-	// The following will cause myFunc to be executed in the main thread. The wrapper
-	// automatically waits for it to return and returns its result.
-	// If myFunc throws and exception then the wrapper will throw that exception
-	// when we call it.
-	int result = wrapped();
-
-	\endcode
-
-
-
-	Example with an inner function that takes parameters:
-
-	\code
-
-	int myFunc(String a, double b)
-	{
-		... do something.
-	}
-
-	auto wrapped = wrapCallFromMainThreadSync<decltype(myFunc), String, double>(myFunc);
-
-	// The following will cause myFunc to be executed in the main thread. The wrapper
-	// automatically waits for it to return and returns its result.
-	// If myFunc throws and exception then the wrapper will throw that exception
-	// when we call it.
-	int result = wrapped("hello", 42.5 );
-
-	\endcode
-	*/
-template <class InnerFuncType, class... Args>
-std::function< typename std::result_of<InnerFuncType(Args...)>::type (Args...) > wrapCallFromMainThreadSync(InnerFuncType&& innerFunc)
-{
-	return	[innerFunc](Args... args)
-			{
-				return callFromMainThread( innerFunc, args... ).get();	
-			};
-}
 
 
 

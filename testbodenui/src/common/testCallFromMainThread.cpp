@@ -437,3 +437,123 @@ TEST_CASE("wrapCallFromMainThread")
 
 
 
+
+
+void testWrapAsyncCallFromMainThread(bool throwException)
+{
+   
+    SECTION("mainThread")
+    {
+        struct Data : public Base
+        {
+            Thread::Id  threadId;
+            int         callCount = 0;
+        };
+        P<Data> pData = newObj<Data>();
+        
+        StopWatch watch;
+        
+        auto wrapped = wrapAsyncCallFromMainThread<int>( [pData, throwException](int val)
+                                                        {
+                                                            pData->callCount++;
+                                                            pData->threadId = Thread::getCurrentId();
+                                                            
+                                                            if(throwException)
+                                                                throw InvalidArgumentError("hello");
+                                                            
+                                                            return val*2;
+                                                        } );
+        
+        // should not have been called
+        REQUIRE( pData->callCount==0 );
+        
+        wrapped(42);
+        
+        // should still not have been called (even though we are on the main thread).
+        REQUIRE( pData->callCount==0 );
+        
+        // shoudl not have waited.
+        REQUIRE( watch.getMillis()<500 );
+        
+        MAKE_ASYNC_TEST(10);
+        
+        Thread::exec( [pData]()
+                      {
+                          Thread::sleepMillis(2000);
+                          
+                          // now the call should have happened.
+                          REQUIRE( pData->callCount==1 );
+                          
+                          REQUIRE( pData->threadId==Thread::getMainId() );
+                          
+                          END_ASYNC_TEST();
+                      } );
+    }
+    
+    SECTION("otherThread")
+    {
+        MAKE_ASYNC_TEST(10);
+    
+        Thread::exec(
+                     [throwException]()
+                     {
+                         volatile int   callCount = 0;
+                         Thread::Id     threadId;
+                         
+                         auto wrapped = wrapAsyncCallFromMainThread<int>([&callCount, throwException, &threadId](int x)
+                                                                    {
+                                                                        // sleep a little to ensure that we have time to check callCount
+                                                                        Thread::sleepSeconds(1);
+                                                                        threadId = Thread::getCurrentId();
+                                                                        callCount++;
+                                                                        if(throwException)
+                                                                            throw InvalidArgumentError("hello");
+                                                                        return x*2;
+                                                                    } );
+                         
+                         // should NOT have been called.
+                         REQUIRE( callCount==0 );
+                         
+                         Thread::sleepSeconds(2);
+                         
+                         // should STILL not have been called, since the wrapper was not executed yet
+                         REQUIRE( callCount==0 );
+                         
+                         StopWatch threadWatch;
+                         
+                         wrapped(42);
+                         
+                         // should NOT have been called immediately, since we are in a different thread.
+                         // Instead the call should have been deferred to the main thread.
+                         REQUIRE( callCount==0 );
+                         
+                         // should not have waited
+                         REQUIRE( threadWatch.getMillis()<500 );
+                         
+                         // sleep a while
+                         Thread::sleepSeconds(3);
+                         
+                         // now the call should have happened.
+                         REQUIRE( callCount==1 );
+                         
+                         REQUIRE( threadId==Thread::getMainId() );
+                         REQUIRE( threadId!=Thread::getCurrentId() );
+                         
+                         
+                         END_ASYNC_TEST();
+                     } );
+    }
+    
+}
+
+TEST_CASE("wrapAsyncCallFromMainThread")
+{
+    SECTION("noException")
+        testWrapAsyncCallFromMainThread(false);
+    
+    SECTION("exception")
+        testWrapAsyncCallFromMainThread(true);
+}
+
+
+
