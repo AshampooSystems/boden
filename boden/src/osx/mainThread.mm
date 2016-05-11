@@ -39,6 +39,10 @@ void CallFromMainThreadBase_::dispatch()
     [wrapper performSelectorOnMainThread:@selector(invoke)
                                  withObject:nil
                               waitUntilDone:NO];
+    
+    // release our reference. The selector will keep its own reference while
+    // it exists.
+    [wrapper release];
 }
 
 
