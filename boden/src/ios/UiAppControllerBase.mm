@@ -8,7 +8,7 @@ namespace bdn
 
 void UiAppControllerBase::closeAtNextOpportunityIfPossible(int exitCode)
 {
-    [ [UIApplication sharedApplication] performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
+    // ios apps cannot close themselves. So we do nothing here.
 }
 
 

@@ -2016,7 +2016,7 @@ namespace bdn {
         virtual void popScopedMessage( MessageInfo const& message ) = 0;
 
         virtual std::string getCurrentTestName() const = 0;
-        virtual const AssertionResult* getLastResult() const = 0;
+        virtual bool lastResultSucceeded() const = 0;
 
 		virtual bool isCurrentTestExpectedToFail() const=0;
 
@@ -2138,12 +2138,12 @@ namespace bdn {
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_IF( expr, resultDisposition, macroName ) \
     INTERNAL_BDN_TEST( expr, resultDisposition, macroName ); \
-    if( bdn::getResultCapture().getLastResult()->succeeded() )
+    if( bdn::getResultCapture().lastResultSucceeded() )
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_ELSE( expr, resultDisposition, macroName ) \
     INTERNAL_BDN_TEST( expr, resultDisposition, macroName ); \
-    if( !bdn::getResultCapture().getLastResult()->succeeded() )
+    if( !bdn::getResultCapture().lastResultSucceeded() )
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_NO_THROW( expr, resultDisposition, macroName ) \

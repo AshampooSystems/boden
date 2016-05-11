@@ -2703,10 +2703,12 @@ public:
 		m_reporter->testRunEnded( TestRunStats( m_runInfo, m_totals, aborting() ) );
 	}
 
-	void testGroupStarting( std::string const& testSpec, std::size_t groupIndex, std::size_t groupsCount ) {
+	void testGroupStarting( std::string const& testSpec, std::size_t groupIndex, std::size_t groupsCount )
+    {
 		m_reporter->testGroupStarting( GroupInfo( testSpec, groupIndex, groupsCount ) );
 	}
-	void testGroupEnded( std::string const& testSpec, Totals const& totals, std::size_t groupIndex, std::size_t groupsCount ) {
+	void testGroupEnded( std::string const& testSpec, Totals const& totals, std::size_t groupIndex, std::size_t groupsCount )
+    {
 		m_reporter->testGroupEnded( TestGroupStats( GroupInfo( testSpec, groupIndex, groupsCount ), totals, aborting() ) );
 	}
 
@@ -2742,6 +2744,8 @@ private: // IResultCapture
 
 	virtual void assertionEnded( AssertionResult const& result ) override
 	{
+        MutexLock lock( _resultCaptureMutex );
+    
 		const AssertionResult*	pResultToReport = &result;
 		AssertionResult			changedResult;
 
@@ -2780,6 +2784,8 @@ private: // IResultCapture
 		Counts& assertions
 		) override
 	{
+        MutexLock lock( _resultCaptureMutex );
+    
 		std::ostringstream oss;
 		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
         
@@ -2814,7 +2820,10 @@ private: // IResultCapture
 
 		return true;
 	}
-	bool testForMissingAssertions( Counts& assertions ) {
+	bool testForMissingAssertions( Counts& assertions )
+    {
+        MutexLock lock( _resultCaptureMutex );
+        
 		if( assertions.total() != 0 )
 			return false;
 		if( !m_config->warnAboutMissingAssertions() )
@@ -2826,7 +2835,9 @@ private: // IResultCapture
 		return true;
 	}
 
-	virtual void sectionEnded( SectionEndInfo const& endInfo ) override {
+	virtual void sectionEnded( SectionEndInfo const& endInfo ) override
+    {
+        MutexLock lock( _resultCaptureMutex );
 
 		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
@@ -2840,7 +2851,10 @@ private: // IResultCapture
 		m_messages.clear();
 	}
 
-	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override {
+	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override
+    {
+        MutexLock lock( _resultCaptureMutex );
+        
 		if( m_unfinishedSections.empty() )
 			m_activeSections.back()->fail();
 		else
@@ -2850,15 +2864,22 @@ private: // IResultCapture
 		m_unfinishedSections.push_back( endInfo );
 	}
 
-	virtual void pushScopedMessage( MessageInfo const& message ) override {
+	virtual void pushScopedMessage( MessageInfo const& message ) override
+    {
+        MutexLock lock( _resultCaptureMutex );
 		m_messages.push_back( message );
 	}
 
-	virtual void popScopedMessage( MessageInfo const& message ) override {
+	virtual void popScopedMessage( MessageInfo const& message ) override
+    {
+        MutexLock lock( _resultCaptureMutex );
 		m_messages.erase( std::remove( m_messages.begin(), m_messages.end(), message ), m_messages.end() );
 	}
 
-	virtual std::string getCurrentTestName() const override {
+	virtual std::string getCurrentTestName() const override
+    {
+        MutexLock lock( _resultCaptureMutex );
+        
 		return m_activeTestCase
 			? m_activeTestCase->getTestCaseInfo().name
 			: "";
@@ -2866,14 +2887,19 @@ private: // IResultCapture
 
 	virtual bool isCurrentTestExpectedToFail() const override
 	{
+        MutexLock lock( _resultCaptureMutex );
 		return !_currentTestIgnoreExpectedToFail && (m_activeTestCase ? m_activeTestCase->expectedToFail() : false);
 	}
 
-	virtual const AssertionResult* getLastResult() const override {
-		return &m_lastResult;
+	virtual bool lastResultSucceeded() const override
+    {
+		return m_lastResult.succeeded();
 	}
 
-	virtual void handleFatalErrorCondition( std::string const& message ) override {
+	virtual void handleFatalErrorCondition( std::string const& message ) override
+    {
+        MutexLock lock( _resultCaptureMutex );
+        
 		ResultBuilder resultBuilder = makeUnexpectedResultBuilder();
 		resultBuilder.setResultType( ResultWas::FatalErrorCondition );
 		resultBuilder << message;
@@ -2906,7 +2932,9 @@ private: // IResultCapture
 
 public:
 	// !TBD We need to do this another way!
-	bool aborting() const override {
+	bool aborting() const override
+    {
+        MutexLock lock( _resultCaptureMutex );
 		return m_totals.assertions.failed == static_cast<std::size_t>( m_config->abortAfter() );
 	}
 
@@ -2961,6 +2989,8 @@ public:
 
 	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
 	{
+        MutexLock lock( _resultCaptureMutex );
+        
 		if(_currentTestIsAsync)
 		{
 			// if a test is already async then we issue an error here.
@@ -2981,6 +3011,8 @@ public:
 
 	void onAsyncTestTimeout(int64_t asyncTestId)
 	{
+        MutexLock lock( _resultCaptureMutex );
+        
 		// note that this is always called from the main thread. So no need for synchronization.
 		
 		if(asyncTestId != _currentAsyncTestId )
@@ -3006,6 +3038,8 @@ public:
 	
 	void endAsyncTest() override
 	{
+        MutexLock lock( _resultCaptureMutex );
+        
 		if(!_currentTestIsAsync)
 			throw ProgrammingError("BDN_END_ASYNC_TEST() called without calling BDN_MAKE_ASYNC_TEST() before for this test.");
 
@@ -3041,6 +3075,7 @@ private:
 	
 	bool shouldContinueTestCaseIteration()
 	{
+        
 		return ( !m_testCaseTracker->isSuccessfullyCompleted() && !aborting() );
 	}
 
@@ -3330,6 +3365,8 @@ private:
 	bool				_currentTestAssertionFailed;
 	CurrentTestResult	_currentTestResult;
 	Mutex				_currentTestResultMutex;
+    
+    mutable Mutex       _resultCaptureMutex;
 
 	std::string			_testRedirectedCout;
 	std::string			_testRedirectedCerr;
@@ -7676,7 +7713,8 @@ protected:
 		asyncCallFromMainThread(
 			[exitCode]()
 			{
-				std::this_thread::sleep_for( std::chrono::duration<int>(5) );    
+				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
+                
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
 			} );
 	}
