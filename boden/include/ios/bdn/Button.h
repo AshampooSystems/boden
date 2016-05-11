@@ -2,7 +2,7 @@
 #define _BDN_BUTTON_H_
 
 #include <bdn/IWindow.h>
-#include <bdn/EventSource.h>
+#include <bdn/Notifier.h>
 #include <bdn/ClickEvent.h>
 
 #include <string>
@@ -24,7 +24,7 @@ public:
         return _pImpl;
     }
     
-    EventSource<ClickEvent>* getClickEventSource();
+    Notifier<const ClickEvent&>& onClick();
     
     virtual void show(bool visible=true) override;
     

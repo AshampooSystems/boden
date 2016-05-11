@@ -22,6 +22,8 @@ public:
     
     void center();
     
+    void setTitle(const String& title);
+    
     virtual void show(bool visible=true) override;
     
     virtual void hide() override

@@ -31,6 +31,11 @@ public:
     {
         return _window;
     }
+    
+    void setTitle(const String& title)
+    {
+        
+    }
 
     
     void show(bool visible)

@@ -185,6 +185,17 @@ if( BODEN_TARGET STREQUAL "dotnet")
 endif()
 
 
+if( BODEN_TARGET STREQUAL "ios")
+	find_library(FOUNDATION_LIBRARY Foundation)
+	mark_as_advanced(FOUNDATION_LIBRARY)
+
+	find_library(UIKIT_LIBRARY UIKit)
+	mark_as_advanced(UIKIT_LIBRARY)	
+
+	target_link_libraries(testboden ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+	
+endif()
+
 
 # testbodenui
 

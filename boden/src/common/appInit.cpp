@@ -63,7 +63,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo )
 	for(auto p: launchInfo.getArguments() )
 		args.push_back( p.asUtf8Ptr() );
 
-	return bdn::runTestSession( args.size(), &args[0] );
+	return bdn::runTestSession( static_cast<int>( args.size() ), &args[0] );
 }
 
 

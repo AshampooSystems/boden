@@ -24,7 +24,7 @@
 {
     bdn::ClickEvent evt(_pButton);
     
-    _pButton->getClickEventSource()->deliver(evt);
+    _pButton->onClick().notify(evt);
 }
 
 @end
@@ -40,9 +40,7 @@ namespace bdn
         Impl(Button* pOuter, IWindow* pParent, const std::string& label)
         {
             _pOuter = pOuter;
-            
-            _pClickEventSource = new EventSource<ClickEvent>;
-            
+                        
             UIWindow* pParentWindow = dynamic_cast<Frame*>(pParent)->getImpl()->getWindow();
             
             _button = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -52,6 +50,12 @@ namespace bdn
             [pParentWindow addSubview:_button];
             
             setLabel(label);
+        }
+        
+        ~Impl()
+        {
+            if(_clickManager!=nil)
+                [_clickManager release];
         }
         
         void setLabel(const std::string& label)
@@ -66,7 +70,7 @@ namespace bdn
         }
         
         
-        EventSource<ClickEvent>* getClickEventSource()
+        Notifier< const ClickEvent& >& onClick()
         {
             if(_clickManager==nil)
             {
@@ -76,10 +80,11 @@ namespace bdn
                 [_button addTarget:_clickManager
                             action:@selector(onClick)
                             forControlEvents:UIControlEventTouchUpInside];
+                
             }
             
             
-            return _pClickEventSource;
+            return _onClick;
         }
         
         void show(bool visible)
@@ -91,8 +96,8 @@ namespace bdn
         Button*   _pOuter;
         UIButton* _button;
         
-        ClickManager* _clickManager;
-        EventSource<ClickEvent>* _pClickEventSource;
+        ClickManager*               _clickManager;
+        Notifier<const ClickEvent&> _onClick;
     };
     
     
@@ -109,9 +114,9 @@ namespace bdn
         _pImpl->setLabel(label);
     }
     
-    EventSource<ClickEvent>* Button::getClickEventSource()
+    Notifier<const ClickEvent& >& Button::onClick()
     {
-        return _pImpl->getClickEventSource();
+        return _pImpl->onClick();
     }
     
     void Button::show(bool visible)

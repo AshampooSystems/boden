@@ -4269,7 +4269,7 @@ struct NoColourImpl : IColourImpl {
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
 #   ifdef BDN_PLATFORM_WINDOWS_CLASSIC
 #       define BDN_CONFIG_COLOUR_WINDOWS
-#   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_WINDOWS)
+#   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_WINDOWS) && !defined(BDN_PLATFORM_IOS)
 #       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
@@ -7622,7 +7622,7 @@ public:
 			for(auto arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
 
-            int exitCode = _pTestSession->applyCommandLine(argPtrs.size(), &argPtrs[0] );
+            int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.

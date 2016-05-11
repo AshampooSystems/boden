@@ -8,7 +8,24 @@ using namespace bdn;
 
 @implementation AppDelegate
 
-    std::map<bdn::String,bdn::String>   _launchInfo;
+    static AppLaunchInfo    _staticLaunchInfo;
+    AppLaunchInfo           _launchInfo;
+
+- (id)init
+{
+    self = [super init];
+    if (self)
+    {
+        _launchInfo = _staticLaunchInfo;
+    }
+    return self;
+}
+
+
++ (void)setStaticLaunchInfo:(const bdn::AppLaunchInfo&) info {
+    
+    _staticLaunchInfo = info;
+}
 
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
