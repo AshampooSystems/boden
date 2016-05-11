@@ -1,6 +1,7 @@
 #ifndef BDN_newObj_H_
 #define BDN_newObj_H_
 
+#include <utility>
 
 namespace bdn
 {
