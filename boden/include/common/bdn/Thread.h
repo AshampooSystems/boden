@@ -319,7 +319,7 @@ public:
     template <class FuncType, class... Args>
     static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType&& func, Args&&... args)
     {
-        std::function<typename std::result_of<FuncType(Args...)>::type ()> boundFunc = std::bind(std::forward<FuncType>(func), std::forward(args)...);
+        std::function<typename std::result_of<FuncType(Args...)>::type ()> boundFunc = std::bind(std::forward<FuncType>(func), std::forward<Args>(args)...);
     
         class ExecThreadRunnable : public ThreadRunnableBase
         {

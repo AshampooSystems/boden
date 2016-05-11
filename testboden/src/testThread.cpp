@@ -345,7 +345,88 @@ void testDetach()
     REQUIRE( thread.getId()==id );
 }
 
-TEST_CASE( "Thread" )
+void testExec()
+{
+    StopWatch watch;
+    
+    SECTION("dontStoreResult")
+    {
+        Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
+    
+        REQUIRE( watch.getMillis()<1000 );
+    }
+    
+    SECTION("storeResultThenDestructImmediately")
+    {
+        {
+            std::future<int> result = Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
+        }
+        
+        REQUIRE( watch.getMillis()<1000 );
+    }
+    
+    SECTION("storeResult")
+    {
+        std::future<int> result = Thread::exec( [](int val){ Thread::sleepSeconds(2); return val; }, 42 );
+        
+        REQUIRE( watch.getMillis()<1000 );
+        
+        SECTION("get")
+        {
+            int val = result.get();
+            
+            REQUIRE( val==42 );
+            
+            REQUIRE( watch.getMillis()>=2000-10 );
+            REQUIRE( watch.getMillis()<3000 );
+        }
+        
+        SECTION("wait_for")
+        {
+            std::future_status waitStatus = result.wait_for( std::chrono::milliseconds::duration(500) );
+            REQUIRE( waitStatus == std::future_status::timeout );
+            
+            REQUIRE( watch.getMillis()>=500-10 );
+            REQUIRE( watch.getMillis()<1500 );
+        }
+        
+        SECTION("wait_until")
+        {
+            std::future_status waitStatus = result.wait_until( std::chrono::system_clock::now() + std::chrono::milliseconds::duration(500) );
+            REQUIRE( waitStatus == std::future_status::timeout );
+            
+            REQUIRE( watch.getMillis()>=500-10 );
+            REQUIRE( watch.getMillis()<1500 );
+        }
+        
+        SECTION("wait")
+        {
+            result.wait();
+            
+            REQUIRE( watch.getMillis()>=2000-10 );
+            REQUIRE( watch.getMillis()<3000 );
+            
+            watch.start();
+            
+            int val = result.get();
+            
+            REQUIRE( val==42 );
+            
+            // should have returned immediately.
+            REQUIRE( watch.getMillis()<500 );
+        }
+        
+        SECTION("assignDefaultConstructed")
+        {
+            result = std::future<int>();
+            
+            // should not have waited
+            REQUIRE( watch.getMillis()<500 );
+        }
+    }
+}
+
+TEST_CASE( "Thread", "[.][long]" )
 {
     SECTION("id")
         testId();
@@ -367,7 +448,9 @@ TEST_CASE( "Thread" )
     
     SECTION("runnableReferences")
         testRunnableReferences();
-    
+        
+    SECTION("exec")
+        testExec();
     
 }
 
