@@ -1,8 +1,8 @@
 #ifndef BDN_Thread_H_
 #define BDN_Thread_H_
 
-#include <thread>
 #include <future>
+#include <thread>
 #include <utility>
 
 #include <bdn/IThreadRunnable.h>
@@ -118,9 +118,11 @@ public:
     
     
     /** Returns the thread's id.
+    
+        The Id also remains available after the thread ended or join(), stop() or detach were called.
      
-        If the Thread object was default-constructed (without parameters) or detach() has been called on it
-        then this is a dummy id that equals a default-constructed Id-object.
+        If the Thread object was default-constructed (without parameters) then a dummy id that equals a default-constructed Id-object
+        is returned.
      */
     Id getId() const
     {
@@ -322,7 +324,7 @@ public:
         class ExecThreadRunnable : public ThreadRunnableBase
         {
         public:
-            ExecThreadRunnable( std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* pTask )
+            ExecThreadRunnable( std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >* pTask )
             {
                 _pTask = pTask;
             }
@@ -338,13 +340,13 @@ public:
             }
             
         protected:
-            std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* _pTask;
+            std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >* _pTask;
         };
         
         
         
-        std::packaged_task< typename std::result_of<FuncType(Args...)>::type >* pTask
-            = new std::packaged_task< typename std::result_of<FuncType(Args...)>::type >(
+        std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >* pTask
+            = new std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >(
                 boundFunc );
         
         Thread execThread( newObj<ExecThreadRunnable>(pTask) );
