@@ -17,6 +17,8 @@ public:
 	    _pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 	    setTitle(title);
+
+	    show();
 	}
 
 	~Frame()
