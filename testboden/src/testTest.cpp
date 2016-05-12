@@ -113,3 +113,80 @@ TEST_CASE("test.failsInOtherThreads", "[!shouldfail]")
 		result.wait();
 	}
 }
+
+
+TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
+{
+	SECTION("a")
+	{
+		bool		aEnteredSubSection = false;
+		static int	aCount=0;
+		aCount++;
+		REQUIRE(aCount<=4);
+
+		SECTION("aa")
+		{
+			aEnteredSubSection = true;
+
+			bool		aaEnteredSubSection = false;
+			static int	aaCount=0;
+			aaCount++;
+			REQUIRE(aaCount<=2);
+
+			SECTION("aaa")
+			{
+				static int	aaaCount=0;
+				aaaCount++;
+				REQUIRE(aaaCount==1);
+
+				aaEnteredSubSection = true;
+			}
+
+			SECTION("aab")
+			{			
+				static int	aabCount=0;
+				aabCount++;
+				REQUIRE(aabCount==1);
+
+				aaEnteredSubSection = true;
+			}
+
+			REQUIRE( aaEnteredSubSection );
+		}
+
+		SECTION("ab")
+		{
+			aEnteredSubSection = true;
+
+			bool		abEnteredSubSection = false;
+			static int	abCount=0;
+			abCount++;
+			REQUIRE(abCount<=2);
+
+			SECTION("aba")
+			{
+				static int	abaCount=0;
+				abaCount++;
+				REQUIRE(abaCount==1);
+
+				abEnteredSubSection = true;
+			}
+
+			SECTION("abb")
+			{			
+				static int	abbCount=0;
+				abbCount++;
+				REQUIRE(abbCount==1);
+
+				abEnteredSubSection = true;
+			}
+
+			REQUIRE( abEnteredSubSection );
+		}
+
+		REQUIRE( aEnteredSubSection );
+	}
+	
+}
+
+

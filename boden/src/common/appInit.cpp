@@ -60,8 +60,8 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo )
 {
 	std::vector<const char*> args;
 
-	for(auto p: launchInfo.getArguments() )
-		args.push_back( p.asUtf8Ptr() );
+	for(const String& s: launchInfo.getArguments() )
+		args.push_back( s.asUtf8Ptr() );
 
 	return bdn::runTestSession( static_cast<int>( args.size() ), &args[0] );
 }
