@@ -1301,7 +1301,7 @@ namespace Internal {
 
     template<typename T>
     inline T& opCast(T const& t) { return const_cast<T&>(t); }
-	
+
 // nullptr_t support based on pull request #154 from Konstantin Baumann
 #ifdef BDN_CONFIG_CPP11_NULLPTR
     inline std::nullptr_t opCast(std::nullptr_t) { return nullptr; }
@@ -1473,7 +1473,7 @@ namespace Internal {
     }
 #endif // BDN_CONFIG_CPP11_NULLPTR
 
-	
+
 
 } // end of namespace Internal
 } // end of namespace bdn
@@ -1553,7 +1553,10 @@ std::string toString( T const& value );
 
 // Built in overloads
 
-std::string toString( String const& value );
+std::string toString( StringImpl<Utf8StringData> const& value );
+std::string toString( StringImpl<Utf16StringData> const& value );
+std::string toString( StringImpl<WideStringData> const& value );
+std::string toString( StringImpl<Utf32StringData> const& value );
 std::string toString( std::string const& value );
 std::string toString( std::wstring const& value );
 std::string toString( std::u16string const& value );
@@ -1813,7 +1816,7 @@ public:
     ResultBuilder& operator == ( std::nullptr_t rhs ) {
         return captureExpression<Internal::IsEqualTo>( rhs );
     }
-		
+
 #ifdef __cplusplus_cli
 	// needed to work around a compiler bug in the Visual Studio C++/CLI compiler.
 	ResultBuilder& operator == ( size_t rhs ) {
@@ -1821,7 +1824,7 @@ public:
     }
 #endif
 
-	
+
 
     template<typename RhsT>
     ResultBuilder& operator != ( RhsT const& rhs ) {
@@ -3265,9 +3268,9 @@ return @ desc; \
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
 /** \def BDN_MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
-	
+
 	\copybrief MAKE_ASYNC_TEST()
-	\copydetailed MAKE_ASYNC_TEST()	
+	\copydetailed MAKE_ASYNC_TEST()
 
 	*/
 #define BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
@@ -3276,8 +3279,8 @@ return @ desc; \
 /** \def BDN_END_ASYNC_TEST()
 
 	\copybrief END_ASYNC_TEST()
-	\copydetailed END_ASYNC_TEST()	
-	
+	\copydetailed END_ASYNC_TEST()
+
 	*/
 #define BDN_END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
 
@@ -3326,7 +3329,7 @@ return @ desc; \
     #define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
     #define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
     #define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )	
+    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
 #else
     #define TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
     #define TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
@@ -3340,14 +3343,14 @@ return @ desc; \
 
 
 /** \def MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
-	
+
 	Makes the current test an asynchronous test. This is useful when testing
 	user interface components or components that rely on the normal event processing
 	to work.
 
 	When MAKE_ASYNC_TEST has been called then the current test is still considered to
 	be running, even after the test case function has returned.
-	
+
 	The normal event processing	will be performed after the test function returns,
 	so user interface components will function normally.
 
@@ -3360,13 +3363,13 @@ return @ desc; \
 	on the system that runs the test. If the timeout is too low then tests that would have passed might be
 	considered to have failed, simply because the host system had a small performance hiccup.
 	A 10 second timeout is recommended as a minimum for a test that is actually meant to finish	immediately.
-	
+
 	The MAKE_ASYNC_TEST macro takes an arbitrary number of additional parameters after the timeout.
 	Each of these additional parameters must be a pointer to an object derived from bdn::Base.
 	These objects will be kept alive as long as the test runs. You should pass pointers to all the objects
 	that are needed during the test to the function. Otherwise the objects will be deleted as soon as the test
 	case function exits	and thus the test will not work.
-	
+
 	For example, if you wanted to test a button implementation then you could create a Frame
 	with the button in it and pass a pointer to the frame and the button to MAKE_ASYNC_TEST.
 	That ensures that the frame will not be automatically closed when the test function exits and that it will

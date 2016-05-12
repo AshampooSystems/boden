@@ -5354,7 +5354,19 @@ std::string toString( std::u32string const& value ) {
 	return toString(String(value) );
 }
 
-std::string toString( String const& value ) {
+std::string toString( StringImpl<Utf8StringData> const& value ) {
+	return bdn::toString(value.asUtf8());
+}
+
+std::string toString( StringImpl<Utf16StringData> const& value ) {
+	return bdn::toString(value.asUtf8());
+}
+
+std::string toString( StringImpl<Utf32StringData> const& value ) {
+	return bdn::toString(value.asUtf8());
+}
+
+std::string toString( StringImpl<WideStringData> const& value ) {
 	return bdn::toString(value.asUtf8());
 }
 

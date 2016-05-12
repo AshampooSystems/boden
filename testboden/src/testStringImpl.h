@@ -1699,12 +1699,18 @@ template<class StringType, class SuffixArg>
 inline void verifyAppendPlus(StringType& s, SuffixArg suffix, const StringType& expected)
 {
 	SECTION("append")
+	{
 		s.append( suffix );
+		REQUIRE( s==expected );
+    }
 
 	SECTION("operator+=")
+	{
 		s += suffix;
+		REQUIRE( s==expected );
+    }
 
-	REQUIRE( s==expected );
+
 }
 
 
@@ -4361,11 +4367,11 @@ inline void testFind()
 {
 	SECTION("iterators")
 		testFindIterators<DATATYPE>();
-	
+
 
 	SECTION("stringFromIt")
 		testFindStringFromIt<DATATYPE>();
-	
+
 	SECTION("stringFromIndex")
 	{
 		SECTION("String")
@@ -4410,13 +4416,13 @@ inline void testFind()
 		SECTION("const wchar_t* with length")
 			testFindStringWithLengthFromIndex<StringImpl<DATATYPE>, const wchar_t* >();
 	}
-	
+
 	SECTION("charFromIterator")
 		testFindCharFromIterator< StringImpl<DATATYPE> >();
 
 	SECTION("charFromIndex")
 		testFindCharFromIndex< StringImpl<DATATYPE> >();
-		
+
 
 	SECTION("inStdU32String")
 	{
@@ -8728,7 +8734,7 @@ inline void testStartsWith()
 	{
 		verifyStartsWith(s, U"\U00012345hx", false );
 	}
-	
+
 	SECTION("equal")
 	{
 		verifyStartsWith(s, U"\U00012345heloworld", true );
@@ -8847,7 +8853,7 @@ inline void testEndsWith()
 	{
 		verifyEndsWith(s, U"xhelloworld\U00012345", false );
 	}
-	
+
 	SECTION("empty")
 		verifyEndsWith(s, U"", true );
 
@@ -9039,7 +9045,7 @@ inline void testStringImpl()
 
 	SECTION("constants")
 		testConstants<DATATYPE>();
-	
+
 	SECTION("construct")
 	{
 		testConstruct<DATATYPE>();
@@ -9098,7 +9104,7 @@ inline void testStringImpl()
 	{
 		testComparison<DATATYPE>();
 	}
-	
+
 	SECTION("charAccess")
 	{
 		SECTION("normal")
@@ -9140,7 +9146,7 @@ inline void testStringImpl()
 	{
 		testAppend<DATATYPE>();
 	}
-	
+
 	SECTION("insert")
 	{
 		testInsert<DATATYPE>();
@@ -9163,7 +9169,7 @@ inline void testStringImpl()
 	{
 		testResize<DATATYPE>();
 	}
-	
+
 	SECTION("swap")
 		testSwap<DATATYPE>();
 
@@ -9175,32 +9181,32 @@ inline void testStringImpl()
 
 	SECTION("shrinkToFit")
 		testShrinkToFit<DATATYPE>();
-		
+
 	SECTION("splitOffToken")
 		testSplitOffToken<DATATYPE>();
 
 	SECTION("splitOffWord")
 		testSplitOffWord<DATATYPE>();
-	
+
 	SECTION("getAllocator")
 		testGetAllocator<DATATYPE>();
-	
+
 	SECTION("copy")
 		testCopy<DATATYPE>();
 
 	SECTION("IteratorWithIndex")
 		testIteratorWithIndex<DATATYPE>();
-	
-	
+
+
 	SECTION("find")
 		testFind<DATATYPE>();
-		
-	
+
+
 	SECTION("reverseFind")
 		testReverseFind<DATATYPE>();
-		
-	
-	
+
+
+
 	SECTION("findCondition")
 		testFindCondition<DATATYPE>();
 
@@ -9221,13 +9227,13 @@ inline void testStringImpl()
 
 	SECTION("findReplace")
 		testFindReplace<DATATYPE>();
-	
+
 	SECTION("contains")
 		testContains<DATATYPE>();
-	
+
 	SECTION("startsWith")
 		testStartsWith<DATATYPE>();
-	
+
 	SECTION("endsWith")
 		testEndsWith<DATATYPE>();
 
