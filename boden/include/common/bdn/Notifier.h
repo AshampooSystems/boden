@@ -13,16 +13,16 @@ namespace bdn
 /** Manages notifications for arbitrary "events".
 
 	You can subscribe functions and methods to the notifier. When the corresponding event
-	happens (i.e. when someone calls the fire() method), then all subscribed functions
+	happens (i.e. when someone calls the notify() method), then all subscribed functions
 	and methods are called.
 
-	It is possible to pass arguments to fire(), which it will in turn pass on to each of
-	the functions it calls. The numer and types of these arguments is defined by the
+	It is possible to pass arguments to notify(), which it will in turn pass on to each of
+	the functions it calls. The number and types of these arguments are defined by the
 	template parameters of the Notifier class.
 
-	Notifier objects are thread safe. However, that means that subscribed functions need
-	to be aware that they might be called from different threads.
-	Howwver, you can wrap your functions with divertToMainThread() before you pass them to
+	Notifier objects are thread safe. Notifications can be triggered from any thread.
+	However, that also means that subscribed functions need to be aware that they might be called from different threads.
+	Note that you can wrap your functions with wrapCallFromMainThread() before you pass them to
 	subscribe if you want them to only be called from the main thread.
 
 	Example:
@@ -41,9 +41,9 @@ namespace bdn
 	// Subscribe myFunc to the notifier
 	auto pSub = eventNotifier.subscribe(myFunc);
 
-	// when the event occurs then someone needs to call the "fire" method of
+	// when the event occurs then someone needs to call the "notify" method of
 	// the notifier and pass the correct parameters that describe the event.
-	eventNotifier.fire("Some text", 42);
+	eventNotifier.notify("Some text", 42);
 
 	// When the pSub object is destroyed then the corresponding
 	// function is automatically removed.
@@ -51,7 +51,7 @@ namespace bdn
 
 	// So this will NOT call myFunc anymore, since pSub was set to null and the
 	// subscription has been destroyed.
-	eventNotifier.fire("Other text", 17);
+	eventNotifier.notify("Other text", 17);
 
 
 	\endcode	
@@ -72,47 +72,15 @@ public:
             pSub->detachFromParent();
     }
     
-    
-    class Sub : public Base
-    {
-    public:
-        ~Sub()
-        {
-			MutexLock lock(_parentMutex);
-            
-            if(_pParent!=nullptr)
-                _pParent->unsubscribe(this);
-        }
-        
-    protected:
-        Sub(Notifier* pParent, const std::function<void(ArgTypes...)>& func)
-        {
-            _pParent = pParent;
-            _func = func;
-        }
-        
-        void detachFromParent()
-        {
-            MutexLock lock(_parentMutex);
-            
-            _pParent = nullptr;
-        }
-        
-        void call(ArgTypes... args)
-        {
-            _func(args...);
-        }
-        
-        Mutex							 _parentMutex;
-        Notifier*						 _pParent;
-        std::function<void(ArgTypes...)> _func;
-        
-        friend class Notifier;
+
+	/** The interface of subscription objects. Note that they currently do not define
+		any methods.*/
+	class ISub : BDN_IMPLEMENTS IBase
+    {	    
     };
-    friend class Sub;
     
     /** Subscribes a function to the notifier. While subscribed, the function will be called
-		whenever the notifier's fire() function	is called.	
+		whenever the notifier's notify() function	is called.	
 
 		The function parameter list must match the template parameters of the notifier object.
 		Note that for convenience there is also a version of subscribe() that subscribes a function
@@ -150,11 +118,11 @@ public:
 
 		\endcode
 		*/
-    P<IBase> subscribe( const std::function<void(ArgTypes...)>& func)
+    P<ISub> subscribe( const std::function<void(ArgTypes...)>& func)
     {
         MutexLock lock(_mutex);
         
-        P<Sub> pSub = newObj<Sub>(this, func);
+        P<Sub_> pSub = newObj<Sub_>(this, func);
 
         _subList.push_back( pSub );
         
@@ -167,22 +135,25 @@ public:
 		if your function is not interested in the event parameters and only cares about when the event
 		itself happens.		.
 		*/
-    P<IBase> subscribeVoid( const std::function<void()>& func)
+    P<ISub> subscribeVoid( const std::function<void()>& func)
     {
         return subscribe( VoidFunctionAdapter(func) );
     }
     
     
     template<class OwnerType>
-    P<Sub> subscribeMember( OwnerType* pOwner, const std::function<void(OwnerType*,ArgTypes...)>& func)
+    P<ISub> subscribeMember( OwnerType* pOwner, const std::function<void(OwnerType*,ArgTypes...)>& func)
     {
-        return subscribe( std::bind(func, pOwner, std::placeholders::_1 ) );
+		return subscribe(	[pOwner, func](ArgTypes... args)
+							{
+								func(pOwner, args...);
+							} );
     }
     
     template<class OwnerType>
-    P<Sub> subscribeVoidMember( OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
+    P<ISub> subscribeVoidMember( OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
     {
-        return subscribe( VoidFunctionAdapter( std::bind(func, pOwner, std::placeholders::_1 ) ) );
+        return subscribe( VoidFunctionAdapter( std::bind(func, pOwner) ) );
     }
     
     
@@ -205,8 +176,46 @@ public:
     }
     
 protected:
+
+	class Sub_ : public Base, BDN_IMPLEMENTS ISub
+    {
+    public:		
+        Sub_(Notifier* pParent, const std::function<void(ArgTypes...)>& func)
+        {
+            _pParent = pParent;
+            _func = func;
+        }
+
+        ~Sub_()
+        {
+			MutexLock lock(_parentMutex);
+            
+            if(_pParent!=nullptr)
+                _pParent->unsubscribe(this);
+        }
+        
+        
+        void detachFromParent()
+        {
+            MutexLock lock(_parentMutex);
+            
+            _pParent = nullptr;
+        }
+        
+        void call(ArgTypes... args)
+        {
+            _func(args...);
+        }
+        
+        Mutex							 _parentMutex;
+        Notifier*						 _pParent;
+        std::function<void(ArgTypes...)> _func;
+        
+        friend class Notifier;
+    };
+    friend class Sub_;
     
-    void unsubscribe(Sub* pSub)
+    void unsubscribe(Sub_* pSub)
     {
         MutexLock lock(_mutex);
         
@@ -248,8 +257,8 @@ protected:
     Mutex               _mutex;
     
     // weak by design. We do not keep subscriptions alive
-    std::list< Sub* >   _subList;
-    std::list< Sub* >   _remainingSubListForCall;
+    std::list< Sub_* >   _subList;
+    std::list< Sub_* >   _remainingSubListForCall;
 };
     
 }
