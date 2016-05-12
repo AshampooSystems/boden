@@ -150,6 +150,19 @@ TEST_CASE("Notifier")
 			REQUIRE( !called2 );
 		}
 	}
+
+	SECTION("notifierDeletedBeforeSub")
+	{
+		P<IBase> pSub;
+
+		{
+			Notifier<> notifier;
+			
+			pSub = notifier.subscribe( [](){} );
+		}
+
+		pSub = nullptr;		
+	}
 }
 
 
