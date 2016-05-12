@@ -9,7 +9,7 @@ using namespace bdn;
 void verifyParse(const String& inString, const std::map<String,String>& expectedFields)
 {
 	ErrorFields parsedFields(inString);
-	
+
 	for(auto item: expectedFields)
 	{
 		REQUIRE( parsedFields.contains(item.first) );
@@ -19,7 +19,7 @@ void verifyParse(const String& inString, const std::map<String,String>& expected
 	REQUIRE( parsedFields.size()==expectedFields.size() );
 }
 
-void verifyToStringParse(const std::map<String,String>& inFields, const String& expectedString)
+void verifyToStringParse(std::map<String,String> inFields, const String& expectedString)
 {
 	ErrorFields fields;
 
@@ -38,38 +38,38 @@ void verifyToStringParse(const std::map<String,String>& inFields, const String& 
 TEST_CASE("ErrorFields")
 {
 	SECTION("empty")
-		verifyToStringParse( {}, "");	
+		verifyToStringParse( std::map<String,String>(), "");
 
 	SECTION("simpleItem")
-		verifyToStringParse( { {"hello", "world"} }, "[[hello: \"world\"]]");	
+		verifyToStringParse( { {"hello", "world"} }, "[[hello: \"world\"]]");
 
 	SECTION("emptyStrings")
-		verifyToStringParse( { {"", ""} }, "[[: \"\"]]");	
+		verifyToStringParse( { {"", ""} }, "[[: \"\"]]");
 
 	SECTION("withSpecialChars")
 		verifyToStringParse( { {U"hell\U00012345o", U"worl\U00012345d"},
 								{"he%llo:\"[[b]la,]]", "wo%r:\"[[b]l,]]d"},
 								{"", ""},
 								{"a", "b"} },
-							U"[[: \"\", a: \"b\", he%25llo%3a\"[[b]la,%5d%5d: \"wo%25r:%22[[b]l,%5d%5dd\", hell\U00012345o: \"worl\U00012345d\"]]");	
+							U"[[: \"\", a: \"b\", he%25llo%3a\"[[b]la,%5d%5d: \"wo%25r:%22[[b]l,%5d%5dd\", hell\U00012345o: \"worl\U00012345d\"]]");
 
 
 	SECTION("parseInvalidData")
 	{
 		SECTION("startBracketsMissing")
-			verifyParse("hello: \"world\"]]", {} );
+			verifyParse("hello: \"world\"]]", std::map<String,String>() );
 
 		SECTION("endBracketsMissing")
-			verifyParse("[[hello: \"world\"", {} );
+			verifyParse("[[hello: \"world\"", std::map<String,String>() );
 
 		SECTION("noColon")
-			verifyParse("[[hello \"world\"]]", {} );
+			verifyParse("[[hello \"world\"]]", std::map<String,String>() );
 
 		SECTION("noStartQuotationMark")
-			verifyParse("[[hello: world\"]]", {} );
+			verifyParse("[[hello: world\"]]", std::map<String,String>() );
 
 		SECTION("noEndQuotationMark")
-			verifyParse("[[hello: \"world]]", {} );
+			verifyParse("[[hello: \"world]]", std::map<String,String>() );
 	}
 }
 

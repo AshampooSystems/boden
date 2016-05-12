@@ -271,6 +271,64 @@ def isSingleConfigBuildSystem(buildSystem):
         return False;
 
 
+def parseVersionOutput(out, expectedVersionComponents, preferLast):
+
+    out = out.strip();
+
+    firstLine = list(out.splitlines())[0];
+
+
+    selectedVer = None;
+
+    for word in firstLine.split():
+
+        word = word.replace("-", ".");
+
+        comps = word.split(".");
+
+        ver = [];
+
+        for c in comps:
+            try:
+                ver.append( int(c) );
+            except:
+                break;
+
+        if len(ver)>=expectedVersionComponents:
+            selectedVer = ver;
+
+            if not preferLast:
+                break;
+
+
+
+    if selectedVer==None:
+        return None;
+    else:
+        return tuple(selectedVer);
+
+
+
+def getGCCVersion():
+    try:
+        out = subprocess.check_output("gcc --version", shell=True);
+
+        return parseVersionOutput(out, 3, preferLast=True );
+
+    except:
+        return None;
+
+
+def getClangVersion():
+    try:
+        out = subprocess.check_output("clang --version", shell=True);
+
+        return parseVersionOutput(out, 2, preferLast=False );
+
+    except:
+        return None;
+
+
 
 def commandPrepare(commandArgs):
 
@@ -495,6 +553,19 @@ def commandPrepare(commandArgs):
 
                 if arch!="std":
                     raise InvalidArchitectureError(arch);
+
+
+            elif platform=="linux":
+                # we prefer clang over GCC 4. GCC has a lot more bugs in their standard library.
+                gccVer = getGCCVersion();
+                clangVer = getClangVersion();
+
+                print("Detected GCC version %s" % (repr(gccVer)) );
+                print("Detected Clang version %s" % (repr(clangVer)) );
+
+                if gccVer is not None and gccVer[0]==4 and clangVer is not None:
+                    print("Forcing use of clang instead of GCC because of bugs in this GCC version.");
+                    envSetupPrefix = "env CC=/usr/bin/clang CXX=/usr/bin/clang++ ";
 
 
             args = ["-G", generatorName, getCMakeDir() ] + args[:];

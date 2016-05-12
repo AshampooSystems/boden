@@ -172,8 +172,10 @@ void testJoin()
         SECTION("throw")
             REQUIRE_THROWS( thread.join( Thread::ExceptionThrow ) );
 
+
         SECTION("noThrow")
             thread.join( Thread::ExceptionIgnore );
+
 
         SECTION("noThrowThrowNoThrow")
         {

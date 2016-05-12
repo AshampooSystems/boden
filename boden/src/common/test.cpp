@@ -3148,6 +3148,8 @@ private:
 	};
 
 
+
+
 	/** Returns true if the test has finished (no matter whether failed or passed). Returns false if the
 		test runs asynchronously.*/
 	bool runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
@@ -3157,6 +3159,22 @@ private:
 		_currentTestAssertionFailed = false;
 
 		_currentTestIgnoreExpectedToFail = false;
+
+		if( std::uncaught_exception() )
+        {
+            // std::uncaught_exception() is in a bugged state. If there was actually an uncaught exception
+            // then we would not start another iteration here.
+            // This indicates a bug in the C++ runtime library. We have seen this bug with GCC 4.8 on Linux, for example.
+            // The bug is triggered when an exception was stored in a std::exception_ptr and then rethrown
+            // with std::rethrow_exception. From that point on uncaught_exception remains set.
+
+            // We have not found a way to work around this problem. The uncaught_exception flag remains set
+            // even if we catch another exception or call std::unexpected or store another exception in an exception_ptr.
+
+            assert(false && "C++ Standard Library bug detected. If you are using GCC 4 please update to GCC 5 or higher. If you are using clang, please add the -stdlib=libc++ compiler parameter");
+
+            throw std::runtime_error("C++ Standard Library bug detected. If you are using GCC 4 please update to GCC 5 or higher. If you are using clang, please add the -stdlib=libc++ compiler parameter");
+        }
 
 		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
 

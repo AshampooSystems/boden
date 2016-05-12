@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <bdn/Thread.h>
+
 #include <thread>
 #include <future>
 
@@ -38,7 +40,7 @@ TEST_CASE("test.checkEquality")
 			else
 				return result;
 		}
-		
+
 		int _val;
 	};
 
@@ -55,7 +57,7 @@ TEST_CASE("test.checkEquality")
 	REQUIRE( checkEquality(c, a, false) );
 	REQUIRE( !checkEquality(a, c, true) );
 	REQUIRE( !checkEquality(c, a, true) );
-		
+
 	// results are inconsistent => should always get false
 	a.invertEqual = true;
 	REQUIRE( !checkEquality(a, b, true) );
@@ -80,7 +82,7 @@ TEST_CASE("test.checkEquality")
 	REQUIRE( !checkEquality(a, c, true) );
 	REQUIRE( !checkEquality(c, a, true) );
 	a.invertNotEqual = false;
-	
+
 }
 
 
@@ -89,7 +91,7 @@ TEST_CASE("test.inNotIn")
 	std::list<int> container( {1, 10, 20});
 
 	REQUIRE_IN(1, container );
-	REQUIRE_IN(10, container );	
+	REQUIRE_IN(10, container );
 	REQUIRE_IN(20, container );
 
 	REQUIRE_NOT_IN(2, container );
@@ -143,7 +145,7 @@ TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 			}
 
 			SECTION("aab")
-			{			
+			{
 				static int	aabCount=0;
 				aabCount++;
 				REQUIRE(aabCount==1);
@@ -173,7 +175,7 @@ TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 			}
 
 			SECTION("abb")
-			{			
+			{
 				static int	abbCount=0;
 				abbCount++;
 				REQUIRE(abbCount==1);
@@ -186,7 +188,7 @@ TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 
 		REQUIRE( aEnteredSubSection );
 	}
-	
+
 }
 
 
@@ -194,7 +196,7 @@ TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 void subTest(bool subSections)
 {
 	bool		aEnteredSubSection = false;
-	
+
 	SECTION("aa")
 	{
 		aEnteredSubSection = true;
@@ -202,14 +204,14 @@ void subTest(bool subSections)
 		if(subSections)
 		{
 			bool		aaEnteredSubSection = false;
-			
+
 			SECTION("aaa")
 			{
 				aaEnteredSubSection = true;
 			}
 
 			SECTION("aab")
-			{			
+			{
 				aaEnteredSubSection = true;
 			}
 
@@ -236,7 +238,7 @@ void subTest(bool subSections)
 	}
 
 	REQUIRE( aEnteredSubSection );
-	
+
 }
 
 TEST_CASE("test.conditionalNestedSectionsNoExtraCalls", "[test]")
@@ -249,8 +251,8 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls", "[test]")
 	SECTION("b")
 	{
 		subTest(true);
-	}	
-	
+	}
+
 }
 
 TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withoutThenWithSubsections", "[test]")
@@ -263,7 +265,7 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withoutThenWithSubsections
 	SECTION("b")
 	{
 		subTest(true);
-	}		
+	}
 }
 
 TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections", "[test]")
@@ -276,6 +278,83 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections
 	SECTION("b")
 	{
 		subTest(false);
-	}	
-	
+	}
+
 }
+
+
+TEST_CASE("test.uncaughtExceptionBugWorkaround", "[test]")
+{
+    // std::uncaught_exception is used by the test system to determine
+    // if a section aborted with an exception.
+    // However, some C++ standard library implementations have a buggy
+    // implementation that can result in the flag to remain set under certain
+    // conditions, even if there is not actually an uncaught exception.
+    // We test here that this bug either does not happen, or that after the bug
+    // occurs the test either aborts or the flag is reset by some method.
+
+    SECTION("throwCatch")
+    {
+        // the bug we know of should NOT trigger here
+        try
+        {
+            throw InvalidArgumentError("hello");
+        }
+        catch(...)
+        {
+        }
+
+        REQUIRE( !std::uncaught_exception() );
+    }
+
+    SECTION("requireThrows")
+    {
+        // the bug we know of should NOT trigger here
+        REQUIRE_THROWS( throw InvalidArgumentError("hello") );
+
+        REQUIRE( !std::uncaught_exception() );
+    }
+
+    SECTION("storeReThrow")
+    {
+        // this is where the bug MIGHT trigger
+        std::exception_ptr p;
+
+        try
+        {
+            throw InvalidArgumentError("hello");
+        }
+        catch(...)
+        {
+            p = std::current_exception();
+        }
+
+        REQUIRE( !std::uncaught_exception() );
+
+        try
+        {
+            std::rethrow_exception(p);
+        }
+        catch(...)
+        {
+        }
+
+        if( std::uncaught_exception() )
+        {
+            // yep, we have the bug. This is not a failure yet - but
+            // we check in the next section that the flag is not set anymore
+            // (IF the test continues).
+            int x=0;
+            x++;
+        }
+    }
+
+    SECTION("afterStoreRethrow")
+    {
+        // even if the bug was triggered above, the flag should now be unset again!
+        REQUIRE( !std::uncaught_exception() );
+    }
+}
+
+
+

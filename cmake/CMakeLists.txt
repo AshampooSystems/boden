@@ -54,9 +54,30 @@ message("Boden target is ${BODEN_TARGET}")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if(CMAKE_COMPILER_IS_GNUCXX
+	OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
+	OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" # clang on non-mac system
+  )
+
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		# use libc++ instead of libstdc++. It is far less buggy.
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	endif()
 endif()
+
+
+
+if( "${BODEN_TARGET}" STREQUAL "linux")
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		# turn of this warning: 'register' storage class specifier is deprecated
+		# It occurs in the GTK headers and we do not want to see it everywhere.
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-register")
+	endif()
+endif()
+
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
@@ -200,7 +221,7 @@ endif()
 
 
 if( BODEN_TARGET STREQUAL "linux")
-	target_link_libraries(testboden ${GTK3_LIBRARIES})
+	target_link_libraries(testboden ${GTK3_LIBRARIES} pthread)
 endif()
 
 if( BODEN_TARGET STREQUAL "ios")

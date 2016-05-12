@@ -1841,12 +1841,22 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 		{
 			SECTION("charInitializerList")
 			{
+                bool subSectionEntered1 = false;
+
 				// must leave out the unicode character
 				SECTION("append")
+				{
 					s.append( {'B', 'L', 'A'} );
+					subSectionEntered1 = true;
+                }
 
 				SECTION("operator+=")
+				{
 					s += {'B', 'L', 'A'};
+					subSectionEntered1 = true;
+                }
+
+                REQUIRE( subSectionEntered1 );
 
 				std::u32string exp = expected;
 				size_t found = exp.find(U'\U00013333');
@@ -1858,11 +1868,21 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 
 			SECTION("char32InitializerList")
 			{
+                bool subSectionEntered2 = false;
+
 				SECTION("append")
+				{
 					s.append( {U'B', U'L', U'\U00013333', U'A'} );
+					subSectionEntered2 = true;
+                }
 
 				SECTION("operator+=")
+				{
 					s += {U'B', U'L', U'\U00013333', U'A'};
+					subSectionEntered2 = true;
+                }
+
+                REQUIRE( subSectionEntered2 );
 
 				REQUIRE( s==expected );
 			}
