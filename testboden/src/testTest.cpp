@@ -190,3 +190,92 @@ TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 }
 
 
+
+void subTest(bool subSections)
+{
+	bool		aEnteredSubSection = false;
+	
+	SECTION("aa")
+	{
+		aEnteredSubSection = true;
+
+		if(subSections)
+		{
+			bool		aaEnteredSubSection = false;
+			
+			SECTION("aaa")
+			{
+				aaEnteredSubSection = true;
+			}
+
+			SECTION("aab")
+			{			
+				aaEnteredSubSection = true;
+			}
+
+			REQUIRE( aaEnteredSubSection );
+		}
+	}
+
+	SECTION("ab")
+	{
+		aEnteredSubSection = true;
+
+		if(subSections)
+		{
+			bool		abEnteredSubSection = false;
+
+			SECTION("aba")
+				abEnteredSubSection = true;
+
+			SECTION("abb")
+				abEnteredSubSection = true;
+
+			REQUIRE( abEnteredSubSection );
+		}
+	}
+
+	REQUIRE( aEnteredSubSection );
+	
+}
+
+TEST_CASE("test.conditionalNestedSectionsNoExtraCalls", "[test]")
+{
+	SECTION("a")
+	{
+		subTest(false);
+	}
+
+	SECTION("b")
+	{
+		subTest(true);
+	}	
+	
+}
+
+TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withoutThenWithSubsections", "[test]")
+{
+	SECTION("a")
+	{
+		subTest(false);
+	}
+
+	SECTION("b")
+	{
+		subTest(true);
+	}		
+}
+
+TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections", "[test]")
+{
+	SECTION("a")
+	{
+		subTest(true);
+	}
+
+	SECTION("b")
+	{
+		subTest(false);
+	}	
+	
+}
