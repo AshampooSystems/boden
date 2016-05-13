@@ -1,12 +1,11 @@
-#ifndef BDN_SimpleProperty_H_
-#define BDN_SimpleProperty_H_
+#ifndef BDN_DefaultProperty_H_
+#define BDN_DefaultProperty_H_
 
 
 #include <bdn/Property.h>
 
 namespace bdn
 {
-
 
 /** The default implementation of a Property.
 
@@ -51,33 +50,42 @@ public:
 			}
 		}
 
-		_onChange.fire(*this);
+		if(changed)
+			_onChange.notify(*this);
 	}
 
-	
-	Notifier<ReadOnlyProperty>& onChange() override
+
+	virtual Property<ValType>& operator=(const ValType& val)
+    {
+        set(val);
+        
+        return *this;
+    }
+
+	Notifier<const ReadProperty<ValType>& >& onChange() override
 	{
 		return _onChange;
 	}
     
-    void bind(ReadOnlyProperty<ValType>& sourceProperty) override
+    void bind(ReadProperty<ValType>& sourceProperty) override
 	{
-        _pBindSourceSubscription = sourceProperty.onChange().template subscribeMember<SimpleProperty>(this, &SimpleProperty::bindSourceChanged);
+        _pBindSourceSubscription = sourceProperty.onChange().template subscribeMember<DefaultProperty>(this, &DefaultProperty::bindSourceChanged);
         
         bindSourceChanged(sourceProperty);
     }
     
     
 protected:
-    virtual void bindSourceChanged(const ReadOnlyProperty& prop)
+    virtual void bindSourceChanged(const ReadProperty<ValType>& prop)
     {
         set( prop.get() );
     }
 
-	ValType						_value;
+	mutable Mutex					_mutex;
+	ValType							_value;
     
-	Notifier<ReadOnlyProperty>	_onChange;
-	P<IBase>					_pBindSourceSubscription;
+	Notifier<const ReadProperty&>	_onChange;
+	P<IBase>						_pBindSourceSubscription;
 };
 
 
