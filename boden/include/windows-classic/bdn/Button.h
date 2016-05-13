@@ -6,11 +6,14 @@
 #include <bdn/Frame.h>
 #include <bdn/Notifier.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/Property.h>
+#include <bdn/mainThread.h>
 
 #include <windows.h>
 
 #include <codecvt>
 #include <list>
+
 
 namespace bdn
 {
@@ -28,6 +31,27 @@ namespace bdn
 			::SetWindowLongPtr(_handle, GWLP_USERDATA, (LONG_PTR)((Base*)this));
 
 			::SendMessage(_handle, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), TRUE);
+
+			_label.setHandle(_handle);
+		}
+
+			_pLabelChangeSub = _label.onChange().subscribe(
+				wrapCallFromMainThread(
+					[this]()
+					{
+
+					}
+					VoidMember<Button>(this, &Button::onLabelChanged);
+		}
+
+		/** Returns a reference to the button's label object. The object is read/write and can be
+			used to change the button label.
+			
+
+			*/
+		Property<String>& label()
+		{
+			return _label;			
 		}
 
 		void setLabel(const std::string& label)
@@ -62,6 +86,11 @@ namespace bdn
 
 	protected:
 
+		void onLabelChanged()
+		{
+			
+		}
+
 		static LRESULT CALLBACK windowProc(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			return ::CallWindowProc(DefWindowProc, hWindow, message, wParam, lParam);
@@ -71,6 +100,8 @@ namespace bdn
 		HWND _handle;
 
 		Notifier<const ClickEvent&> _onClick;
+
+		WindowTextProperty			_label;
 	};
 
 

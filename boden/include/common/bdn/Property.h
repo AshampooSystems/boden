@@ -125,12 +125,15 @@ class Property : public ReadProperty<ValType>
 public:
         
     virtual void set(const ValType& val)=0;
+
+	virtual Property<ValType>& operator=(const ValType& val)=0;
+
     
 	/** Binds the property to the value of another property. When the other property
 		changes then this property will be automatically updated to the same value.*/
     virtual void bind(ReadProperty<ValType>& sourceProperty)=0;
         
-    virtual Property& operator=(const ValType& val)=0;
+    
 
 };
 

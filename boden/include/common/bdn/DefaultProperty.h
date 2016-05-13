@@ -46,6 +46,7 @@ public:
 			if(_value!=val)
 			{
 				_value = val;
+				onValueChanged();
 				changed = true;
 			}
 		}
@@ -79,6 +80,11 @@ protected:
     virtual void bindSourceChanged(const ReadProperty<ValType>& prop)
     {
         set( prop.get() );
+    }
+
+	virtual void onValueChanged()
+    {
+	    // do nothing by default.
     }
 
 	mutable Mutex					_mutex;

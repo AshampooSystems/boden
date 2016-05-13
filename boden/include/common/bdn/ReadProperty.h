@@ -35,17 +35,6 @@ public:
 	virtual Notifier< const ReadProperty& >& onChange()=0;
 
 
-	/*virtual bool operator==(const ValType& val) const
-	{
-		return get()==val;
-	}
-
-	virtual bool operator!=(const ValType& val) const
-	{
-		return !operator==(val);
-	}*/
-
-
 };
 
 }
