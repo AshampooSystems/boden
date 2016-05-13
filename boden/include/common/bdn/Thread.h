@@ -348,15 +348,16 @@ public:
         std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >* pTask
             = new std::packaged_task< typename std::result_of<FuncType(Args...)>::type () >(
                 boundFunc );
+
+
+		// we must fetch the future here. The thread deletes the task object when it finishes.
+		std::future<typename std::result_of<FuncType(Args...)>::type> resultFuture = pTask->get_future();
         
         Thread execThread( newObj<ExecThreadRunnable>(pTask) );
         
-        execThread.detach();
+        execThread.detach();        
         
-        // note that pTask is guaranteed to still be exist here. ExecThread deletes the object
-        // in its destructor, but we still hold a reference to ExecThread at this point. So the
-        // object cannot have been deleted yet, even if the thread already finished.
-        return pTask->get_future();
+        return resultFuture;
     }
     
 

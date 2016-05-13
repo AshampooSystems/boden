@@ -2,6 +2,9 @@
 #include <bdn/test.h>
 
 #include <bdn/DefaultProperty.h>
+#include <bdn/Thread.h>
+
+#include <random>
 
 using namespace bdn;
 
@@ -282,6 +285,90 @@ void testStringProperty()
 			REQUIRE( prop=="hello");
 		}
 	}		
+
+
+	SECTION("threadSafety")
+	{
+		std::list< std::future<void> > futureList;
+
+		const int threadCount = 100;
+
+		std::random_device	randDevice;
+		std::mt19937		rng( randDevice() );		
+		std::uniform_int_distribution<> waitRange(0, 5);
+
+		int waitMillis[threadCount];
+		for(int i=0; i<threadCount; i++)
+		{
+			// every second thread waits a short random time, just to make sure that we get some contention.			
+			if((i & 1)==0)
+				waitMillis[i] = 0;
+			else
+				waitMillis[i] = waitRange(rng);
+		}
+
+		for(int i=0; i<100; i++)
+		{			
+			futureList.push_back( Thread::exec(
+				[&prop, &waitMillis, i]()
+				{
+					if(waitMillis[i]!=0)
+						Thread::sleepMillis(waitMillis[i]);
+					prop = prop + (std::to_string(i)+",");
+				} ) );
+		}
+
+		// wait for all threads to finish
+		for(std::future<void>& f: futureList)
+			f.get();
+
+		std::vector<int> values;
+		String result = prop;
+		while(!result.isEmpty())
+		{
+			String token = result.splitOffToken(",");
+
+			if(token.isEmpty())
+			{
+				// the last token will be empty.
+				REQUIRE(result.isEmpty());
+				break;
+			}
+
+			int intVal = std::stoi(token.asUtf8());
+			values.push_back(intVal);
+		}
+
+		std::vector<int> valuesBefore = values;
+		std::sort(values.begin(), values.end());
+
+		// if this fails then the values were added in the correct order. That is unlikely
+		// given the random waits that happen in the different threads. It suggests a bug
+		// in the test or the thread implementation.
+		REQUIRE( values!=valuesBefore );
+
+		int prevVal = -1;
+		for(int currVal: values)
+		{
+			// no value twice
+			REQUIRE( currVal>prevVal );
+
+			// value in the correct range
+			REQUIRE( currVal>=0 );
+			REQUIRE( currVal<100);
+
+			// Note that we CAN have missing values. The way the algorithm works does not
+			// protect against lost updates!
+
+			prevVal = currVal;
+		}
+
+		// there can be missing values. But SOME should have made it through.
+		// Note that if this fails then it does not necessarily mean that the Property is
+		// implemented incorrectly. It could simply be a case of very bad luck.
+		// If this happens then this test might have to be redesigned.
+		REQUIRE( values.size()>=20 );
+	}
 }
 
 
