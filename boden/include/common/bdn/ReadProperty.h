@@ -2,14 +2,20 @@
 #define BDN_ReadProperty_H_
 
 #include <bdn/Notifier.h>
+#include <bdn/RequireNewAlloc.h>
 
 namespace bdn
 {
 
 /** Base class for properties which only allow the value to be read. See Property for
-	more information.*/
+	more information.
+	
+	Note that property object MUST be allocated with newObj. I.e. other objects must be
+	able to keep a property object alive.
+	
+	*/
 template<class ValType>
-class ReadProperty : public Base
+class ReadProperty : public RequireNewAlloc<Base, ReadProperty<ValType> >
 {
 public:
     
@@ -32,7 +38,7 @@ public:
 		The callback function you register here must be able to deal with that.
 		As an alternative, you can wrap your callback function with divertToMainThread().
 		*/
-	virtual Notifier< const ReadProperty& >& onChange()=0;
+	virtual Notifier< const ReadProperty<ValType>& >& onChange()=0;
 
 
 };

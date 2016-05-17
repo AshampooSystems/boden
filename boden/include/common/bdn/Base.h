@@ -96,7 +96,7 @@ public:
 		new(Base::RawNew::Use) MyClass;
 
 		*/
-	inline void* operator new(size_t size, RawNew)
+	static inline void* operator new(size_t size, RawNew)
 	{
 		return operator new(size);
 	}
@@ -134,7 +134,7 @@ protected:
 
 	// prevent direct access to the normal new operator.
 	// Users should use newObj.
-	inline void* operator new(size_t size)
+	static inline void* operator new(size_t size)
 	{
 		return ::operator new(size);
 	}

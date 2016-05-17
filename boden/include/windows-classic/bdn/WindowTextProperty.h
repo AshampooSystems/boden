@@ -77,7 +77,7 @@ protected:
 	{
 		// this is called while the mutex is locked.
 		// So there are no race conditions here.
-		int		updateId = _nextUpdateId;
+		int64_t		updateId = _nextUpdateId;
 		_nextUpdateId++;
 
 		String	newValue = _value;

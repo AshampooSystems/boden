@@ -63,6 +63,13 @@ public:
         return *this;
     }
 
+	virtual Property<ValType>& operator=(const ReadProperty<ValType>& prop)
+    {
+        set(prop.get());
+        
+        return *this;
+    }
+
 	Notifier<const ReadProperty<ValType>& >& onChange() override
 	{
 		return _onChange;
@@ -90,7 +97,7 @@ protected:
 	mutable Mutex					_mutex;
 	ValType							_value;
     
-	Notifier<const ReadProperty&>	_onChange;
+	Notifier<const ReadProperty<ValType>&>		_onChange;
 	P<IBase>						_pBindSourceSubscription;
 };
 

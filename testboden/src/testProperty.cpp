@@ -38,14 +38,21 @@ public:
 		}
 	}
 
-	virtual Property<ValType>& operator=(const ValType& val)
+	virtual Property<ValType>& operator=(const ValType& val) override
     {
         set(val);
         
         return *this;
     }
+
+	virtual Property<ValType>& operator=(const ReadProperty<ValType>& prop) override
+    {
+        set( prop.get() );
+        
+        return *this;
+    }
 	
-	Notifier<const ReadProperty&> & onChange() override
+	Notifier<const ReadProperty<ValType>&> & onChange() override
 	{
 		return _onChange;
 	}
@@ -69,7 +76,8 @@ protected:
 template<typename PropertyType>
 void testStringProperty()
 {
-	PropertyType prop;
+	P<PropertyType> pProp = newObj<PropertyType>();
+	PropertyType& prop = *pProp;
 
 	SECTION("initialState")
 		REQUIRE( prop.get()=="" );
@@ -120,7 +128,8 @@ void testStringProperty()
 		{
 			SECTION("sameType")
 			{
-				PropertyType otherProp;
+				P<PropertyType> pOtherProp = newObj<PropertyType>();
+				PropertyType& otherProp = *pOtherProp;
 
 				otherProp = "hello";
 
@@ -131,7 +140,8 @@ void testStringProperty()
 
 			SECTION("otherType")
 			{
-				TestProperty<String> otherProp;
+				P<TestProperty<String> > pOtherProp = newObj<TestProperty<String> >();
+				TestProperty<String>& otherProp = *pOtherProp;
 
 				otherProp = "hello";
 
@@ -145,7 +155,8 @@ void testStringProperty()
 		{
 			SECTION("sameType")
 			{
-				PropertyType otherProp;
+				P<PropertyType> pOtherProp = newObj<PropertyType>();
+				PropertyType& otherProp = *pOtherProp;
 
 				otherProp.bind(prop);
 
@@ -158,7 +169,8 @@ void testStringProperty()
 			{
 				SECTION("to")
 				{
-					TestProperty<String> otherProp;
+					P<TestProperty<String> > pOtherProp = newObj<TestProperty<String> >();
+					TestProperty<String>& otherProp = *pOtherProp;
 
 					otherProp.bind(prop);
 
@@ -169,7 +181,8 @@ void testStringProperty()
 
 				SECTION("from")
 				{
-					TestProperty<String> otherProp;
+					P<TestProperty<String> > pOtherProp = newObj<TestProperty<String> >();
+					TestProperty<String>& otherProp = *pOtherProp;
 
 					prop.bind(otherProp);
 
@@ -182,7 +195,8 @@ void testStringProperty()
 
 		SECTION("ignoresAssignmentOfEqualValue")
 		{
-			PropertyType otherProp;
+			P<PropertyType> pOtherProp = newObj<PropertyType>();
+			PropertyType& otherProp = *pOtherProp;
 
 			otherProp = "hello";
 
@@ -208,7 +222,8 @@ void testStringProperty()
 		{
 			SECTION("2")
 			{
-				PropertyType propB;
+				P<PropertyType> pPropB = newObj<PropertyType>();
+				PropertyType& propB = *pPropB;
 
 				prop = "hello";
 				propB.bind(prop);
@@ -228,8 +243,11 @@ void testStringProperty()
 
 			SECTION("3")
 			{
-				PropertyType propB;
-				PropertyType propC;
+				P<PropertyType> pPropB = newObj<PropertyType>();
+				PropertyType& propB = *pPropB;
+
+				P<PropertyType> pPropC = newObj<PropertyType>();
+				PropertyType& propC = *pPropC;
 
 				prop = "hello";
 
@@ -259,7 +277,8 @@ void testStringProperty()
 		SECTION("sourceDestroyed")
 		{
 			{
-				PropertyType otherProp;
+				P<PropertyType> pOtherProp = newObj<PropertyType>();
+				PropertyType& otherProp = *pOtherProp;
 				
 				prop.bind(otherProp);
 				otherProp = "world";
@@ -271,7 +290,8 @@ void testStringProperty()
 		SECTION("destDestroyed")
 		{
 			{
-				PropertyType otherProp;
+				P<PropertyType> pOtherProp = newObj<PropertyType>();
+				PropertyType& otherProp = *pOtherProp;
 				
 				otherProp.bind(prop);
 				prop = "world";
@@ -375,7 +395,8 @@ void testStringProperty()
 template<class PropertyType>
 void testIntProperty()
 {
-	PropertyType prop;
+	P<PropertyType> pProp = newObj<PropertyType>();
+	PropertyType&	prop = *pProp;
 
 	SECTION("initialValue")
 	{

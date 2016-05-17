@@ -405,10 +405,10 @@ namespace bdn {
             return std::string();
         }
     };
-    template<typename T>
+    /*template<typename T>
     T const& operator + ( T const& value, StreamEndStop ) {
         return value;
-    }
+    }*/
 }
 
 #define BDN_INTERNAL_LINEINFO ::bdn::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )

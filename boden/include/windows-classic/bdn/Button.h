@@ -8,6 +8,7 @@
 #include <bdn/ClickEvent.h>
 #include <bdn/Property.h>
 #include <bdn/mainThread.h>
+#include <bdn/WindowTextProperty.h>
 
 #include <windows.h>
 
@@ -32,9 +33,9 @@ namespace bdn
 
 			::SendMessage(_handle, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), TRUE);
 
-			_label.setHandle(_handle);
+			_label.setWindowHandle(_handle);
 		}
-
+		/*
 			_pLabelChangeSub = _label.onChange().subscribe(
 				wrapCallFromMainThread(
 					[this]()
@@ -43,7 +44,7 @@ namespace bdn
 					}
 					VoidMember<Button>(this, &Button::onLabelChanged);
 		}
-
+		*/
 		/** Returns a reference to the button's label object. The object is read/write and can be
 			used to change the button label.
 			

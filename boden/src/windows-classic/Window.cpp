@@ -8,8 +8,8 @@ namespace bdn
 	
 String Window::getWindowText(HWND windowHandle)
 {
-	String  result;
-	
+	String result;
+
 	int		prevLen = 0;
 	while(true)
 	{
@@ -42,7 +42,7 @@ String Window::getWindowText(HWND windowHandle)
 		prevLen = len;
 	}
 
-	return pBuf;
+	return result;
 }
 
 }
