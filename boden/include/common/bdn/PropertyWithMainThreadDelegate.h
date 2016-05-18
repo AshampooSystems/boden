@@ -1,7 +1,8 @@
 #ifndef BDN_PropertyWithMainThreadDelegate_H_
 #define BDN_PropertyWithMainThreadDelegate_H_
 
-
+#include <bdn/RequireNewAlloc.h>
+#include "init.h"
 
 
 /** A property implementation helper that redirects accesses to the property value
@@ -10,10 +11,12 @@
 	The inner delegate object will only be called from the main thread.
 
 	The property object itself can be used normally from any thread.
+
+	Note that PropertyWithMainThreadDelegate objects MUST be allocated with newObj.	
 	
 	*/	
 template<typename ValType>
-class PropertyWithMainThreadDelegate : public Property<ValType>
+class PropertyWithMainThreadDelegate : public RequireNewAlloc< Property<ValType>, PropertyWithMainThreadDelegate >
 {
 public:
 	class IDelegate : BDN_IMPLEMENTS IBase
@@ -144,7 +147,8 @@ protected:
 	
 	void scheduleUpdate( std::function<void(PropertyWithMainThreadDelegate*)> updateFunc)
 	{
-		// keep ourselves alive until the op is done
+		// keep ourselves alive until the op is done. Note that we inherit from
+		// RequireNewAlloc, so we can do this.
 		P<PropertyWithMainThreadDelegate> pThis = this;
 			
 		int		updateId;

@@ -2,7 +2,6 @@
 #define BDN_ReadProperty_H_
 
 #include <bdn/Notifier.h>
-#include <bdn/RequireNewAlloc.h>
 
 namespace bdn
 {
@@ -10,12 +9,10 @@ namespace bdn
 /** Base class for properties which only allow the value to be read. See Property for
 	more information.
 	
-	Note that property object MUST be allocated with newObj. I.e. other objects must be
-	able to keep a property object alive.
 	
 	*/
 template<class ValType>
-class ReadProperty : public RequireNewAlloc<Base, ReadProperty<ValType> >
+class ReadProperty : public Base
 {
 public:
     
