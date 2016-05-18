@@ -1,6 +1,7 @@
 #ifndef BDN_Mutex_H_
 #define BDN_Mutex_H_
 
+
 // <mutex> header is not supported when we compile a .NET app.
 #if BDN_PLATFORM_DOTNET
   #include <msclr/lock.h>
@@ -19,6 +20,14 @@ namespace bdn
 	thread that curently has it locked unlocks it.
 
 	The mutex is recursive. That means that the same thread can hold multiple locks on the mutex.
+
+	Each lock() call must be paired with exactly one unlock() call. It is recommended to use #MutexLock
+	helper objects to guarantee that.
+
+	There must not be any active locks on Mutex objects when they are destroyed! Otherwise undefined
+	behaviour, crashes or assertions can occur.
+
+
 	*/
 class Mutex : public Base
 {
