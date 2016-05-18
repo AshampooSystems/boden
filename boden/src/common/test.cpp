@@ -7686,7 +7686,7 @@ public:
             _pFrame->show();
 
 			std::vector<const char*> argPtrs;
-			for(auto arg: args)
+			for(const String& arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
 
             int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
