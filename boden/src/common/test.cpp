@@ -7683,7 +7683,7 @@ public:
 
 			// this is just a place holder frame so that we have something visible.
             _pFrame = newObj<Frame>("Running tests...");
-            _pFrame->show();
+            _pFrame->visible() = true;
 
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
@@ -7693,7 +7693,7 @@ public:
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.
-				_pFrame->setTitle("Invalid commandline");
+				_pFrame->title() = "Invalid commandline";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
                 return;
             }
@@ -7701,7 +7701,7 @@ public:
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
-				_pFrame->setTitle("Done");
+				_pFrame->title() = "Done";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
 				return;
             }
@@ -7771,7 +7771,7 @@ protected:
 
 				int exitCode = failedCount;
 
-				_pFrame->setTitle("Done ("+bdn::toString(failedCount)+" failed)" );
+				_pFrame->title() = "Done ("+bdn::toString(failedCount)+" failed)";
 
 				waitAndClose(exitCode);
 			}
@@ -7780,7 +7780,7 @@ protected:
         {
             bdn::cerr() << ex.what() << std::endl;
 
-			_pFrame->setTitle("Fatal Error");
+			_pFrame->title() = "Fatal Error";
 
             int exitCode = (std::numeric_limits<int>::max)();
 

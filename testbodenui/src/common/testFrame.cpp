@@ -12,7 +12,7 @@ TEST_CASE("Frame", "[ui]")
 {   
     P<Frame> pFrame = newObj<Frame>("Test");
     
-    pFrame->show();
+    pFrame->visible() = true;
     
     std::this_thread::sleep_for( std::chrono::duration<int>(2) );    
 

@@ -1,7 +1,7 @@
 #ifndef BDN_IWINDOW_H_
 #define BDN_IWINDOW_H_
 
-#include <bdn/IBase.h>
+#include <bdn/Property.h>
 
 namespace bdn
 {
@@ -10,8 +10,14 @@ class IWindow : virtual public IBase
 {
 public:
 
-    virtual void show(bool visible=true)=0;
-    virtual void hide()=0;
+	
+	/** Returns the Window's 'visible' property. This can be used
+		to show/hide the window.
+
+		It is safe to access this from any thread.
+		*/
+	virtual Property<bool>& visible()=0;
+	virtual ReadProperty<bool>& visible() const=0;
     
 };
     

@@ -35,7 +35,7 @@ public:
 	{
 		_pDelegate = pDelegate;
 
-		fetchValueFromDelegate();
+		updateCachedValue();
 	}
 	
 
@@ -121,18 +121,18 @@ public:
 
 	/** Tells the property to fetch the current value from the delegate object.
 	
-		If fetchValueFromDelegate is called from the main thread then the update happens immediately.
+		If updateCachedValue is called from the main thread then the update happens immediately.
 		
-		If fetchValueFromDelegate is called from another thread then the update is scheduled and will be
+		If updateCachedValue is called from another thread then the update is scheduled and will be
 		performed at some point in the future (when the main thread message loop executes pending events).
-		In that case, fetchValueFromDelegate will return immediately and the value
+		In that case, updateCachedValue will return immediately and the value
 		of the property will remain unchanged for a short time, until the scheduled update is actually
 		executed.
 		If the property is manually set to a new value while such a delayed fetch operation is pending then 
 		then the pending fetch is invalidated and the property will keep the manually set new value.
 		The delegate will also be updated to this new value.
 	*/
-	void fetchValueFromDelegate()
+	void updateCachedValue()
 	{
 		{
 			// we want to get the current value of the delegate and set it as the value
@@ -168,7 +168,7 @@ public:
 	}
 
 
-protected:
+private:
 	virtual void bindSourceChanged(const ReadProperty<ValType>& prop)
     {
         set( prop.get() );

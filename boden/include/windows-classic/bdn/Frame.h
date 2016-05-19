@@ -1,69 +1,74 @@
 #ifndef BDN_Frame_H_
 #define BDN_Frame_H_
 
-#include <bdn/init.h>
 #include <bdn/IWindow.h>
+#include <bdn/Window.h>
 
 #include <windows.h>
+#include <bdn/WindowClass.h>
 
 namespace bdn
 {
 
-class Frame : public Base, virtual public IWindow
+class Frame : public Window
 {
 public:
 	Frame(const String& title)
+	{		
+		String className = FrameClass::get()->getName();
+
+		create(	nullptr,
+				className,
+				title,
+				WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW,
+				WS_EX_APPWINDOW,
+				200,
+				200,
+				300,
+				200 );
+}
+
+
+	/** Returns the button's title property.
+		It is safe to use from any thread.
+		*/
+	Property<String>& title()
 	{
-		WNDCLASSEX cls;
-
-		memset(&cls, 0, sizeof(cls));
-		cls.cbSize = sizeof(cls);
-		cls.lpfnWndProc = windowProc;
-		cls.lpszClassName = L"bodenFrame";
-		cls.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
-
-		::RegisterClassEx(&cls);
-
-		_handle = ::CreateWindowEx(WS_EX_APPWINDOW, cls.lpszClassName, title.asWidePtr(), WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW, 200, 200, 300, 200, NULL, NULL, NULL, NULL);			
+		return *_pText;
 	}
 
-	~Frame()
+	ReadProperty<String>& title() const
 	{
-		if(_handle!=NULL)
-		{
-			::DestroyWindow(_handle);
-			_handle = NULL;
-		}
+		return *_pText;
 	}
 
-
-	HWND getHandle()
-	{
-		return _handle;
-	}
-
-	void setTitle(const String& title)
-	{
-		::SetWindowText(_handle, title.asWidePtr() );
-	}
 
 		
-	virtual void show(bool visible = true) override
-	{
-		::ShowWindow(_handle, visible ? SW_SHOW : SW_HIDE);
-	}
-
-	virtual void hide() override
-	{
-		show(false);
-	}
-
 protected:
 
-	static LRESULT CALLBACK windowProc(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam);
-		
+	class FrameClass : public WindowClass
+	{
+	public:
+		FrameClass()
+			: WindowClass("bdnFrame", WindowBase::windowProc)
+		{
+			_info.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
 
-	HWND _handle;
+			ensureRegistered();			
+		}
+
+		static P<FrameClass> get()
+		{
+			static SafeInit<FrameClass> init;
+
+			return init.get();
+		}		
+	};
+
+
+	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+	
+		
 };
 
 

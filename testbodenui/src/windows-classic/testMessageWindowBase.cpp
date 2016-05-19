@@ -58,7 +58,7 @@ void verifyMessageWindow(bool setResult, bool callDefault)
 
 	const wchar_t* newText = L"xyz";
 
-	LRESULT result = SendMessage( window.getHandle(), WM_SETTEXT, 0, (LPARAM)newText );
+	LRESULT result = SendMessage( window.getHandle()->getHwnd(), WM_SETTEXT, 0, (LPARAM)newText );
 
 	REQUIRE( window.lastMessage==WM_SETTEXT );
 	REQUIRE( window.lastWParam==0 );
@@ -72,7 +72,7 @@ void verifyMessageWindow(bool setResult, bool callDefault)
 	wchar_t buf[10];
 	buf[0]=0;
 	buf[9]=0;
-	SendMessage( window.getHandle(), WM_GETTEXT, 9, (LPARAM)buf);
+	SendMessage( window.getHandle()->getHwnd(), WM_GETTEXT, 9, (LPARAM)buf);
 
 	String text = buf;
 	
@@ -98,7 +98,7 @@ void testExceptionInHandleMessage()
 
 	const wchar_t* newText = L"xyz";
 
-	LRESULT result = SendMessage( window.getHandle(), WM_SETTEXT, 0, (LPARAM)newText );
+	LRESULT result = SendMessage( window.getHandle()->getHwnd(), WM_SETTEXT, 0, (LPARAM)newText );
 
 	REQUIRE( window.lastMessage==WM_SETTEXT );
 	REQUIRE( window.lastWParam==0 );
@@ -110,7 +110,7 @@ void testExceptionInHandleMessage()
 	wchar_t buf[10];
 	buf[0]=0;
 	buf[9]=0;
-	SendMessage( window.getHandle(), WM_GETTEXT, 9, (LPARAM)buf);
+	SendMessage( window.getHandle()->getHwnd(), WM_GETTEXT, 9, (LPARAM)buf);
 
 	String text = buf;	
 	REQUIRE( text=="xyz");
