@@ -89,7 +89,7 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 
 	TestProperty_<ValType> propDiffType;
 
-	ValType defaultConstructedVal;
+	ValType defaultConstructedVal = ValType();
 	ValType val1 = valueGeneratorFunc(0);
 	ValType val2 = valueGeneratorFunc(1);
 

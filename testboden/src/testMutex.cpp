@@ -8,50 +8,68 @@
 using namespace bdn;
 
 
-TEST_CASE("Mutex")
+void testMutex(bool recursive)
 {
 	Mutex mutex;
 
-	SECTION("lockUnlock")
+	bool  threadLocked = false;
+	bool  threadUnlocked = false;
+
+	mutex.lock();
+
+	if(recursive)
 	{
-		bool  threadLocked = false;
-		bool  threadUnlocked = false;
-
+		// lock and unlock again
 		mutex.lock();
-
-		Thread::exec(	[&mutex, &threadLocked, &threadUnlocked]()
-						{
-							mutex.lock();
-							threadLocked = true;
-
-							Thread::sleepMillis(2000);
-
-							mutex.unlock();
-
-							threadUnlocked = true;
-					
-						} );
-
-		Thread::sleepMillis(1000);
-
-		REQUIRE( !threadLocked );
-
 		mutex.unlock();
 
-		Thread::sleepMillis(1000);
-
-		REQUIRE( threadLocked );
-		
-		StopWatch watch;
-
-		mutex.lock();
-
-		REQUIRE( threadUnlocked );
-		REQUIRE( watch.getMillis()>=800 );
-		REQUIRE( watch.getMillis()<2000 );
-
-		mutex.unlock();
+		// should still be locked here.
 	}
+
+	Thread::exec(	[&mutex, &threadLocked, &threadUnlocked]()
+					{
+						mutex.lock();
+						threadLocked = true;
+
+						Thread::sleepMillis(2000);
+
+						mutex.unlock();
+
+						threadUnlocked = true;
+					
+					} );
+
+	Thread::sleepMillis(1000);
+
+	REQUIRE( !threadLocked );
+
+	mutex.unlock();
+
+	Thread::sleepMillis(1000);
+
+	REQUIRE( threadLocked );
+		
+	StopWatch watch;
+
+	mutex.lock();
+
+	Thread::sleepMillis(500);
+
+	REQUIRE( threadUnlocked );
+	REQUIRE( watch.getMillis()>=800 );
+	REQUIRE( watch.getMillis()<2000 );
+
+	mutex.unlock();
+		
+}
+
+TEST_CASE("Mutex")
+{
+	SECTION("lockUnlock")
+		testMutex(false);
+
+	SECTION("recursive")
+		testMutex(true);
 
 }
 
