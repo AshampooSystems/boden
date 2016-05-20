@@ -13,6 +13,8 @@ void Frame::handleMessage(MessageContext& context, HWND windowHandle, UINT messa
 	{
 		::PostQuitMessage(0);
 	}
+
+	Window::handleMessage(context, windowHandle, message, wParam, lParam);
 }
 
 
