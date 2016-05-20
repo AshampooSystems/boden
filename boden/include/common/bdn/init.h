@@ -26,4 +26,6 @@
 #include <bdn/OutOfRangeError.h>
 #include <bdn/SystemError.h>
 
+#include <bdn/cast.h>
+
 #endif

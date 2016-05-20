@@ -1,11 +1,13 @@
 #include <bdn/init.h>
 #include <bdn/Frame.h>
-#include <bdn/Button.h>
 
 namespace bdn
 {
 
-
+P<IFrame> createFrame(const String& title)
+{
+	return newObj<Frame>(title);
+}
 
 void Frame::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {

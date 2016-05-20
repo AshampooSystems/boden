@@ -7,10 +7,14 @@
 namespace bdn
 {
     
+
+/** A push-button.
+
+	Objects can be created with createButton().
+*/
 class IButton : BDN_IMPLEMENTS IWindow
 {
 public:
-
 	
 	/** The button's label.
 		It is safe to access this from any thread.
@@ -23,6 +27,9 @@ public:
 	virtual Notifier<const ClickEvent&>& onClick()=0;
 };
     
+
+/** Creates a button.*/
+P<IButton> createButton(IWindow* pParent, const String& label);
     
 }
 

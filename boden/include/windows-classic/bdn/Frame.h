@@ -1,7 +1,7 @@
 #ifndef BDN_Frame_H_
 #define BDN_Frame_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IFrame.h>
 #include <bdn/Window.h>
 
 #include <windows.h>
@@ -10,7 +10,7 @@
 namespace bdn
 {
 
-class Frame : public Window
+class Frame : public Window, BDN_IMPLEMENTS IFrame
 {
 public:
 	Frame(const String& title)
@@ -26,18 +26,15 @@ public:
 				200,
 				300,
 				200 );
-}
+	}
 
 
-	/** Returns the button's title property.
-		It is safe to use from any thread.
-		*/
-	Property<String>& title()
+	Property<String>& title() override
 	{
 		return *_pText;
 	}
 
-	ReadProperty<String>& title() const
+	ReadProperty<String>& title() const override
 	{
 		return *_pText;
 	}

@@ -3,6 +3,12 @@
 
 namespace bdn
 {
+
+
+P<IButton> createButton(IWindow* pParent, const String& label)
+{
+	return newObj<Button>(cast<Window>(pParent), label);
+}
 	
 
 void Button::handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
