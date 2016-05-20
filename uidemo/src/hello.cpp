@@ -35,7 +35,7 @@ public:
     {
         _pModel = pModel;
 
-		_pHelloCounterSub = _pModel->helloCounter().onChange().subscribeVoidMember<ViewModel>(this, &ViewModel::updateHelloMessage);
+		_pModel->helloCounter().onChange().subscribeVoidMember<ViewModel>(_pHelloCounterSub, this, &ViewModel::updateHelloMessage);
 		updateHelloMessage();
     }
     
@@ -82,7 +82,7 @@ public:
         
         _pSwitch = createSwitch(_pFrame, "This is a switch/checkbox");
         
-        _pButtonClickSub = _pButton->onClick().subscribeVoidMember<MainViewController>(this, &MainViewController::buttonClicked);
+        _pButton->onClick().subscribeVoidMember<MainViewController>(_pButtonClickSub, this, &MainViewController::buttonClicked);
 
 		_pFrame->visible() = true;
     }

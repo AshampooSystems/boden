@@ -73,21 +73,17 @@ public:
     }
     
 
-	/** The interface of subscription objects. Note that they currently do not define
-		any methods.*/
-	class ISub : BDN_IMPLEMENTS IBase
-    {	    
-    };
     
     /** Subscribes a function to the notifier. While subscribed, the function will be called
-		whenever the notifier's notify() function	is called.	
+		whenever the notifier's notify() function is called.	
 
-		The function parameter list must match the template parameters of the notifier object.
-		Note that for convenience there is also a version of subscribe() that subscribes a function
+		The parameter list of \c func must match the template parameters of the notifier object.
+		Note that for convenience there is also a variant called subscribeVoid() that subscribes a function
 		without parameters. You can use that if your notification function does not care about the
 		event parameters.
 
-		The function returns a pointer to a subscription object that controls when the function is unsubscribed.
+		The pResultSub parameter receives a pointer to a subscription object that controls the lifetime
+		of the subscription.
 		The subscription remains in place as long as the returned subscription object is alive. In other words:
 		you should store the returned pointer in some place and destroy it or set it to null when you want the subscription
 		to go away.
@@ -106,7 +102,8 @@ public:
 
 		// Subscribe myFunc to the notifier and store the returned
 		// subscription pointer
-		P<IBase> pSub = eventNotifier.subscribe(myFunc);
+		P<IBase> pSub;
+		eventNotifier.subscribe(pSub, myFunc);
 
 		// myFunc will now be called whenever the notifier is fired.
 
@@ -118,42 +115,43 @@ public:
 
 		\endcode
 		*/
-    P<ISub> subscribe( const std::function<void(ArgTypes...)>& func)
+    void subscribe( P<IBase>& pResultSub, const std::function<void(ArgTypes...)>& func)
     {
         MutexLock lock(_mutex);
         
         P<Sub_> pSub = newObj<Sub_>(this, func);
 
         _subList.push_back( pSub );
-        
-        return pSub;
+
+		pResultSub = pSub;
     }
     
 
 	/** Convenience function. Similar to the other version of subscribe(), except that this
 		one takes a function without parameters and subscribes it to the event. You can use this
 		if your function is not interested in the event parameters and only cares about when the event
-		itself happens.		.
+		itself happens.
 		*/
-    P<ISub> subscribeVoid( const std::function<void()>& func)
+    void subscribeVoid(P<IBase>& pResultSub, const std::function<void()>& func)
     {
-        return subscribe( VoidFunctionAdapter(func) );
+        return subscribe( pResultSub, VoidFunctionAdapter(func) );
     }
     
     
     template<class OwnerType>
-    P<ISub> subscribeMember( OwnerType* pOwner, const std::function<void(OwnerType*,ArgTypes...)>& func)
+    void subscribeMember(P<IBase>& pResultSub, OwnerType* pOwner, const std::function<void(OwnerType*,ArgTypes...)>& func)
     {
-		return subscribe(	[pOwner, func](ArgTypes... args)
+		return subscribe(	pResultSub,
+							[pOwner, func](ArgTypes... args)
 							{
 								func(pOwner, args...);
 							} );
     }
     
     template<class OwnerType>
-    P<ISub> subscribeVoidMember( OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
+    void subscribeVoidMember(P<IBase>& pResultSub, OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
     {
-        return subscribe( VoidFunctionAdapter( std::bind(func, pOwner) ) );
+        return subscribe( pResultSub, VoidFunctionAdapter( std::bind(func, pOwner) ) );
     }
     
     
@@ -177,7 +175,7 @@ public:
     
 protected:
 
-	class Sub_ : public Base, BDN_IMPLEMENTS ISub
+	class Sub_ : public Base
     {
     public:		
         Sub_(Notifier* pParent, const std::function<void(ArgTypes...)>& func)

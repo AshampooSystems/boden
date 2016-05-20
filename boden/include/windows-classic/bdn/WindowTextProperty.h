@@ -30,7 +30,7 @@ public:
 	WindowTextProperty(WindowHandle* pHandle, const String& initialValue)
 		: PropertyWithMainThreadDelegate( newObj<Delegate>(pHandle), initialValue )
 	{
-		_pOnDestroySub = pHandle->onDestroy().subscribeVoidMember<WindowTextProperty>(this, &WindowTextProperty::onWindowDestroy);
+		pHandle->onDestroy().subscribeVoidMember<WindowTextProperty>(_pOnDestroySub, this, &WindowTextProperty::onWindowDestroy);
 	}
 	
 

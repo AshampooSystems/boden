@@ -31,7 +31,8 @@ void testNotifier(ArgTypes... args)
 	P<IBase> pSub;
 
 	SECTION("subscribe")
-		pSub = notifier.subscribe(
+		notifier.subscribe(
+			pSub,
 			[&called, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
@@ -40,7 +41,7 @@ void testNotifier(ArgTypes... args)
 			} );
 
 	SECTION("subscribeVoid")
-		pSub = notifier.subscribeVoid( [&called](){ called = true; } );
+		notifier.subscribeVoid(pSub, [&called](){ called = true; } );
 
 
 
@@ -78,10 +79,10 @@ void testNotifier(ArgTypes... args)
 		});
 
 	SECTION("subscribeMember")			
-		pSub = notifier.subscribeMember<Listener>(&l, &Listener::onNotify);
+		notifier.subscribeMember<Listener>(pSub, &l, &Listener::onNotify);
 
 	SECTION("subscribeMemberVoid")			
-		pSub = notifier.subscribeVoidMember<Listener>(&l, &Listener::onNotifyVoid);
+		notifier.subscribeVoidMember<Listener>(pSub, &l, &Listener::onNotifyVoid);
 
 	notifier.notify(args...);
 
@@ -119,8 +120,10 @@ TEST_CASE("Notifier")
 		bool called1 = false;
 		bool called2 = false;
 
-		P<IBase> pSub1 = notifier.subscribe( [&called1](int){called1 = true;} );
-		P<IBase> pSub2 = notifier.subscribe( [&called2](int){called2 = true;} );
+		P<IBase> pSub1;
+		notifier.subscribe(pSub1, [&called1](int){called1 = true;} );
+		P<IBase> pSub2;
+		notifier.subscribe(pSub2, [&called2](int){called2 = true;} );
 
 		notifier.notify(42);
 
@@ -158,7 +161,7 @@ TEST_CASE("Notifier")
 		{
 			Notifier<> notifier;
 			
-			pSub = notifier.subscribe( [](){} );
+			notifier.subscribe(pSub, [](){} );
 		}
 
 		pSub = nullptr;		

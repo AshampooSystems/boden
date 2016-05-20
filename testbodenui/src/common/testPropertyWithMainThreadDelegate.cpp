@@ -98,7 +98,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			// delegate value should have been updated
 			REQUIRE( pDelegate->value=="hello" );
 
-			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
+			P<IBase> pChangeSub;
+			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
 			REQUIRE( pDelegate->getCount==0 );
 			REQUIRE( pDelegate->setCount==1 );
@@ -159,7 +160,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
+			P<IBase> pChangeSub;
+			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
 			MAKE_ASYNC_TEST(10);
 
@@ -259,7 +261,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 		
-			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
+			P<IBase> pChangeSub;
+			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
 			MAKE_ASYNC_TEST(10);
 
@@ -332,7 +335,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
+			P<IBase> pChangeSub;
+			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
 			SECTION("fromMainThread")
 			{

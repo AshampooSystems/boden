@@ -126,7 +126,7 @@ public:
 	
 	void bind(ReadProperty<ValType>& sourceProperty) override
 	{
-        _pBindSourceSubscription = sourceProperty.onChange().template subscribeMember<PropertyWithMainThreadDelegate>(this, &PropertyWithMainThreadDelegate::bindSourceChanged);
+        sourceProperty.onChange().template subscribeMember<PropertyWithMainThreadDelegate>(_pBindSourceSubscription, this, &PropertyWithMainThreadDelegate::bindSourceChanged);
         
         bindSourceChanged(sourceProperty);
     }

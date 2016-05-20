@@ -61,7 +61,7 @@ public:
     
     void bind(ReadProperty<ValType>& sourceProperty) override
 	{
-        _pBindSourceSubscription = sourceProperty.onChange().template subscribeMember<TestProperty_>(this, &TestProperty_::set);
+        sourceProperty.onChange().template subscribeMember<TestProperty_>(_pBindSourceSubscription, this, &TestProperty_::set);
         
         set( sourceProperty.get() );
     }    
