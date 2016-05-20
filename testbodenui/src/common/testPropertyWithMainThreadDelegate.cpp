@@ -63,7 +63,7 @@ P< PropertyWithMainThreadDelegate<ValType> > createProp()
 {
 	P<TestDelegate<ValType> >		pDelegate = newObj<TestDelegate<ValType> >();
 
-	return newObj< PropertyWithMainThreadDelegate<ValType> >(pDelegate);
+	return newObj< PropertyWithMainThreadDelegate<ValType> >(pDelegate, ValType());
 }
 
 
@@ -90,51 +90,54 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 		{	
 			P<TestDelegate<String> >							pDelegate = newObj<TestDelegate<String> >();
 
-			pDelegate->value = "hello";
+			pDelegate->value = "bla";
 
-			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate);
+			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
+
+			// delegate value should have been updated
+			REQUIRE( pDelegate->value=="hello" );
 
 			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
 
-			REQUIRE( pDelegate->getCount==1 );
-			REQUIRE( pDelegate->setCount==0 );
+			REQUIRE( pDelegate->getCount==0 );
+			REQUIRE( pDelegate->setCount==1 );
 
 			REQUIRE( prop.get()=="hello" );
 
 			REQUIRE( pDelegate->value=="hello" );
-			REQUIRE( pDelegate->getCount==1 );
-			REQUIRE( pDelegate->setCount==0 );		
+			REQUIRE( pDelegate->getCount==0 );
+			REQUIRE( pDelegate->setCount==1 );		
 
 			prop = "world";
 
 			REQUIRE( pChangeCounter->val==1 );
 
 			REQUIRE( pDelegate->value=="world" );
-			REQUIRE( pDelegate->getCount==1 );
-			REQUIRE( pDelegate->setCount==1 );
+			REQUIRE( pDelegate->getCount==0 );
+			REQUIRE( pDelegate->setCount==2 );
 
 			REQUIRE( prop.get()=="world" );
 
 			REQUIRE( pDelegate->value=="world" );
-			REQUIRE( pDelegate->getCount==1 );
-			REQUIRE( pDelegate->setCount==1 );
+			REQUIRE( pDelegate->getCount==0 );
+			REQUIRE( pDelegate->setCount==2 );
 		
 			pDelegate->value = "hurz";
 
 			prop.updateCachedValue();
 
 			REQUIRE( pDelegate->value=="hurz" );
-			REQUIRE( pDelegate->getCount==2 );
-			REQUIRE( pDelegate->setCount==1 );
+			REQUIRE( pDelegate->getCount==1 );
+			REQUIRE( pDelegate->setCount==2 );
 
 			REQUIRE( prop.get()=="hurz" );
 
 			REQUIRE( pChangeCounter->val==2 );
 
 			REQUIRE( pDelegate->value=="hurz" );
-			REQUIRE( pDelegate->getCount==2 );
-			REQUIRE( pDelegate->setCount==1 );
+			REQUIRE( pDelegate->getCount==1 );
+			REQUIRE( pDelegate->setCount==2 );
 
 			// detach delegate
 			prop.detachDelegate();
@@ -145,17 +148,15 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 			// delegate should not be updated
 			REQUIRE( pDelegate->value=="hurz" );
-			REQUIRE( pDelegate->getCount==2 );
-			REQUIRE( pDelegate->setCount==1 );
+			REQUIRE( pDelegate->getCount==1 );
+			REQUIRE( pDelegate->setCount==2 );
 		}	
 
 		SECTION("fromOtherThread")
 		{
 			P<TestDelegate<String> >	pDelegate = newObj<TestDelegate<String> >(1000);
-
-			pDelegate->value = "hello";
-
-			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate);
+			
+			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
 			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
@@ -167,8 +168,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==0 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==1 );
 
 					prop = "world";
 
@@ -177,8 +178,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					// the delegate delay 1000ms. So the delegate value should still
 					// be the same right now.
 					REQUIRE( pDelegate->value=="hello" );
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==0 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==1 );
 
 					// but the property should already have the new value
 					REQUIRE( prop.get()=="world" );
@@ -186,8 +187,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					Thread::sleepMillis(2000);
 
 					// now the delegate should have been updated.
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==1 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==2 );
 					REQUIRE( pDelegate->value == "world" );
 
 					// now we block the main thread.
@@ -211,8 +212,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 						// the delegate should not be updated yet
 						REQUIRE( pDelegate->value=="world" );
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==1 );
+						REQUIRE( pDelegate->getCount==0 );
+						REQUIRE( pDelegate->setCount==2 );
 
 						// now we detach the delegate
 						prop.detachDelegate();
@@ -228,8 +229,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 					// delegate should still not be updated.
 					REQUIRE( pDelegate->value=="world" );
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==1 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==2 );
 
 					// but the property should still be usable normally
 					REQUIRE( prop.get()=="newworld" );
@@ -242,8 +243,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 					// delegate should still not be updated.
 					REQUIRE( pDelegate->value=="world" );
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==1 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==2 );
 
 					END_ASYNC_TEST();
 			
@@ -254,10 +255,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 		SECTION("fromOtherThreadWithMultiUpdates")
 		{
 			P<TestDelegate<String> >	pDelegate = newObj<TestDelegate<String> >();
-
-			pDelegate->value = "hello";
-
-			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate);
+			
+			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 		
 			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
@@ -269,8 +268,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==0 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==1 );
 
 					// now we block the main thread.
 					Mutex blockMutex;
@@ -299,8 +298,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 						// the delegate should not be updated yet
 						REQUIRE( pDelegate->value=="hello" );
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==0 );
+						REQUIRE( pDelegate->getCount==0 );
+						REQUIRE( pDelegate->setCount==1 );
 
 						// now release the main thread
 					}
@@ -316,8 +315,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					// the previous pending updates. To prevent that we simply let all
 					// updates happen.
 					REQUIRE( pDelegate->value=="hi" );
-					REQUIRE( pDelegate->getCount==1 );
-					REQUIRE( pDelegate->setCount==2 );
+					REQUIRE( pDelegate->getCount==0 );
+					REQUIRE( pDelegate->setCount==3 );
 
 					REQUIRE(pChangeCounter->val==2);
 
@@ -329,10 +328,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 		SECTION("updateCachedValue")
 		{
 			P<TestDelegate<String> >	pDelegate = newObj<TestDelegate<String> >();
-
-			pDelegate->value = "hello";
-
-			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate);
+			
+			P< PropertyWithMainThreadDelegate<String> > pProp = newObj< PropertyWithMainThreadDelegate<String> >(pDelegate, "hello");
 			PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
 			P<IBase> pChangeSub = prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeCounter, &ChangeCounter::changed);
@@ -357,8 +354,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==0 );
+						REQUIRE( pDelegate->getCount==0 );
+						REQUIRE( pDelegate->setCount==1 );
 
 						// now we block the main thread.
 						Mutex blockMutex;
@@ -381,8 +378,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 							// delegate should not be affected yet
 							REQUIRE( pDelegate->value=="hello" );
-							REQUIRE( pDelegate->getCount==1 );
-							REQUIRE( pDelegate->setCount==0 );
+							REQUIRE( pDelegate->getCount==0 );
+							REQUIRE( pDelegate->setCount==1 );
 
 							// BUT then change the current value of the delegate manually
 							pDelegate->value = "hi";
@@ -398,8 +395,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 						// the delegate should NOT have been updated.
 						REQUIRE( pDelegate->value=="hi" );
-						REQUIRE( pDelegate->getCount==2 );
-						REQUIRE( pDelegate->setCount==0 );
+						REQUIRE( pDelegate->getCount==1 );
+						REQUIRE( pDelegate->setCount==1 );
 
 						// instead the property should have gotten the latest delegate value
 						REQUIRE( prop.get()=="hi" );
@@ -420,8 +417,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==0 );
+						REQUIRE( pDelegate->getCount==0 );
+						REQUIRE( pDelegate->setCount==1 );
 
 						// now we block the main thread.
 						Mutex blockMutex;
@@ -458,8 +455,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 						// the delegate should have been updated to the value that was set.
 						REQUIRE( pDelegate->value=="world" );
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==1 );
+						REQUIRE( pDelegate->getCount==0 );
+						REQUIRE( pDelegate->setCount==2 );
 
 						// and the property should still have the new value
 						REQUIRE( prop.get()=="world" );

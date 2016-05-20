@@ -44,8 +44,8 @@ void Window::finishInit()
 {
 	::SendMessage(_pHandle->getHwnd(), WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), TRUE);
 
-	_pText = newObj<WindowTextProperty>(_pHandle);
-	_pVisible = newObj<WindowVisibleProperty>(_pHandle);
+	_pText = newObj<WindowTextProperty>(_pHandle, Window::getWindowText(_pHandle->getHwnd()));
+	_pVisible = newObj<WindowVisibleProperty>(_pHandle, (::GetWindowLong(_pHandle->getHwnd(), GWL_STYLE) & WS_VISIBLE)==WS_VISIBLE) ;
 }
 
 

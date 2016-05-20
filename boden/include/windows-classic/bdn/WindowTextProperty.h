@@ -27,8 +27,8 @@ namespace bdn
 class WindowTextProperty : public PropertyWithMainThreadDelegate<String>
 {
 public:
-	WindowTextProperty(WindowHandle* pHandle)
-		: PropertyWithMainThreadDelegate( newObj<Delegate>(pHandle) )
+	WindowTextProperty(WindowHandle* pHandle, const String& initialValue)
+		: PropertyWithMainThreadDelegate( newObj<Delegate>(pHandle), initialValue )
 	{
 		_pOnDestroySub = pHandle->onDestroy().subscribeVoidMember<WindowTextProperty>(this, &WindowTextProperty::onWindowDestroy);
 	}

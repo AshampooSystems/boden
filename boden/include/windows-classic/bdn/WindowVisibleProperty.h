@@ -25,8 +25,8 @@ namespace bdn
 class WindowVisibleProperty : public PropertyWithMainThreadDelegate<bool>
 {
 public:
-	WindowVisibleProperty(WindowHandle* pHandle)
-		: PropertyWithMainThreadDelegate( newObj<Delegate>(pHandle) )
+	WindowVisibleProperty(WindowHandle* pHandle, bool initialValue)
+		: PropertyWithMainThreadDelegate( newObj<Delegate>(pHandle), initialValue )
 	{
 	}
 	

@@ -13,7 +13,7 @@ namespace bdn
 class Button : public Window, BDN_IMPLEMENTS IButton
 {
 public:
-	Button(Window* pParent, const std::string& label)
+	Button(Window* pParent, const String& label)
 	{
 		create(pParent, "BUTTON", label, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, 0, 20, 20, 200, 30 );
 	}

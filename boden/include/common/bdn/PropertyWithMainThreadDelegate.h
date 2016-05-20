@@ -16,7 +16,8 @@ namespace bdn
 	The property object itself can be used normally from any thread.
 
 	Note that PropertyWithMainThreadDelegate objects MUST be allocated with newObj.	
-	
+
+
 	*/	
 template<class ValType>
 class PropertyWithMainThreadDelegate : public RequireNewAlloc< Property<ValType>, PropertyWithMainThreadDelegate<ValType> >
@@ -31,11 +32,23 @@ public:
 
 	};
 
-	PropertyWithMainThreadDelegate(IDelegate* pDelegate)
+
+	/** @param pDelegate the delegate object that the property should work on.
+			The delegate's functions are only called from the main thread.
+		@param initialValue the initial value of the property. The property
+			will immediately initiate an update to the delegate to set it
+			to this value.*/
+	PropertyWithMainThreadDelegate(IDelegate* pDelegate, ValType initialValue )
 	{
 		_pDelegate = pDelegate;
 
-		updateCachedValue();
+		_value = initialValue;
+
+		scheduleOp(_nextSetId, _firstValidSetId,
+					[initialValue](PropertyWithMainThreadDelegate* pThis)
+					{
+						pThis->_pDelegate->set(initialValue);
+					} );
 	}
 	
 
