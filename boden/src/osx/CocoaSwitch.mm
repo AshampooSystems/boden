@@ -1,12 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
-#include <bdn/Switch.h>
-#include <bdn/Frame.h>
-
-#import <bdn/Frame_Impl.hh>
-
-#include <list>
-
+#import <bdn/CocoaSwitch.hh>
+#import <bdn/CocoaWindow.hh>
 
 namespace bdn
 {

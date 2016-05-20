@@ -38,7 +38,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/test.h>
 
 #include <bdn/TestAppWithUiController.h>
-#include <bdn/Frame.h>
+#include <bdn/IFrame.h>
 #include <bdn/mainThread.h>
 
 

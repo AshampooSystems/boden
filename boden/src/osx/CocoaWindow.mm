@@ -1,17 +1,14 @@
-#ifndef _BDN_FRAME_IMPL_H
-#define _BDN_FRAME_IMPL_H
-
-#include <bdn/Frame.h>
-
-#import <Cocoa/Cocoa.h>
+#include <bdn/init.h>
+#import <bdn/CocoaWindow.hh>
 
 namespace bdn
 {
+    
 
-class Frame::Impl
+class Window::Impl
 {
 public:
-    Impl(const String& title)
+    Impl()
     {
         NSRect frame = NSMakeRect(0, 0, 200, 200);
         _window  = [[NSWindow alloc] initWithContentRect:frame
@@ -27,7 +24,16 @@ public:
     {
         return _window;
     }
-
+    
+    Property<bool>& visible()
+    {
+        return _pImpl->visible();
+    }
+    
+    ReadProperty<bool>& visible() const
+    {
+        return _pImpl->visible();
+    }
     
     void show(bool visible)
     {
@@ -39,13 +45,31 @@ public:
     
     void setTitle(const String& title)
     {
-         [_window setTitle: [NSString stringWithCString:title.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
+        [_window setTitle: [NSString stringWithCString:title.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
     }
     
 protected:
     NSWindow* _window;
 };
 
+
+    
+Window::Window()
+{
+    _pImpl = new Impl(title);
 }
 
-#endif
+Property<bool>& Window::visible()
+{
+    return _pImpl->visible();
+}
+
+ReadProperty<bool>& Window::visible() const
+{
+    return _pImpl->visible();
+}
+
+
+
+
+}
