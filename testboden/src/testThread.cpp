@@ -594,6 +594,8 @@ std::atomic<int> ThreadLocalTestData::constructedCount;
 std::atomic<int> ThreadLocalTestData::destructedCount;
 
 
+BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) pThreadLocal1;
+	
 TEST_CASE("ThreadLocalStorage")
 {
     SECTION( "initial value" )
@@ -620,22 +622,21 @@ TEST_CASE("ThreadLocalStorage")
 
     SECTION("setGetReleaseOtherThread")
     {
-        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) pThreadLocal;
+		REQUIRE( pThreadLocal1==nullptr );
         
         int constructedBefore = ThreadLocalTestData::constructedCount;
         int destructedBefore = ThreadLocalTestData::destructedCount;
         
-        auto ppThreadLocal = &pThreadLocal;
         
-        auto threadResult = Thread::exec(   [ppThreadLocal]()
+        auto threadResult = Thread::exec(   []()
                         {
                             P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>( 143 );
-                            *ppThreadLocal = pData;
+                            pThreadLocal1 = pData;
                             
                             Thread::sleepMillis(3000);
                             
                             // should still have the same pointer
-                            REQUIRE( *ppThreadLocal==pData );
+                            REQUIRE( pThreadLocal1==pData );
                         } );
         
         Thread::sleepMillis(1000);
@@ -645,12 +646,12 @@ TEST_CASE("ThreadLocalStorage")
         REQUIRE( ThreadLocalTestData::destructedCount == destructedBefore);
         
         // in this thread the pointer should still be null
-        REQUIRE( pThreadLocal==nullptr );
+        REQUIRE( pThreadLocal1==nullptr );
         
         P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(42);
-        pThreadLocal = pData;
+        pThreadLocal1 = pData;
         
-        REQUIRE( pThreadLocal!=nullptr );
+        REQUIRE( pThreadLocal1!=nullptr );
         
         // one more object should exist now
         REQUIRE( ThreadLocalTestData::constructedCount == constructedBefore+2);
@@ -664,7 +665,7 @@ TEST_CASE("ThreadLocalStorage")
         REQUIRE( ThreadLocalTestData::destructedCount == destructedBefore+1);
         
         // and ours should still be there
-        REQUIRE( pThreadLocal==pData );
+        REQUIRE( pThreadLocal1==pData );
     }
     
     SECTION("Many objects")
