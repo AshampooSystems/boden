@@ -56,14 +56,14 @@ public:
 	}
 
 
-	virtual Property<ValType>& operator=(const ValType& val)
+	Property<ValType>& operator=(const ValType& val) override
     {
         set(val);
         
         return *this;
     }
 
-	virtual Property<ValType>& operator=(const ReadProperty<ValType>& prop)
+	Property<ValType>& operator=(const ReadProperty<ValType>& prop) override
     {
         set(prop.get());
         

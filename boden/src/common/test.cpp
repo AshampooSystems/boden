@@ -7682,7 +7682,7 @@ public:
             _pTestSession = new bdn::Session;
 
 			// this is just a place holder frame so that we have something visible.
-            _pFrame = newObj<Frame>("Running tests...");
+            _pFrame = createFrame("Running tests...");
             _pFrame->visible() = true;
 
 			std::vector<const char*> argPtrs;
@@ -7794,7 +7794,7 @@ protected:
 	Session*    _pTestSession;
     TestRunner* _pTestRunner;
 
-	P<Frame>	_pFrame;
+	P<IFrame>	_pFrame;
 };
 
 

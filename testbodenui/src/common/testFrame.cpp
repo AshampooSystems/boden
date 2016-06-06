@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#include <bdn/Frame.h>
+#include <bdn/IFrame.h>
 
 #include <bdn/test.h>
 
@@ -10,7 +10,7 @@ using namespace bdn;
 
 TEST_CASE("Frame", "[ui]")
 {   
-    P<Frame> pFrame = newObj<Frame>("Test");
+    P<IFrame> pFrame = createFrame("Test");
     
     pFrame->visible() = true;
     

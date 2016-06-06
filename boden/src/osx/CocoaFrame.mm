@@ -4,6 +4,13 @@
 namespace bdn
 {
     
+    
+P<IFrame> createFrame(const String& title)
+{
+    return newObj<CocoaFrame>(title);
+}
+
+
 
 CocoaFrame::CocoaFrame(const String& title)
 {

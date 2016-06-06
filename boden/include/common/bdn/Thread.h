@@ -9,6 +9,60 @@
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/ThreadDetachedError.h>
 
+
+
+/** \def BDN_STATIC_THREAD_LOCAL_PTR( objectType )
+
+    Creates a static pointer with thread-local storage. That means that each thread has its own pointer
+    value.
+    This can be used to store thread-specific data.
+    
+    objectType is the class object the object that the pointer points to. It must be derived from #Base.
+    
+    Initially the pointer object will be null in each thread. The most common way to use it is to first check
+    if the pointer is null and if it is then allocate a new object and store it in the pointer.
+    
+    The objects will be released when the thread exits.
+    
+    Example:
+    
+    \code
+    
+    class MyThreadLocalData : public Base
+    {
+        ...
+    };
+    
+    static P<MyThreadLocalData> getMyThreadLocalData()
+    {
+        BDN_STATIC_THREAD_LOCAL_PTR( MyThreadLocalData ) pData;
+        
+        if( pData == nullptr )
+            pData = newObj<MyThreadLocalData>();
+            
+        return pData;
+    }
+    
+    \endcode
+*/
+ 
+
+#if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
+
+    // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
+    // a workaround here.
+    #include <bdn/PosixThreadLocalStoragePtr.h>
+
+    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static PosixThreadLocalStoragePtr< objectType >
+
+#else
+
+    // just use standard C++11 thread_local storage
+    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static thread_local P< objectType >
+
+#endif
+
+
 namespace bdn
 {
     

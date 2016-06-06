@@ -79,10 +79,10 @@ void testNotifier(ArgTypes... args)
 		});
 
 	SECTION("subscribeMember")			
-		notifier.subscribeMember<Listener>(pSub, &l, &Listener::onNotify);
+		notifier.template subscribeMember<Listener>(pSub, &l, &Listener::onNotify);
 
 	SECTION("subscribeMemberVoid")			
-		notifier.subscribeVoidMember<Listener>(pSub, &l, &Listener::onNotifyVoid);
+		notifier.template subscribeVoidMember<Listener>(pSub, &l, &Listener::onNotifyVoid);
 
 	notifier.notify(args...);
 

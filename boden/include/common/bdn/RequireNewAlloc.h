@@ -1,6 +1,9 @@
 #ifndef BDN_RequireNewAlloc_H_
 #define BDN_RequireNewAlloc_H_
 
+
+#include <bdn/Thread.h>
+
 namespace bdn
 {
 	
@@ -67,11 +70,19 @@ public:
 	}
 
 protected:
+    struct AllocationInfo : public Base
+    {
+        bool allocatedWithNew = false;
+    };
+    
 	static bool& getAllocatedWithNewRef()
 	{
-		static thread_local bool allocatedWithNew = false;
-
-		return allocatedWithNew;
+        BDN_STATIC_THREAD_LOCAL_PTR( AllocationInfo ) pAllocationInfo;
+        
+        if(pAllocationInfo==nullptr)
+            pAllocationInfo = newObj<AllocationInfo>();
+        
+        return pAllocationInfo->allocatedWithNew;
 	}
 };
 

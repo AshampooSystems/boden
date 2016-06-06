@@ -569,3 +569,184 @@ TEST_CASE("Thread-Statics")
 }
 
 
+class ThreadLocalTestData : public Base
+{
+public:
+    static std::atomic<int> constructedCount;
+    static std::atomic<int> destructedCount;
+    
+    ThreadLocalTestData(int val=17)
+    {
+        _val = val;
+        
+        constructedCount++;
+    }
+    
+    ~ThreadLocalTestData()
+    {
+        destructedCount++;
+    }
+    
+    int _val;
+};
+
+std::atomic<int> ThreadLocalTestData::constructedCount;
+std::atomic<int> ThreadLocalTestData::destructedCount;
+
+
+TEST_CASE("ThreadLocalStorage")
+{
+    SECTION( "initial value" )
+    {
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) pThreadLocal;
+    
+        REQUIRE( pThreadLocal==nullptr );
+    }
+    
+    
+    SECTION( "setGet" )
+    {
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) pThreadLocal;
+        
+        P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(42);
+        
+        pThreadLocal = pData;
+        
+        REQUIRE( pThreadLocal!=nullptr );
+        
+        REQUIRE( pThreadLocal==pData );
+    }
+
+
+    SECTION("setGetReleaseOtherThread")
+    {
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) pThreadLocal;
+        
+        int constructedBefore = ThreadLocalTestData::constructedCount;
+        int destructedBefore = ThreadLocalTestData::destructedCount;
+        
+        auto ppThreadLocal = &pThreadLocal;
+        
+        auto threadResult = Thread::exec(   [ppThreadLocal]()
+                        {
+                            P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>( 143 );
+                            *ppThreadLocal = pData;
+                            
+                            Thread::sleepMillis(3000);
+                            
+                            // should still have the same pointer
+                            REQUIRE( *ppThreadLocal==pData );
+                        } );
+        
+        Thread::sleepMillis(1000);
+
+        // a new instance should have been created (but not yet destroyed)
+        REQUIRE( ThreadLocalTestData::constructedCount == constructedBefore+1);
+        REQUIRE( ThreadLocalTestData::destructedCount == destructedBefore);
+        
+        // in this thread the pointer should still be null
+        REQUIRE( pThreadLocal==nullptr );
+        
+        P<ThreadLocalTestData> pData = newObj<ThreadLocalTestData>(42);
+        pThreadLocal = pData;
+        
+        REQUIRE( pThreadLocal!=nullptr );
+        
+        // one more object should exist now
+        REQUIRE( ThreadLocalTestData::constructedCount == constructedBefore+2);
+        REQUIRE( ThreadLocalTestData::destructedCount == destructedBefore);
+        
+        // wait for the thread to end
+        threadResult.get();
+        
+        // now the object from the other thread should have been released
+        REQUIRE( ThreadLocalTestData::constructedCount == constructedBefore+2);
+        REQUIRE( ThreadLocalTestData::destructedCount == destructedBefore+1);
+        
+        // and ours should still be there
+        REQUIRE( pThreadLocal==pData );
+    }
+    
+    SECTION("Many objects")
+    {
+        // here we simply test that there is no low limit to the number of thread local objects one can have
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p0 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p1 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p2 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p3 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p4 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p5 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p6 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p7 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p8 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p9 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p10 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p11 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p12 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p13 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p14 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p15 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p16 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p17 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p18 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p19 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p20 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p21 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p22 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p23 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p24 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p25 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p26 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p27 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p28 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p29 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p30 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p31 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p32 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p33 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p34 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p35 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p36 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p37 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p38 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p39 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p40 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p41 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p42 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p43 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p44 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p45 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p46 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p47 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p48 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p49 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p50 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p51 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p52 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p53 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p54 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p55 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p56 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p57 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p58 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p59 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p60 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p61 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p62 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p63 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p64 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p65 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p66 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p67 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p68 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p69 = newObj<ThreadLocalTestData>();
+        BDN_STATIC_THREAD_LOCAL_PTR( ThreadLocalTestData ) p70 = newObj<ThreadLocalTestData>();
+        
+        
+    }
+    
+    
+    
+    
+}
+

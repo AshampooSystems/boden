@@ -5,42 +5,26 @@
 
 namespace bdn
 {
+
+
+P<ISwitch> createSwitch(IWindow* pParent, const String& label)
+{
+    return newObj<CocoaSwitch>( cast<CocoaWindow>(pParent), label);
+}
+
     
-    class Switch::Impl
-    {
-    public:
-        Impl(Switch* pOuter, IWindow* pParent, const std::string& label)
-        {
-            _pOuter = pOuter;
-            
-            NSWindow* pParentWindow = dynamic_cast<Frame*>(pParent)->getImpl()->getWindow();
-            
-            _button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 40, 200, 40)];
-            [[pParentWindow contentView] addSubview: _button];
-            [_button setButtonType:NSSwitchButton];
-            [_button setTitle: [NSString stringWithCString:label.c_str() encoding:NSUTF8StringEncoding] ];
-            
-            
-        }
-        
-        void setLabel(const std::string& label)
-        {
-            
-        }
-        
-    protected:
-        Switch*   _pOuter;
-        NSButton*  _button;
-    };
+CocoaSwitch::CocoaSwitch(CocoaWindow* pParent, const String& label)
+{
+    NSWindow* pNSParentWindow = pParent->getNSWindow();
     
+    NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 40, 200, 40)];
     
+    [[pNSParentWindow contentView] addSubview: button];
+    [button setButtonType:NSSwitchButton];
     
-    
-    Switch::Switch(IWindow* pParent, const std::string& label)
-    {
-        _pImpl = new Impl(this, pParent, label);
-    }
-    
+    initButton(button, label);
+
+}
     
     
     

@@ -35,8 +35,12 @@ else()
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )	
 		SET( BODEN_TARGET "linux" )
 
+		SET( BODEN_TARGET_FAMILY "posix")
+
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )	
 		SET( BODEN_TARGET "osx" )
+
+		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Emscripten" )		
 		SET( BODEN_TARGET "web" )
