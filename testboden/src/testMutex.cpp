@@ -7,10 +7,11 @@
 
 using namespace bdn;
 
-
 void testMutex(bool recursive)
 {
 	Mutex mutex;
+    
+#if BDN_HAVE_THREADS
 
 	bool  threadLocked = false;
 	bool  threadUnlocked = false;
@@ -60,8 +61,34 @@ void testMutex(bool recursive)
 	REQUIRE( watch.getMillis()<2000 );
 
 	mutex.unlock();
-		
+
+#else
+
+   
+    // multi threading is not supported. So all we can do here is verify
+    // that mutexes do not block or crash
+    
+    mutex.lock();
+    if(recursive)
+    {
+        // lock and unlock again
+        mutex.lock();
+        mutex.unlock();
+        
+        // should still be locked here.
+    }
+    
+    mutex.unlock();
+    
+    mutex.lock();
+    
+    mutex.unlock();
+    
+#endif
+
 }
+
+
 
 TEST_CASE("Mutex")
 {
@@ -73,6 +100,8 @@ TEST_CASE("Mutex")
 
 }
 
+
+#if BDN_HAVE_THREADS
 
 TEST_CASE("MutexLock")
 {
@@ -166,4 +195,8 @@ TEST_CASE("MutexUnlock")
 	REQUIRE(threadLocked2);	
 
 }
+
+#endif
+
+
 

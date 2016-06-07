@@ -291,6 +291,7 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 		}
 	}	
 
+#if BDN_HAVE_THREADS
 	
 	SECTION("threadSafety")
 	{
@@ -361,6 +362,8 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 			REQUIRE_IN( readVal, validReadValues );			
 		}
 	}
+    
+#endif
 }
 
 
@@ -369,6 +372,8 @@ template<class PropertyType, typename ValType>
 void testStringProperty(std::function< P<PropertyType>() > propertyCreatorFunc, std::function<ValType(int)> valueGeneratorFunc )
 {
 	_testPropertyBase(propertyCreatorFunc, valueGeneratorFunc);
+    
+#if BDN_HAVE_THREADS
 		
 	SECTION("threadSafeAppend")
 	{
@@ -454,7 +459,9 @@ void testStringProperty(std::function< P<PropertyType>() > propertyCreatorFunc, 
 		// implemented incorrectly. It could simply be a case of very bad luck.
 		// If this happens then this test might have to be redesigned.
 		REQUIRE( values.size()>=20 );
-	}	
+	}
+    
+#endif
 }
 
 

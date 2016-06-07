@@ -151,7 +151,9 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			REQUIRE( pDelegate->value=="hurz" );
 			REQUIRE( pDelegate->getCount==1 );
 			REQUIRE( pDelegate->setCount==2 );
-		}	
+		}
+        
+#if BDN_HAVE_THREADS
 
 		SECTION("fromOtherThread")
 		{
@@ -327,6 +329,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			
 				});
 		}
+        
+#endif
 
 		SECTION("updateCachedValue")
 		{
@@ -348,6 +352,8 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 				REQUIRE(pChangeCounter->val==1);
 			}
+            
+#if BDN_HAVE_THREADS
 
 			SECTION("fetchWhileSetScheduled")
 			{
@@ -472,6 +478,9 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			
 					});
 			}
+            
+#endif
+
 		}
 	}
 }

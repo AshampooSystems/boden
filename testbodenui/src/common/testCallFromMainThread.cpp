@@ -33,7 +33,8 @@ void testCallFromMainThread(bool throwException)
         // should not have waited at any point.
         REQUIRE( watch.getMillis()<1000 );
     }
-
+    
+#if BDN_HAVE_THREADS
 
 	SECTION("otherThread")
 	{
@@ -140,6 +141,8 @@ void testCallFromMainThread(bool throwException)
             Thread::sleepMillis(2000);
         }
     }
+    
+#endif
 }
 
 TEST_CASE("callFromMainThread")
@@ -168,6 +171,8 @@ void testAsyncCallFromMainThread(bool throwException)
         P<Data> pData = newObj<Data>();
 
         StopWatch watch;
+        
+#if BDN_HAVE_THREADS
 
         asyncCallFromMainThread( [pData, throwException](int x){ pData->callCount++; if(throwException){ throw InvalidArgumentError("hello"); } return x*2; }, 42 );
 
@@ -191,9 +196,34 @@ void testAsyncCallFromMainThread(bool throwException)
 
                          END_ASYNC_TEST();
                      } );
+        
+#else
+
+        asyncCallFromMainThread(    [pData, throwException](int x)
+                                    {
+                                        pData->callCount++;
+                                        
+                                        asyncCallFromMainThread( [pData](){ REQUIRE(pData->callCount==1); END_ASYNC_TEST(); } );
+                                        
+                                        if(throwException)
+                                            throw InvalidArgumentError("hello");
+                                        
+                                        return x*2;
+                                    }, 42 );
+        
+        // should NOT have been called immediately, even though we are on the main thread
+        REQUIRE( pData->callCount==0 );
+        
+        // should not have waited at any point.
+        REQUIRE( watch.getMillis()<1000 );
+        
+        MAKE_ASYNC_TEST(10);
+        
+#endif
 
     }
 
+#if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
@@ -233,6 +263,9 @@ void testAsyncCallFromMainThread(bool throwException)
                      } );
 
     }
+    
+#endif
+
 }
 
 
@@ -282,6 +315,8 @@ void testWrapCallFromMainThread(bool throwException)
         // should not have waited at any point.
         REQUIRE( watch.getMillis()<1000 );
     }
+    
+#if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
@@ -421,6 +456,7 @@ void testWrapCallFromMainThread(bool throwException)
         }
     }
 
+#endif
 
 }
 
@@ -457,6 +493,19 @@ void testWrapAsyncCallFromMainThread(bool throwException)
                                                         {
                                                             pData->callCount++;
                                                             pData->threadId = Thread::getCurrentId();
+                                                            
+#if ! BDN_HAVE_THREADS
+                                                            asyncCallFromMainThread([pData]()
+                                                                                    {
+                                                                                        // now the call should have happened.
+                                                                                        REQUIRE( pData->callCount==1 );
+                                                                                        REQUIRE( pData->threadId==Thread::getMainId() );
+                                                                                        END_ASYNC_TEST();
+                                                                                    } );
+#endif
+                                                            
+
+
 
                                                             if(throwException)
                                                                 throw InvalidArgumentError("hello");
@@ -476,6 +525,8 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         REQUIRE( watch.getMillis()<500 );
 
         MAKE_ASYNC_TEST(10);
+        
+#if BDN_HAVE_THREADS
 
         Thread::exec( [pData]()
                       {
@@ -488,7 +539,11 @@ void testWrapAsyncCallFromMainThread(bool throwException)
 
                           END_ASYNC_TEST();
                       } );
+        
+#endif
     }
+    
+#if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
@@ -543,6 +598,8 @@ void testWrapAsyncCallFromMainThread(bool throwException)
                          END_ASYNC_TEST();
                      } );
     }
+    
+#endif
 
 }
 

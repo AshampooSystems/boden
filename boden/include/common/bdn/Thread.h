@@ -2,7 +2,11 @@
 #define BDN_Thread_H_
 
 #include <future>
+
+#if BDN_HAVE_THREADS
 #include <thread>
+#endif
+
 #include <utility>
 
 #include <bdn/IThreadRunnable.h>
@@ -45,22 +49,32 @@
     
     \endcode
 */
- 
 
-#if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
+#if BDN_HAVE_THREADS
 
-    // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
-    // a workaround here.
-    #include <bdn/PosixThreadLocalStoragePtr.h>
 
-    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static PosixThreadLocalStoragePtr< objectType >
+    #if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
+
+        // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
+        // a workaround here.
+        #include <bdn/PosixThreadLocalStoragePtr.h>
+
+        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static PosixThreadLocalStoragePtr< objectType >
+
+    #else
+
+        // just use standard C++11 thread_local storage
+        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static thread_local P< objectType >
+
+    #endif
 
 #else
 
-    // just use standard C++11 thread_local storage
-    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static thread_local P< objectType >
+    // we have no threads => thread local is the same as static
+    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static P< objectType >
 
 #endif
+
 
 
 namespace bdn
@@ -140,35 +154,54 @@ public:
 
 		The Id object can also be serialized into std ostream objects using the << operator.
 		*/
+#if BDN_HAVE_THREADS
 	typedef std::thread::id Id;
+#else
+    typedef int Id;
+#endif
     
 
     /** The type of the native operating system handle to the thread. This is implementation-specific.*/
+#if BDN_HAVE_THREADS
     typedef std::thread::native_handle_type Handle;
-
+#else
+    typedef void* Handle;
+#endif
     
     
     /** Constructs a dummy Thread object that is not actually connected to a real
         thread. It behaves like an object of a thread that has already finished.*/
     Thread() noexcept;
     
-    
-    /** Creates a thread which calls the IThreadRunnable::run() method of the specified runnable object.
-     
-        The thread will keep a reference to the runnable object. The object is released when the thread ends.
-     
-        If you prefer to pass a function pointer or function object directly then please look
-        at the static function Thread::exec() instead.
-     */
-    Thread( IThreadRunnable* pRunnable );
-    
-    
     Thread(const Thread&) = delete;
-    
     
     /** Destructs the thread object. If the thread was not detached then
         then it is stopped and the destructor waits for it to end (like calling stop() ). */
     ~Thread() noexcept;
+    
+
+#if BDN_HAVE_THREADS
+
+    /** Creates a thread which calls the IThreadRunnable::run() method of the specified runnable object.
+     
+     The thread will keep a reference to the runnable object. The object is released when the thread ends.
+     
+     If you prefer to pass a function pointer or function object directly then please look
+     at the static function Thread::exec() instead.
+     */
+    Thread( IThreadRunnable* pRunnable );
+    
+#else
+
+private:
+    // If you get an error here then multithreading is not supported on this platform.
+    Thread( IThreadRunnable* pRunnable );
+public:
+    
+
+#endif
+
+   
     
     
     /** Returns the thread's id.
@@ -180,14 +213,22 @@ public:
      */
     Id getId() const
     {
+#if BDN_HAVE_THREADS
         return _threadId;
+#else
+        return 0;
+#endif
     }
     
     
     /** Returns the native operating system handle of the thread. This is implementation specific.*/
     Handle getHandle()
     {
+#if BDN_HAVE_THREADS
         return _thread.native_handle();
+#else
+        return nullptr;
+#endif
     }
     
     
@@ -370,6 +411,7 @@ public:
         \endcode
      
      */
+#if BDN_HAVE_THREADS
     template <class FuncType, class... Args>
     static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType&& func, Args&&... args)
     {
@@ -414,6 +456,20 @@ public:
         return resultFuture;
     }
     
+#else
+
+private:
+    // if you get an error here then you are using Threads on a platform that does not support
+    // multithreading.
+    template <class FuncType, class... Args>
+    static std::future<typename std::result_of<FuncType(Args...)>::type> exec(FuncType&& func, Args&&... args)
+    {
+        return std::future<typename std::result_of<FuncType(Args...)>::type>();
+    }
+public:
+    
+#endif
+    
 
     
 
@@ -422,7 +478,8 @@ public:
     
     
 private:
-    
+
+#if BDN_HAVE_THREADS
 
     struct ThreadData : public Base
     {
@@ -448,6 +505,8 @@ private:
     Id                  _threadId;
     
     bool                _detached = false;
+    
+#endif
 };
 	
 

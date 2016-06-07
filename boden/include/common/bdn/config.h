@@ -101,6 +101,20 @@
 #endif
 
 
+#if BDN_PLATFORM_WEB
+
+    // no support for threads (yet). There is actually an implementation from Emscripten
+    // but as of the time of this writing it only works if the Javascript code is executed
+    // with Firefox nightly. It depends on an extension of the web worker specification, which
+    // is not standardized yet. So we disable threading support.
+    #define BDN_HAVE_THREADS 0
+
+#else
+    // all other platforms support multi-threading
+    #define BDN_HAVE_THREADS 1
+
+#endif
+
 
 #endif
 

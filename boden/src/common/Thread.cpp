@@ -11,6 +11,8 @@ Thread::Thread() noexcept
 }
 
 
+#if BDN_HAVE_THREADS
+
 Thread::Thread( IThreadRunnable* pRunnable )
 {
     _pThreadData = newObj<ThreadData>();
@@ -115,6 +117,8 @@ void Thread::signalStop()
     }
 }
 
+#endif
+
 
 void Thread::sleepSeconds(double seconds)
 {
@@ -136,12 +140,17 @@ void Thread::yield() noexcept
 
 Thread::Id Thread::getCurrentId()
 {
+#if BDN_HAVE_THREADS
 	return std::this_thread::get_id();
+#else
+    return 0;
+#endif
 }
 
 
 Thread::Id Thread::getMainId()
 {
+#if BDN_HAVE_THREADS
 	// The main ID is set only once and then never changed again.
 	// So there is no need for any synchronization or mutexes.
 	Id mainId = getMainIdRef();
@@ -149,18 +158,31 @@ Thread::Id Thread::getMainId()
 		throw ProgrammingError("Thread::getMainId called but main thread ID was not set yet.");
 
 	return mainId;
+#else
+    return 0;
+#endif
 }
 
 void Thread::_setMainId(const Thread::Id& id)
 {
+#if BDN_HAVE_THREADS
 	// this is only called once when the program starts and no other threads exist yet.
 	// So there is no need for any synchronization or mutexes.
 	getMainIdRef() = id;
+    
+#else
+    // ignore call.
+#endif
 }
 
 bool Thread::isCurrentMain()
 {
+#if BDN_HAVE_THREADS
 	return getCurrentId() == getMainId();
+    
+#else
+    return true;
+#endif
 
 }
 

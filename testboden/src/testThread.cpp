@@ -35,6 +35,8 @@ public:
 
 };
 
+#if BDN_HAVE_THREADS
+
 void testSignalStop()
 {
     P<TestStopRunnable> pRunnable = newObj<TestStopRunnable>();
@@ -514,6 +516,18 @@ TEST_CASE( "Thread", "[.][long]" )
 
 }
 
+#else
+
+// multi-threading is not supported
+TEST_CASE("Thread")
+{
+    REQUIRE( Thread::getCurrentId()==0 );
+    REQUIRE( Thread::getMainId()==0 );
+    REQUIRE( Thread::isCurrentMain() );
+}
+
+#endif
+
 void verifySleep( std::function<void()> func, int expectedSleepMillis)
 {
 	auto startTime = std::chrono::system_clock::now();
@@ -619,6 +633,7 @@ TEST_CASE("ThreadLocalStorage")
         REQUIRE( pThreadLocal==pData );
     }
 
+#if BDN_HAVE_THREADS
 
     SECTION("setGetReleaseOtherThread")
     {
@@ -667,6 +682,8 @@ TEST_CASE("ThreadLocalStorage")
         // and ours should still be there
         REQUIRE( pThreadLocal1==pData );
     }
+    
+#endif
     
     SECTION("Many objects")
     {
