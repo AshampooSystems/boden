@@ -16,6 +16,8 @@ else()
 	if( IOS )
 		SET( BODEN_TARGET "ios" )
 
+		SET( BODEN_TARGET_FAMILY "posix")
+
 	elseif( ANDROID )
 		SET( BODEN_TARGET "android" )
 
