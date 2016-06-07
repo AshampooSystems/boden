@@ -3181,50 +3181,23 @@ private:
 		m_reporter->sectionStarting( *_pCurrentTestCaseSection );
 
 		_currentTestPrevAssertions = m_totals.assertions;
-		try
-		{
-			m_lastAssertionInfo = AssertionInfo( "TEST_CASE", _pCurrentTestCaseInfo->lineInfo, "", ResultDisposition::Normal );
+		
+		m_lastAssertionInfo = AssertionInfo( "TEST_CASE", _pCurrentTestCaseInfo->lineInfo, "", ResultDisposition::Normal );
 
-			seedRng( *m_config );
+        seedRng( *m_config );
 
-			_currentTestTimer.start();
-			if( m_reporter->getPreferences().shouldRedirectStdOut ) {
-				StreamRedirect coutRedir( bdn::cout(), redirectedCout );
-				StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
-				invokeActiveTestCase();
-			}
-			else {
-				invokeActiveTestCase();
-			}
-		}
-		catch( TestFailureException& )
-		{
-			// This just means the test was aborted due to failure
-			currentTestEnded(CurrentTestResult::Failed);
-			return true;	// test is done
-		}
-		catch(...)
-		{
-			currentTestEnded(CurrentTestResult::Exception);
-			return true;	// test is done
-		}
-
-		if(_currentTestIsAsync)
-		{
-			// the test is a UI test. I.e. it will run asynchronously and
-			// endUiTest will be called when it finishes.
-			// So, nothing else to do here. Just end and tell our caller that the
-			// test has not finished yet.
-			return false;
-		}
-		else
-		{
-			// not a Ui test => the test executed synchronously and has
-			// already finished.
-			currentTestEnded( CurrentTestResult::Passed );
-			return true;	// test is done
-		}
-	}
+        _currentTestTimer.start();
+        
+        if( m_reporter->getPreferences().shouldRedirectStdOut )
+        {
+            StreamRedirect coutRedir( bdn::cout(), redirectedCout );
+            StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
+            
+            return invokeActiveTestCase();
+        }
+        else
+            return invokeActiveTestCase();
+    }
 
 	void currentTestEnded(CurrentTestResult result)
 	{
@@ -3322,10 +3295,41 @@ private:
 		}
 	}
 
-	void invokeActiveTestCase() {
-		FatalConditionHandler fatalConditionHandler; // Handle signals
-		m_activeTestCase->invoke();
-		fatalConditionHandler.reset();
+	bool invokeActiveTestCase()
+    {
+        try
+        {
+            FatalConditionHandler fatalConditionHandler; // Handle signals
+            
+            m_activeTestCase->invoke();
+            
+            fatalConditionHandler.reset();
+        }
+        catch( TestFailureException& )
+        {
+            // This just means the test was aborted due to failure
+            currentTestEnded(CurrentTestResult::Failed);
+            return true;    // test is done
+        }
+        catch(...)
+        {
+            currentTestEnded(CurrentTestResult::Exception);
+            return true; // test is done
+        }
+        
+        if(_currentTestIsAsync)
+        {
+            // the test is an async test (probably a UI test). I.e. it will run asynchronously and
+            // endUiTest will be called when it finishes.
+            // So, nothing else to do here. Just end and tell our caller that the
+            // test has not finished yet.
+            return false;
+        }
+        else
+        {
+            currentTestEnded(CurrentTestResult::Passed);
+            return true;
+        }
 	}
 
 private:
@@ -3645,7 +3649,8 @@ public:
 	}
 
 	int applyCommandLine( int argc, char const* const argv[], OnUnusedOptions::DoWhat unusedOptionBehaviour = OnUnusedOptions::Fail ) {
-		try {
+    
+        try {
 			m_cli.setThrowOnUnrecognisedTokens( unusedOptionBehaviour == OnUnusedOptions::Fail );
 			m_unusedTokens = m_cli.parseInto( argc, argv, m_configData );
 			if( m_configData.showHelp )

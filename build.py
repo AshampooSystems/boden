@@ -486,6 +486,8 @@ def commandPrepare(commandArgs):
                 mainDir = getMainDir();
                 emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
 
+                emsdkExePath = os.path.join(emsdkDir, "emsdk");
+
                 if not os.path.isdir(emsdkDir):
                     print("Setting up Emscripten SDK. This can take a while...")
 
@@ -493,8 +495,6 @@ def commandPrepare(commandArgs):
                         emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
 
                         shutil.copytree(emsdkSourceDir, emsdkDir);
-
-                        emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
                         subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
 
@@ -743,6 +743,73 @@ def commandClean(args):
     commandBuildOrClean("clean", args);
 
 
+def commandRun(args):
+
+    if not args.module:
+        raise ProgramArgumentError("Please specify a module name with --module MODULE")
+
+    if not args.platform:
+        raise ProgramArgumentError("Please specify the platform name with --platform PLATFORM")
+
+    if not args.config:
+        raise ProgramArgumentError("Please specify the configuration name with --config CONFIG")
+
+    for platformName, arch in getPlatformAndArchListForCommand(args):
+
+        if platformName not in platformMap:
+            raise InvalidPlatformNameError(platformName);
+
+        platformBuildDir = getPlatformBuildDir(platformName, arch);
+
+        platformState = loadState(platformBuildDir);
+        singleConfigBuildSystem = platformState.get("singleConfigBuildSystem", False);
+
+        if not args.config:
+            configList = ["Debug", "Release"];
+        else:
+            configList = [args.config];
+
+        for config in configList:
+
+            outputDir = os.path.join(platformBuildDir, config);
+
+            moduleFilePath = os.path.join(outputDir, args.module);
+
+            commandLine = "";
+
+            if platformName=="windows-classic":
+                moduleFilePath += ".exe";
+
+            elif platformName=="web":
+                moduleFilePath += ".html";
+
+                mainDir = getMainDir();
+                emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+
+                emsdkExePath = os.path.join(emsdkDir, "emsdk");
+
+                if sys.platform=="win32":
+                    commandLine = '"%s" activate latest && ' % emsdkExePath;
+                else:
+                    commandLine = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+
+
+            commandLine += "emrun --browser safari "+moduleFilePath;
+
+            for p in args.params:                
+                commandLine += ' "%s"' % (p);
+
+            print("Calling executable of module %s:" % args.module);
+
+            print(commandLine);
+
+            exitCode = subprocess.call(commandLine, shell=True, cwd=outputDir);
+            if exitCode!=0:
+                raise ToolFailedError("run", exitCode);
+
+
+
+
 def commandDistClean(args):
     for platformName, arch in getPlatformAndArchListForCommand(args):
         if platformName not in platformMap:
@@ -845,6 +912,7 @@ The parameters TARGET, CONFIG and ARCH work exactly the same as with the
 'build' command.
 
 
+
 --- Command: distclean ---
 
 build.py distclean [--platform TARGET] [--arch ARCH]
@@ -858,6 +926,25 @@ If TARGET is omitted then all prepared platforms are distcleaned.
 
 If ARCH is omitted then all architectures for the selected platform(s) are
 distcleaned.
+
+
+--- Command: run ---
+
+build.py --module MODULE [--platform TARGET] [--config CONFIG] [--arch ARCH] run -- PARAMS
+
+Runs the specified executable.
+
+MODULE is the name of the executable to run.
+
+PARAMS are the optional commandline parameters to pass to the executable. The parameter list
+should be preceded by the separator argument "--" and a space.
+
+If TARGET is omitted then all prepared platforms are run (one after the other).
+
+If CONFIG is omitted then all configurations are run (one after the other).
+
+If ARCH is omitted then all prepared architectures for the platform are run (one after the other).
+
 
 
 --- Command: builddeps ---
@@ -964,12 +1051,16 @@ def main():
 
         
         argParser = MyArgParser();
-        argParser.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps"] );
+        argParser.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps", "run"] );
 
         argParser.add_argument("--platform" );
         argParser.add_argument("--build-system" );
         argParser.add_argument("--config", choices=["Debug", "Release"] );
         argParser.add_argument("--arch" );
+
+        argParser.add_argument("--module" );
+
+        argParser.add_argument("params", nargs="*" );
 
         args = argParser.parse_args();
 
@@ -989,6 +1080,9 @@ def main():
 
         elif command=="builddeps":
             commandBuildDeps(args);
+
+        elif command=="run":
+            commandRun(args);
 
         else:
             raise ProgramArgumentError("Invalid command: '%s'" % command);

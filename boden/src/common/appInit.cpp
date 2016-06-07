@@ -4,6 +4,10 @@
 #include <bdn/test.h>
 #include <bdn/Thread.h>
 
+#if BDN_PLATFORM_WEB
+#include <bdn/Uri.h>
+#endif
+
 #include <iostream>
 
 namespace bdn
@@ -27,8 +31,14 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 		std::vector<String> args;
 
+#if BDN_PLATFORM_WEB
+		// arguments are URL-escaped
+		for(int i=0; i<argCount; i++)
+			args.push_back( Uri::unescape( String(argv[i]) ) );
+#else
 		for(int i=0; i<argCount; i++)
 			args.push_back( String::fromLocaleEncoding(argv[i]) );
+#endif
 		if(argCount==0)
 			args.push_back("");	// always add the first entry.
 

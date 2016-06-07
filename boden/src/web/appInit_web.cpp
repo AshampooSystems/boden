@@ -2,6 +2,7 @@
 #include <bdn/appInit.h>
 
 #include <bdn/Thread.h>
+#include <bdn/Uri.h>
 
 
 namespace bdn
@@ -21,7 +22,10 @@ int _uiAppMain( AppControllerBase* pAppController,
     std::vector<String> args;
     
     for(int i=0; i<argCount; i++)
-        args.push_back( String(argv[i]) );
+    {
+        // arguments are URL-escaped.
+        args.push_back( Uri::unescape( String(argv[i]) ) );
+    }
     if(argCount==0)
         args.push_back(""); // always add the first entry.
     
