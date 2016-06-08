@@ -262,8 +262,9 @@ template<>
 void verifyStringFromStream<char>(const String& s, const String& expectedValue, const std::locale& loc)
 {
     std::string streamData = toStreamData<char>(expectedValue, loc);
+   
 	String expectedValueAfterLocaleRoundTrip = fromStreamData<char>( streamData, loc );
-
+    
 	// sanity check
 	REQUIRE( expectedValueAfterLocaleRoundTrip.getLength()>=expectedValue.getLength() );
 
@@ -273,13 +274,8 @@ void verifyStringFromStream<char>(const String& s, const String& expectedValue, 
 template<class CharType>
 std::basic_string<CharType> makeInStreamData(const String& in)
 {
-    // There is a compiler bug in g++ 5.3.1 that makes this fail with an assertion
-    // in codecvt if we use a an istringstream object.
-    // Apparently istringstream does not get a valid locale.
-    // So we use an ostringstream instead - it SHOULD be the same locale, after all.
-    std::basic_ostringstream<CharType> tempStream;
-    std::basic_string<CharType> streamData = toStreamData<CharType>(in, tempStream.getloc());
-        
+    std::basic_string<CharType> streamData = toStreamData<CharType>(in, std::basic_ostringstream<CharType>().getloc() );
+                
     return streamData;
 }
 
@@ -310,11 +306,11 @@ inline void verifyStreamIntegration()
 		String				s;
 
 		stream >> s;
-        
+                
 		verifyStringFromStream<CharType>(s, U"\U00012345hello", stream.getloc());
         
         stream >> s;
-        
+                
         verifyStringFromStream<CharType>(s, U"world", stream.getloc());        
 	}
 

@@ -997,7 +997,8 @@ inline bool operator>=(const char32_t* a, const bdn::String& b)
 
 
 /** Behaves the same way as the corresponding operators for std::string and const char*. The string
-	is written in UTF-8 encoding.
+	is written in the encoding of the locale that is associated with the stream
+    (as returned by std::ostream::getloc() )
 */
 inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
 {
@@ -1015,16 +1016,15 @@ inline std::wostream& operator<<(std::wostream& stream, const bdn::String& s)
 
 
 
-
-
 /** Behaves the same way as the corresponding operators for std::string and const char*. The string
-	is read in UTF-8 encoding.
+	is read in the encoding of the locale that is associated with the stream
+    (as returned by std::istream::getloc() )
 */
 inline std::istream& operator>>(std::istream& stream, bdn::String& s)
 {
 	std::string temp;
 	stream >> temp;
-	s = temp;
+	s = bdn::String::fromLocaleEncoding(temp, stream.getloc() );
 
 	return stream;
 }
@@ -1054,7 +1054,7 @@ namespace std
 
 		std::getline(stream, temp, delimiterChar);
 
-		s = temp;
+		s = bdn::String::fromLocaleEncoding(temp, stream.getloc());
 
 		return stream;
 	}
@@ -1067,7 +1067,7 @@ namespace std
 
 		std::getline(stream, temp);
 
-		s = temp;
+		s = bdn::String::fromLocaleEncoding(temp, stream.getloc());
 
 		return stream;
 	}
@@ -1084,7 +1084,7 @@ namespace std
 
 		std::getline(std::move(stream), temp, delimiterChar);
 
-		s = temp;
+		s = bdn::String::fromLocaleEncoding(temp, stream.getloc());
 
 		return stream;
 	}
@@ -1097,7 +1097,7 @@ namespace std
 
 		std::getline(std::move(stream), temp);
 
-		s = temp;
+		s = bdn::String::fromLocaleEncoding(temp, stream.getloc());
 
 		return stream;
 	}

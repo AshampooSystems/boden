@@ -70,6 +70,7 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
     return wideToUtf8(wideString);
     
 #else
+
 	const std::codecvt<wchar_t,char,mbstate_t>& codec = std::use_facet<std::codecvt<wchar_t,char,mbstate_t> >(loc);
 	
 	size_t len = wideString.length();
@@ -79,7 +80,7 @@ std::string wideToLocaleEncoding(const std::wstring& wideString, const std::loca
 	{
 		const wchar_t*		pCurrIn = wideString.c_str();		
 		const wchar_t*		pInEnd = pCurrIn+len;
-		mbstate_t			state;
+		std::mbstate_t		state = std::mbstate_t();
 
 		std::string			resultString;
 		const int			outBufferSize = MB_LEN_MAX*4;
@@ -195,7 +196,7 @@ std::wstring localeEncodingToWide(const std::string& multiByte, const std::local
 		const char*			pCurrIn = multiByte.c_str();		
 		const char*			pInEnd = pCurrIn+len;
 		const char*			pInNext = pCurrIn;
-		mbstate_t			state;
+		std::mbstate_t		state = std::mbstate_t();
 
 		std::wstring		resultString;
 		const int			outBufferSize = 16;
