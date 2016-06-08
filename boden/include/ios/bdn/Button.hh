@@ -1,20 +1,20 @@
-#ifndef BDN_UiKitButton_HH_
-#define BDN_UiKitButton_HH_
+#ifndef BDN_Button_HH_
+#define BDN_Button_HH_
 
 #include <bdn/IButton.h>
 #include <bdn/ClickEvent.h>
 
-#import <bdn/UiKitWindow.hh>
-#import <bdn/UiKitView.hh>
+#import <bdn/Window.hh>
+#import <bdn/View.hh>
 
 namespace bdn
 {
     
-class UiKitButton : public UiKitView, BDN_IMPLEMENTS IButton
+class Button : public View, BDN_IMPLEMENTS IButton
 {
 public:
-    UiKitButton(UiKitWindow* pParent, const String& label);
-    ~UiKitButton();
+    Button(Window* pParent, const String& label);
+    ~Button();
     
     UIButton* getUIButton()
     {

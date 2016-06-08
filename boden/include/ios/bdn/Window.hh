@@ -1,23 +1,23 @@
-#ifndef BDN_CocoaWindow_HH_
-#define BDN_CocoaWindow_HH_
+#ifndef BDN_Window_HH_
+#define BDN_Window_HH_
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/PropertyWithMainThreadDelegate.h>
 
 namespace bdn
 {
 
-class UiKitWindow : public Base, BDN_IMPLEMENTS IWindow
+class Window : public Base, BDN_IMPLEMENTS IView
 {
 public:
-    UiKitWindow()
+    Window()
     {
         _window = nullptr;
     }
     
-    ~UiKitWindow()
+    ~Window()
     {
         _pVisible->detachDelegate();
         _pTitle->detachDelegate();

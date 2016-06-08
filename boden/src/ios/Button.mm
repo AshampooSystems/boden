@@ -1,17 +1,17 @@
 #include <bdn/init.h>
-#import <bdn/UiKitButton.hh>
+#import <bdn/Button.hh>
 
 
-@interface BdnUiKitButtonClickManager : NSObject
+@interface BdnButtonClickManager : NSObject
 
-@property bdn::UiKitButton* pButton;
+@property bdn::Button* pButton;
 
 @end
 
 
-@implementation BdnUiKitButtonClickManager
+@implementation BdnButtonClickManager
 
--(void)setButton:(bdn::UiKitButton*)pButton
+-(void)setButton:(bdn::Button*)pButton
 {
     _pButton = pButton;
 }
@@ -33,13 +33,13 @@ namespace bdn
 {
 
 
-P<IButton> createButton(IWindow* pParent, const String& label)
+P<IButton> createButton(IView* pParent, const String& label)
 {
-    return newObj<UiKitButton>( cast<UiKitWindow>(pParent), label);
+    return newObj<Button>( cast<Window>(pParent), label);
 }
 
 
-UiKitButton::UiKitButton(UiKitWindow* pParent, const String& label)
+Button::Button(Window* pParent, const String& label)
 {
     _button = nil;
     _clickManager = nil;
@@ -58,16 +58,16 @@ UiKitButton::UiKitButton(UiKitWindow* pParent, const String& label)
 }
 
 
-UiKitButton::~UiKitButton()
+Button::~Button()
 {
     _pLabel->detachDelegate();
 }
 
-Notifier<const ClickEvent&>& UiKitButton::onClick()
+Notifier<const ClickEvent&>& Button::onClick()
 {
     if(_clickManager==nil)
     {
-        BdnUiKitButtonClickManager* clickMan = [BdnUiKitButtonClickManager alloc];
+        BdnButtonClickManager* clickMan = [BdnButtonClickManager alloc];
         [clickMan setButton:this];
         
         _clickManager = clickMan;

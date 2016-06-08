@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#import <bdn/UiKitFrame.hh>
+#import <bdn/Frame.hh>
 
 #import <bdn/MainViewController.h>
 
@@ -9,12 +9,12 @@ namespace bdn
     
 P<IFrame> createFrame(const String& title)
 {
-    return newObj<UiKitFrame>(title);
+    return newObj<Frame>(title);
 }
 
 
 
-UiKitFrame::UiKitFrame(const String& title)
+Frame::Frame(const String& title)
 {
     UIWindow* window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     

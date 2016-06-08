@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#import <bdn/UiKitWindow.hh>
+#import <bdn/Window.hh>
 
 namespace bdn
 {

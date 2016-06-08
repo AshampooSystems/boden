@@ -1,18 +1,18 @@
-#ifndef BDN_UiKitSwitch_HH_
-#define BDN_UiKitSwitch_HH_
+#ifndef BDN_Switch_HH_
+#define BDN_Switch_HH_
 
-#import <bdn/UiKitView.hh>
-#import <bdn/UiKitWindow.hh>
+#import <bdn/View.hh>
+#import <bdn/Window.hh>
 
 #include <bdn/ISwitch.h>
 
 namespace bdn
 {
 
-class UiKitSwitch : public UiKitView, BDN_IMPLEMENTS ISwitch
+class Switch : public View, BDN_IMPLEMENTS ISwitch
 {
 public:
-    UiKitSwitch(UiKitWindow* pParent, const String& label);
+    Switch(Window* pParent, const String& label);
     
     Property<String>& label() override
     {

@@ -772,6 +772,8 @@ def commandRun(args):
         for config in configList:
 
             outputDir = os.path.join(platformBuildDir, config);
+            if platformName=="ios":
+                outputDir += "-iphonesimulator";            	
 
             moduleFilePath = os.path.join(outputDir, args.module);
 
@@ -780,11 +782,17 @@ def commandRun(args):
             if platformName=="windows-classic":
                 moduleFilePath += ".exe";
 
-            elif platformName in ("osx", "ios"):
+            elif platformName=="osx":
 
-            	if os.path.exists(moduleFilePath+".app"):
-            		moduleFilePath += ".app";
-            		commandLine = "open -W "+moduleFilePath;
+                if os.path.exists(moduleFilePath+".app"):
+                    moduleFilePath += ".app";
+                    commandLine = "open -W "+moduleFilePath;
+
+            elif platformName=="ios":
+
+                if os.path.exists(moduleFilePath+".app"):
+                    moduleFilePath += ".app";
+                    commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
 
             elif platformName=="web":
                 moduleFilePath += ".html";

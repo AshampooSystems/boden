@@ -1,18 +1,18 @@
 #include <bdn/init.h>
 
-#import <bdn/UiKitSwitch.hh>
+#import <bdn/Switch.hh>
 
 namespace bdn
 {
 
 
-P<ISwitch> createSwitch(IWindow* pParent, const String& label)
+P<ISwitch> createSwitch(IView* pParent, const String& label)
 {
-    return newObj<UiKitSwitch>( cast<UiKitWindow>(pParent), label);
+    return newObj<Switch>( cast<Window>(pParent), label);
 }
 
     
-UiKitSwitch::UiKitSwitch(UiKitWindow* pParent, const String& label)
+Switch::Switch(Window* pParent, const String& label)
 {
     UIWindow* pUiParentWindow = pParent->getUIWindow();
     

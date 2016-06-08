@@ -1,24 +1,24 @@
-#ifndef BDN_UiKitView_HH_
-#define BDN_UiKitView_HH_
+#ifndef BDN_View_HH_
+#define BDN_View_HH_
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/PropertyWithMainThreadDelegate.h>
 
 
 namespace bdn
 {
 
-class UiKitView : public Base, BDN_IMPLEMENTS IWindow
+class View : public Base, BDN_IMPLEMENTS IView
 {
 public:
-    UiKitView()
+    View()
     {
         _view = nullptr;
     }
     
-    ~UiKitView()
+    ~View()
     {
         _pVisible->detachDelegate();
     }
