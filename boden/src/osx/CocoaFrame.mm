@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#import <bdn/CocoaFrame.hh>
+#import <bdn/Frame.hh>
 
 namespace bdn
 {
@@ -7,12 +7,12 @@ namespace bdn
     
 P<IFrame> createFrame(const String& title)
 {
-    return newObj<CocoaFrame>(title);
+    return newObj<Frame>(title);
 }
 
 
 
-CocoaFrame::CocoaFrame(const String& title)
+Frame::Frame(const String& title)
 {
     NSRect      rect = NSMakeRect(0, 0, 200, 200);
     NSWindow*   win  = [[NSWindow alloc] initWithContentRect:rect

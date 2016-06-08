@@ -1,19 +1,19 @@
 #import <Cocoa/Cocoa.h>
 
-#import <bdn/CocoaButtonBase.hh>
+#import <bdn/ButtonBase.hh>
 
 
 
-@interface BdnCocoaButtonClickManager : NSObject
+@interface BdnButtonClickManager : NSObject
 
-    @property bdn::CocoaButtonBase* pButton;
+    @property bdn::ButtonBase* pButton;
 
 @end
 
 
-@implementation BdnCocoaButtonClickManager
+@implementation BdnButtonClickManager
 
-    -(void)setButton:(bdn::CocoaButtonBase*)pButton
+    -(void)setButton:(bdn::ButtonBase*)pButton
     {
         _pButton = pButton;
     }
@@ -32,14 +32,14 @@
 namespace bdn
 {
 
-CocoaButtonBase::CocoaButtonBase()
+ButtonBase::ButtonBase()
 {
     _button = nil;
     _clickManager = nil;
 }
     
     
-void CocoaButtonBase::initButton(NSButton* button, const String& label)
+void ButtonBase::initButton(NSButton* button, const String& label)
 {
     _button = button;
     
@@ -48,16 +48,16 @@ void CocoaButtonBase::initButton(NSButton* button, const String& label)
     _pLabel = newObj< PropertyWithMainThreadDelegate<String> >( newObj<LabelDelegate>(_button), label );
 }
 
-CocoaButtonBase::~CocoaButtonBase()
+ButtonBase::~ButtonBase()
 {
     _pLabel->detachDelegate();
 }
 
-Notifier<const ClickEvent&>& CocoaButtonBase::onClick()
+Notifier<const ClickEvent&>& ButtonBase::onClick()
 {
     if(_clickManager==nil)
     {
-        BdnCocoaButtonClickManager* clickMan = [BdnCocoaButtonClickManager alloc];
+        BdnButtonClickManager* clickMan = [BdnButtonClickManager alloc];
         [clickMan setButton:this];
         
         _clickManager = clickMan;

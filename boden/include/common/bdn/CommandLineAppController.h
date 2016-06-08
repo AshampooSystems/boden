@@ -36,6 +36,9 @@ public:
 	{
 		// ensure that the static variable for shouldExit is initialized.
         volatile bool& r = _shouldExitRef();
+        
+        // to prevent "unused variable" warning
+        (void)r;
 	}
 
 

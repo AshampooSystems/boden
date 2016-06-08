@@ -1,24 +1,24 @@
-#ifndef BDN_CocoaView_HH_
-#define BDN_CocoaView_HH_
+#ifndef BDN_View_HH_
+#define BDN_View_HH_
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/PropertyWithMainThreadDelegate.h>
 
 
 namespace bdn
 {
 
-class CocoaView : public Base, BDN_IMPLEMENTS IWindow
+class View : public Base, BDN_IMPLEMENTS IView
 {
 public:
-    CocoaView()
+    View()
     {
         _view = nullptr;
     }
     
-    ~CocoaView()
+    ~View()
     {
         _pVisible->detachDelegate();
     }

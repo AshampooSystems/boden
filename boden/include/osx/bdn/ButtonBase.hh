@@ -1,18 +1,18 @@
-#ifndef BDN_CocoaButtonBase_HH_
-#define BDN_CocoaButtonBase_HH_
+#ifndef BDN_ButtonBase_HH_
+#define BDN_ButtonBase_HH_
 
 #include <bdn/ClickEvent.h>
 
-#import <bdn/CocoaView.hh>
+#import <bdn/View.hh>
 
 namespace bdn
 {
 
-class CocoaButtonBase : public CocoaView
+class ButtonBase : public View
 {
 public:
-    CocoaButtonBase();
-    ~CocoaButtonBase();
+    ButtonBase();
+    ~ButtonBase();
     
     NSButton* getNSButton()
     {

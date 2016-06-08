@@ -1,19 +1,19 @@
 #import <Cocoa/Cocoa.h>
 
-#import <bdn/CocoaButton.hh>
+#import <bdn/Button.hh>
 
 
 namespace bdn
 {
 
 
-P<IButton> createButton(IWindow* pParent, const String& label)
+P<IButton> createButton(IView* pParent, const String& label)
 {
-    return newObj<CocoaButton>( cast<CocoaWindow>(pParent), label);
+    return newObj<Button>( cast<Window>(pParent), label);
 }
     
 
-CocoaButton::CocoaButton(CocoaWindow* pParent, const String& label)
+Button::Button(Window* pParent, const String& label)
 {
     NSWindow* pNSParentWindow = pParent->getNSWindow();
     

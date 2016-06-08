@@ -780,6 +780,12 @@ def commandRun(args):
             if platformName=="windows-classic":
                 moduleFilePath += ".exe";
 
+            elif platformName in ("osx", "ios"):
+
+            	if os.path.exists(moduleFilePath+".app"):
+            		moduleFilePath += ".app";
+            		commandLine = "open -W "+moduleFilePath;
+
             elif platformName=="web":
                 moduleFilePath += ".html";
 

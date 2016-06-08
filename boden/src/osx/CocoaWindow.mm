@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#import <bdn/CocoaWindow.hh>
+#import <bdn/Window.hh>
 
 namespace bdn
 {

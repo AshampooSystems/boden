@@ -1,19 +1,19 @@
 #import <Cocoa/Cocoa.h>
 
-#import <bdn/CocoaSwitch.hh>
-#import <bdn/CocoaWindow.hh>
+#import <bdn/Switch.hh>
+#import <bdn/Window.hh>
 
 namespace bdn
 {
 
 
-P<ISwitch> createSwitch(IWindow* pParent, const String& label)
+P<ISwitch> createSwitch(IView* pParent, const String& label)
 {
-    return newObj<CocoaSwitch>( cast<CocoaWindow>(pParent), label);
+    return newObj<Switch>( cast<Window>(pParent), label);
 }
 
     
-CocoaSwitch::CocoaSwitch(CocoaWindow* pParent, const String& label)
+Switch::Switch(Window* pParent, const String& label)
 {
     NSWindow* pNSParentWindow = pParent->getNSWindow();
     
