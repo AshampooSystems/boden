@@ -299,7 +299,7 @@ if( BODEN_TARGET STREQUAL "dotnet")
 endif()
 
 if( BODEN_TARGET STREQUAL "linux")
-	target_link_libraries(testbodenui ${GTK3_LIBRARIES})
+	target_link_libraries(testbodenui ${GTK3_LIBRARIES} pthread)
 endif()
 
 if( BODEN_TARGET STREQUAL "ios")
@@ -359,7 +359,7 @@ if( BODEN_TARGET STREQUAL "dotnet")
 endif()
 
 if( BODEN_TARGET STREQUAL "linux")
-	target_link_libraries(uidemo ${GTK3_LIBRARIES})
+	target_link_libraries(uidemo ${GTK3_LIBRARIES} pthread)
 endif()
 
 if( BODEN_TARGET STREQUAL "ios")

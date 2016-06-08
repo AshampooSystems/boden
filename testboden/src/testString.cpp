@@ -271,6 +271,19 @@ void verifyStringFromStream<char>(const String& s, const String& expectedValue, 
 }
 
 template<class CharType>
+std::basic_string<CharType> makeInStreamData(const String& in)
+{
+    // There is a compiler bug in g++ 5.3.1 that makes this fail with an assertion
+    // in codecvt if we use a an istringstream object.
+    // Apparently istringstream does not get a valid locale.
+    // So we use an ostringstream instead - it SHOULD be the same locale, after all.
+    std::basic_ostringstream<CharType> tempStream;
+    std::basic_string<CharType> streamData = toStreamData<CharType>(in, tempStream.getloc());
+        
+    return streamData;
+}
+
+template<class CharType>
 inline void verifyStreamIntegration()
 {
 	SECTION("output")
@@ -290,24 +303,25 @@ inline void verifyStreamIntegration()
 
 	SECTION("input")
 	{
-		String								in(U"\U00012345hello world");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
-
+        String								in(U"\U00012345hello world");
+        
+        std::basic_istringstream<CharType>	stream( makeInStreamData<CharType>(in) );
+        
 		String				s;
 
 		stream >> s;
-
+        
 		verifyStringFromStream<CharType>(s, U"\U00012345hello", stream.getloc());
-
-		stream >> s;
-
-		verifyStringFromStream<CharType>(s, U"world", stream.getloc());
+        
+        stream >> s;
+        
+        verifyStringFromStream<CharType>(s, U"world", stream.getloc());        
 	}
 
 	SECTION("getline-noDelim")
 	{
 		String								in(U"\U00012345hello world\nbla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc())  );
+		std::basic_istringstream<CharType>	stream( makeInStreamData<CharType>(in)  );
 
 		String				s;
 
@@ -323,7 +337,7 @@ inline void verifyStreamIntegration()
 	SECTION("getline-delim")
 	{
 		String								in(U"\U00012345hello world!bla gubbel");
-		std::basic_istringstream<CharType>	stream( toStreamData<CharType>(in, std::basic_istringstream<CharType>().getloc()) );
+		std::basic_istringstream<CharType>	stream( makeInStreamData<CharType>(in) );
 
 		String				s;
 

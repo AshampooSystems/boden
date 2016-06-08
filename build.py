@@ -775,7 +775,7 @@ def commandRun(args):
 
             moduleFilePath = os.path.join(outputDir, args.module);
 
-            commandLine = "";
+            commandLine = None;
 
             if platformName=="windows-classic":
                 moduleFilePath += ".exe";
@@ -793,8 +793,10 @@ def commandRun(args):
                 else:
                     commandLine = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
 
-
-            commandLine += "emrun --browser safari "+moduleFilePath;
+                commandLine += "emrun --browser safari "+moduleFilePath;
+                
+            if commandLine is None:
+                commandLine = moduleFilePath;
 
             for p in args.params:                
                 commandLine += ' "%s"' % (p);

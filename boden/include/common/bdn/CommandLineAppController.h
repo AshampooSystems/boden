@@ -35,7 +35,7 @@ public:
 	CommandLineAppController()
 	{
 		// ensure that the static variable for shouldExit is initialized.
-        _shouldExitRef();
+        volatile bool& r = _shouldExitRef();
 	}
 
 

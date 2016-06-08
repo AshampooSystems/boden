@@ -2,46 +2,39 @@
 #define BDN_Switch_H_
 
 
-#include <bdn/Base.h>
+#include <bdn/ISwitch.h>
+#include <bdn/ButtonBase.h>
 #include <bdn/Frame.h>
+
 
 namespace bdn
 {
 
-	class Switch : public Base, virtual public IWindow
-	{
-	public:
-		Switch(Frame* pParent, const String& label)
-		{
-            _pButton = gtk_check_button_new();
-
-            setLabel(label);
-		}
-
-		void setLabel(const String& label)
-		{
-            gtk_button_set_label( GTK_BUTTON(_pButton), label.asUtf8Ptr() );
-		}
+class Switch : public ButtonBase, BDN_IMPLEMENTS ISwitch
+{
+public:
+    Switch(Frame* pParent, const String& label)
+    {
+        GtkWidget* pWidget = gtk_check_button_new();
+        
+        gtk_container_add( GTK_CONTAINER(pParent->getClientContainer() ), pWidget);
+        
+        initButton( pWidget, label );
+    }
 
 
-        virtual void show(bool visible = true) override
-        {
-            if(visible)
-                gtk_widget_show(_pButton);
-            else
-                gtk_widget_hide(_pButton);
-        }
+    Property<String>& label() override
+    {
+        return ButtonBase::label();
+    }
+    
+	ReadProperty<String>& label() const override
+    {
+        return ButtonBase::label();
+    }
+    
+};
 
-        virtual void hide() override
-        {
-            show(false);
-        }
-
-
-	protected:
-
-		GtkWidget* _pButton;
-	};
 
 
 }

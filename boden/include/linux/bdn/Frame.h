@@ -1,58 +1,95 @@
 #ifndef BDN_Frame_H_
 #define BDN_Frame_H_
 
-#include <bdn/init.h>
-#include <bdn/IWindow.h>
+#include <bdn/View.h>
+#include <bdn/IFrame.h>
 
 #include <gtk/gtk.h>
 
 namespace bdn
 {
+    
 
-class Frame : public Base, virtual public IWindow
+class Frame : public View, BDN_IMPLEMENTS IFrame
 {
 public:
 	Frame(const String& title)
 	{
-	    _pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	    initView( gtk_window_new(GTK_WINDOW_TOPLEVEL), false );
+        
+        _pClientContainer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+        gtk_container_add( GTK_CONTAINER( _pWidget ), _pClientContainer );
+        
+        gtk_widget_show( _pClientContainer );
 
-	    setTitle(title);
-
-	    show();
+        _pTitle = newObj< PropertyWithMainThreadDelegate<String> >( newObj<TitleDelegate>( GTK_WINDOW(_pWidget) ), title );
+        
 	}
 
 	~Frame()
 	{
-		if(_pWindow!=nullptr)
+		if(_pWidget!=nullptr)
 		{
-            gtk_widget_destroy( _pWindow );
-			_pWindow = nullptr;
+            gtk_widget_destroy( _pWidget );
+			_pWidget = nullptr;
 		}
 	}
+    
+    
+	Property<String>& title() override
+    {
+        return *_pTitle;
+    }
+    
+	ReadProperty<String>& title() const override
+    {
+        return *_pTitle;
+    }
+    
+    GtkWidget* getClientContainer()
+    {
+        return _pClientContainer;
+    }
 
 
-
-	void setTitle(const String& title)
-	{
-        gtk_window_set_title( GTK_WINDOW( _pWindow ), title.asUtf8Ptr() );
-	}
-
-
-	virtual void show(bool visible = true) override
-	{
-        if(visible)
-            gtk_widget_show(_pWindow);
-        else
-            gtk_widget_hide(_pWindow);
-	}
-
-	virtual void hide() override
-	{
-		show(false);
-	}
 
 protected:
-	GtkWidget* _pWindow;
+
+    class TitleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<String>::IDelegate
+	{
+	public:
+		TitleDelegate(GtkWindow* pWindow)
+		{
+			_pWindow = pWindow;
+		}
+
+		void set(const String& val) override
+		{
+			// this is only called from the main thread
+			if(_pWindow!=nullptr)
+                gtk_window_set_title( _pWindow, val.asUtf8Ptr() );
+		}
+
+		String get() const override
+		{
+            if(_pWindow!=nullptr)
+            {
+                const gchar* p = gtk_window_get_title(_pWindow);
+                if(p!=nullptr)
+                    return String(p);
+            }
+            
+            return "";
+		}
+
+	protected:
+		GtkWindow* _pWindow;
+	};
+    
+    
+    P< PropertyWithMainThreadDelegate<String> > _pTitle;
+    
+    GtkWidget* _pClientContainer;
 };
 
 
