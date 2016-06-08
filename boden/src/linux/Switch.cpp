@@ -7,7 +7,7 @@ namespace bdn
 {   
     
     
-P<ISwitch> createSwitch(IWindow* pParent, const String& label)
+P<ISwitch> createSwitch(IView* pParent, const String& label)
 {    
     return newObj<Switch>( cast<Frame>(pParent), label);    
 }

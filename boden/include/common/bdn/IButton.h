@@ -1,7 +1,7 @@
 #ifndef BDN_IButton_H_
 #define BDN_IButton_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/ClickEvent.h>
 
 namespace bdn
@@ -12,7 +12,7 @@ namespace bdn
 
 	Objects can be created with createButton().
 */
-class IButton : BDN_IMPLEMENTS IWindow
+class IButton : BDN_IMPLEMENTS IView
 {
 public:
 	
@@ -29,7 +29,7 @@ public:
     
 
 /** Creates a button.*/
-P<IButton> createButton(IWindow* pParent, const String& label);
+P<IButton> createButton(IView* pParent, const String& label);
     
 }
 

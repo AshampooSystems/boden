@@ -1,7 +1,7 @@
-#ifndef BDN_CLICKEVENT_H_
-#define BDN_CLICKEVENT_H_
+#ifndef BDN_ClickEvent_H_
+#define BDN_ClickEvent_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/Base.h>
 
 namespace bdn
@@ -10,18 +10,18 @@ namespace bdn
 class ClickEvent : public Base
 {
 public:
-    ClickEvent(IWindow* pWindow)
+    ClickEvent(IView* pView)
     {
-        _pWindow = pWindow;
+        _pView = pView;
     }
     
-    IWindow* getWindow()
+    IView* getView()
     {
-        return _pWindow;
+        return _pView;
     }
     
 protected:
-    IWindow* _pWindow;
+    IView* _pView;
 };
     
 }

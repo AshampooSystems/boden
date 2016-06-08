@@ -6,7 +6,7 @@ namespace bdn
     
     
     
-P<IButton> createButton(IWindow* pParent, const String& label)
+P<IButton> createButton(IView* pParent, const String& label)
 {    
     return newObj<Button>( cast<Frame>(pParent), label);    
 }

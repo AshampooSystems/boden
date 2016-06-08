@@ -1,7 +1,7 @@
 #ifndef BDN_ISwitch_H_
 #define BDN_ISwitch_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 
 namespace bdn
 {
@@ -12,7 +12,7 @@ namespace bdn
 	
 	Objects can be created with createSwitch().
 	*/
-class ISwitch : BDN_IMPLEMENTS IWindow
+class ISwitch : BDN_IMPLEMENTS IView
 {
 public:
 	
@@ -26,7 +26,7 @@ public:
     
 
 /** Creates a switch object.*/
-P<ISwitch> createSwitch(IWindow* pParent, const String& label);
+P<ISwitch> createSwitch(IView* pParent, const String& label);
     
 }
 

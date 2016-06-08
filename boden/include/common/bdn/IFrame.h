@@ -1,7 +1,7 @@
 #ifndef BDN_IFrame_H_
 #define BDN_IFrame_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 
 namespace bdn
 {
@@ -11,7 +11,7 @@ namespace bdn
 
 	Objects can be created with createFrame().
 */
-class IFrame : BDN_IMPLEMENTS IWindow
+class IFrame : BDN_IMPLEMENTS IView
 {
 public:
 

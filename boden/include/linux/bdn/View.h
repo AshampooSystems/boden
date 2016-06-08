@@ -1,7 +1,7 @@
 #ifndef BDN_View_H_
 #define BDN_View_H_
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 #include <bdn/PropertyWithMainThreadDelegate.h>
 
 #include <gtk/gtk.h>
@@ -9,7 +9,7 @@
 namespace bdn
 {
 
-class View : public Base, BDN_IMPLEMENTS IWindow
+class View : public Base, BDN_IMPLEMENTS IView
 {
 public:
     View()
