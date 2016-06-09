@@ -3,7 +3,7 @@
 
 #include <bdn/WindowBase.h>
 
-#include <bdn/IWindow.h>
+#include <bdn/IView.h>
 
 #include <bdn/WindowTextProperty.h>
 #include <bdn/WindowVisibleProperty.h>
@@ -11,7 +11,7 @@
 namespace bdn
 {
 
-class Window : public WindowBase, BDN_IMPLEMENTS IWindow
+class Window : public WindowBase, BDN_IMPLEMENTS IView
 {
 public:
 	Window();	

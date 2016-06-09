@@ -19,6 +19,11 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 							int argCount,
 							char* argv[] )
 {
+#ifdef BDN_PLATFORM_WINDOWS_CLASSIC
+	// we are DPI aware
+	::SetProcessDPIAware();
+#endif
+
 	Thread::_setMainId( Thread::getCurrentId() );
 
     AppControllerBase::_set(pAppController);
