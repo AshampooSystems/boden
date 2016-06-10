@@ -3,6 +3,7 @@
 
 #include <bdn/Window.h>
 #include <bdn/ISwitch.h>
+#include <winuser.h>
 
 
 namespace bdn

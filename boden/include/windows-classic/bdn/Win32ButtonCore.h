@@ -1,5 +1,5 @@
-#ifndef BDN_Button_H_
-#define BDN_Button_H_
+#ifndef BDN_Win32ButtonCore_H_
+#define BDN_Win32ButtonCore_H_
 
 
 #include <bdn/Window.h>
