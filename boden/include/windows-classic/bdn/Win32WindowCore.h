@@ -1,9 +1,11 @@
-#ifndef BDN_Window_H_
-#define BDN_Window_H_
+#ifndef BDN_Win32WindowCore_H_
+#define BDN_Win32WindowCore_H_
 
 #include <bdn/WindowBase.h>
 
-#include <bdn/IView.h>
+#include <bdn/Window.h>
+
+#include <bdn/IWindowCore.h>
 
 #include <bdn/WindowTextProperty.h>
 #include <bdn/WindowVisibleProperty.h>
@@ -11,12 +13,40 @@
 namespace bdn
 {
 
-class Window : public WindowBase, BDN_IMPLEMENTS IView
+class Win32WindowCore : public Win32ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 public:
-	Window();	
+	Win32WindowCore(Window& win)
+	{
+				
+	}
+			
+	
+	void	setTitle(const String& title)
+	{
+		WindowBase::setWindowText( getHwnd(), title );
+	}
+
+	String	getTitle() const
+	{
+		return WindowBase::getWindowText( getHwnd() );
+	}
+
 
 	
+	/** Called when the outer view's parent has changed.
+		
+		tryChangeParentView should try to move the core over to the new parent.
+
+		If successful then it should return true, otherwise false.
+
+		If false is returned then this will cause the outer view object to
+		automatically re-create the core for the new parent and release the current
+		core object.		
+		*/
+	virtual bool tryChangeParentView(View* pNewParent)=0;
+
+
 	/** Searches for the child window with the specified handle.
 		Returns null if no such child was found.*/
 	P<Window> findChildByHwnd(HWND hwnd);
