@@ -40,17 +40,40 @@ public:
 			to this value.*/
 	PropertyWithMainThreadDelegate(IDelegate* pDelegate, ValType initialValue )
 	{
-		_pDelegate = pDelegate;
-
 		_value = initialValue;
 
-		scheduleOp(_nextSetId, _firstValidSetId,
-					[initialValue](PropertyWithMainThreadDelegate* pThis)
-					{
-						pThis->_pDelegate->set(initialValue);
-					} );
+		_pDelegate = pDelegate;
+
+		scheduleDelegateValueUpdate();		
 	}
 	
+
+	/** Changes the delegate object.
+	
+		The old delegate object (if one was set) will be detached
+		and will not be accessed anymore by the property after setDelegate returns.
+		
+		pDelegate can be nullptr, in which case the property will not propagate
+		its value to a delegate.
+
+		If pDelegate is not null it will be initialized to the property's current value
+		at the next opportunity.
+		*/
+	void setDelegate(IDelegate* pDelegate)
+	{
+		MutexLock lock(_mutex);
+
+		if(pDelegate!=_pDelegate)
+		{
+			_pDelegate = pDelegate;		
+
+			if(_pDelegate!=nullptr)
+			{
+				// update the delegate to the current value of the property
+				scheduleDelegateValueUpdate();
+			}		
+		}
+	}
 
 	/** Detaches the delegate object. The delegate object will not be accessed anymore
 		by the property after dispose() returns.
@@ -81,13 +104,7 @@ public:
 				_value = val;
 				valueChanged = true;
 
-				// schedule the delegate to be updated
-
-				scheduleOp(_nextSetId, _firstValidSetId,
-					[val](PropertyWithMainThreadDelegate* pThis)
-					{
-						pThis->_pDelegate->set(val);
-					} );
+				scheduleDelegateValueUpdate();
 			}
 		}
 
@@ -95,7 +112,7 @@ public:
 			_onChange.notify(*this);
 	}
 
-	ValType get() const override
+	const ValType get() const override
 	{
 		MutexLock lock(_mutex);
 		return _value;
@@ -187,6 +204,20 @@ private:
         set( prop.get() );
     }
 
+
+	void scheduleDelegateValueUpdate()
+	{
+		if(_pDelegate!=nullptr)
+		{
+			ValType val = _value;
+
+			scheduleOp(_nextSetId, _firstValidSetId,
+						[val](PropertyWithMainThreadDelegate* pThis)
+						{
+							pThis->_pDelegate->set(val);
+						} );
+		}
+	}
 	
 	void scheduleOp(int64_t& nextOpId, int64_t& firstValidOpId, std::function<void(PropertyWithMainThreadDelegate*)> updateFunc)
 	{
