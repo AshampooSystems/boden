@@ -24,7 +24,8 @@ public:
 	Window(IUiProvider* pUiProvider = nullptr)
 	{
 		_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider();
-		_pTitle = newObj< PropertyWithMainThreadDelegate<String> >( nullptr, "" );
+
+		initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
 	}
 	
 
@@ -34,9 +35,17 @@ public:
 		See #Window class documentation for more information.*/
 	void setContentView(View* pContentView)
 	{
-		removeAllChildViews();
+		MutexLock lock(_mutex);
 
-		addChildView(pContentView);
+		if(pContentView!=_pContentView)
+		{
+			if(_pContentView!=nullptr)
+				_pContentView->setParentView(nullptr);
+
+			_pContentView = pContentView;
+
+			_pContentView->setParentView(this);
+		}
 	}
 
 
@@ -44,10 +53,9 @@ public:
 		This can be nullptr if no content view has been set yet.*/
 	P<View> getContentView()
 	{
-		if(_childViews.empty())
-			return nullptr;
-		else
-			return _childViews.front();
+		MutexLock lock(_mutex);
+
+		return _pContentView;
 	}
 
 
@@ -61,14 +69,14 @@ public:
 
 		It is safe to use the property from any thread.
 		*/
-	Property<String>& title() override
+	Property<String>& title()
 	{
-		return *_pTitle;
+		return _title;
 	}
 
-	ReadProperty<String>& title() const override
+	const ReadProperty<String>& title() const
 	{
-		return *_pTitle;
+		return _title;
 	}
 
 	
@@ -85,34 +93,19 @@ public:
 	}
 
 
-protected:	
-	void		setViewCore(IViewCore* pCore) override
+	void getChildViews(std::list< P<View> >& childViews)
 	{
-		_pCore = cast<IWindowCore>(pCore);
+		MutexLock lock(_mutex);
 
-		if(pCore==nullptr)
-			_pTitle->setDelegate(nullptr);
-		else
-		{
-			// note that it might be tempting to add a parameter here that prevents the property
-			// to update the delegate with its current value. After all, the core was just created,
-			// so the delegate should already have the correct value.
-			// BUT it is important to note that properties can be changed from ANY thread.
-			// So the property value might have changed in the short time since the core was created.
-			_pTitle->setDelegate( newObj<ITitleCore::TitleDelegate>(pCore) );
-		}
-
-		View::setViewCore(pCore);
+		if(_pContentView!=nullptr)
+			childViews.push_back(_pContentView);	
 	}
 
-	IViewCore*	getViewCore() override
-	{
-		return _pCore;
-	}	
 
-	P<IWindowCore> _pCore;
+protected:		
+	DefaultProperty<String> _title;
 
-	P< PropertyWithMainThreadDelegate<String> > _pTitle;
+	P<View>					_pContentView;
 };
 
 }

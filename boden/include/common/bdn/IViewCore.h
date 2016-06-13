@@ -1,15 +1,16 @@
 #ifndef BDN_IViewCore_H_
 #define BDN_IViewCore_H_
 
-#include <bdn/IVisibleCore.h>
-
 namespace bdn
 {
 
-class IViewCore : BDN_IMPLEMENTS IBase,
-				  BDN_IMPLEMENTS IVisibleCore
+class IViewCore : BDN_IMPLEMENTS IBase
 {
 public:
+
+	/** Shows/hides the view core.*/
+	virtual void	setVisible(const bool& visible)=0;
+
 
 	/** Called when the outer view's parent has changed.
 		

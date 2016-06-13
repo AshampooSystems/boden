@@ -14,7 +14,7 @@ class Button :	public View
 public:
 	Button()
 	{
-		_pLabel = newObj< PropertyWithMainThreadDelegate<String> >( nullptr, "" );
+		initProperty<String, IButtonCore, &IButtonCore::setLabel>(_label);
 	}
 
 	/** Returns the button's label property.
@@ -22,12 +22,12 @@ public:
 		*/
 	Property<String>& label()
 	{
-		return *_pLabel;
+		return *_label;
 	}
 
 	ReadProperty<String>& label() const
 	{
-		return *_pLabel;
+		return *_label;
 	}
 		
 
@@ -50,33 +50,7 @@ public:
 
 
 protected:	
-	void		setViewCore(IViewCore* pCore) override
-	{
-		_pCore = cast<IButtonCore>(pCore);
-
-		if(pCore==nullptr)
-			_pLabel->setDelegate(nullptr);
-		else
-		{
-			// note that it might be tempting to add a parameter here that prevents the property
-			// to update the delegate with its current value. After all, the core was just created,
-			// so the delegate should already have the correct value.
-			// BUT it is important to note that properties can be changed from ANY thread.
-			// So the property value might have changed in the short time since the core was created
-			_pLabel->setDelegate( newObj<ILabelCore::LabelDelegate>(pCore) );
-		}
-
-		View::setViewCore(pCore);
-	}
-
-	IViewCore*	getViewCore() override
-	{
-		return _pCore;
-	}	
-	
-	P<IButtonCore> _pCore;
-
-	P< PropertyWithMainThreadDelegate<String> > _pLabel;
+	DefaultProperty<String>		_label;
 
 	Notifier<const ClickEvent&> _onClick;
 };

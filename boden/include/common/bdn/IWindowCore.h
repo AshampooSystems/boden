@@ -2,17 +2,18 @@
 #define BDN_IWindowCore_H_
 
 #include <bdn/IViewCore.h>
-#include <bdn/ITitleCore.h>
 
 namespace bdn
 {
 
 
 /** The core for a top level window.*/
-class IWindowCore : BDN_IMPLEMENTS IViewCore,
-					BDN_IMPLEMENTS ITitleCore
+class IWindowCore : BDN_IMPLEMENTS IViewCore
 {
 public:
+
+	/** Changes the window's title.*/
+	virtual void setTitle(const String& title)=0;
 	
 };
 

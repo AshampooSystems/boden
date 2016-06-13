@@ -1,5 +1,5 @@
-#ifndef BDN_Win32ViewCore_H_
-#define BDN_Win32ViewCore_H_
+#ifndef BDN_ViewCore_H_
+#define BDN_ViewCore_H_
 
 #include <bdn/WindowBase.h>
 #include <bdn/IViewCore.h>
@@ -18,10 +18,10 @@ namespace bdn
 	
 	Actual visible windows should be derived from #Window instead!
 */
-class Win32ViewCore : public WindowBase, BDN_IMPLEMENTS IViewCore
+class ViewCore : public WindowBase, BDN_IMPLEMENTS IViewCore
 {
 public:
-	Win32ViewCore()
+	ViewCore()
 	{
 	}
 	
@@ -31,17 +31,10 @@ public:
 		return _pHandle->getHwnd();
 	}
 	
-	void	setVisible(bool visible)
+	void	setVisible(const bool& visible) override
 	{
 		::ShowWindow( getHwnd(), visible ? SW_SHOW : SW_HIDE);		
 	}
-
-	bool	getVisible() const
-	{
-		return (::GetWindowLong( getHwnd(), GWL_STYLE) & WS_VISIBLE) == WS_VISIBLE;
-	}
-		
-
 
 
 	/** Called when the outer view's parent has changed.
@@ -54,7 +47,7 @@ public:
 		automatically re-create the core for the new parent and release the current
 		core object.		
 		*/
-	bool tryChangeParentView(View* pNewParent)
+	bool tryChangeParentView(View* pNewParent) override
 	{
 		if( getViewHwnd(pNewParent)==_parentHwnd )
 		{
@@ -86,7 +79,7 @@ public:
 		{
 			IViewCore* pCore = pView->getViewCore();
 			if(pCore!=nullptr)
-				return cast<Win32ViewCore>(pCore)->getHwnd();
+				return cast<ViewCore>(pCore)->getHwnd();
 		}
 
 		return NULL;

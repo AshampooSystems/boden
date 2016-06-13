@@ -141,9 +141,74 @@ void testCallFromMainThread(bool throwException)
             Thread::sleepMillis(2000);
         }
     }
-    
+	    
 #endif
 }
+
+#if BDN_HAVE_THREADS
+void testCallFromMainThreadOrdering()
+{
+	Mutex				mutex;
+	std::vector<int>	scheduleOrder;
+	std::vector<int>	mainThreadOrder;
+	std::list< std::future<void> > futures;
+
+	// add a call from the main thread first
+	{
+		MutexLock lock(mutex);
+		scheduleOrder.push_back(-1);
+
+		callFromMainThread(	[ &mainThreadOrder]()
+							{
+								mainThreadOrder.push_back(-1);
+							});
+			
+	}
+
+	// start 100 threads. Each schedules a call in the main thread.
+	for(int i=0; i<100; i++)
+	{
+		futures.push_back( Thread::exec(
+			[i, &mutex, &scheduleOrder, &mainThreadOrder]()
+			{
+				MutexLock lock(mutex);
+				scheduleOrder.push_back(i);
+
+				callFromMainThread(	[i, &mainThreadOrder]()
+									{
+										mainThreadOrder.push_back(i);
+									});
+			
+			} ) );
+	}
+
+	// also add a call from the main thread
+	{
+		MutexLock lock(mutex);
+		scheduleOrder.push_back(9999);
+
+		callFromMainThread(	[ &mainThreadOrder]()
+							{
+								mainThreadOrder.push_back(9999);
+							});
+			
+	}
+
+
+	// wait for all threads to finish
+	for( std::future<void>& f: futures)
+		f.get();
+
+	// now verify that the scheduling order and the call order are the same
+	for(int i=0; i<scheduleOrder.size(); i++)
+	{
+		REQUIRE( mainThreadOrder.size()>i);
+		REQUIRE( scheduleOrder[i] == mainThreadOrder[i] );		
+	}
+	REQUIRE( mainThreadOrder.size() == scheduleOrder.size());
+	
+}
+#endif
 
 TEST_CASE("callFromMainThread")
 {
@@ -152,6 +217,11 @@ TEST_CASE("callFromMainThread")
 
     SECTION("exception")
         testCallFromMainThread(true);
+
+#if BDN_HAVE_THREADS
+	SECTION("ordering")
+		testCallFromMainThreadOrdering();
+#endif
 }
 
 
@@ -269,6 +339,72 @@ void testAsyncCallFromMainThread(bool throwException)
 }
 
 
+
+#if BDN_HAVE_THREADS
+void testAsyncCallFromMainThreadOrdering()
+{
+	Mutex				mutex;
+	std::vector<int>	scheduleOrder;
+	std::vector<int>	mainThreadOrder;
+	std::list< std::future<void> > futures;
+
+	// also add a call from the main thread first
+	{
+		MutexLock lock(mutex);
+		scheduleOrder.push_back(-1);
+
+		asyncCallFromMainThread(
+			[ &mainThreadOrder]()
+			{
+				mainThreadOrder.push_back(-1);
+			});
+	}
+
+	// start 100 threads. Each schedules a call in the main thread.
+	for(int i=0; i<100; i++)
+	{
+		futures.push_back( Thread::exec(
+			[i, &mutex, &scheduleOrder, &mainThreadOrder]()
+			{
+				MutexLock lock(mutex);
+				scheduleOrder.push_back(i);
+
+				asyncCallFromMainThread(	[i, &mainThreadOrder]()
+											{
+												mainThreadOrder.push_back(i);
+											});
+			
+			} ) );
+	}
+
+	// also add a call from the main thread
+	{
+		MutexLock lock(mutex);
+		scheduleOrder.push_back(9999);
+
+		asyncCallFromMainThread(
+			[ &mainThreadOrder]()
+			{
+				mainThreadOrder.push_back(9999);
+			});
+	}
+
+	// wait for all threads to finish
+	for( std::future<void>& f: futures)
+		f.get();
+
+	// now verify that the scheduling order and the call order are the same
+	for(int i=0; i<scheduleOrder.size(); i++)
+	{
+		REQUIRE( mainThreadOrder.size()>i);
+		REQUIRE( scheduleOrder[i] == mainThreadOrder[i] );		
+	}
+	REQUIRE( mainThreadOrder.size() == scheduleOrder.size());
+	
+}
+#endif
+
+
 TEST_CASE("asyncCallFromMainThread")
 {
     SECTION("noException")
@@ -276,6 +412,11 @@ TEST_CASE("asyncCallFromMainThread")
 
     SECTION("exception")
         testAsyncCallFromMainThread(true);
+
+#if BDN_HAVE_THREADS
+	SECTION("ordering")
+		testAsyncCallFromMainThreadOrdering();
+#endif
 }
 
 

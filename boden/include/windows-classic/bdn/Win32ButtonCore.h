@@ -1,37 +1,25 @@
-#ifndef BDN_Win32ButtonCore_H_
-#define BDN_Win32ButtonCore_H_
+#ifndef BDN_ButtonCore_H_
+#define BDN_ButtonCore_H_
 
+#include <bdn/ViewCore.h>
 
-#include <bdn/Window.h>
-
-#include <bdn/IButton.h>
-
+#include <bdn/IButtonCore.h>
 
 namespace bdn
 {
 
-class Button : public Window, BDN_IMPLEMENTS IButton
+class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
-	Button(Window* pParent, const String& label)
+	ButtonCore(Button* pOuter)
 	{
-		create(pParent, "BUTTON", label, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, 0, 20, 20, 200, 30 );
+		create(pParent, "BUTTON", pOuter->label().get(), BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, 0, 20, 20, 200, 30 );
 	}
 
-
-	/** Returns the button's label property.
-		It is safe to use from any thread.
-		*/
-	Property<String>& label() override
+	void setLabel(const String& label) override
 	{
-		return *_pText;
+		setWindowText(getHwnd(), label);
 	}
-
-	ReadProperty<String>& label() const override
-	{
-		return *_pText;
-	}
-		
 
 	void generateClick()
 	{
@@ -40,10 +28,6 @@ public:
 		_onClick.notify(evt);
 	}
 
-	Notifier<const ClickEvent&>& onClick()
-	{
-		return _onClick;
-	}
 
 protected:		
 	void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;

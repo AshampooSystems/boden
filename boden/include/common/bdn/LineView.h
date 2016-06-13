@@ -25,6 +25,30 @@ public:
 		return *_pOrientation;
 	}
 
+	/** Static function that sets the extra space factor of a child view.
+		
+		When more space is available then needed then the extra space is
+		assigned to the children according to this factor.
+
+		The value of this factor is only meaningful when compared to the values of the
+		other items in the line view. If an item's factor is twice as big as that of another
+		item then it will get twice as much free space as that other item.
+
+		So if you want the free space to be equally distributed among all items then
+		you need to simply set the extraSpaceFactor to the same value for all items. It does
+		not matter which value that is, as long as it is > 0 and the same for all items.
+
+		The default is 0 (i.e. the child view does grow when extra space is available).
+
+		If all child items have an extra space factor of 0 then the extra space is not distributed
+		to the children.
+		There will simply be a big empty space after the last child item in the line view.
+	*/
+	static void setExtraSpaceFactor(View* pView, double factor)
+	{
+		pView->setAttribute("LineView.extraSpaceFactor", factor);
+	}
+
 
 	/** Defines the parameters for one item in the line view.
 	
