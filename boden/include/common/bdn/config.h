@@ -103,6 +103,14 @@
 
 #if BDN_PLATFORM_WEB
 
+	#if __EMSCRIPTEN_major__<1 || (__EMSCRIPTEN_major__==1 && __EMSCRIPTEN_minor__ < 36 )
+		// Older emscripten versions had compiler bugs that cause major troubles with some integral
+		// parts of the library (exception handling not working correctly in some cases, etc.).
+		// So we cannot use those.
+		#pragma error("Emscripten 1.36.0 or higher required.")
+	#endif
+
+
     // no support for threads (yet). There is actually an implementation from Emscripten
     // but as of the time of this writing it only works if the Javascript code is executed
     // with Firefox nightly. It depends on an extension of the web worker specification, which

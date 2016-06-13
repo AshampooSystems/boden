@@ -99,23 +99,25 @@ TEST_CASE("test.inNotIn")
 	REQUIRE_NOT_IN(21, container );
 }
 
+#if BDN_HAVE_THREADS
 
 TEST_CASE("test.failsInOtherThreads", "[!shouldfail]")
 {
 	SECTION("exceptionPropagatedToMainThread")
 	{
-		std::future<void> result = std::async( std::launch::async, [](){ REQUIRE(false); } );
+		std::future<void> result = Thread::exec( [](){ REQUIRE(false); } );
 
 		result.get();
 	}
 
 	SECTION("exceptionNotPropagatedToMainThread")
 	{
-		std::future<void> result = std::async( std::launch::async, [](){ REQUIRE(false); } );
+		std::future<void> result = Thread::exec( [](){ REQUIRE(false); } );
 		result.wait();
 	}
 }
 
+#endif
 
 TEST_CASE("test.nestedSectionsNoExtraCalls", "[test]")
 {

@@ -498,9 +498,9 @@ def commandPrepare(commandArgs):
 
                         subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
 
-                        subprocess.check_call( '"%s" install latest' % emsdkExePath, shell=True, cwd=emsdkDir);
+                        subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
 
-                        subprocess.check_call( '"%s" activate latest' % emsdkExePath, shell=True, cwd=emsdkDir);
+                        subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
 
 
                     except:
