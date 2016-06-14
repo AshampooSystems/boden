@@ -41,6 +41,10 @@ public:
 		
 		tryChangeParentView should try to move the core over to the new parent.
 
+		Note that this is also called when the order of child views inside the
+		same parent has changed. In that case the "new parent" will be the same as the old parent.
+		The core should update its ordering position inside the parent accordingly.
+
 		If successful then it should return true, otherwise false.
 
 		If false is returned then this will cause the outer view object to
@@ -51,11 +55,16 @@ public:
 	{
 		if( getViewHwnd(pNewParent)==_parentHwnd )
 		{
-			// the underlying win32 window is the same. So we are done.
+			// the underlying win32 window is the same.
 			// Note that this case is quite common, since many View containers
 			// are actually light objects that do not have their own backend
 			// Win32 window. So often the Win32 window of some higher ancestor is
 			// shared by many windows.
+
+			// This also happens when a child view's ordering position is changed inside
+			// the parent. So we have to check if we need to change something there.
+			updateOrderAmongSiblings();
+
 			return true;
 		}
 		else
@@ -63,6 +72,18 @@ public:
 			// we cannot move a window to a new underlying win32 window.
 			return false;
 		}
+	}
+
+
+	/** Causes the core to check the ordering of its view among its sibling views
+		and update it accordingly. This is called when the view order inside the parent
+		has changed.
+		
+		The default implementation does nothing.
+		*/
+	virtual void updateOrderAmongSiblings()
+	{
+		// do nothing by default
 	}
 
 
@@ -115,6 +136,8 @@ public:
 	static LRESULT CALLBACK windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 protected:
+
+	
 	
 
 	/** Creates the window.

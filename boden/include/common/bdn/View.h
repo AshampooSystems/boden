@@ -62,6 +62,42 @@ public:
 		return _visible;
 	}
 
+
+
+
+	virtual Property<VerticalAlignment>& verticalAlignment()
+	{
+		return _verticalAlignment;
+	}
+
+	virtual const ReadProperty<VerticalAlignment>& verticalAlignment() const
+	{
+		return _verticalAlignment;
+	}
+
+
+	virtual Property<HorizontalAlignment>& horizontalAlignment()
+	{
+		return _horizontalAlignment;
+	}
+
+	virtual const ReadProperty<HorizontalAlignment>& horizontalAlignment() const
+	{
+		return _horizontalAlignment;
+	}
+
+
+
+	virtual Property<double>& extraSpaceWeight()
+	{
+		return _extraSpaceWeight;
+	}
+
+	virtual const ReadProperty<double>& extraSpaceWeight() const
+	{
+		return _extraSpaceWeight;
+	}
+
 	
 	/** Returns the UI provider used by this view. This can be nullptr if no UI provider
 		is currently associated with the view object. This can happen, for example, when the
@@ -94,13 +130,44 @@ public:
 		return _pParentViewWeak;
 	}
 
-
-	void 
-
+	
 	/** Stores a list with all the child views in the target list object.*/
 	virtual void getChildViews(std::list< P<View> >& childViews)=0;
 
+
 protected:
+	/** Returns the global mutex object that is used to synchronize changes in the
+		UI hierarchy (parent-child relationships).
+
+		The reason why we use a single global mutex for that is that otherwise deadlocks
+		could occur. We need to lock the old parent, the child and the new parent.
+		If multiple changes with the same objects are done in different threads
+		then it could potentially happen that the same two objects are locked in inverse order
+		in two threads, creating a deadlock.
+		For example, consider this UI hierarchy:
+
+		A
+		  B
+			C
+		D
+
+		Lets say we want to move B to D and C to D at the same time. Since B is the child-to-be-moved
+		for one operation and the old parent for another, the locking order could easily be inverse
+		and thus a deadlock could occur.
+
+		To avoid all this we use a single mutex for all hierarchy modifications. The impact on parallel
+		performance should be negligible, since the operations are short (just setting a parent pointer or
+		adding to a child list). Also, it should be a rare case when the hierarchy is modified from two
+		threads at the same time.
+		*/
+	static const P<Mutex>& getHierarchyMutex()
+	{
+		SafeInit<Mutex> init;
+
+		return init.get();
+	}
+
+
 	void deleteThis() override
 	{
 		// release all property subscriptions
@@ -179,67 +246,66 @@ protected:
 
 
 
-	void setParentView(View* pParentViewWeak)
+	void setParentView_HierarchyMutexAlreadyLocked(View* pParentViewWeak)
 	{
 		// allocate on heap so that reinitCore can release the lock
 		P<MutexLock> pLock = newObj<MutexLock>(_mutex);
 
 		bool mustReinitCore = true;
 
-		if(pParentViewWeak==_pParentViewWeak)
-		{
-			// not changed
-			mustReinitCore = false;
-		}
-		else
-		{
-			_pParentViewWeak = pParentViewWeak;
+		// note that we do not have special handling for the case when the "new" parent view
+		// is the same as the old parent view. That case can happen if the order position
+		// of a child view inside the parent is changed. We use the same handling for that
+		// as for the case of a different handling: ask the core to update accordingly.
+		// And the core gets the opportunity to deny that, causing us to recreate the core
+		// (maybe in some cases the core cannot change the order of existing views).
 
-			P<IUiProvider>	pNewUiProvider = _pParentViewWeak->getUiProvider();
+		_pParentViewWeak = pParentViewWeak;
+
+		P<IUiProvider>	pNewUiProvider = _pParentViewWeak->getUiProvider();
 			
-			// see if we need to throw away our current core and create a new one.
-			// The reason why we don't always throw this away is that the change in parents
-			// might simply be a minor layout position change, and in that case the UI provider
-			// might want to animate this change. To allow for that, we have to keep the old core
-			// and tell it to switch parents
-			// Note that we can only keep the current core if the old and new parent's
-			// use the same UI provider.
-			if(_pUiProvider==pNewUiProvider
-				&& _pUiProvider!=nullptr
-				&& _pParentViewWeak!=nullptr
-				&& _pCore!=nullptr)
+		// see if we need to throw away our current core and create a new one.
+		// The reason why we don't always throw this away is that the change in parents
+		// might simply be a minor layout position change, and in that case the UI provider
+		// might want to animate this change. To allow for that, we have to keep the old core
+		// and tell it to switch parents
+		// Note that we can only keep the current core if the old and new parent's
+		// use the same UI provider.
+		if(_pUiProvider==pNewUiProvider
+			&& _pUiProvider!=nullptr
+			&& _pParentViewWeak!=nullptr
+			&& _pCore!=nullptr)
+		{
+			// we try to move the core to the new parent.	
+
+			if(Thread::isCurrentMain())
 			{
-				// we try to move the core to the new parent.	
+				// directly call this here. We treat this case differently
+				// (rather than just always calling callFromMainThread) because
+				// we need to handle the locking differently when we are already in the main thread.
+				if(! _pCore->tryChangeParentView(_pParentViewWeak) )
+					mustReinitCore = true;
+			}
+			else
+			{
+				// schedule the update to happen in the main thread.
+				// Do not reinit the core from THIS thread.
+				mustReinitCore = false;
 
-				if(Thread::isCurrentMain())
-				{
-					// directly call this here. We treat this case differently
-					// (rather than just always calling callFromMainThread) because
-					// we need to handle the locking differently when we are already in the main thread.
-					if(! _pCore->tryChangeParentView(_pParentViewWeak) )
-						mustReinitCore = true;
-				}
-				else
-				{
-					// schedule the update to happen in the main thread.
-					// Do not reinit the core from THIS thread.
-					mustReinitCore = false;
+				P<IViewCore>	pCore = _pCore;
+				P<View>			pThis = this;
+				P<View>			pParentView = _pParentViewWeak;	// strong reference - we need to keep this alive during the call
+				asyncCallFromMainThread(
+					[pThis, pCore, pParentView]()
+					{
+						P<MutexLock> pLock = newObj<MutexLock>( pThis->_mutex );
 
-					P<IViewCore>	pCore = _pCore;
-					P<View>			pThis = this;
-					P<View>			pParentView = _pParentViewWeak;	// strong reference - we need to keep this alive during the call
-					asyncCallFromMainThread(
-						[pThis, pCore, pParentView]()
+						if(pThis->_pCore == pCore && pThis->_pParentViewWeak==pParentView)
 						{
-							P<MutexLock> pLock = newObj<MutexLock>( pThis->_mutex );
-
-							if(pThis->_pCore == pCore && pThis->_pParentViewWeak==pParentView)
-							{
-								if(! pThis->_pCore->tryChangeParentView(pThis->_pParentViewWeak) )
-									pThis->reinitCore( &pLock );
-							}
-					} );
-				}
+							if(! pThis->_pCore->tryChangeParentView(pThis->_pParentViewWeak) )
+								pThis->reinitCore( &pLock );
+						}
+				} );
 			}
 		}
 
