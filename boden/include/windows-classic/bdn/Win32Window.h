@@ -1,37 +1,46 @@
-#ifndef BDN_WindowBase_H_
-#define BDN_WindowBase_H_
+#ifndef BDN_Win32Window_H_
+#define BDN_Win32Window_H_
 
 #include <Windows.h>
-
-#include <bdn/WindowHandle.h>
-
-#include <map>
 
 namespace bdn
 {
 
-/** Base class for 'Windows' in the Win32 sense. This is also used as the base class for non-visible
-	windows like pure message windows and the like.
-	
-	This implements just the most basic functionality of creation, destruction and message handling.
-	
-	Actual visible windows should be derived from #Window instead!
+/** Represents a "Window" in the Win32 sense of the word. This is different than
+	a bdn::Window (which only refers to top level window). Under Win32, all views, top level windows and
+	even some other non-visible objects are implemented as a Win32 window.	
 */
-class WindowBase : public Base
+class Win32Window : public Base
 {
 public:
-	WindowBase();
-	~WindowBase();
+	/** @param className the name of the window class. For custom classes, take a look at 
+			Win32WindowClass - it can provide assistance in registering new window classes.
+		@param name the window name. Depending on the window class this can be a label, window title,
+			or simply a hidden internal name.
+		@param style window style flags. Google "MSDN Window Styles" to see a list
+		@param exStyle extended window style flags. Google "MSDN Extended Window Styles" to see a list
+		@param parentHwnd handle to the parent window. This can be NULL if the window has no parent.
+		*/
+	Win32Window(	const String& className,
+					const String& name,
+					DWORD style,
+					DWORD exStyle,
+					HWND parentHwnd,
+					int x=0,
+					int y=0,
+					int width=0,
+					int height=0);
+	~Win32Window();
 	
 
 	/** Destroys the window.*/
 	void destroy();
 
 	
-	/** Returns the window's handle object.*/
-	P<WindowHandle> getHandle()
+	/** Returns the window's HWND. NULL if the window was already destroyed.*/
+	HWND getHwnd()
 	{
-		return _pHandle;
+		return _hwnd;
 	}
 
 
@@ -46,6 +55,14 @@ public:
 	static String getWindowText(HWND windowHandle);
 	
 
+	/** Returns a pointer to the Win32Window object that is associated with the specified
+		HWND, or nullptr if no Win32Window object is associated with it.
+
+		It is safe to use this on ANY window handle, even ones not created by Win32Window.
+		If the handle does not belong to a Win32Window object then nullptr will be returned.
+		*/
+	static Win32Window* getObjectFromHwnd(HWND hwnd);
+
 
 	/** Static windowProc function that Window objects use to handle messages. You can use this
 		when you create custom window classes for use with #Window (see #WindowClass).*/
@@ -54,27 +71,6 @@ public:
 protected:
 	
 
-	/** Creates the window.
-	
-		@param className the name of the window class. For custom classes, take a look at 
-			WindowClassBase - it can provide assistance in registering new window classes.
-		@param name the window name. Depending on the window class this can be a label, window title,
-			or simply a hidden internal name.
-		@param style window style flags. Google "MSDN Window Styles" to see a list
-		@param exStyle extended window style flags. Google "MSDN Extended Window Styles" to see a list
-		@param parentHandle handle to the parent window. This can be NULL if the window has no parent.
-	*/
-	void createBase(	const String& className,
-						const String& name,
-						DWORD style,
-						DWORD exStyle,
-						HWND parentHandle,
-						int x=0,
-						int y=0,
-						int width=0,
-						int height=0 );
-
-	
 
 	class ClassBase : public Base
 	{
@@ -167,7 +163,7 @@ protected:
 
 	LRESULT windowProcImpl(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 		
-	P<WindowHandle>		_pHandle;	
+	HWND _hwnd = NULL;
 };
 
 }

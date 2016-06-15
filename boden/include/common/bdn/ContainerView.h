@@ -43,7 +43,7 @@ public:
 	{
 		// we use a single global mutex to synchronize changes to parent-child relationships.
 		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyMutex() );
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		P<View> pOldParentView = pChildView->getParentView();
 		if(pOldParentView!=nullptr)
@@ -55,10 +55,10 @@ public:
 			// at the end of the whole operation, so that the core can potentially
 			// be moved directly to its new parent, without being destroyed and
 			// recreated.
-			pOldParentView->childViewStolen(pChildView);
+			pOldParentView->_childViewStolen(pChildView);
 		}
 
-		std::list< P<View> > it;
+		std::list< P<View> >::iterator it;
 		if(pInsertBeforeChildView==nullptr)
 			it = _childViews.end();
 		else		
@@ -66,7 +66,7 @@ public:
 
 		_childViews.insert(it, pChildView);
 
-		pChildView->setParentView(this);
+		pChildView->_setParentView(this);
 	}
 
 
@@ -78,13 +78,13 @@ public:
 	{
 		// we use a single global mutex to synchronize changes to parent-child relationships.
 		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyMutex() );
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		auto it = std::find( _childViews.begin(), _childViews.end(), pChildView );
 		if(it!=_childViews.end())
 		{
 			_childViews.erase(it);
-			pChildView->setParentView(nullptr);
+			pChildView->_setParentView(nullptr);
 		}
 	}
 
@@ -93,11 +93,37 @@ public:
 	{
 		// we use a single global mutex to synchronize changes to parent-child relationships.
 		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyMutex() );
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		childViews = _childViews;
 	}
 
+
+	P<View> findPreviousChildView(View* pChildView)
+	{
+		MutexLock lock( getHierarchyAndCoreMutex() );
+
+		View* pPrevChildView = nullptr;
+		for( const P<View>& pCurrView: _childViews)
+		{
+			if(pCurrView.getPtr()==pChildView)
+				return pPrevChildView;
+
+			pPrevChildView = pCurrView;			
+		}
+
+		return nullptr;		
+	}
+
+
+	void _childViewStolen(View* pChildView)
+	{
+		MutexLock lock( getHierarchyAndCoreMutex() );
+
+		auto it = std::find( _childViews.begin(), _childViews.end(), pChildView);
+		if(it!=_childViews.end())
+			_childViews.erase(it);
+	}
 
 protected:
 	std::list< P<View> > _childViews;

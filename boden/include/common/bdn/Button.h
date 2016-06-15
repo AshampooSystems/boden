@@ -22,12 +22,12 @@ public:
 		*/
 	Property<String>& label()
 	{
-		return *_label;
+		return _label;
 	}
 
-	ReadProperty<String>& label() const
+	const ReadProperty<String>& label() const
 	{
-		return *_label;
+		return _label;
 	}
 		
 

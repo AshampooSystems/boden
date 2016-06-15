@@ -37,6 +37,8 @@ public:
 
 
 	/** Create thes core for the specified UI object.
+
+		If the view type is not supported then a ViewTypeNotSupportedError is thrown.
 	
 		@param viewTypeName the type of the view. All standard view types start with "bdn."
 			(e.g. bdn.SomeViewName). If you create custom view types then you should start
@@ -65,6 +67,9 @@ public:
 
 /** Returns the default UI provider for the current platform.
 
+	Initially this is the same as getPlatformUiProvider(), but it can
+	be changed with setDefaultUiProvider().
+
 	This function is thread-safe.
 */
 P<IUiProvider> getDefaultUiProvider();
@@ -82,6 +87,14 @@ P<IUiProvider> getDefaultUiProvider();
 */
 void setDefaultUiProvider(IUiProvider* pProvider);
 
+
+/** Returns a pointer to the default UI provider for normal
+	visible UI elements on the platform.
+	Note that in most cases you should use getDefaultUiProvider() instead.
+	Only use getPlatformUiProvider if you specifically ALWAYS want the normal
+	platform UI - no matter what was passed to setDefaultUiProvider().
+	*/
+P<IUiProvider> getPlatformUiProvider();
 
 
 }

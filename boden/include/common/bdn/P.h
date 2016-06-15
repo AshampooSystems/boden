@@ -204,8 +204,7 @@ public:
 		return _pObject == p._pObject;
 	}
 
-
-	bool operator==(const T* p) const
+	bool operator==(T* p) const
 	{
 		return _pObject==p;
 	}
@@ -222,7 +221,7 @@ public:
 	}
 
 
-	bool operator!=(const T* pObj) const
+	bool operator!=(T* pObj) const
 	{
 		return _pObject != pObj;
 	}

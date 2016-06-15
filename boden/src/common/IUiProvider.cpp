@@ -25,7 +25,7 @@ P<IUiProvider> getDefaultUiProvider()
 	P<IUiProvider>& pProvider = _getDefaultUiProviderRef();
 
 	if(pProvider==nullptr)
-		pProvider = createDefaultUiProvider();
+		pProvider = getPlatformUiProvider();
 
 	return pProvider;
 }

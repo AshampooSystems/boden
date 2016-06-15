@@ -1,8 +1,8 @@
 #ifndef BDN_MessageWindowBase_H_
 #define BDN_MessageWindowBase_H_
 
-#include <bdn/WindowClass.h>
-#include <bdn/WindowBase.h>
+#include <bdn/Win32WindowClass.h>
+#include <bdn/Win32Window.h>
 
 namespace bdn
 {
@@ -12,7 +12,7 @@ namespace bdn
 
 	This class is only available on Windows Classic / Win32 platforms.
 */
-class MessageWindowBase : public WindowBase
+class MessageWindowBase : public Win32Window
 {
 public:
 	/** @param windowName the name of the window. Since the window is invisible
@@ -22,11 +22,11 @@ public:
 	
 	
 protected:
-	class MessageWindowClass : public WindowClass
+	class MessageWindowClass : public Win32WindowClass
 	{
 	public:
 		MessageWindowClass()
-			: WindowClass("bdn::MessageWindow", &WindowBase::windowProc)
+			: Win32WindowClass("bdn::MessageWindow", &Win32Window::windowProc)
 		{
 			ensureRegistered();
 		}

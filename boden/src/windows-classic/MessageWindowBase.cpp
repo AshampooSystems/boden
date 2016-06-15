@@ -6,13 +6,13 @@ namespace bdn
 
 
 MessageWindowBase::MessageWindowBase(const String& windowName)
+	: Win32Window(	MessageWindowClass::get()->getName(),
+					windowName,
+					WS_POPUP,
+					0,
+					NULL )
 {
-	String className = MessageWindowClass::get()->getName();
-
-	createBase(className, windowName, WS_POPUP, 0, NULL );
 }
-
-
 
 
 

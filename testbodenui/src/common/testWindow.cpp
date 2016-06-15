@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#include <bdn/IFrame.h>
+#include <bdn/Window.h>
 
 #include <bdn/test.h>
 
@@ -8,15 +8,16 @@
 
 using namespace bdn;
 
-TEST_CASE("Frame", "[ui]")
+TEST_CASE("Window", "[ui]")
 {   
-    P<IFrame> pFrame = createFrame("Test");
-    
-    pFrame->visible() = true;
+    P<Window> pWindow = newObj<Window>();
+	pWindow->title() = "Test";
+
+    pWindow->visible() = true;
     
     std::this_thread::sleep_for( std::chrono::duration<int>(2) );    
 
-	pFrame = nullptr;
+	pWindow = nullptr;
 }
 
 

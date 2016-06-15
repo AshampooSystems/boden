@@ -15,7 +15,7 @@ GlobalMessageWindow::GlobalMessageWindow()
 void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 {
 	pCallable->addRef();
-	::PostMessage(_pHandle->getHwnd(), MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
+	::PostMessage( getHwnd(), MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
 }
 
 void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)

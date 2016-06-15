@@ -1,5 +1,5 @@
-#ifndef BDN_WindowClass_H_
-#define BDN_WindowClass_H_
+#ifndef BDN_Win32WindowClass_H_
+#define BDN_Win32WindowClass_H_
 
 
 #include <windows.h>
@@ -8,12 +8,13 @@ namespace bdn
 {
 	
 
-/** Base class for window class objects.
+/** Base class for Win32 window class objects.
+	See Win32Window.
 */
-class WindowClass : public Base
+class Win32WindowClass : public Base
 {
 public:
-	WindowClass(const String& name, WNDPROC windowProc);
+	Win32WindowClass(const String& name, WNDPROC windowProc);
 
 	/** Registers the class if it is not yet registered.
 	

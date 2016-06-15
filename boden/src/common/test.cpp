@@ -38,7 +38,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/test.h>
 
 #include <bdn/TestAppWithUiController.h>
-#include <bdn/IFrame.h>
+#include <bdn/Window.h>
 #include <bdn/mainThread.h>
 
 
@@ -7687,8 +7687,9 @@ public:
             _pTestSession = new bdn::Session;
 
 			// this is just a place holder frame so that we have something visible.
-            _pFrame = createFrame("Running tests...");
-            _pFrame->visible() = true;
+            _pWindow = newObj<Window>();
+			_pWindow->title() = "Running tests...";
+            _pWindow->visible() = true;
 
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
@@ -7698,7 +7699,7 @@ public:
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.
-				_pFrame->title() = "Invalid commandline";
+				_pWindow->title() = "Invalid commandline";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
                 return;
             }
@@ -7706,7 +7707,7 @@ public:
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
-				_pFrame->title() = "Done";
+				_pWindow->title() = "Done";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
 				return;
             }
@@ -7733,7 +7734,7 @@ public:
 
 	void deinit()
 	{
-		_pFrame = nullptr;
+		_pWindow = nullptr;
 	}
 
 protected:
@@ -7776,7 +7777,7 @@ protected:
 
 				int exitCode = failedCount;
 
-				_pFrame->title() = "Done ("+bdn::toString(failedCount)+" failed)";
+				_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
 
 				waitAndClose(exitCode);
 			}
@@ -7785,7 +7786,7 @@ protected:
         {
             bdn::cerr() << ex.what() << std::endl;
 
-			_pFrame->title() = "Fatal Error";
+			_pWindow->title() = "Fatal Error";
 
             int exitCode = (std::numeric_limits<int>::max)();
 
@@ -7799,7 +7800,7 @@ protected:
 	Session*    _pTestSession;
     TestRunner* _pTestRunner;
 
-	P<IFrame>	_pFrame;
+	P<Window>	_pWindow;
 };
 
 

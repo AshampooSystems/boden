@@ -1,7 +1,7 @@
 #include <bdn/init.h>
-#include <bdn/IFrame.h>
-#include <bdn/IButton.h>
-#include <bdn/ISwitch.h>
+#include <bdn/Window.h>
+#include <bdn/ColumnView.h>
+#include <bdn/Button.h>
 
 #include <bdn/appInit.h>
 #include <bdn/AppControllerBase.h>
@@ -75,16 +75,20 @@ public:
     {
 		_pViewModel = pViewModel;
 
-        _pFrame = createFrame("hello");
+        _pWindow = newObj<Window>();
+		_pWindow->title() = "hello";
 
-		_pButton = createButton(_pFrame, "" );
+		P<ColumnView> pColumnView = newObj<ColumnView>();
+		
+		_pButton = newObj<Button>();
         _pButton->label().bind( _pViewModel->helloMessage() );
-        
-        _pSwitch = createSwitch(_pFrame, "This is a switch/checkbox");
-        
+
+		pColumnView->addChildView( _pButton );
+                
         _pButton->onClick().subscribeVoidMember<MainViewController>(_pButtonClickSub, this, &MainViewController::buttonClicked);
 
-		_pFrame->visible() = true;
+		_pWindow->setContentView( pColumnView );
+		_pWindow->visible() = true;
     }
     
     
@@ -96,9 +100,8 @@ protected:
 
     P<ViewModel> _pViewModel;
     
-    P<IFrame>    _pFrame;
-    P<IButton>   _pButton;
-    P<ISwitch>   _pSwitch;
+    P<Window>   _pWindow;
+    P<Button>	_pButton;
 
 	P<IBase>	_pButtonClickSub;
 };

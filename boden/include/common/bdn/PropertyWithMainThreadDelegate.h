@@ -112,7 +112,7 @@ public:
 			_onChange.notify(*this);
 	}
 
-	const ValType get() const override
+	ValType get() const override
 	{
 		MutexLock lock(_mutex);
 		return _value;

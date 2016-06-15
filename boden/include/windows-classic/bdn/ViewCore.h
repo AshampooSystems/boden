@@ -1,35 +1,28 @@
 #ifndef BDN_ViewCore_H_
 #define BDN_ViewCore_H_
 
-#include <bdn/WindowBase.h>
-#include <bdn/IViewCore.h>
-
-#include <map>
-
-#include <Windows.h>
+#include <bdn/View.h>
+#include <bdn/Win32Window.h>
 
 namespace bdn
 {
 
-/** Base class for 'Windows' in the Win32 sense. This is also used as the base class for non-visible
-	windows like pure message windows and the like.
-	
-	This implements just the most basic functionality of creation, destruction and message handling.
-	
-	Actual visible windows should be derived from #Window instead!
+/** Base implementation for win32 view cores (see IViewCore).
 */
-class ViewCore : public WindowBase, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Win32Window, BDN_IMPLEMENTS IViewCore
 {
 public:
-	ViewCore()
-	{
-	}
+	ViewCore(	View* pOuterView,
+				const String& className,
+				const String& name,
+				DWORD style,
+				DWORD exStyle,
+				int x=0,
+				int y=0,
+				int width=0,
+				int height=0 );
 	
 
-	HWND getHwnd()
-	{
-		return _pHandle->getHwnd();
-	}
 	
 	void	setVisible(const bool& visible) override
 	{
@@ -51,28 +44,7 @@ public:
 		automatically re-create the core for the new parent and release the current
 		core object.		
 		*/
-	bool tryChangeParentView(View* pNewParent) override
-	{
-		if( getViewHwnd(pNewParent)==_parentHwnd )
-		{
-			// the underlying win32 window is the same.
-			// Note that this case is quite common, since many View containers
-			// are actually light objects that do not have their own backend
-			// Win32 window. So often the Win32 window of some higher ancestor is
-			// shared by many windows.
-
-			// This also happens when a child view's ordering position is changed inside
-			// the parent. So we have to check if we need to change something there.
-			updateOrderAmongSiblings();
-
-			return true;
-		}
-		else
-		{
-			// we cannot move a window to a new underlying win32 window.
-			return false;
-		}
-	}
+	bool tryChangeParentView(View* pNewParent) override;
 
 
 	/** Causes the core to check the ordering of its view among its sibling views
@@ -83,7 +55,29 @@ public:
 		*/
 	virtual void updateOrderAmongSiblings()
 	{
-		// do nothing by default
+		HWND ourHwnd = getHwnd();
+		if(ourHwnd!=NULL)
+		{
+			View* pParentView = _pOuterViewWeak->getParentView();
+
+			if(pParentView!=nullptr)
+			{		
+				View* pPrevSibling = pParentView->findPreviousChildView( _pOuterViewWeak );
+
+				if(pPrevSibling==nullptr)
+				{
+					// we are the first child
+					::SetWindowPos(ourHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				}
+				else
+				{
+					HWND prevSiblingHwnd = getViewHwnd(pPrevSibling);
+						
+					if(prevSiblingHwnd!=NULL)
+						::SetWindowPos(ourHwnd, prevSiblingHwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				}			
+			}
+		}
 	}
 
 
@@ -106,154 +100,28 @@ public:
 		return NULL;
 	}
 
-	
-
-	/** Destroys the window.*/
-	void destroy();
-
-	
-	/** Returns the window's handle object.*/
-	P<WindowHandle> getHandle()
-	{
-		return _pHandle;
-	}
-
-
-
-	/** Static function that sets the text of a window (like the Windows function
-		SetWindowText).*/
-	static void setWindowText(HWND windowHandle, const String& text);
-
-
-	/** Static function that returns the text of the specified window
-		(like the Windows function GetWindowText)*/
-	static String getWindowText(HWND windowHandle);
-	
-
-
-	/** Static windowProc function that Window objects use to handle messages. You can use this
-		when you create custom window classes for use with #Window (see #WindowClass).*/
-	static LRESULT CALLBACK windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 protected:
 
-	
-	
-
-	/** Creates the window.
-	
-		@param className the name of the window class. For custom classes, take a look at 
-			WindowClassBase - it can provide assistance in registering new window classes.
-		@param name the window name. Depending on the window class this can be a label, window title,
-			or simply a hidden internal name.
-		@param style window style flags. Google "MSDN Window Styles" to see a list
-		@param exStyle extended window style flags. Google "MSDN Extended Window Styles" to see a list
-		@param parentHandle handle to the parent window. This can be NULL if the window has no parent.
-	*/
-	void createBase(	const String& className,
-						const String& name,
-						DWORD style,
-						DWORD exStyle,
-						HWND parentHandle,
-						int x=0,
-						int y=0,
-						int width=0,
-						int height=0 );
+	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 
 	
-
-	class ClassBase : public Base
-	{
-	public:
-		ClassBase(const String& name);
-
-		void ensureRegistered();
-
-	protected:
-		String		_name;
-		bool		_registered;
-
-		WNDCLASSEX	_info;
-	};
-	friend class ClassBase;
-
-
-	
-	class MessageContext
-	{
-	public:
-		MessageContext()
-		{
-			_callDefaultHandler = true;
-			_resultSet = false;
-			_result = 0;
-		}
-
-		/** Sets the result value of the message that is being processed.
-			
-			Note that it is NOT required to call this. When you do not call this then
-			the system's default handler for the message is called and its result value is used.
-		
-			@param result result value of the message
-			@param callDefaultHandler indicates whether or not the system's default handler should be called
-				for this message. Note that even if this is true then the result value set with this function
-				will be used instead of the one from the default handler.
+	/** This is called by the parent window when it receives a message that actually applies
+		to this window.
+		For example, Windows sends WM_COMMAND messages for button clicks to the button's parent,
+		rather than the button. The parent then forwards the message to the button
+		by calling its handleParentMessage function.
 		*/
-		void setResult(LRESULT result, bool callDefaultHandler )
-		{
-			_result = result;
-			_resultSet = true;
-			_callDefaultHandler = callDefaultHandler;
-		}
-
-		
-		/** If the result was set with setResult() then this function stores it in the result
-			parameter and returns true.
-			
-			If the result was not set with setResult() then the result parameter is not modified
-			and the function returns false.			
-		*/
-		bool getResultIfSet(LRESULT& result) const
-		{
-			if(_resultSet)
-			{
-				result = _result;
-				return true;
-			}
-
-			return false;
-		}
-
-		bool getCallDefaultHandler() const
-		{
-			return _callDefaultHandler;
-		}
-
-	protected:
-		LRESULT _result;
-		bool    _resultSet;
-		bool	_callDefaultHandler;
-	};
-
-
-	/** Called when the window is about to be destroyed.*/
-	virtual void notifyDestroy();
+	virtual void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 	
-	/** Called when a message is received. Derived classes can override this.
-	
-		By default the default message handler of the system is automatically called after this
-		and its return value is the result of the message.
 
-		If you want to override the default result, or if you want to prevent the default handler
-		from being called altogether, then you can call MessageContext::overrideResult on the provided
-		context object.
-	*/
-	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-	LRESULT windowProcImpl(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-		
-	P<WindowHandle>		_pHandle;	
+	/** Returns the child view core that the specified message should be forwarded to.*/
+	virtual P<ViewCore> findChildCoreForMessage(UINT message, WPARAM wParam, LPARAM lParam);
+
+
+	View* _pOuterViewWeak;	// weak by design
 };
 
 }

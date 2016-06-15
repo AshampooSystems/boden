@@ -14,6 +14,23 @@ namespace bdn
 	Windows have a single child view (the "content view") that displays the window
 	contents. Usually this content view will be a view container object,
 	which can then contain multiple child views.
+
+	Windows are initially invisible. Once you have finished initializing your window
+	you need to explicitly show it by setting the property visible()=true.
+
+	Example:
+
+	\code
+
+	P<Window> pWindow = newObj<Window>();
+
+	pWindow->title() = "My Window Title";
+
+	pWindow->visible() = true;
+
+	// the window is now visible on the screen.
+
+	\endcode
 */
 class Window : public View
 {
@@ -26,6 +43,8 @@ public:
 		_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider();
 
 		initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
+
+		reinitCore();
 	}
 	
 
@@ -35,16 +54,16 @@ public:
 		See #Window class documentation for more information.*/
 	void setContentView(View* pContentView)
 	{
-		MutexLock lock(_mutex);
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		if(pContentView!=_pContentView)
 		{
 			if(_pContentView!=nullptr)
-				_pContentView->setParentView(nullptr);
+				_pContentView->_setParentView(nullptr);
 
 			_pContentView = pContentView;
 
-			_pContentView->setParentView(this);
+			_pContentView->_setParentView(this);
 		}
 	}
 
@@ -53,7 +72,7 @@ public:
 		This can be nullptr if no content view has been set yet.*/
 	P<View> getContentView()
 	{
-		MutexLock lock(_mutex);
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		return _pContentView;
 	}
@@ -93,16 +112,36 @@ public:
 	}
 
 
-	void getChildViews(std::list< P<View> >& childViews)
+	void getChildViews(std::list< P<View> >& childViews) override
 	{
-		MutexLock lock(_mutex);
+		MutexLock lock( getHierarchyAndCoreMutex() );
 
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
 	}
+		
+	P<View> findPreviousChildView(View* pChildView) override
+	{
+		// we do not have multiple child views with an order - just a single content view
+		return nullptr;
+	}
 
 
-protected:		
+	void _childViewStolen(View* pChildView) override
+	{
+		MutexLock lock( getHierarchyAndCoreMutex() );
+
+		if(pChildView==_pContentView)
+			_pContentView = nullptr;
+	}
+
+protected:
+	P<IUiProvider> determineUiProvider() override
+	{
+		// our Ui provider never changes. Just return the current one.
+		return _pUiProvider;
+	}
+
 	DefaultProperty<String> _title;
 
 	P<View>					_pContentView;

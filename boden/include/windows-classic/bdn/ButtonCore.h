@@ -1,9 +1,8 @@
 #ifndef BDN_ButtonCore_H_
 #define BDN_ButtonCore_H_
 
+#include <bdn/Button.h>
 #include <bdn/ViewCore.h>
-
-#include <bdn/IButtonCore.h>
 
 namespace bdn
 {
@@ -11,10 +10,7 @@ namespace bdn
 class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
-	ButtonCore(Button* pOuter)
-	{
-		create(pParent, "BUTTON", pOuter->label().get(), BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD, 0, 20, 20, 200, 30 );
-	}
+	ButtonCore(Button* pOuter);
 
 	void setLabel(const String& label) override
 	{
@@ -23,16 +19,15 @@ public:
 
 	void generateClick()
 	{
-		ClickEvent evt(this);
+		ClickEvent evt( _pOuterViewWeak );
 
-		_onClick.notify(evt);
+		cast<Button>(_pOuterViewWeak)->onClick().notify(evt);
 	}
 
 
 protected:		
 	void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 
-	Notifier<const ClickEvent&> _onClick;
 };
 
 

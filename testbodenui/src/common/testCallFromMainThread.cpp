@@ -200,7 +200,7 @@ void testCallFromMainThreadOrdering()
 		f.get();
 
 	// now verify that the scheduling order and the call order are the same
-	for(int i=0; i<scheduleOrder.size(); i++)
+	for(size_t i=0; i<scheduleOrder.size(); i++)
 	{
 		REQUIRE( mainThreadOrder.size()>i);
 		REQUIRE( scheduleOrder[i] == mainThreadOrder[i] );		
@@ -394,7 +394,7 @@ void testAsyncCallFromMainThreadOrdering()
 		f.get();
 
 	// now verify that the scheduling order and the call order are the same
-	for(int i=0; i<scheduleOrder.size(); i++)
+	for(size_t i=0; i<scheduleOrder.size(); i++)
 	{
 		REQUIRE( mainThreadOrder.size()>i);
 		REQUIRE( scheduleOrder[i] == mainThreadOrder[i] );		

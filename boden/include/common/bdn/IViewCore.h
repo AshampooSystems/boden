@@ -1,8 +1,11 @@
 #ifndef BDN_IViewCore_H_
 #define BDN_IViewCore_H_
 
+
 namespace bdn
 {
+
+class View;
 
 class IViewCore : BDN_IMPLEMENTS IBase
 {
