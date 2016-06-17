@@ -80,6 +80,50 @@ SystemError makeSysError(int errorCode, const ErrorFields& fields = ErrorFields(
 void throwSysError(int errorCode, const ErrorFields& fields = ErrorFields() );
 
 
+#if BDN_PLATFORM_WINDOWS
+
+
+/** Creates a SystemError / std::system_error object for the system error with the
+	specified Windows HRESULT error code.
+
+	@param errorCode a hresult error code.
+
+	@param fields an ErrorFields instance contains arbitrary additional information
+		about the error. For example, if the error occurred while accessing a file you
+		could add a "path" field with the file path.
+
+		The fields object is encoded into the message returned by std::exception::what().
+		You can use ErrorInfo to access the fields from an exception object.
+
+		The easiest way to construct the params object is to create an ad-hoc temporary object
+		and call ErrorFields::add() on it, as shown in the following example.
+
+	*/
+SystemError makeHresultError(long hresultCode, const ErrorFields& infoFields = ErrorFields() );
+
+
+/** Throws an appropriate exception for the specified Windows HRESULT error code.
+
+	The exception will have the type std::system_error and bdn::SystemError (which are actually the
+	same type).
+
+	@param errorCode a hresult error code.
+
+	@param fields an ErrorFields instance contains arbitrary additional information
+		about the error. For example, if the error occurred while accessing a file you
+		could add a "path" field with the file path.
+
+		The fields object is encoded into the message returned by std::exception::what().
+		You can use ErrorInfo to access the fields from an exception object.
+
+		The easiest way to construct the params object is to create an ad-hoc temporary object
+		and call ErrorFields::add() on it, as shown in the following example.
+
+	*/
+void throwHresultError(long hresultCode, const ErrorFields& fields = ErrorFields() );
+
+#endif
+
 
 /** \define BDN_throwLastSysError(params)
 

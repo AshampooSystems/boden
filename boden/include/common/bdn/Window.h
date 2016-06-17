@@ -136,6 +136,10 @@ public:
 	}
 
 protected:
+	void updateSizingInfo() override;
+	void layout() override;
+
+
 	P<IUiProvider> determineUiProvider() override
 	{
 		// our Ui provider never changes. Just return the current one.

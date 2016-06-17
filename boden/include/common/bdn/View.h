@@ -11,6 +11,8 @@ namespace bdn
 #include <bdn/IViewCore.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/DefaultProperty.h>
+#include <bdn/UiMargin.h>
+#include <bdn/Rect.h>
 #include <bdn/mainThread.h>
 
 namespace bdn
@@ -30,6 +32,9 @@ public:
 	View()
 	{
 		initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
+		initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);
+		initProperty<UiMargin, IViewCore, &IViewCore::setPadding>(_padding);
+		initProperty<Rect, IViewCore, &IViewCore::setBounds>(_bounds);
 	}
 
 	~View()
@@ -82,6 +87,56 @@ public:
 		// no need for mutex locking. Properties are thread-safe.
 		return _visible;
 	}
+
+
+	/** The size of the empty space that should be left around the view.
+	
+		The margin is NOT part of the view itself. It is merely something that the
+		layout takes into account.
+
+		It is recommended to specify the margin in UiLength::sem units.
+	*/
+	virtual Property<UiMargin>& margin()
+	{
+		return _margin;
+	}
+
+	virtual const ReadProperty<UiMargin>& margin() const
+	{
+		return _margin;
+	}
+
+
+	/** The size space around the content inside this view.
+
+		The padding is part of the view and thus it influences the size of
+		the view (in contrast to the margin(), which is NOT part of the view).
+
+		It is recommended to specify the padding in UiLength::sem units.
+	*/
+	virtual Property<UiMargin>& padding()
+	{
+		return _padding;
+	}
+
+	virtual const ReadProperty<UiMargin>& padding() const
+	{
+		return _padding;
+	}
+
+
+	/** Bounding rectangle of the view (size and position).*/
+	virtual Property<Rect>& bounds()
+	{
+		return _bounds;
+	}
+
+	virtual const ReadProperty<Rect>& bounds() const
+	{
+		return _bounds;
+	}
+
+
 
 
 	/*
@@ -188,6 +243,7 @@ public:
 	void _setParentView(View* pParentView);
 
 
+
 	/** Should only be called by view container implementations.
 		Users of View objects should NOT call this.
 		
@@ -204,6 +260,33 @@ public:
 
 
 protected:
+
+	/** Used internally. Do not call directly.
+	
+		Tells the view to recalculate its sizing information 
+		(minimum/preferred/maximum sizes).
+		
+		This is only called from the main thread.
+		*/
+	virtual void updateSizingInfo()=0;
+
+
+	/** Used internally. Do not call directly.
+	
+		Tells the view to update the layout of its child views. The
+		view should NOT update its own size during this - it should only
+		update the child views.
+		
+		This is only called from the main thread.
+		*/
+	virtual void layout()=0;
+
+
+	// allow the coordinator to call the sizing info and layout functions.
+	friend class LayoutCoordinator;
+
+
+
 	/** Returns the global mutex object that is used to synchronize changes in the
 		UI hierarchy (parent-child relationships) and replacement of view core objects.
 
@@ -367,7 +450,10 @@ private:
 
 
 protected:
-	DefaultProperty<bool>	_visible;
+	DefaultProperty<bool>		_visible;
+	DefaultProperty<UiMargin>	_margin;
+	DefaultProperty<UiMargin>	_padding;
+	DefaultProperty<Rect>		_bounds;
 
 	P<IUiProvider>			_pUiProvider;
 

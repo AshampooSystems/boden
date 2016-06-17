@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/ViewCore.h>
 
+#include <bdn/Win32UiProvider.h>
+
 namespace bdn
 {
 
@@ -24,8 +26,106 @@ ViewCore::ViewCore(	View* pOuterView,
 					height )
 {
 	_pOuterViewWeak = pOuterView;
+
+	_uiScaleFactor = 0;
+
+	View* pParentView = pOuterView->getParentView();
+	if(pParentView==nullptr)
+	{
+		// we are a top level window without a parent. In that case the constructor
+		// of the derived class will initialize the ui scale factor.
+	}
+	else
+	{
+		// we inherit the scale factor from our parent view
+
+		P<ViewCore> pParentCore = cast<ViewCore>(pParentView->getViewCore());
+
+		setUiScaleFactor( pParentCore->getUiScaleFactor() );
+	}
 }
 
+
+
+void ViewCore::setUiScaleFactor(double factor)
+{
+	if(factor != _uiScaleFactor)
+	{
+		_uiScaleFactor = factor;
+
+		// we must now update our font
+		updateFont();
+
+		// and we must also notify our child views.
+		std::list< P<View> > childViews;
+		_pOuterViewWeak->getChildViews(childViews);
+
+		for( const P<View>& pChildView: childViews)
+		{
+			P<ViewCore> pCore = cast<ViewCore>( pChildView->getViewCore() );
+			if(pCore!=nullptr)
+				pCore->setUiScaleFactor(factor);
+		}
+	}	
+}
+
+
+void ViewCore::updateFont()
+{
+	_pFont = Win32UiProvider::get()->getFontForView( _pOuterViewWeak, _uiScaleFactor);
+
+	::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
+}
+
+
+void	ViewCore::setVisible(const bool& visible)
+{
+	::ShowWindow( getHwnd(), visible ? SW_SHOW : SW_HIDE);		
+}
+
+
+void ViewCore::setMargin(const UiMargin& margin)
+{
+	// do nothing. It only influences the parent layout
+}
+
+void ViewCore::setPadding(const UiMargin& padding)
+{
+	// do nothing. We handle it on the fly when our preferred size is calculated.
+}
+
+void ViewCore::setBounds(const Rect& bounds)
+{
+	::SetWindowPos( getHwnd(), NULL, (int)bounds.x, (int)bounds.y, (int)bounds.width, (int)bounds.height, SWP_NOACTIVATE | SWP_NOZORDER);
+}
+
+
+void ViewCore::updateOrderAmongSiblings()
+{
+	HWND ourHwnd = getHwnd();
+	if(ourHwnd!=NULL)
+	{
+		View* pParentView = _pOuterViewWeak->getParentView();
+
+		if(pParentView!=nullptr)
+		{		
+			View* pPrevSibling = pParentView->findPreviousChildView( _pOuterViewWeak );
+
+			if(pPrevSibling==nullptr)
+			{
+				// we are the first child
+				::SetWindowPos(ourHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			}
+			else
+			{
+				HWND prevSiblingHwnd = getViewHwnd(pPrevSibling);
+						
+				if(prevSiblingHwnd!=NULL)
+					::SetWindowPos(ourHwnd, prevSiblingHwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			}			
+		}
+	}
+}
 
 bool ViewCore::tryChangeParentView(View* pNewParentView)
 {
@@ -90,6 +190,18 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 	else	
 		return nullptr;
 }
+
+
+double ViewCore::uiLengthToPixels(const UiLength& uiLength)
+{
+	return Win32UiProvider::get()->uiLengthToPixels( uiLength, _uiScaleFactor );
+}
+
+Margin ViewCore::uiMarginToPixelMargin(const UiMargin& margin)
+{
+	return Win32UiProvider::get()->uiMarginToPixelMargin( margin, _uiScaleFactor );
+}
+
 
 
 }

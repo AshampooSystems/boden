@@ -16,10 +16,11 @@ class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 public:
 	WindowCore(Window* pWindow);			
 	
-	void	setTitle(const String& title) override
-	{
-		Win32Window::setWindowText( getHwnd(), title );
-	}
+	void	setTitle(const String& title) override;
+
+	Rect getContentArea() override;
+
+	void layout();
 
 protected:
 	class WindowCoreClass : public Win32WindowClass
@@ -41,6 +42,10 @@ protected:
 		}		
 	};
 
+	void initUiScaleFactor();
+	void setWindowsDpiValue(int dpi);
+
+	void dpiChanged(int newDpi, const RECT* pSuggestedNewRect );
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 };

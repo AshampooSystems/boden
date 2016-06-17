@@ -3,6 +3,7 @@
 
 #include <bdn/View.h>
 #include <bdn/Win32Window.h>
+#include <bdn/Font.h>
 
 namespace bdn
 {
@@ -24,10 +25,17 @@ public:
 	
 
 	
-	void	setVisible(const bool& visible) override
-	{
-		::ShowWindow( getHwnd(), visible ? SW_SHOW : SW_HIDE);		
-	}
+	void setVisible(const bool& visible) override;
+			
+	void setMargin(const UiMargin& margin) override;	
+	void setPadding(const UiMargin& padding) override;
+
+	void setBounds(const Rect& bounds) override;
+
+
+	double uiLengthToPixels(const UiLength& uiLength) override;
+	Margin uiMarginToPixelMargin(const UiMargin& margin) override;
+
 
 
 	/** Called when the outer view's parent has changed.
@@ -53,32 +61,7 @@ public:
 		
 		The default implementation does nothing.
 		*/
-	virtual void updateOrderAmongSiblings()
-	{
-		HWND ourHwnd = getHwnd();
-		if(ourHwnd!=NULL)
-		{
-			View* pParentView = _pOuterViewWeak->getParentView();
-
-			if(pParentView!=nullptr)
-			{		
-				View* pPrevSibling = pParentView->findPreviousChildView( _pOuterViewWeak );
-
-				if(pPrevSibling==nullptr)
-				{
-					// we are the first child
-					::SetWindowPos(ourHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				}
-				else
-				{
-					HWND prevSiblingHwnd = getViewHwnd(pPrevSibling);
-						
-					if(prevSiblingHwnd!=NULL)
-						::SetWindowPos(ourHwnd, prevSiblingHwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-				}			
-			}
-		}
-	}
+	virtual void updateOrderAmongSiblings();
 
 
 	/** Returns the handle of the win32 window for the specified view.
@@ -101,6 +84,19 @@ public:
 	}
 
 
+	/** Sets the view core's UI scale factor.
+		The scale factor depends on the screen DPI (or what Windows calls "DPI" - it is not really the physical DPI
+		of the screen). It can change at any time, for example when system settings are changed or when the view's
+		window is moved to another screen.		
+		*/
+	void setUiScaleFactor(double factor);
+
+
+	double getUiScaleFactor() const
+	{
+		return _uiScaleFactor;
+	}
+
 protected:
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
@@ -114,7 +110,8 @@ protected:
 		*/
 	virtual void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-	
+	/** Updates the core's font.*/
+	void updateFont();
 
 
 	/** Returns the child view core that the specified message should be forwarded to.*/
@@ -122,6 +119,11 @@ protected:
 
 
 	View* _pOuterViewWeak;	// weak by design
+
+	/** See setUiScaleFactor() */
+	double _uiScaleFactor;
+
+	P<Font> _pFont;
 };
 
 }
