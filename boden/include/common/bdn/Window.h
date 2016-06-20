@@ -78,6 +78,28 @@ public:
 	}
 
 
+
+	/** Tells the window to auto-size itself. The window size will be adapted according
+		to the preferred size of the content view. The window also takes other considerations
+		into account, like the size of the screen it is on.
+		
+		Note that the update happens asynchronously, so the window will usually not have the
+		new size yet when the function returns.
+		*/
+	void requestAutoSize();
+
+
+	/** Tells the window to center itself on the screen.
+
+		The update will happen asynchronously, so the position might not have been updated yet
+		when the function returns.
+
+		If another asynchronous operation has been scheduled (like requestAutoSize())
+		then it is guaranteed that the centering happens after that operation is complete.
+	*/
+	void requestCenter();
+
+
 	/** Returns the window's title property.
 
 		Depending on the platform, the title may or may not be visible in a window title bar on
@@ -112,7 +134,7 @@ public:
 	}
 
 
-	void getChildViews(std::list< P<View> >& childViews) override
+	void getChildViews(std::list< P<View> >& childViews) const override
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -135,9 +157,21 @@ public:
 			_pContentView = nullptr;
 	}
 
+
+	Size	calcPreferredSize() const override;
+	int		calcPreferredHeightForWidth(int width) const override;
+	int		calcPreferredWidthForHeight(int height) const override;
+
+	
+
 protected:
 	void updateSizingInfo() override;
-	void layout() override;
+	void layout() override;	
+
+	void autoSize();
+	
+	// allow the coordinator to call our protected functions like autoSize.
+	friend class LayoutCoordinator;
 
 
 	P<IUiProvider> determineUiProvider() override

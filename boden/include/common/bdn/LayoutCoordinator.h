@@ -2,6 +2,11 @@
 #define BDN_LayoutCoordinator_H_
 
 
+#include <bdn/Window.h>
+#include <bdn/View.h>
+
+#include <set>
+
 namespace bdn
 {
 	
@@ -28,7 +33,7 @@ class LayoutCoordinator : public Base
 public:
 	LayoutCoordinator();
 
-	/** Registers a view for a sizing information update. This should be called when sizing
+	/** Registers a view for a size information update. This should be called when sizing
 		parameters (like padding, etc) or the view contents change and the preferred/minimum/maximum
 		sizes of the view may have changed.
 
@@ -46,6 +51,14 @@ public:
 
 
 
+	/** Registers a top level window for auto-sizing.*/
+	void windowNeedsAutoSizing(Window* pWindow);
+
+	/** Registers a top-level window for centering on the screen.*/
+	void windowNeedsCentering(Window* pWindow);
+
+
+
 	/** Returns the global coordinator object.*/
 	static P<LayoutCoordinator> get()
 	{
@@ -58,6 +71,8 @@ protected:
 	void needUpdate();
 
 	void mainThreadUpdateNow();
+
+	Mutex				_mutex;
 	
 	std::set< P<View> > _sizingInfoSet;
 	std::set< P<View> > _layoutSet;

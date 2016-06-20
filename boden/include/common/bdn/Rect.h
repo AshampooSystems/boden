@@ -3,6 +3,7 @@
 
 
 #include <bdn/Margin.h>
+#include <bdn/Size.h>
 
 namespace bdn
 {
@@ -11,21 +12,20 @@ namespace bdn
 /** Represents the position and size of a simple two dimensional
 	rectangle.
 	
-	Note that the components are floating point numbers (double), not integers.
 	*/
 struct Rect
 {
 public:
-	double x = 0;
-	double y = 0;
-	double width = 0;
-	double height = 0;
+	int x = 0;
+	int y = 0;
+	int width = 0;
+	int height = 0;
 
 	Rect()
 	{		
 	}
 
-	Rect(double x, double y, double width, double height)
+	Rect(int x, int y, int width, int height)
 		: x(x)
 		, y(y)
 		, width(width)
@@ -47,6 +47,8 @@ public:
 		y -= margin.top;
 		width -= margin.left + margin.right;
 		height -= margin.top + margin.bottom;
+
+		return *this;
 	}
 
 

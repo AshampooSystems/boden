@@ -89,7 +89,7 @@ public:
 	}
 
 
-	void getChildViews(std::list< P<View> >& childViews) override
+	void getChildViews(std::list< P<View> >& childViews) const override
 	{
 		// we use a single global mutex to synchronize changes to parent-child relationships.
 		// See getHierarchyMutex() for more info.

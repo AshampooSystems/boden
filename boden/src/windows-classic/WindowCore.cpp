@@ -164,8 +164,8 @@ void WindowCore::layout()
 	
 	pContentView->bounds() = contentRect;
 
-	// layout the content view
-	pContentView->layoutIfNeeded();
+	// note that we do not need to layout the content view. It will automatically
+	// re-layout itself, if its size has changed.
 }
 
 

@@ -1,8 +1,64 @@
 #include <bdn/init.h>
 #include <bdn/View.h>
 
+#include <bdn/LayoutCoordinator.h>
+
 namespace bdn
 {
+
+
+
+void View::needSizingInfoUpdate()
+{
+	LayoutCoordinator::get()->viewNeedsSizingInfoUpdate(this);
+}
+
+
+void View::needLayout()
+{
+	LayoutCoordinator::get()->viewNeedsLayout(this);
+}
+
+
+void View::verifyInMainThread(const String& methodName) const
+{
+	if(!Thread::isCurrentMain())
+		throw ProgrammingError(methodName + " must be called from main thread.");
+}
+
+
+Margin View::uiMarginToPixelMargin( const UiMargin& uiMargin) const
+{
+	verifyInMainThread("View::uiMarginToPixelMargin");	
+
+	P<IViewCore> pCore = getViewCore();
+
+	if(pCore!=nullptr)
+		return pCore->uiMarginToPixelMargin(uiMargin);
+	else
+		return Margin();	
+}
+
+void View::updateSizingInfo()
+{
+	SizingInfo info;
+
+	info.preferredSize = calcPreferredSize();
+
+	if(info!=_sizingInfo)
+	{
+		_sizingInfo = info;
+		
+		P<View> pParentView = getParentView();
+
+		// our parent needs to update its own sizing
+		pParentView->needSizingInfoUpdate();
+
+		// AND, since our sizing info has changed the parent also needs
+		// to re-layout us and our siblings
+		pParentView->needLayout();
+	}
+}
 
 
 void View::_setParentView(View* pParentView)

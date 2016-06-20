@@ -58,7 +58,7 @@ public:
 		IUiProvider object that the view uses. The IUiProvider is inherited from the parent view
 		and can be explicitly set when creating a top level window.
 		*/
-	P<IViewCore> getViewCore()
+	P<IViewCore> getViewCore() const
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -71,7 +71,7 @@ public:
         
         Note that a view with visible=true might still not show on
         the screen if one of its parents is invisible. In other words:
-        this visible property only refers to the view itself, not
+        this visible property only raefers to the view itself, not
         the parent hierarchy.
 
 		It is safe to access this from any thread.
@@ -136,10 +136,24 @@ public:
 		return _bounds;
 	}
 
+	
 
+	enum class HorizontalAlignment
+	{
+		expand,
+		left,
+		center,
+		right		
+	};
 
+	enum class VerticalAlignment
+	{
+		expand,
+		top,
+		bottom,
+		middle
+	};
 
-	/*
 
 	virtual Property<VerticalAlignment>& verticalAlignment()
 	{
@@ -162,6 +176,8 @@ public:
 		return _horizontalAlignment;
 	}
 
+
+	/*
 
 	virtual Property<double>& extraSpaceWeight()
 	{
@@ -209,7 +225,7 @@ public:
 
 	
 	/** Stores a list with all the child views in the target list object.*/
-	virtual void getChildViews(std::list< P<View> >& childViews)
+	virtual void getChildViews(std::list< P<View> >& childViews) const
 	{
 		// no child views by default. So nothing to do.
 	}
@@ -259,25 +275,136 @@ public:
 	}
 
 
+	/** Requests that the view updates its sizing information (preferred size, etc.).
+		The measuring does not happen immediately in this function - it is performed asynchronously.
+		
+		Note that it is usually NOT necessary to call this as a user of a view object. The view object
+		will automatically schedule re-measuring when its parameters and properties change.
+		*/
+	void needSizingInfoUpdate();
+
+
+	/** Requests that the view updates the layout of its child view and contents.
+		
+		The layout operation does not happen immediately in this function - it is performed asynchronously.
+		
+		Note that it is usually NOT necessary to call this as a user of a view object. The view object
+		will automatically schedule re-layout operations when its layout parameters or child views change.
+		*/
+	void needLayout();
+
+
+	struct SizingInfo
+	{
+		Size preferredSize;
+
+		bool operator==(const SizingInfo& o) const
+		{
+			return preferredSize == o.preferredSize;
+		}
+
+		bool operator!=(const SizingInfo& o) const
+		{
+			return !operator==(o);
+		}
+	};
+
+
+	/** Returns the sizing information of the view (to use during layout).
+	*/
+	const ReadProperty<SizingInfo>& sizingInfo() const
+	{
+		return _sizingInfo;
+	}
+
+
+
+	/** Converts a UiMargin object to a pixel based margin object.
+		This uses view-specific internal data, so the result can be different
+		for different view objects.
+		The result can when called again at a later time with the same view object
+		(if the view's parameters or the operating systems settings have changed).
+
+		IMPORTANT: This function must be called from the main thread.
+		*/
+	Margin uiMarginToPixelMargin( const UiMargin& uiMargin) const;
+
+
+
+	
+
+	/** Asks the view to calculate its preferred size, based on it current content
+		and properties.
+
+		Custom view implementations should override this and provide an implementation
+		suitable for their content and/or child views.
+		
+		IMPORTANT: This function must only called be called from the main thread.
+		*/	
+	virtual Size calcPreferredSize() const=0;
+
+	
+	/** Asks the view to calculate its preferred height for the case that the view had
+		the specified width.
+
+		This function is called in cases when there is not enough space to size the view
+		according to its unconstrained preferred size (see #calcPreferredSize()).
+		The view should pretend that it has the specified width and return its preferred
+		height for that case.
+
+		Note that the \c width parameter can also be BIGGER than the unconstrained preferred width
+		returned by calcPreferredSize().
+
+		Custom view implementations should override this and provide an implementation
+		suitable for their content and/or child views.
+		
+		IMPORTANT: This function must only be called from the main thread.
+		*/	
+	virtual int calcPreferredHeightForWidth(int width) const=0;
+
+
+	/** Asks the view to calculate its preferred width for the case that the view had
+		the specified height.
+
+		This function is called in cases when there is not enough space to size the view
+		according to its unconstrained preferred size (see #calcPreferredSize()).
+		The view should pretend that it has the specified height and return its preferred
+		width for that case.
+
+		Note that the \c height parameter can also be BIGGER than the unconstrained preferred height
+		returned by calcPreferredSize().
+
+		Custom view implementations should override this and provide an implementation
+		suitable for their content and/or child views.
+		
+		IMPORTANT: This function must only be called from the main thread.
+		*/	
+	virtual int calcPreferredWidthForHeight(int height) const=0;
+	
+
 protected:
 
-	/** Used internally. Do not call directly.
+	/** Verifies that the current thread is the main thread.
+		Throws a ProgrammingError if that is not the case.
+		The methodName parameter should be the name of the method that was called
+		that should have been called from the main thread.*/
+	void verifyInMainThread(const String& methodName) const;
+
+
+	/** Tells the view to update its sizing info.
 	
-		Tells the view to recalculate its sizing information 
-		(minimum/preferred/maximum sizes).
-		
-		This is only called from the main thread.
-		*/
+		IMPORTANT: This must only be called from the main thread.
+	*/
 	virtual void updateSizingInfo()=0;
 
 
-	/** Used internally. Do not call directly.
-	
-		Tells the view to update the layout of its child views. The
-		view should NOT update its own size during this - it should only
-		update the child views.
+
+	/**	Tells the view to update the layout of its child views. The
+		view should NOT update its own size or position during this - 
+		it has to work with the size and position it currently has and
+		should ONLY update the size and position of its child views.
 		
-		This is only called from the main thread.
+		IMPORTANT: This function must only be called from the main thread.
 		*/
 	virtual void layout()=0;
 
@@ -455,13 +582,19 @@ protected:
 	DefaultProperty<UiMargin>	_padding;
 	DefaultProperty<Rect>		_bounds;
 
+	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
+	DefaultProperty<VerticalAlignment>		_verticalAlignment;
+
 	P<IUiProvider>			_pUiProvider;
+		
 
 private:
 	View*					_pParentViewWeak = nullptr;
 	P<IViewCore>			_pCore;
 
 	std::list< P<IBase> >	_propertySubs;
+
+	DefaultProperty<SizingInfo>		_sizingInfo;
 };
 
 }

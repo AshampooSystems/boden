@@ -1,0 +1,78 @@
+#ifndef BDN_Size_H_
+#define BDN_Size_H_
+
+#include <bdn/Margin.h>
+
+namespace bdn
+{
+	
+
+/** Represents the a size (width and height).
+	
+	*/
+struct Size
+{
+public:
+	int width = 0;
+	int height = 0;
+
+	Size()
+	{		
+	}
+
+	Size(int width, int height)
+		: width(width)
+		, height(height)
+	{		
+	}
+
+
+	/** Subtracts the size of the specified margin from the size.*/
+	Size operator-(const Margin& margin) const
+	{
+		return Size(*this) -= margin;
+	}
+
+	/** Subtracts the size of the specified margin from the size.*/
+	Size& operator-=(const Margin& margin)
+	{
+		width -= margin.left + margin.right;
+		height -= margin.top + margin.bottom;
+
+		return *this;
+	}
+
+
+	/** Adds the size of the specified margin to the size.*/
+	Size operator+(const Margin& margin) const
+	{
+		return Size(*this) += margin;
+	}
+
+	/** Adds the size of the specified margin to the size.*/
+	Size& operator+=(const Margin& margin)
+	{
+		width += margin.left + margin.right;
+		height += margin.top + margin.bottom;
+	}
+
+
+	bool operator==(const Size& o) const
+	{
+		return (width==o.width && height==o.height);
+	}
+
+	bool operator!=(const Size& o) const
+	{
+		return !operator==(o);
+	}
+
+	
+};
+
+
+}
+
+
+#endif
+

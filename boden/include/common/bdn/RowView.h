@@ -37,6 +37,12 @@ public:
 		return getRowViewTypeName();
 	}
 
+
+	void layout()
+	{
+		
+	}
+
 };
 
 

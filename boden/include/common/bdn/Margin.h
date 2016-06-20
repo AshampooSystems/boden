@@ -7,7 +7,6 @@ namespace bdn
 
 /** Represents the size of a margin or border.
 	
-	Note that the components are floating point numbers (double), not integers.
 	*/
 struct Margin
 {
@@ -20,7 +19,7 @@ public:
 	{		
 	}
 
-	Margin(double all)
+	Margin(int all)
 	{
 		top = all;
 		right = all;
@@ -28,7 +27,7 @@ public:
 		left = all;		
 	}
 
-	Margin(double topBottom, double leftRight)
+	Margin(int topBottom, int leftRight)
 	{
 		top = topBottom;
 		right = leftRight;
@@ -36,7 +35,7 @@ public:
 		left = leftRight;		
 	}
 
-	Margin(double top, double right, double bottom, double left)
+	Margin(int top, int right, int bottom, int left)
 	{
 		this->top = top;
 		this->right = right;
@@ -44,10 +43,11 @@ public:
 		this->left = left;
 	}
 
-	double top = 0;
-	double right = 0;	
-	double bottom = 0;	
-	double left = 0;
+
+	int top = 0;
+	int right = 0;	
+	int bottom = 0;	
+	int left = 0;
 };
 
 

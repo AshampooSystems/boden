@@ -37,6 +37,20 @@ public:
 		return getColumnViewTypeName();
 	}
 
+
+	Size	calcPreferredSize() const override;
+	int		calcPreferredHeightForWidth(int width) const override;
+	int		calcPreferredWidthForHeight(int height) const override;
+
+	
+protected:
+	
+	/** Calculates the positions and sizes of the child views for the case that the ColumnView
+		has the specified width.
+		Returns the total height of the contents (including the padding). */
+	int calcChildBoundsForWidth(int width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const;
+
+	void	layout() override;
 };
 
 
