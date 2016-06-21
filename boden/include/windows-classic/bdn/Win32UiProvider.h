@@ -31,7 +31,7 @@ public:
 	}
 
 
-	P<IViewCore> createViewCore(const String& viewTypeName, View* pView);
+	P<IViewCore> createViewCore(const String& coreTypeName, View* pView);
 
 
 	/** Returns the Windows font to use for the specified view and the specified
@@ -55,7 +55,7 @@ public:
 	/** Converts the specified Ui length to pixels.
 		uiScaleFactor is a value that depends on the screen that the top level window is on.
 		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	double uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor);
+	int uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor);
 	
 
 	/** Converts a UiMargin object to a pixel-based margin object.

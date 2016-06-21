@@ -25,6 +25,10 @@ public:
 	}
 
 
+	Size calcPreferredSize() const;
+	int calcPreferredHeightForWidth(int width) const;
+	int calcPreferredWidthForHeight(int height) const;	
+
 protected:		
 	void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 

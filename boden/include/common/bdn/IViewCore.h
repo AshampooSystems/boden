@@ -3,6 +3,7 @@
 
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
+#include <bdn/Size.h>
 
 namespace bdn
 {
@@ -28,13 +29,49 @@ public:
 
 	
 	/** Converts the specified Ui length to pixels.*/
-	virtual double uiLengthToPixels(const UiLength& uiLength)=0;
+	virtual double uiLengthToPixels(const UiLength& uiLength) const=0;
 	
 
 	/** Converts a UiMargin object to a pixel-based margin object.*/
-	virtual Margin uiMarginToPixelMargin(const UiMargin& margin)=0;
+	virtual Margin uiMarginToPixelMargin(const UiMargin& margin) const=0;
 
 
+
+	
+
+	/** Asks the view core to calculate its preferred size, based on it current content
+		and properties.
+		*/	
+	virtual Size calcPreferredSize() const=0;
+
+	
+	/** Asks the view core to calculate its preferred height for the case that the view had
+		the specified width.
+
+		This function is called in cases when there is not enough space to size the view
+		according to its unconstrained preferred size (see #calcPreferredSize()).
+		The view should pretend that it has the specified width and return its preferred
+		height for that case.
+
+		Note that the \c width parameter can also be BIGGER than the unconstrained preferred width
+		returned by calcPreferredSize().
+		*/	
+	virtual int calcPreferredHeightForWidth(int width) const=0;
+
+
+	/** Asks the view core to calculate its preferred width for the case that the view had
+		the specified height.
+
+		This function is called in cases when there is not enough space to size the view
+		according to its unconstrained preferred size (see #calcPreferredSize()).
+		The view should pretend that it has the specified height and return its preferred
+		width for that case.
+
+		Note that the \c height parameter can also be BIGGER than the unconstrained preferred height
+		returned by calcPreferredSize().
+		*/	
+	virtual int calcPreferredWidthForHeight(int height) const=0;
+	
 
 
 	/** Called when the outer view's parent has changed.

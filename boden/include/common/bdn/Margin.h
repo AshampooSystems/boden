@@ -19,7 +19,7 @@ public:
 	{		
 	}
 
-	Margin(int all)
+	explicit Margin(int all)
 	{
 		top = all;
 		right = all;

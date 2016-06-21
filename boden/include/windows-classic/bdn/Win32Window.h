@@ -38,7 +38,7 @@ public:
 
 	
 	/** Returns the window's HWND. NULL if the window was already destroyed.*/
-	HWND getHwnd()
+	HWND getHwnd() const
 	{
 		return _hwnd;
 	}

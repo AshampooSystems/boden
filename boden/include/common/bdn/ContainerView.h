@@ -17,6 +17,20 @@ public:
 	}
 
 
+	
+	/** Static function that returns the type name for #ContainerView core objects.*/
+	static String getContainerViewCoreTypeName()
+	{
+		return "bdn.ContainerViewCore";
+	}
+
+	String getCoreTypeName() const override
+	{
+		return getContainerViewCoreTypeName();
+	}
+
+
+
 	/** Adds a child to the end of the container.
 	
 		If the child view is already a child of this container then it

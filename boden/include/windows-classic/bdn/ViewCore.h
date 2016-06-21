@@ -33,8 +33,8 @@ public:
 	void setBounds(const Rect& bounds) override;
 
 
-	double uiLengthToPixels(const UiLength& uiLength) override;
-	Margin uiMarginToPixelMargin(const UiMargin& margin) override;
+	double uiLengthToPixels(const UiLength& uiLength) const override;
+	Margin uiMarginToPixelMargin(const UiMargin& margin) const override;
 
 
 

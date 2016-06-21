@@ -20,8 +20,17 @@ public:
 
 	Rect getContentArea() override;
 
-	void layout();
+	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override;
 
+	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override;
+	
+	Rect getScreenWorkArea() override;	
+
+
+	Size calcPreferredSize() const;
+	int calcPreferredHeightForWidth(int width) const;
+	int calcPreferredWidthForHeight(int height) const;
+	
 protected:
 	class WindowCoreClass : public Win32WindowClass
 	{

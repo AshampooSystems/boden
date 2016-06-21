@@ -78,6 +78,16 @@ public:
 	}
 
 
+	/** Returns the window's content view (see #getContentView()).
+		This can be nullptr if no content view has been set yet.*/
+	P<const View> getContentView() const
+	{
+		MutexLock lock( getHierarchyAndCoreMutex() );
+
+		return _pContentView;
+	}
+
+
 
 	/** Tells the window to auto-size itself. The window size will be adapted according
 		to the preferred size of the content view. The window also takes other considerations
@@ -123,14 +133,14 @@ public:
 	
 
 	/** Static function that returns the type name for #Window objects.*/
-	static String getWindowViewTypeName()
+	static String getWindowCoreTypeName()
 	{
-		return "bdn.Window";
+		return "bdn.WindowCore";
 	}
 
-	String getViewTypeName() const override
+	String getCoreTypeName() const override
 	{
-		return getWindowViewTypeName();
+		return getWindowCoreTypeName();
 	}
 
 
@@ -165,10 +175,10 @@ public:
 	
 
 protected:
-	void updateSizingInfo() override;
 	void layout() override;	
 
 	void autoSize();
+	void center();
 	
 	// allow the coordinator to call our protected functions like autoSize.
 	friend class LayoutCoordinator;
@@ -182,6 +192,7 @@ protected:
 
 	DefaultProperty<String> _title;
 
+private:
 	P<View>					_pContentView;
 };
 

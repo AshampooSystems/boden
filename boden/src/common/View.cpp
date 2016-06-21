@@ -26,7 +26,6 @@ void View::verifyInMainThread(const String& methodName) const
 		throw ProgrammingError(methodName + " must be called from main thread.");
 }
 
-
 Margin View::uiMarginToPixelMargin( const UiMargin& uiMargin) const
 {
 	verifyInMainThread("View::uiMarginToPixelMargin");	
@@ -222,7 +221,7 @@ void View::_initCore()
 			_pUiProvider = determineUiProvider();
 
 			if(_pUiProvider!=nullptr)
-				_pCore = _pUiProvider->createViewCore( getViewTypeName(), this);
+				_pCore = _pUiProvider->createViewCore( getCoreTypeName(), this);
 
 			std::list< P<View> > childViewsCopy;
 			getChildViews( childViewsCopy );			
@@ -233,6 +232,45 @@ void View::_initCore()
 	}
 }
 
+
+
+Size View::calcPreferredSize() const
+{
+	verifyInMainThread("View::calcPreferredSize");
+
+	P<IViewCore> pCore = getViewCore();
+
+	if(pCore!=nullptr)
+		return pCore->calcPreferredSize();
+	else
+		return Size(0, 0);
+}
+
+	
+int View::calcPreferredHeightForWidth(int width) const
+{
+	verifyInMainThread("View::calcPreferredHeightForWidth");
+
+	P<IViewCore> pCore = getViewCore();
+
+	if(pCore!=nullptr)
+		return pCore->calcPreferredHeightForWidth(width);
+	else
+		return 0;
+}
+
+
+int View::calcPreferredWidthForHeight(int height) const
+{
+	verifyInMainThread("View::calcPreferredWidthForHeight");
+
+	P<IViewCore> pCore = getViewCore();
+
+	if(pCore!=nullptr)
+		return pCore->calcPreferredWidthForHeight(height);
+	else
+		return 0;
+}
 
 
 }

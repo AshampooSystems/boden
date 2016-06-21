@@ -3,8 +3,7 @@
 
 #include <bdn/ButtonCore.h>
 #include <bdn/WindowCore.h>
-#include <bdn/CustomLayoutViewCore.h>
-#include <bdn/ViewTypeNotSupportedError.h>
+#include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/sysError.h>
 
 #include <ShellScalingAPI.h>
@@ -86,18 +85,15 @@ P<Font> Win32UiProvider::createFont(const FontSpec& spec)
 }
 
 
-P<IViewCore> Win32UiProvider::createViewCore(const String& viewTypeName, View* pView)
+P<IViewCore> Win32UiProvider::createViewCore(const String& coreTypeName, View* pView)
 {
-	if(viewTypeName == Button::getButtonViewTypeName() )
+	if(coreTypeName == Button::getButtonCoreTypeName() )
 		return newObj<ButtonCore>( cast<Button>(pView) );
 
-	else if(viewTypeName == Window::getWindowViewTypeName() )
+	else if(coreTypeName == Window::getWindowCoreTypeName() )
 		return newObj<WindowCore>( cast<Window>(pView) );
 
-	else if(viewTypeName == CustomLayoutView::getCustomLayoutViewTypeName() )
-		return newObj<CustomLayoutViewCore>( cast<CustomLayoutView>(pView) );
-
-	throw ViewTypeNotSupportedError(viewTypeName);
+	throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 
 
@@ -125,20 +121,20 @@ double Win32UiProvider::getSemSizeForUiScaleFactor(double uiScaleFactor)
 	return _semSizeAtScaleFactor1 * uiScaleFactor;
 }
 
-double Win32UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
+int Win32UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
 {
 	if(uiLength.unit==UiLength::sem)
-		return uiLength.value * getSemSizeForUiScaleFactor(uiScaleFactor);
+		return std::lround( uiLength.value * getSemSizeForUiScaleFactor(uiScaleFactor) );
 
 	else if(uiLength.unit==UiLength::pixel96)
 	{
 		// See UiLength documentation for more information about the pixel96 unit
 		// and why this is correct.
-		return uiLength.value * uiScaleFactor;
+		return std::lround( uiLength.value * uiScaleFactor );
 	}
 
 	else
-		return uiLength.value;
+		return std::lround( uiLength.value );
 }
 
 Margin Win32UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor)

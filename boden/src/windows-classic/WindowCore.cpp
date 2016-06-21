@@ -2,7 +2,8 @@
 #include <bdn/WindowCore.h>
 
 #include <bdn/sysError.h>
-#include <bdn/Win32UiProvider.h>
+#include <bdn/NotImplementedError.h>
+#include <bdn/win32Util.h>
 
 #include <ShellScalingApi.h>
 
@@ -134,39 +135,97 @@ Rect WindowCore::getContentArea()
 	RECT clientRect;
 	::GetClientRect(getHwnd(), &clientRect);
 
-	return Rect(clientRect.left, clientRect.top, clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
+	return win32RectToRect(clientRect);
 }
 
 
-void WindowCore::layout()
-{
-	P<View> pContentView = cast<Window>(_pOuterViewWeak)->getContentView();
 
-	if(pContentView==nullptr)
+Size WindowCore::calcPreferredSize() const
+{
+	// the implementation for this must be provided by the outer Window object.
+	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+}
+
+	
+int WindowCore::calcPreferredHeightForWidth(int width) const
+{
+	// the implementation for this must be provided by the outer Window object.
+	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+}
+
+
+int WindowCore::calcPreferredWidthForHeight(int height) const
+{
+	// the implementation for this must be provided by the outer Window object.
+	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+}
+	
+
+Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
+{
+	RECT rect = {0};
+	rect.right = contentAreaSize.width;
+	rect.bottom = contentAreaSize.height;
+
+	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
+	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
+
+	HMENU menuHandle = ::GetMenu( getHwnd() );
+
+	if(!::AdjustWindowRectEx( &rect, style, (menuHandle!=NULL) ? TRUE : FALSE, exStyle ) )
 	{
-		// nothing to do.
-		return;
+		BDN_throwLastSysError( ErrorFields().add("func", "AdjustWindowRectEx")
+											.add("action", "WindowCore::calcWindowSizeFromContentAreaSize")
+											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
 	}
 
-	// just set our content window to the full client size.
-
-	RECT clientRect;
-	::GetClientRect(getHwnd(), &clientRect);
-
-	Rect contentRect(clientRect.left, clientRect.top, clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
-
-	// subtract our padding
-	P<Win32UiProvider> pUiProvider = Win32UiProvider::get();
-	contentRect -= pUiProvider->uiMarginToPixelMargin( _pOuterViewWeak->padding(), _uiScaleFactor );
-
-	// subtract the content view's margins
-	contentRect -= pUiProvider->uiMarginToPixelMargin( pContentView->margin(), _uiScaleFactor );
-	
-	pContentView->bounds() = contentRect;
-
-	// note that we do not need to layout the content view. It will automatically
-	// re-layout itself, if its size has changed.
+	return Size(rect.right-rect.left, rect.bottom-rect.top);
 }
+
+
+Size WindowCore::calcContentAreaSizeFromWindowSize(const Size& windowSize)
+{
+	// there isn't an inverse function of AdjustWindowRect in the Win32 api.
+
+	// Thankfully, on windows we can assume that the size of the decoration around
+	// the content area (border, title bar, etc.) is the same for any content area size.
+	// Note that STRICTLY speaking that is not actually true, since at some point
+	// a window menu can become multiline (if the window is not wide enough). But AdjustWindowRect
+	// doesn't handle that anyway, so for the time being we also ignore it.
+
+	// So we use a fairly large fake content area size
+	Size dummyContentAreaSize(10000, 10000);
+
+	Size dummyWindowSize = calcWindowSizeFromContentAreaSize(dummyContentAreaSize);
+
+	Size diffSize = dummyWindowSize - dummyContentAreaSize;
+
+	Size contentAreaSize = windowSize - diffSize;
+
+	if(contentAreaSize.width<0)
+		contentAreaSize.width=0;
+	if(contentAreaSize.height<0)
+		contentAreaSize.height=0;
+
+	return contentAreaSize;
+}
+
+Rect WindowCore::getScreenWorkArea()
+{
+	HMONITOR	hMonitor = ::MonitorFromWindow(getHwnd(), MONITOR_DEFAULTTONEAREST);
+
+	MONITORINFO monitorInfo = {0};
+
+	monitorInfo.cbSize = sizeof(monitorInfo);
+	if(!::GetMonitorInfo(hMonitor, &monitorInfo))
+	{
+		BDN_throwLastSysError( ErrorFields().add("func", "MonitorFromWindow")
+											.add("context", "WindowCore::getScreenWorkArea")  );
+	}
+	
+	return win32RectToRect(monitorInfo.rcWork);
+}
+
 
 
 void WindowCore::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)

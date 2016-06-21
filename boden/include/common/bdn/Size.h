@@ -54,6 +54,40 @@ public:
 	{
 		width += margin.left + margin.right;
 		height += margin.top + margin.bottom;
+
+		return *this;
+	}
+
+
+	/** Adds the specified size to this size.*/
+	Size operator+(const Size& o) const
+	{
+		return Size(*this) += o;
+	}
+
+	/** Adds the specified size to this size.*/
+	Size& operator+=(const Size& o)
+	{
+		width += o.width;
+		height += o.height;
+
+		return *this;
+	}
+
+
+	/** Subtracts the specified size from this size.*/
+	Size operator-(const Size& o) const
+	{
+		return Size(*this) -= o;
+	}
+
+	/** Subtracts the specified size from this size.*/
+	Size& operator-=(const Size& o)
+	{
+		width -= o.width;
+		height -= o.height;
+
+		return *this;
 	}
 
 

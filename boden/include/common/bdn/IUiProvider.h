@@ -40,9 +40,9 @@ public:
 
 		If the view type is not supported then a ViewTypeNotSupportedError is thrown.
 	
-		@param viewTypeName the type of the view. All standard view types start with "bdn."
-			(e.g. bdn.SomeViewName). If you create custom view types then you should start
-			with some namespace name followed by a dot and the the name of the view type.
+		@param coreTypeName the type of the view core. All standard view core types start with "bdn."
+			(e.g. bdn.SomeViewName). If you create custom views with custom cores then you should start
+			with some namespace name followed by a dot and the the name of the core type.
 			Usually the namespace prefix should be the name of the C++ namespace, if that can
 			be considered "sufficiently unique". If there is no C++ namespace or if it does not
 			have a unique name then one should use a different unique prefix. Java style prefixes
@@ -60,7 +60,7 @@ public:
 			So you should not store the view pointer in a smart pointer (like P<View>).
 			Use weak pointers (like View*) instead.
 			*/
-	virtual P<IViewCore> createViewCore(const String& viewTypeName, View* pView)=0;
+	virtual P<IViewCore> createViewCore(const String& coreTypeName, View* pView)=0;
 
 };
 

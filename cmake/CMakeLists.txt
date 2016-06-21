@@ -210,6 +210,10 @@ endif()
 target_link_libraries(testboden boden)
 
 
+if( BODEN_TARGET STREQUAL "windows-classic")
+    target_link_libraries(testboden Shcore)
+endif()
+
 if( BODEN_TARGET STREQUAL "osx")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
@@ -278,6 +282,10 @@ endif()
 
 target_link_libraries(testbodenui boden)
 
+if( BODEN_TARGET STREQUAL "windows-classic")
+    target_link_libraries(testbodenui Shcore)
+endif()
+
 if( BODEN_TARGET STREQUAL "osx")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
@@ -336,6 +344,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif()
 
 target_link_libraries(uidemo boden)
+
+if( BODEN_TARGET STREQUAL "windows-classic")
+    target_link_libraries(uidemo Shcore)
+endif()
 
 if( BODEN_TARGET STREQUAL "osx")
 	find_library(COCOA_LIBRARY Cocoa)

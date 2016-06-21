@@ -40,38 +40,38 @@ void Window::autoSize()
 
 	SizingInfo mySizingInfo = sizingInfo();
 
-	Rect screenClientRect = pCore->getScreenClientRect();
+	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
 	
 	int width = mySizingInfo.preferredSize.width;
 	int height = mySizingInfo.preferredSize.height;
 
-	if(width > screenClientRect.width)
+	if(width > screenArea.width)
 	{
 		// we do not fit on the screen at our preferred width.
 		// So we reduce the width to the maximum allowed width.
-		width = screenClientRect.width;
+		width = screenArea.width;
 
 		// and then adapt the height accordingly (height might increase if we reduce the width).
 		height = calcPreferredHeightForWidth(width);	
 
 		// if the height we calculated is bigger than the max height then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
-		if(height > screenClientRect.height)
-			height = screenClientRect.height;
+		if(height > screenArea.height)
+			height = screenArea.height;
 	}
 
-	if(height > screenClientRect.height)
+	if(height > screenArea.height)
 	{
 		// height does not fit. Reduce it so that it fits.
-		height = screenClientRect.height;
+		height = screenArea.height;
 
 		// and then adapt the width accordingly.
 		width = calcPreferredWidthForHeight(height);	
 
 		// if the width we calculated is bigger than the max width then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
-		if(width > screenClientRect.width)
-			width = screenClientRect.width;
+		if(width > screenArea.width)
+			width = screenArea.width;
 	}
 
 	newBounds = bounds();
@@ -83,7 +83,7 @@ void Window::autoSize()
 
 void Window::center()
 {
-	Rect bounds = bounds();
+	Rect myBounds = bounds();
 
 	P<IViewCore> pCore = getViewCore();
 
@@ -93,12 +93,12 @@ void Window::center()
 		return;
 	}
 
-	Rect screenClientRect = pCore->getScreenClientRect();
+	Rect screenClientRect = cast<IWindowCore>(pCore)->getScreenWorkArea();
 
-	bounds.x = screenClientRect.x + (screenClientRect.width - bounds.width)/2;
-	bounds.y = screenClientRect.y + (screenClientRect.height - bounds.height)/2;
+	myBounds.x = screenClientRect.x + (screenClientRect.width - myBounds.width)/2;
+	myBounds.y = screenClientRect.y + (screenClientRect.height - myBounds.height)/2;
 
-	bounds() = bounds;
+	bounds() = myBounds;
 }
 
 Size Window::calcPreferredSize() const
@@ -108,9 +108,11 @@ Size Window::calcPreferredSize() const
 
 	Size preferredSize;
 
-	if(_pCore!=nullptr)
+	P<IViewCore> pCore = getViewCore();
+
+	if(pCore!=nullptr)
 	{
-		P<View> pContentView = cast<Window>(_pOuterViewWeak)->getContentView();
+		P<const View> pContentView = getContentView();
 
 		if(pContentView!=nullptr)
 		{
@@ -121,12 +123,12 @@ Size Window::calcPreferredSize() const
 			preferredSize = contentSizingInfo.preferredSize + contentMargin;
 		}
 			
-		Margin padding = _pCore->uiMarginToPixelMargin( padding() );
+		Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
 
-		preferredSize += padding;
+		preferredSize += myPadding;
 
 		// calculate window sizes from client sizes
-		preferredSize = _pCore->getWindowSizeFromClientSize( preferredSize );
+		preferredSize = cast<IWindowCore>(pCore)->calcWindowSizeFromContentAreaSize( preferredSize );
 	}
 
 	return preferredSize;
@@ -134,68 +136,91 @@ Size Window::calcPreferredSize() const
 
 int Window::calcPreferredWidthForHeight(int height) const
 {
-	int clientHeight = _pCore->getClientHeightFromHeight(height);
+	P<IWindowCore>	pCore = cast<IWindowCore>(getViewCore());
 	
-	Margin padding = _pCore->uiMarginToPixelMargin( padding() );
-	Margin margin = _pContentView->uiMarginToPixelMargin( _pContentView->margin() );
+	if(pCore==nullptr)
+	{
+		// cannot calculate anything without a core.
+		return 0;
+	}
+	
+	// we do not yet know our width. So we use a very large width for the purpose of the calculation.
+	int contentAreaHeight = pCore->calcContentAreaSizeFromWindowSize( Size(10000, height) ).height;
+	
+	Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
 
-	int contentHeight = clientHeight - (padding.top + padding.bottom + margin.top + margin.bottom);
+	Margin contentMargin;
+	P<const View>	pContentView = getContentView();
+	if(pContentView!=nullptr)
+		contentMargin = pContentView->uiMarginToPixelMargin( _pContentView->margin() );
 
-	int contentWidth = pContentView->calcPreferredWidthFromHeight(contentHeight);
+	int contentHeight = contentAreaHeight - (myPadding.top + myPadding.bottom + contentMargin.top + contentMargin.bottom);
 
-	int clientWidth = contentWidth + padding.left + padding.right + margin.left + margin.right;
+	int	contentWidth=0;	
+	if(pContentView!=nullptr)
+		contentWidth = pContentView->calcPreferredWidthForHeight(contentHeight);
 
-	int width = _pCore->getWidthFromClientWidth(clientWidth);
+	int contentAreaWidth = contentWidth + myPadding.left + myPadding.right + contentMargin.left + contentMargin.right;
 
-	return width;
+	Size windowSize = pCore->calcWindowSizeFromContentAreaSize( Size(contentAreaWidth, contentAreaHeight) );
+
+	return windowSize.width;
 }
 
 
 int Window::calcPreferredHeightForWidth(int width) const
 {
-	int clientWidth = _pCore->getClientWidthFromWidth(width);
+	P<IWindowCore>	pCore = cast<IWindowCore>(getViewCore());
 	
-	Margin padding = _pCore->uiMarginToPixelMargin( padding() );
-	Margin margin = _pContentView->uiMarginToPixelMargin( _pContentView->margin() );
+	if(pCore==nullptr)
+	{
+		// cannot calculate anything without a core.
+		return 0;
+	}
 
-	int contentWidth = clientWidth - (padding.left + padding.right + margin.left + margin.right);
+	// we do not yet know our height. So we use a very large height for the purpose of the calculation.
+	int contentAreaWidth = pCore->calcContentAreaSizeFromWindowSize( Size(width, 10000) ).width;
+	
+	Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
 
-	int contentHeight = pContentView->calcPreferredWidthFromHeight(contentWidth);
+	Margin contentMargin;
+	P<const View>	pContentView = getContentView();
+	if(pContentView!=nullptr)
+		contentMargin = pContentView->uiMarginToPixelMargin( pContentView->margin() );
 
-	int clientHeight = contentHeight + padding.top + padding.bottom + margin.top + margin.bottom;
+	int contentWidth = contentAreaWidth - (myPadding.left + myPadding.right + contentMargin.left + contentMargin.right);
 
-	int height = _pCore->getHeightFromClientHeight(clientHeight);
+	int	contentHeight=0;	
+	if(pContentView!=nullptr)
+		contentHeight = pContentView->calcPreferredHeightForWidth(contentWidth);
 
-	return height;
+	int contentAreaHeight = contentHeight + myPadding.top + myPadding.bottom + contentMargin.top + contentMargin.bottom;
+
+	Size windowSize = pCore->calcWindowSizeFromContentAreaSize( Size(contentAreaWidth, contentAreaHeight) );
+
+	return windowSize.height;
 }
 
 void Window::layout()
 {
-	P<View> pContentView;
-	Rect    contentBounds;
+	P<View>			pContentView = getContentView();
+	P<IWindowCore>	pCore = cast<IWindowCore>( getViewCore() );
 
+	if(pContentView==nullptr || pCore==nullptr)
 	{
-		// lock the mutex so that our child hierarchy or core does not change during measuring
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
-		P<View> pContentView = cast<Window>(_pOuterViewWeak)->getContentView();
-
-		if(pContentView==nullptr || _pCore==nullptr)
-		{
-			// nothing to do.
-			return;
-		}
-
-		// just set our content window to content area (but taking margins and padding into account).
-
-		Rect contentBounds = _pCore->getContentArea();
-			
-		// subtract our padding
-		contentBounds -= _pCore->uiMarginToPixelMargin( padding() );
-
-		// subtract the content view's margins
-		contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );
+		// nothing to do.
+		return;
 	}
+
+	// just set our content window to content area (but taking margins and padding into account).
+
+	Rect contentBounds = pCore->getContentArea();
+			
+	// subtract our padding
+	contentBounds -= pCore->uiMarginToPixelMargin( padding() );
+
+	// subtract the content view's margins
+	contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );
 
 	pContentView->bounds() = contentBounds;
 

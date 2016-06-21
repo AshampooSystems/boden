@@ -1,6 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/LayoutCoordinator.h>
 
+#include <bdn/NotImplementedError.h>
 
 namespace bdn
 {
@@ -8,6 +9,19 @@ namespace bdn
 LayoutCoordinator::LayoutCoordinator()
 {
 }
+
+
+void LayoutCoordinator::windowNeedsAutoSizing(Window* pWindow)
+{
+	throw NotImplementedError("LayoutCoordinator::windowNeedsAutoSizing");	
+}
+
+
+void LayoutCoordinator::windowNeedsCentering(Window* pWindow)
+{
+	throw NotImplementedError("LayoutCoordinator::windowNeedsCentering");		
+}
+
 
 void LayoutCoordinator::viewNeedsSizingInfoUpdate(View* pView)
 {

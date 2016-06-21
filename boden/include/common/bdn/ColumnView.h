@@ -26,17 +26,6 @@ public:
 	}
 
 	
-	/** Static function that returns the type name for #ColumnView objects.*/
-	static String getColumnViewTypeName()
-	{
-		return "bdn.ColumnView";
-	}
-
-	String getViewTypeName() const override
-	{
-		return getColumnViewTypeName();
-	}
-
 
 	Size	calcPreferredSize() const override;
 	int		calcPreferredHeightForWidth(int width) const override;

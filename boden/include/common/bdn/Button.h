@@ -38,18 +38,24 @@ public:
 
 
 	/** Static function that returns the type name for #Button objects.*/
-	static String getButtonViewTypeName()
+	static String getButtonCoreTypeName()
 	{
-		return "bdn.Button";
+		return "bdn.ButtonCore";
 	}
 
-	String getViewTypeName() const override
+	String getCoreTypeName() const override
 	{
-		return getButtonViewTypeName();
+		return getButtonCoreTypeName();
 	}
 
 
 protected:	
+	void layout()
+	{
+		// nothing to do. The button does not have child views.
+	}
+
+
 	DefaultProperty<String>		_label;
 
 	Notifier<const ClickEvent&> _onClick;

@@ -207,12 +207,12 @@ public:
 	}
 
 
-	/** Returns the type name of the view. This is a somewhat arbitrary name that is used
+	/** Returns the type name of the view core. This is a somewhat arbitrary name that is used
 		in the internal implementation. It is NOT necessarily the same as the name of the
-		C++ class of the view (although it is often similar).
+		C++ class of the view or view core (although it is often similar).
 		*/
-	virtual String getViewTypeName() const=0;
-
+	virtual String getCoreTypeName() const=0;
+	
 
 	/** Returns the view's parent view. This can be null if the view was not yet
 		added to a parent, or if the view is a top level window.*/
@@ -338,10 +338,10 @@ public:
 
 		Custom view implementations should override this and provide an implementation
 		suitable for their content and/or child views.
-		
+
 		IMPORTANT: This function must only called be called from the main thread.
 		*/	
-	virtual Size calcPreferredSize() const=0;
+	virtual Size calcPreferredSize() const;
 
 	
 	/** Asks the view to calculate its preferred height for the case that the view had
@@ -360,7 +360,7 @@ public:
 		
 		IMPORTANT: This function must only be called from the main thread.
 		*/	
-	virtual int calcPreferredHeightForWidth(int width) const=0;
+	virtual int calcPreferredHeightForWidth(int width) const;
 
 
 	/** Asks the view to calculate its preferred width for the case that the view had
@@ -379,7 +379,7 @@ public:
 		
 		IMPORTANT: This function must only be called from the main thread.
 		*/	
-	virtual int calcPreferredWidthForHeight(int height) const=0;
+	virtual int calcPreferredWidthForHeight(int height) const;
 	
 
 protected:
@@ -395,7 +395,7 @@ protected:
 	
 		IMPORTANT: This must only be called from the main thread.
 	*/
-	virtual void updateSizingInfo()=0;
+	void updateSizingInfo();
 
 
 

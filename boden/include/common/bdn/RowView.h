@@ -26,18 +26,6 @@ public:
 	}
 
 	
-	/** Static function that returns the type name for #RowView objects.*/
-	static String getRowViewTypeName()
-	{
-		return "bdn.RowView";
-	}
-
-	String getViewTypeName() const override
-	{
-		return getRowViewTypeName();
-	}
-
-
 	void layout()
 	{
 		

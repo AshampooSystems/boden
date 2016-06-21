@@ -9,7 +9,7 @@ namespace bdn
 
 Font::Font(const LOGFONT& fontInfo)
 {
-	_handle = ::CreateFontIndirect(fontInfo);
+	_handle = ::CreateFontIndirect(&fontInfo);
 	if(_handle==NULL)
 	{
 		BDN_throwLastSysError( ErrorFields().add("func", "CreateFontIndirect")
@@ -50,13 +50,13 @@ TEXTMETRIC Font::getMetrics() const
 
 double Font::getSizePixels() const
 {
-	TEXTMETRIC metrics = getMetrics(&metrics);
+	TEXTMETRIC metrics = getMetrics();
 
 	// the metrics are in logical units.
 	// However, assuming that the DCs map mode is MM_TEXT (the default)
 	// then the factor between logical <-> device is 1:1.
 
-	return fontMetrics.tmHeight;
+	return metrics.tmHeight;
 }
 
 
