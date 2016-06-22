@@ -29,7 +29,7 @@ public:
 
 	
 	/** Converts the specified Ui length to pixels.*/
-	virtual double uiLengthToPixels(const UiLength& uiLength) const=0;
+	virtual int uiLengthToPixels(const UiLength& uiLength) const=0;
 	
 
 	/** Converts a UiMargin object to a pixel-based margin object.*/

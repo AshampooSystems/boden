@@ -90,6 +90,9 @@
 #include <stdexcept>
 #include <algorithm>
 
+#include <bdn/Size.h>
+#include <bdn/Rect.h>
+
 // #included from: catch_compiler_capabilities.h
 #define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
 
@@ -1593,6 +1596,11 @@ std::string toString( std::nullptr_t );
     std::string toString( NSString * BDN_ARC_STRONG const& nsstring );
     std::string toString( NSObject* const& nsObject );
 #endif
+
+
+std::string toString( const Size& size);
+std::string toString( const Rect& rect);
+
 
 namespace Detail {
 

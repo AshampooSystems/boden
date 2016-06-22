@@ -199,7 +199,7 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 }
 
 
-double ViewCore::uiLengthToPixels(const UiLength& uiLength) const
+int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
 {
 	return Win32UiProvider::get()->uiLengthToPixels( uiLength, _uiScaleFactor );
 }

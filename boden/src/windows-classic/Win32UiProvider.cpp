@@ -138,8 +138,11 @@ int Win32UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFa
 		return std::lround( uiLength.value * uiScaleFactor );
 	}
 
-	else
+	else if(uiLength.unit==UiLength::realPixel)
 		return std::lround( uiLength.value );
+
+	else
+		throw InvalidArgumentError("Invalid UiLength unit passed to Win32UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 }
 
 Margin Win32UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor)

@@ -5532,6 +5532,17 @@ std::string toString( NSObject* const& nsObject ) {
 }
 #endif
 
+
+std::string toString( const Size& size)
+{
+	return toString(size.width)+" x "+toString(size.height);
+}
+
+std::string toString( const Rect& rect)
+{
+	return toString(rect.x)+", "+toString(rect.y)+" "+toString(rect.width)+"x"+toString(rect.height);
+}
+
 } // end namespace bdn
 
   // #included from: catch_result_builder.hpp
@@ -5948,9 +5959,11 @@ struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 
 	virtual void testCaseStarting( TestCaseInfo const& _testInfo ) BDN_OVERRIDE {
 		currentTestCaseInfo = _testInfo;
+		m_leafSectionStack = m_sectionStack;
 	}
 	virtual void sectionStarting( SectionInfo const& _sectionInfo ) BDN_OVERRIDE {
 		m_sectionStack.push_back( _sectionInfo );
+		m_leafSectionStack = m_sectionStack;
 	}
 
 	virtual void sectionEnded( SectionStats const& /* _sectionStats */ ) BDN_OVERRIDE {
@@ -5958,6 +5971,9 @@ struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 	}
 	virtual void testCaseEnded( TestCaseStats const& /* _testCaseStats */ ) BDN_OVERRIDE {
 		currentTestCaseInfo.reset();
+
+		m_leafSectionStack.clear();
+
 	}
 	virtual void testGroupEnded( TestGroupStats const& /* _testGroupStats */ ) BDN_OVERRIDE {
 		currentGroupInfo.reset();
@@ -5981,6 +5997,7 @@ struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 	LazyStat<TestCaseInfo> currentTestCaseInfo;
 
 	std::vector<SectionInfo> m_sectionStack;
+	std::vector<SectionInfo> m_leafSectionStack;
 	ReporterPreferences m_reporterPrefs;
 };
 
@@ -7127,20 +7144,20 @@ private:
 		}
 	}
 	void printTestCaseAndSectionHeader() {
-		assert( !m_sectionStack.empty() );
+		assert( !m_leafSectionStack.empty() );
 		printOpenHeader( currentTestCaseInfo->name );
 
-		if( m_sectionStack.size() > 1 ) {
+		if( m_leafSectionStack.size() > 1 ) {
 			Colour colourGuard( Colour::Headers );
 
 			std::vector<SectionInfo>::const_iterator
-				it = m_sectionStack.begin()+1, // Skip first section (test case)
-				itEnd = m_sectionStack.end();
+				it = m_leafSectionStack.begin()+1, // Skip first section (test case)
+				itEnd = m_leafSectionStack.end();
 			for( ; it != itEnd; ++it )
 				printHeaderString( it->name, 2 );
 		}
 
-		SourceLineInfo lineInfo = m_sectionStack.front().lineInfo;
+		SourceLineInfo lineInfo = m_leafSectionStack.front().lineInfo;
 
 		if( !lineInfo.empty() ){
 			stream << getLineOfChars<'-'>() << "\n";

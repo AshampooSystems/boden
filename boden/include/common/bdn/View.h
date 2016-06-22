@@ -383,7 +383,7 @@ protected:
 	
 		IMPORTANT: This must only be called from the main thread.
 	*/
-	void updateSizingInfo();
+	virtual void updateSizingInfo();
 
 
 
