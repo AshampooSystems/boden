@@ -77,7 +77,12 @@ protected:
 	std::set< P<View> > _sizingInfoSet;
 	std::set< P<View> > _layoutSet;
 
+	std::set< P<Window> > _windowAutoSizeSet;
+	std::set< P<Window> > _windowCenterSet;
+
 	bool _updateScheduled = false;
+
+	bool _inUpdateNow = false;
 };
 
 

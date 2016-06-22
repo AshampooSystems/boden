@@ -38,14 +38,7 @@ public:
 	/** @param pUiProvider the UI provider that the window should use.
 			See the IUiProvider documentation for more information.
 			If this is nullptr then the default UI provider for the platform is used.*/
-	Window(IUiProvider* pUiProvider = nullptr)
-	{
-		_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider();
-
-		initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
-
-		reinitCore();
-	}
+	Window(IUiProvider* pUiProvider = nullptr);
 	
 
 	/** Sets the specified view as the content view of the window.

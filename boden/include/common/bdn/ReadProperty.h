@@ -35,7 +35,7 @@ public:
 		The callback function you register here must be able to deal with that.
 		As an alternative, you can wrap your callback function with divertToMainThread().
 		*/
-	virtual Notifier< const ReadProperty<ValType>& >& onChange()=0;
+	virtual Notifier< const ReadProperty<ValType>& >& onChange() const=0;
 
 
 };

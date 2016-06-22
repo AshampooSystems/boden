@@ -54,7 +54,7 @@ public:
         return *this;
     }
 	
-	Notifier<const ReadProperty<ValType>&> & onChange() override
+	Notifier<const ReadProperty<ValType>&> & onChange() const override
 	{
 		return _onChange;
 	}
@@ -69,7 +69,7 @@ public:
 protected:
 	ValType									_value;
     
-	Notifier<const ReadProperty<ValType>&>	_onChange;
+	mutable Notifier<const ReadProperty<ValType>&>	_onChange;
 	P<IBase>								_pBindSourceSubscription;
 
 	

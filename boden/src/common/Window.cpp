@@ -8,6 +8,14 @@
 namespace bdn
 {
 
+Window::Window(IUiProvider* pUiProvider)
+{
+	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider();
+
+	initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
+
+	reinitCore();
+}
 
 void Window::requestAutoSize()
 {
@@ -108,7 +116,7 @@ Size Window::calcPreferredSize() const
 
 	Size preferredSize;
 
-	P<IViewCore> pCore = getViewCore();
+	P<IWindowCore> pCore = cast<IWindowCore>( getViewCore() );
 
 	if(pCore!=nullptr)
 	{
@@ -128,7 +136,11 @@ Size Window::calcPreferredSize() const
 		preferredSize += myPadding;
 
 		// calculate window sizes from client sizes
-		preferredSize = cast<IWindowCore>(pCore)->calcWindowSizeFromContentAreaSize( preferredSize );
+		preferredSize = pCore->calcWindowSizeFromContentAreaSize( preferredSize );
+
+		Size minSize = pCore->calcMinimumSize();
+		preferredSize.width = std::max( minSize.width, preferredSize.width );
+		preferredSize.height = std::max( minSize.height, preferredSize.height );
 	}
 
 	return preferredSize;

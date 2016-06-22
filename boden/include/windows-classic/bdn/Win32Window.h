@@ -15,6 +15,12 @@ class Win32Window : public Base
 public:
 	/** @param className the name of the window class. For custom classes, take a look at 
 			Win32WindowClass - it can provide assistance in registering new window classes.
+
+			If the window class has a window proc that does NOT call Win32Window::windowProc,
+			then Win32Window will automatically subclass the window to ensure that the message handling
+			works. So you can also pass system window classes like "BUTTON" here - they will be automatically
+			subclassed.
+
 		@param name the window name. Depending on the window class this can be a label, window title,
 			or simply a hidden internal name.
 		@param style window style flags. Google "MSDN Window Styles" to see a list
@@ -162,8 +168,15 @@ protected:
 	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 	LRESULT windowProcImpl(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-		
+
 	HWND _hwnd = NULL;
+
+private:	
+	static LRESULT _callDefaultWindowProc(Win32Window* pThis, HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	bool	_initialized = false;
+
+	WNDPROC _prevWindowProc = NULL;
 };
 
 }

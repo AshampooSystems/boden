@@ -3,6 +3,7 @@
 
 #include <bdn/ButtonCore.h>
 #include <bdn/WindowCore.h>
+#include <bdn/ContainerViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/sysError.h>
 
@@ -87,13 +88,17 @@ P<Font> Win32UiProvider::createFont(const FontSpec& spec)
 
 P<IViewCore> Win32UiProvider::createViewCore(const String& coreTypeName, View* pView)
 {
-	if(coreTypeName == Button::getButtonCoreTypeName() )
+	if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
+		return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
+
+	else if(coreTypeName == Button::getButtonCoreTypeName() )
 		return newObj<ButtonCore>( cast<Button>(pView) );
 
 	else if(coreTypeName == Window::getWindowCoreTypeName() )
 		return newObj<WindowCore>( cast<Window>(pView) );
 
-	throw ViewCoreTypeNotSupportedError(coreTypeName);
+	else	
+		throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 
 

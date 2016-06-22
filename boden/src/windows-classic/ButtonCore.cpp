@@ -13,6 +13,13 @@ ButtonCore::ButtonCore(Button* pOuter)
 {
 }
 
+void ButtonCore::setLabel(const String& label)
+{
+	setWindowText(getHwnd(), label);
+
+	_pOuterViewWeak->needSizingInfoUpdate();
+}
+
 Size ButtonCore::calcPreferredSize() const
 {
 	String label = cast<Button>(_pOuterViewWeak)->label();
@@ -21,8 +28,15 @@ Size ButtonCore::calcPreferredSize() const
 
 	HDC deviceContext = ::GetWindowDC(getHwnd());
 
+	HGDIOBJ oldFontHandle = NULL;
+	if(_pFont!=nullptr)
+		oldFontHandle = ::SelectObject( deviceContext, _pFont->getHandle() );
+
 	SIZE textSize = {0};
 	::GetTextExtentPoint32W( deviceContext, labelWide.c_str(), labelWide.length(), &textSize);
+
+	if(_pFont!=nullptr)
+		::SelectObject( deviceContext, oldFontHandle );
 
 	::ReleaseDC(getHwnd(), deviceContext);
 
@@ -31,8 +45,13 @@ Size ButtonCore::calcPreferredSize() const
 
 	buttonSize += uiMarginToPixelMargin( _pOuterViewWeak->padding() );	
 
-	buttonSize.width += ::GetSystemMetrics(SM_CXEDGE)*2;
-	buttonSize.height += ::GetSystemMetrics(SM_CYEDGE)*2;
+	// size for the 3D border around the button
+	buttonSize.width += ((int)std::ceil( ::GetSystemMetrics(SM_CXEDGE) * _uiScaleFactor )) * 2;
+	buttonSize.height += ((int)std::ceil( ::GetSystemMetrics(SM_CYEDGE) * _uiScaleFactor )) * 2;
+
+	// size for the focus rect and one pixel of free space next to it
+	buttonSize.width += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
+	buttonSize.height += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
 
 	return buttonSize;
 }

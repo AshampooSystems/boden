@@ -168,12 +168,19 @@ void ViewCore::handleParentMessage(MessageContext& context, HWND windowHandle, U
 	// do nothing by default.
 }
 
+
 void ViewCore::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	ViewCore* pChildCore = findChildCoreForMessage(message, wParam, lParam);
 	if(pChildCore!=nullptr)
 		pChildCore->handleParentMessage(context, windowHandle, message, wParam, lParam);
 
+	if(message==WM_SIZE)
+	{
+		// whenever our size changes it means that we have to update our layout
+		_pOuterViewWeak->needLayout();
+	}
+	
 	Win32Window::handleMessage(context, windowHandle, message, wParam, lParam);
 }
 

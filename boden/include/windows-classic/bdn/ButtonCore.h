@@ -12,10 +12,7 @@ class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 public:
 	ButtonCore(Button* pOuter);
 
-	void setLabel(const String& label) override
-	{
-		setWindowText(getHwnd(), label);
-	}
+	void setLabel(const String& label) override;
 
 	void generateClick()
 	{

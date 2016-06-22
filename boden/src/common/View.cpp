@@ -6,7 +6,20 @@
 namespace bdn
 {
 
+View::View()
+{
+	initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
+	initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);
+	initProperty<UiMargin, IViewCore, &IViewCore::setPadding>(_padding);
+	initProperty<Rect, IViewCore, &IViewCore::setBounds>(_bounds);
+}
 
+View::~View()
+{
+	// We have to manually deinit the core here (if we have one) to ensure that it is not deleted
+	// from a thread other than the main thread.
+	_deinitCore();
+}
 
 void View::needSizingInfoUpdate()
 {
@@ -50,12 +63,15 @@ void View::updateSizingInfo()
 		
 		P<View> pParentView = getParentView();
 
-		// our parent needs to update its own sizing
-		pParentView->needSizingInfoUpdate();
+		if(pParentView!=nullptr)
+		{
+			// our parent needs to update its own sizing
+			pParentView->needSizingInfoUpdate();
 
-		// AND, since our sizing info has changed the parent also needs
-		// to re-layout us and our siblings
-		pParentView->needLayout();
+			// AND, since our sizing info has changed the parent also needs
+			// to re-layout us and our siblings
+			pParentView->needLayout();
+		}
 	}
 }
 
@@ -228,6 +244,9 @@ void View::_initCore()
 
 			for(auto pChildView: childViewsCopy)
 				pChildView->_initCore();
+
+			// our old sizing info is obsolete when the core has changed.
+			needSizingInfoUpdate();
 		}		
 	}
 }

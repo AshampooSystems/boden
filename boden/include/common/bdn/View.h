@@ -29,20 +29,8 @@ class View : public RequireNewAlloc<Base, View>
 {
 public:
 
-	View()
-	{
-		initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
-		initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);
-		initProperty<UiMargin, IViewCore, &IViewCore::setPadding>(_padding);
-		initProperty<Rect, IViewCore, &IViewCore::setBounds>(_bounds);
-	}
-
-	~View()
-	{
-		// We have to manually deinit the core here (if we have one) to ensure that it is not deleted
-		// from a thread other than the main thread.
-		_deinitCore();
-	}
+	View();
+	~View();
 
 	// delete copy constructor
 	View(const View& o) = delete;

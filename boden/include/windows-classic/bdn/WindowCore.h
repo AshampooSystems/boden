@@ -26,6 +26,7 @@ public:
 	
 	Rect getScreenWorkArea() override;	
 
+	Size calcMinimumSize() const;
 
 	Size calcPreferredSize() const;
 	int calcPreferredHeightForWidth(int width) const;
@@ -36,7 +37,7 @@ protected:
 	{
 	public:
 		WindowCoreClass()
-			: Win32WindowClass("bdnWindow", WindowCore::windowProc)
+			: Win32WindowClass("bdnWindow", ViewCore::windowProc)
 		{
 			_info.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
 

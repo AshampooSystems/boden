@@ -6,81 +6,12 @@
 
 #include <unordered_map>
 
+#include <Commctrl.h>
+
 namespace bdn
 {
+
 	
-Win32Window::Win32Window(	const String& className,
-							const String& name,
-							DWORD style,
-							DWORD exStyle,
-							HWND parentHandle,
-							int x,
-							int y,
-							int width,
-							int height )
-{
-	_hwnd = ::CreateWindowEx(
-		exStyle,
-		className.asWidePtr(),
-		name.asWidePtr(),
-		style,
-		x,
-		y,
-		width,
-		height,
-		parentHandle,
-		NULL,
-		::GetModuleHandle(NULL),
-		this );
-
-	if(_hwnd==NULL)
-	{
-		BDN_throwLastSysError( ErrorFields().add("func", "CreateWindowEx")
-											.add("context", "Window::create") );
-	}
-}
-
-Win32Window::~Win32Window()
-{
-	destroy();
-}
-
-void Win32Window::destroy()
-{
-	if(_hwnd!=NULL)
-	{
-		::DestroyWindow(_hwnd);
-		_hwnd = NULL;
-	}
-}
-
-void Win32Window::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	// do nothing by default
-}
-
-
-LRESULT Win32Window::windowProcImpl(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
-{	
-	MessageContext context;
-
-	handleMessage(context, windowHandle, message, wParam, lParam);
-
-	LRESULT result=0;
-
-	if(context.getCallDefaultHandler())
-		result = CallWindowProc(DefWindowProc, windowHandle, message, wParam, lParam);
-	
-	context.getResultIfSet(result);
-
-	return result;
-}
-
-
-void Win32Window::notifyDestroy()
-{
-}
-
 class _GlobalRegistry
 {
 public:
@@ -123,6 +54,96 @@ protected:
 };
 
 
+Win32Window::Win32Window(	const String& className,
+							const String& name,
+							DWORD style,
+							DWORD exStyle,
+							HWND parentHandle,
+							int x,
+							int y,
+							int width,
+							int height )
+{
+	_hwnd = ::CreateWindowEx(
+		exStyle,
+		className.asWidePtr(),
+		name.asWidePtr(),
+		style,
+		x,
+		y,
+		width,
+		height,
+		parentHandle,
+		NULL,
+		::GetModuleHandle(NULL),
+		this );
+
+	if(_hwnd==NULL)
+	{
+		BDN_throwLastSysError( ErrorFields().add("func", "CreateWindowEx")
+											.add("context", "Window::create") );
+	}
+
+	// the window might use a system defined window class. If that is
+	// the case then we must now do some of the stuff that we normally do in our
+	// custom WM_CREATE handler (which was not called, because our windowProc is
+	// not used yet).
+	if(!_initialized)
+	{
+		// our WM_CREATE handler was not called, i.e. our windowProc is not called yet.
+		// That means that we have to subclass the window.
+
+		_GlobalRegistry::get().registerWindow(_hwnd, this);
+
+		::SetWindowLongPtr( _hwnd, GWLP_USERDATA, (LONG_PTR)this );
+		_prevWindowProc = (WNDPROC)::SetWindowLongPtr( _hwnd, GWLP_WNDPROC, (LONG_PTR)&Win32Window::windowProc );
+		
+		_initialized = true;
+	}	
+}
+
+Win32Window::~Win32Window()
+{
+	destroy();
+}
+
+void Win32Window::destroy()
+{
+	if(_hwnd!=NULL)
+	{
+		::DestroyWindow(_hwnd);
+		_hwnd = NULL;
+	}
+}
+
+void Win32Window::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	// do nothing by default
+}
+
+
+LRESULT Win32Window::windowProcImpl(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+{	
+	MessageContext context;
+
+	handleMessage(context, windowHandle, message, wParam, lParam);
+
+	LRESULT result=0;
+
+	if(context.getCallDefaultHandler())
+		result = _callDefaultWindowProc(this, windowHandle, message, wParam, lParam);
+	
+	context.getResultIfSet(result);
+
+	return result;
+}
+
+
+void Win32Window::notifyDestroy()
+{
+}
+
+
 Win32Window* Win32Window::getObjectFromHwnd(HWND hwnd)
 {
 	// first we check if the window is actually one with an associated Win32Window object.
@@ -132,11 +153,10 @@ Win32Window* Win32Window::getObjectFromHwnd(HWND hwnd)
 	return _GlobalRegistry::get().getObjectFromHwnd(hwnd);
 }
 
-
 	
 LRESULT CALLBACK Win32Window::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	Win32Window* pThis = NULL;
+	Win32Window* pThis = nullptr;
 
 	if(message==WM_CREATE)
 	{
@@ -145,16 +165,17 @@ LRESULT CALLBACK Win32Window::windowProc(HWND hwnd, UINT message, WPARAM wParam,
 		pThis = static_cast<Win32Window*>(pInfo->lpCreateParams);
 
 		::SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+		_GlobalRegistry::get().registerWindow(hwnd, pThis);		
 
-		_GlobalRegistry::get().registerWindow(hwnd, pThis);
+		pThis->_initialized = true;
 	}
 	else
 		pThis = reinterpret_cast<Win32Window*>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));	
 
+	bool    callDefault = true;	
 	LRESULT result = 0;
-	bool    callDefault = true;
 
-	if(pThis!=NULL)
+	if(pThis!=nullptr)
 	{
 		try
 		{
@@ -165,30 +186,53 @@ LRESULT CALLBACK Win32Window::windowProc(HWND hwnd, UINT message, WPARAM wParam,
 		}
 		catch(std::exception& e)
 		{
-			logError(e, "Exception thrown by in Window::windowProc. Ignoring.");
+			logError(e, "Exception thrown by in Win32Window::windowProcImpl. Ignoring.");
 
 			// fall through and call DefWindowProc
 		}
 	}
-
+	
 	if(message==WM_DESTROY)
 	{
 		if(pThis!=nullptr)
+		{
 			pThis->notifyDestroy();
 
-		::SetWindowLongPtr(hwnd, GWLP_USERDATA, NULL );
-		_GlobalRegistry::get().unregisterWindow(hwnd);
+			if(pThis->_prevWindowProc!=NULL)
+			{
+				// un-subclass the window
+				::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)pThis->_prevWindowProc );
+			}
+		}
 
+		::SetWindowLongPtr(hwnd, GWLP_USERDATA, NULL );
+
+		_GlobalRegistry::get().unregisterWindow(hwnd);
+		
 		if(pThis!=nullptr)
 			pThis->_hwnd = NULL;
 	}
-
+	
 	if(callDefault)
-		result = CallWindowProc(DefWindowProc, hwnd, message, wParam, lParam);	
+		result = _callDefaultWindowProc(pThis, hwnd, message, wParam, lParam);		
 
 	return result;
 }
 	
+LRESULT Win32Window::_callDefaultWindowProc(Win32Window* pThis, HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if(pThis!=nullptr && pThis->_prevWindowProc!=NULL)
+	{
+		// we have subclassed the window. So we must call the old window proc.
+		return CallWindowProc(pThis->_prevWindowProc, hwnd, message, wParam, lParam);	
+	}
+	else
+	{
+		// call the default system window proc
+		return CallWindowProc(DefWindowProc, hwnd, message, wParam, lParam);	
+	}
+}
+
 
 void Win32Window::setWindowText(HWND hwnd, const String& text)
 {

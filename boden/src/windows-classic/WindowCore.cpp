@@ -139,6 +139,19 @@ Rect WindowCore::getContentArea()
 }
 
 
+Size WindowCore::calcMinimumSize() const
+{
+	Size minSize;
+	
+	minSize.width = ::GetSystemMetrics(SM_CXMINTRACK);
+	minSize.height = ::GetSystemMetrics(SM_CYMINTRACK);
+
+	// these minimum sizes must be scaled with the UI scale factor
+	minSize.width = (int)std::ceil( minSize.width * _uiScaleFactor );
+	minSize.height = (int)std::ceil( minSize.height * _uiScaleFactor );
+
+	return minSize;
+}
 
 Size WindowCore::calcPreferredSize() const
 {
