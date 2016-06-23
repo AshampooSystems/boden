@@ -16,12 +16,12 @@ EXIT_INCORRECT_CALL = 12;
 
 
 
-platformList = [ ("windows-universal", "Universal Windows app (Windows 10 and later)" ),
-               ("windows-store", "Windows Store app (Windows 8.1 and later)" ),
-               ("windows-classic", "Classic Windows desktop program"),               
+platformList = [ ("winuwp", "Universal Windows app (Windows 10 and later)" ),
+               ("winstore", "Windows Store app (Windows 8.1 and later)" ),
+               ("win32", "Classic Windows desktop program (despite the 32 in the name, this also includes 64 bit Windows desktop programs)"),               
                ("dotnet", ".NET program" ),
                ("linux", "Linux" ),
-               ("osx", "Mac OSX" ),
+               ("mac", "Apple Mac OS (formerly OSX)" ),
                ("ios", "iPhone, iPad" ),
                ("android", "Android devices" ),
                ("web", """\
@@ -423,7 +423,7 @@ def commandPrepare(commandArgs):
 
             args = [];
             
-            if platform.startswith("windows-"):
+            if platform.startswith("win"):
 
                 if arch!="std":
 
@@ -446,13 +446,13 @@ def commandPrepare(commandArgs):
                     else:
                         raise InvalidArchitectureError(arch);
 
-                if platform=="windows-store":
+                if platform=="winstore":
                     args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
                     
-                elif platform=="windows-universal":
+                elif platform=="winuwp":
                     args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
 
-            elif platform=="osx":
+            elif platform=="mac":
 
                 if arch!="std":
                     raise InvalidArchitectureError(arch);
@@ -779,10 +779,10 @@ def commandRun(args):
 
             commandLine = None;
 
-            if platformName=="windows-classic":
+            if platformName=="win32":
                 moduleFilePath += ".exe";
 
-            elif platformName=="osx":
+            elif platformName=="mac":
 
                 if os.path.exists(moduleFilePath+".app"):
                     moduleFilePath += ".app";

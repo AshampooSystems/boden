@@ -22,14 +22,14 @@ else()
 		SET( BODEN_TARGET "android" )
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Windows" )	
-		SET( BODEN_TARGET "windows-classic" )
+		SET( BODEN_TARGET "win32" )
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
 
 		if(CMAKE_SYSTEM_VERSION STREQUAL "10.0")
-			SET( BODEN_TARGET "windows-universal" )
+			SET( BODEN_TARGET "winuwp" )
 		else()
-			SET( BODEN_TARGET "windows-store" )
+			SET( BODEN_TARGET "winstore" )
 		endif()
 
 		SET( BODEN_TARGET_FAMILY "windows")
@@ -40,7 +40,7 @@ else()
 		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )	
-		SET( BODEN_TARGET "osx" )
+		SET( BODEN_TARGET "mac" )
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -100,14 +100,14 @@ if( "${BODEN_TARGET}" STREQUAL "dotnet")
 endif()
 
 
-if( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
+if( "${BODEN_TARGET}" STREQUAL "winstore" )	
 	SET(VS_WINRT_COMPONENT "TRUE")
 endif()
 
 
 add_definitions( -DUNICODE -D_UNICODE )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if( "${BODEN_TARGET}" STREQUAL "web" )
 	add_definitions( -DBDN_PLATFORM_WEB )
 
 	# the C++ standard library provided by Emscripten has a bug in codecvt.
@@ -210,11 +210,11 @@ endif()
 target_link_libraries(testboden boden)
 
 
-if( BODEN_TARGET STREQUAL "windows-classic")
+if( BODEN_TARGET STREQUAL "win32")
     target_link_libraries(testboden Shcore)
 endif()
 
-if( BODEN_TARGET STREQUAL "osx")
+if( BODEN_TARGET STREQUAL "mac")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(testboden ${COCOA_LIBRARY})
@@ -282,11 +282,11 @@ endif()
 
 target_link_libraries(testbodenui boden)
 
-if( BODEN_TARGET STREQUAL "windows-classic")
+if( BODEN_TARGET STREQUAL "win32")
     target_link_libraries(testbodenui Shcore)
 endif()
 
-if( BODEN_TARGET STREQUAL "osx")
+if( BODEN_TARGET STREQUAL "mac")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(testbodenui ${COCOA_LIBRARY})
@@ -345,11 +345,11 @@ endif()
 
 target_link_libraries(uidemo boden)
 
-if( BODEN_TARGET STREQUAL "windows-classic")
+if( BODEN_TARGET STREQUAL "win32")
     target_link_libraries(uidemo Shcore)
 endif()
 
-if( BODEN_TARGET STREQUAL "osx")
+if( BODEN_TARGET STREQUAL "mac")
 	find_library(COCOA_LIBRARY Cocoa)
 	mark_as_advanced(COCOA_LIBRARY)
 	target_link_libraries(uidemo ${COCOA_LIBRARY})
