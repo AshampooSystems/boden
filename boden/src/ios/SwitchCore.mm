@@ -1,10 +1,13 @@
 #include <bdn/init.h>
 
-#import <bdn/Switch.hh>
+#import <bdn/ios/SwitchCore.hh>
 
 namespace bdn
 {
+namespace ios
+{
 
+/*
 
 P<ISwitch> createSwitch(IView* pParent, const String& label)
 {
@@ -32,8 +35,8 @@ Switch::Switch(Window* pParent, const String& label)
     
     initView(_switch, _label);
 }
+    */
     
-    
-    
+}
 }
 

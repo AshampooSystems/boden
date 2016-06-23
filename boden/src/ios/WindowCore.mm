@@ -1,20 +1,13 @@
 #include <bdn/init.h>
-#import <bdn/Frame.hh>
-
-#import <bdn/MainViewController.h>
+#import <bdn/ios/WindowCore.hh>
 
 namespace bdn
 {
-    
-    
-P<IFrame> createFrame(const String& title)
+namespace ios
 {
-    return newObj<Frame>(title);
-}
+/*
 
-
-
-Frame::Frame(const String& title)
+WindowCore::WindowCore(const String& title)
 {
     UIWindow* window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
@@ -33,6 +26,6 @@ Frame::Frame(const String& title)
     
     initWindow(window, title);
 }
-    
+*/
 }
-
+}

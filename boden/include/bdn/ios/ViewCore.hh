@@ -1,24 +1,26 @@
-#ifndef BDN_View_HH_
-#define BDN_View_HH_
+#ifndef BDN_IOS_ViewCore_HH_
+#define BDN_IOS_ViewCore_HH_
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/IView.h>
-#include <bdn/PropertyWithMainThreadDelegate.h>
+#include <bdn/IViewCore.h>
 
 
 namespace bdn
 {
+namespace ios
+{
 
-class View : public Base, BDN_IMPLEMENTS IView
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-    View()
+/*
+    ViewCore()
     {
         _view = nullptr;
     }
     
-    ~View()
+    ~ViewCore()
     {
         _pVisible->detachDelegate();
     }
@@ -69,9 +71,11 @@ protected:
     UIView* _view;
     
     P< PropertyWithMainThreadDelegate<bool> > _pVisible;
+    */
 };
 
 
+}
 }
 
 

@@ -1,23 +1,26 @@
-#ifndef BDN_Window_HH_
-#define BDN_Window_HH_
+#ifndef BDN_IOS_WindowCore_HH_
+#define BDN_IOS_WindowCore_HH_
 
 #import <UIKit/UIKit.h>
 
-#include <bdn/IView.h>
-#include <bdn/PropertyWithMainThreadDelegate.h>
+#include <bdn/IWindowCore.h>
+#import <bdn/ios/ViewCore.hh>
 
 namespace bdn
 {
+namespace ios
+{
 
-class Window : public Base, BDN_IMPLEMENTS IView
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 public:
-    Window()
+/*
+    WindowCore()
     {
         _window = nullptr;
     }
     
-    ~Window()
+    ~WindowCore()
     {
         _pVisible->detachDelegate();
         _pTitle->detachDelegate();
@@ -116,9 +119,10 @@ protected:
     
     P< PropertyWithMainThreadDelegate<bool> >   _pVisible;
     P< PropertyWithMainThreadDelegate<String> > _pTitle;
+    */
 };
 
-
+}
 }
 
 

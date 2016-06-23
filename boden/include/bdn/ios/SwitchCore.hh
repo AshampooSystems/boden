@@ -1,13 +1,16 @@
-#ifndef BDN_Switch_HH_
-#define BDN_Switch_HH_
+#ifndef BDN_IOS_SwitchCore_HH_
+#define BDN_IOS_SwitchCore_HH_
 
-#import <bdn/View.hh>
-#import <bdn/Window.hh>
+#import <bdn/ios/ViewCore.hh>
 
-#include <bdn/ISwitch.h>
+//#include <bdn/ISwitch.h>
 
 namespace bdn
 {
+namespace ios
+{
+
+/*
 
 class Switch : public View, BDN_IMPLEMENTS ISwitch
 {
@@ -56,8 +59,9 @@ protected:
     P< PropertyWithMainThreadDelegate<String> > _pLabel;
     
 };
+*/
 
-
+}
 }
 
 

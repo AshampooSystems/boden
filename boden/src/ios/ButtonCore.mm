@@ -1,6 +1,6 @@
 #include <bdn/init.h>
-#import <bdn/Button.hh>
-
+#import <bdn/ios/ButtonCore.hh>
+/*
 
 @interface BdnButtonClickManager : NSObject
 
@@ -30,6 +30,8 @@
 
 
 namespace bdn
+{
+namespace ios
 {
 
 
@@ -82,6 +84,7 @@ Notifier<const ClickEvent&>& Button::onClick()
     
         
     
-
 }
+}
+*/
 

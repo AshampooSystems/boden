@@ -1,20 +1,22 @@
-#ifndef BDN_Button_HH_
-#define BDN_Button_HH_
+#ifndef BDN_IOS_ButtonCore_HH_
+#define BDN_IOS_ButtonCore_HH_
 
-#include <bdn/IButton.h>
+#include <bdn/IButtonCore.h>
 #include <bdn/ClickEvent.h>
 
-#import <bdn/Window.hh>
-#import <bdn/View.hh>
+#import <bdn/ios/ViewCore.hh>
 
 namespace bdn
 {
+namespace ios
+{
     
-class Button : public View, BDN_IMPLEMENTS IButton
+class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
-    Button(Window* pParent, const String& label);
-    ~Button();
+   /* 
+    ButtonCore(Window* pParent, const String& label);
+    ~ButtonCore();
     
     UIButton* getUIButton()
     {
@@ -70,12 +72,12 @@ protected:
     
     
     P< PropertyWithMainThreadDelegate<String> > _pLabel;
-    
+    */
 };
 
 
 
 }
-
+}
 
 #endif
