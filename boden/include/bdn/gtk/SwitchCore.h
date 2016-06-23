@@ -1,16 +1,17 @@
-#ifndef BDN_Switch_H_
-#define BDN_Switch_H_
+#ifndef BDN_GTK_SwitchCore_H_
+#define BDN_GTK_SwitchCore_H_
 
-
-#include <bdn/ISwitch.h>
-#include <bdn/ButtonBase.h>
-#include <bdn/Frame.h>
+/*
+#include <bdn/ISwitchCore.h>
+#include <bdn/gtk/ButtonCoreBase.h>
 
 
 namespace bdn
 {
+namespace gtk
+{
 
-class Switch : public ButtonBase, BDN_IMPLEMENTS ISwitch
+class SwitchCore : public ButtonCoreBase, BDN_IMPLEMENTS ISwitchCore
 {
 public:
     Switch(Frame* pParent, const String& label)
@@ -36,7 +37,7 @@ public:
 };
 
 
-
 }
-
+}
+*/
 #endif

@@ -9,6 +9,7 @@ endif()
 project (boden)
 
 SET(BODEN_SUPPORTS_PTHREAD 0)
+SET(BODEN_SUPPORTS_GTK 0)
 
 if(BODEN_TARGET)
 	# do nothing	
@@ -40,6 +41,7 @@ else()
 		SET( BODEN_TARGET "linux" )
 
 		SET(BODEN_SUPPORTS_PTHREAD 1)
+		SET(BODEN_SUPPORTS_GTK 1)
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -164,11 +166,6 @@ if(BODEN_TARGET_FAMILY)
 	list( APPEND BODEN_HEADERS ${BODEN_FAMILY_HEADERS} )	
 endif()
 
-if(BODEN_SUPPORTS_PTHREAD)
-	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/pthread/*.h)
-	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
-endif()
-
 file( GLOB BODEN_SOURCES ${BODEN_SRCDIR}/*.cpp ${BODEN_SRCDIR}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
 if(BODEN_TARGET_FAMILY)
 	file( GLOB BODEN_FAMILY_SOURCES ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.m)
@@ -183,8 +180,16 @@ if(BODEN_SUPPORTS_PTHREAD)
 	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
 endif()
 
-source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread)\\/.*(\\.h|\\.hh)")
-source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread)\\/.*(\\.cpp|\\.m|\\.mm)")
+if(BODEN_SUPPORTS_GTK)
+	file( GLOB BODEN_GTK_HEADERS ${BODEN_INCDIR}/bdn/gtk/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_GTK_HEADERS} )	
+
+	file( GLOB BODEN_GTK_SOURCES ${BODEN_SRCDIR}/gtk/*.cpp)
+	list( APPEND BODEN_SOURCES ${BODEN_GTK_SOURCES} )	
+endif()
+
+source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.h|\\.hh)")
+source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.cpp|\\.m|\\.mm)")
 
 
 include_directories( ${BODEN_INCDIR} )

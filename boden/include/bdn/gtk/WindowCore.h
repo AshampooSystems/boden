@@ -1,19 +1,22 @@
-#ifndef BDN_Frame_H_
-#define BDN_Frame_H_
+#ifndef BDN_GTK_WindowCore_H_
+#define BDN_GTK_WindowCore_H_
 
-#include <bdn/View.h>
-#include <bdn/IFrame.h>
+#include <bdn/gtk/ViewCore.h>
+#include <bdn/IWindowCore.h>
 
 #include <gtk/gtk.h>
 
 namespace bdn
 {
+namespace gtk
+{
     
 
-class Frame : public View, BDN_IMPLEMENTS IFrame
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
-public:
-	Frame(const String& title)
+        public:
+/*
+	WindowCore(const String& title)
 	{
 	    initView( gtk_window_new(GTK_WINDOW_TOPLEVEL), false );
         
@@ -26,7 +29,7 @@ public:
         
 	}
 
-	~Frame()
+	~WindowCore()
 	{
 		if(_pWidget!=nullptr)
 		{
@@ -90,9 +93,12 @@ protected:
     P< PropertyWithMainThreadDelegate<String> > _pTitle;
     
     GtkWidget* _pClientContainer;
+     */
 };
 
 
+
+}
 }
 
 #endif

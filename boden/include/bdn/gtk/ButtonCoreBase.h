@@ -1,19 +1,20 @@
-#ifndef BDN_ButtonBase_H_
-#define BDN_ButtonBase_H_
+#ifndef BDN_GTK_ButtonBase_H_
+#define BDN_GTK_ButtonBase_H_
 
 
-#include <bdn/View.h>
-#include <bdn/Notifier.h>
-#include <bdn/ClickEvent.h>
+#include <bdn/gtk/ViewCore.h>
 
 
 namespace bdn
 {
-
-class ButtonBase : public View
+namespace gtk
 {
-public:
-    ButtonBase()
+
+class ButtonCoreBase : public ViewCore
+{
+        public:
+/*
+    ButtonCoreBase()
     {       
     }
 
@@ -71,8 +72,11 @@ protected:
     
     
     P< PropertyWithMainThreadDelegate<String> > _pLabel;
+    */
 };
     
+
+}
 }
 
 #endif

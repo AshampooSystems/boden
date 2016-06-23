@@ -1,23 +1,22 @@
-#ifndef BDN_Button_H_
-#define BDN_Button_H_
+#ifndef BDN_GTK_ButtonCore_H_
+#define BDN_GTK_ButtonCore_H_
 
 
-#include <bdn/ButtonBase.h>
-#include <bdn/Notifier.h>
-#include <bdn/ClickEvent.h>
-#include <bdn/IButton.h>
-#include <bdn/Frame.h>
+#include <bdn/gtk/ButtonCoreBase.h>
+#include <bdn/IButtonCore.h>
 
 #include <gtk/gtk.h>
 
 
 namespace bdn
 {
-
-class Button : public ButtonBase, BDN_IMPLEMENTS IButton
+namespace gtk
 {
-public:
-    Button(Frame* pParent, const String& label)
+
+class ButtonCore : public ButtonCoreBase, BDN_IMPLEMENTS IButtonCore
+{
+public:/*
+    ButtonCore(Frame* pParent, const String& label)
     {
         GtkWidget* pWidget = gtk_button_new();
         
@@ -60,9 +59,11 @@ protected:
     
     
     Notifier<const ClickEvent&> _onClick;
+     */
 };
 
 
+}
 }
 
 #endif

@@ -1,18 +1,20 @@
-#ifndef BDN_View_H_
-#define BDN_View_H_
+#ifndef BDN_GTK_ViewCore_H_
+#define BDN_GTK_ViewCore_H_
 
-#include <bdn/IView.h>
-#include <bdn/PropertyWithMainThreadDelegate.h>
+#include <bdn/IViewCore.h>
 
 #include <gtk/gtk.h>
 
 namespace bdn
 {
-
-class View : public Base, BDN_IMPLEMENTS IView
+namespace gtk
 {
-public:
-    View()
+
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+{
+        public:
+/*
+    ViewCore()
     {
     }
     
@@ -74,9 +76,12 @@ protected:
     GtkWidget*  _pWidget;
     
     P<PropertyWithMainThreadDelegate<bool> > _pVisible;
+    */
 };
 
 
+
+}
 }
 
 #endif
