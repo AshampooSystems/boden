@@ -1,24 +1,26 @@
-#ifndef BDN_View_HH_
-#define BDN_View_HH_
+#ifndef BDN_MAC_ViewCore_HH_
+#define BDN_MAC_ViewCore_HH_
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/IView.h>
+#include <bdn/IViewCore.h>
 #include <bdn/PropertyWithMainThreadDelegate.h>
 
 
 namespace bdn
 {
+namespace mac
+{
 
-class View : public Base, BDN_IMPLEMENTS IView
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-    View()
+    ViewCore()
     {
         _view = nullptr;
     }
     
-    ~View()
+    ~ViewCore()
     {
         _pVisible->detachDelegate();
     }
@@ -68,6 +70,7 @@ protected:
 };
 
 
+}
 }
 
 

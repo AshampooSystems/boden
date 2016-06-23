@@ -1,7 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/test.h>
 
 #include <bdn/UiLength.h>
+
+#include <bdn/test.h>
+
 
 using namespace bdn;
 

@@ -3,6 +3,8 @@
 
 #include <bdn/NotImplementedError.h>
 
+#include <vector>
+
 namespace bdn
 {
 

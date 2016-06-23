@@ -1,23 +1,25 @@
-#ifndef BDN_Window_HH_
-#define BDN_Window_HH_
+#ifndef BDN_MAC_WindowCore_HH_
+#define BDN_MAC_WindowCore_HH_
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/IView.h>
-#include <bdn/PropertyWithMainThreadDelegate.h>
+#include <bdn/IViewCore.h>
 
 namespace bdn
 {
+namespace mac
+{
 
-class Window : public Base, BDN_IMPLEMENTS IView
+class WindowCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-    Window()
+    /*    WindowCore()
     {
         _window = nullptr;
     }
     
-    ~Window()
+    
+    ~WindowCore()
     {
         _pVisible->detachDelegate();
         _pTitle->detachDelegate();
@@ -116,9 +118,10 @@ protected:
     
     P< PropertyWithMainThreadDelegate<bool> >   _pVisible;
     P< PropertyWithMainThreadDelegate<String> > _pTitle;
+    */
 };
 
-
+}
 }
 
 

@@ -1,11 +1,15 @@
+#include <bdn/init.h>
+
 #import <Cocoa/Cocoa.h>
 
-#import <bdn/Button.hh>
+#import <bdn/mac/ButtonCore.hh>
 
 
 namespace bdn
 {
-
+namespace mac
+{
+/*
 
 P<IButton> createButton(IView* pParent, const String& label)
 {
@@ -26,8 +30,8 @@ Button::Button(Window* pParent, const String& label)
     initButton(button, label);
 }
     
-    
+    */
     
 
 }
-
+}

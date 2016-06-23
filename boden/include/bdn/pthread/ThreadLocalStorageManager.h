@@ -1,5 +1,5 @@
-#ifndef BDN_PosixThreadLocalStorageManager_H_
-#define BDN_PosixThreadLocalStorageManager_H_
+#ifndef BDN_PTHREAD_ThreadLocalStorageManager_H_
+#define BDN_PTHREAD_ThreadLocalStorageManager_H_
 
 #include <bdn/sysError.h>
 
@@ -9,6 +9,8 @@
 
 namespace bdn
 {
+namespace pthread
+{
 
 /** Manager for Posix-style thread local storage.
 
@@ -17,14 +19,14 @@ namespace bdn
     objects.
 
 	*/
-class PosixThreadLocalStorageManager : public Base
+class ThreadLocalStorageManager : public Base
 {
 public:
-	PosixThreadLocalStorageManager()
+	ThreadLocalStorageManager()
     {
         _nextSlotId=0;
         
-        int result = pthread_key_create(&_key, &PosixThreadLocalStorageManager::_threadExitCleanup);
+        int result = pthread_key_create(&_key, &ThreadLocalStorageManager::_threadExitCleanup);
         if(result!=0)
         {
             throwSysError( result,
@@ -34,7 +36,7 @@ public:
     }
     
     
-    ~PosixThreadLocalStorageManager()
+    ~ThreadLocalStorageManager()
     {
         pthread_key_delete(_key);
     }
@@ -78,9 +80,9 @@ public:
     }
     
     
-    static P<PosixThreadLocalStorageManager> get()
+    static P<ThreadLocalStorageManager> get()
 	{
-        static SafeInit<PosixThreadLocalStorageManager> init;
+        static SafeInit<ThreadLocalStorageManager> init;
         
         return init.get();
     }
@@ -100,7 +102,7 @@ protected:
     std::atomic<int>    _nextSlotId;
 };
 
-
+}
 }
 
 

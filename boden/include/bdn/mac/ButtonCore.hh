@@ -1,17 +1,20 @@
-#ifndef BDN_Button_HH_
-#define BDN_Button_HH_
+#ifndef BDN_MAC_ButtonCore_HH_
+#define BDN_MAC_ButtonCore_HH_
 
-#include <bdn/IButton.h>
+#include <bdn/IButtonCore.h>
 
-#import <bdn/ButtonBase.hh>
-#import <bdn/Window.hh>
+#import <bdn/mac/ButtonCoreBase.hh>
+
 
 namespace bdn
 {
+namespace mac
+{
 
-class Button : public ButtonBase, BDN_IMPLEMENTS IButton
+class ButtonCore : public ButtonCoreBase, BDN_IMPLEMENTS IButtonCore
 {
 public:
+/*
     Button(Window* pParent, const String& label);
     
     Property<String>& label() override
@@ -29,13 +32,13 @@ public:
     {
         return ButtonBase::onClick();
     }
-
+*/
 
     
 protected:
 };
 
-
+}
 }
 
 

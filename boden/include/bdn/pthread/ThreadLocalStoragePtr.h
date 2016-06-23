@@ -1,9 +1,11 @@
-#ifndef BDN_PosixThreadLocalStoragePtr_H_
-#define BDN_PosixThreadLocalStoragePtr_H_
+#ifndef BDN_PTHREAD_ThreadLocalStoragePtr_H_
+#define BDN_PTHREAD_ThreadLocalStoragePtr_H_
 
-#include <bdn/PosixThreadLocalStorageManager.h>
+#include <bdn/pthread/ThreadLocalStorageManager.h>
 
 namespace bdn
+{
+namespace pthread
 {
     
 /** A smart pointer implementation that stores the value in thread local storage.
@@ -20,30 +22,30 @@ namespace bdn
     #P.
  */
 template<class ObjectType>
-class PosixThreadLocalStoragePtr
+class ThreadLocalStoragePtr
 {
 public:
-    PosixThreadLocalStoragePtr()
+    ThreadLocalStoragePtr()
     {
-        _slotId = PosixThreadLocalStorageManager::get()->createSlot();
+        _slotId = ThreadLocalStorageManager::get()->createSlot();
     }
     
     
-    PosixThreadLocalStoragePtr(ObjectType* p)
-    : PosixThreadLocalStoragePtr()
+    ThreadLocalStoragePtr(ObjectType* p)
+    : ThreadLocalStoragePtr()
     {
         assign(p);
     }
     
     template<class F>
-    PosixThreadLocalStoragePtr(P<F> p)
-    : PosixThreadLocalStoragePtr()
+    ThreadLocalStoragePtr(P<F> p)
+    : ThreadLocalStoragePtr()
     {
         assign(p);
     }
     
     
-    ~PosixThreadLocalStoragePtr()
+    ~ThreadLocalStoragePtr()
     {
         // nothing to clean up. The thread local stuff is released when
         // the thread exits.
@@ -52,7 +54,7 @@ public:
     
     void assign(ObjectType* pObj)
     {
-        P<IBase>& pPtrRef = PosixThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
+        P<IBase>& pPtrRef = ThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
         
         pPtrRef.assign(pObj);
     }
@@ -60,20 +62,20 @@ public:
     template<class F>
     void assign(P<F>&& pObj)
     {
-        P<IBase>& pPtrRef = PosixThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
+        P<IBase>& pPtrRef = ThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
         
         pPtrRef.assign(pObj);
     }
     
     
-    PosixThreadLocalStoragePtr<ObjectType>& operator=(ObjectType* pObj)
+    ThreadLocalStoragePtr<ObjectType>& operator=(ObjectType* pObj)
     {
         assign(pObj);
         return *this;
     }
     
     
-    PosixThreadLocalStoragePtr<ObjectType>& operator=(const P<ObjectType>& pObj)
+    ThreadLocalStoragePtr<ObjectType>& operator=(const P<ObjectType>& pObj)
     {
         assign(pObj.getPtr());
         return *this;
@@ -81,7 +83,7 @@ public:
     
     
     template<class O>
-    inline PosixThreadLocalStoragePtr<ObjectType>& operator=(const P<O>& pObj)
+    inline ThreadLocalStoragePtr<ObjectType>& operator=(const P<O>& pObj)
     {
         assign(pObj.getPtr());
         return *this;
@@ -90,16 +92,16 @@ public:
     
     ObjectType* detachPtr()
     {
-        P<IBase>& pPtrRef = PosixThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
+        P<IBase>& pPtrRef = ThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
         
         static_cast<ObjectType*>( pPtrRef.detachPtr() );
     }
     
     
     
-    PosixThreadLocalStoragePtr<ObjectType>& attachPtr(ObjectType* pObj)
+    ThreadLocalStoragePtr<ObjectType>& attachPtr(ObjectType* pObj)
     {
-        P<IBase>& pPtrRef = PosixThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
+        P<IBase>& pPtrRef = ThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
         
         pPtrRef.attachPtr(pObj);
         
@@ -123,7 +125,7 @@ public:
         return getPtr() == p.getPtr();
     }
     
-    bool operator==(const PosixThreadLocalStoragePtr<ObjectType>& p) const
+    bool operator==(const ThreadLocalStoragePtr<ObjectType>& p) const
     {
         return getPtr() == p.getPtr();
     }
@@ -144,7 +146,7 @@ public:
         return getPtr() != pObj._pObject;
     }
     
-    bool operator!=(const PosixThreadLocalStoragePtr<ObjectType>& p) const
+    bool operator!=(const ThreadLocalStoragePtr<ObjectType>& p) const
     {
         return getPtr() != p.getPtr();
     }
@@ -163,7 +165,7 @@ public:
     
     ObjectType* getPtr() const
     {
-        P<IBase>& pPtrRef = PosixThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
+        P<IBase>& pPtrRef = ThreadLocalStorageManager::get()->getThreadPtrRef(_slotId);
         
         return cast<ObjectType>(pPtrRef.getPtr());
     }
@@ -173,6 +175,8 @@ protected:
     int _slotId;
 };
     
+    
+}
 }
 
 

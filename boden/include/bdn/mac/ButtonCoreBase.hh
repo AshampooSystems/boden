@@ -1,18 +1,20 @@
-#ifndef BDN_ButtonBase_HH_
-#define BDN_ButtonBase_HH_
+#ifndef BDN_MAC_ButtonCoreBase_HH_
+#define BDN_MAC_ButtonCoreBase_HH_
 
 #include <bdn/ClickEvent.h>
 
-#import <bdn/View.hh>
+#import <bdn/mac/ViewCore.hh>
 
 namespace bdn
 {
+namespace mac
+{
 
-class ButtonBase : public View
+class ButtonCoreBase : public ViewCore
 {
 public:
-    ButtonBase();
-    ~ButtonBase();
+    ButtonCoreBase();
+    ~ButtonCoreBase();
     
     NSButton* getNSButton()
     {
@@ -71,6 +73,7 @@ protected:
 };
 
 
+}
 }
 
 

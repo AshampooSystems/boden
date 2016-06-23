@@ -8,6 +8,8 @@ endif()
 
 project (boden)
 
+SET(BODEN_SUPPORTS_PTHREAD 0)
+
 if(BODEN_TARGET)
 	# do nothing	
 
@@ -37,10 +39,14 @@ else()
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )	
 		SET( BODEN_TARGET "linux" )
 
+		SET(BODEN_SUPPORTS_PTHREAD 1)
+
 		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )	
 		SET( BODEN_TARGET "mac" )
+
+		SET(BODEN_SUPPORTS_PTHREAD 1)
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -50,6 +56,8 @@ else()
 	else()
 		# assume some Unix variant
 		SET( BODEN_TARGET "unix" )    
+
+		SET(BODEN_SUPPORTS_PTHREAD 1)
 		
 	endif()
 
@@ -156,14 +164,27 @@ if(BODEN_TARGET_FAMILY)
 	list( APPEND BODEN_HEADERS ${BODEN_FAMILY_HEADERS} )	
 endif()
 
+if(BODEN_SUPPORTS_PTHREAD)
+	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/pthread/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
+endif()
+
 file( GLOB BODEN_SOURCES ${BODEN_SRCDIR}/*.cpp ${BODEN_SRCDIR}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
 if(BODEN_TARGET_FAMILY)
 	file( GLOB BODEN_FAMILY_SOURCES ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.m)
 	list( APPEND BODEN_SOURCES ${BODEN_FAMILY_SOURCES} )
 endif()
 
-source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/${BODEN_TARGET}\\/.*(\\.h|\\.hh)")
-source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/${BODEN_TARGET}\\/.*(\\.cpp|\\.m|\\.mm)")
+if(BODEN_SUPPORTS_PTHREAD)
+	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/pthread/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
+
+	file( GLOB BODEN_PTHREAD_SOURCES ${BODEN_SRCDIR}/pthread/*.cpp)
+	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
+endif()
+
+source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread)\\/.*(\\.h|\\.hh)")
+source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread)\\/.*(\\.cpp|\\.m|\\.mm)")
 
 
 include_directories( ${BODEN_INCDIR} )

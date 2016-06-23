@@ -57,9 +57,9 @@
 
         // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
         // a workaround here.
-        #include <bdn/PosixThreadLocalStoragePtr.h>
+        #include <bdn/pthread/ThreadLocalStoragePtr.h>
 
-        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static PosixThreadLocalStoragePtr< objectType >
+        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static bdn::pthread::ThreadLocalStoragePtr< objectType >
 
     #else
 

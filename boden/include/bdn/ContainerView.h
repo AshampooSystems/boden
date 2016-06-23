@@ -113,7 +113,7 @@ public:
 	}
 
 
-	P<View> findPreviousChildView(View* pChildView)
+	P<View> findPreviousChildView(View* pChildView) override
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -130,7 +130,7 @@ public:
 	}
 
 
-	void _childViewStolen(View* pChildView)
+	void _childViewStolen(View* pChildView) override
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 

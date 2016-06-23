@@ -1,8 +1,10 @@
+#include <bdn/init.h>
+
 #import <Cocoa/Cocoa.h>
 
-#import <bdn/ButtonBase.hh>
+#import <bdn/mac/ButtonCoreBase.hh>
 
-
+/*
 
 @interface BdnButtonClickManager : NSObject
 
@@ -30,6 +32,8 @@
 
 
 namespace bdn
+{
+namespace mac
 {
 
 ButtonBase::ButtonBase()
@@ -69,7 +73,7 @@ Notifier<const ClickEvent&>& ButtonBase::onClick()
     return _onClick;
 }
 
-    
-
+ 
 }
-
+}
+*/

@@ -1,15 +1,16 @@
-#ifndef BDN_Switch_HH_
-#define BDN_Switch_HH_
+#ifndef BDN_MAC_SwitchCore_HH_
+#define BDN_MAC_SwitchCore_HH_
 
-#import <bdn/ButtonBase.hh>
-#import <bdn/Window.hh>
+#import <bdn/mac/ButtonCoreBase.hh>
 
-#include <bdn/ISwitch.h>
+//#include <bdn/ISwitchCore.h>
 
 namespace bdn
 {
-
-class Switch : public ButtonBase, BDN_IMPLEMENTS ISwitch
+namespace mac
+{
+/*
+class Switch : public ButtonCoreBase, BDN_IMPLEMENTS ISwitchCore
 {
 public:
     Switch(Window* pParent, const String& label);
@@ -24,9 +25,9 @@ public:
         return ButtonBase::label();
     }
     
-};
+};*/
 
-
+}
 }
 
 

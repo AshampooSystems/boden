@@ -50,7 +50,7 @@ public:
 
 
 protected:	
-	void layout()
+	void layout() override
 	{
 		// nothing to do. The button does not have child views.
 	}
