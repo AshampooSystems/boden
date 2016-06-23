@@ -1,20 +1,19 @@
-#ifndef _BDN_WINDOW_H_
-#define _BDN_WINDOW_H_
+#ifndef BDN_WEB_ViewCore_H_
+#define BDN_WEB_ViewCore_H_
 
-#include <bdn/IdGen.h>
-#include <bdn/IWindow.h>
+#include <bdn/IViewCore.h>
 
 #include <emscripten/val.h>
 
-#include <map>
 
 namespace bdn
 {
 
-class Window : public Base, virtual public IWindow
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-    Window(Window* pParent,
+	/*
+    WindowCore(Window* pParent,
            const std::string& elementName,
            const std::map<std::string,std::string>& attribMap = std::map<std::string,std::string>())
     {
@@ -59,6 +58,7 @@ protected:
     std::string         _jsId;
     
     emscripten::val*    _pJsObj;
+    */
 };
 
 }

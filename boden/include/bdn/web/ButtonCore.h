@@ -1,22 +1,24 @@
-#ifndef _BDN_BUTTON_H_
-#define _BDN_BUTTON_H_
+#ifndef BDN_WEB_ButtonCore_H_
+#define BDN_WEB_ButtonCore_H_
 
 #include <emscripten/html5.h>
 
-#include <bdn/Window.h>
-#include <bdn/EventSource.h>
-#include <bdn/ClickEvent.h>
+#include <bdn/web/ViewCore.h>
+#include <bdn/IButtonCore.h>
 
 #include <list>
 
 namespace bdn
 {
+namespace web
+{
 
 
-class Button : public Window
+class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
-    Button( Window* pParent, const std::string& label)
+    /*
+    ButtonCore( Window* pParent, const std::string& label)
     : Window(pParent, "button")
     {
         _pClickEventSource = new EventSource<ClickEvent>;
@@ -72,9 +74,11 @@ protected:
     EventSource<ClickEvent>*    _pClickEventSource;
     
     bool                        _clickConnected=false;
-    
+    */
 };
-    
+
+
+}    
 }
 
 

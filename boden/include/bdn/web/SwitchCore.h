@@ -1,22 +1,21 @@
-#ifndef _BDN_SWITCH_H_
-#define _BDN_SWITCH_H_
+#ifndef BDN_WEB_SwitchCore_H_
+#define BDN_WEB_SwitchCore_H_
 
 #include <emscripten/html5.h>
-
-#include <bdn/Window.h>
-#include <bdn/EventSource.h>
-#include <bdn/ClickEvent.h>
+/*
+#include <bdn/ViewCore.h>
 
 #include <list>
 
 namespace bdn
 {
+namespace web
+{
 
-
-class Switch : public Window
+class SwitchCore : public ViewCore
 {
 public:
-    Switch( Window* pParent, const std::string& label)
+    SwitchCore( Window* pParent, const std::string& label)
     : Window(pParent, "label" )
     {
         // checkbox controls in HTML do not display a text by default.
@@ -46,9 +45,11 @@ protected:
     
 };
     
+
+}
 }
 
-
+*/
 #endif
 
 

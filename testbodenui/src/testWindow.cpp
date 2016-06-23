@@ -368,6 +368,8 @@ void verifyOp(P<TestWindow> pWindow, std::function<void()> opFunc, std::function
 			} );
 	}
 
+#if BDN_HAVE_THREADS
+
 	SECTION("otherThread")
 	{
 		// schedule the test asynchronously, so that the initial sizing
@@ -418,6 +420,9 @@ void verifyOp(P<TestWindow> pWindow, std::function<void()> opFunc, std::function
 					}	);				
 			} );
 	}
+
+#endif
+
 }
 
 
@@ -724,6 +729,7 @@ TEST_CASE("Window", "[ui]")
 			pWindow->requestAutoSize();
 		}
 
+#if BDN_HAVE_THREADS
 		SECTION("otherThread")
 		{
 			Thread::exec(
@@ -733,7 +739,7 @@ TEST_CASE("Window", "[ui]")
 				} )
 				.get(); // wait for thread to finish.
 		}
-
+#endif
 
 		// auto-sizing is ALWAYS done asynchronously, no matter
 		// which thread the request is coming from.
@@ -764,6 +770,7 @@ TEST_CASE("Window", "[ui]")
 			pWindow->requestCenter();
 		}
 
+#if BDN_HAVE_THREADS
 		SECTION("otherThread")
 		{
 			Thread::exec(
@@ -773,6 +780,7 @@ TEST_CASE("Window", "[ui]")
 				} )
 				.get(); // wait for thread to finish.
 		}
+#endif
 
 		// centering is ALWAYS done asynchronously, no matter
 		// which thread the request is coming from.
