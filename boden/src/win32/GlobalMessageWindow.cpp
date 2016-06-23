@@ -1,9 +1,11 @@
 #include <bdn/init.h>
-#include <bdn/GlobalMessageWindow.h>
+#include <bdn/win32/GlobalMessageWindow.h>
 
 #include <bdn/log.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 
@@ -41,6 +43,6 @@ void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHand
 }
 
 
-
+}
 }
 

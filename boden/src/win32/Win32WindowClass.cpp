@@ -1,9 +1,11 @@
 #include <bdn/init.h>
-#include <bdn/Win32WindowClass.h>
+#include <bdn/win32/Win32WindowClass.h>
 
 #include <bdn/sysError.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 Win32WindowClass::Win32WindowClass(const String& name, WNDPROC windowProc)
@@ -34,7 +36,7 @@ void Win32WindowClass::ensureRegistered()
 	}
 }
 
-
+}
 }
 
 

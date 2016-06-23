@@ -1,11 +1,13 @@
-#ifndef BDN_SwitchCore_H_
-#define BDN_SwitchCore_H_
+#ifndef BDN_WIN32_SwitchCore_H_
+#define BDN_WIN32_SwitchCore_H_
 
-#include <bdn/ViewCore.h>
+#include <bdn/win32/ViewCore.h>
 
 #include <bdn/ISwitchCore.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 class SwitchCore : public ViewCore, BDN_IMPLEMENTS ISwitchCore
@@ -31,7 +33,7 @@ public:
 	
 };
 
-
+}
 }
 
 #endif

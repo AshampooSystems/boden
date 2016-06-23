@@ -1,11 +1,12 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/MessageWindowBase.h>
+#include <bdn/win32/MessageWindowBase.h>
 
 #include <windows.h>
 
 using namespace bdn;
+using namespace bdn::win32;
 
 
 class TestMessageWindow : public MessageWindowBase

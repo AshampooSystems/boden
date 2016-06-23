@@ -1,10 +1,12 @@
-#ifndef BDN_MessageWindowBase_H_
-#define BDN_MessageWindowBase_H_
+#ifndef BDN_WIN32_MessageWindowBase_H_
+#define BDN_WIN32_MessageWindowBase_H_
 
-#include <bdn/Win32WindowClass.h>
-#include <bdn/Win32Window.h>
+#include <bdn/win32/Win32WindowClass.h>
+#include <bdn/win32/Win32Window.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 /** Base class for special windows that are only used to receive window messages and are not visible
@@ -43,6 +45,7 @@ protected:
 };
 
 
+}
 }
 
 

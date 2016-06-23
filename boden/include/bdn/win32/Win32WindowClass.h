@@ -1,10 +1,12 @@
-#ifndef BDN_Win32WindowClass_H_
-#define BDN_Win32WindowClass_H_
+#ifndef BDN_WIN32_Win32WindowClass_H_
+#define BDN_WIN32_Win32WindowClass_H_
 
 
 #include <windows.h>
 
 namespace bdn
+{
+namespace win32
 {
 	
 
@@ -33,7 +35,7 @@ protected:
 	bool		_registered;
 };
 
-
+}
 }
 
 #endif

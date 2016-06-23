@@ -1,14 +1,16 @@
-#ifndef BDN_WindowCore_H_
-#define BDN_WindowCore_H_
+#ifndef BDN_WIN32_WindowCore_H_
+#define BDN_WIN32_WindowCore_H_
 
 #include <bdn/Window.h>
-#include <bdn/ViewCore.h>
-#include <bdn/Win32WindowClass.h>
+#include <bdn/win32/ViewCore.h>
+#include <bdn/win32/Win32WindowClass.h>
 
 #include <bdn/IWindowCore.h>
 
 
 namespace bdn
+{
+namespace win32
 {
 
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
@@ -60,6 +62,7 @@ protected:
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 };
 
+}
 }
 
 #endif

@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/mainThread.h>
 
-#include <bdn/GlobalMessageWindow.h>
+#include <bdn/win32/GlobalMessageWindow.h>
 
 namespace bdn
 {
@@ -9,7 +9,7 @@ namespace bdn
 
 void CallFromMainThreadBase_::dispatch()
 {
-	GlobalMessageWindow::get()->postCall(this);
+	win32::GlobalMessageWindow::get()->postCall(this);
 }
 
 

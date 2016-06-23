@@ -1,9 +1,11 @@
-#ifndef BDN_Win32Window_H_
-#define BDN_Win32Window_H_
+#ifndef BDN_WIN32_Win32Window_H_
+#define BDN_WIN32_Win32Window_H_
 
 #include <Windows.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 /** Represents a "Window" in the Win32 sense of the word. This is different than
@@ -179,6 +181,7 @@ private:
 	WNDPROC _prevWindowProc = NULL;
 };
 
+}
 }
 
 #endif

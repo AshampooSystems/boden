@@ -1,10 +1,12 @@
-#ifndef BDN_GlobalMessageWindow_H_
-#define BDN_GlobalMessageWindow_H_
+#ifndef BDN_WIN32_GlobalMessageWindow_H_
+#define BDN_WIN32_GlobalMessageWindow_H_
 
-#include <bdn/MessageWindowBase.h>
+#include <bdn/win32/MessageWindowBase.h>
 #include <bdn/ISimpleCallable.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 /** The global message window that is used to handle messages for the app.
@@ -46,6 +48,7 @@ protected:
 };
 
 
+}
 }
 
 

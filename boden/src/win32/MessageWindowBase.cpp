@@ -1,7 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/MessageWindowBase.h>
+#include <bdn/win32/MessageWindowBase.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 
@@ -15,6 +17,6 @@ MessageWindowBase::MessageWindowBase(const String& windowName)
 }
 
 
-
+}
 }
 

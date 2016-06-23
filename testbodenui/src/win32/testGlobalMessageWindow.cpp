@@ -1,9 +1,10 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/GlobalMessageWindow.h>
+#include <bdn/win32/GlobalMessageWindow.h>
 
 using namespace bdn;
+using namespace bdn::win32;
 
 
 class TestCallable : public Base, BDN_IMPLEMENTS ISimpleCallable

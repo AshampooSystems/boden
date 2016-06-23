@@ -1,5 +1,5 @@
-#ifndef BDN_Win32UiProvider_H_
-#define BDN_Win32UiProvider_H_
+#ifndef BDN_WIN32_Win32UiProvider_H_
+#define BDN_WIN32_Win32UiProvider_H_
 
 #include <bdn/IUiProvider.h>
 #include <bdn/UiMargin.h>
@@ -7,11 +7,13 @@
 
 #include <bdn/View.h>
 
-#include <bdn/Font.h>
+#include <bdn/win32/Font.h>
 
 #include <Windows.h>
 
 namespace bdn
+{
+namespace win32
 {
 	
 
@@ -99,7 +101,7 @@ protected:
 	std::map< FontSpec, P<Font> > _fontMap;	
 };
 
-
+}
 }
 
 #endif

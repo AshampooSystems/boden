@@ -1,7 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/ContainerViewCore.h>
+#include <bdn/win32/ContainerViewCore.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
@@ -36,7 +38,7 @@ int ContainerViewCore::calcPreferredWidthForHeight(int height) const
 
 
 
-
+}
 }
 
 

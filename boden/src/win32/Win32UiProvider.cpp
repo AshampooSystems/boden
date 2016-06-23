@@ -1,9 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/Win32UiProvider.h>
+#include <bdn/win32/Win32UiProvider.h>
 
-#include <bdn/ButtonCore.h>
-#include <bdn/WindowCore.h>
-#include <bdn/ContainerViewCore.h>
+#include <bdn/win32/ButtonCore.h>
+#include <bdn/win32/WindowCore.h>
+#include <bdn/win32/ContainerViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/sysError.h>
 
@@ -14,11 +14,15 @@ namespace bdn
 
 P<IUiProvider> getPlatformUiProvider()
 {
-	return Win32UiProvider::get();
+	return win32::Win32UiProvider::get();
 }
 
+}
 
-
+namespace bdn
+{
+namespace win32
+{
 
 Win32UiProvider::Win32UiProvider()
 {		
@@ -154,5 +158,5 @@ Margin Win32UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiS
 		uiLengthToPixels(margin.left, uiScaleFactor) );	
 }
 
-
+}
 }

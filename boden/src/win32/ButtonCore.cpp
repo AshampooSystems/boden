@@ -1,7 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/ButtonCore.h>
+#include <bdn/win32/ButtonCore.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 ButtonCore::ButtonCore(Button* pOuter)
@@ -81,7 +83,7 @@ void ButtonCore::handleParentMessage(MessageContext& context, HWND windowHandle,
 	return ViewCore::handleParentMessage(context, windowHandle, message, wParam, lParam);
 }
 
-
+}
 }
 
 

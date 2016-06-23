@@ -1,9 +1,11 @@
 #include <bdn/init.h>
-#include <bdn/Font.h>
+#include <bdn/win32/Font.h>
 
 #include <bdn/sysError.h>
 
 namespace bdn
+{
+namespace win32
 {
 	
 
@@ -60,5 +62,5 @@ double Font::getSizePixels() const
 }
 
 
-
+}
 }

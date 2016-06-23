@@ -1,11 +1,12 @@
-#ifndef BDN_Font_H_
-#define BDN_Font_H_
+#ifndef BDN_WIN32_Font_H_
+#define BDN_WIN32_Font_H_
 
 #include <Windows.h>
 
 namespace bdn
 {
-
+namespace win32
+{
 
 class Font : public Base
 {
@@ -33,7 +34,7 @@ protected:
 	
 
 
-
+}
 }
 
 

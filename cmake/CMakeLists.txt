@@ -150,24 +150,24 @@ endif()
 set( BODEN_INCDIR "../boden/include")
 set( BODEN_SRCDIR "../boden/src")
 
-file( GLOB_RECURSE BODEN_HEADERS ${BODEN_INCDIR}/common/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.h ${BODEN_INCDIR}/${BODEN_TARGET}/*.hh)
+file( GLOB BODEN_HEADERS ${BODEN_INCDIR}/bdn/*.h ${BODEN_INCDIR}/bdn/${BODEN_TARGET}/*.h ${BODEN_INCDIR}/bdn/${BODEN_TARGET}/*.hh)
 if(BODEN_TARGET_FAMILY)
-	file( GLOB_RECURSE BODEN_FAMILY_HEADERS ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY}/*.h)
-	list( APPEND BODEN_HEADERS ${BODEN_FAMILY_HEADERS} )
+	file( GLOB BODEN_FAMILY_HEADERS ${BODEN_INCDIR}/bdn/${BODEN_TARGET_FAMILY}/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_FAMILY_HEADERS} )	
 endif()
 
-file( GLOB_RECURSE BODEN_SOURCES ${BODEN_SRCDIR}/common/*.cpp ${BODEN_SRCDIR}/common/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
+file( GLOB BODEN_SOURCES ${BODEN_SRCDIR}/*.cpp ${BODEN_SRCDIR}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET}/*.m)
 if(BODEN_TARGET_FAMILY)
-	file( GLOB_RECURSE BODEN_FAMILY_SOURCES ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.m)
+	file( GLOB BODEN_FAMILY_SOURCES ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.cpp ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.h ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.mm ${BODEN_SRCDIR}/${BODEN_TARGET_FAMILY}/*.m)
 	list( APPEND BODEN_SOURCES ${BODEN_FAMILY_SOURCES} )
 endif()
 
-include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
-if(BODEN_TARGET_FAMILY)
-	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
-endif()
-include_directories( ${DEPENDENCIES_INCDIR} )
+source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/${BODEN_TARGET}\\/.*(\\.h|\\.hh)")
+source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/${BODEN_TARGET}\\/.*(\\.cpp|\\.m|\\.mm)")
 
+
+include_directories( ${BODEN_INCDIR} )
+include_directories( ${DEPENDENCIES_INCDIR} )
 
 add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
@@ -186,11 +186,8 @@ endif()
 # testboden
 
 set( TESTBODEN_SRCDIR "../testboden/src")
-file( GLOB_RECURSE TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h)
-include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
-if(BODEN_TARGET_FAMILY)
-	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
-endif()
+file( GLOB TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h)
+include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
 # we cannot build commandline tools on iOS. So we have to build a UI app
@@ -252,11 +249,8 @@ endif()
 # testbodenui
 
 set( TESTBODENUI_SRCDIR "../testbodenui/src")
-file( GLOB_RECURSE TESTBODENUI_SOURCES ${TESTBODENUI_SRCDIR}/common/*.cpp  ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.cpp ${TESTBODENUI_SRCDIR}/common/*.h ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.h )
-include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
-if(BODEN_TARGET_FAMILY)
-	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
-endif()
+file( GLOB TESTBODENUI_SOURCES ${TESTBODENUI_SRCDIR}/*.cpp  ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.cpp ${TESTBODENUI_SRCDIR}/*.h ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.h )
+include_directories( ${BODEN_INCDIR}  )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
 IF ( APPLE )
@@ -322,11 +316,8 @@ endif()
 # uidemo
 
 set( UIDEMO_SRCDIR "../uidemo/src")
-file( GLOB_RECURSE UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
-include_directories( ${BODEN_INCDIR}/common ${BODEN_INCDIR}/${BODEN_TARGET} )
-if(BODEN_TARGET_FAMILY)
-	include_directories( ${BODEN_INCDIR}/${BODEN_TARGET_FAMILY} )
-endif()
+file( GLOB UIDEMO_SOURCES ${UIDEMO_SRCDIR}/*.cpp ${UIDEMO_SRCDIR}/*.h)
+include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
 IF ( APPLE )

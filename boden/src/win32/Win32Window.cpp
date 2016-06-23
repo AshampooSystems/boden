@@ -1,16 +1,16 @@
 #include <bdn/init.h>
-#include <bdn/Win32Window.h>
+#include <bdn/win32/Win32Window.h>
 
 #include <bdn/sysError.h>
 #include <bdn/log.h>
 
 #include <unordered_map>
 
-#include <Commctrl.h>
 
 namespace bdn
 {
-
+namespace win32
+{
 	
 class _GlobalRegistry
 {
@@ -280,6 +280,6 @@ String Win32Window::getWindowText(HWND hwnd)
 
 
 
-
+}
 }
 

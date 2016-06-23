@@ -1,10 +1,12 @@
-#ifndef BDN_ButtonCore_H_
-#define BDN_ButtonCore_H_
+#ifndef BDN_WIN32_ButtonCore_H_
+#define BDN_WIN32_ButtonCore_H_
 
 #include <bdn/Button.h>
-#include <bdn/ViewCore.h>
+#include <bdn/win32/ViewCore.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
@@ -32,6 +34,7 @@ protected:
 };
 
 
+}
 }
 
 #endif

@@ -1,15 +1,16 @@
 #include <bdn/init.h>
-#include <bdn/WindowCore.h>
+#include <bdn/win32/WindowCore.h>
 
 #include <bdn/sysError.h>
 #include <bdn/NotImplementedError.h>
-#include <bdn/win32Util.h>
+#include <bdn/win32/win32Util.h>
 
 #include <ShellScalingApi.h>
 
 namespace bdn
 {
-
+namespace win32
+{
 
 WindowCore::WindowCore(Window* pWindow)
 	: ViewCore(	pWindow,
@@ -256,7 +257,7 @@ void WindowCore::handleMessage(MessageContext& context, HWND windowHandle, UINT 
 	ViewCore::handleMessage(context, windowHandle, message, wParam, lParam);
 }
 
-
+}
 }
 
 

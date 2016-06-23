@@ -1,9 +1,11 @@
 #include <bdn/init.h>
-#include <bdn/ViewCore.h>
+#include <bdn/win32/ViewCore.h>
 
-#include <bdn/Win32UiProvider.h>
+#include <bdn/win32/Win32UiProvider.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 ViewCore::ViewCore(	View* pOuterView,
@@ -210,6 +212,6 @@ Margin ViewCore::uiMarginToPixelMargin(const UiMargin& margin) const
 }
 
 
-
+}
 }
 

@@ -1,11 +1,13 @@
-#ifndef BDN_ContainerViewCore_H_
-#define BDN_ContainerViewCore_H_
+#ifndef BDN_WIN32_ContainerViewCore_H_
+#define BDN_WIN32_ContainerViewCore_H_
 
-#include <bdn/ViewCore.h>
 #include <bdn/ContainerView.h>
-#include <bdn/Win32WindowClass.h>
+#include <bdn/win32/ViewCore.h>
+#include <bdn/win32/Win32WindowClass.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 class ContainerViewCore : public ViewCore
@@ -40,7 +42,7 @@ protected:
 	
 };
 
-
+}
 }
 
 #endif

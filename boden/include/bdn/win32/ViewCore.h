@@ -1,11 +1,13 @@
-#ifndef BDN_ViewCore_H_
-#define BDN_ViewCore_H_
+#ifndef BDN_WIN32_ViewCore_H_
+#define BDN_WIN32_ViewCore_H_
 
 #include <bdn/View.h>
-#include <bdn/Win32Window.h>
-#include <bdn/Font.h>
+#include <bdn/win32/Win32Window.h>
+#include <bdn/win32/Font.h>
 
 namespace bdn
+{
+namespace win32
 {
 
 /** Base implementation for win32 view cores (see IViewCore).
@@ -126,6 +128,8 @@ protected:
 	P<Font> _pFont;
 };
 
+
+}
 }
 
 #endif
