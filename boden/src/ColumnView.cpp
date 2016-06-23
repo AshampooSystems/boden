@@ -3,9 +3,9 @@
 
 #include <cmath>
 
+
 namespace bdn
 {
-
 
 Size ColumnView::calcPreferredSize() const
 {

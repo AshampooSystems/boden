@@ -14,7 +14,7 @@ class AppLaunchInfo : public Base
 public:
 	AppLaunchInfo()
 	{
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 		_windowsShowCommand = 1; // SW_SHOWNORMAL
 #endif
 	}
@@ -42,7 +42,7 @@ public:
 
 
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 
 	/** Returns the windows show command.
 
@@ -79,7 +79,7 @@ public:
 protected:
 	std::vector<String> _arguments;
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 	int _windowsShowCommand;
 #endif
 

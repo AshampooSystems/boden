@@ -10,20 +10,31 @@
 
 #include <iostream>
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 #include <ShellScalingAPI.h>
 #endif
 
 namespace bdn
 {
     
-	
+
+#if BDN_PLATFORM_WINRT
+
+int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
+						AppControllerBase* pAppController,
+						Platform::Array<Platform::String^>^ argsArray )
+{
+
+#else
 int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 							AppControllerBase* pAppController,
 							int argCount,
 							char* argv[] )
 {
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+
+#endif
+
+#if BDN_PLATFORM_WIN32
 	// we are DPI aware
 	::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 
@@ -42,7 +53,13 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 		std::vector<String> args;
 
-#if BDN_PLATFORM_WEB
+#if BDN_PLATFORM_WINRT
+		for(auto s: argsArray)
+		{
+			args.push_back(s->Data() );
+		}
+
+#elif BDN_PLATFORM_WEB
 		// arguments are URL-escaped
 		for(int i=0; i<argCount; i++)
 			args.push_back( Uri::unescape( String(argv[i]) ) );
@@ -50,7 +67,8 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 		for(int i=0; i<argCount; i++)
 			args.push_back( String::fromLocaleEncoding(argv[i]) );
 #endif
-		if(argCount==0)
+
+		if(args.empty()==0)
 			args.push_back("");	// always add the first entry.
 
 		launchInfo.setArguments(args);
@@ -75,6 +93,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
     
     return result;
 }
+
 
 
 int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo )

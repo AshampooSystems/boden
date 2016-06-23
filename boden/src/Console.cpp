@@ -45,7 +45,7 @@ Console::Console(std::wistream* pIn, std::wostream* pOut, std::wostream* pErr)
 
 void Console::createMissingObjects()
 {
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 
 	// On Windows we use the windows-specific functions instead of the normal stdio
 	// classes. That is because with direct access we can ensure that we always have
@@ -97,7 +97,7 @@ void Console::createMissingObjects()
 #endif
 
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 	// On Windows we do not know if stdout is connected to a terminal.
 	// BUT that does not matter. If it is not a terminal then Windows will simply
 	// ignore the control calls.

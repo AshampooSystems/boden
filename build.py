@@ -17,7 +17,6 @@ EXIT_INCORRECT_CALL = 12;
 
 
 platformList = [ ("winuwp", "Universal Windows app (Windows 10 and later)" ),
-               ("winstore", "Windows Store app (Windows 8.1 and later)" ),
                ("win32", "Classic Windows desktop program (despite the 32 in the name, this also includes 64 bit Windows desktop programs)"),               
                ("dotnet", ".NET program" ),
                ("linux", "Linux" ),

@@ -110,10 +110,20 @@ if( "${BODEN_TARGET}" STREQUAL "dotnet")
 endif()
 
 
-if( "${BODEN_TARGET}" STREQUAL "winstore" )	
-	SET(VS_WINRT_COMPONENT "TRUE")
-endif()
+if( "${BODEN_TARGET}" STREQUAL "winuwp" )	
+	SET(VS_WINRT_COMPONENT TRUE)	
 
+    SET(VS_WINRT_REFERENCES "Windows;Windows.UI.Core")
+
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /ZW")
+
+
+    # by default the windows headers for the UWP platform define
+    # a max macro. And that interferes with std::max. We set a preprocessor
+    # switch to remove the max macro
+    add_definitions( -DNOMINMAX )
+    
+endif()
 
 add_definitions( -DUNICODE -D_UNICODE )
 

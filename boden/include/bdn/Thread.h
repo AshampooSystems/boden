@@ -61,7 +61,12 @@
 
         #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static bdn::pthread::ThreadLocalStoragePtr< objectType >
 
-    #else
+    #elif BDN_PLATFORM_WINRT
+		
+		// XXX not implemented yet. See github issue #7
+		#define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static P<objectType>
+
+	#else
 
         // just use standard C++11 thread_local storage
         #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static thread_local P< objectType >

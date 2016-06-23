@@ -4327,7 +4327,7 @@ struct NoColourImpl : IColourImpl {
 } // namespace bdn
 
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
-#   ifdef BDN_PLATFORM_WINDOWS_CLASSIC
+#   ifdef BDN_PLATFORM_WIN32
 #       define BDN_CONFIG_COLOUR_WINDOWS
 #   elif !defined(BDN_PLATFORM_WEB) && !defined(BDN_PLATFORM_WINDOWS) && !defined(BDN_PLATFORM_IOS)
 #       define BDN_CONFIG_COLOUR_ANSI

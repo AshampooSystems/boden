@@ -276,7 +276,7 @@ protected:
 	};
 
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 
 	class WindowsConsoleWriter : public Base, BDN_IMPLEMENTS IWriter
 	{

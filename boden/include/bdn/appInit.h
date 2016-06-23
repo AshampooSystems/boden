@@ -12,12 +12,20 @@ namespace bdn
 {
     
 
+#if BDN_PLATFORM_WINRT
 
+	int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
+								AppControllerBase* pAppController,
+								Platform::Array<Platform::String^>^ args );
 
-int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
-							AppControllerBase* pAppController,
-							int argCount,
-							char* argv[] );
+#else
+	
+	int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
+								AppControllerBase* pAppController,
+								int argCount,
+								char* argv[] );
+
+#endif
 
 
 template<class ControllerType = CommandLineAppController>
@@ -30,10 +38,14 @@ inline P<ControllerType> _createCommandLineAppController()
 int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 	int _uiAppMain(AppControllerBase* pAppController, int showCommand);
 
-#else 
+#elif BDN_PLATFORM_WINRT
+
+	int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args);
+
+#else
 	int _uiAppMain( AppControllerBase* pAppController,
 					int argCount,
 					char* argv[] );
@@ -67,7 +79,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
     \endcode
  
  */
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 
     // the main function must be WinMain. Also, we do not get commandlinnewe
 	// arguments in a suitable form as a function argument (lpCmdLine is not
@@ -78,7 +90,15 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
     #define BDN_INIT_UI_APP( appControllerClass )  \
 		int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 		{ \
-			bdn::_uiAppMain( bdn::newObj<appControllerClass>(), showCommand); \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), showCommand); \
+		}
+
+#elif BDN_PLATFORM_WINRT
+
+	#define BDN_INIT_UI_APP( appControllerClass )  \
+		int main(Platform::Array<Platform::String^>^ args) \
+		{ \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
 		}
 
 #else
@@ -165,11 +185,23 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
     \endcode
  
     */
-#define BDN_INIT_COMMANDLINE_APP(appFunc, ... ) \
+#if BDN_PLATFORM_WINRT
+
+	#define BDN_INIT_COMMANDLINE_APP( appFunc, ... )  \
+		int main(Platform::Array<Platform::String^>^ args) \
+		{ \
+			return bdn::_commandLineAppMain(appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>(), args); \
+		}
+
+#else
+
+	#define BDN_INIT_COMMANDLINE_APP(appFunc, ... ) \
 		int main(int argc, char* argv[]) \
 		{ \
-			bdn::_commandLineAppMain(appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>(), argc, argv); \
+			return bdn::_commandLineAppMain(appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>(), argc, argv); \
 		}
+
+#endif
 
 
 
@@ -188,7 +220,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 	from a graphical app like Windows Explorer.
  
  */
-#if BDN_PLATFORM_WINDOWS_CLASSIC
+#if BDN_PLATFORM_WIN32
 
 	// the entry function must be called main on Windows as well.
 	// But the _uiAppMain has a different signature on Windows, so we
@@ -198,6 +230,14 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		int main(int argc, char* argv[]) \
 		{ \
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), 1 /*SW_SHOWNORMAL*/ ); \
+		}
+
+#elif BDN_PLATFORM_WINRT
+
+#define BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass )  \
+		int main(Platform::Array<Platform::String^>^ args) \
+		{ \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
 		}
 
 #else
