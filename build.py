@@ -541,7 +541,7 @@ def commandPrepare(commandArgs):
                 toolChainFileName = "Emscripten.cmake";
 
             elif platform=="android":
-                toolChainFileName = "android.cmake";
+                toolChainFileName = "android.toolchain.cmake";
 
                 if arch!="std":
                     args.extend( ['-DANDROID_ABI='+arch ] );
