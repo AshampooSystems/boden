@@ -510,7 +510,7 @@ protected:
 	void initProperty( Property<ValueType>& prop )
 	{	
 		_propertySubs.emplace_front();
-		prop.onChange().subscribeMember<View>( _propertySubs.front(), this, &View::propertyChanged<ValueType, CoreInterfaceType, Func> );
+		prop.onChange().template subscribeMember<View>( _propertySubs.front(), this, &View::propertyChanged<ValueType, CoreInterfaceType, Func> );
 	}
 
 	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*Func)(const ValueType&) >	
