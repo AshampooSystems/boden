@@ -83,6 +83,8 @@ public:
 		layout takes into account.
 
 		It is recommended to specify the margin in UiLength::sem units.
+
+		The default margin is 0.
 	*/
 	virtual Property<UiMargin>& margin()
 	{
@@ -101,6 +103,8 @@ public:
 		the view (in contrast to the margin(), which is NOT part of the view).
 
 		It is recommended to specify the padding in UiLength::sem units.
+
+		The default padding is 0.
 	*/
 	virtual Property<UiMargin>& padding()
 	{
@@ -113,7 +117,11 @@ public:
 	}
 
 
-	/** Bounding rectangle of the view (size and position).*/
+	/** Bounding rectangle of the view (size and position).
+	
+		The default bounds for a newly constructed view are always position 0,0, size 0x0.
+		The bounds are usually set automatically by the parent view's layout routine.
+	*/
 	virtual Property<Rect>& bounds()
 	{
 		return _bounds;
@@ -127,22 +135,30 @@ public:
 	
 
 	enum class HorizontalAlignment
-	{
-		expand,
+	{			
 		left,
 		center,
-		right		
+		right,
+		/** Expand the view to the full available width.*/
+		expand
 	};
 
 	enum class VerticalAlignment
 	{
-		expand,
 		top,
 		bottom,
-		middle
+		middle,		
+		/** Expand the view to the full available height.*/
+		expand
 	};
 
 
+	/** Controls how the view is arranged vertically if
+		there is additional vertical free space. Parent view containers can ignore this setting
+		if it does not make sense in their context.		
+
+		The default alignment is View::VerticalAlignment::top.
+		*/
 	virtual Property<VerticalAlignment>& verticalAlignment()
 	{
 		return _verticalAlignment;
@@ -154,6 +170,12 @@ public:
 	}
 
 
+	/** Controls how the view is arranged horizontally if
+		there is additional horizontal free space. Parent view containers can ignore this setting
+		if it does not make sense in their context.		
+
+		The default alignment is View::HorizontalAlignment::left.
+		*/
 	virtual Property<HorizontalAlignment>& horizontalAlignment()
 	{
 		return _horizontalAlignment;

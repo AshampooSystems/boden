@@ -5535,12 +5535,18 @@ std::string toString( NSObject* const& nsObject ) {
 
 std::string toString( const Size& size)
 {
-	return toString(size.width)+" x "+toString(size.height);
+	return "("+toString(size.width)+" x "+toString(size.height)+")";
 }
 
 std::string toString( const Rect& rect)
 {
-	return toString(rect.x)+", "+toString(rect.y)+" "+toString(rect.width)+"x"+toString(rect.height);
+	return "("+toString(rect.x)+", "+toString(rect.y)+";"+toString(rect.width)+" x "+toString(rect.height)+")";
+}
+
+
+std::string toString( const Margin& margin)
+{
+	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
 }
 
 } // end namespace bdn

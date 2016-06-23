@@ -73,16 +73,6 @@ public:
 	}
 
 
-	bool operator==(const UiMargin& o) const
-	{
-		return (top==o.top && right==o.right && bottom==o.bottom && left==o.left);
-	}
-
-	bool operator!=(const UiMargin& o) const
-	{
-		return !operator==(o);
-	}
-
 	UiLength top;
 	UiLength right;
 	UiLength bottom;
@@ -90,6 +80,20 @@ public:
 };
 
 
+}
+
+
+inline bool operator==(const bdn::UiMargin& a, const bdn::UiMargin& b)
+{
+	return (a.top==b.top
+			&& a.right==b.right
+			&& a.bottom==b.bottom
+			&& a.left==b.left);
+}
+
+inline bool operator!=(const bdn::UiMargin& a, const bdn::UiMargin& b)
+{
+	return !operator==(a, b);
 }
 
 

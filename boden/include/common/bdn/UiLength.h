@@ -152,21 +152,24 @@ public:
 	}
 
 
-	bool operator==(const UiLength& o) const
-	{
-		return (unit==o.unit && value==o.value);
-	}
-
-	bool operator!=(const UiLength& o) const
-	{
-		return !operator==(o);
-	}
-
+	
 	Unit	unit;	
 	double	value;	
 };
 
 
+}
+
+
+inline bool operator==(const bdn::UiLength& a, const bdn::UiLength& b)
+{
+	return (a.unit==b.unit
+			&& a.value==b.value);
+}
+
+inline bool operator!=(const bdn::UiLength& a, const bdn::UiLength& b)
+{
+	return !operator==(a, b);
 }
 
 

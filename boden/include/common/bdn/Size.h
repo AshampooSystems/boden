@@ -89,22 +89,22 @@ public:
 
 		return *this;
 	}
-
-
-	bool operator==(const Size& o) const
-	{
-		return (width==o.width && height==o.height);
-	}
-
-	bool operator!=(const Size& o) const
-	{
-		return !operator==(o);
-	}
-
 	
 };
 
 
+}
+
+
+inline bool operator==(const bdn::Size& a, const bdn::Size& b)
+{
+	return (a.width==b.width
+			&& a.height==b.height);
+}
+
+inline bool operator!=(const bdn::Size& a, const bdn::Size& b)
+{
+	return !operator==(a, b);
 }
 
 

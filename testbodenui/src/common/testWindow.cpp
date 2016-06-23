@@ -517,11 +517,28 @@ TEST_CASE("Window", "[ui]")
 		REQUIRE( pCore->_parentViewChangeCount==0 );
 		REQUIRE( pCore->_titleChangeCount==0 );
 
-		// windows should be invisible initially
+		// windows should not be visible initially
 		REQUIRE( !pWindow->visible() );
 
-		REQUIRE( pWindow->title() == "");		
+		REQUIRE( pWindow->bounds() == Rect(0,0,0,0) );
+		REQUIRE( pWindow->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+		REQUIRE( pWindow->padding() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+
+		REQUIRE( pWindow->horizontalAlignment() == View::HorizontalAlignment::left );
+		REQUIRE( pWindow->verticalAlignment() == View::VerticalAlignment::top );
+
+		REQUIRE( pWindow->getUiProvider().getPtr() == pUiProvider);
+
 		REQUIRE( pWindow->getParentView()==nullptr );
+
+		REQUIRE( pWindow->getViewCore().getPtr() == pCore );
+
+		REQUIRE( pWindow->title() == "");
+
+		std::list< P<View> > childViews;
+		pWindow->getChildViews(childViews);
+		REQUIRE( childViews.empty() );
+		
 
 		// sizing info should not yet have been updated. It should
 		// update asynchronously, so that multiple property
@@ -698,6 +715,85 @@ TEST_CASE("Window", "[ui]")
 			SECTION("sizingInfo")
 				testSizingWithContentView( pWindow, pUiProvider, [pWindow](){ return pWindow->sizingInfo().get().preferredSize; } );
 		}
+	}
+
+	SECTION("autoSize")
+	{
+		SECTION("mainThread")
+		{
+			pWindow->requestAutoSize();
+		}
+
+		SECTION("otherThread")
+		{
+			Thread::exec(
+				[pWindow]()
+				{
+					pWindow->requestAutoSize();				
+				} )
+				.get(); // wait for thread to finish.
+		}
+
+
+		// auto-sizing is ALWAYS done asynchronously, no matter
+		// which thread the request is coming from.
+		// So nothing should have happened yet.
+
+		REQUIRE( pWindow->bounds() == Rect(0,0,0,0) );
+
+		MAKE_ASYNC_TEST(10);
+
+		asyncCallFromMainThread(
+			[pWindow]()
+			{
+				REQUIRE( pWindow->bounds() == Rect(0,0, 100, 32) );
+
+				END_ASYNC_TEST();
+			}
+			);		
+	}
+
+
+
+	SECTION("center")
+	{
+		pWindow->bounds() = Rect(0, 0, 200, 200);
+
+		SECTION("mainThread")
+		{
+			pWindow->requestCenter();
+		}
+
+		SECTION("otherThread")
+		{
+			Thread::exec(
+				[pWindow]()
+				{
+					pWindow->requestCenter();				
+				} )
+				.get(); // wait for thread to finish.
+		}
+
+		// centering is ALWAYS done asynchronously, no matter
+		// which thread the request is coming from.
+		// So nothing should have happened yet.
+
+		REQUIRE( pWindow->bounds() == Rect(0, 0, 200, 200) );
+
+		MAKE_ASYNC_TEST(10);
+
+		asyncCallFromMainThread(
+			[pWindow]()
+			{
+				// the work area of our mock window is 100,100 800x800
+				REQUIRE( pWindow->bounds() == Rect(	100 + (800-200)/2,
+													100 + (800-200)/2,
+													200,
+													200) );
+
+				END_ASYNC_TEST();
+			}
+			);		
 	}
 		
 }

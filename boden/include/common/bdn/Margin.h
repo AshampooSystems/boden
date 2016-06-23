@@ -6,7 +6,12 @@ namespace bdn
 	
 
 /** Represents the size of a margin or border.
-	
+
+	When margin components are listed individually (for example in a constructor)
+	then their order is always the same as the order of the numbers on a clock:
+	top, right, bottom, left
+
+	This is also the same order that is used in the CSS standard.	
 	*/
 struct Margin
 {
@@ -53,6 +58,19 @@ public:
 
 }
 
+
+inline bool operator==(const bdn::Margin& a, const bdn::Margin& b)
+{
+	return (a.top==b.top
+			&& a.right==b.right
+			&& a.bottom==b.bottom
+			&& a.left==b.left);
+}
+
+inline bool operator!=(const bdn::Margin& a, const bdn::Margin& b)
+{
+	return !operator==(a, b);
+}
 
 #endif
 

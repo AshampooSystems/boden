@@ -43,8 +43,8 @@ public:
 	/** Decrease the rect size by subtracting the specified margin.*/
 	Rect& operator-=(const Margin& margin)
 	{
-		x -= margin.left;
-		y -= margin.top;
+		x += margin.left;
+		y += margin.top;
 		width -= margin.left + margin.right;
 		height -= margin.top + margin.bottom;
 
@@ -61,25 +61,32 @@ public:
 	/** Increase the rect size by adding the specified margin.*/
 	Rect& operator+=(const Margin& margin)
 	{
-		x += margin.left;
-		y += margin.top;
+		x -= margin.left;
+		y -= margin.top;
 		width += margin.left + margin.right;
 		height += margin.top + margin.bottom;
+
+		return *this;
 	}
 
-
-	bool operator==(const Rect& o) const
-	{
-		return (x==o.x && y==o.y && width==o.width && height==o.height);
-	}
-
-	bool operator!=(const Rect& o) const
-	{
-		return !operator==(o);
-	}
+	
 };
 
 
+}
+
+
+inline bool operator==(const bdn::Rect& a, const bdn::Rect& b)
+{
+	return (a.x==b.x
+			&& a.y==b.y
+			&& a.width==b.width
+			&& a.height==b.height);
+}
+
+inline bool operator!=(const bdn::Rect& a, const bdn::Rect& b)
+{
+	return !operator==(a, b);
 }
 
 

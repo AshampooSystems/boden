@@ -38,6 +38,7 @@ public:
 	virtual Notifier< const ReadProperty<ValType>& >& onChange() const=0;
 
 
+
 };
 
 }

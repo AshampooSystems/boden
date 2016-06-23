@@ -1600,6 +1600,7 @@ std::string toString( std::nullptr_t );
 
 std::string toString( const Size& size);
 std::string toString( const Rect& rect);
+std::string toString( const Margin& margin);
 
 
 namespace Detail {
