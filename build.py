@@ -546,6 +546,8 @@ def commandPrepare(commandArgs):
                 if arch!="std":
                     args.extend( ['-DANDROID_ABI='+arch ] );
 
+                args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
+
 
             elif platform=="dotnet":
                 args.extend( ['-DBODEN_PLATFORM=dotnet' ] );

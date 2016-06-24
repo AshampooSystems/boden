@@ -45,6 +45,9 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 	int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args);
 
+#elif BDN_PLATFORM_ANDROID
+	// no main function
+
 #else
 	int _uiAppMain( AppControllerBase* pAppController,
 					int argCount,
@@ -98,7 +101,25 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 	#define BDN_INIT_UI_APP( appControllerClass )  \
 		int main(Platform::Array<Platform::String^>^ args) \
 		{ \
-			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \	
+		}
+
+#elif BDN_PLATFORM_ANDROID
+
+	#define BDN_INIT_UI_APP( appControllerClass )  \
+		namespace bdn  \
+		{  \
+			namespace android  \
+			{  \
+				bdn::P<bdn::AppControllerBase> _createAppController() \
+				{ \
+					return bdn::newObj<appControllerClass>(); \
+				}  \
+				std::function<int(const AppLaunchInfo&)> _getAppFunc()  \
+				{  \
+					return std::function<int(const AppLaunchInfo&)>();
+				} \
+			}  \
 		}
 
 #else
@@ -112,7 +133,6 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		}
 
 #endif
-
 
 
 
@@ -162,7 +182,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 	#include <bdn/CommandLineAppController.h>
   
-    int myApp(const Array<String>& args)
+    int myApp(const AppLaunchInfo& launchInfo)
     {
         ... do stuff. 
 		
@@ -191,6 +211,24 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		int main(Platform::Array<Platform::String^>^ args) \
 		{ \
 			return bdn::_commandLineAppMain(appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>(), args); \
+		}
+
+#elif BDN_PLATFORM_ANDROID
+
+	#define BDN_INIT_COMMANDLINE_APP( appFunc, ... )  \
+		namespace bdn  \
+		{  \
+			namespace android  \
+			{  \
+				bdn::P<bdn::AppControllerBase> _createAppController() \
+				{ \
+					return bdn::_createCommandLineAppController<__VA_ARGS__>(); \
+				}  \
+				std::function<int(const AppLaunchInfo&)> _getAppFunc()  \
+				{  \
+					return appFunc;  \
+				} \
+			}  \
 		}
 
 #else
@@ -239,6 +277,12 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		{ \
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
 		}
+
+
+#elif BDN_PLATFORM_ANDROID
+
+#define BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass )  \
+		BDN_INIT_UI_APP(appControllerClass);
 
 #else
 

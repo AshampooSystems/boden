@@ -12,6 +12,7 @@
 #include <list>
 #include <locale>
 #include <algorithm>
+#include <string>
 
 
 namespace bdn
