@@ -70,19 +70,11 @@ public:
 	}
 
 protected:
-    struct AllocationInfo : public Base
-    {
-        bool allocatedWithNew = false;
-    };
-    
-	static bool& getAllocatedWithNewRef()
+    static bool& getAllocatedWithNewRef()
 	{
-        BDN_STATIC_THREAD_LOCAL_PTR( AllocationInfo ) pAllocationInfo;
+        BDN_STATIC_THREAD_LOCAL( bool, allocatedWithNew );
         
-        if(pAllocationInfo==nullptr)
-            pAllocationInfo = newObj<AllocationInfo>();
-        
-        return pAllocationInfo->allocatedWithNew;
+        return allocatedWithNew;
 	}
 };
 

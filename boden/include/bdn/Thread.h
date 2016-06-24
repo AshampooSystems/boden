@@ -15,22 +15,48 @@
 
 
 
-/** \def BDN_STATIC_THREAD_LOCAL_PTR( objectType )
+/** \def BDN_STATIC_THREAD_LOCAL( varType, varName )
 
-    Creates a static pointer with thread-local storage. That means that each thread has its own pointer
-    value.
+    Creates a static thread local variable. Thread local means that each thread has its own instance of the variable.
+ 
     This can be used to store thread-specific data.
     
-    objectType is the class object the object that the pointer points to. It must be derived from #Base.
+    varType is the type of the variable and varName the name.
     
-    Initially the pointer object will be null in each thread. The most common way to use it is to first check
-    if the pointer is null and if it is then allocate a new object and store it in the pointer.
+    varType can be any C++ type (class, struct, int, ...). When the variable is first accessed in a thread
+    then the object is default-constructed. If it is a class or struct then its default-constructor (without parameters)
+    is used. If it is a simple type like int then the value is the default-constructed value of the type. For numbers
+    that is 0. For pointers the value is nullptr.
     
-    The objects will be released when the thread exits.
+    The variable is destroyed when the thread exits.
+    
+    
+    IMPORTANT: on some platforms the variable might actually be a wrapper object that wraps accesses
+    and forwards them to the actual object. The wrapper object will support assigning new values with
+    the = operator and comparing the variable with the == and != operators. It will also be implicitly
+    convertible to the value.
+    However, if varType is a C++ type then you cann call member methods directly on the variable.
+    If you need to do that then you should first convert the thread local object to a C++ reference.
+    See the example below
+ 
     
     Example:
     
     \code
+    
+    // Example using a simple type
+    static int threadLocalAdd( int valueToAdd)
+    {
+        BDN_STATIC_THREAD_LOCAL( int, myInt );
+        
+        // when this is first called in a thread then myInt will be 0.
+        
+        myInt += valueToAdd;
+        
+        return myInt;
+    }
+    
+    // Example using a smart pointer
     
     class MyThreadLocalData : public Base
     {
@@ -39,14 +65,42 @@
     
     static P<MyThreadLocalData> getMyThreadLocalData()
     {
-        BDN_STATIC_THREAD_LOCAL_PTR( MyThreadLocalData ) pData;
+        BDN_STATIC_THREAD_LOCAL( P<MyThreadLocalData>, pThreadLocal );
         
-        if( pData == nullptr )
-            pData = newObj<MyThreadLocalData>();
+        // the pointer will be null when the function is first called in a thread.
+        if( pThreadLocal == nullptr )
+            pThreadLocal = newObj<MyThreadLocalData>();
             
-        return pData;
+        return pThreadLocal;
     }
     
+    
+    // Example for calling methods of thread local object
+    
+    class MyData
+    {
+    public:
+        void myMethod();
+    };
+    
+    static void doSomethingWithThreadLocal()
+    {
+        BDN_STATIC_THREAD_LOCAL( MyData, myData );
+        
+        // myData.myMethod() will NOT work on all platforms (since myData might actually be a wrapper object).
+
+        // So we have to do it like this:
+        ((MyData&)myData).myMethod();
+        
+        // or like this
+        MyData& ref = myData;
+        ref.myMethod();
+    }
+ 
+  }
+
+ 
+ 
     \endcode
 */
 
@@ -57,26 +111,26 @@
 
         // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
         // a workaround here.
-        #include <bdn/pthread/ThreadLocalStoragePtr.h>
+        #include <bdn/pthread/ThreadLocalStorage.h>
 
-        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static bdn::pthread::ThreadLocalStoragePtr< objectType >
+        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static bdn::pthread::ThreadLocalStorage< varType > varName;
 
     #elif BDN_PLATFORM_WINRT
 		
 		// XXX not implemented yet. See github issue #7
-		#define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static P<objectType>
+		#define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName = varType();
 
 	#else
 
         // just use standard C++11 thread_local storage
-        #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static thread_local P< objectType >
+        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static thread_local varType varName = varType();
 
     #endif
 
 #else
 
     // we have no threads => thread local is the same as static
-    #define BDN_STATIC_THREAD_LOCAL_PTR( objectType ) static P< objectType >
+    #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName = varType();
 
 #endif
 

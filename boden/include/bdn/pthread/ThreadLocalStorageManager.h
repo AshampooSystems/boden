@@ -22,6 +22,46 @@ namespace pthread
 class ThreadLocalStorageManager : public Base
 {
 public:
+
+    struct ValueHolder
+    {
+        ValueHolder()
+        {
+            _pValue = nullptr;
+            _valueDeleteFunc = nullptr;
+        }
+        
+        ~ValueHolder()
+        {
+            _deleteValue();
+        }
+        
+        void* getValue()
+        {
+            return _pValue;
+        }
+        
+        void assignValue(void* pValue, void (*valueDeleteFunc)(void*) )
+        {
+            _deleteValue();
+            _pValue = pValue;
+            _valueDeleteFunc = valueDeleteFunc;
+        }
+        
+    protected:
+        void _deleteValue()
+        {
+            if(_pValue!=nullptr && _valueDeleteFunc!=nullptr)
+                _valueDeleteFunc(_pValue);
+            
+            _pValue = nullptr;
+            _valueDeleteFunc = nullptr;
+        }
+        
+        void* _pValue;
+        void (*_valueDeleteFunc)(void*);
+    };
+
 	ThreadLocalStorageManager()
     {
         _nextSlotId=0;
@@ -58,13 +98,13 @@ public:
 
 	/** Returns a reference to the thread-local pointer for the specified slot.
         */
-    P<IBase>&	getThreadPtrRef(int slot)
+    ValueHolder&	getThreadValueHolder(int slot)
     {
-        std::unordered_map<int, P<IBase> >* pMap = static_cast< std::unordered_map<int, P<IBase> >* >( pthread_getspecific(_key) );
+        std::unordered_map<int, ValueHolder >* pMap = static_cast< std::unordered_map<int, ValueHolder >* >( pthread_getspecific(_key) );
         
         if(pMap==nullptr)
         {
-            pMap = ::new std::unordered_map<int, P<IBase> >;
+            pMap = ::new std::unordered_map<int, ValueHolder >;
             
             int result = pthread_setspecific(_key, pMap );
             if(result!=0)
@@ -91,7 +131,7 @@ public:
 protected:
     static void _threadExitCleanup(void* pValue)
     {
-        std::unordered_map<int, P<IBase> >* pMap = static_cast< std::unordered_map<int, P<IBase> >* >(pValue);
+        std::unordered_map<int, ValueHolder >* pMap = static_cast< std::unordered_map<int, ValueHolder >* >(pValue);
         
         if(pMap!=nullptr)
             delete pMap;
