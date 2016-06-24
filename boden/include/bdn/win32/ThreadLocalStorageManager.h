@@ -1,18 +1,18 @@
-#ifndef BDN_PTHREAD_ThreadLocalStorageManager_H_
-#define BDN_PTHREAD_ThreadLocalStorageManager_H_
+#ifndef BDN_WIN32_ThreadLocalStorageManager_H_
+#define BDN_WIN32_ThreadLocalStorageManager_H_
 
 #include <bdn/sysError.h>
 
 #include <unordered_map>
 
-#include <pthread.h>
+#include <Windows.h>
 
 namespace bdn
 {
-namespace pthread
+namespace win32
 {
 
-/** Manager for Posix-style thread local storage.
+/** Manager for win32 thread local storage.
 
     IMPORTANT: It is rarely advisable to use this directly. Instead
     you should use the macro #BDN_STATIC_THREAD_LOCAL to create thread-local
@@ -66,19 +66,22 @@ public:
     {
         _nextSlotId=0;
         
-        int result = pthread_key_create(&_key, &ThreadLocalStorageManager::_threadExitCleanup);
-        if(result!=0)
+		// we use FlsAlloc instead of TlsAlloc. It has the advantage that we can
+		// pass a cleanup callback. When no fibers are used then it behaves exactly like
+		// TlsAlloc (plus the cleanup). When fibers are used then the storage will be fiber-local,
+		// which is an added benefit.
+        _key = ::FlsAlloc(&ThreadLocalStorageManager::_threadExitCleanup);
+        if(_key == FLS_OUT_OF_INDEXES)
         {
-            throwSysError( result,
-                           ErrorFields().add("func", "pthread_key_create")
-                                        .add("action", "PosixThreadLocalStorageManager constructor") );
+            BDN_throwLastSysError( ErrorFields().add("func", "FlsAlloc")
+                                        .add("action", "ThreadLocalStorageManager constructor") );
         }
     }
     
     
     ~ThreadLocalStorageManager()
     {
-        pthread_key_delete(_key);
+        ::FlsFree(_key);
     }
     
     
@@ -100,18 +103,17 @@ public:
         */
     ValueHolder&	getThreadValueHolder(int slot)
     {
-        std::unordered_map<int, ValueHolder >* pMap = static_cast< std::unordered_map<int, ValueHolder >* >( pthread_getspecific(_key) );
+        std::unordered_map<int, ValueHolder >* pMap = static_cast< std::unordered_map<int, ValueHolder >* >( ::FlsGetValue(_key) );
         
         if(pMap==nullptr)
         {
             pMap = ::new std::unordered_map<int, ValueHolder >;
             
-            int result = pthread_setspecific(_key, pMap );
-            if(result!=0)
+            if(!::FlsSetValue(_key, pMap ))            
             {
-                throwSysError( result,
-                              ErrorFields() .add("func", "pthread_setspecific")
-                                            .add("action", "PosixThreadLocalStorageManager::getThreadPtrRef") );
+                BDN_throwLastSysError( 
+                              ErrorFields() .add("func", "FlsSetValue")
+                                            .add("action", "ThreadLocalStorageManager::getThreadValueHolder") );
                 
             }
         }
@@ -129,7 +131,7 @@ public:
     
 
 protected:
-    static void _threadExitCleanup(void* pValue)
+    static void WINAPI _threadExitCleanup(PVOID pValue)
     {
         std::unordered_map<int, ValueHolder >* pMap = static_cast< std::unordered_map<int, ValueHolder >* >(pValue);
         
@@ -138,7 +140,7 @@ protected:
     }
     
 
-	pthread_key_t       _key;
+	DWORD				_key;
     std::atomic<int>    _nextSlotId;
 };
 

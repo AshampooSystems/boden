@@ -222,7 +222,7 @@ endif()
 # testboden
 
 set( TESTBODEN_SRCDIR "../testboden/src")
-file( GLOB TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h)
+file( GLOB TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.h)
 include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 

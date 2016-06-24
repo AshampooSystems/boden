@@ -37,7 +37,7 @@
     convertible to the value.
     However, if varType is a C++ type then you cann call member methods directly on the variable.
     If you need to do that then you should first convert the thread local object to a C++ reference.
-    See the example below
+    See the example below.
  
     
     Example:
@@ -90,11 +90,7 @@
         // myData.myMethod() will NOT work on all platforms (since myData might actually be a wrapper object).
 
         // So we have to do it like this:
-        ((MyData&)myData).myMethod();
-        
-        // or like this
-        MyData& ref = myData;
-        ref.myMethod();
+        ((MyData&)myData).myMethod();        
     }
  
   }
@@ -117,20 +113,26 @@
 
     #elif BDN_PLATFORM_WINRT
 		
-		// XXX not implemented yet. See github issue #7
-		#define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName = varType();
+		// on WinRT the thread local keyword does not work with objects that have a destructor.
+		// So we use the manual implementation here. Note that we can use the one for the win32
+		// API, as those parts of the API are supported on WinRT.
+		#include <bdn/win32/ThreadLocalStorage.h>
+
+		#define BDN_STATIC_THREAD_LOCAL( varType, varName ) static bdn::win32::ThreadLocalStorage< varType > varName;
 
 	#else
 
-        // just use standard C++11 thread_local storage
-        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static thread_local varType varName = varType();
+        // just use standard C++11 thread_local storage.
+		// Note that thread local simple type objects automatically get zero-initialized by the compiler.
+        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static thread_local varType varName;
 
     #endif
 
 #else
 
     // we have no threads => thread local is the same as static
-    #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName = varType();
+	// Note that static simple type objects automatically get zero-initialized by the compiler.
+    #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName;
 
 #endif
 
