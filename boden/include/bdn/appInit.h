@@ -99,6 +99,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #elif BDN_PLATFORM_WINRT
 
 	#define BDN_INIT_UI_APP( appControllerClass )  \
+		[Platform::MTAThread] \
 		int main(Platform::Array<Platform::String^>^ args) \
 		{ \
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \	

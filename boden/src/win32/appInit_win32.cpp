@@ -26,24 +26,11 @@ int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 
 		// commandline arguments
 
-		const wchar_t* commandLine = ::GetCommandLineW();
+		std::vector<String> args = parseWin32CommandLine( ::GetCommandLineW() );
 
-		int argCount=0;
-		wchar_t** argPtrs = ::CommandLineToArgvW(commandLine, &argCount);
-		if( argPtrs==NULL )
-		{
-			BDN_throwLastSysError( ErrorFields().add("func", "CommandLineToArgvW")
-												.add("context", "commandline parsing at app start") );
-		}
-
-		std::vector<String> args;
-		for(int i=0; i<argCount; i++)
-			args.push_back( argPtrs[i] );
-		if(argCount==0)
+		if(args.empty())
 			args.push_back("");	// always add the first entry.
-
-		::LocalFree(argPtrs);
-
+		
 		launchInfo.setArguments(args);
 
 

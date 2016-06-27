@@ -8,11 +8,21 @@
 #include <bdn/Uri.h>
 #endif
 
+#if BDN_PLATFORM_WIN32
+#include <bdn/win32/win32Util.h>
+#endif
+
+#if BDN_PLATFORM_WINRT
+#include <Shellapi.h>
+#endif
+
 #include <iostream>
 
 #if BDN_PLATFORM_WIN32
 #include <ShellScalingAPI.h>
 #endif
+
+
 
 namespace bdn
 {
@@ -55,20 +65,59 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 #if BDN_PLATFORM_WINRT
 		for(auto s: argsArray)
-		{
 			args.push_back(s->Data() );
+
+		// WinRT apps do not support commandline arguments (at least not at the time of this writing).
+		// So we let the user enter them programmatically.
+		// Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
+		// commandline instead. But for the moment this works.
+		if(args.empty())
+		{			
+			std::cout << "Please enter commandline parameters and press enter.\nLeave empty and press enter to run with no parameters." << std::endl;
+
+			std::string input;
+			std::getline(std::cin, input );
+
+			String params = String::fromLocaleEncoding(input);
+
+			std::vector<String> argStrings;
+
+			// add an empty entry for the executable name first. We do not know it.
+			argStrings.push_back("");
+
+			while(!params.isEmpty())
+			{
+				char32_t chr = params.front();
+		
+				if(chr==' ')
+					params.erase(params.begin() );
+				else if(chr=='\"')
+				{
+					params.erase(params.begin());
+					argStrings.push_back( params.splitOffToken("\"") );
+				}
+				else
+					argStrings.push_back( params.splitOffToken(" \t") );
+			}
+	
+			for(const String& s: argStrings)
+				args.push_back( s.asUtf8Ptr() );
 		}
+		
+#elif BDN_PLATFORM_WIN32
+		args = parseWin32CommandLine( ::GetCommandLineW() );		
 
 #elif BDN_PLATFORM_WEB
 		// arguments are URL-escaped
 		for(int i=0; i<argCount; i++)
 			args.push_back( Uri::unescape( String(argv[i]) ) );
+
 #else
 		for(int i=0; i<argCount; i++)
 			args.push_back( String::fromLocaleEncoding(argv[i]) );
 #endif
 
-		if(args.empty()==0)
+		if(args.empty())
 			args.push_back("");	// always add the first entry.
 
 		launchInfo.setArguments(args);
@@ -90,6 +139,18 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
     }
     
     pAppController->onTerminate();
+			
+#if BDN_PLATFORM_WINRT
+
+	// we must not exit. Otherwise we will get an error message, stating that the app did not start.
+	// Also, even if we had a way to end without the error message: if we did that then the user would
+	// not be able to see the final text output of the app (since it would disappear immediately).
+	// So ending with a loop seems to be the right thing to do.
+	std::cout << "\nProgram ended (exit code " << result << ")\n" << std::endl;
+	while(true)
+		Thread::sleepSeconds(1);
+
+#endif
     
     return result;
 }
