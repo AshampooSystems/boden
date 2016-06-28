@@ -5306,6 +5306,11 @@ namespace Detail {
 
 const std::string unprintableString = "{?}";
 
+const std::string& getUnprintableString()
+{
+	return unprintableString;
+}
+
 namespace {
 const int hexThreshold = 255;
 

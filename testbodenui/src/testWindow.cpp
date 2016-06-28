@@ -255,7 +255,7 @@ public:
 	}
 
 	
-	Rect getScreenWorkArea()
+	Rect getScreenWorkArea() const
 	{
 		verifyMainThread();
 

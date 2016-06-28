@@ -1605,7 +1605,7 @@ std::string toString( const Margin& margin);
 
 namespace Detail {
 
-    extern const std::string unprintableString;
+    const std::string& getUnprintableString();
 
     struct BorgType {
         template<typename T> BorgType( T const& );
@@ -1632,7 +1632,7 @@ namespace Detail {
              >
     struct EnumStringMaker
     {
-        static std::string convert( T const& ) { return unprintableString; }
+        static std::string convert( T const& ) { return getUnprintableString(); }
     };
 
     template<typename T>
@@ -1656,7 +1656,7 @@ namespace Detail {
         }
 #else
         template<typename T>
-        static std::string convert( T const& ) { return unprintableString; }
+        static std::string convert( T const& ) { return getUnprintableString(); }
 #endif
     };
 
@@ -2270,7 +2270,7 @@ namespace bdn {
             std::string matcherAsString = (matcher).toString(); \
             __catchResult \
                 .setLhs( bdn::toString( arg ) ) \
-                .setRhs( matcherAsString == bdn::Detail::unprintableString ? #matcher : matcherAsString ) \
+                .setRhs( matcherAsString == bdn::Detail::getUnprintableString() ? #matcher : matcherAsString ) \
                 .setOp( "matches" ) \
                 .setResultType( (matcher).match( arg ) ); \
             __catchResult.captureExpression(); \

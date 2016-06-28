@@ -2,10 +2,12 @@
 #include <bdn/appInit.h>
 
 #include <bdn/Thread.h>
+#include <bdn/log.h>
 
 namespace bdn
 {
 	
+#if false
 ref class App sealed : public Windows::ApplicationModel::Core::IFrameworkView
 {
 internal:
@@ -23,7 +25,7 @@ public:
 
 	// IFrameworkView methods
  
-	/** Called when the app is launched.*/
+	// Called when the app is launched.
 	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView)
 	{
 		Thread::_setMainId( Thread::getCurrentId() );
@@ -133,6 +135,90 @@ private:
 	P<AppLaunchInfo>		_pLaunchInfo;
 };
 
+#endif
+
+ref class App sealed :	public ::Windows::UI::Xaml::Application,
+						public ::Windows::UI::Xaml::Markup::IXamlMetadataProvider
+{
+internal:
+	App(AppControllerBase* pAppController, AppLaunchInfo* pLaunchInfo)
+	{	
+		_pAppController = pAppController;
+		_pLaunchInfo = pLaunchInfo;
+
+		InitializeComponent();
+
+		Suspending +=
+			ref new Windows::UI::Xaml::SuspendingEventHandler(this, &App::suspending);
+
+		Resuming +=
+			ref new Windows::Foundation::EventHandler<Object^>(this, &App::resuming);
+	}
+
+public:
+
+	
+	virtual ::Windows::UI::Xaml::Markup::IXamlType^ GetXamlType(::Windows::UI::Xaml::Interop::TypeName type)
+	{	
+		int x=0;
+		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByType(type);
+	}
+
+	virtual ::Windows::UI::Xaml::Markup::IXamlType^ GetXamlType(::Platform::String^ fullName)
+	{
+		int x=0;
+		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByName(fullName);
+	}
+
+	virtual ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>^ GetXmlnsDefinitions()
+	{
+		int x=0;
+		return nullptr;//return ref new ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>(0);
+	}
+
+
+protected:
+
+	virtual void OnLaunched(  Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ pArgs ) override
+	{
+		_pAppController->beginLaunch(*_pLaunchInfo);
+		_pAppController->finishLaunch(*_pLaunchInfo);				
+	}
+
+	void unhandledException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
+	{
+		String errorMessage( pArgs->Message->Data() );
+
+		logError("Unhandled top level exception: "+errorMessage);
+
+#ifdef BDN_DEBUG
+		if (IsDebuggerPresent())
+            __debugbreak();
+#endif
+	}
+	
+	void InitializeComponent()
+	{
+		UnhandledException += ref new ::Windows::UI::Xaml::UnhandledExceptionEventHandler( this, &App::unhandledException );
+	}
+
+	void suspending(Platform::Object^ pSender, Windows::ApplicationModel::SuspendingEventArgs^ pArgs)
+	{
+		_pAppController->onSuspend();
+	}
+
+	void resuming(Platform::Object^ pSender, Platform::Object^ pArgs)
+	{
+		_pAppController->onResume();
+	}
+
+
+
+internal:
+	P<AppControllerBase> _pAppController;
+	P<AppLaunchInfo>	 _pLaunchInfo;
+};
+
 
 int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args)
 {
@@ -152,11 +238,20 @@ int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::Stri
 		argVector.push_back("");
 
 	pLaunchInfo->setArguments(argVector);
+
+	Windows::UI::Xaml::Application::Start(
+		ref new Windows::UI::Xaml::ApplicationInitializationCallback(
+			[pLaunchInfo, pAppController](Windows::UI::Xaml::ApplicationInitializationCallbackParams^ pParams)
+			{
+				ref new App(pAppController, pLaunchInfo);		
+			} ) );
+
+	/*Windows::UI::Xaml::Application^ pApp = Windows::UI::Xaml::Application::Current;
 	
 	auto frameworkViewSource = ref new AppFrameworkViewSource(pAppController, pLaunchInfo);
 
     ::Windows::ApplicationModel::Core::CoreApplication::Run(frameworkViewSource);
-
+	*/
     return 0;
 }
 

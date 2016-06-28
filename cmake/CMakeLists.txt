@@ -13,7 +13,7 @@ SET(BODEN_SUPPORTS_GTK 0)
 
 if(BODEN_TARGET)
 	# do nothing	
-
+	
 else()
 
 	if( IOS )
@@ -70,6 +70,7 @@ message("Boden target is ${BODEN_TARGET}")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
+
 if(CMAKE_COMPILER_IS_GNUCXX
 	OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
 	OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" # clang on non-mac system
@@ -103,6 +104,7 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
+
 
 if( "${BODEN_TARGET}" STREQUAL "dotnet")
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -210,7 +212,27 @@ source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|p
 include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
-add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
+if( "${BODEN_TARGET}" STREQUAL "winuwp" )   
+    # static libraries cannot define Windows Runtime types that are used outside the library.
+    # See https://msdn.microsoft.com/en-us/library/hh771041.aspx
+    # Since we do that (we have at the very least the application object) that means that we have
+    # to create a shared library.
+    add_library(boden SHARED ${BODEN_HEADERS} ${BODEN_SOURCES} )
+
+    # MSVC does not export any symbols from a DLL by default.
+    # Symbols to export must be marked in the source code with
+    # __declspec(dllexport).
+    # All other compilers export everything by default.
+    # Luckily there is a cmake feature to make VSVC behave like
+    # the other compilers. So activate that.
+    set_target_properties( boden PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE )
+    
+else()
+    add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
+
+endif()
+
+set_target_properties( ${targetName} PROPERTIES COMPILE_DEFINITIONS "${_oxProps}" )
 
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 

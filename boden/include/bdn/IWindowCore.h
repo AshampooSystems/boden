@@ -43,7 +43,7 @@ public:
 		That excludes taskbars, sidebars and the like (if they are always visible).
 		The returned rect applies only to the screen that the window is currently on.
 		Other screens can have different window areas.*/
-	virtual Rect getScreenWorkArea()=0;
+	virtual Rect getScreenWorkArea() const=0;
 	
 };
 

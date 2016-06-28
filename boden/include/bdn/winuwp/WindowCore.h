@@ -1,7 +1,10 @@
 #ifndef BDN_WINUWP_WindowCore_H_
 #define BDN_WINUWP_WindowCore_H_
 
+#include <bdn/Window.h>
 #include <bdn/IWindowCore.h>
+#include <bdn/log.h>
+#include <bdn/NotImplementedError.h>
 
 namespace bdn
 {
@@ -11,21 +14,29 @@ namespace winuwp
 class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore
 {
 public:
-	WindowCore(UiProvider* pUiProvider, bool mainView)
+	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
 	{
 		_pUiProvider = pUiProvider;
+		_pOuterWindowWeak = pOuterWindow;
 
 		// the concept of a top level window in a UWP app is an "application view".
 		// Application views are independent of one another.
 		// IMPORTANT: each application view has its own UI thread!
 
-		if(mainView)
+		static bool firstWindowCore = true;
+
+		if(firstWindowCore)
 		{
 			// wrap the existing main view.
+
+			firstWindowCore = false;
+
 			_mainView = true;
 
-			_pAppView = Window::ApplicationModel::Core::CoreApplication::MainView;
+			_pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 			_appViewId = _pAppView->Id;			
+
+			_pWindow = Windows::UI::Xaml::Window::Current;
 		}
 		else
 		{
@@ -33,67 +44,43 @@ public:
 
 			// create a new secondary application view
 
-			CoreApplicationView^ pNewView = Window::ApplicationModel::Core::CoreApplication::CreateNewView();
+			// This is currently untested. Throw an exception for the time being
+			throw NotImplementedError("winuwp::WindowCore not implemented for secondary Window objects.");
+
+			/*_pCoreAppView = Windows::ApplicationModel::Core::CoreApplication::CreateNewView();
 		
 			// initialize the new view. We do that in the new view's new UI thread.
-			auto pInitOp = pNewView->Dispatcher->RunAsync(
-				CoreDispatcherPriority.Normal,
-				[this]()
+			auto pInitOp = _pCoreAppView->Dispatcher->RunAsync(
+				Windows::UI::Core::CoreDispatcherPriority::Normal,
+				ref new Windows::UI::Core::DispatchedHandler( [this]()
 				{
 					_pWindow = Windows::UI::Xaml::Window::Current;
 
-					Frame frame = new Frame();
-					frame.Navigate(typeof(SecondaryPage), null);   
-					Window.Current.Content = frame;
+					// Frame frame = new Frame();
+					// frame.Navigate(typeof(SecondaryPage), null);   
+					// Window.Current.Content = frame;
 					// You have to activate the window in order to show it later.
-					Window.Current.Activate();
+					Windows::UI::Xaml::Window::Current->Activate();
 
-					this->_pAppView = ApplicationView.GetForCurrentView();
+					this->_pAppView =  Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 					this->_appViewId = _pAppView->Id;
-				});
-
+				}) );
 
 			auto initTask = concurrency::create_task(pInitOp);
+
 
 			// wait for the initialization to finish.
 			// If there is an error then we will get an exception here.
 			initTask.get();
 
 			// now the _pAppView and _pAppViewId members are initialized.
+			*/
 		}
 	}
 
 	~WindowCore()
 	{
-		try
-		{
-			if(_mainView)
-			{
-				// do not close the view. The main view must remain.
-			}
-			else
-			{
-				auto pCloseOp = _pAppView->Dispatcher->RunAsync(
-					CoreDispatcherPriority.Normal,
-					[this]()
-					{
-						// close the app view and end its thread.
-						_pAppView->Close();
-					});
-
-
-				auto closeTask = concurrency::create_task(pCloseOp);
-
-				// wait for the initialization to finish.
-				// If there is an error then we will get an exception here.
-				closeTask.get();
-			}			
-		}
-		catch(std::exception& e)
-		{
-			// log and ignore.
-			logError(e, "Exception in WindowCore destructor. Ignoring.")
-		}
+		
 	}
 	
 	void setTitle(const String& title) override
@@ -108,9 +95,13 @@ public:
 		should be.*/
 	Rect getContentArea() override
 	{
-		Windows::Foundation::Rect bounds = _pWindow->bounds;
+		Windows::Foundation::Rect bounds = _pWindow->Bounds;
 		
-		return Rect(bounds.x, bounds.y, bounds.with, bounds.height );
+		return Rect(
+			std::lround(bounds.X),
+			std::lround(bounds.Y),
+			std::lround(bounds.Width),
+			std::lround(bounds.Height) );
 	}
 
 
@@ -142,24 +133,56 @@ public:
 	{
 		if(visible)
 		{		 
-			auto pShowOp = Window::UI::ViewManagement::ApplicationViewSwitcher.TryShowAsStandaloneAsync(_appViewId);
+			auto pShowOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::TryShowAsStandaloneAsync(_appViewId);
 			auto showTask = concurrency::create_task(pShowOp);
 
-			// wait for the operation to finish.
-			bool result = showTask.get();
+			// keep ourselves alive while we do this.
+			P<WindowCore> pThis = this;
 
-			// it may well be that it is not possible to show
-			// another application window. So result may be false.
-			if(!result)
-			{
-				// Todo: we need to throw an exception here that causes the visible
-				// property of the outer window to be set to false again.
-			}
+			showTask.then(
+				[pThis](concurrency::task<bool> previousTask)
+				{
+					try
+					{
+						// it may well be that it is not possible to show
+						// another application window. So result may be false.
+						if(!previousTask.get())
+						{
+							// if we cannot show this as a standalone window then we switch to it.
+							auto pSwitchOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::SwitchAsync( pThis->_appViewId );
+							auto switchTask = concurrency::create_task(pSwitchOp);
+
+							switchTask.then(
+								[pThis](concurrency::task<void> previousTask)
+								{
+									try
+									{
+										previousTask.get();
+									}
+									catch(std::exception& e)
+									{
+										logError(e, "Error showing WindowCore (ApplicationViewSwitcher::SwitchAsync resulted in exception). Ignoring.");
+
+										// since we were unable to show the window we have to correct the value of the visible property.
+										pThis->_pOuterWindowWeak->visible() = false;
+									}
+								} );
+						}
+					}
+					catch(std::exception& e)
+					{
+						logError(e, "Error showing WindowCore (ApplicationViewSwitcher.TryShowAsStandaloneAsync resulted in exception). Ignoring.");
+
+						// since we were unable to show the window we have to correct the value of the visible property.
+						pThis->_pOuterWindowWeak->visible() = false;
+					}				
+				});		
 		}
 		else
 		{
 			// Apparently there is no real way to hide a window (not even a secondary one).
 			// If another window is shown by "switching" then the previous one is automatically hidden.
+			// So we do not do anything here.
 		}
 	}
 	
@@ -178,8 +201,8 @@ public:
 	
 	void setBounds(const Rect& bounds) override
 	{
-		// we cannot control our rect. Windows has control over it.
-		throw RuntimeError();
+		// we cannot control our rect. The OS has the only control over it.
+		throw std::runtime_error("Window bounds cannot be modified by the application.");
 	}
 
 
@@ -228,14 +251,16 @@ public:
 	
 
 protected:
-	bool _mainView;
+	P<UiProvider>	_pUiProvider;
+	bool			_mainView;
+	Window*			_pOuterWindowWeak;
 
-	Window::ApplicationModel::Core::CoreApplicationView^	_pAppView;
-	int														_appViewId;
+	// Windows::ApplicationModel::Core::CoreApplicationView^ _pCoreAppView;
 
-	Windows::UI::Xaml::Window^	pWindow;
+	Windows::UI::ViewManagement::ApplicationView^	_pAppView;
+	int												_appViewId;
 
-	P<UiProvider>				_pUiProvider;
+	Windows::UI::Xaml::Window^	_pWindow;
 };
 
 

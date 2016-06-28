@@ -1,6 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/winuwp/UiProvider.h>
 
+#include <bdn/winuwp/WindowCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -31,12 +32,12 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
         return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
-        return newObj<ButtonCore>( cast<Button>(pView) );
+        return newObj<ButtonCore>( cast<Button>(pView) );*/
     
-    else if(coreTypeName == Window::getWindowCoreTypeName() )
-        return newObj<WindowCore>( cast<Window>(pView) );
+    if(coreTypeName == Window::getWindowCoreTypeName() )
+        return newObj<WindowCore>( this, cast<Window>(pView) );
     
-    else	*/
+	else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 

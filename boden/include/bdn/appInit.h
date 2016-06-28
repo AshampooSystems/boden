@@ -102,7 +102,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		[Platform::MTAThread] \
 		int main(Platform::Array<Platform::String^>^ args) \
 		{ \
-			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \	
+			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
 		}
 
 #elif BDN_PLATFORM_ANDROID

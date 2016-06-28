@@ -8,7 +8,12 @@ namespace bdn
 
 void logError(std::exception& e, const String& info)
 {
-	std::cerr << ("ERROR: "+info+" ("+String(e.what())+")") << std::endl;
+	logError( info + " ("+String(e.what())+")" );
+}
+
+void logError(const String& info)
+{
+	std::cerr << ("ERROR: "+info) << std::endl;
 }
 
 }
