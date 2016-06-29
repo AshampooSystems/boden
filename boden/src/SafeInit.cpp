@@ -7,6 +7,17 @@
 namespace bdn
 {
 
+Mutex& SafeInitBase::getGlobalMutex()
+{
+	// Note that the global mutex itself is NOT constructed in a thread-safe manner.
+	// So if the very first use happens concurrently in two threads then we can get
+	// bad behaviour.
+	// However, our Thread class and App class make sure that the mutex is initialized
+	// as early as possible, and before any threads are started with our functions.
+	static Mutex mutex;
+
+	return mutex;
+}
 
 void SafeInitBase::gotInitError(std::exception& e)
 {

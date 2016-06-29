@@ -20,15 +20,10 @@ class GlobalMessageWindow : public MessageWindowBase
 public:
 	GlobalMessageWindow();
 
-	/** Returns a pointer to the global message window instance. This instance is used
+	/** Returns a reference to the global message window instance. This instance is used
 		to receive messages that are relevant for the app as a whole (like system notifications
 		etc.)*/
-	static P<GlobalMessageWindow> get()
-	{
-		static SafeInit<GlobalMessageWindow> init;
-
-		return init.get();
-	}
+	static GlobalMessageWindow& get();
 	
 	/** Causes the specified callable object to be called from the main thread.
 		The ISimpleCallable::call method of the object will be called from 

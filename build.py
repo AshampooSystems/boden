@@ -638,6 +638,35 @@ def commandPrepare(commandArgs):
                             with open( filePath, "wb") as f:
                                 f.write(data.encode("utf-8"));
 
+            elif platform=="winuwp":
+                # CMake ALWAYS sets the GenerateWindowsMetaData option in Visual Studio project files to false
+                # for executables. This is incorrect for universal Windows Apps and it causes the executable
+                # to crash during the startup process.
+                # Unfortunately there is no way to override this from within the Cmake files, so we are
+                # forced to post-process the generated projects.
+
+                # for name in os.listdir(cmakeBuildDir):
+                #     if name.endswith(".vcxproj"):
+                #         filePath = os.path.join(cmakeBuildDir, name);
+
+                #         with open( filePath, "rb") as f:
+                #             data = f.read().decode("utf-8");
+
+                #         modified = False;
+                #         if "<ConfigurationType>Application</ConfigurationType>" in data and "<GenerateWindowsMetadata>false</GenerateWindowsMetadata>" in data:
+
+                #             print("Modifying %s (changing GenerateWindowsMetaData setting)..." % name);
+                #             data = data.replace("<GenerateWindowsMetadata>false</GenerateWindowsMetadata>", "<GenerateWindowsMetadata>true</GenerateWindowsMetadata>");                            
+
+                #             modified = True;
+
+                #         if modified:
+                #             with open( filePath, "wb") as f:
+                #                 f.write(data.encode("utf-8"));
+                pass;
+
+
+
 
 
 

@@ -9,7 +9,8 @@ void CallFromMainThreadBase_::dispatch()
 {
 	P<ISimpleCallable> pThis = this;
 
-	Windows::UI::Core::CoreWindow::GetForCurrentThread()->Dispatcher->RunAsync(
+
+	Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(
 		Windows::UI::Core::CoreDispatcherPriority::Normal,
 		ref new Windows::UI::Core::DispatchedHandler(
 			[pThis]()

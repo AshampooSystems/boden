@@ -209,7 +209,7 @@ public:
 
 	/** Contructor for an empty string.*/
 	StringImpl()
-		: StringImpl( MainDataType::getEmptyData() )
+		: StringImpl( &MainDataType::getEmptyData() )
 	{
 		_lengthIfKnown = 0;
 	}
@@ -2443,7 +2443,7 @@ public:
 	/** Erases the entire contents of the string. The string becomes an empty string.*/
 	void clear() noexcept
 	{
-		_pData = MainDataType::getEmptyData();
+		_pData = &MainDataType::getEmptyData();
 		_beginIt = _pData->begin();
 		_endIt = _pData->end();
 
@@ -2627,7 +2627,7 @@ public:
 		// That is something that we should avoid, since the move operation is intended to be super-fast and
 		// avoid just this kind of copying.
 
-		moveSource._pData = MainDataType::getEmptyData();
+		moveSource._pData = &MainDataType::getEmptyData();
 		moveSource._beginIt = moveSource._pData->begin();
 		moveSource._endIt = moveSource._pData->end();
 		moveSource._pDataInDifferentEncoding = nullptr;

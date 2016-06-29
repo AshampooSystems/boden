@@ -6,6 +6,14 @@
 
 namespace bdn
 {
+
+
+/** Returns a reference to a thread-local static variable. This is used by
+	RequireNewAlloc to track wether or not an object was allocated with new.
+	*/
+bool& _requireNewAlloc_getThreadLocalAllocatedWithNewRef();
+
+
 	
 /** Wraps a class and adds special code that enforces that instances of the class
 	are only created with new or newObj. 
@@ -42,7 +50,7 @@ class RequireNewAlloc : public BaseType
 public:
 	RequireNewAlloc()
 	{
-		bool&	allocatedWithNewRef = getAllocatedWithNewRef();
+		bool&	allocatedWithNewRef = _requireNewAlloc_getThreadLocalAllocatedWithNewRef();
 
 		// get the current value
 		bool	allocatedWithNew = allocatedWithNewRef;
@@ -64,18 +72,12 @@ public:
 
 	static inline void* operator new(size_t size, Base::RawNew r)
 	{
-		getAllocatedWithNewRef() = true;
+		_requireNewAlloc_getThreadLocalAllocatedWithNewRef() = true;
 
 		return BaseType::operator new(size, r);
 	}
 
-protected:
-    static bool& getAllocatedWithNewRef()
-	{
-        BDN_STATIC_THREAD_LOCAL( bool, allocatedWithNew );
-        
-        return allocatedWithNew;
-	}
+
 };
 
 }

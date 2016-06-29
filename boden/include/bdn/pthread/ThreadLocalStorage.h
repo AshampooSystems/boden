@@ -12,14 +12,14 @@ namespace pthread
     (only available on Posix systems).
     
     IMPORTANT: It is rarely advisable to use this directly. Instead
-    you should use the macro #BDN_STATIC_THREAD_LOCAL to create thread-local
+    you should use the macros #BDN_SAFE_STATIC and #BDN_SAFE_STATIC_THREAD_LOCAL_IMPL to create thread-local
     objects.
     
     The template parameter ValueType can be any C++ type (class, struct, int, ...)
     that is constructible without parameters.
     
     The value object is allocated with new when it is first accessed
-    in a thread. It is deleted with delete when the thread exits.
+    in a thread. It is deleted with deleteOrReleaseRef() when the thread exits.
     
     When the value object is a simple type like int then it is default-initialized.
     For number that means that a new value instance will have the value 0.
@@ -31,7 +31,7 @@ class ThreadLocalStorage
 public:
     ThreadLocalStorage()
     {
-        _slotId = ThreadLocalStorageManager::get()->createSlot();
+        _slotId = ThreadLocalStorageManager::get().createSlot();
     }
     
     
@@ -45,16 +45,23 @@ public:
     }
     
     
-    /** Returns a reference to the value for the current thread.*/
-    ValueType& getValueRef()
+    /** Returns a reference to the value for the current thread.
+		
+		The arguments are optional constructor parameters. If the thread local object
+		for the current thread does not yet exist and must be created then these arguments
+		are passed to the constructor of the object. They are optional (unless the ValueType
+		requires constructor parameters).
+		
+	*/
+	template<class... Arguments>
+    ValueType& getValueRef(Arguments... args)
     {
-        ThreadLocalStorageManager::ValueHolder& holder = ThreadLocalStorageManager::get()->getThreadValueHolder(_slotId);
+        ThreadLocalStorageManager::ValueHolder& holder = ThreadLocalStorageManager::get().getThreadValueHolder(_slotId);
         
         ValueType* pValue = static_cast<ValueType*>( holder.getValue() );
         if(pValue==nullptr)
         {
-            pValue = new ValueType;
-            *pValue = ValueType();
+			pValue = rawNew<ValueType>( std::forward<Arguments>(args)... );
             
             holder.assignValue(pValue, &ThreadLocalStorage::_deleteValue);
         }
@@ -100,7 +107,7 @@ public:
 protected:
     static void _deleteValue(void* pValue)
     {
-        delete static_cast<ValueType*>(pValue);
+		deleteOrReleaseRef( static_cast<ValueType*>(pValue) );
     }
 
     int _slotId;

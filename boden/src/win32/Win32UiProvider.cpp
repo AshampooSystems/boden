@@ -24,6 +24,8 @@ namespace bdn
 namespace win32
 {
 
+BDN_SAFE_STATIC_IMPL( Win32UiProvider, Win32UiProvider::get );
+
 Win32UiProvider::Win32UiProvider()
 {		
 	// the default UI font on Windows changed multiple times over the years.

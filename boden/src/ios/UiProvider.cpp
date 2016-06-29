@@ -20,6 +20,9 @@ namespace bdn
 namespace ios
 {
 
+
+BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
+
 String UiProvider::getName() const
 {
     return "ios";

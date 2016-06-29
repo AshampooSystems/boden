@@ -4,6 +4,21 @@
 #include <bdn/Thread.h>
 #include <bdn/log.h>
 
+#include <bdn/win32/ThreadLocalStorageManager.h>
+#include <bdn/RequireNewAlloc.h>
+
+namespace bdn
+{
+namespace win32
+{
+
+BDN_SAFE_STATIC_IMPL( ThreadLocalStorageManager, ThreadLocalStorageManager::get );
+
+}
+}
+
+
+
 namespace bdn
 {
 	
@@ -28,7 +43,7 @@ public:
 	// Called when the app is launched.
 	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView)
 	{
-		Thread::_setMainId( Thread::getCurrentId() );
+		_mainInit();
 
 		// Register event handlers for app lifecycle. This example includes Activated, so that we
 		// can make the CoreWindow active and start rendering on the window.
@@ -146,6 +161,8 @@ internal:
 		_pAppController = pAppController;
 		_pLaunchInfo = pLaunchInfo;
 
+		_mainInit();
+
 		InitializeComponent();
 
 		Suspending +=
@@ -181,8 +198,21 @@ protected:
 
 	virtual void OnLaunched(  Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ pArgs ) override
 	{
-		_pAppController->beginLaunch(*_pLaunchInfo);
-		_pAppController->finishLaunch(*_pLaunchInfo);				
+		try
+		{
+			_pAppController->beginLaunch(*_pLaunchInfo);
+			_pAppController->finishLaunch(*_pLaunchInfo);				
+		}
+		catch(std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+
+			// we will exit abnormally. Still call onTerminate.
+			_pAppController->onTerminate();
+        
+			// let error through.
+			throw;
+		}
 	}
 
 	void unhandledException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
@@ -223,7 +253,6 @@ internal:
 int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args)
 {
 	P<AppLaunchInfo> pLaunchInfo = newObj<AppLaunchInfo>();
-
 
 	// note: apparently the args array is always empty (there does not seem to be a way
 	// to pass commandline arguments to a universal app from the outside).

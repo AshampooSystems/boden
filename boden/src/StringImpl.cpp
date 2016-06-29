@@ -9,7 +9,11 @@ const size_t StringImplBase::npos;
 const size_t StringImplBase::noMatch;
 const size_t StringImplBase::toEnd;
     
-    
+BDN_SAFE_STATIC_IMPL( Utf8StringData, Utf8StringData::getEmptyData);
+BDN_SAFE_STATIC_IMPL( Utf16StringData, Utf16StringData::getEmptyData);
+BDN_SAFE_STATIC_IMPL( Utf32StringData, Utf32StringData::getEmptyData);
+BDN_SAFE_STATIC_IMPL( WideStringData, WideStringData::getEmptyData);
+
     
 std::string wideToUtf8(const std::wstring& wideString)
 {

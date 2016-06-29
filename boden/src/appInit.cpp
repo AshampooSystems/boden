@@ -26,6 +26,15 @@
 
 namespace bdn
 {
+
+
+void _mainInit()
+{
+	// ensure that the global mutex for safeinit is allocated.
+	SafeInitBase::_ensureReady();
+
+	Thread::_setMainId( Thread::getCurrentId() );	
+}
     
 
 #if BDN_PLATFORM_WINRT
@@ -51,9 +60,9 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 	// the older function would be ::SetProcessDPIAware()
 #endif
 
-	Thread::_setMainId( Thread::getCurrentId() );
+	_mainInit();
 
-    AppControllerBase::_set(pAppController);
+	AppControllerBase::_set(pAppController);
 
 	int result=0;
         

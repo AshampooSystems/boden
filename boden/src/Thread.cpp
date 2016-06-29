@@ -15,6 +15,9 @@ Thread::Thread() noexcept
 
 Thread::Thread( IThreadRunnable* pRunnable )
 {
+	// ensure that our SafeInit global mutex stuff is initialized
+	SafeInitBase::_ensureReady();
+
     _pThreadData = newObj<ThreadData>();
 
     _pThreadData->pRunnable = pRunnable;

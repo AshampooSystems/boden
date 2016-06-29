@@ -6,6 +6,8 @@ namespace bdn
 namespace win32
 {
 
+BDN_SAFE_STATIC_IMPL( ContainerViewCore::ContainerViewCoreClass, ContainerViewCore::ContainerViewCoreClass::get );
+
 ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 	: ViewCore(	pOuter, 
 				ContainerViewCoreClass::get()->getName(),

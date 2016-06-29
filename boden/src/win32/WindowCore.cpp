@@ -12,6 +12,9 @@ namespace bdn
 namespace win32
 {
 
+BDN_SAFE_STATIC_IMPL( WindowCore, WindowCore::get );
+
+
 WindowCore::WindowCore(Window* pWindow)
 	: ViewCore(	pWindow,
 				WindowCoreClass::get()->getName(),

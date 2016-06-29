@@ -12,6 +12,9 @@ namespace bdn
 {
     
 
+/** Performs common global initialization that should be done at the start of every program.*/
+void _mainInit();
+
 #if BDN_PLATFORM_WINRT
 
 	int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
@@ -99,8 +102,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #elif BDN_PLATFORM_WINRT
 
 	#define BDN_INIT_UI_APP( appControllerClass )  \
-		[Platform::MTAThread] \
-		int main(Platform::Array<Platform::String^>^ args) \
+		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), args); \
 		}

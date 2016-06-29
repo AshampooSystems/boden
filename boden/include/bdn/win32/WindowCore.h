@@ -46,12 +46,7 @@ protected:
 			ensureRegistered();			
 		}
 
-		static P<WindowCoreClass> get()
-		{
-			static SafeInit<WindowCoreClass> init;
-
-			return init.get();
-		}		
+		static WindowCoreClass& get();
 	};
 
 	void initUiScaleFactor();

@@ -124,6 +124,23 @@
 #endif
 
 
+// The C++11 standard requires that local static variables
+// must be initialized in a thread-safe manner (so that they are
+// constructed exactly once). This feature is also called "magic statics"
+// by some.
+
+#if defined(_MSC_VER) && _MSC_VER<1700
+// Visual Studio versions before 2015 did not support the thread
+// safe static requirement.
+#define BDN_COMPILER_STATIC_CONSTRUCTION_THREAD_SAFE 0
+
+#else
+// since the standard demands this, we assume that statics are safe by default.
+#define BDN_COMPILER_STATIC_CONSTRUCTION_THREAD_SAFE 1
+#endif
+
+
+
 #endif
 
 

@@ -23,6 +23,9 @@
 #define BDN_APPEND_LINE(baseName) BDN_APPEND_LINE_IMPL_3(baseName, __LINE__)
 
 
+
+
+
 #include <bdn/IBase.h>
 #include <bdn/P.h>
 #include <bdn/Base.h>
@@ -45,5 +48,7 @@
 #include <bdn/SystemError.h>
 
 #include <bdn/cast.h>
+
+#include <bdn/safeStatic.h>
 
 #endif

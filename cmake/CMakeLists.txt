@@ -390,7 +390,13 @@ IF ( APPLE )
 endif()
 
 
+
 add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
+
+if( BODEN_TARGET STREQUAL "winuwp")
+    set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS  "/OPT:NOREF /OPT:NOICF /DEBUG:FASTLINK")
+endif()
+
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file

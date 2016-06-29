@@ -17,15 +17,8 @@ public:
     String getName() const override;
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
-
-
-    static P<UiProvider> get()
-    {
-        static SafeInit<UiProvider> init;
-        
-        return init.get();
-    }
-
+	
+    static UiProvider& get();
 };
 
 }

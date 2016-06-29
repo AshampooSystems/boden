@@ -33,12 +33,7 @@ protected:
 			ensureRegistered();
 		}
 		
-		static P<MessageWindowClass> get()
-		{
-			static SafeInit<MessageWindowClass> init;
-
-			return init.get();
-		}
+		static MessageWindowClass& get();
 
 	};
 	friend class MessageWindowClass;

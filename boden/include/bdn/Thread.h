@@ -14,130 +14,6 @@
 #include <bdn/ThreadDetachedError.h>
 
 
-
-/** \def BDN_STATIC_THREAD_LOCAL( varType, varName )
-
-    Creates a static thread local variable. Thread local means that each thread has its own instance of the variable.
- 
-    This can be used to store thread-specific data.
-    
-    varType is the type of the variable and varName the name.
-    
-    varType can be any C++ type (class, struct, int, ...). When the variable is first accessed in a thread
-    then the object is default-constructed. If it is a class or struct then its default-constructor (without parameters)
-    is used. If it is a simple type like int then the value is the default-constructed value of the type. For numbers
-    that is 0. For pointers the value is nullptr.
-    
-    The variable is destroyed when the thread exits.
-    
-    
-    IMPORTANT: on some platforms the variable might actually be a wrapper object that wraps accesses
-    and forwards them to the actual object. The wrapper object will support assigning new values with
-    the = operator and comparing the variable with the == and != operators. It will also be implicitly
-    convertible to the value.
-    However, if varType is a C++ type then you cann call member methods directly on the variable.
-    If you need to do that then you should first convert the thread local object to a C++ reference.
-    See the example below.
- 
-    
-    Example:
-    
-    \code
-    
-    // Example using a simple type
-    static int threadLocalAdd( int valueToAdd)
-    {
-        BDN_STATIC_THREAD_LOCAL( int, myInt );
-        
-        // when this is first called in a thread then myInt will be 0.
-        
-        myInt += valueToAdd;
-        
-        return myInt;
-    }
-    
-    // Example using a smart pointer
-    
-    class MyThreadLocalData : public Base
-    {
-        ...
-    };
-    
-    static P<MyThreadLocalData> getMyThreadLocalData()
-    {
-        BDN_STATIC_THREAD_LOCAL( P<MyThreadLocalData>, pThreadLocal );
-        
-        // the pointer will be null when the function is first called in a thread.
-        if( pThreadLocal == nullptr )
-            pThreadLocal = newObj<MyThreadLocalData>();
-            
-        return pThreadLocal;
-    }
-    
-    
-    // Example for calling methods of thread local object
-    
-    class MyData
-    {
-    public:
-        void myMethod();
-    };
-    
-    static void doSomethingWithThreadLocal()
-    {
-        BDN_STATIC_THREAD_LOCAL( MyData, myData );
-        
-        // myData.myMethod() will NOT work on all platforms (since myData might actually be a wrapper object).
-
-        // So we have to do it like this:
-        ((MyData&)myData).myMethod();        
-    }
- 
-  }
-
- 
- 
-    \endcode
-*/
-
-#if BDN_HAVE_THREADS
-
-
-    #if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
-
-        // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
-        // a workaround here.
-        #include <bdn/pthread/ThreadLocalStorage.h>
-
-        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static bdn::pthread::ThreadLocalStorage< varType > varName;
-
-    #elif BDN_PLATFORM_WINRT
-		
-		// on WinRT the thread local keyword does not work with objects that have a destructor.
-		// So we use the manual implementation here. Note that we can use the one for the win32
-		// API, as those parts of the API are supported on WinRT.
-		#include <bdn/win32/ThreadLocalStorage.h>
-
-		#define BDN_STATIC_THREAD_LOCAL( varType, varName ) static bdn::win32::ThreadLocalStorage< varType > varName;
-
-	#else
-
-        // just use standard C++11 thread_local storage.
-		// Note that thread local simple type objects automatically get zero-initialized by the compiler.
-        #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static thread_local varType varName;
-
-    #endif
-
-#else
-
-    // we have no threads => thread local is the same as static
-	// Note that static simple type objects automatically get zero-initialized by the compiler.
-    #define BDN_STATIC_THREAD_LOCAL( varType, varName ) static varType varName;
-
-#endif
-
-
-
 namespace bdn
 {
     
@@ -530,8 +406,6 @@ private:
 public:
     
 #endif
-    
-
     
 
 	/** For internal use only - do not call. Sets the Id of the main thread.*/

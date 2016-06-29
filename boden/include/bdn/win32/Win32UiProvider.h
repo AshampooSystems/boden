@@ -67,12 +67,7 @@ public:
 
 
 
-	static P<Win32UiProvider> get()
-	{
-		static SafeInit<Win32UiProvider> init;
-
-		return init.get();
-	}
+	static Win32UiProvider& get();
 
 protected:
 	struct FontSpec

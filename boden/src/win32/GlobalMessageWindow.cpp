@@ -8,6 +8,7 @@ namespace bdn
 namespace win32
 {
 
+BDN_SAFE_STATIC_IMPL( GlobalMessageWindow, GlobalMessageWindow::get );
 
 GlobalMessageWindow::GlobalMessageWindow()
 	: MessageWindowBase("bdn::GlobalMessageWindow")

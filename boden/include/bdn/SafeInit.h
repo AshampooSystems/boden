@@ -15,19 +15,13 @@ public:
 
 	/** Returns the global mutex object that all SafeInit instances use to
 		make the initialization safe.
-
 		*/
-	static Mutex& getGlobalMutex()
+	static Mutex& getGlobalMutex();
+
+	static void _ensureReady()
 	{
-		// Note that the global mutex itself is NOT constructed in a thread-safe manner.
-		// So if the very first use happens concurrently in two threads then we can get
-		// bad behaviour.
-		// However, our Thread class and App class make sure that the mutex is initialized
-		// as early as possible, and before any threads are started with our functions.
-
-		static Mutex mutex;
-
-		return mutex;
+		// ensure that the global mutex object exists.
+		getGlobalMutex();
 	}
 
 protected:
@@ -64,20 +58,45 @@ protected:
 
 	
 
-
-
 /** Takes care of the thread-safe initialization of global (static) variables.
 
-	This is primarily intended for static variables that are declared in functions.
-	These get initialized when the function is first called.
-	When you do not use SafeGlobal with these, then if multiple
-	threads call the function at the same tim, it can happen that the initialization
-	is run multiple times concurrently (potentially resulting in corrupted data and crashes),
-	or that one thread starts using a half-constructed object.
-	SafeGlobal prevents such issues and makes sure that the object is constructed
-	only once and that construction is fully finished before it gets used.
+	It is recommended to use the #BDN_SAFE_STATIC macro instead of using this
+	class directly.
+
 	
-	Example:
+	The SafeInit class is primarily intended for static variables that are declared in functions.
+	These get initialized when the function is first called.
+	
+	Some compilers do not implement static variable construction in a thread-safe manner
+	(even though the C++11 standard actually demands this).
+
+	When you do NOT use SafeInit with these compiler, then if multiple
+	threads call the function with the local static variable at the same time,
+	then it can happen that the initialization is run multiple times concurrently
+	(potentially resulting in corrupted data and crashes),
+	or that one thread starts using a half-constructed object.
+
+	SafeInit prevents such issues and makes sure that the object is constructed
+	only once and that construction is fully finished before it gets used.
+
+	Another nice benefit of using SafeInit is that if an exception occurs during construction,
+	then the exception will be thrown every time get() is called. So there is no way to accidentally
+	use an object whose constructor has failed.
+
+	The template parameter T can be any type (even a simple type like int or bool). If it is
+	a simple type then the variable will be zero-initialized when no constructor parameters
+	are given. You can also specify the initial value, if you like.
+
+	The static object is allocated with new.
+
+	When the program exits the global object will be destroyed/released. If it is derived
+	from #bdn::Base then the object's reference count is decreased. So if some other object still
+	holds a reference then the object actually remains alive until that remaining reference is released
+	as well.
+	If the object type is not derived from bdn::Base then the object is destroyed with delete when
+	the program exits.
+	
+	Usage example:
 
 	\code
 	class MyClass : public Base
@@ -85,13 +104,30 @@ protected:
 	public:
 		... some code ...
 
-		static P<MyClass> getSingleton()
-		{
-			static SafeInit<MyClass> init(...constructor parameters...);
+		// example for a static class instance
+		static MyClass* getGlobalMyClass();
 
-			return init.get();
-		}
+		// example for a static int
+		static int& getGlobalInt();
 	};
+
+
+	// in the CPP file
+	MyClass* MyClass::getGlobalMyClass();	
+	{
+		static SafeInit<MyClass> init(...constructor parameters...);
+
+		return init.get();
+	}
+
+	static int& MyClass::getGlobalInt()
+	{
+		// the integer will be initialized to 17 on the first call of the function.
+		static SafeInit<int> init( 17 );
+
+		return *init.get();
+	}
+
 	\endcode
 
 	*/
@@ -102,26 +138,27 @@ public:
 	SafeInit(Arguments ... args)
 	{
 		// this constructor might be called by multiple threads at the same time.
-		// So we do not do any construction here!
-		// We have to expect that.	
 
-		// first we lock a global mutex. This mutex is shared by all SafeGlobal instances.
+		// The C++11 standard states that concurrent construction in multiple threads
+		// must be thread-safe. Unfortunately, not all compilers implement this requirement.
+
+		// So if we have one of those compilers then we must lock a mutex here to be safe.
+#if BDN_COMPILER_STATIC_CONSTRUCTION_THREAD_SAFE==0
+
+		// This mutex is shared by all SafeGlobal instances.
 		// However, since it is only locked during construction (i.e. on first use), the performance
 		// penalty is negligible.
+		MutexLock lock( getGlobalMutex() );		
+#endif
 
-		MutexLock lock( getGlobalMutex() );
-
-		// note that we cannot have members with constructors or initializers because then we would risk that
-		// a concurrent constructor call in another thread could overwrite our initializated stuff.
-		// So the _constructResult member will be uninitialized and have some undetermined value based on the
-		// contents of the RAM when the program started. That means that it could by accident have one of the two defined values.
-		// However, since it is a 64 bit value and the two defined values were randomly chosen, the chance that
-		// the variable will have one of them by accident is astronomically small. So we can ignore this possibility.
+		// note that this part CAN actually be executed multiple times for the same object,
+		// if the compiler does not implement the safe statics properly.
+		// So we have to protect against that.
 		if(isUninitialized())
 		{
 			try
 			{
-				_pInstance = new(Base::RawNew::Use) T(args...);
+				_pInstance = rawNew<T>(args...);
 
 				_state = State::ok;
 			}
@@ -142,7 +179,7 @@ public:
 
 			try
 			{
-				_pInstance->releaseRef();
+				deleteOrReleaseRef(_pInstance);
 			}
 			catch(std::exception&)
 			{
@@ -178,15 +215,13 @@ protected:
 	// construction happens before we can lock a mutex that means that
 	// we cannot have any members with constructors. Otherwise the concurrent
 	// constructor calls might overwrite each other's work.
-
-	T*				_pInstance;
-	
+	// Also, by using normal pointers it allows T to also be a simple type
+	// or a class not derived from Base.
+	T*				_pInstance;	
 };
 
 
-
 }
-
 
 #endif
 

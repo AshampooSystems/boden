@@ -7,6 +7,8 @@ namespace win32
 {
 
 
+BDN_SAFE_STATIC_IMPL( MessageWindowBase, MessageWindowBase::get );
+
 MessageWindowBase::MessageWindowBase(const String& windowName)
 	: Win32Window(	MessageWindowClass::get()->getName(),
 					windowName,

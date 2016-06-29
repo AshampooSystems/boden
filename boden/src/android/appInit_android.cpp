@@ -53,6 +53,8 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_boden_MainActivity_initApp( JNIE
     {
         std::function<int(const AppLaunchInfo&)> appFunc = bdn::android::_getAppFunc();
 
+		_mainInit();
+
         if(appFunc!=std::nullptr)
         {
             // we have a commandline app with a simple main-like app function.
@@ -69,7 +71,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_boden_MainActivity_initApp( JNIE
             // If we ever decide that we want to have some commandline-emulating UI then it is
             // important that the UI classes know which thread is ACTUALLY the main thread.
             // So we cannot fake this here.
-            Thread::_setMainId( Thread::getCurrentId() );
+            
 
             Thread::exec(
                 [appFunc]()
@@ -94,7 +96,6 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_boden_MainActivity_initApp( JNIE
         }
         else
         {
-            Thread::_setMainId( Thread::getCurrentId() );
 
             // normal UI app. Just init and return.
             _doAppInit();

@@ -6,6 +6,8 @@
 namespace bdn
 {
 
+BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
+
 View::View()
 {
 	initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);

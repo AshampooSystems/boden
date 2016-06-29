@@ -16,7 +16,7 @@ int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 	// we are DPI aware
 	::SetProcessDPIAware();
 
-	Thread::_setMainId( Thread::getCurrentId() );
+	_mainInit();
 
 	AppControllerBase::_set(pAppController);
 

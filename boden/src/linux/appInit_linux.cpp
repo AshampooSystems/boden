@@ -15,7 +15,7 @@ int _uiAppMain( AppControllerBase* pAppController,
                 int argCount,
                 char* argv[] )
 {
-    Thread::_setMainId( Thread::getCurrentId() );
+    _mainInit();
 
     AppControllerBase::_set(pAppController);
 

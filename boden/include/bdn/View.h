@@ -456,12 +456,8 @@ protected:
 		for cores and the hierarchy, then such operations would again be very sensitive to locking order
 		and could create potential deadlocks.
 		*/
-	static Mutex& getHierarchyAndCoreMutex()
-	{
-		static SafeInit<Mutex> init;
+	static Mutex& getHierarchyAndCoreMutex();
 
-		return *init.get();
-	}
 
 
 	void deleteThis() override

@@ -31,12 +31,7 @@ protected:
 			ensureRegistered();			
 		}
 
-		static P<ContainerViewCoreClass> get()
-		{
-			static SafeInit<ContainerViewCoreClass> init;
-
-			return init.get();
-		}		
+		static ContainerViewCoreClass& get();
 	};
 
 	

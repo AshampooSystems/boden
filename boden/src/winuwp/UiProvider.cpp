@@ -10,7 +10,7 @@ namespace bdn
     
 P<IUiProvider> getPlatformUiProvider()
 {
-    return bdn::winuwp::UiProvider::get();
+    return &bdn::winuwp::UiProvider::get();
 }
     
 }
@@ -20,6 +20,9 @@ namespace bdn
 {
 namespace winuwp
 {
+
+
+BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 String UiProvider::getName() const
 {

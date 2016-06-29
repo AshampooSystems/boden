@@ -343,16 +343,10 @@ public:
 	}
 
 
-	/** Returns a pointer to a global StringData object that represents an empty string.*/
-	static P<StringData> getEmptyData()
-	{
-		static SafeInit<StringData> init;
+	/** Returns a reference to a global StringData object that represents an empty string.*/
+	static StringData& getEmptyData();
 
-		return init.get();
-	}
-
-protected:
-	
+protected:	
 	typename Codec::EncodedString	_encodedString;
 };
 

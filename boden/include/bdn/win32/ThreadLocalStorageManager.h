@@ -15,7 +15,7 @@ namespace win32
 /** Manager for win32 thread local storage.
 
     IMPORTANT: It is rarely advisable to use this directly. Instead
-    you should use the macro #BDN_STATIC_THREAD_LOCAL to create thread-local
+    you should use the macros #BDN_SAFE_STATIC and #BDN_SAFE_STATIC_THREAD_LOCAL_IMPL to create thread-local
     objects.
 
 	*/
@@ -122,13 +122,9 @@ public:
     }
     
     
-    static P<ThreadLocalStorageManager> get()
-	{
-        static SafeInit<ThreadLocalStorageManager> init;
-        
-        return init.get();
-    }
-    
+	/** Returns a reference to a global local storage manager instance.*/
+    static ThreadLocalStorageManager& get();
+
 
 protected:
     static void WINAPI _threadExitCleanup(PVOID pValue)

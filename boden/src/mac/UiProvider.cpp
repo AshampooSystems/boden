@@ -20,6 +20,8 @@ namespace bdn
 namespace mac
 {
 
+BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
+
 String UiProvider::getName() const
 {
     return "mac";
