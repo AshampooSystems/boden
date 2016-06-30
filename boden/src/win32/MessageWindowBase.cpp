@@ -7,10 +7,10 @@ namespace win32
 {
 
 
-BDN_SAFE_STATIC_IMPL( MessageWindowBase, MessageWindowBase::get );
+BDN_SAFE_STATIC_IMPL( MessageWindowBase::MessageWindowClass, MessageWindowBase::MessageWindowClass::get );
 
 MessageWindowBase::MessageWindowBase(const String& windowName)
-	: Win32Window(	MessageWindowClass::get()->getName(),
+	: Win32Window(	MessageWindowBase::MessageWindowClass::get().getName(),
 					windowName,
 					WS_POPUP,
 					0,

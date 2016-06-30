@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/win32/ViewCore.h>
 
-#include <bdn/win32/Win32UiProvider.h>
+#include <bdn/win32/UiProvider.h>
 
 namespace bdn
 {
@@ -74,7 +74,7 @@ void ViewCore::setUiScaleFactor(double factor)
 
 void ViewCore::updateFont()
 {
-	_pFont = Win32UiProvider::get()->getFontForView( _pOuterViewWeak, _uiScaleFactor);
+	_pFont = UiProvider::get().getFontForView( _pOuterViewWeak, _uiScaleFactor);
 
 	::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
 }
@@ -203,12 +203,12 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 
 int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
 {
-	return Win32UiProvider::get()->uiLengthToPixels( uiLength, _uiScaleFactor );
+	return UiProvider::get().uiLengthToPixels( uiLength, _uiScaleFactor );
 }
 
 Margin ViewCore::uiMarginToPixelMargin(const UiMargin& margin) const
 {
-	return Win32UiProvider::get()->uiMarginToPixelMargin( margin, _uiScaleFactor );
+	return UiProvider::get().uiMarginToPixelMargin( margin, _uiScaleFactor );
 }
 
 

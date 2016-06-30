@@ -1,6 +1,11 @@
-#ifndef BDN_WIN32_win32Util_H_
-#define BDN_WIN32_win32Util_H_
+#ifndef BDN_WIN32_util_H_
+#define BDN_WIN32_util_H_
 
+#include <bdn/Rect.h>
+
+#include <Windows.h>
+
+#include <vector>
 
 namespace bdn
 {
@@ -8,7 +13,7 @@ namespace win32
 {
 	
 
-Rect win32RectToRect(const RECT& rect)
+inline Rect win32RectToRect(const RECT& rect)
 {
 	return Rect( rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
 }

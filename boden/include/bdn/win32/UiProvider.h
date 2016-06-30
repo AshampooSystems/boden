@@ -1,5 +1,5 @@
-#ifndef BDN_WIN32_Win32UiProvider_H_
-#define BDN_WIN32_Win32UiProvider_H_
+#ifndef BDN_WIN32_UiProvider_H_
+#define BDN_WIN32_UiProvider_H_
 
 #include <bdn/IUiProvider.h>
 #include <bdn/UiMargin.h>
@@ -21,10 +21,10 @@ namespace win32
 	Note that Win32 is also the name of the Windows API on 64 Bit Windows,
 	so this works on 32 and 64 bit systems.
 */
-class Win32UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 {
 public:
-	Win32UiProvider();
+	UiProvider();
 
 	
 	String getName() const
@@ -44,6 +44,9 @@ public:
 
 	/** Returns the UI scale factor for the screen that the specified window is on.*/
 	double getUiScaleFactorForTopLevelWindow(HWND window);
+
+	/** Returns the UI scale factor for the specified monitor.*/
+	double getUiScaleFactorForMonitor(HMONITOR monitor);
 
 
 	/** Returns the size of one sem for the specified UI scale factor.
@@ -67,7 +70,7 @@ public:
 
 
 
-	static Win32UiProvider& get();
+	static UiProvider& get();
 
 protected:
 	struct FontSpec
@@ -91,6 +94,7 @@ protected:
 	LOGFONTW					_defaultUiFontInfo;
 	P<Font>						_pDefaultUiFont;
 
+	double						_defaultUiFontSizeAtScaleFactor1;
 	double						_semSizeAtScaleFactor1;
 
 	std::map< FontSpec, P<Font> > _fontMap;	

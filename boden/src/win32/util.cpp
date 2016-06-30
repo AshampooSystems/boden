@@ -1,5 +1,7 @@
 #include <bdn/init.h>
-#include <bdn/win32Util.h>
+#include <bdn/win32/util.h>
+
+#include <bdn/sysError.h>
 
 namespace bdn
 {

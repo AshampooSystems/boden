@@ -10,7 +10,7 @@ BDN_SAFE_STATIC_IMPL( ContainerViewCore::ContainerViewCoreClass, ContainerViewCo
 
 ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 	: ViewCore(	pOuter, 
-				ContainerViewCoreClass::get()->getName(),
+				ContainerViewCoreClass::get().getName(),
 				"",
 				WS_VISIBLE | WS_CHILD,
 				0 )

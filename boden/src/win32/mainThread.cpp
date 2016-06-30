@@ -9,7 +9,7 @@ namespace bdn
 
 void CallFromMainThreadBase_::dispatch()
 {
-	win32::GlobalMessageWindow::get()->postCall(this);
+	win32::GlobalMessageWindow::get().postCall(this);
 }
 
 

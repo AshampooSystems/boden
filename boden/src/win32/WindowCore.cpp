@@ -3,7 +3,7 @@
 
 #include <bdn/sysError.h>
 #include <bdn/NotImplementedError.h>
-#include <bdn/win32/win32Util.h>
+#include <bdn/win32/util.h>
 
 #include <ShellScalingApi.h>
 
@@ -12,12 +12,12 @@ namespace bdn
 namespace win32
 {
 
-BDN_SAFE_STATIC_IMPL( WindowCore, WindowCore::get );
+BDN_SAFE_STATIC_IMPL( WindowCore::WindowCoreClass, WindowCore::WindowCoreClass::get );
 
 
 WindowCore::WindowCore(Window* pWindow)
 	: ViewCore(	pWindow,
-				WindowCoreClass::get()->getName(),
+				WindowCore::WindowCoreClass::get().getName(),
 				pWindow->title().get(),
 				WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW,
 				WS_EX_APPWINDOW,
@@ -227,7 +227,7 @@ Size WindowCore::calcContentAreaSizeFromWindowSize(const Size& windowSize)
 	return contentAreaSize;
 }
 
-Rect WindowCore::getScreenWorkArea()
+Rect WindowCore::getScreenWorkArea() const
 {
 	HMONITOR	hMonitor = ::MonitorFromWindow(getHwnd(), MONITOR_DEFAULTTONEAREST);
 

@@ -4,7 +4,11 @@
 #include <bdn/sysError.h>
 #include <bdn/Thread.h>
 
+#include <bdn/win32/util.h>
+
 #include <windows.h>
+
+#include <ShellScalingApi.h>
 
 
 namespace bdn
@@ -13,9 +17,6 @@ namespace bdn
 
 int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 {
-	// we are DPI aware
-	::SetProcessDPIAware();
-
 	_mainInit();
 
 	AppControllerBase::_set(pAppController);
@@ -26,7 +27,7 @@ int _uiAppMain(AppControllerBase* pAppController, int showCommand)
 
 		// commandline arguments
 
-		std::vector<String> args = parseWin32CommandLine( ::GetCommandLineW() );
+		std::vector<String> args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );
 
 		if(args.empty())
 			args.push_back("");	// always add the first entry.

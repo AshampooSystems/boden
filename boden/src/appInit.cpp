@@ -9,7 +9,7 @@
 #endif
 
 #if BDN_PLATFORM_WIN32
-#include <bdn/win32/win32Util.h>
+#include <bdn/win32/util.h>
 #endif
 
 #if BDN_PLATFORM_WINRT
@@ -34,6 +34,13 @@ void _mainInit()
 	SafeInitBase::_ensureReady();
 
 	Thread::_setMainId( Thread::getCurrentId() );	
+
+#if BDN_PLATFORM_WIN32
+	// we are DPI aware
+	::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+
+	// the older function would be ::SetProcessDPIAware()
+#endif
 }
     
 
@@ -51,13 +58,6 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 							char* argv[] )
 {
 
-#endif
-
-#if BDN_PLATFORM_WIN32
-	// we are DPI aware
-	::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-
-	// the older function would be ::SetProcessDPIAware()
 #endif
 
 	_mainInit();
@@ -114,7 +114,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 		}
 		
 #elif BDN_PLATFORM_WIN32
-		args = parseWin32CommandLine( ::GetCommandLineW() );		
+		args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );		
 
 #elif BDN_PLATFORM_WEB
 		// arguments are URL-escaped

@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#include <bdn/win32/Win32UiProvider.h>
+#include <bdn/win32/UiProvider.h>
 
 #include <bdn/win32/ButtonCore.h>
 #include <bdn/win32/WindowCore.h>
@@ -14,7 +14,7 @@ namespace bdn
 
 P<IUiProvider> getPlatformUiProvider()
 {
-	return win32::Win32UiProvider::get();
+	return &bdn::win32::UiProvider::get();
 }
 
 }
@@ -24,9 +24,9 @@ namespace bdn
 namespace win32
 {
 
-BDN_SAFE_STATIC_IMPL( Win32UiProvider, Win32UiProvider::get );
+BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
-Win32UiProvider::Win32UiProvider()
+UiProvider::UiProvider()
 {		
 	// the default UI font on Windows changed multiple times over the years.
 	// There are several deprecated legacy ways to get it (the font name "MS Shell Dlg",
@@ -42,18 +42,30 @@ Win32UiProvider::Win32UiProvider()
 	if( ! ::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, FALSE) )
 	{
 		BDN_throwLastSysError( ErrorFields().add("func", "SystemParametersInfo(SPI_GETNONCLIENTMETRICS)")
-											.add("action", "Win32UiProvider constructor") );
+											.add("action", "UiProvider constructor") );
 	}
 
 	_defaultUiFontInfo = metrics.lfMessageFont;
 
+	// we want nice quality
+	_defaultUiFontInfo.lfQuality = CLEARTYPE_QUALITY;
+
+	// the default UI font will have a size that is already scaled according to the UI scalefactor
+	// of the default monitor.
+	POINT ptZero = { 0, 0 };
+	double primaryUiScaleFactor = getUiScaleFactorForMonitor( MonitorFromPoint(ptZero, MONITOR_DEFAULTTOPRIMARY) );
+
+	// store the UI font size at scale factor 1 as a double, so that we do not get rounding errors
+	// when we scale back up.
+	_defaultUiFontSizeAtScaleFactor1 = _defaultUiFontInfo.lfHeight / primaryUiScaleFactor;
+
+	_defaultUiFontInfo.lfHeight = std::lround(_defaultUiFontSizeAtScaleFactor1);
+
 	_pDefaultUiFont = newObj<Font>(_defaultUiFontInfo);
 
 	double fontSize = _pDefaultUiFont->getSizePixels();
-
-	// now we have the font size on a 96 DPI screen, which is the base DPI
-	// that windows assigns to UI elements when the UI scaling factor is 1.
-	_semSizeAtScaleFactor1 = fontSize;
+	
+	_semSizeAtScaleFactor1 = fontSize;	
 
 	// add the font to our map
 	FontSpec spec;
@@ -61,7 +73,7 @@ Win32UiProvider::Win32UiProvider()
 }
 
 
-P<Font> Win32UiProvider::getFontForView(View* pView, double uiScaleFactor)
+P<Font> UiProvider::getFontForView(View* pView, double uiScaleFactor)
 {
 	FontSpec spec;
 	spec.uiScaleFactor = uiScaleFactor;
@@ -82,17 +94,17 @@ P<Font> Win32UiProvider::getFontForView(View* pView, double uiScaleFactor)
 	return pFont;
 }
 
-P<Font> Win32UiProvider::createFont(const FontSpec& spec)
+P<Font> UiProvider::createFont(const FontSpec& spec)
 {
 	LOGFONT info = _defaultUiFontInfo;
 
-	info.lfHeight = std::lround( ((double)info.lfHeight)*spec.uiScaleFactor );
+	info.lfHeight = std::lround( _defaultUiFontSizeAtScaleFactor1*spec.uiScaleFactor );
 
 	return newObj<Font>(info);
 }
 
 
-P<IViewCore> Win32UiProvider::createViewCore(const String& coreTypeName, View* pView)
+P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 {
 	if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
 		return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
@@ -110,13 +122,18 @@ P<IViewCore> Win32UiProvider::createViewCore(const String& coreTypeName, View* p
 
 
 
-double Win32UiProvider::getUiScaleFactorForTopLevelWindow(HWND window)
+double UiProvider::getUiScaleFactorForTopLevelWindow(HWND window)
 {	
-	HMONITOR	hMonitor = ::MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
+	HMONITOR	monitorHandle = ::MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
 
+	return getUiScaleFactorForMonitor(monitorHandle);
+}
+
+double UiProvider::getUiScaleFactorForMonitor(HMONITOR monitorHandle)
+{
 	UINT dpiX = 0;
 	UINT dpiY = 0;
-	::GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX ,&dpiY);
+	::GetDpiForMonitor(monitorHandle, MDT_EFFECTIVE_DPI, &dpiX ,&dpiY);
 
 	// note that the DPI we get here is not a real physical DPI. Rather it is a more complicated
 	// value that takes into account the device type and even user settings.
@@ -127,12 +144,12 @@ double Win32UiProvider::getUiScaleFactorForTopLevelWindow(HWND window)
 
 
 
-double Win32UiProvider::getSemSizeForUiScaleFactor(double uiScaleFactor)
+double UiProvider::getSemSizeForUiScaleFactor(double uiScaleFactor)
 {
 	return _semSizeAtScaleFactor1 * uiScaleFactor;
 }
 
-int Win32UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
+int UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
 {
 	if(uiLength.unit==UiLength::sem)
 		return std::lround( uiLength.value * getSemSizeForUiScaleFactor(uiScaleFactor) );
@@ -148,10 +165,10 @@ int Win32UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFa
 		return std::lround( uiLength.value );
 
 	else
-		throw InvalidArgumentError("Invalid UiLength unit passed to Win32UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
+		throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 }
 
-Margin Win32UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor)
+Margin UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor)
 {
 	return Margin(
 		uiLengthToPixels(margin.top, uiScaleFactor),

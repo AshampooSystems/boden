@@ -26,7 +26,7 @@ public:
 
 	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override;
 	
-	Rect getScreenWorkArea() override;	
+	Rect getScreenWorkArea() const override;	
 
 	Size calcMinimumSize() const;
 

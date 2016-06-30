@@ -37,12 +37,12 @@ void testPostCall()
 void testGlobalInstance()
 {
 	// we simply test that we get a valid global instance
-	P<GlobalMessageWindow> pWindow = GlobalMessageWindow::get();
+	P<GlobalMessageWindow> pWindow = &GlobalMessageWindow::get();
 
 	REQUIRE( pWindow!=nullptr );
 
 	// must get the same object each time
-	REQUIRE( GlobalMessageWindow::get() == pWindow);
+	REQUIRE( &GlobalMessageWindow::get() == pWindow);
 }
 
 TEST_CASE("GlobalMessageWindow")
