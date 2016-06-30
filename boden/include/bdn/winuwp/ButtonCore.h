@@ -66,7 +66,13 @@ public:
 
 		_doSizingInfoUpdateOnNextLayout = true;		
 
-		_pButton->Padding = ::Windows::UI::Xaml::Thickness( padding.left, padding.top, padding.right, padding.bottom );
+		double uiScaleFactor = UiProvider::get().getUiScaleFactor();
+
+		_pButton->Padding = ::Windows::UI::Xaml::Thickness(
+			padding.left/uiScaleFactor,
+			padding.top/uiScaleFactor,
+			padding.right/uiScaleFactor,
+			padding.bottom/uiScaleFactor );
 	}
 
 	void setLabel(const String& label)

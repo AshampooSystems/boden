@@ -297,8 +297,7 @@ private:
 
 	Rect _getBounds() const
 	{
-		// note that the Bounds member is actually in real pixels. So we have to specify a scale factor of 1
-		Rect bounds = uwpRectToRect( _pWindow->Bounds, 1 );
+		Rect bounds = uwpRectToRect( _pWindow->Bounds, UiProvider::get().getUiScaleFactor() );
 		if(bounds.width == std::numeric_limits<int>::max())
 			bounds.width = 0;
 		if(bounds.height == std::numeric_limits<int>::max())
@@ -353,9 +352,6 @@ private:
 
 		void contentSizeChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs)
 		{
-			::Windows::Foundation::Size oldSize = pArgs->PreviousSize;
-			::Windows::Foundation::Size newSize = pArgs->NewSize;
-
 			if(_pParentWeak!=nullptr)
 				_pParentWeak->_contentSizeChanged();
 		}

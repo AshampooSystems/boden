@@ -156,12 +156,18 @@ public:
 
 	int calcPreferredHeightForWidth(int width) const
 	{
-		return _calcPreferredSize( static_cast<float>(width), std::numeric_limits<float>::infinity() ).height;
+		return _calcPreferredSize(
+			intToUwpDimension(width, UiProvider::get().getUiScaleFactor() ),
+			std::numeric_limits<float>::infinity() )
+			.height;
 	}
 
 	int calcPreferredWidthForHeight(int height) const
 	{
-		return _calcPreferredSize( std::numeric_limits<float>::infinity(), static_cast<float>(height) ).width;
+		return _calcPreferredSize(
+			std::numeric_limits<float>::infinity(),
+			intToUwpDimension(height, UiProvider::get().getUiScaleFactor() ) )
+			.width;
 	}
 
 
