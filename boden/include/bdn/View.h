@@ -28,7 +28,6 @@ namespace bdn
 class View : public RequireNewAlloc<Base, View>
 {
 public:
-
 	View();
 	~View();
 

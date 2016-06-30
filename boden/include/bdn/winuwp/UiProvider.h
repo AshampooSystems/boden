@@ -130,9 +130,11 @@ protected:
 
 	void updateUiScaleFactor( Windows::Graphics::Display::DisplayInformation^ pDisplayInfo )
 	{
-		_uiScaleFactor = pDisplayInfo->RawPixelsPerViewPixel;		
+		// _uiScaleFactor = pDisplayInfo->RawPixelsPerViewPixel;		
+		_uiScaleFactor = 1;
+
 		// Todo: need to properly determine base font size.
-		_semPixels = 20 * _uiScaleFactor;
+		_semPixels = 15 * _uiScaleFactor;
 	}
 
 	

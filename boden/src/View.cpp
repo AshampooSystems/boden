@@ -9,6 +9,7 @@ namespace bdn
 BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 
 View::View()
+	: _visible(true) // most views are initially visible
 {
 	initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
 	initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);

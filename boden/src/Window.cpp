@@ -10,6 +10,9 @@ namespace bdn
 
 Window::Window(IUiProvider* pUiProvider)
 {
+	// windows are invisible by default
+	_visible = false;
+
 	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider().getPtr();
 
 	initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);

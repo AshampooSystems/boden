@@ -120,7 +120,7 @@ endif()
 if( "${BODEN_TARGET}" STREQUAL "winuwp" )	
 	SET(VS_WINRT_COMPONENT TRUE)	
 
-    SET(VS_WINRT_REFERENCES "Windows;Windows.UI.Core")
+    SET(VS_WINRT_REFERENCES "Windows;Windows.UI.Core;System")
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /ZW")
 

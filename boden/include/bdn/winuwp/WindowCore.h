@@ -6,12 +6,17 @@
 #include <bdn/log.h>
 #include <bdn/NotImplementedError.h>
 
+#include <bdn/winuwp/IParentViewCore.h>
+#include <bdn/winuwp/util.h>
+
+#include <limits>
+
 namespace bdn
 {
 namespace winuwp
 {
 	
-class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore
 {
 public:
 	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
@@ -36,7 +41,7 @@ public:
 			_pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 			_appViewId = _pAppView->Id;			
 
-			_pWindow = Windows::UI::Xaml::Window::Current;
+			_pWindow = Windows::UI::Xaml::Window::Current;			
 		}
 		else
 		{
@@ -76,11 +81,38 @@ public:
 			// now the _pAppView and _pAppViewId members are initialized.
 			*/
 		}
+
+
+		_pEventForwarder = ref new EventForwarder(this);
+		_pWindow->SizeChanged += ref new ::Windows::UI::Xaml::WindowSizeChangedEventHandler( _pEventForwarder, &EventForwarder::sizeChanged );
+
+		// we want full control over the placement of our content window.
+		// Unfortunately Xaml automatically arranges our content view.
+		// To work around that we add a canvas as the content view and then
+		// add the real content view to the canvas.
+
+		_pContentCanvas = ref new ::Windows::UI::Xaml::Controls::Canvas();
+
+
+		// when windows updates the size of the content canvas then that
+		// means that we have to update our layout.
+		_pContentCanvas->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler( _pEventForwarder, &EventForwarder::contentSizeChanged );
+
+		_pContentCanvas->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
+				( _pEventForwarder, &EventForwarder::layoutUpdated );
+
+		_pContentCanvas->Visibility = ::Windows::UI::Xaml::Visibility::Visible;
+
+		
+		_pWindow->Content = _pContentCanvas;
+
+		// update the bounds property of the outer window to reflect the current bounds
+		_scheduleUpdateOuterBoundsProperty();				
 	}
 
 	~WindowCore()
 	{
-		
+		_pEventForwarder->dispose();		
 	}
 	
 	void setTitle(const String& title) override
@@ -95,31 +127,26 @@ public:
 		should be.*/
 	Rect getContentArea() override
 	{
-		Windows::Foundation::Rect bounds = _pWindow->Bounds;
-		
-		return Rect(
-			std::lround(bounds.X),
-			std::lround(bounds.Y),
-			std::lround(bounds.Width),
-			std::lround(bounds.Height) );
+		Size contentSize = _getContentSize();
+		return Rect(0, 0, contentSize.width, contentSize.height );
 	}
 
 
 	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
 	{
-		return contentSize;
+		return contentSize + _getNonContentSize();
 	}
 
 
 	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
 	{
-		return windowSize;
+		return windowSize - _getNonContentSize();
 	}
 
 
 	Size calcMinimumSize() const override
 	{
-		return Size(0, 0);
+		return _getNonContentSize();
 	}
 
 
@@ -133,7 +160,9 @@ public:
 	{
 		if(visible)
 		{		 
-			auto pShowOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::TryShowAsStandaloneAsync(_appViewId);
+			_pWindow->Activate();
+
+			/*auto pShowOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::TryShowAsStandaloneAsync(_appViewId);
 			auto showTask = concurrency::create_task(pShowOp);
 
 			// keep ourselves alive while we do this.
@@ -176,7 +205,7 @@ public:
 						// since we were unable to show the window we have to correct the value of the visible property.
 						pThis->_pOuterWindowWeak->visible() = false;
 					}				
-				});		
+				});		*/
 		}
 		else
 		{
@@ -202,7 +231,8 @@ public:
 	void setBounds(const Rect& bounds) override
 	{
 		// we cannot control our rect. The OS has the only control over it.
-		throw std::runtime_error("Window bounds cannot be modified by the application.");
+		// So, just reset the bounds property back to what it really is.
+		_scheduleUpdateOuterBoundsProperty();
 	}
 
 
@@ -211,7 +241,6 @@ public:
 	{
 		return _pUiProvider->uiLengthToPixels(uiLength);
 	}
-	
 
 	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
 	{
@@ -248,19 +277,130 @@ public:
 		return false;
 	}
 
+
+	void addChildUiElement( ::Windows::UI::Xaml::UIElement^ pUiElement ) override
+	{
+		_pContentCanvas->Children->Clear();
+		_pContentCanvas->Children->Append(pUiElement);
+	}
 	
 
-protected:
+private:
+	Size _getContentSize() const
+	{
+		// The Bounds rect actually does NOT include the title bar etc.
+		// So the Bounds rect is actually the content rect.
+		Rect bounds = _getBounds();
+
+		return Size(bounds.width, bounds.height);
+	}
+
+	Rect _getBounds() const
+	{
+		// note that the Bounds member is actually in real pixels. So we have to specify a scale factor of 1
+		Rect bounds = uwpRectToRect( _pWindow->Bounds, 1 );
+		if(bounds.width == std::numeric_limits<int>::max())
+			bounds.width = 0;
+		if(bounds.height == std::numeric_limits<int>::max())
+			bounds.height = 0;
+
+		return bounds;
+	}
+
+	Size _getNonContentSize() const
+	{
+		// Windows hides the sizes of the non-content area from us. So they are
+		// 0 as far as we need to be concerned.
+		return Size(0, 0);
+	}
+
+	void _scheduleUpdateOuterBoundsProperty()
+	{
+		// keep ourselves alive during this
+		P<WindowCore> pThis = this;
+
+		// we do this asynchronously to ensure that there can be no strange
+		// interactions with in-progress operations
+		asyncCallFromMainThread(
+			[pThis]()
+			{
+				if(pThis->_pOuterWindowWeak!=nullptr)
+				{
+					pThis->_pOuterWindowWeak->bounds() = pThis->_getBounds();
+				}			
+			});		
+	}
+
+	ref class EventForwarder : public Platform::Object
+	{
+	internal:
+		EventForwarder(WindowCore* pParent)
+		{
+			_pParentWeak = pParent;
+		}
+
+	public:
+		void dispose()
+		{
+			_pParentWeak = nullptr;
+		}
+
+		void sizeChanged( Platform::Object^ pSender,  ::Windows::UI::Core::WindowSizeChangedEventArgs^ pArgs)
+		{
+			if(_pParentWeak!=nullptr)
+				_pParentWeak->_sizeChanged();
+		}
+
+		void contentSizeChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs)
+		{
+			::Windows::Foundation::Size oldSize = pArgs->PreviousSize;
+			::Windows::Foundation::Size newSize = pArgs->NewSize;
+
+			if(_pParentWeak!=nullptr)
+				_pParentWeak->_contentSizeChanged();
+		}
+
+		void layoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
+		{
+			if(_pParentWeak!=nullptr)
+				_pParentWeak->_layoutUpdated();
+		}
+
+	private:
+		WindowCore* _pParentWeak;
+	};
+
+
+	void _sizeChanged()
+	{
+		// do nothing
+	}
+
+	void _layoutUpdated()
+	{
+		// Xaml has done a layout cycle. At this point all the controls should know their
+		// desired sizes. So this is when we schedule our layout updated
+		_pOuterWindowWeak->needLayout();
+	}
+
+	void _contentSizeChanged()
+	{
+		// do nothing
+	}
+
 	P<UiProvider>	_pUiProvider;
 	bool			_mainView;
 	Window*			_pOuterWindowWeak;
 
 	// Windows::ApplicationModel::Core::CoreApplicationView^ _pCoreAppView;
 
-	Windows::UI::ViewManagement::ApplicationView^	_pAppView;
+	::Windows::UI::ViewManagement::ApplicationView^	_pAppView;
 	int												_appViewId;
 
-	Windows::UI::Xaml::Window^	_pWindow;
+	::Windows::UI::Xaml::Window^			_pWindow;
+	::Windows::UI::Xaml::Controls::Canvas^	_pContentCanvas;
+
+	EventForwarder^ _pEventForwarder;
 };
 
 

@@ -89,6 +89,8 @@ public:
 		_pButton->margin() = UiMargin(UiLength::sem, 2);
 		_pButton->horizontalAlignment() = View::HorizontalAlignment::center;
 
+		_pButton->padding() = UiMargin(UiLength::sem, 0.5, 1);
+
 		pColumnView->addChildView( _pButton );
                 
         _pButton->onClick().subscribeVoidMember<MainViewController>(_pButtonClickSub, this, &MainViewController::buttonClicked);
