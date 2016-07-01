@@ -33,11 +33,11 @@ public:
 template<typename T, typename... Arguments>
 T* rawNew(Arguments&&... args)
 {
-	return typename std::conditional<
+	return std::conditional<
 				std::is_base_of<bdn::Base, T>::value,
 				RawNewAllocator_Base_<T>,
 				RawNewAllocator_NonBase_<T> >::type
-					::template alloc<Arguments...>( std::forward<Arguments>(args)... );
+					::alloc( std::forward<Arguments>(args)... );
 }
 
 

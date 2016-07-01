@@ -280,7 +280,7 @@ public:
 		*/
 	virtual void _childViewStolen(View* pChildView)
 	{
-		// do nothing by default.		
+        // do nothing by default
 	}
 
 

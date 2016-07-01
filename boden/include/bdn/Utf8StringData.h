@@ -14,17 +14,8 @@ namespace bdn
 
 	See StringData for information about constructors and methods.
 */
-#ifdef BDN_GENERATING_DOCS
-
-class Utf8StringData
-{
-};
-
-#else
-
 typedef StringData<Utf8Codec> Utf8StringData;
 
-#endif
 
 }
 

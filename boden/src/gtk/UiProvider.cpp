@@ -1,6 +1,9 @@
 #include <bdn/init.h>
 #include <bdn/gtk/UiProvider.h>
 
+#include <bdn/gtk/WindowCore.h>
+#include <bdn/gtk/ContainerViewCore.h>
+#include <bdn/gtk/ButtonCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -9,7 +12,7 @@ namespace bdn
     
 P<IUiProvider> getPlatformUiProvider()
 {
-    return bdn::gtk::UiProvider::get();
+    return &bdn::gtk::UiProvider::get();
 }
     
 }
@@ -29,7 +32,7 @@ String UiProvider::getName() const
 }
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
-{/*
+{
     if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
         return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
     
@@ -39,7 +42,7 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );
     
-    else	*/
+    else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 

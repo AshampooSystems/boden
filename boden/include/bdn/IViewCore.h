@@ -85,6 +85,8 @@ public:
 		core object.		
 		*/
 	virtual bool tryChangeParentView(View* pNewParent)=0;
+    
+    
 	
 };
 

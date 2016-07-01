@@ -82,7 +82,7 @@ public:
 		_pWindow->sizingInfo().onChange().subscribeVoidMember<MainViewController>(_pWindowSizingSub, this, &MainViewController::windowSizingInfoChanged);
 
 		P<ColumnView> pColumnView = newObj<ColumnView>();
-		
+
 		_pButton = newObj<Button>();
         _pButton->label().bind( _pViewModel->helloMessage() );
 

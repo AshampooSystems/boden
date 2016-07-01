@@ -77,7 +77,7 @@ public:
 			return std::lround( uiLength.value );
 
 		else
-			throw InvalidArgumentError("Invalid UiLength unit passed to Win32UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
+			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 	}
 	
 
