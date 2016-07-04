@@ -2,9 +2,9 @@
 #define BDN_MAC_ButtonCore_HH_
 
 #include <bdn/IButtonCore.h>
+#include <bdn/Button.h>
 
 #import <bdn/mac/ButtonCoreBase.hh>
-
 
 namespace bdn
 {
@@ -13,29 +13,30 @@ namespace mac
 
 class ButtonCore : public ButtonCoreBase, BDN_IMPLEMENTS IButtonCore
 {
-public:
-/*
-    Button(Window* pParent, const String& label);
-    
-    Property<String>& label() override
+private:
+    static NSButton* _createNsButton()
     {
-        return ButtonBase::label();
-    }
+        NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        
+        [button setButtonType:NSMomentaryLightButton];
+        [button setBezelStyle:NSRoundedBezelStyle];
     
-    ReadProperty<String>& label() const override
-    {
-        return ButtonBase::label();
+        return button;
     }
-    
-    
- 	Notifier<const ClickEvent&>& onClick() override
-    {
-        return ButtonBase::onClick();
-    }
-*/
 
+public:
+    ButtonCore(Button* pOuterButton);
+        
+    void setLabel(const String& label) override
+    {
+        ButtonCoreBase::setLabel(label);
+    }
+    
+    
+    void generateClick();
     
 protected:
+    NSObject*   _clickManager;
 };
 
 }

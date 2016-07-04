@@ -104,10 +104,10 @@ void Window::center()
 		return;
 	}
 
-	Rect screenClientRect = cast<IWindowCore>(pCore)->getScreenWorkArea();
+	Rect screenWorkArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
 
-	myBounds.x = screenClientRect.x + (screenClientRect.width - myBounds.width)/2;
-	myBounds.y = screenClientRect.y + (screenClientRect.height - myBounds.height)/2;
+	myBounds.x = screenWorkArea.x + (screenWorkArea.width - myBounds.width)/2;
+	myBounds.y = screenWorkArea.y + (screenWorkArea.height - myBounds.height)/2;
 
 	bounds() = myBounds;
 }

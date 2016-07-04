@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/AppControllerBase.h>
 
-#import "AppDelegate.h"
+#import "AppDelegate.hh"
 
 
 using namespace bdn;

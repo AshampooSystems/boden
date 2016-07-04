@@ -4,7 +4,7 @@
 #include <bdn/appInit.h>
 #include <bdn/Thread.h>
 
-#include "AppDelegate.h"
+#import "AppDelegate.hh"
 
 namespace bdn
 {

@@ -5,33 +5,60 @@
 #import <bdn/mac/ButtonCore.hh>
 
 
+@interface BdnButtonClickManager : NSObject
+
+    @property bdn::mac::ButtonCore* pButtonCore;
+
+@end
+
+
+@implementation BdnButtonClickManager
+
+    -(void)setButtonCore:(bdn::mac::ButtonCore*)pCore
+    {
+        _pButtonCore = pCore;
+    }
+
+    -(void)clicked
+    {
+        _pButtonCore->generateClick();
+    }
+
+@end
+
+
+
 namespace bdn
 {
 namespace mac
 {
-/*
 
-P<IButton> createButton(IView* pParent, const String& label)
+ButtonCore::ButtonCore(Button* pOuterButton)
+    : ButtonCoreBase( pOuterButton, _createNsButton() )
 {
-    return newObj<Button>( cast<Window>(pParent), label);
-}
+    BdnButtonClickManager* clickMan = [BdnButtonClickManager alloc];
     
+    [clickMan setButtonCore:this];
+    
+    _clickManager = clickMan;
+    
+    setLabel( pOuterButton->label() );
+    
+    
+    [_nsButton setTarget:clickMan];
+    [_nsButton setAction:@selector(clicked)];
+}
 
-Button::Button(Window* pParent, const String& label)
+
+void ButtonCore::generateClick()
 {
-    NSWindow* pNSParentWindow = pParent->getNSWindow();
+    P<Button> pOuterButton = cast<Button>(getOuterView());
     
-    NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 80, 200, 40)];
+    bdn::ClickEvent evt(pOuterButton);
     
-    [[pNSParentWindow contentView] addSubview: button];
-    [button setButtonType:NSMomentaryLightButton];
-    [button setBezelStyle:NSRoundedBezelStyle];
-    
-    initButton(button, label);
+    pOuterButton->onClick().notify(evt);
 }
-    
-    */
-    
+
 
 }
 }

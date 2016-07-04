@@ -3,123 +3,192 @@
 
 #include <Cocoa/Cocoa.h>
 
-#include <bdn/IViewCore.h>
+#include <bdn/IWindowCore.h>
+#include <bdn/Window.h>
+#include <bdn/NotImplementedError.h>
+
+#import <bdn/mac/UiProvider.hh>
+
+#include <bdn/mac/IParentViewCore.h>
+
+#import <bdn/mac/util.hh>
+
 
 namespace bdn
 {
 namespace mac
 {
 
-class WindowCore : public Base, BDN_IMPLEMENTS IViewCore
+
+class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore
 {
 public:
-    /*    WindowCore()
+    WindowCore(View* pOuter)
     {
-        _window = nullptr;
+        _pOuterWindowWeak = cast<Window>(pOuter);
+    
+        NSRect rect = rectToMacRect( pOuter->bounds() );
+        
+        _nsWindow  = [[NSWindow alloc] initWithContentRect:rect
+                                               styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
+                                                 backing:NSBackingStoreBuffered
+                                                   defer:NO];
+        
+        
+        NSRect contentRect{};
+        contentRect.size = rect.size;
+        
+        _nsContentParent = [[NSView alloc] initWithFrame:contentRect];
+        
+        _nsWindow.contentView = _nsContentParent;
+        
+        setTitle(_pOuterWindowWeak->title());
+        setVisible(_pOuterWindowWeak->visible());
     }
     
-    
-    ~WindowCore()
-    {
-        _pVisible->detachDelegate();
-        _pTitle->detachDelegate();
-    }
-    
+   
     NSWindow* getNSWindow()
     {
-        return _window;
-    }
-    
-    Property<bool>& visible()
-    {
-        return *_pVisible;
-    }
-    
-    ReadProperty<bool>& visible() const
-    {
-        return *_pVisible;
+        return _nsWindow;
     }
     
     
-    Property<String>& title()
+    void setTitle(const String& title) override
     {
-        return *_pTitle;
+        [_nsWindow setTitle: stringToMacString(title)];
     }
     
-    ReadProperty<String>& title() const
+    
+    Rect getContentArea() override
     {
-        return *_pTitle;
+        return macRectToRect( _nsContentParent.frame );
+    }
+    
+    
+    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
+    {
+        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), contentSize) );
+    
+        NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
+        
+        return macRectToRect(macWindowRect).getSize();
+    }
+    
+    
+    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
+    {
+        NSRect macWindowRect = rectToMacRect( Rect(Point(0,0), windowSize) );
+        
+        NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
+        
+        return macRectToRect(macContentRect).getSize();
+        
+    }
+    
+
+    Size calcMinimumSize() const override
+    {
+        return macSizeToSize( _nsWindow.minSize );
+    }
+    
+    
+    Rect getScreenWorkArea() const override
+    {
+        NSRect area = _nsWindow.screen.visibleFrame;
+        return macRectToRect(area);
     }
 
+
+
     
-    void center()
+    void	setVisible(const bool& visible) override
     {
-        [_window center];
+        if(visible)
+            [_nsWindow makeKeyAndOrderFront:NSApp];
+        else
+            [_nsWindow orderOut:NSApp];
     }
+    
+    
+    
+    void setMargin(const UiMargin& margin) override
+    {
+        // margins have no effect on top level windows. So, ignore.
+    }
+    
+    
+    
+    void setPadding(const UiMargin& padding) override
+    {
+        // the outer window handles padding during layout. So nothing to do here.
+    }
+    
+
+    void setBounds(const Rect& bounds) override
+    {
+        NSRect macBounds = rectToMacRect(bounds);
+        
+        [_nsWindow setFrame:macBounds display: FALSE];
+    }
+    
+    
+    
+    int uiLengthToPixels(const UiLength& uiLength) const override
+    {
+        return UiProvider::get().uiLengthToPixels(uiLength);
+    }
+    
+    
+    
+    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    {
+        return UiProvider::get().uiMarginToPixelMargin(margin);
+    }
+    
+    
+    
+    
+    Size calcPreferredSize() const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    int calcPreferredHeightForWidth(int width) const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    int calcPreferredWidthForHeight(int height) const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    
+    bool tryChangeParentView(View* pNewParent) override
+    {
+        // we don't have a parent. Report that we cannot do this.
+        return false;
+    }
+    
+    
+    void addChildNsView( NSView* childView ) override
+    {
+        [_nsContentParent addSubview:childView];
+    }
+    
     
 protected:
-
-    void initWindow(NSWindow* window, const String& title)
-    {
-        _window = window;
-
-        _pVisible = newObj<PropertyWithMainThreadDelegate<bool> >( newObj<VisibleDelegate>(_window), false);
-        _pTitle = newObj<PropertyWithMainThreadDelegate<String> >( newObj<TitleDelegate>(_window), title);
-    }
-
-    class VisibleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<bool>::IDelegate
-    {
-    public:
-        VisibleDelegate(NSWindow* window)
-        {
-            _window = window;
-        }
-        
-        void	set(const bool& val)
-        {
-            if(val)
-                [_window makeKeyAndOrderFront:NSApp];
-            else
-                [_window orderOut:NSApp];
-        }
-        
-        bool get() const
-        {
-            return [_window isVisible];
-        }
-        
-        NSWindow* _window;
-    };
-    
-    class TitleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<String>::IDelegate
-    {
-    public:
-        TitleDelegate(NSWindow* window)
-        {
-            _window = window;
-        }
-        
-        void	set(const String& val)
-        {
-            [_window setTitle: [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding] ];
-        }
-        
-        String get() const
-        {
-            const char* utf8 = [_window.title cStringUsingEncoding:NSUTF8StringEncoding];
-        
-            return String(utf8);
-        }
-        
-        NSWindow* _window;
-    };
-    
-    NSWindow* _window;
-    
-    P< PropertyWithMainThreadDelegate<bool> >   _pVisible;
-    P< PropertyWithMainThreadDelegate<String> > _pTitle;
-    */
+    Window*     _pOuterWindowWeak;
+    NSWindow*   _nsWindow;
+    NSView*     _nsContentParent;
 };
+
 
 }
 }

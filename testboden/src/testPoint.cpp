@@ -28,10 +28,10 @@ TEST_CASE("Point")
 		Point p(10, 20);
 		
 		checkEquality( Point(), Point(), true );
-		checkEquality( a, Point(), false );
-		checkEquality( a, Point(10, 20), true );
-		checkEquality( a, Point(10, 19), false );
-		checkEquality( a, Point(8, 20), false );
+		checkEquality( p, Point(), false );
+		checkEquality( p, Point(10, 20), true );
+		checkEquality( p, Point(10, 19), false );
+		checkEquality( p, Point(8, 20), false );
 	}
 
 }
