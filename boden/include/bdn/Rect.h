@@ -4,6 +4,7 @@
 
 #include <bdn/Margin.h>
 #include <bdn/Size.h>
+#include <bdn/Point.h>
 
 namespace bdn
 {
@@ -32,6 +33,30 @@ public:
 		, height(height)
 	{		
 	}
+    
+    Rect(const Point& pos, const Size& size)
+		: x(pos.x)
+		, y(pos.y)
+		, width(size.width)
+		, height(size.height)
+	{		
+	}
+
+
+
+    /** Returns the position of the top left corner of the rect.*/
+    Point getPosition() const
+    {
+        return Point(x, y);        
+    }
+    
+    
+    /** Returns the size of the rect.*/
+    Size getSize() const
+    {
+        return Size(width, height);
+    }
+
 
 
 	/** Decrease the rect size by subtracting the specified margin.*/

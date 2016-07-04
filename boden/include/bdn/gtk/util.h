@@ -8,12 +8,12 @@ namespace bdn
 namespace gtk
 {
 
-int gtkDimensionToPixels(int dim, double scaleFactor)
+inline int gtkDimensionToPixels(int dim, double scaleFactor)
 {
     return std::lround(dim*scaleFactor);
 }
 
-int pixelsToGtkDimension(int pixels, double scaleFactor)
+inline int pixelsToGtkDimension(int pixels, double scaleFactor)
 {
     int dim = pixels / scaleFactor;
     if(dim==0 && pixels>0)
@@ -22,7 +22,7 @@ int pixelsToGtkDimension(int pixels, double scaleFactor)
     return dim;
 }
 
-Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
+inline Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
 {
 	return Rect(
 			std::lround(rect.x * scaleFactor),
@@ -31,7 +31,7 @@ Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
 			gtkDimensionToPixels(rect.height, scaleFactor) );
 }
 
-GdkRectangle rectToGtkRect(const Rect& rect, double scaleFactor)
+inline GdkRectangle rectToGtkRect(const Rect& rect, double scaleFactor)
 {
     GdkRectangle result;
     
@@ -44,11 +44,12 @@ GdkRectangle rectToGtkRect(const Rect& rect, double scaleFactor)
 }
 
 
-Size gtkSizeToSize(const GtkRequisition& size, double scaleFactor)
+inline Size gtkSizeToSize(const GtkRequisition& size, double scaleFactor)
 {
     return Size( gtkDimensionToPixels(size.width, scaleFactor),
                  gtkDimensionToPixels(size.height, scaleFactor) );
 }
+
 
 		
 }

@@ -52,6 +52,11 @@ public:
     {
         GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
         
+        if(alloc.width<0)
+            alloc.width = 0;
+        if(alloc.height<0)
+            alloc.height = 0;
+        
         gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );
         
         P<View> pParentView = getOuterView()->getParentView();
@@ -161,6 +166,9 @@ private:
             
             int forGtkWidth = forWidth / getGtkScaleFactor();
             
+            if(forGtkWidth<0)
+                forGtkWidth = 0;
+            
             gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
             
             naturalSize.width = forGtkWidth;
@@ -172,6 +180,9 @@ private:
             gint naturalWidth=0;
             
             int forGtkHeight = forHeight / getGtkScaleFactor();
+            
+            if(forGtkHeight<0)
+                forGtkHeight = 0;
                         
             gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
             

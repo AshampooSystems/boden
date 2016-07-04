@@ -13,7 +13,7 @@ class ContainerViewCore : public ViewCore
 {
 public:
 	ContainerViewCore(	View* pOuter)
-		: ViewCore(pOuter, gtk_fixed_new()  )
+		: ViewCore(pOuter, gtk_layout_new(nullptr, nullptr)  )
 	{
 	}
 
@@ -52,12 +52,12 @@ public:
         
         GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
         
-        gtk_fixed_put( GTK_FIXED(getGtkWidget()), pChildCore->getGtkWidget(), rect.x, rect.y);
+        gtk_layout_put( GTK_LAYOUT(getGtkWidget()), pChildCore->getGtkWidget(), rect.x, rect.y);
     }
     
     void _moveChildViewCore(ViewCore* pChildCore, int gtkX, int gtkY) override
     {
-        gtk_fixed_move( GTK_FIXED(getGtkWidget()), pChildCore->getGtkWidget(), gtkX, gtkY);
+        gtk_layout_move( GTK_LAYOUT(getGtkWidget()), pChildCore->getGtkWidget(), gtkX, gtkY);
     }    
 
 };

@@ -230,13 +230,14 @@ void Window::layout()
 	// just set our content window to content area (but taking margins and padding into account).
 
 	Rect contentBounds = pCore->getContentArea();
-			
+    			
 	// subtract our padding
 	contentBounds -= pCore->uiMarginToPixelMargin( padding() );
 
 	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );
-
+	contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );    
+    
+    
 	pContentView->bounds() = contentBounds;
 
 	// note that we do not need to call layout on the content view.

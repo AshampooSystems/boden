@@ -22,7 +22,7 @@ public:
         setTitle( cast<Window>(pOuter)->title() );
         
         // we add a dummy content window, so that we can manually position our "real" content view inside it.
-        _pContentParentWidget = gtk_fixed_new();
+        _pContentParentWidget = gtk_layout_new(nullptr, nullptr);
         
         g_signal_connect( getGtkWidget(), "configure-event", G_CALLBACK(_reconfiguredCallback), this );
         
@@ -49,7 +49,7 @@ public:
         geo.min_width = gtkNaturalSize.width;
         geo.min_height = gtkNaturalSize.height;
 
-        gtk_window_set_geometry_hints( GTK_WINDOW(getGtkWidget()), NULL, &geo, GDK_HINT_MIN_SIZE );
+        gtk_window_set_geometry_hints( GTK_WINDOW(getGtkWidget()), NULL, &geo, GDK_HINT_MIN_SIZE );                
 	}
 
 	~WindowCore()
@@ -70,19 +70,22 @@ public:
 
     void setBounds(const Rect& bounds)
     {   
-        // if _ignoreSetBounds is true then we are the ones who have set the bounds as a reaction to a size change event.
-        // Ignore this, so that we do not get in a loop.
-        if(!_ignoreSetBounds)
-        {        
-            // GTK will assume that the requested size is without any window decorations
-            // and borders. That is OK, since we ignore these nonclient sizes as well.
-            
-            GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
-            
+        // GTK will assume that the requested size is without any window decorations
+        // and borders. That is OK, since we ignore these nonclient sizes as well.
+        
+        GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
+        
+        // the X window system is not always precise when it comes to sizing and positioning.
+        // So if the size and/or position did not change then we should not reset it.
+        // If we were to set the "current" size or position again then we would risk that
+        // the result is slightly different that the actual current size and position.
+        
+                       
+        if(bounds.getSize() != _currBounds.getSize())
             gtk_window_resize( getGtkWindow(), alloc.width, alloc.height );
-            
-            gtk_window_move( getGtkWindow(), alloc.x, alloc.y );        
-        }
+        
+        if(bounds.getPosition() != _currBounds.getPosition() )            
+            gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
         
         getOuterView()->needLayout();
     }
@@ -91,10 +94,20 @@ public:
 
 	Rect getContentArea() override
     {
-        GtkAllocation alloc;
+        // content area size is the same as our size (since window borders etc. are not
+        // included in our size).
+        
+        Rect area( Point(0,0), _currBounds.getSize() );
+        
+        // note that we cannot use the current size of _pContentParentWidget, because it might
+        // lag behind a little bit when the size of the overall window changes.
+        // If we need to change to the _pContentParentWidget size in the future then we need
+        // to react to the resizing of the content parent.
+        
+        /*GtkAllocation alloc;
         gtk_widget_get_allocation(_pContentParentWidget, &alloc );
 
-        Rect area = gtkRectToRect(alloc, getGtkScaleFactor() );        
+        Rect area = gtkRectToRect(alloc, getGtkScaleFactor() );        */
         
         return area;
     }
@@ -126,7 +139,9 @@ public:
     {
         GdkScreen* pScreen = gtk_window_get_screen( getGtkWindow() );
         
-        gint monitorNum = gdk_screen_get_monitor_at_window( pScreen, GDK_WINDOW( getGtkWidget() ) );
+        GdkWindow* pGdkWindow = gtk_widget_get_window( getGtkWidget() );
+        
+        gint monitorNum = gdk_screen_get_monitor_at_window( pScreen, pGdkWindow );
         
         
         GdkRectangle workArea;
@@ -149,14 +164,14 @@ public:
         
         GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
         
-        gtk_fixed_put( GTK_FIXED(_pContentParentWidget), pChildCore->getGtkWidget(), rect.x, rect.y);
+        gtk_layout_put( GTK_LAYOUT(_pContentParentWidget), pChildCore->getGtkWidget(), rect.x, rect.y);
     }
     
     
     
     void _moveChildViewCore(ViewCore* pChildCore, int gtkX, int gtkY) override
     {
-        gtk_fixed_move( GTK_FIXED(_pContentParentWidget), pChildCore->getGtkWidget(), gtkX, gtkY);
+        gtk_layout_move( GTK_LAYOUT(_pContentParentWidget), pChildCore->getGtkWidget(), gtkX, gtkY);
     }    
 
     
@@ -188,19 +203,13 @@ protected:
     {
         // size, position or "stacking" has changed. Update the bounds() property
         
-        _ignoreSetBounds = true;
+        _currBounds = _getBounds();
         
-        try
-        {        
-            getOuterView()->bounds() = _getBounds();        
-        }
-        catch(...)
-        {
-            _ignoreSetBounds = false;
-            throw;
-        }
-        
-        _ignoreSetBounds = false;
+        // update the property. Note that this will not cause
+        // another configure event, because the setBounds method will only
+        // reposition or resize the window if the new size/position are different
+        // from the current ones.
+        getOuterView()->bounds() = _currBounds;                
     }
     
     
@@ -216,8 +225,8 @@ protected:
     
     GtkWidget*  _pContentParentWidget;
     
-    bool        _ignoreSetBounds = false;
-    Size        _minSize;
+    Size        _minSize;    
+    Rect        _currBounds;
 };
 
 
