@@ -9,7 +9,7 @@ namespace bdn
     
 P<IUiProvider> getPlatformUiProvider()
 {
-    return bdn::web::UiProvider::get();
+    return &bdn::web::UiProvider::get();
 }
     
 }

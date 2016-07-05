@@ -16,10 +16,9 @@ namespace bdn
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 public:
-	/*
-    WindowCore(Window* pParent,
-           const std::string& elementName,
-           const std::map<std::string,std::string>& attribMap = std::map<std::string,std::string>())
+    WindowCore( Window* pParent,
+                const std::string& elementName,
+                const std::map<std::string,std::string>& attribMap = std::map<std::string,std::string>())
     {
         _id = IdGen::newID();
 
@@ -62,7 +61,6 @@ protected:
     std::string         _jsId;
     
     emscripten::val*    _pJsObj;
-    */
 };
 
 }
