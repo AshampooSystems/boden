@@ -49,6 +49,40 @@ public:
 	}
 
 
+
+    
+    Margin operator+(const Margin& o) const
+    {
+        return Margin(*this) += o;
+    }
+    
+    Margin operator-(const Margin& o) const
+    {
+        return Margin(*this) -= o;
+    }
+
+
+    Margin& operator+=(const Margin& o)
+    {
+        top += o.top;
+        right += o.right;
+        bottom += o.bottom;
+        left += o.left;
+        
+        return *this;
+    }
+
+    Margin& operator-=(const Margin& o)
+    {
+        top -= o.top;
+        right -= o.right;
+        bottom -= o.bottom;
+        left -= o.left;
+        
+        return *this;
+    }
+        
+
 	int top = 0;
 	int right = 0;	
 	int bottom = 0;	

@@ -27,6 +27,7 @@ public:
         _addToParent( pOuterView->getParentView() );
         
         setVisible( pOuterView->visible() );
+        setPadding( pOuterView->padding() );
     }
     
     
@@ -46,8 +47,6 @@ public:
     void setPadding(const UiMargin& padding) override
     {
         // store the padding so that we can use it during size calulation
-        _padding = padding;
-        
         _pOuterViewWeak->needSizingInfoUpdate();
     }
     
@@ -81,7 +80,27 @@ public:
         Size size = macSizeToSize( _nsView.fittingSize );
         
         // add the padding
-        size += uiMarginToPixelMargin( _padding );
+        Margin additionalPadding = uiMarginToPixelMargin( getOuterView()->padding() );
+
+        // some controls auto-include a base padding in the fittingSize.
+        // We need to subtract that.
+        additionalPadding -= getPaddingIncludedInFittingSize();
+        
+        // if the padding we get from the outer window is less than the auto-included
+        // padding then we have to use the auto-included padding. Otherwise parts of the content
+        // might not be visible (the controls do not reduce the padding when they are
+        // smaller than their fitting size - they just clip the content).
+        additionalPadding.top = std::max(additionalPadding.top, 0);
+        additionalPadding.right = std::max(additionalPadding.right, 0);
+        additionalPadding.bottom = std::max(additionalPadding.bottom, 0);
+        additionalPadding.left = std::max(additionalPadding.left, 0);
+        
+        size += additionalPadding;
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
         
         return size;
     }
@@ -123,7 +142,7 @@ public:
 
     
     
-    NSView* getNSView()
+    NSView* getNSView() const
     {
         return _nsView;
     }
@@ -133,6 +152,18 @@ public:
     {
         [_nsView addSubview:childView];
     }
+    
+    
+protected:
+    /** Returns an estimate padding that the NSView automatically includes in the calculation
+        of NSView.fittingSize.
+        The default implementation returns an zero padding.
+        */
+    virtual Margin getPaddingIncludedInFittingSize() const
+    {
+        return Margin();
+    }
+    
   
     
 private:
@@ -158,8 +189,6 @@ private:
     
     View*       _pOuterViewWeak;
     NSView*     _nsView;
-    
-    UiMargin    _padding;
 };
 
 
