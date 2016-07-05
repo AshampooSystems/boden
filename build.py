@@ -461,12 +461,6 @@ def commandPrepare(commandArgs):
                 if arch=="std":
                     platform = "OS";
 
-                elif arch=="sim32":
-                    platform = "SIMULATOR";
-
-                elif arch=="sim64":
-                    platform = "SIMULATOR64";
-
                 else:
                     raise InvalidArchitectureError(arch);
 
@@ -1021,8 +1015,6 @@ ARCH values:
 
   ios:
     std: normal iOS app (combined 32 and 64 bit binary)
-    sim32: build for 32 bit simulator
-    sim64: build for 64 bit simulator
 
   android:  
     std: at the time of this writing the same as armeabi-v7a (but might

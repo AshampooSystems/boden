@@ -3,6 +3,7 @@
 
 #include <bdn/IButtonCore.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/Button.h>
 
 #import <bdn/ios/ViewCore.hh>
 
@@ -13,9 +14,12 @@ namespace ios
     
 class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
+private:
+    static UIButton* _createUIButton(Button* pOuterButton);
+    
 public:
-   /* 
-    ButtonCore(Window* pParent, const String& label);
+    ButtonCore(Button* pOuterButton);
+    
     ~ButtonCore();
     
     UIButton* getUIButton()
@@ -23,56 +27,18 @@ public:
         return _button;
     }
     
-    Property<String>& label()
+    void setLabel(const String& label)
     {
-        return *_pLabel;
+        [_button setTitle: stringToIosString(label)
+                 forState:UIControlStateNormal];
     }
     
-    ReadProperty<String>& label() const
-    {
-        return *_pLabel;
-    }
+    void _clicked();
     
-    Notifier<const ClickEvent&>& onClick();
-    
-protected:
-    class LabelDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<String>::IDelegate
-    {
-    public:
-        LabelDelegate(UIButton* button)
-        {
-            _button = button;
-        }
-        
-        void	set(const String& val)
-        {
-            [_button setTitle: [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding]
-                     forState:UIControlStateNormal];
-        }
-        
-        String get() const
-        {
-            const char* utf8 = [_button.currentTitle cStringUsingEncoding:NSUTF8StringEncoding];
-            
-            return String(utf8);
-        }
-        
-        UIButton* _button;
-    };
-    
-    void initButton(UIButton* button, const String& label);
-    
-    
+private:
     UIButton*   _button;
     
     NSObject*   _clickManager;
-    
-    
-    Notifier<const ClickEvent&> _onClick;
-    
-    
-    P< PropertyWithMainThreadDelegate<String> > _pLabel;
-    */
 };
 
 

@@ -1,15 +1,20 @@
 #include <bdn/init.h>
-#include <bdn/ios/UiProvider.h>
 
+#import <UIKit/UIKit.h>
+#import <bdn/ios/UiProvider.hh>
+#import <bdn/ios/WindowCore.hh>
+#import <bdn/ios/ContainerViewCore.hh>
+#import <bdn/ios/ButtonCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
+
 
 namespace bdn
 {
     
 P<IUiProvider> getPlatformUiProvider()
 {
-    return bdn::ios::UiProvider::get();
+    return &bdn::ios::UiProvider::get();
 }
     
 }
@@ -23,13 +28,29 @@ namespace ios
 
 BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
+
+UiProvider::UiProvider()
+{
+    // this is a bit of a hack. We use the height of the letter M as the em size.
+    // Is there a better way?
+    
+    NSAttributedString* attrString = [NSAttributedString alloc];
+    
+    [attrString initWithString:@"M"];
+    
+    CGSize fontSize = attrString.size;
+    
+    _semPixels = fontSize.height;
+
+}
+
 String UiProvider::getName() const
 {
     return "ios";
 }
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
-{/*
+{
     if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
         return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
     
@@ -39,7 +60,7 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );
     
-    else	*/
+    else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 

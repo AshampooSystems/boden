@@ -1,26 +1,24 @@
 #include <bdn/init.h>
 #import <bdn/ios/ButtonCore.hh>
-/*
 
-@interface BdnButtonClickManager : NSObject
 
-@property bdn::Button* pButton;
+@interface BdnIosButtonClickManager : NSObject
+
+@property bdn::ios::ButtonCore* pCore;
 
 @end
 
 
-@implementation BdnButtonClickManager
+@implementation BdnIosButtonClickManager
 
--(void)setButton:(bdn::Button*)pButton
+-(void)setButtonCore:(bdn::ios::ButtonCore*)pCore
 {
-    _pButton = pButton;
+    _pCore = pCore;
 }
 
 -(void)clicked
 {
-    bdn::ClickEvent evt(_pButton);
-    
-    _pButton->onClick().notify(evt);
+    _pCore->_clicked();
 }
 
 @end
@@ -35,56 +33,49 @@ namespace ios
 {
 
 
-P<IButton> createButton(IView* pParent, const String& label)
+UIButton* ButtonCore::_createUIButton(Button* pOuterButton)
 {
-    return newObj<Button>( cast<Window>(pParent), label);
+    UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
+    
+    return button;
 }
 
-
-Button::Button(Window* pParent, const String& label)
+ButtonCore::ButtonCore(Button* pOuterButton)
+    : ViewCore(pOuterButton, _createUIButton(pOuterButton) )
 {
-    _button = nil;
-    _clickManager = nil;
+    _button = (UIButton*)getUIView();
+
+    BdnIosButtonClickManager* clickMan = [BdnIosButtonClickManager alloc];
+    [clickMan setButtonCore:this];
+
+    _clickManager = clickMan;
+
+    [_button addTarget:clickMan
+                action:@selector(clicked)
+      forControlEvents:UIControlEventTouchUpInside];
     
-    UIWindow* pUIParentWindow = pParent->getUIWindow();
-    
-    _button = [UIButton buttonWithType:UIButtonTypeSystem];
-    _button.frame = CGRectMake(0, 40, 160, 40);
-    
-    [pUIParentWindow addSubview:_button];
-    
-    initView(_button);
-    
-    _pLabel = newObj< PropertyWithMainThreadDelegate<String> >( newObj<LabelDelegate>(_button), label );
-    
+    setLabel( pOuterButton->label() );
 }
 
-
-Button::~Button()
+ButtonCore::~ButtonCore()
 {
-    _pLabel->detachDelegate();
-}
-
-Notifier<const ClickEvent&>& Button::onClick()
-{
-    if(_clickManager==nil)
-    {
-        BdnButtonClickManager* clickMan = [BdnButtonClickManager alloc];
-        [clickMan setButton:this];
-        
-        _clickManager = clickMan;
-        
-        [_button addTarget:clickMan
-                    action:@selector(clicked)
-                    forControlEvents:UIControlEventTouchUpInside];
-    }
+    BdnIosButtonClickManager* clickMan = (BdnIosButtonClickManager*)_clickManager;
     
-    return _onClick;
+    [_button removeTarget:clickMan
+                action:nil
+      forControlEvents:UIControlEventTouchUpInside];
 }
     
+    
+void ButtonCore::_clicked()
+{
+    ClickEvent evt(getOuterView());
+    
+    cast<Button>(getOuterView())->onClick().notify(evt);
+}
         
     
 }
 }
-*/
+
 

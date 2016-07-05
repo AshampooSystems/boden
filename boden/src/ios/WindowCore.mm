@@ -1,13 +1,15 @@
 #include <bdn/init.h>
 #import <bdn/ios/WindowCore.hh>
 
+#import <bdn/ios/MainViewController.hh>
+
 namespace bdn
 {
 namespace ios
 {
-/*
 
-WindowCore::WindowCore(const String& title)
+
+UIWindow* WindowCore::_createUIWindow(Window* pOuterWindow)
 {
     UIWindow* window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
@@ -15,8 +17,6 @@ WindowCore::WindowCore(const String& title)
     window.rootViewController = controller;
     
     window.backgroundColor = [UIColor whiteColor];
-    //controller.view.backgroundColor = [UIColor whiteColor];
-    //controller.title = @"Hello";
     
     // we must make this the key window here, before we do much else. Otherwise we
     // can get an app with a half-activated window that does not react to input events.
@@ -24,8 +24,9 @@ WindowCore::WindowCore(const String& title)
     // We have to have one call right here.
     [window makeKeyAndVisible];
     
-    initWindow(window, title);
+    return window;
 }
-*/
+
+
 }
 }

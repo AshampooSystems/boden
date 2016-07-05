@@ -4,6 +4,10 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/IWindowCore.h>
+#include <bdn/Window.h>
+#include <bdn/NotImplementedError.h>
+
+#import <bdn/ios/util.hh>
 #import <bdn/ios/ViewCore.hh>
 
 namespace bdn
@@ -13,113 +17,113 @@ namespace ios
 
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
+private:
+    UIWindow* _createUIWindow(Window* pOuterWindow);
+    
 public:
-/*
-    WindowCore()
+    WindowCore(Window* pOuterWindow)
+    : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow) )
     {
-        _window = nullptr;
+        _window = (UIWindow*)getUIView();
     }
     
-    ~WindowCore()
-    {
-        _pVisible->detachDelegate();
-        _pTitle->detachDelegate();
-    }
     
-    UIWindow* getUIWindow()
+    UIWindow* getUIWindow() const
     {
         return _window;
     }
     
-    Property<bool>& visible()
+    
+    void setBounds(const Rect& bounds) override
     {
-        return *_pVisible;
+        // we do not modify our frame. Just reset the bounds property back to the current bounds.
+        getOuterView()->bounds() = iosRectToRect(_window.frame);
+        
+        getOuterView()->needLayout();
     }
     
-    ReadProperty<bool>& visible() const
+    
+    void setTitle(const String& title) override
     {
-        return *_pVisible;
+        _window.rootViewController.title = stringToIosString(title);
     }
     
     
-    Property<String>& title()
+    Rect getContentArea() override
     {
-        return *_pTitle;
+        // Same size as bounds. There is no border or title bar on ios.
+        return Rect( Point(0,0), getOuterView()->bounds().get().getSize() );
     }
     
-    ReadProperty<String>& title() const
+    
+    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
     {
-        return *_pTitle;
+        // no border or title bar. So window size = content size
+        return contentSize;
+    }
+    
+    
+    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
+    {
+        // no border or title bar. So window size = content size
+        return windowSize;
+    }
+    
+    
+    Size calcMinimumSize() const override
+    {
+        // no border or title bar => no minimum size.
+        return Size(0,0);
+    }
+    
+    
+    
+    
+    Rect getScreenWorkArea() const override
+    {
+        UIScreen* screen = _getUIScreen();
+        
+        return iosRectToRect(screen.nativeBounds);
+    }
+    
+    
+    
+    Size calcPreferredSize() const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    int calcPreferredHeightForWidth(int width) const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    int calcPreferredWidthForHeight(int height) const override
+    {
+        // the implementation for this must be provided by the outer Window object.
+        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+    }
+    
+    
+    
+    bool tryChangeParentView(View* pNewParent) override
+    {
+        // we don't have a parent. Report that we cannot do this.
+        return false;
+    }
+    
+            
+private:
+    UIScreen* _getUIScreen() const
+    {
+        return _window.screen;
     }
 
-    
-    void center()
-    {
-        [_window center];
-    }
-    
-protected:
-
-    void initWindow(UIWindow* window, const String& title)
-    {
-        _window = window;
-
-        _pTitle = newObj<PropertyWithMainThreadDelegate<String> >( newObj<TitleDelegate>(_window), title);
-        _pVisible = newObj<PropertyWithMainThreadDelegate<bool> >( newObj<VisibleDelegate>(_window), false);
-    }
-
-    class VisibleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<bool>::IDelegate
-    {
-    public:
-        VisibleDelegate(UIWindow* window)
-        {
-            _window = window;
-        }
-        
-        void	set(const bool& val)
-        {
-            bool currVal = !_window.hidden;
-            if(val!=currVal)
-                _window.hidden = val ? NO : YES;
-        }
-        
-        bool get() const
-        {
-            return ! _window.hidden;
-        }
-        
-        UIWindow* _window;
-    };
-    
-    class TitleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<String>::IDelegate
-    {
-    public:
-        TitleDelegate(UIWindow* window)
-        {
-            _window = window;
-        }
-        
-        void	set(const String& val)
-        {
-            //XXX
-            _window.rootViewController.title = [NSString stringWithCString:val.asUtf8Ptr() encoding:NSUTF8StringEncoding];
-        }
-        
-        String get() const
-        {
-            const char* utf8 = [_window.rootViewController.title cStringUsingEncoding:NSUTF8StringEncoding];
-        
-            return String(utf8);
-        }
-        
-        UIWindow* _window;
-    };
-    
     UIWindow* _window;
-    
-    P< PropertyWithMainThreadDelegate<bool> >   _pVisible;
-    P< PropertyWithMainThreadDelegate<String> > _pTitle;
-    */
 };
 
 }

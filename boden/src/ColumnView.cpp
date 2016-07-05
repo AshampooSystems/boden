@@ -91,7 +91,7 @@ int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& c
 			else
 				alignFactor = 0;
 			
-			childX = myPadding.left + childMargin.left + std::lround( (maxChildWidth-childWidth)*alignFactor );
+			childX = myPadding.left + childMargin.left + (int)std::lround( (maxChildWidth-childWidth)*alignFactor );
 		}
 
 		int childHeight;

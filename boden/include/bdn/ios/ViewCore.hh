@@ -4,6 +4,10 @@
 #import <UIKit/UIKit.h>
 
 #include <bdn/IViewCore.h>
+#include <bdn/View.h>
+
+#import <bdn/ios/UIProvider.hh>
+#import <bdn/ios/util.hh>
 
 
 namespace bdn
@@ -14,64 +18,154 @@ namespace ios
 class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-/*
-    ViewCore()
+    ViewCore(View* pOuterView, UIView* view)
     {
-        _view = nullptr;
-    }
-    
-    ~ViewCore()
-    {
-        _pVisible->detachDelegate();
-    }
-    
-    Property<bool>& visible()
-    {
-        return *_pVisible;
-    }
-    
-    ReadProperty<bool>& visible() const
-    {
-        return *_pVisible;
-    }
-    
-protected:
-    void initView(UIView* view, UIView* secondaryView = nil)
-    {
+        _pOuterViewWeak = pOuterView;
         _view = view;
         
-        _pVisible = newObj<PropertyWithMainThreadDelegate<bool> >( newObj<VisibleDelegate>(_view, secondaryView), true);
+        _addToParent( pOuterView->getParentView() );
+        
+        setVisible( pOuterView->visible() );
+        setPadding( pOuterView->padding() );
+    }
+    
+    const View* getOuterView() const
+    {
+        return _pOuterViewWeak;
+    }
+    
+    View* getOuterView()
+    {
+        return _pOuterViewWeak;
+    }
+    
+    UIView* getUIView() const
+    {
+        return _view;
+    }
+    
+    
+    
+    void setVisible(const bool& visible) override
+    {
+        _view.hidden = !visible;
+    }
+    
+    
+    void setMargin(const UiMargin& margin) override
+    {
+        // we don't care about OUR margin. Our parent uses it during layout.
+        // So, do nothing here.
+    }
+    
+    
+    void setPadding(const UiMargin& padding) override
+    {
+        // store the padding so that we can use it during size calulation
+        _pOuterViewWeak->needSizingInfoUpdate();
+    }
+    
+    
+    void setBounds(const Rect& bounds) override
+    {
+        _view.frame = rectToIosRect(bounds);
+        
+        getOuterView()->needLayout();
+    }
+    
+    
+    int uiLengthToPixels(const UiLength& uiLength) const override
+    {
+        return UiProvider::get().uiLengthToPixels(uiLength);
+    }
+    
+    
+    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    {
+        return UiProvider::get().uiMarginToPixelMargin(margin);
+    }
+    
+    
+    
+    
+    Size calcPreferredSize() const override
+    {
+        return _calcPreferredSize(-1, -1);
+    }
+    
+    
+    int calcPreferredHeightForWidth(int width) const override
+    {
+        return _calcPreferredSize(width, -1).height;
+    }
+    
+    
+    int calcPreferredWidthForHeight(int height) const override
+    {
+        return _calcPreferredSize(-1, height).width;
+    }
+    
+    
+    bool tryChangeParentView(View* pNewParent) override
+    {
+        _addToParent(pNewParent);
+        
+        return true;
+    }
+    
+    
+    virtual void addChildUIView( UIView* childView )
+    {
+        [_view addSubview:childView];
+    }
+    
+    
+protected:
+    Size _calcPreferredSize(int forWidth, int forHeight) const
+    {
+        CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        
+        Size size = iosSizeToSize(iosSize);
+        
+        // add the padding
+        Margin padding = uiMarginToPixelMargin( getOuterView()->padding() );
+        
+        size += padding;
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
+        return size;
     }
 
-    class VisibleDelegate : public Base, BDN_IMPLEMENTS PropertyWithMainThreadDelegate<bool>::IDelegate
+    
+    
+private:
+    void _addToParent(View* pParentView)
     {
-    public:
-        VisibleDelegate(UIView* view, UIView* secondaryView)
+        if(pParentView==nullptr)
         {
-            _view = view;
-            _secondaryView = secondaryView;
+            // top level window. Nothing to do.
+            return;
         }
         
-        void	set(const bool& val)
+        P<IViewCore> pParentCore = pParentView->getViewCore();
+        if(pParentCore==nullptr)
         {
-            _view.hidden = !val;
-            if(_secondaryView!=nil)
-                _secondaryView.hidden = !val;
+            // this should not happen. The parent MUST have a core - otherwise we cannot
+            // initialize ourselves.
+            throw ProgrammingError("bdn::ios::ViewCore constructed for a view whose parent does not have a core.");
         }
         
-        bool get() const
-        {
-            return !_view.hidden;
-        }
-        
-        UIView* _view;
-        UIView* _secondaryView;
-    };
+        cast<ViewCore>( pParentCore )->addChildUIView( _view );
+    }
+
+
+    View*   _pOuterViewWeak;
     
     UIView* _view;
-    
-    P< PropertyWithMainThreadDelegate<bool> > _pVisible;
-    */
 };
 
 

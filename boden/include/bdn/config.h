@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <climits>
-#include <stddef.h>
+#include <cstddef>
 
 #if WCHAR_MAX <= 0xffff
 	#define BDN_WCHAR_SIZE 2
