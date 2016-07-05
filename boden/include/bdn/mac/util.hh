@@ -8,16 +8,59 @@ namespace mac
 {
 
 
-inline Rect macRectToRect(const NSRect& rect)
+/** Converts a mac rect to a bdn::Rect.
+
+    Mac UI objects often use an inverted coordinate space with the origin in
+    the lower left corner, rather than the lower right.
+    
+    This function can convert from the inverted space to "normal" space with
+    top left being the origin. To do that you must set coordinateSpaceHeightForFlipping
+    to the full height of the coordinate space (i.e. the height of the area that the rect is
+    in).
+    
+    If coordinateSpaceHeightForFlipping is -1 then no flipping is done.
+    */
+inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlipping)
 {
+    double y = rect.origin.y;
+    
+    if(coordinateSpaceHeightForFlipping!=-1)
+    {
+        // when we need to flip then we need to adjust for two things:
+        // 1) the origin of the mac coordinate space is the bottom left
+        // 2) the "position" of the rect refers to the lower left corner of
+        //    the rect.
+        
+        // Adjust for 1)
+        y = coordinateSpaceHeightForFlipping-y;
+        
+        // Adjust for 2)
+        y -= rect.size.height;
+    }
+
 	return Rect(
 			std::lround(rect.origin.x),
-			std::lround(rect.origin.y),
+            std::lround(y),
 			std::lround(rect.size.width),
             std::lround(rect.size.height) );
 }
 
-inline NSRect rectToMacRect(const Rect& rect)
+
+
+/** Converts a bdn::Rect to a mac rect.
+     
+    Mac UI objects often use an inverted coordinate space with the origin in
+    the lower left corner, rather than the lower right.
+
+    This function can convert from the "normal" space with
+    top left being the origin to the inverted mac space.
+    To do that you must set coordinateSpaceHeightForFlipping
+    to the full height of the coordinate space (i.e. the height of the area that the rect is
+    in).
+
+    If coordinateSpaceHeightForFlipping is -1 then no flipping is done.
+    */
+inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlipping)
 {
     NSRect macRect;
     
@@ -25,6 +68,13 @@ inline NSRect rectToMacRect(const Rect& rect)
     macRect.origin.y = rect.y;
     macRect.size.width = rect.width;
     macRect.size.height = rect.height;
+    
+    if(coordinateSpaceHeightForFlipping!=-1)
+    {
+        // seem acRectToRect for an explanation
+        macRect.origin.y += macRect.size.height;
+        macRect.origin.y = coordinateSpaceHeightForFlipping-macRect.origin.y;
+    }
     
     return macRect;
 }

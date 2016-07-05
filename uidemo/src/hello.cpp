@@ -109,7 +109,6 @@ protected:
 	void windowSizingInfoChanged()
 	{
 		_pWindow->requestAutoSize();
-		_pWindow->requestCenter();
 	}
 
     void buttonClicked()

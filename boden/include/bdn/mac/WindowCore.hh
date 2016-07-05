@@ -23,31 +23,11 @@ namespace mac
 class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore
 {
 public:
-    WindowCore(View* pOuter)
-    {
-        _pOuterWindowWeak = cast<Window>(pOuter);
+    WindowCore(View* pOuter);
     
-        NSRect rect = rectToMacRect( pOuter->bounds() );
-        
-        _nsWindow  = [[NSWindow alloc] initWithContentRect:rect
-                                               styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
-                                                 backing:NSBackingStoreBuffered
-                                                   defer:NO];
-        
-        
-        NSRect contentRect{};
-        contentRect.size = rect.size;
-        
-        _nsContentParent = [[NSView alloc] initWithFrame:contentRect];
-        
-        _nsWindow.contentView = _nsContentParent;
-        
-        setTitle(_pOuterWindowWeak->title());
-        setVisible(_pOuterWindowWeak->visible());
-    }
-    
+    ~WindowCore();
    
-    NSWindow* getNSWindow()
+    NSWindow* getNsWindow()
     {
         return _nsWindow;
     }
@@ -61,27 +41,34 @@ public:
     
     Rect getContentArea() override
     {
-        return macRectToRect( _nsContentParent.frame );
+        // the content parent is inside the inverted coordinate space of the window
+        // origin is bottom left. So we need to pass the content height, so that
+        // the coordinates can be flipped.
+        return macRectToRect( _nsContentParent.frame, _nsContentParent.frame.size.height );
     }
     
     
     Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
     {
-        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), contentSize) );
+        // we can ignore the coordinate space being inverted here. We do not
+        // care about the position, just the size.
+        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), contentSize), -1 );
     
         NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
         
-        return macRectToRect(macWindowRect).getSize();
+        return macRectToRect(macWindowRect, -1).getSize();
     }
     
     
     Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
     {
-        NSRect macWindowRect = rectToMacRect( Rect(Point(0,0), windowSize) );
+        // we can ignore the coordinate space being inverted here. We do not
+        // care about the position, just the size.
+        NSRect macWindowRect = rectToMacRect( Rect(Point(0,0), windowSize), -1 );
         
         NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
         
-        return macRectToRect(macContentRect).getSize();
+        return macRectToRect(macContentRect, -1).getSize();
         
     }
     
@@ -92,10 +79,16 @@ public:
     }
     
     
+    
+    
     Rect getScreenWorkArea() const override
     {
-        NSRect area = _nsWindow.screen.visibleFrame;
-        return macRectToRect(area);
+        NSScreen* screen = _getNsScreen();
+    
+        NSRect workArea = screen.visibleFrame;
+        NSRect fullArea = screen.frame;
+        
+        return macRectToRect(workArea, fullArea.size.height);
     }
 
 
@@ -126,9 +119,17 @@ public:
 
     void setBounds(const Rect& bounds) override
     {
-        NSRect macBounds = rectToMacRect(bounds);
+        if(bounds!=_currActualWindowBounds)
+        {
+            NSScreen* screen = _getNsScreen();
+            
+            // the screen's coordinate system is inverted. So we need to
+            // flip the coordinates.
+            NSRect nsBounds = rectToMacRect(bounds, screen.frame.size.height);
         
-        [_nsWindow setFrame:macBounds display: FALSE];
+            [_nsWindow setFrame:nsBounds display: FALSE];
+            _currActualWindowBounds = bounds;
+        }
     }
     
     
@@ -183,10 +184,38 @@ public:
     }
     
     
-protected:
+    void _resized()
+    {
+        _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
+        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
+        
+        _pOuterWindowWeak->needLayout();
+    }
+    
+    void _moved()
+    {
+        _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
+        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
+    }
+    
+private:
+
+    NSScreen* _getNsScreen() const
+    {
+        NSScreen* screen = _nsWindow.screen;
+        
+        if(screen==nil) // happens when window is not visible
+            screen = [NSScreen mainScreen];
+        
+        return screen;
+    }
+    
+    
     Window*     _pOuterWindowWeak;
     NSWindow*   _nsWindow;
     NSView*     _nsContentParent;
+    
+    Rect        _currActualWindowBounds;
 };
 
 

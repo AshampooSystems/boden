@@ -54,7 +54,11 @@ public:
 
     void setBounds(const Rect& bounds) override
     {
-        _nsView.frame = rectToMacRect(bounds);
+        // our parent view's coordinate system is "normal" i.e. with
+        // the top left being (0,0). So there is no need to flip the coordinates.
+        _nsView.frame = rectToMacRect(bounds, -1);
+        
+        getOuterView()->needLayout();
     }
     
     

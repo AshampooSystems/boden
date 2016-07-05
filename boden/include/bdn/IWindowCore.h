@@ -38,11 +38,13 @@ public:
 	/** Returns the minimum size of the window, so that all the essential window controls
 		are visible (close, maximize buttons, etc.)*/
 	virtual Size calcMinimumSize() const=0;
+    
 
 	/** Returns the area of the screen that can be used by windows.
 		That excludes taskbars, sidebars and the like (if they are always visible).
 		The returned rect applies only to the screen that the window is currently on.
-		Other screens can have different window areas.*/
+		Other screens can have different window areas.
+        */
 	virtual Rect getScreenWorkArea() const=0;
 	
 };
