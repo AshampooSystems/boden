@@ -11,7 +11,9 @@ namespace bdn
 
 static void CallFromMainThread_callback(void* pArg)
 {
-	CallFromMainThreadBase_* pObj = (CallFromMainThreadBase_*)pArg;
+	P<CallFromMainThreadBase_> pObj;
+
+	pObj.attachPtr( static_cast<CallFromMainThreadBase_*>(pArg) );
 
 	try
 	{
@@ -27,7 +29,10 @@ static void CallFromMainThread_callback(void* pArg)
 
 void CallFromMainThreadBase_::dispatch()
 {
-	emscripten_async_call(CallFromMainThread_callback, this, 0);
+	// keep ourselves alive during this
+	addRef();
+
+	emscripten_async_call(CallFromMainThread_callback, static_cast<void*>(this), 0);
 }
 
 

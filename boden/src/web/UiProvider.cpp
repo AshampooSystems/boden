@@ -4,6 +4,11 @@
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
+#include <bdn/web/ContainerViewCore.h>
+#include <bdn/web/ButtonCore.h>
+#include <bdn/web/WindowCore.h>
+
+
 namespace bdn
 {
     
@@ -28,7 +33,7 @@ String UiProvider::getName() const
 }
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
-{/*
+{
     if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
         return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
     
@@ -38,7 +43,7 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );
     
-    else	*/
+    else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 

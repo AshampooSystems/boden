@@ -146,10 +146,11 @@ if( "${BODEN_TARGET}" STREQUAL "web" )
 	# locale encoding is always UTF-8 with Emscripten.
 	add_definitions( -DBDN_OVERRIDE_LOCALE_ENCODING_UTF8 )
 
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0 -s DEMANGLE_SUPPORT=1")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -s ASSERTIONS=2")
 
 	
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --emrun")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --emrun --bind")
 
 endif()
 
@@ -402,7 +403,11 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file
-	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html")
+
+	get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
+
+	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html --shell-file ${WEBEMS_SHELL_FILE}")
+
 endif()
 
 target_link_libraries(uidemo boden)

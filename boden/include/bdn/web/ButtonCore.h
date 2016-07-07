@@ -5,8 +5,8 @@
 
 #include <bdn/web/ViewCore.h>
 #include <bdn/IButtonCore.h>
+#include <bdn/Button.h>
 
-#include <list>
 
 namespace bdn
 {
@@ -17,64 +17,43 @@ namespace web
 class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
-    /*
-    ButtonCore( Window* pParent, const std::string& label)
-    : Window(pParent, "button")
+    ButtonCore( Button* pOuterButton )
+    : ViewCore( pOuterButton, "button" )
     {
-        _pClickEventSource = new EventSource<ClickEvent>;
-        
-        setLabel(label);
-        
-        // visible by default
-        show();
+        setLabel( pOuterButton->label() );        
+
+        // we do not want automatic wrapping for a simply button
+        (*_pJsObj)["style"].set("white-space", "nowrap");
+
+        emscripten_set_click_callback( _elementId.asUtf8Ptr(), this, false, _clickedCallback);
     }
     
-    void setLabel(const std::string& label)
+    void setLabel(const String& label) override
     {
-        _pJsObj->set("textContent", label);
-    }
-    
-    EventSource<ClickEvent>* getClickEventSource()
-    {
-        connectClick();
-        
-        return _pClickEventSource;
+        _pJsObj->set("textContent", label.asUtf8());
+
+        getOuterView()->needSizingInfoUpdate();
     }
     
     
-protected:
-    
-    bool clickHandler(int eventType, const EmscriptenMouseEvent* pMouseEvent)
+protected:    
+    bool _clicked(int eventType, const EmscriptenMouseEvent* pMouseEvent)
     {
         if(eventType==EMSCRIPTEN_EVENT_CLICK)
         {
-            ClickEvent evt(this);
+            ClickEvent evt( getOuterView() );
             
-            _pClickEventSource->deliver(evt);
+            cast<Button>(getOuterView())->onClick().notify(evt);
         }
         
         return false;
     }
     
     
-    static EM_BOOL clickCallback(int eventType, const EmscriptenMouseEvent* pMouseEvent, void* pUserData)
+    static EM_BOOL _clickedCallback(int eventType, const EmscriptenMouseEvent* pMouseEvent, void* pUserData)
     {
-        return ((Button*)pUserData)->clickHandler(eventType, pMouseEvent);
+        return ((ButtonCore*)pUserData)->_clicked(eventType, pMouseEvent);
     }
-    
-    void connectClick()
-    {
-        if(!_clickConnected)
-        {
-            emscripten_set_click_callback( _jsId.c_str(), this, false, clickCallback);
-            _clickConnected = true;
-        }
-    }
-    
-    EventSource<ClickEvent>*    _pClickEventSource;
-    
-    bool                        _clickConnected=false;
-    */
 };
 
 

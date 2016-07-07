@@ -1,68 +1,117 @@
 #ifndef BDN_WEB_WindowCore_H_
 #define BDN_WEB_WindowCore_H_
 
-#include <bdn/IdGen.h>
 #include <bdn/IWindowCore.h>
+#include <bdn/Window.h>
 
-#include <bdn/web/ViewCore.h>to_string
+#include <bdn/web/ViewCore.h>
 
-#include <emscripten/val.h>
-
-#include <map>
 
 namespace bdn
+{
+namespace web
 {
 
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 public:
-    WindowCore( Window* pParent,
-                const std::string& elementName,
-                const std::map<std::string,std::string>& attribMap = std::map<std::string,std::string>())
+    WindowCore( Window* pOuterWindow )
+        : ViewCore(pOuterWindow, "div")     // a "window" is simply a top level div
     {
-        _id = IdGen::newID();
+        setTitle( pOuterWindow->title() );
 
+        // the window div always has the same size as the browser window.        
+        (*_pJsObj)["style"].set("width", "100%");
+        (*_pJsObj)["style"].set("height", "100%");
+
+        emscripten_set_resize_callback( "#window", static_cast<void*>(this), false, &WindowCore::_resizedCallback);
+
+        updateOuterViewBounds();
+    }
+
+
+    void setBounds(const Rect& bounds) override
+    {
+        // we cannot modify the size or position of the window.
+        // So just reset the bounds back to their original value.
+        updateOuterViewBounds();
+    }
+
+    void setTitle(const String& title) override
+    {
+        // set the DOM document title
         emscripten::val docVal = emscripten::val::global("document");
-        
-        _pJsObj = new emscripten::val( docVal.call<emscripten::val>("createElement", elementName) );
-        
-        for(auto attribPair: attribMap)
-            _pJsObj->set(attribPair.first, attribPair.second);
-        
-        _jsId = "boden_window_"+std::to_string(_id);
-        
-        _pJsObj->set("id", _jsId);
-        
-        (*_pJsObj)["style"].set("visibility", "hidden");
 
-        if(pParent==nullptr)
-            docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", *_pJsObj);
-        else
-            docVal.call<emscripten::val>("getElementById", "boden_window_"+std::to_string(pParent->getID()) ).call<void>("appendChild", *_pJsObj);
+        docVal.set("title", title.asUtf8() );
     }
-    
-    long long getID() const
+
+
+    Rect getContentArea() override
     {
-        return _id;
+        return Rect( Point(0,0), getOuterView()->bounds().get().getSize() );
     }
-    
-    virtual void show(bool visible=true) override
+
+
+    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
     {
-        (*_pJsObj)["style"].set("visibility", visible ? "visible" : "hidden");
+        // our "window" is simply the size of the div. It as no borders.
+        // So "window" size = content size.
+        return contentSize;
     }
-    
-    virtual void hide() override
+
+
+    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
     {
-        show(false);
+        // our "window" is simply the size of the div. It as no borders.
+        // So "window" size = content size.
+        return windowSize;
+    }
+
+
+    Size calcMinimumSize() const override
+    {
+        // don't have a minimum size since the title bar is not connected to our window div.
+        // (the title is displayed in the browser tab bar).
+        return Size(0, 0);
     }
     
-protected:
-    long long           _id;
-    std::string         _jsId;
+
+    Rect getScreenWorkArea() const override
+    {
+        emscripten::val windowVal = emscripten::val::global("window");
+
+        int width = windowVal["innerWidth"].as<int>();
+        int height = windowVal["innerHeight"].as<int>();
+
+        return Rect(0, 0, width, height);
+    }
     
-    emscripten::val*    _pJsObj;
+private:
+    void updateOuterViewBounds()
+    {
+        int width = (*_pJsObj)["offsetWidth"].as<int>();
+        int height = (*_pJsObj)["offsetHeight"].as<int>();
+        getOuterView()->bounds() = Rect(0, 0, width, height);
+
+        getOuterView()->needLayout();
+    }
+
+    bool resized(int eventType, const EmscriptenUiEvent* pEvent)
+    {
+        updateOuterViewBounds();
+
+        return false;
+    }
+
+    static EM_BOOL _resizedCallback(int eventType, const EmscriptenUiEvent* pEvent, void* pUserData)
+    {
+        return static_cast<WindowCore*>(pUserData)->resized(eventType, pEvent);
+    }
+
 };
 
+
+}
 }
 
 #endif
