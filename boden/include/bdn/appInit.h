@@ -8,6 +8,10 @@
 #include <map>
 #include <vector>
 
+#if BDN_PLATFORM_ANDROID
+#include <jni.h>
+#endif
+
 namespace bdn
 {
     
@@ -49,7 +53,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 	int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args);
 
 #elif BDN_PLATFORM_ANDROID
-	// no main function
+	void _uiAppInit(AppControllerBase* pAppController);
 
 #else
 	int _uiAppMain( AppControllerBase* pAppController,
@@ -110,19 +114,11 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #elif BDN_PLATFORM_ANDROID
 
 	#define BDN_INIT_UI_APP( appControllerClass )  \
-		namespace bdn  \
-		{  \
-			namespace android  \
-			{  \
-				bdn::P<bdn::AppControllerBase> _createAppController() \
-				{ \
-					return bdn::newObj<appControllerClass>(); \
-				}  \
-				std::function<int(const AppLaunchInfo&)> _getAppFunc()  \
-				{  \
-					return std::function<int(const AppLaunchInfo&)>();
-				} \
-			}  \
+		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_init( JNIEnv* pEnv ) \
+		{ \
+			BDN_JNI_BEGIN( pEnv ); \
+ 			bdn::android::_uiInit( bdn::newObj<appControllerClass>() ); \
+			BDN_JNI_END(); \
 		}
 
 #else

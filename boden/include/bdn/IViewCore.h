@@ -93,4 +93,6 @@ public:
 
 }
 
+#include <bdn/View.h>
+
 #endif

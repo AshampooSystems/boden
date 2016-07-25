@@ -10,8 +10,6 @@
 
 using namespace bdn;
 
-
-
 class Model : public Base
 {
 public:
