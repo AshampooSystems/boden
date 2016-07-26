@@ -18,6 +18,7 @@ protected:
     static jboolean getBooleanField(jobject obj, jfieldID fieldId);
     static jint     getIntField(jobject obj, jfieldID fieldId);
     static jshort   getShortField(jobject obj, jfieldID fieldId);
+    static jbyte    getByteField(jobject obj, jfieldID fieldId);
     static jlong    getLongField(jobject obj, jfieldID fieldId);
     static jchar    getCharField(jobject obj, jfieldID fieldId);
     static jfloat   getFloatField(jobject obj, jfieldID fieldId);
@@ -29,6 +30,7 @@ protected:
     static void setIntField(jobject obj, jfieldID fieldId, jint value);
     static void setShortField(jobject obj, jfieldID fieldId, jshort value);
     static void setLongField(jobject obj, jfieldID fieldId, jlong value);
+    static void setByteField(jobject obj, jfieldID fieldId, jbyte value);
     static void setCharField(jobject obj, jfieldID fieldId, jchar value);
     static void setFloatField(jobject obj, jfieldID fieldId, jfloat value);
     static void setDoubleField(jobject obj, jfieldID fieldId, jdouble value);
@@ -82,7 +84,7 @@ public:
         return TypeConversion<NativeType>::javaToNative( getBooleanField(obj, fieldId) );
     }
 
-    static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
+    static void setValue(jobject obj, jfieldID fieldId, NativeType value)
     {
         return setBooleanField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
     }

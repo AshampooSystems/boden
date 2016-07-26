@@ -30,7 +30,7 @@ public:
     {
         static MethodId methodId;
 
-        invoke_<String>(getStaticClass_(), methodId, "getMessage" );
+        return invoke_<String>(getStaticClass_(), methodId, "getMessage" );
     }
 
 

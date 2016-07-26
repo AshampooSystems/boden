@@ -40,7 +40,7 @@ Reference Reference::toLocal() const
 bool Reference::isNull() const
 {
     return (_pShared->getType()==Type::invalid
-            || Env::get().getJniEnv()->IsSameObject( _pShared->_ref, NULL ) );
+            || Env::get().getJniEnv()->IsSameObject( _pShared->getJObject(), NULL ) );
 }
 
 /** Returns true if this reference points to the same object as the other reference.*/

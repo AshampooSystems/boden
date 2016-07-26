@@ -1,3 +1,11 @@
+// we must include JObject.h BEFORE our include guards.
+// We need JObject to be fully defined before define JClass (since JObject is a base class).
+// That alone could also be solved in another way, but we also need JObject to include JClass
+// at a specific place in the JObject header. And from that include point on JClass must be fully defined.
+// These two constrains together mean that we have to always include JObject.h first and then let
+// JObject.h include JClass.h at the desired position in the code.
+#include <bdn/java/JObject.h>
+
 #ifndef BDN_JAVA_JClass_H_
 #define BDN_JAVA_JClass_H_
 
@@ -12,7 +20,7 @@ class JClass;
 }
 
 
-#include <bdn/java/JObject.h>
+
 #include <bdn/java/MethodId.h>
 #include <bdn/java/Reference.h>
 #include <bdn/java/LocalReference.h>
@@ -139,27 +147,36 @@ public:
 
         jobject obj = _newObject( (jclass)getJObject_(), constructorId.getId(), nativeToJava(args)... );
 
-        return Reference( obj );
+        return LocalReference( obj );
     }
 
 private:
 
 
-    template<typename FirstType, typename... RemainingTypes>
-    static String _makeTypeSignatureList()
+
+
+    template<typename Dummy>
+    static String _makeTypeSignatureListImpl()
+    {
+        return "";
+    }
+
+
+    template<typename Dummy, typename FirstType, typename... RemainingTypes>
+    static String _makeTypeSignatureListImpl()
     {
         String firstSig = getTypeSignature<FirstType>();
 
-        String remainingSigs = _makeTypeSignatureList<RemainingTypes...>();
+        String remainingSigs = _makeTypeSignatureList<Dummy, RemainingTypes...>();
 
         return firstSig+remainingSigs;
     }
 
 
-    template<typename SingleType>
+    template<typename... Types>
     static String _makeTypeSignatureList()
     {
-        return getTypeSignature<SingleType>();
+        return _makeTypeSignatureListImpl<int, Types...>();
     }
 
 
@@ -178,7 +195,7 @@ private:
     template<typename T>
     static String getTypeSignature()
     {
-        return TypeConversion<T>::getJavaSignature();
+        return TypeConversion< typename std::decay<T>::type >::getJavaSignature();
     }
 
 

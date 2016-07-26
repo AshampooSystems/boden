@@ -6,6 +6,7 @@
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JNativeRootView.h>
+#include "JConfiguration.h"
 
 namespace bdn
 {
@@ -42,8 +43,8 @@ public:
         // we are always exactly the size of the root view. So we undo
         // any changes we get from the outside world.
 
-        if(bounds!=_currBounds)
-            getOuterView()->bounds() = _currBounds;
+        if(bounds!=_currentBounds)
+            getOuterView()->bounds() = _currentBounds;
     }
 
     void setVisible(const bool& visible) override
@@ -92,18 +93,17 @@ public:
 
     Rect getScreenWorkArea() const override
     {
-        bdn::java::Reference temporaryStrongJavaReference;
-        P<JNativeRootView> pRootView = updateAndGetRootView(temporaryStrongJavaReference);
+        JNativeRootView rootView = updateAndGetRootView();
 
-        if(pRootView==nullptr)
+        if(rootView.isNull_())
         {
             // don't have a root view => work area size is 0
             return Rect();
         }
         else
         {
-            int width = pRootView->getWidth();
-            int height = pRootView->getHeight();
+            int width = rootView.getWidth();
+            int height = rootView.getHeight();
 
             return Rect(0, 0, width, height );
         }
@@ -114,12 +114,12 @@ public:
     {
         // we store only a weak referene in the registry. We do not want to
         // keep the java-side root view object alive.
-        getRootViewRegistry()->add( javaRef.toWeak() );
+        getRootViewRegistry().add( javaRef.toWeak() );
     }
 
     static void _rootViewDisposed( const bdn::java::Reference& javaRef )
     {
-        getRootViewRegistry()->remove( javaRef );
+        getRootViewRegistry().remove( javaRef );
 
         std::list< P<WindowCore> > windowCoreList;
         getWindowCoreListFromRootView( javaRef, windowCoreList );
@@ -138,17 +138,25 @@ public:
             pWindowCore->rootViewSizeChanged(width, height);
     }
 
-    static void _rootViewConfigurationChanged( const JavaConfiguration& config )
+    static void _rootViewConfigurationChanged( const bdn::java::Reference& javaRef, JConfiguration& config )
     {
         std::list< P<WindowCore> > windowCoreList;
 
         getWindowCoreListFromRootView( javaRef, windowCoreList );
 
         for( P<WindowCore>& pWindowCore: windowCoreList)
-            pWindowCore->rootViewSizeChanged(width, height);
+            pWindowCore->rootViewConfigurationChanged(config);
     }
 
 protected:
+
+    JNativeRootView updateAndGetRootView() const
+    {
+        bdn::java::Reference rootViewRef;
+        tryGetAccessibleRootViewRef(rootViewRef);
+
+        return JNativeRootView( rootViewRef );
+    }
 
     /** Called when the window core's root view was garbage collected or disposed.*/
     virtual void rootViewDisposed()
@@ -168,10 +176,24 @@ protected:
         getOuterView()->bounds() = _currentBounds;
     }
 
+    /** Called when the configuration changed for this window core.
+     *
+     *  The default implementation updates the Window's size to match the new root dimensions.
+     *  */
+    virtual void rootViewConfigurationChanged(JConfiguration& config)
+    {
+        updateUiScaleFactor(config);
+    }
+
+
     virtual void attachedToNewRootView(const bdn::java::Reference& javaRef)
     {
         // set the window's bounds to fill the root view completely.
         JNativeRootView rootView(javaRef);
+
+        JConfiguration config( rootView.getContext().getResources().getConfiguration() );
+
+        updateUiScaleFactor( config );
 
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
     }
@@ -179,7 +201,19 @@ protected:
 
 private:
 
-    void getWindowCoreListFromRootView( const Reference& javaRootViewRef, std::list< P<WindowCore> >& windowCoreList )
+    void updateUiScaleFactor( JConfiguration& config )
+    {
+        int dpi = config.densityDpi();
+
+        // the scale factor is at 1 for 160 dpi. Note that smaller DPI values
+        // are also possible, so the scale factor can be <1 as well.
+
+        double scaleFactor = dpi / 160.0;
+
+        setUiScaleFactor(scaleFactor);
+    }
+
+    static void getWindowCoreListFromRootView( const bdn::java::Reference& javaRootViewRef, std::list< P<WindowCore> >& windowCoreList )
     {
         JNativeRootView rootView(javaRootViewRef);
 
@@ -188,9 +222,9 @@ private:
         int childCount = rootView.getChildCount();
         for(int i=0; i<childCount; i++)
         {
-            bdn::java::Reference childRef = rootView.getChildAt(i);
+            JView child = rootView.getChildAt(i);
 
-            P<WindowCore> pWindowCore = cast<WindowCore>( ViewCore::getViewCoreFromJavaView(childRef) );
+            P<WindowCore> pWindowCore = cast<WindowCore>( ViewCore::getViewCoreFromJavaViewRef(child.getRef_()) );
 
             windowCoreList.push_back( pWindowCore );
         }
@@ -211,7 +245,7 @@ private:
      *
      *  If not valid root view could be returned then a null reference is stored in
      *  accessibleJavaRef and false is returned.*/
-    bool tryGetAccessibleRootViewRef(bdn::java::Reference& accessibleJavaRef)
+    bool tryGetAccessibleRootViewRef(bdn::java::Reference& accessibleJavaRef) const
     {
         accessibleJavaRef = _weakRootViewRef.toAccessible();
 
@@ -223,11 +257,11 @@ private:
             _weakRootViewRef = bdn::java::Reference();
 
             // see if we have another root view that we can attach to.
-            accessibleJavaRef = RootViewRegistry::get()->getFirstValidRootView();
+            accessibleJavaRef = getRootViewRegistry().getFirstValidRootView();
 
             if(!accessibleJavaRef.isNull())
             {
-                attachedToNewRootView(accessibleJavaRef);
+                const_cast<WindowCore*>(this)->attachedToNewRootView(accessibleJavaRef);
 
                 _weakRootViewRef = accessibleJavaRef.toWeak();
                 return true;
@@ -241,7 +275,7 @@ private:
     class RootViewRegistry : public Base
     {
     public:
-        void add( const bdn::java::Reference& javaRef, context, config )
+        void add( const bdn::java::Reference& javaRef )
         {
             MutexLock lock( _mutex );
 
@@ -252,7 +286,9 @@ private:
         {
             MutexLock lock( _mutex );
 
-            _rootViewList.erase( javaRef );
+            auto it = std::find( _rootViewList.begin(), _rootViewList.end(), javaRef );
+            if(it!=_rootViewList.end())
+                _rootViewList.erase( it );
         }
 
 
@@ -270,7 +306,7 @@ private:
             MutexLock lock( _mutex );
 
             // So we can simply return the first root view from the list.
-            while( !_rootViewList.isEmpty() )
+            while( !_rootViewList.empty() )
             {
                 bdn::java::Reference javaRef = _rootViewList.front().toStrong();
 
@@ -294,8 +330,8 @@ private:
     BDN_SAFE_STATIC( RootViewRegistry, getRootViewRegistry );
 
 
-    bdn::java::Reference    _weakRootViewRef;
-    Rect                    _currentBounds;
+    mutable bdn::java::Reference    _weakRootViewRef;
+    Rect                            _currentBounds;
 };
 
 

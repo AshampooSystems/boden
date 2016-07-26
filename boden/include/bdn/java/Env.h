@@ -3,6 +3,7 @@
 
 #include <bdn/java/JniEnvNotSetError.h>
 #include <bdn/java/JavaException.h>
+#include <bdn/java/JException.h>
 
 #include <jni.h>
 
@@ -14,7 +15,7 @@
         {
 
 
-#define BDN_JNI_END() \
+#define BDN_JNI_END \
         } \
         catch(std::exception& e) \
         { \
@@ -23,7 +24,7 @@
         } \
         catch(...) \
         { \
-            jniBlock_.endedWithException(); \
+            jniBlock_.endedWithException(std::exception()); \
             return; \
         } \
         jniBlock_.endedNormally(); \
@@ -64,7 +65,7 @@ public:
                 Env::get().jniBlockEnded();
         }
 
-        void endedWithException(std::exception& e)
+        void endedWithException(const std::exception& e)
         {
             Env::get().jniBlockEndedWithException(e);
             _ended = true;
@@ -140,26 +141,26 @@ public:
 
         jthrowable exc = _pEnv->ExceptionOccurred();
         if(exc!=nullptr)
-            throw JavaException(exc);
+            throw JavaException( JThrowable( LocalReference((jobject)exc) ) );
     }
 
-    void setJavaSideException(std::exception& e)
+    void setJavaSideException(const std::exception& e)
     {
         ensureHaveEnv();
 
-        JavaException* pJavaException = dynamic_cast<JavaException*>(&e);
+        const JavaException* pJavaException = dynamic_cast<const JavaException*>(&e);
         if(pJavaException!=nullptr)
         {
             // the exception already wraps a java exception. Use the wrapped
             // java exception on the java side.
-            _pEnv->Throw( pJavaException->getJavaThrowable().getJavaReference().getJObject() );
+            _pEnv->Throw( (jthrowable)const_cast<JavaException*>(pJavaException)->getJThrowable_().getRef_().getJObject() );
         }
         else
         {
             // this is a C++ exception. Generate a corresponding java exception.
             JException javaException( "Error from JNI component: "+String(e.what()) );
 
-            _pEnv->Throw( javaException.getJavaReference().getJObject() );
+            _pEnv->Throw( (jthrowable)javaException.getRef_().getJObject() );
         }
     }
 

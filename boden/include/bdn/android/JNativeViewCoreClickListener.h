@@ -18,7 +18,7 @@ private:
     {
         static bdn::java::MethodId constructorId;
 
-        getStaticClass_().newInstance_(constructorId);
+        return getStaticClass_().newInstance_(constructorId);
     }
 
 public:

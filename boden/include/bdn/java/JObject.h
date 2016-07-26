@@ -14,6 +14,7 @@ class JClass;       // include for this is below
 
 #include <bdn/java/MethodId.h>
 #include <bdn/java/Reference.h>
+#include <bdn/java/LocalReference.h>
 
 namespace bdn
 {

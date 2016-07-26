@@ -11,10 +11,8 @@ package io.boden.android;
  *
  *
  */
-public class NativeInit extends Object
+public class NativeInit
 {
-    public final static DEFAULT_NATIVE_LIB_NAME = "main";
-
 
     /** Ensures that the native code side is properly initialized,
      *
@@ -30,15 +28,17 @@ public class NativeInit extends Object
         {
             System.loadLibrary( nativeLibName );
 
+            NativeHandler.get();
+
             mInitialized = true;
 
             init();
         }
     }
 
-    private static mInitialized = false;
+    private static boolean mInitialized = false;
 
-    private native void init();
+    private static native void init();
 
 
 };

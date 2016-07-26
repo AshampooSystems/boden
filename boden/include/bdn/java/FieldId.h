@@ -18,7 +18,7 @@ class FieldId
 public:
     FieldId(JClass& cls, const char* fieldName)
     {
-        _id = Env::get().getJniEnv()->GetFieldID( (jclass)cls.getJObject_(), fieldName, TypeConversion<NativeType>::getJavaSignature() );
+        _id = Env::get().getJniEnv()->GetFieldID( (jclass)cls.getJObject_(), fieldName, TypeConversion<NativeType>::getJavaSignature().asUtf8Ptr() );
     }
 
     /** Returns the Id. Throws and exception if the Id has not been initialized yet.*/

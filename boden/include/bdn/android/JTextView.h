@@ -2,6 +2,9 @@
 #define BDN_ANDROID_JTextView_H_
 
 #include <bdn/android/JView.h>
+#include <bdn/android/JContext.h>
+#include <bdn/android/JTextPaint.h>
+#include <bdn/java/JString.h>
 
 namespace bdn
 {
@@ -12,6 +15,13 @@ namespace android
 /** Accessor for Java android.widget.TextView objects.*/
 class JTextView : public JView
 {
+    static bdn::java::Reference newInstance_(JContext& context)
+    {
+        static bdn::java::MethodId constructorId;
+
+        return getStaticClass_().newInstance_(constructorId, context);
+    }
+
 public:
     /** @param objectRef the reference to the Java object.
     *      The JObject instance will copy this reference and keep its type.
@@ -24,7 +34,22 @@ public:
     }
 
 
-    /** Returns the JClass object for this class.
+    JTextView( JContext&& context )
+    : JTextView( newInstance_(context) )
+    {
+    }
+
+
+    /** Returns the TextPaint object that is used by this text view.*/
+    JTextPaint getPaint()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<JTextPaint>(getStaticClass_(), methodId, "getPaint");
+    }
+
+
+    /** Returns the JClass object for this class.s
      *
      *  Note that the returned class object is not necessarily unique for the whole
      *  process.
@@ -45,7 +70,7 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        invoke<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getJavaReference() ) );
+        invoke_<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getRef_() ) );
     }
 
 };

@@ -1,6 +1,17 @@
 #ifndef BDN_ANDROID_ViewCore_H_
 #define BDN_ANDROID_ViewCore_H_
 
+
+namespace bdn
+{
+namespace android
+{
+
+class ViewCore;
+
+}
+}
+
 #include <bdn/IViewCore.h>
 
 #include <bdn/java/NativeWeakPointer.h>
@@ -9,6 +20,7 @@
 #include <bdn/android/JView.h>
 #include <bdn/android/JNativeViewGroup.h>
 #include <bdn/android/UIProvider.h>
+
 
 namespace bdn
 {
@@ -21,6 +33,8 @@ public:
     ViewCore(View* pOuterView, JView* pJView, bool initBounds=true )
     {
         _pJView = pJView;
+
+        _uiScaleFactor = 1;
 
         // set a weak pointer to ourselves as the tag object of the java view
         _pJView->setTag( bdn::java::NativeWeakPointer(this) );
@@ -48,7 +62,7 @@ public:
     }
 
 
-    static ViewCore* getViewCoreFromJavaView( const bdn::java::Reference& javaViewRef )
+    static ViewCore* getViewCoreFromJavaViewRef( const bdn::java::Reference& javaViewRef )
     {
         if(javaViewRef.isNull())
             return nullptr;
@@ -75,9 +89,9 @@ public:
 
     /** Returns a pointer to the accessor object for the java-side view object.
      */
-    JView* getJView()
+    JView& getJView()
     {
-        return _pJView;
+        return *_pJView;
     }
 
 
@@ -108,7 +122,7 @@ public:
      *  have a view core associated with it.*/
     ViewCore* getParentViewCore()
     {
-        return getViewCoreFromJavaView( _pJView->getParent().getRef_() );
+        return getViewCoreFromJavaViewRef( _pJView->getParent().getRef_() );
     }
 
 
@@ -126,24 +140,25 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildBounds( *getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
+            parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
         }
     }
-    
-    
-    int uiLengthToPixels(const UiLength& uiLength) const override
-    {
-        return UiProvider::get().uiLengthToPixels(uiLength);
-    }
+
+
+
+    int uiLengthToPixels(const UiLength& uiLength) const override;
     
     
     Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
+        return Margin(
+                uiLengthToPixels(margin.top),
+                uiLengthToPixels(margin.right),
+                uiLengthToPixels(margin.bottom),
+                uiLengthToPixels(margin.left) );
     }
     
-    
-    
+
     
     Size calcPreferredSize() const override
     {
@@ -179,6 +194,48 @@ public:
     {
     }
 
+
+
+    /** Returns the current UI scale factor. This depends on the pixel density
+     *  of the current display. On high DPI displays the scale factor is >1 to scale
+     *  up UI elements to use more physical pixels.
+     *
+     *  Scale factor 1 means a "medium" DPI setting of 160 dpi.
+     *
+     *  Note that the scale factor can also be <1 if the display has a very low dpi (lower than 160).
+     *
+     *  Also note that the scale factor can change at runtime if the view switches to another display.
+     *
+     **/
+    double getUiScaleFactor() const
+    {
+        return _uiScaleFactor;
+    }
+
+
+    /** Changes the UI scale factor of this view and all its child views.
+     *  See getUiScaleFactor()
+     * */
+    void setUiScaleFactor(double scaleFactor)
+    {
+        if(scaleFactor!=_uiScaleFactor)
+        {
+            _uiScaleFactor = scaleFactor;
+
+            std::list<P<View> > childList;
+            getOuterView()->getChildViews(childList);
+
+            for (P<View> &pChild: childList) {
+                P<ViewCore> pChildCore = cast<ViewCore>(pChild->getViewCore());
+
+                if (pChildCore != nullptr)
+                    pChildCore->setUiScaleFactor(scaleFactor);
+            }
+        }
+    }
+
+
+
 private:
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
@@ -197,8 +254,8 @@ private:
 
         _pJView->measure( widthSpec, heightSpec );
 
-        int width = _pJavaView->getMeasuredWidth();
-        int height = _pJavaView->getMeasuredHeight();
+        int width = _pJView->getMeasuredWidth();
+        int height = _pJView->getMeasuredHeight();
 
         return Size(width, height);
     }
@@ -207,18 +264,22 @@ private:
     {
         if(pParent!=nullptr)
         {
-            P<ViewCore> pParentCore = cast<ViewCore>( pParent->getViewCore() );
-
             P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
                 throw ProgrammingError("Internal error: parent of bdn::android::ViewCore does not have a core.");
 
-            pParentCore->addChild( this );
+            JNativeViewGroup parentGroup( pParentCore->getJView().getRef_() );
+
+            parentGroup.addView( *_pJView );
+
+            setUiScaleFactor( pParentCore->getUiScaleFactor() );
         }
     }
 
     View*           _pOuterViewWeak;
     P<JView>        _pJView;
+
+    double          _uiScaleFactor;
 };
 
 }

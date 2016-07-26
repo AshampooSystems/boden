@@ -10,7 +10,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::android::ViewCore* pViewCore = bdn::android::ViewCore::getViewCoreFromJavaView( bdn::java::Reference(rawView) );
+    bdn::android::ViewCore* pViewCore = bdn::android::ViewCore::getViewCoreFromJavaViewRef( bdn::java::LocalReference(rawView) );
 
     if(pViewCore==nullptr)
     {

@@ -13,11 +13,11 @@ namespace java
 class JException : public JThrowable
 {
 private:
-    static Reference createInstance_ (const String& message)
+    static Reference newInstance_ (const String& message)
     {
         static MethodId constructorId;
 
-        getStaticClass()->createInstance(constructorId, Env::get()->getContext(), message);
+        return getStaticClass_().newInstance_(constructorId, message);
     }
 
 public:
@@ -32,7 +32,7 @@ public:
     }
 
     explicit JException(const String& message)
-    : JException( createInstance_ (message) )
+    : JException( newInstance_ (message) )
     {
     }
 

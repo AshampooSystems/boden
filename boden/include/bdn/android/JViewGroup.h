@@ -33,11 +33,16 @@ public:
      *  If you want to check for type equality then you should compare the type name
      *  (see getTypeName() )
      *  */
-    static bdn::java::JClass& getStaticClass()
+    static bdn::java::JClass& getStaticClass_()
     {
         static bdn::java::JClass cls( "android/view/ViewGroup" );
 
         return cls;
+    }
+
+    bdn::java::JClass& getClass_ () override
+    {
+        return getStaticClass_ ();
     }
 
 
@@ -45,8 +50,27 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        invoke_<void>(getStaticClass(), methodId, "addView", child);
+        invoke_<void>(getStaticClass_(), methodId, "addView", child);
     }
+
+
+    /** Returns the number of children in the group. */
+    int	getChildCount()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getChildCount");
+    }
+
+
+    /** Returns the view at the specified position in the group. */
+    JView getChildAt(int index)
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<JView>(getStaticClass_(), methodId, "getChildAt", index);
+    }
+
 
 
 

@@ -25,7 +25,7 @@ template<class NativeType>
 class Field
 {
 public:
-    Field(const Reference& objRef, jfieldID fieldId)
+    Field(const Reference& objRef, const FieldId<NativeType>& fieldId)
     : _objRef(objRef)
     , _id(fieldId)
     {
@@ -40,12 +40,12 @@ public:
 
     void set(const NativeType& newValue)
     {
-        FieldAccessor<NativeType>::setValue( _objRef.getJObject(), _id, newValue );
+        FieldAccessor<NativeType>::setValue( _objRef.getJObject(), _id.getId(), newValue );
     }
 
     NativeType get() const
     {
-        return FieldAccessor<NativeType>::getValue( _objRef.getJObject(), _id );
+        return FieldAccessor<NativeType>::getValue( _objRef.getJObject(), _id.getId() );
     }
 
 
@@ -61,8 +61,8 @@ public:
     }
 
 private:
-    Reference   _objRef;
-    jfieldID    _id;
+    Reference           _objRef;
+    FieldId<NativeType> _id;
 };
 
 

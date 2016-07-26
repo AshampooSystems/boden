@@ -112,13 +112,13 @@ public:
     {
         jobject ref = _pShared->getJObject();
 
-        _pShared = newObj<Shared>( Type::invalid, NULL );
+        _pShared = newObj<Shared>( Type::invalid, (jobject)NULL );
 
         return ref;
     }
 
 
-    Reference & operator=(const Reference & o)
+    Reference& operator=(const Reference & o)
     {
         _pShared = o._pShared;
 

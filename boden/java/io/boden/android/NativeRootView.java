@@ -29,21 +29,21 @@ public class NativeRootView extends NativeViewGroup
     {
         super(context);
 
-        created( getContext() );
+        created();
     }
 
     public NativeRootView(Context context, AttributeSet attrs)
     {
         this(context, attrs, 0);
 
-        created( getContext() );
+        created();
     }
 
     public NativeRootView(Context context, AttributeSet attrs, int defStyle)
     {
         super(context, attrs, defStyle);
 
-        created( getContext() );
+        created();
     }
 
 
@@ -90,7 +90,7 @@ public class NativeRootView extends NativeViewGroup
         sizeChanged(newWidth, newHeight);
     }
 
-    private native static void created( Context context );
+    private native static void created();
     private native static void disposed();
     private native static void sizeChanged();
     private native static void configurationChanged(Configuration newConfig);

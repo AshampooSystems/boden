@@ -1,8 +1,7 @@
-#ifndef BDN_ANDROID_JConfiguration_H_
-#define BDN_ANDROID_JConfiguration_H_
+#ifndef BDN_ANDROID_JTextPaint_H_
+#define BDN_ANDROID_JTextPaint_H_
 
-#include <bdn/java/JObject.h>
-#include <bdn/java/Field.h>
+#include <bdn/android/JPaint.h>
 
 namespace bdn
 {
@@ -10,8 +9,8 @@ namespace android
 {
 
 
-/** Accessor for Java-side android.content.res.Configuration objects.*/
-class JConfiguration : public bdn::java::JObject
+/** Accessor for Java android.text.TextPaint objects.*/
+class JTextPaint : public JPaint
 {
 public:
     /** @param javaRef the reference to the Java object.
@@ -19,8 +18,8 @@ public:
     *      So if you want the JObject instance to hold a strong reference
     *      then you need to call toStrong() on the reference first and pass the result.
     *      */
-    explicit JConfiguration(const bdn::java::Reference& javaRef)
-    : JObject(javaRef)
+    explicit JTextPaint(const bdn::java::Reference& javaRef)
+    : JPaint(javaRef)
     {
     }
 
@@ -37,7 +36,7 @@ public:
      *  */
     static bdn::java::JClass& getStaticClass_()
     {
-        static bdn::java::JClass cls( "android/content/res/Configuration" );
+        static bdn::java::JClass cls( "android/text/TextPaint" );
 
         return cls;
     }
@@ -45,21 +44,6 @@ public:
     bdn::java::JClass& getClass_ () override
     {
         return getStaticClass_ ();
-    }
-
-
-    enum
-    {
-        DENSITY_DPI_UNDEFINED = 0
-    };
-
-    /** The target screen density being rendered to, corresponding to density
-     *  resource qualifier. Set to DENSITY_DPI_UNDEFINED if no density is specified.*/
-    bdn::java::Field<int> densityDpi()
-    {
-        static bdn::java::FieldId<int> fieldId( getStaticClass_(), "densityDpi");
-
-        return bdn::java::Field<int>( getRef_(), fieldId);
     }
 
 

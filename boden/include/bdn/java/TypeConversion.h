@@ -2,6 +2,8 @@
 #define BDN_JAVA_TypeConversion_H_
 
 
+#include <bdn/java/LocalReference.h>
+
 #include <jni.h>
 
 namespace bdn
@@ -16,7 +18,7 @@ public:
 
 protected:
     static jobject _createLocalStringRef(const String& s);
-    static String _getStringFromJava(jobject o);
+    static String _getStringFromJava(const Reference& ref);
 };
 
 
@@ -55,22 +57,22 @@ public:
      **/
     static String getJavaSignature()
     {
-        static String sig("L"+NativeType::getStaticClass_().getNameInSlashNotation()+";");
+        static String sig("L"+NativeType::getStaticClass_().getNameInSlashNotation_()+";");
 
         return sig;
     }
 
     /** Converts a natve value to the corresponding java value.*/
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType&& arg)
     {
-        return arg.getRef_().getJObject_();
+        return arg.getRef_().getJObject();
     }
 
 
     /** Converts a natve value to the corresponding java value.*/
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
-        return NativeType(arg);
+        return NativeType( LocalReference(arg) );
     }
 };
 
@@ -100,9 +102,9 @@ public:
         return _createLocalStringRef(arg);
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
-        return _getStringFromJava(arg);
+        return _getStringFromJava( LocalReference(arg) );
     }
 };
 
@@ -122,12 +124,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -149,12 +151,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -175,12 +177,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -201,12 +203,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -227,12 +229,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -253,12 +255,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -279,12 +281,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava( NativeType arg)
     {
         return (jchar)arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -305,12 +307,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return arg;
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg;
     }
@@ -332,12 +334,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(NativeType arg)
     {
         return (jboolean)(arg ? JNI_TRUE : JNI_FALSE);
     }
 
-    static NativeType javaToNative(const JavaType& arg)
+    static NativeType javaToNative(JavaType arg)
     {
         return arg!=JNI_FALSE;
     }
@@ -373,16 +375,18 @@ public:
 /** Convenience function that converts a C++ native value to its corresponding
  *  Java value. See TypeConversion class template for more information.*/
 template<class NativeType>
-TypeConversion<NativeType>::JavaType nativeToJava(const NativeType& nativeValue)
+typename TypeConversion<NativeType>::JavaType nativeToJava(NativeType nativeValue)
 {
-    return TypeConversion<NativeType>::nativeToJava(nativeValue);
+    // To make sure that our specializations work in all cases, we have to strip reference and const
+    // qualifiers from the type with std::decay
+    return TypeConversion<NativeType>::nativeToJava( static_cast< typename std::decay<NativeType>::type >( nativeValue) );
 }
 
 
 template<class NativeType>
-NativeType javaToNative(const TypeConversion<NativeType>::JavaType& javaValue)
+NativeType javaToNative(typename TypeConversion<NativeType>::JavaType javaValue)
 {
-    return TypeConversion<NativeType>::javaToNative(javaValue);
+    return TypeConversion<NativeType>::javaToNative( javaValue );
 }
 
 

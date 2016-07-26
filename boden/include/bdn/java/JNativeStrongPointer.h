@@ -68,7 +68,7 @@ public:
     {
         static MethodId methodId;
 
-        return Reference( invoke_<JObject>(methodId, "getWrappedPointer" ) ).toAccessible();
+        return invoke_<JObject>(getStaticClass_(), methodId, "getWrappedPointer").getRef_().toAccessible();
     }
 
     P<IBase> getPointer_ ()
@@ -101,11 +101,17 @@ public:
      *  If you want to check for type equality then you should compare the type name
      *  (see getTypeName() )
      *  */
-    static JClass& getStaticClass()
+    static JClass& getStaticClass_()
     {
         static JClass cls( "io/boden/java/NativeStrongPointer" );
 
         return cls;
+    }
+
+
+    JClass& getClass_() override
+    {
+        return getStaticClass_();
     }
 
 };

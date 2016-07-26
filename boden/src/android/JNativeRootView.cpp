@@ -7,15 +7,13 @@
 #include <bdn/android/JContext.h>
 
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv* pEnv, jobject rawSelf, jobject rawContext )
+extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(JNIEnv* pEnv, jobject rawSelf )
 {
     BDN_JNI_BEGIN(pEnv);
 
     bdn::java::LocalReference self(rawSelf);
 
-    bdn::android::JContext context( bdn::java::LocalReference(rawContext) );
-
-    bdn::android::WindowCore::_registerRootView( self, context, context.getResources().getConfiguration() );
+    bdn::android::WindowCore::_rootViewCreated( self );
 
     BDN_JNI_END;
 }
@@ -24,9 +22,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_disposed(
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::Reference self(rawSelf);
+    bdn::java::LocalReference self(rawSelf);
 
-    bdn::android::WindowCore::_deregisterRootView( self );
+    bdn::android::WindowCore::_rootViewDisposed( self );
 
     BDN_JNI_END;
 }
@@ -36,7 +34,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChang
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::Reference self(rawSelf);
+    bdn::java::LocalReference self(rawSelf);
 
     bdn::android::WindowCore::_rootViewSizeChanged( self, newWidth, newHeight );
 
@@ -49,11 +47,11 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configura
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::Reference self(rawSelf);
+    bdn::java::LocalReference self(rawSelf);
 
-    JavaConfiguration newConfig( Reference(rawNewConfig) );
+    bdn::android::JConfiguration newConfig(( bdn::java::LocalReference(rawNewConfig) ));
 
-    WindowCore::_rootViewConfigurationChanged( self, newConfig );
+    bdn::android::WindowCore::_rootViewConfigurationChanged( self, newConfig );
 
     BDN_JNI_END;
 }

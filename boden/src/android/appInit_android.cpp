@@ -15,20 +15,6 @@ void _uiAppInit(AppControllerBase* pAppController, jobject activityRef)
 
     AppControllerBase::_set(pAppController);
 
-    JActivity       activity( bdn::java::LocalReference(activityRef) );
-    JResources      resources = activity.getResources();
-    JConfiguration  config = resources.getConfiguration();
-
-
-    int densityDpi = config.densityDpi();
-
-    // on android scale factor 1 is 160 dpi.
-    // Note that smaller DPI values are possible, so the scale factor
-    // can be <1 !
-    double scaleFactor = densityDPI / 160.0;
-
-    UIProvider::setCurrentScaleFactor
-
     AppLaunchInfo launchInfo;
 
     try

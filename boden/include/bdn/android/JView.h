@@ -2,6 +2,7 @@
 #define BDN_ANDROID_JView_H_
 
 #include <bdn/java/JObject.h>
+#include <bdn/android/JContext.h>
 
 namespace bdn
 {
@@ -103,6 +104,16 @@ public:
     }
 
 
+    /** Returns the context the view is running in, through which it can access
+     *  the current theme, resources, etc.*/
+    JContext getContext()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<JContext>(getStaticClass_(), methodId, "getContext" );
+    }
+
+
     /** Attaches an object to the view as a "tag". Tags have no predefined
      *  meaning, so this is simply a way to associate an object with the view.*/
     void setTag( const bdn::java::JObject& tagObject)
@@ -121,7 +132,6 @@ public:
 
         return invoke_<JObject>(getStaticClass_(), methodId, "getTag" );
     }
-
 
 
     void measure(int widthMeasureSpec, int heightMeasureSpec)

@@ -23,6 +23,8 @@ protected:
     static jchar    callCharMethod(jobject obj, jmethodID methodId, ...);
     static jfloat   callFloatMethod(jobject obj, jmethodID methodId, ...);
     static jdouble  callDoubleMethod(jobject obj, jmethodID methodId, ...);
+
+
 };
 
 
@@ -59,8 +61,10 @@ public:
     template<typename... Arguments>
     static ReturnType call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callObjectMethod(obj, methodId, nativeToJava(args)...) );
+        return javaToNative<ReturnType>( callObjectMethod(obj, methodId, nativeToJava(args)... ) );
     }
+
+
 };
 
 
@@ -88,7 +92,7 @@ public:
     template<typename... Arguments>
     static bool call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callBoolMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<bool>( callBooleanMethod(obj, methodId, nativeToJava(args)... ) );
     }
 };
 
@@ -101,7 +105,7 @@ public:
     template<typename... Arguments>
     static jobject call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callObjectMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<jobject>( callObjectMethod(obj, methodId, nativeToJava(args)... ) );
     }
 
 };
@@ -114,7 +118,7 @@ public:
     template<typename... Arguments>
     static int8_t call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callByteMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<int8_t>( callByteMethod(obj, methodId, nativeToJava(args)... ) );
     }
 
 };
@@ -127,7 +131,7 @@ public:
     template<typename... Arguments>
     static char32_t call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callCharMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<char32_t>( callCharMethod(obj, methodId, nativeToJava(args)... ) );
     }
 
 };
@@ -141,7 +145,7 @@ public:
     template<typename... Arguments>
     static int call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callIntMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<int>( callIntMethod(obj, methodId, nativeToJava(args)... ) );
     }
 
 };
@@ -155,7 +159,7 @@ public:
     template<typename... Arguments>
     static short call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callShortMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<short>( callShortMethod(obj, methodId, nativeToJava(args)... ) );
     }
 
 };
@@ -168,7 +172,7 @@ public:
     template<typename... Arguments>
     static int64_t call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callLongMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<int64_t>( callLongMethod(obj, methodId, nativeToJava(args)... ) );
     }
 };
 
@@ -181,7 +185,7 @@ public:
     template<typename... Arguments>
     static float call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callFloatMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<float>( callFloatMethod(obj, methodId, nativeToJava(args)... ) );
     }
 };
 
@@ -195,7 +199,7 @@ public:
     template<typename... Arguments>
     static double call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative( callDoubleMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<double>( callDoubleMethod(obj, methodId, nativeToJava(args)... ) );
     }
 };
 

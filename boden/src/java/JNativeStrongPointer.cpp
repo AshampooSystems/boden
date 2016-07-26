@@ -1,22 +1,20 @@
 #include <bdn/init.h>
 #include <bdn/java/JNativeStrongPointer.h>
 
-#include <bdn/android/JavaConnector.h>
-
-#include <jni.h>
+#include <bdn/java/Env.h>
 
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeStrongPointer_disposed(JNIEnv* pEnv, jobject rawSelf, jobject rawByteBuffer)
 {
-    BDN_ANDROID_JNI_BEGIN(pEnv);
+    BDN_JNI_BEGIN(pEnv);
 
-    JavaByteBuffer byteBuffer( Reference(rawByteBuffer) );
+    bdn::java::JByteBuffer byteBuffer(( bdn::java::LocalReference(rawByteBuffer) ));
 
-    IBase* pObject = static_cast<IBase*>( byteBuffer.getBuffer() );
+    bdn::IBase* pObject = static_cast<bdn::IBase*>( byteBuffer.getBuffer_() );
 
     pObject->releaseRef();
 
-    BDN_ANDROID_JNI_END;
+    BDN_JNI_END;
 }
 
 

@@ -16,12 +16,12 @@ class JString : public JCharSequence
 private:
     static Reference newInstance_ (const String& s)
     {
-        Env& env = Env.get();
+        Env& env = Env::get();
 
         jstring obj = env.getJniEnv()->NewStringUTF( s.asUtf8Ptr() );
         env.throwExceptionFromLastJavaCall();
 
-        return Reference( Reference::Type::local, (jobject)obj );
+        return LocalReference( (jobject)obj );
     }
 
 public:

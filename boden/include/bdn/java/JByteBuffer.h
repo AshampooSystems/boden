@@ -33,7 +33,7 @@ private:
         jobject obj = env.getJniEnv()->NewDirectByteBuffer(pBuffer, capacityBytes);
         env.throwExceptionFromLastJavaCall();
 
-        return Reference(obj);
+        return LocalReference(obj);
     }
 
 public:

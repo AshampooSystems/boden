@@ -25,6 +25,11 @@ jint     FieldAccessorBase_::getIntField(jobject obj, jfieldID fieldId)
     return Env::get().getJniEnv()->GetIntField(obj, fieldId);
 }
 
+jbyte     FieldAccessorBase_::getByteField(jobject obj, jfieldID fieldId)
+{
+    return Env::get().getJniEnv()->GetByteField(obj, fieldId);
+}
+
 jshort   FieldAccessorBase_::getShortField(jobject obj, jfieldID fieldId)
 {
     return Env::get().getJniEnv()->GetShortField(obj, fieldId);
@@ -47,7 +52,7 @@ jfloat   FieldAccessorBase_::getFloatField(jobject obj, jfieldID fieldId)
 
 jdouble  FieldAccessorBase_::getDoubleField(jobject obj, jfieldID fieldId)
 {
-    return Env::get().getJniEnv()->getDoubleField(obj, fieldId);
+    return Env::get().getJniEnv()->GetDoubleField(obj, fieldId);
 }
 
 
@@ -64,6 +69,11 @@ void FieldAccessorBase_::setBooleanField(jobject obj, jfieldID fieldId, jboolean
 void FieldAccessorBase_::setIntField(jobject obj, jfieldID fieldId, jint value)
 {
     Env::get().getJniEnv()->SetIntField(obj, fieldId, value);
+}
+
+void FieldAccessorBase_::setByteField(jobject obj, jfieldID fieldId, jbyte value)
+{
+    Env::get().getJniEnv()->SetByteField(obj, fieldId, value);
 }
 
 void FieldAccessorBase_::setShortField(jobject obj, jfieldID fieldId, jshort value)

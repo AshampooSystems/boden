@@ -19,7 +19,7 @@ Reference JClass::findClass_ (const String& nameInSlashNotation)
         throw ClassNotFoundError(nameInSlashNotation);
     env.throwExceptionFromLastJavaCall();
 
-    return Reference( clazz );
+    return LocalReference( (jobject)clazz );
 }
 
 
