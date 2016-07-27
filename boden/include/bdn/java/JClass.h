@@ -26,6 +26,7 @@ class JClass;
 #include <bdn/java/LocalReference.h>
 #include <bdn/java/TypeConversion.h>
 #include <bdn/java/MethodCaller.h>
+#include <bdn/java/StaticMethodCaller.h>
 
 
 namespace bdn
@@ -113,7 +114,9 @@ public:
      *  @param obj the Java object instance that the method should be called on
      *  @param name the method name
      *  @param args an arbitrary number of method arguments. If a java object is to be passed to the method then
-     *      you should pass a JObject instance here.
+     *      you should pass an instance of the corresponding JObject subclass here.
+     *      The type of the arguments you pass is used to determine the method signature, so they must match
+     *      the Java-side argument types exactly.
      *  @return the return value of the method. The type is determined by the template parameter
      *      ReturnType.
      *  */
@@ -126,6 +129,30 @@ public:
         initMethodId<ReturnType, Arguments...>(methodId, name);
 
         return MethodCaller<ReturnType>::template call<Arguments...>(obj, methodId.getId(), args...);
+    }
+
+
+    /** Invokes the specified static method of the specified class instance.
+     *
+     *  @param methodId a method id object that is used to cache the method id to make
+     *      future calls more efficient. If this is uninitialized then it will automatically
+     *      be initialized. If it is initialized then the existing method id will be used.
+     *  @param name the static method's name
+     *  @param args an arbitrary number of method arguments. If a java object is to be passed to the method then
+     *      you should pass an instance of the corresponding JObject subclass here.
+     *      The type of the arguments you pass is used to determine the method signature, so they must match
+     *      the Java-side argument types exactly.
+     *  @return the return value of the method. The type is determined by the template parameter
+     *      ReturnType.
+     *  */
+    template<typename ReturnType, typename... Arguments>
+    ReturnType invokeStaticMethod_ (MethodId &methodId,
+                                    const String& name,
+                                    Arguments... args)
+    {
+        initStaticMethodId<ReturnType, Arguments...>(methodId, name);
+
+        return StaticMethodCaller<ReturnType>::template call<Arguments...>( (jclass)getJObject_(), methodId.getId(), args...);
     }
 
 
@@ -188,6 +215,18 @@ private:
             String      methodSignature = "("+_makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
 
             id.init( *this, name, methodSignature );
+        }
+    }
+
+
+    template<typename ReturnType, typename... Arguments>
+    void initStaticMethodId(MethodId& id, const String& name)
+    {
+        if(!id.isInitialized())
+        {
+            String      methodSignature = "("+_makeTypeSignatureList<Arguments...>() + ")" + getTypeSignature<ReturnType>();
+
+            id.initStatic( *this, name, methodSignature );
         }
     }
 

@@ -86,8 +86,8 @@ public:
     {
     }
 
-    /** Copy constructor.*/
-    Reference(const Reference && o)
+    /** Move constructor.*/
+    Reference(Reference&& o)
     : _pShared( std::move(o._pShared) )
     {
     }

@@ -64,6 +64,7 @@ public:
     }
 
 
+
     Reference getWrappedPointer()
     {
         static MethodId methodId;

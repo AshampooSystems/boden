@@ -7,11 +7,11 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRunnable_nativeRun
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::JNativeStrongPointer nativePointer( bdn::java::LocalReference(rawNativeObject) );
+    bdn::java::JNativeStrongPointer nativePointer(( bdn::java::LocalReference(rawNativeObject) ));
 
     bdn::IBase* pBase = nativePointer.getPointer_();
 
-    bdn::ISimpleCallable* pCallable = static_cast<bdn::ISimpleCallable*>( pBase );
+    bdn::ISimpleCallable* pCallable = dynamic_cast<bdn::ISimpleCallable*>( pBase );
 
     pCallable->call();
 

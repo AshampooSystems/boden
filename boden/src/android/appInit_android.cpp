@@ -2,14 +2,11 @@
 #include <bdn/appInit.h>
 
 #include <bdn/Thread.h>
-#include <bdn/android/JActivity.h>
 
 namespace bdn
 {
-namespace android
-{
 
-void _uiAppInit(AppControllerBase* pAppController, jobject activityRef)
+void _uiAppInit(AppControllerBase* pAppController)
 {
     Thread::_setMainId( Thread::getCurrentId() );
 
@@ -32,7 +29,6 @@ void _uiAppInit(AppControllerBase* pAppController, jobject activityRef)
     }
 }
 
-}
 }
 
 

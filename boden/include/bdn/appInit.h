@@ -9,7 +9,7 @@
 #include <vector>
 
 #if BDN_PLATFORM_ANDROID
-#include <jni.h>
+#include <bdn/java/Env.h>
 #endif
 
 namespace bdn
@@ -117,8 +117,8 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_init( JNIEnv* pEnv ) \
 		{ \
 			BDN_JNI_BEGIN( pEnv ); \
- 			bdn::android::_uiInit( bdn::newObj<appControllerClass>() ); \
-			BDN_JNI_END(); \
+ 			bdn::_uiAppInit( bdn::newObj<appControllerClass>() ); \
+			BDN_JNI_END; \
 		}
 
 #else

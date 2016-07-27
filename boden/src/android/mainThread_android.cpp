@@ -1,15 +1,19 @@
 #include <bdn/init.h>
 #include <bdn/mainThread.h>
 
+#include <bdn/android/JNativeHandler.h>
+#include <bdn/java/JNativeOnceRunnable.h>
+
 namespace bdn
 {
 
 void CallFromMainThreadBase_::dispatch()
 {
-    // inc refcount so that object is kept alive until the call happens.
-    addRef();
+    bdn::android::JNativeHandler    handler = bdn::android::JNativeHandler::getMainNativeHandler();
 
+    bdn::java::JNativeOnceRunnable  runnable( this );
 
+    handler.post( runnable );
 }
 
 

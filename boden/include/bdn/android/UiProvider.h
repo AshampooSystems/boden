@@ -38,7 +38,7 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
 
-    double getSemPixelsForView(ViewCore& viewCore);
+    double getSemPixelsForViewCore(ViewCore &viewCore);
 
 
     static UiProvider& get();

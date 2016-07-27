@@ -50,11 +50,16 @@ public:
      *  If you want to check for type equality then you should compare the type name
      *  (see getTypeName() )
      *  */
-    static bdn::java::JClass& getStaticClass()
+    static bdn::java::JClass& getStaticClass_()
     {
         static bdn::java::JClass cls( "io/boden/android/NativeViewCoreClickListener" );
 
         return cls;
+    }
+
+    bdn::java::JClass& getClass_() override
+    {
+        return getStaticClass_();
     }
 
 };

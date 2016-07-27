@@ -116,7 +116,7 @@ public:
 
     /** Attaches an object to the view as a "tag". Tags have no predefined
      *  meaning, so this is simply a way to associate an object with the view.*/
-    void setTag( const bdn::java::JObject& tagObject)
+    void setTag( bdn::java::JObject tagObject)
     {
         static bdn::java::MethodId methodId;
 
@@ -265,7 +265,7 @@ public:
     };
 
 
-    void addOnLayoutChangeListener(OnLayoutChangeListener& listener)
+    void addOnLayoutChangeListener(OnLayoutChangeListener listener)
     {
         static bdn::java::MethodId methodId;
 

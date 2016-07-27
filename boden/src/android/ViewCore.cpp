@@ -15,7 +15,8 @@ namespace android
 int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
 {
     if(uiLength.unit==UiLength::sem)
-        return (int)std::lround( uiLength.value * UiProvider::get().getSemPixelsForView(*const_cast<ViewCore*>(this)) );
+        return (int)std::lround( uiLength.value * UiProvider::get().getSemPixelsForViewCore(
+                *const_cast<ViewCore *>(this)) );
 
     else if(uiLength.unit==UiLength::pixel96)
         return (int)std::lround( uiLength.value * getUiScaleFactor() );

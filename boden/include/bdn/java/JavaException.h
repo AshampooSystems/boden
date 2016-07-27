@@ -18,13 +18,13 @@ namespace java
 class JavaException : public std::exception
 {
 public:
-    JavaException( JThrowable&& throwable)
+    JavaException( JThrowable throwable)
     : _throwable( throwable.getRef_().toStrong() )
     {
         _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage()).asUtf8();
     }
 
-    JThrowable& getJThrowable_()
+    JThrowable getJThrowable_()
     {
         return _throwable;
     }

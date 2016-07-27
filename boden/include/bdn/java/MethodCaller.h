@@ -1,7 +1,6 @@
 #ifndef BDN_JAVA_MethodCaller_H_
 #define BDN_JAVA_MethodCaller_H_
 
-
 #include <bdn/java/TypeConversion.h>
 
 namespace bdn
@@ -9,36 +8,136 @@ namespace bdn
 namespace java
 {
 
-class MethodCallerBase_
+jobject  callJavaObjectMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+void     callJavaVoidMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jint     callJavaIntMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jboolean callJavaBooleanMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jshort   callJavaShortMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jlong    callJavaLongMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jchar    callJavaCharMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jfloat   callJavaFloatMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+jdouble  callJavaDoubleMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+
+void     throwExceptionFromLastJavaCall();
+
+
+template<typename JavaReturnType>
+inline JavaReturnType callJavaMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
+
+template<>
+inline jobject callJavaMethodStoreExceptV<jobject>(jobject obj, jmethodID methodId, va_list argList)
 {
-public:
-
-protected:
-    static jobject  callObjectMethod(jobject obj, jmethodID methodId, ...);
-    static void     callVoidMethod(jobject obj, jmethodID methodId, ...);
-    static jint     callIntMethod(jobject obj, jmethodID methodId, ...);
-    static jboolean callBooleanMethod(jobject obj, jmethodID methodId, ...);
-    static jshort   callShortMethod(jobject obj, jmethodID methodId, ...);
-    static jlong    callLongMethod(jobject obj, jmethodID methodId, ...);
-    static jchar    callCharMethod(jobject obj, jmethodID methodId, ...);
-    static jfloat   callFloatMethod(jobject obj, jmethodID methodId, ...);
-    static jdouble  callDoubleMethod(jobject obj, jmethodID methodId, ...);
+    return callJavaObjectMethodStoreExceptV(obj, methodId, argList);
+}
 
 
-};
+template<>
+inline void callJavaMethodStoreExceptV<void>(jobject obj, jmethodID methodId, va_list argList)
+{
+    callJavaVoidMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jint callJavaMethodStoreExceptV<jint>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaIntMethodStoreExceptV(obj, methodId, argList);
+}
+
+
+template<>
+inline jboolean callJavaMethodStoreExceptV<jboolean>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaBooleanMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jshort callJavaMethodStoreExceptV<jshort>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaShortMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jlong callJavaMethodStoreExceptV<jlong>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaLongMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jchar callJavaMethodStoreExceptV<jchar>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaCharMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jfloat callJavaMethodStoreExceptV<jfloat>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaFloatMethodStoreExceptV(obj, methodId, argList);
+}
+
+template<>
+inline jdouble callJavaMethodStoreExceptV<jdouble>(jobject obj, jmethodID methodId, va_list argList)
+{
+    return callJavaDoubleMethodStoreExceptV(obj, methodId, argList);
+}
+
+
+
+/** Calls a Java-side method with the return type specified by the template argument
+ *  JavaReturnType.
+ *
+ *  If the Java method throws an exception callJavaMethod will throw a corresponding
+ *  C++ exception of type JavaException.
+ *
+ *  The method takes an arbitrary number of arguments. These MUST match exactly what the
+ *  java-side function expects.
+ *
+ *  A safer way to call Java-side method is with MethodCaller, which also automatically
+ *  performs type-conversions to ensure that the Java-side gets values of proper type.
+ *
+ **/
+template<typename JavaReturnType>
+inline JavaReturnType callJavaMethod(jobject obj, jmethodID methodId, ...)
+{
+    va_list argList;
+    va_start(argList, methodId);
+
+    JavaReturnType result = callJavaMethodStoreExceptV<JavaReturnType>(obj, methodId, argList);
+
+    va_end(argList);
+
+    throwExceptionFromLastJavaCall();
+
+    return result;
+}
+
+
+template<>
+inline void callJavaMethod<void>(jobject obj, jmethodID methodId, ...)
+{
+    va_list argList;
+    va_start(argList, methodId);
+
+    callJavaMethodStoreExceptV<void>(obj, methodId, argList);
+
+    va_end(argList);
+
+    throwExceptionFromLastJavaCall();
+}
+
+
 
 
 /** Calls Java-side functions with the return type specified by the
  *  ReturnType template argument.
  *
- *  This is implemented via template specializations for the various possible
- *  return types.
+ *  If the Java method throws an exception callJavaMethod will throw a corresponding
+ *  C++ exception of type JavaException.
  *
  *  The class is used like this:
  *
  *  \code
  *
- *  bool returnValue = MethodCaller<bool>::call( instanceJObject, methodId, arg1, arg2, ...);
+ *  bool returnValue = MethodCaller<bool>::call( obj, methodId, arg1, arg2, ...);
  *
  *  \endcode
  *
@@ -46,160 +145,32 @@ protected:
  *  is defined (see TypeConversion).
  *
  *  */
-template<typename ReturnType>
-class MethodCaller : public MethodCallerBase_
+template<typename NativeReturnType>
+class MethodCaller
 {
 public:
+    typedef typename TypeConversion<NativeReturnType>::JavaType JavaReturnType;
 
 
-    /** Calls the specified method of the object instance obj.
-     *
-     * You can pass any number of arguments of any type for which a native-java type conversion
-     * is defined (see TypeConversion). The arguments and return types must match the definition
-     * of the Java-side method, of course.
-    **/
     template<typename... Arguments>
-    static ReturnType call(jobject obj, jmethodID methodId, Arguments... args)
+    static NativeReturnType call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative<ReturnType>( callObjectMethod(obj, methodId, nativeToJava(args)... ) );
+        return javaToNative<NativeReturnType>( callJavaMethod<JavaReturnType>(obj, methodId, nativeToJava(args)... ) );
     }
-
-
 };
 
 
 template<>
-class MethodCaller<void> : public MethodCallerBase_
+class MethodCaller<void>
 {
 public:
+    typedef void JavaReturnType;
+
 
     template<typename... Arguments>
     static void call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        callVoidMethod(obj, methodId, nativeToJava(args)...);
-    }
-};
-
-
-
-
-
-template<>
-class MethodCaller<bool> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static bool call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<bool>( callBooleanMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-};
-
-
-template<>
-class MethodCaller<jobject> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static jobject call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<jobject>( callObjectMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-
-};
-
-template<>
-class MethodCaller<int8_t> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static int8_t call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<int8_t>( callByteMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-
-};
-
-template<>
-class MethodCaller<char32_t> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static char32_t call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<char32_t>( callCharMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-
-};
-
-
-template<>
-class MethodCaller<int> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static int call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<int>( callIntMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-
-};
-
-
-template<>
-class MethodCaller<short> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static short call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<short>( callShortMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-
-};
-
-template<>
-class MethodCaller<int64_t> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static int64_t call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<int64_t>( callLongMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-};
-
-
-template<>
-class MethodCaller<float> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static float call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<float>( callFloatMethod(obj, methodId, nativeToJava(args)... ) );
-    }
-};
-
-
-
-template<>
-class MethodCaller<double> : public MethodCallerBase_
-{
-public:
-
-    template<typename... Arguments>
-    static double call(jobject obj, jmethodID methodId, Arguments... args)
-    {
-        return javaToNative<double>( callDoubleMethod(obj, methodId, nativeToJava(args)... ) );
+        callJavaMethod<void>(obj, methodId, nativeToJava(args)... );
     }
 };
 

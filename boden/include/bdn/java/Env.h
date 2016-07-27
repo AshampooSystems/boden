@@ -44,7 +44,7 @@ public:
     {
     }
 
-    BDN_SAFE_STATIC(Env, get );
+    BDN_SAFE_STATIC_THREAD_LOCAL(Env, get );
 
 
     /** Helper class that manages the environment inside a JNI callback function.

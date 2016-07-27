@@ -15,18 +15,36 @@ namespace android
 
 class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
+private:
+    static P<JButton> _createJButton(Button* pOuter)
+    {
+        // we need to know the context to create the view.
+        // If we have a parent then we can get that from the parent's core.
+        P<View> 	pParent = pOuter->getParentView();
+        if(pParent==nullptr)
+            throw ProgrammingError("ButtonCore instance requested for a Button that does not have a parent.");
+
+        P<ViewCore> pParentCore = cast<ViewCore>( pParent->getViewCore() );
+        if(pParentCore==nullptr)
+            throw ProgrammingError("ButtonCore instance requested for a Button with core-less parent.");
+
+        JContext context = pParentCore->getJView().getContext();
+
+        return newObj<JButton>(context);
+    }
+
 public:
     ButtonCore( Button* pOuterButton )
-     : ViewCore( pOuterButton, newObj<JButton>() )
+     : ViewCore( pOuterButton, _createJButton(pOuterButton) )
     {
-        _pJButton = cast<JButton>( getJView() );
+        _pJButton = cast<JButton>( &getJView() );
 
         setLabel( pOuterButton->label() );
     }
 
-    P<JButton> getJButton()
+    JButton& getJButton()
     {
-        return _pJButton;
+        return *_pJButton;
     }
 
 

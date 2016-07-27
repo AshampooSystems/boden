@@ -13,7 +13,7 @@ namespace android
 class JNativeViewGroup : public JViewGroup
 {
 private:
-    bdn::java::Reference newInstance_()
+    bdn::java::Reference newInstance_(JContext context)
     {
         static bdn::java::MethodId constructorId;
 
@@ -21,8 +21,8 @@ private:
     }
 
 public:
-    JNativeViewGroup()
-    : JNativeViewGroup( newInstance_() )
+    explicit JNativeViewGroup(JContext context)
+    : JNativeViewGroup( newInstance_(context) )
     {
     }
 

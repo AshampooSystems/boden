@@ -76,7 +76,7 @@ public class NativeRootView extends NativeViewGroup
 
 
     @Override
-    public void finalize()
+    public void finalize() throws Throwable
     {
         dispose();
 
@@ -92,7 +92,7 @@ public class NativeRootView extends NativeViewGroup
 
     private native static void created();
     private native static void disposed();
-    private native static void sizeChanged();
+    private native static void sizeChanged(int width, int height);
     private native static void configurationChanged(Configuration newConfig);
 
     private boolean _disposed = false;

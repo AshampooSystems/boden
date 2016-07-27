@@ -3,8 +3,10 @@
 
 /** \def BDN_SAFE_STATIC(type, accessorFuncName)
 
-	You should use BDN_SAFE_STATIC and BDN_SAFE_STATIC_IMPL (or BDN_SAFE_STATIC_THREAD_LOCAL_IMPL)
-	when you need a global (static) variable.
+	You should use BDN_SAFE_STATIC and BDN_SAFE_STATIC_IMPL	when you need a global (static) variable.
+
+    If you need a thread-local global variable then you can use the variants #BDN_SAFE_STATIC_THREAD_LOCAL
+    and #BDN_SAFE_STATIC_THREAD_LOCAL_IMPL.
 	
 	BDN_SAFE_STATIC generates a declaration for a static accessor function (the function's name is 
 	specified as the second parameter). The accessor function returns a reference to
@@ -59,7 +61,7 @@
 
 	// if you want the integer to be a thread-local global then you would use this instead:
 	BDN_SAFE_STATIC_THREAD_LOCAL_IMPL( int, MyClass::getGlobalValue );
-	
+
 	// optionally, you can instead also pass constructor parameters to initialize
 	// the global variable. Just add those at the end of the BDN_SAFE_STATIC_IMPL
 	// statement.
@@ -81,6 +83,19 @@
 	\endcode
 */
 #define BDN_SAFE_STATIC(typeName, accessorFuncName) static typeName& accessorFuncName()
+
+
+/** \def BDN_SAFE_STATIC_THREAD_LOCAL(type, accessorFuncName)
+
+    Similar to #BDN_SAFE_STATIC, except that the global variable is thread local (i.e. each thread
+    gets a separate global instance.
+
+    Use BDN_SAFE_STATIC_THREAD_LOCAL in the header file to declare the accessor function.
+    Use BDN_SAFE_STATIC_THREAD_LOCAL_IMPL in the cpp file to implement the accessor function.
+
+    See #BDN_SAFE_STATIC for more information.
+*/
+#define BDN_SAFE_STATIC_THREAD_LOCAL(typeName, accessorFuncName) BDN_SAFE_STATIC(typeName, accessorFuncName)
 
 
 /** \def BDN_SAFE_STATIC_IMPL(type, qualifiedAccessorFuncName)
@@ -136,8 +151,8 @@
 */
 #if BDN_HAVE_THREADS
 
-	#if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
-        // Apple's clang implementation does not support standard C++11 thread_local storage. So we have to use
+	#if BDN_PLATFORM_OSX || BDN_PLATFORM_IOS || BDN_PLATFORM_ANDROID
+        // Apple's and Android's clang implementation does not support standard C++11 thread_local storage. So we have to use
         // a workaround here.
         #include <bdn/pthread/ThreadLocalStorage.h>
 
@@ -147,7 +162,6 @@
 				static bdn::SafeInit< bdn::pthread::ThreadLocalStorage<typeName> > init{__VA_ARGS__}; \
 				return (typeName&)*init.get(); \
 			}
-
 
 	#elif BDN_PLATFORM_WINRT
 		

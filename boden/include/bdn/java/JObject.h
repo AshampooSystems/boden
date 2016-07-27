@@ -57,6 +57,19 @@ public:
     }
 
 
+    /** copy constructor*/
+    JObject(const JObject& o)
+     : _javaRef( o._javaRef )
+    {
+    }
+
+    /** move constructor*/
+    JObject(JObject&& o)
+    : _javaRef( std::move(o._javaRef) )
+    {
+    }
+
+
     /** Returns the Reference to the Java-side object.
      *
      *  Note that the returned reference can be a null Reference object.
@@ -106,6 +119,9 @@ public:
 
     template<typename ReturnType, typename... Arguments>
     inline ReturnType invoke_(JClass& cls, MethodId& methodId, const String& methodName, Arguments... args);
+
+    template<typename ReturnType, typename... Arguments>
+    inline static ReturnType invokeStatic_(JClass& cls, MethodId& methodId, const String& methodName, Arguments... args);
 
 
     /** Returns the JClass object for this class.
@@ -157,6 +173,14 @@ inline ReturnType JObject::invoke_(JClass& cls, MethodId& methodId, const String
 {
     return cls.invokeObjectMethod_<ReturnType, Arguments...>( methodId, getJObject_(), methodName, args...);
 }
+
+
+template<typename ReturnType, typename... Arguments>
+inline ReturnType JObject::invokeStatic_(JClass& cls, MethodId& methodId, const String& methodName, Arguments... args)
+{
+    return cls.invokeStaticMethod_<ReturnType, Arguments...>( methodId, methodName, args...);
+}
+
 
 }
 }

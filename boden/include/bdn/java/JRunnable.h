@@ -1,5 +1,5 @@
-#ifndef BDN_JAVA_JCharSequence_H_
-#define BDN_JAVA_JCharSequence_H_
+#ifndef BDN_JAVA_JRunnable_H_
+#define BDN_JAVA_JRunnable_H_
 
 #include <bdn/java/JObject.h>
 
@@ -9,23 +9,22 @@ namespace java
 {
 
 
-/** Accessor for Java java.lang.CharSequence objects.*/
-class JCharSequence : public JObject
+/** Accessor for Java java.lang.Runnable objects.*/
+class JRunnable : public bdn::java::JObject
 {
 public:
-    /** @param objectRef the reference to the Java object.
+    /** @param javaRef the reference to the Java object.
     *      The JObject instance will copy this reference and keep its type.
     *      So if you want the JObject instance to hold a strong reference
     *      then you need to call toStrong() on the reference first and pass the result.
     *      */
-    explicit JCharSequence(const Reference& ref)
-     : JObject(ref)
+    explicit JRunnable(const bdn::java::Reference& javaRef)
+    : JObject(javaRef)
     {
     }
 
 
-
-    /** Returns the java class object for the Java object's class.
+    /** Returns the JClass object for this class.
      *
      *  Note that the returned class object is not necessarily unique for the whole
      *  process.
@@ -35,14 +34,14 @@ public:
      *  If you want to check for type equality then you should compare the type name
      *  (see getTypeName() )
      *  */
-    static JClass& getStaticClass_ ()
+    static bdn::java::JClass& getStaticClass_()
     {
-        static JClass cls( "java/lang/CharSequence" );
+        static bdn::java::JClass cls( "java/lang/Runnable" );
 
         return cls;
     }
 
-    JClass& getClass_ () override
+    bdn::java::JClass& getClass_ () override
     {
         return getStaticClass_ ();
     }

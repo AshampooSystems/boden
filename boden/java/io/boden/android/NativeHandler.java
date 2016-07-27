@@ -13,13 +13,14 @@ public class NativeHandler extends Handler
         super(looper);
     }
 
-    public static NativeHandler get()
+    public static NativeHandler getMainNativeHandler()
     {
         if(_instance==null)
             _instance = new NativeHandler( Looper.getMainLooper() );
 
         return _instance;
     }
-
-
 }
+
+
+

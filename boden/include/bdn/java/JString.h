@@ -41,6 +41,7 @@ public:
     }
 
 
+
     String getValue_()
     {
         JNIEnv* pEnv = Env::get().getJniEnv();

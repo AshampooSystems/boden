@@ -7,7 +7,7 @@ namespace bdn
 namespace java
 {
 
-BDN_SAFE_STATIC_IMPL( Env, Env::get )
+BDN_SAFE_STATIC_THREAD_LOCAL_IMPL( Env, Env::get )
 
 
 }

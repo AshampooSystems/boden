@@ -1,15 +1,17 @@
-#ifndef BDN_ANDROID_JViewGroup_H_
-#define BDN_ANDROID_JViewGroup_H_
+#ifndef BDN_ANDROID_JHandler_H_
+#define BDN_ANDROID_JHandler_H_
 
-#include <bdn/android/JView.h>
+#include <bdn/java/JObject.h>
+#include <bdn/java/JRunnable.h>
 
 namespace bdn
 {
 namespace android
 {
 
-/** Wrapper for Java android.view.ViewGroup objects.*/
-class JViewGroup : public JView
+
+/** Accessor for Java android.os.Handler objects.*/
+class JHandler : public bdn::java::JObject
 {
 public:
     /** @param javaRef the reference to the Java object.
@@ -17,10 +19,25 @@ public:
     *      So if you want the JObject instance to hold a strong reference
     *      then you need to call toStrong() on the reference first and pass the result.
     *      */
-    explicit JViewGroup(const bdn::java::Reference& javaRef)
-        : JView(javaRef)
+    explicit JHandler(const bdn::java::Reference& javaRef)
+    : JObject(javaRef)
     {
     }
+
+
+    /** Causes the Runnable object to be added to the message queue.
+     *  The runnable will be run on the thread to which this handler is attached.
+     *
+     *  Returns true if the Runnable was successfully placed in to the message queue.
+     *  Returns false on failure, usually because the looper processing the message queue is exiting.
+     *  */
+    bool post( bdn::java::JRunnable runnable)
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<bool>( getStaticClass_(), methodId, "post", runnable);
+    }
+
 
 
     /** Returns the JClass object for this class.
@@ -35,7 +52,7 @@ public:
      *  */
     static bdn::java::JClass& getStaticClass_()
     {
-        static bdn::java::JClass cls( "android/view/ViewGroup" );
+        static bdn::java::JClass cls( "android/os/Handler" );
 
         return cls;
     }
@@ -44,33 +61,6 @@ public:
     {
         return getStaticClass_ ();
     }
-
-
-    void addView(JView child)
-    {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "addView", child);
-    }
-
-
-    /** Returns the number of children in the group. */
-    int	getChildCount()
-    {
-        static bdn::java::MethodId methodId;
-
-        return invoke_<int>(getStaticClass_(), methodId, "getChildCount");
-    }
-
-
-    /** Returns the view at the specified position in the group. */
-    JView getChildAt(int index)
-    {
-        static bdn::java::MethodId methodId;
-
-        return invoke_<JView>(getStaticClass_(), methodId, "getChildAt", index);
-    }
-
 
 
 

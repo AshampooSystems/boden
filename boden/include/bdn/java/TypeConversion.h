@@ -383,11 +383,13 @@ typename TypeConversion<NativeType>::JavaType nativeToJava(NativeType nativeValu
 }
 
 
+
 template<class NativeType>
 NativeType javaToNative(typename TypeConversion<NativeType>::JavaType javaValue)
 {
     return TypeConversion<NativeType>::javaToNative( javaValue );
 }
+
 
 
 

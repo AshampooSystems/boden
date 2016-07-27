@@ -38,6 +38,12 @@ public:
     {
     }
 
+    Field(Field&& o)
+    : _objRef( std::move(o._objRef) )
+    , _id( std::move(o._id) )
+    {
+    }
+
     void set(const NativeType& newValue)
     {
         FieldAccessor<NativeType>::setValue( _objRef.getJObject(), _id.getId(), newValue );

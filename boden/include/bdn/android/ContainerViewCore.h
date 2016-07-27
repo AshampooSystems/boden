@@ -3,6 +3,7 @@
 
 #include <bdn/ContainerView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/JNativeViewGroup.h>
 
 
 namespace bdn
@@ -12,9 +13,27 @@ namespace android
 
 class ContainerViewCore : public ViewCore
 {
+private:
+	static P<JNativeViewGroup> _createJNativeViewGroup(ContainerView* pOuter)
+	{
+		// we need to know the context to create the view.
+		// If we have a parent then we can get that from the parent's core.
+		P<View> 	pParent = pOuter->getParentView();
+		if(pParent==nullptr)
+			throw ProgrammingError("ContainerViewCore instance requested for a ContainerView that does not have a parent.");
+
+		P<ViewCore> pParentCore = cast<ViewCore>( pParent->getViewCore() );
+		if(pParentCore==nullptr)
+			throw ProgrammingError("ContainerViewCore instance requested for a ContainerView with core-less parent.");
+
+		JContext context = pParentCore->getJView().getContext();
+
+		return newObj<JNativeViewGroup>(context);
+	}
+
 public:
 	ContainerViewCore(ContainerView* pOuter)
-     : ViewCore(pOuter, newObj<JNativeViewGroup>() )
+     : ViewCore(pOuter, _createJNativeViewGroup(pOuter) )
 	{
 	}
 

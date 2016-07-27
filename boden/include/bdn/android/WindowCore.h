@@ -16,20 +16,39 @@ namespace android
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 private:
-    P<JNativeViewGroup> createView(Window* pOuterWindow)
+    P<JNativeViewGroup> createJNativeViewGroup(Window* pOuterWindow)
     {
-        return newObj<JNativeViewGroup>();
+        // we need a context to create our view object.
+        // To know the context we first have to determine the root view that
+        // this window will be connected to.
+
+        // We connect to the first root view that is available in the root view registry.
+        JNativeRootView rootView( getRootViewRegistryForCurrentThread().getNewestValidRootView() );
+
+        if(rootView.isNull_())
+            throw ProgrammingError("WindowCore being created but there are no native root views available. You must create a NativeRootActivity or NativeRootView instance!");
+
+        P<JNativeViewGroup> pViewGroup = newObj<JNativeViewGroup>( rootView.getContext() );
+
+        // add the view group to the root view. That is important so that the root view we have chosen
+        // is fixed to the view group instance.
+        rootView.addView( *pViewGroup );
+
+        return pViewGroup;
     }
 
 public:
     WindowCore( Window* pOuterWindow )
-        : ViewCore( pOuterWindow, createView(pOuterWindow) )
+        : ViewCore( pOuterWindow, createJNativeViewGroup(pOuterWindow) )
     {
         setTitle( pOuterWindow->title() );
 
-        // try to attach the window to a root view
-        bdn::java::Reference rootViewRef;
-        tryGetAccessibleRootViewRef(rootViewRef);
+        JNativeRootView rootView( getJView().getParent().getRef_() );
+
+        updateUiScaleFactor( rootView.getContext().getResources().getConfiguration() );
+
+        // update our size to fully fill the root view.
+        rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
     }
 
 
@@ -50,13 +69,6 @@ public:
     void setVisible(const bool& visible) override
     {
         ViewCore::setVisible( visible );
-
-        if(visible)
-        {
-            // ensure that the window is attached to a root view (if one is available)
-            bdn::java::Reference rootViewRef;
-            tryGetAccessibleRootViewRef(rootViewRef);
-        }
     }
 
 
@@ -93,7 +105,7 @@ public:
 
     Rect getScreenWorkArea() const override
     {
-        JNativeRootView rootView = updateAndGetRootView();
+        JNativeRootView rootView( tryGetAccessibleRootViewRef() );
 
         if(rootView.isNull_())
         {
@@ -114,12 +126,17 @@ public:
     {
         // we store only a weak referene in the registry. We do not want to
         // keep the java-side root view object alive.
-        getRootViewRegistry().add( javaRef.toWeak() );
+        getRootViewRegistryForCurrentThread().add( javaRef.toWeak() );
     }
 
     static void _rootViewDisposed( const bdn::java::Reference& javaRef )
     {
-        getRootViewRegistry().remove( javaRef );
+        // this may be called by the garbage collector, so it might be in
+        // an arbitrary thread. That means that the root view registry we get
+        // might not be the one that actually owns the reference. In that case
+        // the object will not be removed from the registry. But that is OK: the registry
+        // will notice the next time it tries to access the root view and then it will be removed.
+        getRootViewRegistryForCurrentThread().remove( javaRef );
 
         std::list< P<WindowCore> > windowCoreList;
         getWindowCoreListFromRootView( javaRef, windowCoreList );
@@ -138,7 +155,7 @@ public:
             pWindowCore->rootViewSizeChanged(width, height);
     }
 
-    static void _rootViewConfigurationChanged( const bdn::java::Reference& javaRef, JConfiguration& config )
+    static void _rootViewConfigurationChanged( const bdn::java::Reference& javaRef, JConfiguration config )
     {
         std::list< P<WindowCore> > windowCoreList;
 
@@ -150,17 +167,15 @@ public:
 
 protected:
 
-    JNativeRootView updateAndGetRootView() const
-    {
-        bdn::java::Reference rootViewRef;
-        tryGetAccessibleRootViewRef(rootViewRef);
-
-        return JNativeRootView( rootViewRef );
-    }
 
     /** Called when the window core's root view was garbage collected or disposed.*/
     virtual void rootViewDisposed()
     {
+        // this may be called by the garbage collector, so it might be in
+        // an arbitrary thread
+
+        MutexLock lock(_rootViewMutex);
+
         _weakRootViewRef = bdn::java::Reference();
     }
 
@@ -180,7 +195,7 @@ protected:
      *
      *  The default implementation updates the Window's size to match the new root dimensions.
      *  */
-    virtual void rootViewConfigurationChanged(JConfiguration& config)
+    virtual void rootViewConfigurationChanged(JConfiguration config)
     {
         updateUiScaleFactor(config);
     }
@@ -201,7 +216,7 @@ protected:
 
 private:
 
-    void updateUiScaleFactor( JConfiguration& config )
+    void updateUiScaleFactor( JConfiguration config )
     {
         int dpi = config.densityDpi();
 
@@ -231,45 +246,29 @@ private:
     }
 
 
-    /** Stores an accessible reference to the window's root view in accessibleJavaRef.
-     *  Returns true if a valid non-null root view reference was stored there.
+    /** Returns an accessible reference to the window's root view.
      *
-     *  If the window core is currently associated with a root view then the function
-     *  checks if it is still valid (i.e. if the java-side object was not garbage collected
-     *  or disposed). If that is the case then a strong reference to the root view is returned
-     *  that can be used to access it.
-     *
-     *  If the window core is not currently associated with a root view or if the previously
-     *  associated root view has been invalidated then the function tries to find a new valid root
-     *  view and attaches the window core to that.
-     *
-     *  If not valid root view could be returned then a null reference is stored in
-     *  accessibleJavaRef and false is returned.*/
-    bool tryGetAccessibleRootViewRef(bdn::java::Reference& accessibleJavaRef) const
+     *  Note that we only hold a weak reference to the root view, so the root view may
+     *  have been garbage collected. If it was then this function will return a null reference.*/
+    bdn::java::Reference tryGetAccessibleRootViewRef() const
     {
-        accessibleJavaRef = _weakRootViewRef.toAccessible();
+        bdn::java::Reference accessibleRef;
 
-        if(!accessibleJavaRef.isNull())
-            return true;
-        else
         {
-            // did not have a root view or the root view has disappeared.
-            _weakRootViewRef = bdn::java::Reference();
+            MutexLock lock(_rootViewMutex);
 
-            // see if we have another root view that we can attach to.
-            accessibleJavaRef = getRootViewRegistry().getFirstValidRootView();
-
-            if(!accessibleJavaRef.isNull())
+            if(_weakRootViewRef.getType()!=bdn::java::Reference::Type::invalid )
             {
-                const_cast<WindowCore*>(this)->attachedToNewRootView(accessibleJavaRef);
+                accessibleRef = _weakRootViewRef.toAccessible();
 
-                _weakRootViewRef = accessibleJavaRef.toWeak();
-                return true;
+                if(accessibleRef.isNull())
+                    const_cast<WindowCore*>(this)->rootViewDisposed();
             }
-            else
-                return false;
         }
+
+        return accessibleRef;
     }
+
 
 
     class RootViewRegistry : public Base
@@ -277,22 +276,18 @@ private:
     public:
         void add( const bdn::java::Reference& javaRef )
         {
-            MutexLock lock( _mutex );
-
             _rootViewList.push_back( javaRef );
         }
 
         void remove( const bdn::java::Reference& javaRef )
         {
-            MutexLock lock( _mutex );
-
             auto it = std::find( _rootViewList.begin(), _rootViewList.end(), javaRef );
             if(it!=_rootViewList.end())
                 _rootViewList.erase( it );
         }
 
 
-        /** Returns the a strong java reference to the first valid root view in the list.
+        /** Returns the a strong java reference to the most recently created root view that is still valid.
          *
          *  The function automatically checks if the Java side object of a registered root view
          *  has already been garbage collected.
@@ -301,14 +296,12 @@ private:
          *  Returns a null reference if not valid root view is found.
          *
          * */
-        bdn::java::Reference getFirstValidRootView()
+        bdn::java::Reference getNewestValidRootView()
         {
-            MutexLock lock( _mutex );
-
             // So we can simply return the first root view from the list.
             while( !_rootViewList.empty() )
             {
-                bdn::java::Reference javaRef = _rootViewList.front().toStrong();
+                bdn::java::Reference javaRef = _rootViewList.back().toStrong();
 
                 if(!javaRef.isNull())
                     return javaRef;
@@ -316,22 +309,28 @@ private:
 
                 // java-side object has been disposed or garbage collected.
                 // Remove the entry from the list.
-                _rootViewList.erase( _rootViewList.begin() );
+                _rootViewList.pop_back();
             }
 
             return bdn::java::Reference();
         }
 
     private:
-        Mutex _mutex;
         std::list<bdn::java::Reference>  _rootViewList;
     };
 
-    BDN_SAFE_STATIC( RootViewRegistry, getRootViewRegistry );
+
+    // we make the root view registry thread-local because Android can sometimes be weird.
+    // Activities from different applications can sometimes run in the same process.
+    // By making it thread-local we ensure that we really can access the most recently created
+    // root view from "our" activity.
+    BDN_SAFE_STATIC_THREAD_LOCAL( RootViewRegistry, getRootViewRegistryForCurrentThread );
 
 
-    mutable bdn::java::Reference    _weakRootViewRef;
-    Rect                            _currentBounds;
+    mutable Mutex           _rootViewMutex;
+    bdn::java::Reference    _weakRootViewRef;
+
+    Rect                    _currentBounds;
 };
 
 

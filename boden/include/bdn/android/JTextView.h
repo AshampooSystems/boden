@@ -15,7 +15,8 @@ namespace android
 /** Accessor for Java android.widget.TextView objects.*/
 class JTextView : public JView
 {
-    static bdn::java::Reference newInstance_(JContext& context)
+private:
+    static bdn::java::Reference newInstance_(JContext context)
     {
         static bdn::java::MethodId constructorId;
 
@@ -34,7 +35,7 @@ public:
     }
 
 
-    JTextView( JContext&& context )
+    JTextView( JContext context )
     : JTextView( newInstance_(context) )
     {
     }

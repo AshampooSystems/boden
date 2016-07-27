@@ -28,7 +28,7 @@ public class NativeInit
         {
             System.loadLibrary( nativeLibName );
 
-            NativeHandler.get();
+            NativeHandler.getMainNativeHandler();
 
             mInitialized = true;
 

@@ -2,6 +2,7 @@
 #define BDN_ANDROID_JButton_H_
 
 #include <bdn/android/JTextView.h>
+#include <bdn/java/JString.h>
 
 namespace bdn
 {
@@ -12,9 +13,17 @@ namespace android
 /** Accessor for Java android.widget.Button objects.*/
 class JButton : public JTextView
 {
+private:
+    static bdn::java::Reference newInstance_(JContext& context)
+    {
+        static bdn::java::MethodId constructorId;
+
+        return getStaticClass_().newInstance_(constructorId, context);
+    }
+
 public:
-    JButton()
-     : JTextView( getStaticClass_ ()->newInstance().toStrong() )
+    JButton(JContext& context)
+     : JTextView( newInstance_(context) )
     {
     }
 
@@ -50,10 +59,10 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        invoke_<void>(getStaticClass_(), methodId, "setText", JCharSequence( JString(text).getJavaReference() ) );
+        invoke_<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getRef_() ) );
     }
 
-
+    
 
 };
 

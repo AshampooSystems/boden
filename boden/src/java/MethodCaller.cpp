@@ -3,159 +3,65 @@
 
 #include <bdn/java/Env.h>
 
-#include <jni.h>
-
 namespace bdn
 {
 namespace java
 {
 
-
-jobject  MethodCallerBase_::callObjectMethod(jobject obj, jmethodID methodId, ...)
+void throwExceptionFromLastJavaCall()
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    jobject result = env.getJniEnv()->CallObjectMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
-}
-
-void  MethodCallerBase_::callVoidMethod(jobject obj, jmethodID methodId, ...)
-{
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    env.getJniEnv()->CallVoidMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
+    Env::get().throwExceptionFromLastJavaCall();
 }
 
 
-jboolean  MethodCallerBase_::callBooleanMethod(jobject obj, jmethodID methodId, ...)
+jobject  callJavaObjectMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    jboolean result = env.getJniEnv()->CallBooleanMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+    return Env::get().getJniEnv()->CallObjectMethodV(obj, methodId, argList);
 }
 
-jint  MethodCallerBase_::callIntMethod(jobject obj, jmethodID methodId, ...)
+void  callJavaVoidMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    jint result = env.getJniEnv()->CallIntMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+    Env::get().getJniEnv()->CallVoidMethodV(obj, methodId, argList);
 }
 
 
-jshort  MethodCallerBase_::callShortMethod(jobject obj, jmethodID methodId, ...)
+jboolean  callJavaBooleanMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    jshort result = env.getJniEnv()->CallShortMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+    return Env::get().getJniEnv()->CallBooleanMethodV(obj, methodId, argList);
 }
 
-jlong  MethodCallerBase_::callLongMethod(jobject obj, jmethodID methodId, ...)
+jint  callJavaIntMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-    
-    jlong result = env.getJniEnv()->CallLongMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+    return Env::get().getJniEnv()->CallIntMethodV(obj, methodId, argList);
 }
 
 
-jchar  MethodCallerBase_::callCharMethod(jobject obj, jmethodID methodId, ...)
+jshort  callJavaShortMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
+    return Env::get().getJniEnv()->CallShortMethodV(obj, methodId, argList);
+}
 
-    jchar result = env.getJniEnv()->CallCharMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+jlong  callJavaLongMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
+{
+    return Env::get().getJniEnv()->CallLongMethodV(obj, methodId, argList);
 }
 
 
-jfloat  MethodCallerBase_::callFloatMethod(jobject obj, jmethodID methodId, ...)
+jchar  callJavaCharMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
-
-    jfloat result = env.getJniEnv()->CallFloatMethodV(obj, methodId, argList);
-
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+    return Env::get().getJniEnv()->CallCharMethodV(obj, methodId, argList);
 }
 
 
-jdouble  MethodCallerBase_::callDoubleMethod(jobject obj, jmethodID methodId, ...)
+jfloat  callJavaFloatMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
 {
-    Env& env = Env::get();
-    
-    va_list argList;
-    va_start(argList, methodId);
+    return Env::get().getJniEnv()->CallFloatMethodV(obj, methodId, argList);
+}
 
-    jdouble result = env.getJniEnv()->CallDoubleMethodV(obj, methodId, argList);
 
-    va_end(argList);
-
-    env.throwExceptionFromLastJavaCall();
-
-    return result;
+jdouble  callJavaDoubleMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList)
+{
+    return Env::get().getJniEnv()->CallDoubleMethodV(obj, methodId, argList);
 }
 
 

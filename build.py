@@ -594,38 +594,56 @@ external.system.module.group="$$UserFriendlyModuleName$$" external.system.module
 
 
 
-def getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList):
+def getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary):
 
 
-    dependencyCode = "";
+    jniDependencyCode = "";
+    moduleDependencyCode = "";
+    repositoriesCode = "";
     for dep in dependencyList:
-        if not dependencyCode:
-            dependencyCode += '                        project ":%s"\n' % dep;
 
+        jniDependencyCode += '                        project ":%s"\n' % dep;
+    	
+    	moduleDependencyCode += "    compile project(':%s')\n" % dep;
+    	moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
+
+    	repositoriesCode += """\
+    flatDir{
+        dirs '../%s/build/outputs/aar'
+	}
+""" % dep
+
+    
     excludeSourceDirCode = "";
 
     excludeEntries = set();
 
     srcDir = os.path.join(projectDir, "..", "..", moduleName, "src" );
     for name in os.listdir( srcDir):
-        if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java"):
+        if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread"):
             excludeEntries.add("**/%s/**" % name);
 
 
     includeBdnDir = os.path.join(projectDir, "..", "..", moduleName, "include", "bdn" );
     if os.path.isdir(includeBdnDir):
         for name in os.listdir( includeBdnDir):
-            if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java"):
+            if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread"):
                 excludeEntries.add("**/%s/**" % name);
 
     
     for entry in excludeEntries:
         excludeSourceDirCode += '                        exclude "%s"\n' % (entry);
 
+    if isLibrary:
+    	pluginName = "com.android.model.library";
+    	appIdCode = "";	# libraries do not have an application id
+    else:
+    	pluginName = "com.android.model.application";
+    	appIdCode = "applicationId = '%s'" % packageId
 
 
     return """\
-apply plugin: 'com.android.model.application'
+apply plugin: '$$PluginName$$'
 
 model {
     android {
@@ -633,10 +651,12 @@ model {
         buildToolsVersion = '23.0.2'
 
         defaultConfig {
-            applicationId = '$$PackageId$$'
+            $$AppIdCode$$
             minSdkVersion.apiLevel = 9
             targetSdkVersion.apiLevel = 23
         }
+
+
 
         sources {
             main {
@@ -648,7 +668,7 @@ $$ExcludeSourceDirCode$$
                     }
 
                     dependencies {
-$$DependencyCode$$
+$$JniDependencyCode$$
                     }
                 }
 
@@ -667,6 +687,13 @@ $$DependencyCode$$
 
             CFlags.addAll(['-Wall'])
             cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
+
+            ldLibs.addAll([
+                    "android",
+                    "c++abi",
+                    "atomic"
+            ])
+
         }
         buildTypes {
             release {
@@ -707,24 +734,45 @@ $$DependencyCode$$
         }
     }
 }
-""".replace("$$PackageId$$", packageId) \
+
+dependencies {
+$$ModuleDependencyCode$$
+}
+
+
+repositories{    
+$$RepositoriesCode$$
+}
+
+""" .replace("$$AppIdCode$$", appIdCode) \
+	.replace("$$PluginName$$", pluginName) \
     .replace("$$ModuleName$$", moduleName) \
-    .replace("$$DependencyCode$$", dependencyCode) \
-    .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode);
+    .replace("$$JniDependencyCode$$", jniDependencyCode) \
+    .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
+    .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
+    .replace("$$RepositoriesCode$$", repositoriesCode)
 
 
-def getAndroidManifest(packageId, userFriendlyModuleName):
-    return """\
+def getAndroidManifest(packageId, userFriendlyModuleName, isLibrary):
+
+    code = """\
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="$$PackageId$$"
           android:versionCode="1"
           android:versionName="1.0">
+    
+          """;
+
+    if not isLibrary:
+    	code += """
+
   <application
       android:allowBackup="false"
       android:fullBackupContent="false"      
       android:label="@string/app_name">
-    <activity android:name=".$$UserFriendlyModuleName$$"
+  
+    <activity android:name="io.boden.android.NativeRootActivity"
               android:label="@string/app_name">
 
         <meta-data android:name="io.boden.android.lib_name"
@@ -734,11 +782,16 @@ def getAndroidManifest(packageId, userFriendlyModuleName):
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-    </activity>
+    </activity>  
   </application>
+  """;
+
+    code += """    
 </manifest>
-""".replace("$$PackageId$$", packageId) \
-    .replace("$$UserFriendlyModuleName$$", userFriendlyModuleName)
+""";
+
+    return code.replace("$$PackageId$$", packageId) \
+    	.replace("$$UserFriendlyModuleName$$", userFriendlyModuleName)
 
 
 def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):
@@ -748,7 +801,7 @@ def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, u
         os.makedirs(moduleDir);
 
     with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-        f.write( getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList ) )
+        f.write( getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary ) )
         
 
     with open( os.path.join(moduleDir, projectModuleName+".iml"), "w" ) as f:
@@ -760,7 +813,7 @@ def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, u
         os.makedirs(srcMainDir);
 
     with open( os.path.join(srcMainDir, "AndroidManifest.xml"), "w" ) as f:
-        f.write( getAndroidManifest(packageId, userFriendlyModuleName ) )
+        f.write( getAndroidManifest(packageId, userFriendlyModuleName, isLibrary ) )
 
     resDir = os.path.join(srcMainDir, "res");
     if not os.path.isdir(resDir):
