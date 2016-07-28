@@ -26,6 +26,7 @@ public class NativeInit
     {
         if(!mInitialized)
         {
+            System.loadLibrary("boden");
             System.loadLibrary( nativeLibName );
 
             NativeHandler.getMainNativeHandler();

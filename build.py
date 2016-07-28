@@ -430,175 +430,12 @@ def commandPrepare(commandArgs):
             prepareFunc(platform, config, arch, platformBuildDir);
 
 
-def getAndroidImlCode(projectModuleName, userFriendlyModuleName, isLibrary):
-
-    additionalOptions = "";
-
-    if isLibrary:
-        additionalOptions += '\n        <option name="LIBRARY_PROJECT" value="true" />'
-
-    return """\
-<?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":$$ProjectModuleName$$" external.linked.project.path="$MODULE_DIR$"
-external.root.project.path="$MODULE_DIR$/.." external.system.id="GRADLE"
-external.system.module.group="$$UserFriendlyModuleName$$" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="android-gradle" name="Android-Gradle">
-      <configuration>
-        <option name="GRADLE_PROJECT_PATH" value=":app" />
-        $$AdditonalOptions$$
-      </configuration>
-    </facet>
-    <facet type="android" name="Android">
-      <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="allDebug" />
-        <option name="SELECTED_TEST_ARTIFACT" value="_android_test_" />
-        <option name="ASSEMBLE_TASK_NAME" value="assembleAllDebug" />
-        <option name="COMPILE_JAVA_TASK_NAME" value="compileAllDebugSources" />
-        <afterSyncTasks>
-          <task>generateAllDebugSources</task>
-        </afterSyncTasks>
-        <option name="ALLOW_USER_CONFIGURATION" value="false" />
-        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
-        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res" />
-        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
-      </configuration>
-    </facet>
-  </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/build/intermediates/classes/all/debug" />
-    <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/all/debug" />
-    <exclude-output />
-    <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/all/debug" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/all/debug" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/all/debug" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/all/debug" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/all/debug" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/all/debug" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/jni" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/renderscript" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/allDebug/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAllDebug/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/all/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/all/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/all/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/all/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/all/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/all/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/jni" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/renderscript" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/all/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testAll/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestAll/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/jni" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/renderscript" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/debug/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/nati" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/renderscript" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/renderscript" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/renderscript" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/shaders" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/binaries" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/bundles" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-safeguard" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/instant-run-support" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/objectFiles" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/pre-dexed" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/rs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/shaders" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
-      <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
-    </content>
-    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
-    <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-</module>
-""".replace("$$AdditionalOptions$$", additionalOptions) \
-    .replace("$$UserFriendlyModuleName$$", userFriendlyModuleName) \
-    .replace("$$ProjectModuleName$$", projectModuleName)
-
-
 
 def getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary):
 
 
     jniDependencyCode = "";
-    moduleDependencyCode = "";
+    moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
     repositoriesCode = "";
     for dep in dependencyList:
 
@@ -607,11 +444,11 @@ def getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList,
     	moduleDependencyCode += "    compile project(':%s')\n" % dep;
     	moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
 
-    	repositoriesCode += """\
-    flatDir{
-        dirs '../%s/build/outputs/aar'
-	}
-""" % dep
+     	repositoriesCode += """\
+     flatDir{
+         dirs '../%s/build/outputs/aar'
+ 	}
+ """ % dep
 
     
     excludeSourceDirCode = "";
@@ -804,10 +641,6 @@ def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, u
         f.write( getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary ) )
         
 
-    with open( os.path.join(moduleDir, projectModuleName+".iml"), "w" ) as f:
-        f.write( getAndroidImlCode(projectModuleName, userFriendlyModuleName, isLibrary) )
-
-
     srcMainDir = os.path.join(moduleDir, "src", "main");
     if not os.path.isdir(srcMainDir):
         os.makedirs(srcMainDir);
@@ -844,29 +677,6 @@ def prepareAndroid(platform, config, arch, platformBuildDir):
     if not os.path.isdir(projectDir):
         os.makedirs(projectDir);
 
-    with open( os.path.join(projectDir, "UIDemo.iml"), "w" ) as f:
-        f.write("""\
-<?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="UIDemo" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$" external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="java-gradle" name="Java-Gradle">
-      <configuration>
-        <option name="BUILD_FOLDER_PATH" value="$MODULE_DIR$/build" />
-        <option name="BUILDABLE" value="false" />
-      </configuration>
-    </facet>
-  </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="true">
-    <exclude-output />
-    <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/.gradle" />
-    </content>
-    <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
-    <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-</module>
-""" )
-
     with open( os.path.join(projectDir, "build.gradle"), "w" ) as f:
         f.write("""\
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -888,8 +698,8 @@ allprojects {
 
     with open( os.path.join(projectDir, "settings.gradle"), "w" ) as f:
         f.write("""\
-include ':app'
-include ':boden'
+include ':boden', ':app'
+
 """)
 
     prepareAndroidModule(projectDir, "app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
