@@ -155,7 +155,8 @@ public:
     template<typename... Arguments>
     static NativeReturnType call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        return javaToNative<NativeReturnType>( callJavaMethod<JavaReturnType>(obj, methodId, nativeToJava(args)... ) );
+        std::list<Reference> createdJavaObjects;
+        return takeOwnershipOfJavaValueAndConvertToNative<NativeReturnType>( callJavaMethod<JavaReturnType>(obj, methodId, nativeToJava(args, createdJavaObjects)... ) );
     }
 };
 
@@ -170,7 +171,8 @@ public:
     template<typename... Arguments>
     static void call(jobject obj, jmethodID methodId, Arguments... args)
     {
-        callJavaMethod<void>(obj, methodId, nativeToJava(args)... );
+        std::list<Reference> createdJavaObjects;
+        callJavaMethod<void>(obj, methodId, nativeToJava(args, createdJavaObjects)... );
     }
 };
 

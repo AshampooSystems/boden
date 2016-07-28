@@ -8,8 +8,9 @@ endif()
 
 project (boden)
 
-SET(BODEN_SUPPORTS_PTHREAD 0)
-SET(BODEN_SUPPORTS_GTK 0)
+SET(BODEN_USES_PTHREAD 0)
+SET(BODEN_USES_GTK 0)
+SET(BODEN_USES_JAVA 0)
 
 if(BODEN_TARGET)
 	# do nothing	
@@ -19,12 +20,15 @@ else()
 	if( IOS )
 		SET( BODEN_TARGET "ios" )
 
-		SET(BODEN_SUPPORTS_PTHREAD 1)
+		SET(BODEN_USES_PTHREAD 1)
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( ANDROID )
 		SET( BODEN_TARGET "android" )
+
+		SET(BODEN_USES_PTHREAD 1)
+		SET(BODEN_USES_JAVA 1)
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Windows" )	
 		SET( BODEN_TARGET "win32" )
@@ -42,15 +46,15 @@ else()
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )	
 		SET( BODEN_TARGET "linux" )
 
-		SET(BODEN_SUPPORTS_PTHREAD 1)
-		SET(BODEN_SUPPORTS_GTK 1)
+		SET(BODEN_USES_PTHREAD 1)
+		SET(BODEN_USES_GTK 1)
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )	
 		SET( BODEN_TARGET "mac" )
 
-		SET(BODEN_SUPPORTS_PTHREAD 1)
+		SET(BODEN_USES_PTHREAD 1)
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -61,7 +65,7 @@ else()
 		# assume some Unix variant
 		SET( BODEN_TARGET "unix" )    
 
-		SET(BODEN_SUPPORTS_PTHREAD 1)
+		SET(BODEN_USES_PTHREAD 1)
 		
 	endif()
 
@@ -72,23 +76,28 @@ message("Boden target is ${BODEN_TARGET}")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-
-if(CMAKE_COMPILER_IS_GNUCXX
-	OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
-	OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" # clang on non-mac system
-  )
-
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		# use libc++ instead of libstdc++. It is far less buggy.
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-	endif()
-endif()
-
+set(ANDROID_LIBS "")
 
 if( "${BODEN_TARGET}" STREQUAL "android")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+	set(ANDROID_LIBS "")
+
+else()
+
+	if(CMAKE_COMPILER_IS_GNUCXX
+		OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
+		OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" # clang on non-mac system
+	  )
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+		if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+			# use libc++ instead of libstdc++. It is far less buggy.
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+		endif()
+	endif()
+
 
 endif()
 
@@ -192,7 +201,7 @@ if(BODEN_TARGET_FAMILY)
 	list( APPEND BODEN_SOURCES ${BODEN_FAMILY_SOURCES} )
 endif()
 
-if(BODEN_SUPPORTS_PTHREAD)
+if(BODEN_USES_PTHREAD)
 	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/pthread/*.h)
 	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
 
@@ -200,7 +209,15 @@ if(BODEN_SUPPORTS_PTHREAD)
 	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
 endif()
 
-if(BODEN_SUPPORTS_GTK)
+if(BODEN_USES_JAVA)
+	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/java/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
+
+	file( GLOB BODEN_PTHREAD_SOURCES ${BODEN_SRCDIR}/java/*.cpp)
+	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
+endif()
+
+if(BODEN_USES_GTK)
 	file( GLOB BODEN_GTK_HEADERS ${BODEN_INCDIR}/bdn/gtk/*.h)
 	list( APPEND BODEN_HEADERS ${BODEN_GTK_HEADERS} )	
 
@@ -230,14 +247,24 @@ if( "${BODEN_TARGET}" STREQUAL "winuwp" )
     # the other compilers. So activate that.
     set_target_properties( boden PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE )
     
+elseif( "${BODEN_TARGET}" STREQUAL "android" )
+	add_library(boden SHARED ${BODEN_HEADERS} ${BODEN_SOURCES} )
+
 else()
     add_library(boden STATIC ${BODEN_HEADERS} ${BODEN_SOURCES} )
 
 endif()
 
 set_target_properties( ${targetName} PROPERTIES COMPILE_DEFINITIONS "${_oxProps}" )
-
 set_property(TARGET boden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+
+if( BODEN_TARGET STREQUAL "android")
+	target_link_libraries(boden "${ANDROID_LIBS}")
+endif()
+
+
+
 
 if( BODEN_TARGET STREQUAL "ios")
 	# there is a bug in cmake that causes debug symbols to not be generated for ios
@@ -259,6 +286,10 @@ include_directories( ${DEPENDENCIES_INCDIR} )
 # we cannot build commandline tools on iOS. So we have to build a UI app
 if(BODEN_TARGET STREQUAL "ios")
 	add_executable(testboden WIN32 MACOSX_BUNDLE ${TESTBODEN_SOURCES} )
+
+elseif( "${BODEN_TARGET}" STREQUAL "android" )
+	add_library(testboden SHARED ${TESTBODEN_SOURCES} )
+
 else()
 	add_executable(testboden ${TESTBODEN_SOURCES} )
 endif()
@@ -275,6 +306,10 @@ target_link_libraries(testboden boden)
 
 if( BODEN_TARGET STREQUAL "win32")
     target_link_libraries(testboden Shcore)
+endif()
+
+if( BODEN_TARGET STREQUAL "android")
+	target_link_libraries(testboden "${ANDROID_LIBS}")
 endif()
 
 if( BODEN_TARGET STREQUAL "mac")
@@ -329,6 +364,10 @@ endif()
 # we cannot build commandline tools on iOS. So we have to build a UI app
 if(BODEN_TARGET STREQUAL "ios")
     add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+
+elseif( "${BODEN_TARGET}" STREQUAL "android" )
+	add_library(testbodenui SHARED ${TESTBODENUI_SOURCES} )
+
 else()
     add_executable(testbodenui ${TESTBODENUI_SOURCES} )
 endif()
@@ -379,6 +418,11 @@ if( BODEN_TARGET STREQUAL "ios")
 endif()
 
 
+if( BODEN_TARGET STREQUAL "android")
+	target_link_libraries(testbodenui "${ANDROID_LIBS}")
+endif()
+
+
 # uidemo
 
 set( UIDEMO_SRCDIR "../uidemo/src")
@@ -392,9 +436,11 @@ IF ( APPLE )
 	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.uidemo")
 endif()
 
-
-
-add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
+if( "${BODEN_TARGET}" STREQUAL "android" )
+	add_library(uidemo SHARED ${UIDEMO_SOURCES} )
+else()
+	add_executable(uidemo WIN32 MACOSX_BUNDLE ${UIDEMO_SOURCES} )
+endif()
 
 if( BODEN_TARGET STREQUAL "winuwp")
     set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS  "/OPT:NOREF /OPT:NOICF /DEBUG:FASTLINK")
@@ -449,6 +495,9 @@ if( BODEN_TARGET STREQUAL "ios")
 	set_xcode_property(uidemo GCC_GENERATE_DEBUGGING_SYMBOLS YES)
 endif()
 
+if( BODEN_TARGET STREQUAL "android")
+	target_link_libraries(uidemo "${ANDROID_LIBS}")
+endif()
 
 
 

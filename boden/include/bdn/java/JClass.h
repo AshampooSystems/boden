@@ -163,18 +163,18 @@ public:
      *      be initialized. If it is initialized then the existing method id will be used.
      *  @param args an arbitrary number of constructor arguments. If a java object is to be passed to the constructor then
      *      you should pass a JObject instance here.
-     *  @return jobject reference of the new object instance. Note that this is a local reference, i.e. it will
-     *      become invalid after the current JNI call returns. You should wrap it in a JObject to make the reference
+     *  @return reference of the new object instance. Note that this is a local reference, i.e. it will
+     *      become invalid after the current JNI call returns. You can call toStrong() to make the reference
      *      permanent.
      *  */
     template<typename... Arguments>
     Reference newInstance_ (MethodId& constructorId, Arguments... args)
     {
         initMethodId<void, Arguments...>(constructorId, "<init>");
+        
+        std::list<Reference> tempObjects;
 
-        jobject obj = _newObject( (jclass)getJObject_(), constructorId.getId(), nativeToJava(args)... );
-
-        return LocalReference( obj );
+        return _newObject( (jclass)getJObject_(), constructorId.getId(), nativeToJava(args, tempObjects)... );
     }
 
 private:
@@ -238,7 +238,7 @@ private:
     }
 
 
-    static jobject _newObject( jclass cls, jmethodID methodId, ... );
+    static Reference _newObject( jclass cls, jmethodID methodId, ... );
 
 
     mutable String          _nameInSlashNotation;

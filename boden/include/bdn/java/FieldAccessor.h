@@ -62,12 +62,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getObjectField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getObjectField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setObjectField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setObjectField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -81,12 +82,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getBooleanField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getBooleanField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, NativeType value)
     {
-        return setBooleanField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setBooleanField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -99,12 +101,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getIntField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getIntField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setIntField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setIntField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -117,12 +120,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getShortField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getShortField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setShortField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setShortField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -135,12 +139,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getLongField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getLongField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setLongField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setLongField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -153,12 +158,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getCharField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getCharField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setCharField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setCharField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -171,12 +177,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getByteField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getByteField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setByteField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setByteField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -190,12 +197,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getFloatField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getFloatField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setFloatField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setFloatField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 
@@ -208,12 +216,13 @@ public:
 
     static NativeType getValue(jobject obj, jfieldID fieldId)
     {
-        return TypeConversion<NativeType>::javaToNative( getDoubleField(obj, fieldId) );
+        return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( getDoubleField(obj, fieldId) );
     }
 
     static void setValue(jobject obj, jfieldID fieldId, const NativeType& value)
     {
-        return setDoubleField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value) );
+        std::list<Reference> createdJavaObjects;
+        return setDoubleField( obj, fieldId, TypeConversion<NativeType>::nativeToJava(value, createdJavaObjects) );
     }
 };
 

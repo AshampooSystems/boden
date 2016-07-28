@@ -427,172 +427,102 @@ def commandPrepare(commandArgs):
             if platform=="android":
                 prepareFunc = prepareAndroid;
 
-            prepareFunc(platform, config, arch, platformBuildDir);
+            prepareFunc(platform, config, arch, platformBuildDir, buildSystem);
 
 
 
-def getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary):
+
+class AndroidStudioProjectGenerator(object):
+
+    def __init__(self, platformBuildDir):
+        self._projectDir = platformBuildDir;
+
+        
+    def getGradleDependency(self):
+        return "classpath 'com.android.tools.build:gradle:2.2.0-alpha6'"
 
 
-    jniDependencyCode = "";
-    moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
-    repositoriesCode = "";
-    for dep in dependencyList:
+    def generateTopLevelProject(self, moduleNameList):
+        if not os.path.isdir(self._projectDir):
+            os.makedirs(self._projectDir);
 
-        jniDependencyCode += '                        project ":%s"\n' % dep;
-    	
-    	moduleDependencyCode += "    compile project(':%s')\n" % dep;
-    	moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
-
-     	repositoriesCode += """\
-     flatDir{
-         dirs '../%s/build/outputs/aar'
- 	}
- """ % dep
-
-    
-    excludeSourceDirCode = "";
-
-    excludeEntries = set();
-
-    srcDir = os.path.join(projectDir, "..", "..", moduleName, "src" );
-    for name in os.listdir( srcDir):
-        if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread"):
-            excludeEntries.add("**/%s/**" % name);
-
-
-    includeBdnDir = os.path.join(projectDir, "..", "..", moduleName, "include", "bdn" );
-    if os.path.isdir(includeBdnDir):
-        for name in os.listdir( includeBdnDir):
-            if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread"):
-                excludeEntries.add("**/%s/**" % name);
-
-    
-    for entry in excludeEntries:
-        excludeSourceDirCode += '                        exclude "%s"\n' % (entry);
-
-    if isLibrary:
-    	pluginName = "com.android.model.library";
-    	appIdCode = "";	# libraries do not have an application id
-    else:
-    	pluginName = "com.android.model.application";
-    	appIdCode = "applicationId = '%s'" % packageId
-
-
-    return """\
-apply plugin: '$$PluginName$$'
-
-model {
-    android {
-        compileSdkVersion = 23
-        buildToolsVersion = '23.0.2'
-
-        defaultConfig {
-            $$AppIdCode$$
-            minSdkVersion.apiLevel = 9
-            targetSdkVersion.apiLevel = 23
+        with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
+            f.write("""\
+    // Top-level build file where you can add configuration options common to all sub-projects/modules.
+    buildscript {
+        repositories {
+           jcenter()
         }
-
-
-
-        sources {
-            main {
-                jni {
-                    source {
-                        srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
-                        
-$$ExcludeSourceDirCode$$
-                    }
-
-                    dependencies {
-$$JniDependencyCode$$
-                    }
-                }
-
-                java {
-                    source {
-                        srcDir "../../../$$ModuleName$$/java"
-                    }
-                }
-            }
-        }
-
-        ndk {
-            moduleName = '$$ModuleName$$'
-            toolchain = 'clang'
-            stl = "c++_shared"
-
-            CFlags.addAll(['-Wall'])
-            cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
-
-            ldLibs.addAll([
-                    "android",
-                    "c++abi",
-                    "atomic"
-            ])
-
-        }
-        buildTypes {
-            release {
-                minifyEnabled true
-                proguardFiles.add(file('proguard-rules.txt'))
-            }
-
-            debug {
-                applicationIdSuffix ".debug"
-            }
-        }
-        productFlavors {
-            // for detailed abiFilter descriptions, refer to "Supported ABIs" @
-            // https://developer.android.com/ndk/guides/abis.html#sa
-            create("arm") {
-                ndk.abiFilters.add("armeabi")
-            }
-            create("arm7") {
-                ndk.abiFilters.add("armeabi-v7a")
-            }
-            create("arm8") {
-                ndk.abiFilters.add("arm64-v8a")
-            }
-            create("x86") {
-                ndk.abiFilters.add("x86")
-            }
-            create("x86-64") {
-                ndk.abiFilters.add("x86_64")
-            }
-            create("mips") {
-                ndk.abiFilters.add("mips")
-            }
-            create("mips-64") {
-                ndk.abiFilters.add("mips64")
-            }
-            // To include all cpu architectures, leaves abiFilters empty
-            create("all")
+        dependencies {
+            $$GradleDependency$$
         }
     }
-}
 
-dependencies {
-$$ModuleDependencyCode$$
-}
+    allprojects {
+        repositories {
+            jcenter()
+        }
+    }
+
+    task clean(type: Delete) {
+        delete rootProject.buildDir
+    }
+
+    """.replace("$$GradleDependency$$", self.getGradleDependency()) )
+
+        includeParams = "";
+        for moduleName in moduleNameList:
+            if includeParams:
+                includeParams += ", ";
+            includeParams += "':%s'" % moduleName
+
+        with open( os.path.join(self._projectDir, "settings.gradle"), "w" ) as f:
+            f.write("""\
+    include $$IncludeParams$$
+
+    """.replace("$$IncludeParams$$", includeParams) )
 
 
-repositories{    
-$$RepositoriesCode$$
-}
-
-""" .replace("$$AppIdCode$$", appIdCode) \
-	.replace("$$PluginName$$", pluginName) \
-    .replace("$$ModuleName$$", moduleName) \
-    .replace("$$JniDependencyCode$$", jniDependencyCode) \
-    .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
-    .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
-    .replace("$$RepositoriesCode$$", repositoriesCode)
 
 
-def getAndroidManifest(packageId, moduleName, isLibrary):
+    def generateModule(self, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):        
 
-    code = """\
+        moduleDir = os.path.join(self._projectDir, projectModuleName);
+        if not os.path.isdir(moduleDir):
+            os.makedirs(moduleDir);
+
+        with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
+            f.write( self.getModuleBuildGradleCode(packageId, moduleName, dependencyList, isLibrary ) )
+            
+
+        srcMainDir = os.path.join(moduleDir, "src", "main");
+        if not os.path.isdir(srcMainDir):
+            os.makedirs(srcMainDir);
+
+        with open( os.path.join(srcMainDir, "AndroidManifest.xml"), "w" ) as f:
+            f.write( self.getModuleAndroidManifest(packageId, moduleName, isLibrary ) )
+
+        resDir = os.path.join(srcMainDir, "res");
+        if not os.path.isdir(resDir):
+            os.makedirs(resDir);
+
+        valuesDir = os.path.join(resDir, "values");
+        if not os.path.isdir(valuesDir):
+            os.makedirs(valuesDir);
+
+        with open( os.path.join(valuesDir, "strings.xml"), "w" ) as f:
+            f.write("""\
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">$$UserFriendlyModuleName$$</string>
+</resources>
+""".replace("$$UserFriendlyModuleName$$", userFriendlyModuleName) )
+
+
+
+    def getModuleAndroidManifest(self, packageId, moduleName, isLibrary):
+
+        code = """\
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="$$PackageId$$"
@@ -601,115 +531,333 @@ def getAndroidManifest(packageId, moduleName, isLibrary):
     
           """;
 
-    if not isLibrary:
-    	code += """
+        if not isLibrary:
+            code += """
 
-  <application
-      android:allowBackup="false"
-      android:fullBackupContent="false"      
-      android:label="@string/app_name">
-  
-    <activity android:name="io.boden.android.NativeRootActivity"
-              android:label="@string/app_name">
+      <application
+          android:allowBackup="false"
+          android:fullBackupContent="false"      
+          android:label="@string/app_name">
+      
+        <activity android:name="io.boden.android.NativeRootActivity"
+                  android:label="@string/app_name">
 
-        <meta-data android:name="io.boden.android.lib_name"
-          android:value="$$ModuleName$$" />
+            <meta-data android:name="io.boden.android.lib_name"
+              android:value="$$ModuleName$$" />
 
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>  
-  </application>
-  """;
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
+        </activity>  
+      </application>
+      """;
 
-    code += """    
-</manifest>
-""";
+        code += """    
+    </manifest>
+    """;
 
-    return code.replace("$$PackageId$$", packageId) \
-        .replace("$$ModuleName$$", moduleName)
+        return code.replace("$$PackageId$$", packageId) \
+            .replace("$$ModuleName$$", moduleName)
 
 
-def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):
 
-    moduleDir = os.path.join(projectDir, projectModuleName);
-    if not os.path.isdir(moduleDir):
-        os.makedirs(moduleDir);
+    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
 
-    with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-        f.write( getAndroidBuildGradleCode(projectDir, packageId, moduleName, dependencyList, isLibrary ) )
+
+        if isLibrary:
+            pluginName = "com.android.library";
+            appIdCode = ""; # libraries do not have an application id
+        else:
+            pluginName = "com.android.application";
+            appIdCode = "applicationId = '%s'" % packageId
+
+        moduleDependencyCode = "";
+        for dep in dependencyList:            
+            moduleDependencyCode += "    compile project(':%s')\n" % dep;
+
+        cmakeTargets = '"%s"' % moduleName;
+
+
+        return """
+apply plugin: '$$PluginName$$'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+    defaultConfig {
+        applicationId $$AppIdCode$$
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                targets $$CmakeTargets$$
+                arguments "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_CPP_FEATURES=rtti exceptions"
+                /*cppFlags '-fexceptions', '-frtti' */
+                abiFilters 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "../../../cmake/CMakeLists.txt"
+        }
+    }
+    // Documentation purpose: app/src/main/jni is reserved for deprecated native build system;
+    // Steer away from this directory by DELETING it for ndk-build/cmake + android studio usage.
+    // Otherwise you need to
+    //    add android.useDeprecatedNdk=true to gradle.properties
+    //    enable the following line to silence android studio complaint
+    // sourceSets.main.jni.srcDirs = []
+
+
+    sourceSets {
+        main {
+            java {
+                srcDir '../../../$$ModuleName$$/java'
+            }
+        }
+    }
+    
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.4.0'
+
+$$ModuleDependencyCode$$
+}
+""" .replace("$$AppIdCode$$", appIdCode) \
+    .replace("$$PluginName$$", pluginName) \
+    .replace("$$CmakeTargets$$", cmakeTargets) \
+    .replace("$$ModuleName$$", moduleName) \
+    .replace("$$ModuleDependencyCode$$", moduleDependencyCode)
+
+
+
+class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
+    """ Generates a gradle project files that use the gradle experimental plugin. This does not fully work yet, as of the time of
+        this writing (gradle experimental plugin version 0.7.2). While building the packages once works, the plugin does not
+        recompile the native code when the source files change - making it necessary to rebuild every time.
+        Because of this, this code is not currently used.
+        But with a future android experimental release we might switch to it again.
+        """
+
+    def __init__(self, platformBuildDir):
+        AndroidStudioProjectGenerator.__init__(self, platformBuildDir);
+
+
+    def getGradleDependency(self):
+        return "classpath 'com.android.tools.build:gradle-experimental:0.7.2'";
+
+
+    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
+
+        jniDependencyCode = "";
+        moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
+        repositoriesCode = "";
+        for dep in dependencyList:
+
+            jniDependencyCode += '                        project ":%s"\n' % dep;
+
+            moduleDependencyCode += "    compile project(':%s')\n" % dep;
+            moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
+
+            repositoriesCode += """\
+         flatDir{
+             dirs '../%s/build/outputs/aar'
+     	}
+     """ % dep
+
         
+        excludeSourceDirCode = "";
 
-    srcMainDir = os.path.join(moduleDir, "src", "main");
-    if not os.path.isdir(srcMainDir):
-        os.makedirs(srcMainDir);
+        excludeEntries = set();
 
-    with open( os.path.join(srcMainDir, "AndroidManifest.xml"), "w" ) as f:
-        f.write( getAndroidManifest(packageId, moduleName, isLibrary ) )
-
-    resDir = os.path.join(srcMainDir, "res");
-    if not os.path.isdir(resDir):
-        os.makedirs(resDir);
-
-    valuesDir = os.path.join(resDir, "values");
-    if not os.path.isdir(valuesDir):
-        os.makedirs(valuesDir);
-
-    with open( os.path.join(valuesDir, "strings.xml"), "w" ) as f:
-        f.write("""\
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">$$UserFriendlyModuleName$$</string>
-</resources>
-""".replace("$$UserFriendlyModuleName$$", userFriendlyModuleName) )
+        srcDir = os.path.join(self._projectDir, "..", "..", moduleName, "src" );
+        for name in os.listdir( srcDir):
+            if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread"):
+                excludeEntries.add("**/%s/**" % name);
 
 
-def prepareAndroid(platform, config, arch, platformBuildDir):
+        includeBdnDir = os.path.join(self._projectDir, "..", "..", moduleName, "include", "bdn" );
+        if os.path.isdir(includeBdnDir):
+            for name in os.listdir( includeBdnDir):
+                if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread"):
+                    excludeEntries.add("**/%s/**" % name);
 
-    # cmake does not support generating a real android studio project. What it can generate
-    # is a make project that compiles the native code side (with the help of an additional
-    # android toolchain file). But we want a real IDE for android as well, just as we have
-    # for other platforms. So we generate the corresponding files ourselves.
+        
+        for entry in excludeEntries:
+            excludeSourceDirCode += '                        exclude "%s"\n' % (entry);
 
-    projectDir = platformBuildDir;
+        if isLibrary:
+        	pluginName = "com.android.model.library";
+        	appIdCode = "";	# libraries do not have an application id
+        else:
+        	pluginName = "com.android.model.application";
+        	appIdCode = "applicationId = '%s'" % packageId
 
-    if not os.path.isdir(projectDir):
-        os.makedirs(projectDir);
 
-    with open( os.path.join(projectDir, "build.gradle"), "w" ) as f:
-        f.write("""\
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-       jcenter()
+        return """\
+    apply plugin: '$$PluginName$$'
+
+    model {
+        android {
+            compileSdkVersion = 23
+            buildToolsVersion = '23.0.2'
+
+            defaultConfig {
+                $$AppIdCode$$
+                minSdkVersion.apiLevel = 15
+                targetSdkVersion.apiLevel = 23
+            }
+
+
+
+            sources {
+                main {
+                    jni {
+                        source {
+                            srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
+                            
+    $$ExcludeSourceDirCode$$
+                        }
+
+                        dependencies {
+    $$JniDependencyCode$$
+                        }
+                    }
+
+                    java {
+                        source {
+                            srcDir "../../../$$ModuleName$$/java"
+                        }
+                    }
+                }
+            }
+
+            ndk {
+                moduleName = '$$ModuleName$$'
+                toolchain = 'clang'
+                stl = "c++_shared"
+
+                CFlags.addAll(['-Wall'])
+                cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
+
+                ldLibs.addAll([
+                        "android",
+                        "c++abi",
+                        "atomic"
+                ])
+
+            }
+            buildTypes {
+                release {
+                    minifyEnabled true
+                    proguardFiles.add(file('proguard-rules.txt'))
+                }
+
+                debug {
+                    applicationIdSuffix ".debug"
+                }
+            }
+            productFlavors {
+                // for detailed abiFilter descriptions, refer to "Supported ABIs" @
+                // https://developer.android.com/ndk/guides/abis.html#sa
+                create("arm") {
+                    ndk.abiFilters.add("armeabi")
+                }
+                create("arm7") {
+                    ndk.abiFilters.add("armeabi-v7a")
+                }
+                create("arm8") {
+                    ndk.abiFilters.add("arm64-v8a")
+                }
+                create("x86") {
+                    ndk.abiFilters.add("x86")
+                }
+                create("x86-64") {
+                    ndk.abiFilters.add("x86_64")
+                }
+                create("mips") {
+                    ndk.abiFilters.add("mips")
+                }
+                create("mips-64") {
+                    ndk.abiFilters.add("mips64")
+                }
+                // To include all cpu architectures, leaves abiFilters empty
+                create("all")
+            }
+        }
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle-experimental:0.7.0'
+    $$ModuleDependencyCode$$
     }
-}
 
-allprojects {
-    repositories {
-        jcenter()
+
+    repositories{    
+    $$RepositoriesCode$$
     }
-}
-""" )
 
-    with open( os.path.join(projectDir, "settings.gradle"), "w" ) as f:
-        f.write("""\
-include ':boden', ':app'
-
-""")
-
-    prepareAndroidModule(projectDir, "app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
-
-    prepareAndroidModule(projectDir, "boden", "io.boden.android.boden", "boden", "Boden", [], True)
+    """ .replace("$$AppIdCode$$", appIdCode) \
+    	.replace("$$PluginName$$", pluginName) \
+        .replace("$$ModuleName$$", moduleName) \
+        .replace("$$JniDependencyCode$$", jniDependencyCode) \
+        .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
+        .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
+        .replace("$$RepositoriesCode$$", repositoriesCode)
 
 
 
 
-def prepareCmake(platform, config, arch, platformBuildDir):
+
+def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
+
+    # There are several ways to build android apps.
+    # We want support for developing with an IDE that allows for debugging and convenient editing.
+    # Android Studio is the official android IDE and it is pretty full-featured. So we generate AndroidStudio projects.
+    #
+    # We cannot do this via Cmake in the normal way, since Cmake does not have an AndroidStudio    
+    # generator (in fact it does not have ANY generator for an IDE with android projects - only
+    # a plugin add-on that generates plain make files).
+    # BUT fortunately Android Studio supports using cmake as a build system for the native code
+    # parts of the app.
+    # So we generate android studio projects manually and then connect our existing cmake files
+    # as the build system into the android studio project.
+
+    # There is actually another way to do this: there is a "gradle experimental" plugin that supports
+    # building native android modules completely from within Android Studio (without cmake). However,
+    # this variant currently does not work properly: building everything from scratch works (with some
+    # smaller hiccups). But the build system does not detect changes to the source files and does not
+    # recompile the changed parts - making it necessary to rebuild everything all the time.
+    # This is as of gradle experimental plugin version 0.7.2.
+    # Also, using cmake has the advantage that this creates a single point at which settings and source
+    # information about the projects can be kept (for all platforms). And that is a considerable advantage.
+
+
+    gen = AndroidStudioProjectGenerator(platformBuildDir);  # could also use AndroidStudioProjectGenerator_Experimental here
+
+    gen.generateTopLevelProject(["boden", "app"]);
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateModule("boden", "io.boden.android.boden", "boden", "Boden", [], True)
+
+    # also generate a separate project for easy editing of the source files (not that easy with android studio)
+    prepareCmake(platform, config, arch, platformBuildDir+"-edit", "CodeLite - Unix Makefiles")
+
+    
+
+
+
+def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     cmakeBuildDir = platformBuildDir;
     if config:
@@ -723,6 +871,8 @@ def prepareCmake(platform, config, arch, platformBuildDir):
     cmakeArch = None;
 
     args = [];
+
+    generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);
     
     if platform.startswith("win"):
 
@@ -771,6 +921,14 @@ def prepareCmake(platform, config, arch, platformBuildDir):
         args.extend( [ "-DIOS_PLATFORM="+platform ] );
 
         toolChainFileName = "iOS.cmake";
+
+    elif platform=="android":
+        toolChainFileName = "android.toolchain.cmake";
+        if arch!="std":
+            args.extend( ['-DANDROID_ABI='+arch ] );
+        
+        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
+        
 
     elif platform=="web":
 

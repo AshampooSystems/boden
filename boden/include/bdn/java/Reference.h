@@ -101,23 +101,6 @@ public:
     }
 
 
-    /** Detach the java-side object from this Reference instance without releasing it.
-     *  The caller is responsible for ensuring that the java reference is released at some point.
-     *
-     *  Afterwards the Reference is invalid.
-     *
-     *  Returns the jobject that was attached.
-     **/
-    jobject detach()
-    {
-        jobject ref = _pShared->getJObject();
-
-        _pShared = newObj<Shared>( Type::invalid, (jobject)NULL );
-
-        return ref;
-    }
-
-
     Reference& operator=(const Reference & o)
     {
         _pShared = o._pShared;

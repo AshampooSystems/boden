@@ -23,7 +23,7 @@ Reference JClass::findClass_ (const String& nameInSlashNotation)
 }
 
 
-jobject JClass::_newObject( jclass cls, jmethodID methodId, ... )
+Reference JClass::_newObject( jclass cls, jmethodID methodId, ... )
 {
     Env& env = Env::get();
 
@@ -36,7 +36,7 @@ jobject JClass::_newObject( jclass cls, jmethodID methodId, ... )
 
     env.throwExceptionFromLastJavaCall();
 
-    return result;
+    return LocalReference(result);
 }
 
 

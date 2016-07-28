@@ -17,7 +17,7 @@ class TypeConversionBase_
 public:
 
 protected:
-    static jobject _createLocalStringRef(const String& s);
+    static jobject _createJString(const String& s, std::list<Reference>& createdObjects);
     static String _getStringFromJava(const Reference& ref);
 };
 
@@ -62,15 +62,26 @@ public:
         return sig;
     }
 
-    /** Converts a natve value to the corresponding java value.*/
-    static JavaType nativeToJava(NativeType&& arg)
+    /** Converts a natve value to the corresponding java value.
+     * 
+     *  If a new Java object is created then a reference to it is
+     *  stored in the createdJavaObjects list. The object references stored in the list
+     *  must be kept alive as long as the returned java value is needed. Afterwards
+     *  they can simply be deleted.
+     * */
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg.getRef_().getJObject();
     }
 
 
-    /** Converts a natve value to the corresponding java value.*/
-    static NativeType javaToNative(JavaType arg)
+    /** Converts a java  to the corresponding native value type.
+     *  Note that the function will take ownership of the java value.
+     *  If it is a jobject then the function will will assume that the jobject reference is local     *  
+     *  and return a corresponding C++ object that automatically deletes the local jobject when it
+     *  (and all the copies of the C++ object that may be created) are destroyed.
+     *  */
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return NativeType( LocalReference(arg) );
     }
@@ -94,15 +105,12 @@ public:
         return s;
     }
 
-    static JavaType nativeToJava(const NativeType& arg)
+    static JavaType nativeToJava(const NativeType& arg, std::list<Reference>& createdJavaObjects)
     {
-        // we must ensure that the java object still exists after we return.
-        // The only way we can do that is to create a local reference to the object.
-        // And then we detach it to ensure that it is not deleted.
-        return _createLocalStringRef(arg);
+        return _createJString(arg, createdJavaObjects);
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return _getStringFromJava( LocalReference(arg) );
     }
@@ -124,12 +132,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -151,12 +159,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -177,12 +185,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -203,12 +211,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -229,12 +237,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -255,12 +263,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -281,12 +289,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava( NativeType arg)
+    static JavaType nativeToJava( NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return (jchar)arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -307,12 +315,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return arg;
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg;
     }
@@ -334,12 +342,12 @@ public:
         return sig;
     }
 
-    static JavaType nativeToJava(NativeType arg)
+    static JavaType nativeToJava(NativeType arg, std::list<Reference>& createdJavaObjects)
     {
         return (jboolean)(arg ? JNI_TRUE : JNI_FALSE);
     }
 
-    static NativeType javaToNative(JavaType arg)
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
         return arg!=JNI_FALSE;
     }
@@ -365,7 +373,7 @@ public:
     {
     }
 
-    static NativeType javaToNative()
+    static NativeType takeOwnershipOfJavaValueAndConvertToNative()
     {
     }
 };
@@ -373,21 +381,28 @@ public:
 
 
 /** Convenience function that converts a C++ native value to its corresponding
- *  Java value. See TypeConversion class template for more information.*/
+ *  Java value. See TypeConversion class template for more information.
+ * 
+ *  If a new Java object is created then a reference to it is
+ *  stored in the createdJavaObjects list. The object references stored in the list
+ *  must be kept alive as long as the returned java value is needed. Afterwards
+ *  they can simply be deleted.
+ * 
+ * */
 template<class NativeType>
-typename TypeConversion<NativeType>::JavaType nativeToJava(NativeType nativeValue)
+typename TypeConversion<NativeType>::JavaType nativeToJava(NativeType nativeValue, std::list<Reference>& createdJavaObjects)
 {
     // To make sure that our specializations work in all cases, we have to strip reference and const
     // qualifiers from the type with std::decay
-    return TypeConversion<NativeType>::nativeToJava( static_cast< typename std::decay<NativeType>::type >( nativeValue) );
+    return TypeConversion<NativeType>::nativeToJava( static_cast< typename std::decay<NativeType>::type >( nativeValue), createdJavaObjects );
 }
 
 
 
 template<class NativeType>
-NativeType javaToNative(typename TypeConversion<NativeType>::JavaType javaValue)
+NativeType takeOwnershipOfJavaValueAndConvertToNative(typename TypeConversion<NativeType>::JavaType javaValue)
 {
-    return TypeConversion<NativeType>::javaToNative( javaValue );
+    return TypeConversion<NativeType>::takeOwnershipOfJavaValueAndConvertToNative( javaValue );
 }
 
 
