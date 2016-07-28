@@ -590,7 +590,7 @@ $$RepositoriesCode$$
     .replace("$$RepositoriesCode$$", repositoriesCode)
 
 
-def getAndroidManifest(packageId, userFriendlyModuleName, isLibrary):
+def getAndroidManifest(packageId, moduleName, isLibrary):
 
     code = """\
 <?xml version="1.0" encoding="utf-8"?>
@@ -613,7 +613,7 @@ def getAndroidManifest(packageId, userFriendlyModuleName, isLibrary):
               android:label="@string/app_name">
 
         <meta-data android:name="io.boden.android.lib_name"
-          android:value="$$UserFriendlyModuleName$$" />
+          android:value="$$ModuleName$$" />
 
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -628,7 +628,7 @@ def getAndroidManifest(packageId, userFriendlyModuleName, isLibrary):
 """;
 
     return code.replace("$$PackageId$$", packageId) \
-    	.replace("$$UserFriendlyModuleName$$", userFriendlyModuleName)
+        .replace("$$ModuleName$$", moduleName)
 
 
 def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):
@@ -646,7 +646,7 @@ def prepareAndroidModule(projectDir, projectModuleName, packageId, moduleName, u
         os.makedirs(srcMainDir);
 
     with open( os.path.join(srcMainDir, "AndroidManifest.xml"), "w" ) as f:
-        f.write( getAndroidManifest(packageId, userFriendlyModuleName, isLibrary ) )
+        f.write( getAndroidManifest(packageId, moduleName, isLibrary ) )
 
     resDir = os.path.join(srcMainDir, "res");
     if not os.path.isdir(resDir):

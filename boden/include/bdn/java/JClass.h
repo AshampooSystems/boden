@@ -194,7 +194,7 @@ private:
     {
         String firstSig = getTypeSignature<FirstType>();
 
-        String remainingSigs = _makeTypeSignatureList<Dummy, RemainingTypes...>();
+        String remainingSigs = _makeTypeSignatureListImpl<Dummy, RemainingTypes...>();
 
         return firstSig+remainingSigs;
     }
