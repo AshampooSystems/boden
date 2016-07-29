@@ -13,7 +13,7 @@ int _uiAppMain( AppControllerBase* pAppController,
                 int argCount,
                 char* argv[] )
 {
-    Thread::_setMainId( Thread::getCurrentId() );
+    _mainInit();
     
         
     // init app launch info

@@ -16,12 +16,11 @@ EXIT_INCORRECT_CALL = 12;
 
 
 
-platformList = [ ("windows-universal", "Universal Windows app (Windows 10 and later)" ),
-               ("windows-store", "Windows Store app (Windows 8.1 and later)" ),
-               ("windows-classic", "Classic Windows desktop program"),               
+platformList = [ ("winuwp", "Universal Windows app (Windows 10 and later)" ),
+               ("win32", "Classic Windows desktop program (despite the 32 in the name, this also includes 64 bit Windows desktop programs)"),               
                ("dotnet", ".NET program" ),
                ("linux", "Linux" ),
-               ("osx", "Mac OSX" ),
+               ("mac", "Apple Mac OS (formerly OSX)" ),
                ("ios", "iPhone, iPad" ),
                ("android", "Android devices" ),
                ("web", """\
@@ -260,6 +259,10 @@ def getCMakeDir():
 
 
 def isSingleConfigBuildSystem(buildSystem):
+
+    if buildSystem=="AndroidStudio":
+        return False;
+
     generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);    
 
     generatorName = generatorName.lower();
@@ -372,11 +375,22 @@ def commandPrepare(commandArgs):
 
         if not buildSystem:
 
-            # use default for platform.
-            if not oldBuildSystem:
-                raise IncorrectCallError("--build-system BUILDSYSTEM must be specified when prepare is first called for a platform.");
+            if oldBuildSystem:
+                # use old build system
+                buildSystem = oldBuildSystem;
 
-            buildSystem = oldBuildSystem;
+            else:
+                # if there is only one choice for the platform then use that.
+                # Otherwise issue an error
+                if platform=="android":
+                    buildSystem = "AndroidStudio";
+
+                else:
+                    raise IncorrectCallError("--build-system BUILDSYSTEM must be specified when prepare is first called for a platform.");
+            
+        if platform=="android" and buildSystem!="AndroidStudio":
+            raise IncorrectCallError("--build-system parameter must be 'AndroidStudio' for the android platform.");
+
 
         platformState["buildSystem"] = buildSystem;
 
@@ -402,7 +416,6 @@ def commandPrepare(commandArgs):
             else:
                 verb = "Preparing"
 
-
             msg = "%s platform %s for arch '%s'" % (verb, platform, arch);            
             if config:
                 msg += " and config %s " % config;
@@ -410,232 +423,709 @@ def commandPrepare(commandArgs):
 
             print(msg);
 
-            cmakeBuildDir = platformBuildDir;
-            if config:
-                cmakeBuildDir = os.path.join(cmakeBuildDir, config);
+            prepareFunc = prepareCmake;
+            if platform=="android":
+                prepareFunc = prepareAndroid;
 
-            toolChainFileName = None;
-            toolChainFilePath = None;
+            prepareFunc(platform, config, arch, platformBuildDir, buildSystem);
 
-            envSetupPrefix = "";
 
-            cmakeArch = None;
 
-            args = [];
+
+class AndroidStudioProjectGenerator(object):
+
+    def __init__(self, platformBuildDir):
+        self._projectDir = platformBuildDir;
+
+        
+    def getGradleDependency(self):
+        return "classpath 'com.android.tools.build:gradle:2.2.0-alpha6'"
+
+
+    def generateTopLevelProject(self, moduleNameList):
+        if not os.path.isdir(self._projectDir):
+            os.makedirs(self._projectDir);
+
+        with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
+            f.write("""\
+    // Top-level build file where you can add configuration options common to all sub-projects/modules.
+    buildscript {
+        repositories {
+           jcenter()
+        }
+        dependencies {
+            $$GradleDependency$$
+        }
+    }
+
+    allprojects {
+        repositories {
+            jcenter()
+        }
+    }
+
+    task clean(type: Delete) {
+        delete rootProject.buildDir
+    }
+
+    """.replace("$$GradleDependency$$", self.getGradleDependency()) )
+
+        includeParams = "";
+        for moduleName in moduleNameList:
+            if includeParams:
+                includeParams += ", ";
+            includeParams += "':%s'" % moduleName
+
+        with open( os.path.join(self._projectDir, "settings.gradle"), "w" ) as f:
+            f.write("""\
+    include $$IncludeParams$$
+
+    """.replace("$$IncludeParams$$", includeParams) )
+
+
+
+
+    def generateModule(self, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):        
+
+        moduleDir = os.path.join(self._projectDir, projectModuleName);
+        if not os.path.isdir(moduleDir):
+            os.makedirs(moduleDir);
+
+        with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
+            f.write( self.getModuleBuildGradleCode(packageId, moduleName, dependencyList, isLibrary ) )
             
-            if platform.startswith("windows-"):
 
-                if arch!="std":
+        srcMainDir = os.path.join(moduleDir, "src", "main");
+        if not os.path.isdir(srcMainDir):
+            os.makedirs(srcMainDir);
 
-                    if "Visual Studio" in generatorName:
+        with open( os.path.join(srcMainDir, "AndroidManifest.xml"), "w" ) as f:
+            f.write( self.getModuleAndroidManifest(packageId, moduleName, isLibrary ) )
 
-                        # note: passing the architecture with -A does not work properly.
-                        # Cmake cannot find a compiler if we do it that way. does not find a compiler.
-                        # So instead we pass it in the generator name.
+        resDir = os.path.join(srcMainDir, "res");
+        if not os.path.isdir(resDir):
+            os.makedirs(resDir);
 
-                        if arch=="x64":
-                            #cmakeArch = "x64";
-                            generatorName += " Win64"
+        valuesDir = os.path.join(resDir, "values");
+        if not os.path.isdir(valuesDir):
+            os.makedirs(valuesDir);
+
+        with open( os.path.join(valuesDir, "strings.xml"), "w" ) as f:
+            f.write("""\
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">$$UserFriendlyModuleName$$</string>
+</resources>
+""".replace("$$UserFriendlyModuleName$$", userFriendlyModuleName) )
+
+
+
+    def getModuleAndroidManifest(self, packageId, moduleName, isLibrary):
+
+        code = """\
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="$$PackageId$$"
+          android:versionCode="1"
+          android:versionName="1.0">
+    
+          """;
+
+        if not isLibrary:
+            code += """
+
+      <application
+          android:allowBackup="false"
+          android:fullBackupContent="false"      
+          android:label="@string/app_name">
+      
+        <activity android:name="io.boden.android.NativeRootActivity"
+                  android:label="@string/app_name">
+
+            <meta-data android:name="io.boden.android.lib_name"
+              android:value="$$ModuleName$$" />
+
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
+        </activity>  
+      </application>
+      """;
+
+        code += """    
+    </manifest>
+    """;
+
+        return code.replace("$$PackageId$$", packageId) \
+            .replace("$$ModuleName$$", moduleName)
+
+
+
+    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
+
+
+        if isLibrary:
+            pluginName = "com.android.library";
+            appIdCode = ""; # libraries do not have an application id
+        else:
+            pluginName = "com.android.application";
+            appIdCode = "applicationId = '%s'" % packageId
+
+        moduleDependencyCode = "";
+        for dep in dependencyList:            
+            moduleDependencyCode += "    compile project(':%s')\n" % dep;
+
+        cmakeTargets = '"%s"' % moduleName;
+
+
+        return """
+apply plugin: '$$PluginName$$'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+    defaultConfig {
+        applicationId $$AppIdCode$$
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                targets $$CmakeTargets$$
+                arguments "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_CPP_FEATURES=rtti exceptions"
+                /*cppFlags '-fexceptions', '-frtti' */
+                abiFilters 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "../../../cmake/CMakeLists.txt"
+        }
+    }
+    // Documentation purpose: app/src/main/jni is reserved for deprecated native build system;
+    // Steer away from this directory by DELETING it for ndk-build/cmake + android studio usage.
+    // Otherwise you need to
+    //    add android.useDeprecatedNdk=true to gradle.properties
+    //    enable the following line to silence android studio complaint
+    // sourceSets.main.jni.srcDirs = []
+
+
+    sourceSets {
+        main {
+            java {
+                srcDir '../../../$$ModuleName$$/java'
+            }
+        }
+    }
+    
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.4.0'
+
+$$ModuleDependencyCode$$
+}
+""" .replace("$$AppIdCode$$", appIdCode) \
+    .replace("$$PluginName$$", pluginName) \
+    .replace("$$CmakeTargets$$", cmakeTargets) \
+    .replace("$$ModuleName$$", moduleName) \
+    .replace("$$ModuleDependencyCode$$", moduleDependencyCode)
+
+
+
+class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
+    """ Generates a gradle project files that use the gradle experimental plugin. This does not fully work yet, as of the time of
+        this writing (gradle experimental plugin version 0.7.2). While building the packages once works, the plugin does not
+        recompile the native code when the source files change - making it necessary to rebuild every time.
+        Because of this, this code is not currently used.
+        But with a future android experimental release we might switch to it again.
+        """
+
+    def __init__(self, platformBuildDir):
+        AndroidStudioProjectGenerator.__init__(self, platformBuildDir);
+
+
+    def getGradleDependency(self):
+        return "classpath 'com.android.tools.build:gradle-experimental:0.7.2'";
+
+
+    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
+
+        jniDependencyCode = "";
+        moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
+        repositoriesCode = "";
+        for dep in dependencyList:
+
+            jniDependencyCode += '                        project ":%s"\n' % dep;
+
+            moduleDependencyCode += "    compile project(':%s')\n" % dep;
+            moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
+
+            repositoriesCode += """\
+         flatDir{
+             dirs '../%s/build/outputs/aar'
+     	}
+     """ % dep
+
+        
+        excludeSourceDirCode = "";
+
+        excludeEntries = set();
+
+        srcDir = os.path.join(self._projectDir, "..", "..", moduleName, "src" );
+        for name in os.listdir( srcDir):
+            if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread"):
+                excludeEntries.add("**/%s/**" % name);
+
+
+        includeBdnDir = os.path.join(self._projectDir, "..", "..", moduleName, "include", "bdn" );
+        if os.path.isdir(includeBdnDir):
+            for name in os.listdir( includeBdnDir):
+                if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread"):
+                    excludeEntries.add("**/%s/**" % name);
+
+        
+        for entry in excludeEntries:
+            excludeSourceDirCode += '                        exclude "%s"\n' % (entry);
+
+        if isLibrary:
+        	pluginName = "com.android.model.library";
+        	appIdCode = "";	# libraries do not have an application id
+        else:
+        	pluginName = "com.android.model.application";
+        	appIdCode = "applicationId = '%s'" % packageId
+
+
+        return """\
+    apply plugin: '$$PluginName$$'
+
+    model {
+        android {
+            compileSdkVersion = 23
+            buildToolsVersion = '23.0.2'
+
+            defaultConfig {
+                $$AppIdCode$$
+                minSdkVersion.apiLevel = 15
+                targetSdkVersion.apiLevel = 23
+            }
+
+
+
+            sources {
+                main {
+                    jni {
+                        source {
+                            srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
                             
-                        elif arch=="arm":
-                            #cmakeArch = "ARM";
-                            generatorName += " ARM"                            
-                        else:
-                            raise InvalidArchitectureError(arch);
+    $$ExcludeSourceDirCode$$
+                        }
 
-                    else:
-                        raise InvalidArchitectureError(arch);
+                        dependencies {
+    $$JniDependencyCode$$
+                        }
 
-                if platform=="windows-store":
-                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
+                        # this is important to ensure that the IDE will rebuild the module when
+                        # one of the headers changes. It also ensures that another module that imports
+                        # this has its include directories set automatically to find our headers.
+                        exportedHeaders {
+                            srcDir "../../../$$ModuleName$$/include"
+                        }
+                    }
+
+                    java {
+                        source {
+                            srcDir "../../../$$ModuleName$$/java"
+                        }
+                    }
+                }
+            }
+
+            ndk {
+                moduleName = '$$ModuleName$$'
+                toolchain = 'clang'
+                stl = "c++_shared"
+
+                CFlags.addAll(['-Wall'])
+                cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
+
+                ldLibs.addAll([
+                        "android",
+                        "c++abi",
+                        "atomic"
+                ])
+
+            }
+            buildTypes {
+                release {
+                    minifyEnabled true
+                    proguardFiles.add(file('proguard-rules.txt'))
+                }
+
+                debug {
+                    applicationIdSuffix ".debug"
+                }
+            }
+            productFlavors {
+                // for detailed abiFilter descriptions, refer to "Supported ABIs" @
+                // https://developer.android.com/ndk/guides/abis.html#sa
+                create("arm") {
+                    ndk.abiFilters.add("armeabi")
+                }
+                create("arm7") {
+                    ndk.abiFilters.add("armeabi-v7a")
+                }
+                create("arm8") {
+                    ndk.abiFilters.add("arm64-v8a")
+                }
+                create("x86") {
+                    ndk.abiFilters.add("x86")
+                }
+                create("x86-64") {
+                    ndk.abiFilters.add("x86_64")
+                }
+                create("mips") {
+                    ndk.abiFilters.add("mips")
+                }
+                create("mips-64") {
+                    ndk.abiFilters.add("mips64")
+                }
+                // To include all cpu architectures, leaves abiFilters empty
+                create("all")
+            }
+        }
+    }
+
+    dependencies {
+    $$ModuleDependencyCode$$
+    }
+
+
+    repositories{    
+    $$RepositoriesCode$$
+    }
+
+    """ .replace("$$AppIdCode$$", appIdCode) \
+    	.replace("$$PluginName$$", pluginName) \
+        .replace("$$ModuleName$$", moduleName) \
+        .replace("$$JniDependencyCode$$", jniDependencyCode) \
+        .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
+        .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
+        .replace("$$RepositoriesCode$$", repositoriesCode)
+
+
+
+
+
+def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
+
+    # There are several ways to build android apps.
+    # We want support for developing with an IDE that allows for debugging and convenient editing.
+    # Android Studio is the official android IDE and it is pretty full-featured. So we generate AndroidStudio projects.
+    #
+    # We cannot do this via Cmake in the normal way, since Cmake does not have an AndroidStudio    
+    # generator (in fact it does not have ANY generator for an IDE with android projects - only
+    # a plugin add-on that generates plain make files).
+    # BUT fortunately Android Studio supports using cmake as a build system for the native code
+    # parts of the app.
+    # So we can generate android studio projects manually and then connect our existing cmake files
+    # as the build system into the android studio project.
+
+    # The cmake setup has a considerable disadvantage, though: the IDE will only show the cpp files, not
+    # the header files. So editing the project with this setup requires opening files manually, or using
+    # a second editor in parallel.
+    # Another problem is that any error output that cmake generates is not parsed, so one cannot jump
+    # directly to the problematic line. Instead one has to sift through the logs and manually find the problem.
+
+    # There is actually another way to do this: there is a "gradle experimental" plugin that supports
+    # building native android modules completely from within Android Studio (without cmake).
+    # This variant also has a few hiccups. For example, the java classes of a lib are only imported into the
+    # app if we add an explicit dependency to the .aar file (a normal "project" dependency will only import the
+    # native libraries). But the aar file will not yet exist on the first build, so this line has to be commented
+    # out for the first build and during rebuilds. Then it has to be commented in again and then one has to do another
+    # build to get a proper application package.
+    # This is as of gradle experimental plugin version 0.7.2.
+    # Also, using cmake has the advantage that this creates a single point at which settings and source
+    # information about the projects can be kept (for all platforms). And that is a considerable advantage.
+
+    gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
+
+    gen.generateTopLevelProject(["boden", "app"]);
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateModule("boden", "io.boden.android.boden", "boden", "Boden", [], True)
+
+    # also generate a separate project for easy editing of the source files (not that easy with android studio)
+    prepareCmake(platform, config, arch, platformBuildDir+"-edit", "CodeLite - Unix Makefiles")
+
+    
+
+
+
+def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
+
+    cmakeBuildDir = platformBuildDir;
+    if config:
+        cmakeBuildDir = os.path.join(cmakeBuildDir, config);
+
+    toolChainFileName = None;
+    toolChainFilePath = None;
+
+    envSetupPrefix = "";
+
+    cmakeArch = None;
+
+    args = [];
+
+    generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);
+    
+    if platform.startswith("win"):
+
+        if arch!="std":
+
+            if "Visual Studio" in generatorName:
+
+                # note: passing the architecture with -A does not work properly.
+                # Cmake cannot find a compiler if we do it that way. does not find a compiler.
+                # So instead we pass it in the generator name.
+
+                if arch=="x64":
+                    #cmakeArch = "x64";
+                    generatorName += " Win64"
                     
-                elif platform=="windows-universal":
-                    args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
-
-            elif platform=="osx":
-
-                if arch!="std":
-                    raise InvalidArchitectureError(arch);
-
-            elif platform=="ios":
-
-                if arch=="std":
-                    platform = "OS";
-
-                elif arch=="sim32":
-                    platform = "SIMULATOR";
-
-                elif arch=="sim64":
-                    platform = "SIMULATOR64";
-
+                elif arch=="arm":
+                    #cmakeArch = "ARM";
+                    generatorName += " ARM"                            
                 else:
                     raise InvalidArchitectureError(arch);
 
-                cmakeArch = None;
+            else:
+                raise InvalidArchitectureError(arch);
 
-                args.extend( [ "-DIOS_PLATFORM="+platform ] );
+        if platform=="winstore":
+            args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
+            
+        elif platform=="winuwp":
+            args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
 
-                toolChainFileName = "iOS.cmake";
+    elif platform=="mac":
 
-            elif platform=="web":
+        if arch!="std":
+            raise InvalidArchitectureError(arch);
 
-                if arch!="std":
-                    raise InvalidArchitectureError(arch);
+    elif platform=="ios":
 
-                # prepare the emscripten SDK (if not yet prepared)
-                mainDir = getMainDir();
-                emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+        if arch=="std":
+            platform = "OS";
 
-                emsdkExePath = os.path.join(emsdkDir, "emsdk");
+        else:
+            raise InvalidArchitectureError(arch);
 
-                if not os.path.isdir(emsdkDir):
-                    print("Setting up Emscripten SDK. This can take a while...")
+        cmakeArch = None;
+
+        args.extend( [ "-DIOS_PLATFORM="+platform ] );
+
+        toolChainFileName = "iOS.cmake";
+
+    elif platform=="android":
+        toolChainFileName = "android.toolchain.cmake";
+        if arch!="std":
+            args.extend( ['-DANDROID_ABI='+arch ] );
+        
+        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
+        
+
+    elif platform=="web":
+
+        if arch!="std":
+            raise InvalidArchitectureError(arch);
+
+        # prepare the emscripten SDK (if not yet prepared)
+        mainDir = getMainDir();
+        emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+
+        emsdkExePath = os.path.join(emsdkDir, "emsdk");
+
+        if not os.path.isdir(emsdkDir):
+            print("Setting up Emscripten SDK. This can take a while...")
+
+            try:
+                emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
+
+                shutil.copytree(emsdkSourceDir, emsdkDir);
+
+                subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+
+            except:
+
+                for i in range(30):
 
                     try:
-                        emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
+                        shutil.rmtree(emsdkDir);
+                        break;
 
-                        shutil.copytree(emsdkSourceDir, emsdkDir);
+                    except:                                
+                        time.sleep(1);
 
-                        subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
+                raise;
 
-                        subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+            print("Emscripten was successfully set up.");
 
-                        subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-
-                    except:
-
-                        for i in range(30):
-
-                            try:
-                                shutil.rmtree(emsdkDir);
-                                break;
-
-                            except:                                
-                                time.sleep(1);
-
-                        raise;
-
-                    print("Emscripten was successfully set up.");
-
-                if sys.platform=="win32":
-                    envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
-                else:
-                    envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+        if sys.platform=="win32":
+            envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
+        else:
+            envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
 
 
-                # the emscripten scrips call python2. However, python is not available
-                # under that name on all platforms. So we add an alias
-                try:
-                    subprocess.check_call("python2 --version", shell="True");
-                    havePython2 = True;
-                except Exception:
-                    havePython2 = False;
+        # the emscripten scrips call python2. However, python is not available
+        # under that name on all platforms. So we add an alias
+        try:
+            subprocess.check_call("python2 --version", shell="True");
+            havePython2 = True;
+        except Exception:
+            havePython2 = False;
 
-                if not havePython2:
-                    print("Python2 executable is named just 'python'. Changing references...")
-                    
-                    # change python2 references to python
-                    changePython2ToPython(emsdkDir);
-
-
-                toolChainFileName = "Emscripten.cmake";
-
-            elif platform=="android":
-                toolChainFileName = "android.cmake";
-
-                if arch!="std":
-                    args.extend( ['-DANDROID_ABI='+arch ] );
+        if not havePython2:
+            print("Python2 executable is named just 'python'. Changing references...")
+            
+            # change python2 references to python
+            changePython2ToPython(emsdkDir);
 
 
-            elif platform=="dotnet":
-                args.extend( ['-DBODEN_PLATFORM=dotnet' ] );
+        toolChainFileName = "Emscripten.cmake";
 
-                if arch!="std":
-                    raise InvalidArchitectureError(arch);
+    elif platform=="dotnet":
+        args.extend( ['-DBODEN_PLATFORM=dotnet' ] );
 
-
-            elif platform=="linux":
-                # we prefer clang over GCC 4. GCC has a lot more bugs in their standard library.
-                gccVer = getGCCVersion();
-                clangVer = getClangVersion();
-
-                print("Detected GCC version %s" % (repr(gccVer)) );
-                print("Detected Clang version %s" % (repr(clangVer)) );
-
-                if gccVer is not None and gccVer[0]==4 and clangVer is not None:
-                    print("Forcing use of clang instead of GCC because of bugs in this GCC version.");
-                    envSetupPrefix = "env CC=/usr/bin/clang CXX=/usr/bin/clang++ ";
+        if arch!="std":
+            raise InvalidArchitectureError(arch);
 
 
-            args = ["-G", generatorName, getCMakeDir() ] + args[:];
+    elif platform=="linux":
+        # we prefer clang over GCC 4. GCC has a lot more bugs in their standard library.
+        gccVer = getGCCVersion();
+        clangVer = getClangVersion();
+
+        print("Detected GCC version %s" % (repr(gccVer)) );
+        print("Detected Clang version %s" % (repr(clangVer)) );
+
+        if gccVer is not None and gccVer[0]==4 and clangVer is not None:
+            print("Forcing use of clang instead of GCC because of bugs in this GCC version.");
+            envSetupPrefix = "env CC=/usr/bin/clang CXX=/usr/bin/clang++ ";
 
 
-            if toolChainFileName:
-                toolChainFilePath = os.path.join(getCMakeDir(), toolChainFileName);               
 
-            if toolChainFilePath:
-                if not os.path.isfile(toolChainFilePath):
-                    print("Required CMake toolchain file not found: "+toolChainFilePath);
-                    return 5;
-
-                args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath] );
+    args = ["-G", generatorName, getCMakeDir() ] + args[:];
 
 
-            if config:
-                args.extend( ["-DCMAKE_BUILD_TYPE="+config ] );
+    if toolChainFileName:
+        toolChainFilePath = os.path.join(getCMakeDir(), toolChainFileName);               
 
-            if cmakeArch:
-                args.extend( ["-A "+cmakeArch ] );
+    if toolChainFilePath:
+        if not os.path.isfile(toolChainFilePath):
+            print("Required CMake toolchain file not found: "+toolChainFilePath);
+            return 5;
 
-            # we do not validate the toolset name
-            commandLine = "cmake";
-            for a in args:
-                commandLine += ' "%s"' % (a);
-
-            commandLine = envSetupPrefix+commandLine;
-
-            if not os.path.isdir(cmakeBuildDir):
-                os.makedirs(cmakeBuildDir);
+        args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath] );
 
 
-            print("## Calling CMake:\n  "+commandLine+"\n");
+    if config:
+        args.extend( ["-DCMAKE_BUILD_TYPE="+config ] );
 
-            exitCode = subprocess.call(commandLine, cwd=cmakeBuildDir, shell=True);
-            if exitCode!=0:
-                raise ToolFailedError("cmake", exitCode);
+    if cmakeArch:
+        args.extend( ["-A "+cmakeArch ] );
+
+    # we do not validate the toolset name
+    commandLine = "cmake";
+    for a in args:
+        commandLine += ' "%s"' % (a);
+
+    commandLine = envSetupPrefix+commandLine;
+
+    if not os.path.isdir(cmakeBuildDir):
+        os.makedirs(cmakeBuildDir);
 
 
-            if platform=="dotnet":
-                # the project must have an empty calling convention in order to be compilable with /clr:pure.
-                # By default it does not contain ANY calling convention entry, which will cause Visual Studio
-                # to treat it like /Gd (which causes an error during compilation). There does not seem to be
-                # a way to cause CMake to generate the Callingconvention entry, so we have to do it ourselves.
+    print("## Calling CMake:\n  "+commandLine+"\n");
 
-                for name in os.listdir(cmakeBuildDir):
-                    if name.endswith(".vcxproj"):
-                        filePath = os.path.join(cmakeBuildDir, name);
+    exitCode = subprocess.call(commandLine, cwd=cmakeBuildDir, shell=True);
+    if exitCode!=0:
+        raise ToolFailedError("cmake", exitCode);
 
-                        with open( filePath, "rb") as f:
-                            data = f.read().decode("utf-8");
 
-                        modified = False;
-                        if "<CallingConvention />" not in data and "</ClCompile>" in data:
+    if platform=="dotnet":
+        # the project must have an empty calling convention in order to be compilable with /clr:pure.
+        # By default it does not contain ANY calling convention entry, which will cause Visual Studio
+        # to treat it like /Gd (which causes an error during compilation). There does not seem to be
+        # a way to cause CMake to generate the Callingconvention entry, so we have to do it ourselves.
 
-                            print("Modifying %s (adding required empty CallingConvention entry)..." % name);
-                            data = data.replace("</ClCompile>", "  <CallingConvention />\n    </ClCompile>");                            
+        for name in os.listdir(cmakeBuildDir):
+            if name.endswith(".vcxproj"):
+                filePath = os.path.join(cmakeBuildDir, name);
 
-                            modified = True;
+                with open( filePath, "rb") as f:
+                    data = f.read().decode("utf-8");
 
-                        if "<CLRSupport>" not in data and "<UseOfMfc>" in data:
-                            print("Modifying %s (adding CLRSupport entry)..." % name);
-                            data = data.replace("<UseOfMfc>", "<CLRSupport>Pure</CLRSupport>\n    <UseOfMfc>");                            
+                modified = False;
+                if "<CallingConvention />" not in data and "</ClCompile>" in data:
 
-                            modifed = True;
+                    print("Modifying %s (adding required empty CallingConvention entry)..." % name);
+                    data = data.replace("</ClCompile>", "  <CallingConvention />\n    </ClCompile>");                            
 
-                        if modified:
-                            with open( filePath, "wb") as f:
-                                f.write(data.encode("utf-8"));
+                    modified = True;
+
+                if "<CLRSupport>" not in data and "<UseOfMfc>" in data:
+                    print("Modifying %s (adding CLRSupport entry)..." % name);
+                    data = data.replace("<UseOfMfc>", "<CLRSupport>Pure</CLRSupport>\n    <UseOfMfc>");                            
+
+                    modifed = True;
+
+                if modified:
+                    with open( filePath, "wb") as f:
+                        f.write(data.encode("utf-8"));
+
+    elif platform=="winuwp":
+        # CMake ALWAYS sets the GenerateWindowsMetaData option in Visual Studio project files to false
+        # for executables. This is incorrect for universal Windows Apps and it causes the executable
+        # to crash during the startup process.
+        # Unfortunately there is no way to override this from within the Cmake files, so we are
+        # forced to post-process the generated projects.
+
+        # for name in os.listdir(cmakeBuildDir):
+        #     if name.endswith(".vcxproj"):
+        #         filePath = os.path.join(cmakeBuildDir, name);
+
+        #         with open( filePath, "rb") as f:
+        #             data = f.read().decode("utf-8");
+
+        #         modified = False;
+        #         if "<ConfigurationType>Application</ConfigurationType>" in data and "<GenerateWindowsMetadata>false</GenerateWindowsMetadata>" in data:
+
+        #             print("Modifying %s (changing GenerateWindowsMetaData setting)..." % name);
+        #             data = data.replace("<GenerateWindowsMetadata>false</GenerateWindowsMetadata>", "<GenerateWindowsMetadata>true</GenerateWindowsMetadata>");                            
+
+        #             modified = True;
+
+        #         if modified:
+        #             with open( filePath, "wb") as f:
+        #                 f.write(data.encode("utf-8"));
+        pass;
+
+
 
 
 
@@ -779,10 +1269,10 @@ def commandRun(args):
 
             commandLine = None;
 
-            if platformName=="windows-classic":
+            if platformName=="win32":
                 moduleFilePath += ".exe";
 
-            elif platformName=="osx":
+            elif platformName=="mac":
 
                 if os.path.exists(moduleFilePath+".app"):
                     moduleFilePath += ".app";
@@ -991,8 +1481,6 @@ ARCH values:
 
   ios:
     std: normal iOS app (combined 32 and 64 bit binary)
-    sim32: build for 32 bit simulator
-    sim64: build for 64 bit simulator
 
   android:  
     std: at the time of this writing the same as armeabi-v7a (but might
@@ -1015,13 +1503,14 @@ ARCH values:
 BUILDSYSTEM values:
 
 %s
+  AndroidStudio (for android platform only)
 
 %s
 
 RESTRICTIONS:
   ios platform: only the Xcode build system is supported
   web platform: only the Makefile build systems are supported
-  android platform: only the Makefile build systems are supported
+  android platform: only the AndroidStudio build system is supported
 
 IMPORTANT: Remember to enclose the build system names that consist of multiple
 words in quotation marks!

@@ -26,6 +26,24 @@ TEST_CASE("Rect")
 		REQUIRE( a.width == 3);
 		REQUIRE( a.height == 4);
 	}
+    
+    SECTION("constructPointSize")
+	{
+		Rect a( Point(1,2), Size(3,4) );
+
+		REQUIRE( a.x == 1);
+		REQUIRE( a.y == 2);
+		REQUIRE( a.width == 3);
+		REQUIRE( a.height == 4);
+	}
+    
+    SECTION("getSizeAndPosition")
+	{
+		Rect a(1,2,3,4);
+        
+        REQUIRE( a.getPosition() == Point(1,2) );
+        REQUIRE( a.getSize() == Size(3,4) );
+	}
 
 	SECTION("equality")
 	{

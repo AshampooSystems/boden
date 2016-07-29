@@ -236,8 +236,8 @@ inline void testStringData()
 	
 	SECTION("globalEmpty")
 	{
-		P<StringData<CODEC> > pData = StringData<CODEC>::getEmptyData();
-		P<StringData<CODEC> > pData2 = StringData<CODEC>::getEmptyData();
+		P<StringData<CODEC> > pData = &StringData<CODEC>::getEmptyData();
+		P<StringData<CODEC> > pData2 = &StringData<CODEC>::getEmptyData();
 
 		REQUIRE( pData == pData2);
 	}

@@ -10,7 +10,6 @@
 
 using namespace bdn;
 
-
 class Model : public Base
 {
 public:
@@ -81,12 +80,14 @@ public:
 		_pWindow->sizingInfo().onChange().subscribeVoidMember<MainViewController>(_pWindowSizingSub, this, &MainViewController::windowSizingInfoChanged);
 
 		P<ColumnView> pColumnView = newObj<ColumnView>();
-		
+
 		_pButton = newObj<Button>();
         _pButton->label().bind( _pViewModel->helloMessage() );
 
 		_pButton->margin() = UiMargin(UiLength::sem, 2);
 		_pButton->horizontalAlignment() = View::HorizontalAlignment::center;
+
+		_pButton->padding() = UiMargin(UiLength::sem, 0.5, 1);
 
 		pColumnView->addChildView( _pButton );
                 
@@ -106,7 +107,6 @@ protected:
 	void windowSizingInfoChanged()
 	{
 		_pWindow->requestAutoSize();
-		_pWindow->requestCenter();
 	}
 
     void buttonClicked()

@@ -59,6 +59,59 @@ TEST_CASE("Margin")
 		checkEquality( a, Margin(1,2,30,4), false );
 		checkEquality( a, Margin(1,2,3,40), false );
 	}
+    
+    SECTION("+-Margin")
+    {
+        Margin a(1,2,3,4);
+        
+        SECTION("+")
+        {
+            REQUIRE( a+Margin(11,22,33,44) == Margin(12,24,36,48) );
+            REQUIRE( a == Margin(1,2,3,4) );
+        }
+        
+        SECTION("-")
+        {
+            REQUIRE( a-Margin(11,22,33,44) == Margin(-10,-20,-30,-40) );
+            REQUIRE( a == Margin(1,2,3,4) );
+        }
+        
+        SECTION("+neg")
+        {
+            REQUIRE( a+Margin(-11,-22,-33,-44) == Margin(-10,-20,-30,-40) );
+            REQUIRE( a == Margin(1,2,3,4) );
+        }
+        
+        SECTION("-neg")
+        {
+            REQUIRE( a+Margin(-11,-22,-33,-44) == Margin(12,24,36,48) );
+            REQUIRE( a == Margin(1,2,3,4) );
+        }
+        
+        SECTION("+=")
+        {
+            a+=Margin(11,22,33,44);
+            REQUIRE( a == Margin(12,24,36,48) );
+        }
+        
+        SECTION("-=")
+        {
+            a-=Margin(11,22,33,44);
+            REQUIRE( a == Margin(-10,-20,-30,-40) );
+        }
+        
+        SECTION("+=neg")
+        {
+            a+=Margin(-11,-22,-33,-44);
+            REQUIRE( a == Margin(-10,-20,-30,-40) );
+        }
+        
+        SECTION("-=neg")
+        {
+            a-=Margin(-11,-22,-33,-44);
+            REQUIRE( a == Margin(12,24,36,48) );
+        }
+    }
 
 }
 
