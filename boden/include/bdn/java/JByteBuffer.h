@@ -31,7 +31,7 @@ private:
         Env& env = Env::get();
 
         jobject obj = env.getJniEnv()->NewDirectByteBuffer(pBuffer, capacityBytes);
-        env.throwExceptionFromLastJavaCall();
+        env.throwAndClearExceptionFromLastJavaCall();
 
         return OwnedLocalReference(obj);
     }
@@ -68,7 +68,7 @@ public:
         Env& env = Env::get();
 
         void* pBuffer = env.getJniEnv()->GetDirectBufferAddress( getJObject_() );
-        env.throwExceptionFromLastJavaCall();
+        env.throwAndClearExceptionFromLastJavaCall();
 
         return pBuffer;
     }
@@ -80,7 +80,7 @@ public:
         Env& env = Env::get();
 
         int64_t bytes = env.getJniEnv()->GetDirectBufferCapacity( getJObject_() );
-        env.throwExceptionFromLastJavaCall();
+        env.throwAndClearExceptionFromLastJavaCall();
 
         return bytes;
     }

@@ -42,7 +42,7 @@ private:
     static Reference findClass_ (const String& nameInSlashNotation);
 
 public:
-    /** Throws a ClassNotFoundError if the specified class was not found.
+    /** Throws a corresponding JavaException if the specified class was not found.
      *
      *  @param classNameInSlashNotation the fully qualified JAVA class name
      *      with slashes instead of dots. E.g. java/lang/Object instead of java.lang.Object.*/

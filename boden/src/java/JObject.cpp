@@ -21,6 +21,8 @@ String JObject::getCanonicalClassName_ ()
 {
     jclass clazz = Env::get().getJniEnv()->GetObjectClass( getJObject_() );
 
+    // GetObjectClass never throws java-side exceptions
+
     JClass cls( OwnedLocalReference((jobject)clazz) );
 
     return cls.getCanonicalName();
@@ -28,6 +30,7 @@ String JObject::getCanonicalClassName_ ()
 
 bool JObject::isInstanceOf_ (JClass& cls)
 {
+    // never throws java-side exceptions
     return Env::get().getJniEnv()->IsInstanceOf( getJObject_(), (jclass)cls.getJObject_() );
 }
 

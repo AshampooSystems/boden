@@ -95,10 +95,10 @@ public class NativeRootView extends NativeViewGroup
         sizeChanged(newWidth, newHeight);
     }
 
-    private native static void created();
-    private native static void disposed();
-    private native static void sizeChanged(int width, int height);
-    private native static void configurationChanged(Configuration newConfig);
+    private native void created();
+    private native void disposed();
+    private native void sizeChanged(int width, int height);
+    private native void configurationChanged(Configuration newConfig);
 
     private boolean _disposed = false;
 

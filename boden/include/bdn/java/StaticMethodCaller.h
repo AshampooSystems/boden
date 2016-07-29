@@ -107,7 +107,7 @@ inline JavaReturnType callJavaStaticMethod(jclass cls, jmethodID methodId, ...)
 
     va_end(argList);
 
-    throwExceptionFromLastJavaCall();
+    throwAndClearExceptionFromLastJavaCall();
 
     return result;
 }
@@ -122,7 +122,7 @@ inline void callJavaStaticMethod<void>(jclass cls, jmethodID methodId, ...)
 
     va_end(argList);
 
-    throwExceptionFromLastJavaCall();
+    throwAndClearExceptionFromLastJavaCall();
 }
 
 

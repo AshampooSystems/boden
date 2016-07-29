@@ -18,7 +18,7 @@ jchar    callJavaCharMethodStoreExceptV(jobject obj, jmethodID methodId, va_list
 jfloat   callJavaFloatMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
 jdouble  callJavaDoubleMethodStoreExceptV(jobject obj, jmethodID methodId, va_list argList);
 
-void     throwExceptionFromLastJavaCall();
+void     throwAndClearExceptionFromLastJavaCall();
 
 
 template<typename JavaReturnType>
@@ -105,7 +105,7 @@ inline JavaReturnType callJavaMethod(jobject obj, jmethodID methodId, ...)
 
     va_end(argList);
 
-    throwExceptionFromLastJavaCall();
+    throwAndClearExceptionFromLastJavaCall();
 
     return result;
 }
@@ -121,7 +121,7 @@ inline void callJavaMethod<void>(jobject obj, jmethodID methodId, ...)
 
     va_end(argList);
 
-    throwExceptionFromLastJavaCall();
+    throwAndClearExceptionFromLastJavaCall();
 }
 
 

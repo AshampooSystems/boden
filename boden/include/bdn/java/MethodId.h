@@ -35,7 +35,7 @@ public:
     /** Initializes the Id by looking up the method with the specified name and signature from
      *  the specified class.
      *
-     *  Throws a MethodNotFoundError if the method was not found.
+     *  Throws a corresponding JavaException if the method was not found.
      *
      *  It is usually not necessary to call this directly.
      *  JObject::invoke_() or JClass::invokeObjectMethod_() provide a higher level access that
@@ -46,7 +46,7 @@ public:
     /** Initializes the Id by looking up the static method with the specified name and signature from
      *  the specified class.
      *
-     *  Throws a MethodNotFoundError if the method was not found.
+     *  Throws a corresponding JavaException if the method was not found.
      *
      *  It is usually not necessary to call this directly.
      *  JObject::invokeStatic_() or JClass::invokeStatictMethod_() provide a higher level access that

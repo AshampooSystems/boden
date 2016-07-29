@@ -19,7 +19,7 @@ private:
         Env& env = Env::get();
 
         jstring obj = env.getJniEnv()->NewStringUTF( s.asUtf8Ptr() );
-        env.throwExceptionFromLastJavaCall();
+        env.throwAndClearExceptionFromLastJavaCall();
 
         return OwnedLocalReference( (jobject)obj );
     }
@@ -48,6 +48,8 @@ public:
         jstring javaRef = (jstring)getJObject_();
 
         const char* data = pEnv->GetStringUTFChars(javaRef , nullptr );
+
+        // note that GetStringUTFChars does not throw any java-side exceptions.
 
         String val(data);
 

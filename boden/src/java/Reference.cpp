@@ -36,6 +36,7 @@ bool Reference::isNull() const
 /** Returns true if this reference points to the same object as the other reference.*/
 bool Reference::operator==(const Reference & o) const
 {
+    // IsSameObject does not throw any java-side exceptions
     return Env::get().getJniEnv()->IsSameObject( _pShared->getJObject(), o._pShared->getJObject() );
 }
 

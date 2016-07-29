@@ -8,9 +8,9 @@ namespace bdn
 namespace java
 {
 
-void throwExceptionFromLastJavaCall()
+void throwAndClearExceptionFromLastJavaCall()
 {
-    Env::get().throwExceptionFromLastJavaCall();
+    Env::get().throwAndClearExceptionFromLastJavaCall();
 }
 
 

@@ -734,6 +734,13 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
                         dependencies {
     $$JniDependencyCode$$
                         }
+
+                        # this is important to ensure that the IDE will rebuild the module when
+                        # one of the headers changes. It also ensures that another module that imports
+                        # this has its include directories set automatically to find our headers.
+                        exportedHeaders {
+                            srcDir "../../../$$ModuleName$$/include"
+                        }
                     }
 
                     java {
@@ -831,20 +838,27 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
     # a plugin add-on that generates plain make files).
     # BUT fortunately Android Studio supports using cmake as a build system for the native code
     # parts of the app.
-    # So we generate android studio projects manually and then connect our existing cmake files
+    # So we can generate android studio projects manually and then connect our existing cmake files
     # as the build system into the android studio project.
 
+    # The cmake setup has a considerable disadvantage, though: the IDE will only show the cpp files, not
+    # the header files. So editing the project with this setup requires opening files manually, or using
+    # a second editor in parallel.
+    # Another problem is that any error output that cmake generates is not parsed, so one cannot jump
+    # directly to the problematic line. Instead one has to sift through the logs and manually find the problem.
+
     # There is actually another way to do this: there is a "gradle experimental" plugin that supports
-    # building native android modules completely from within Android Studio (without cmake). However,
-    # this variant currently does not work properly: building everything from scratch works (with some
-    # smaller hiccups). But the build system does not detect changes to the source files and does not
-    # recompile the changed parts - making it necessary to rebuild everything all the time.
+    # building native android modules completely from within Android Studio (without cmake).
+    # This variant also has a few hiccups. For example, the java classes of a lib are only imported into the
+    # app if we add an explicit dependency to the .aar file (a normal "project" dependency will only import the
+    # native libraries). But the aar file will not yet exist on the first build, so this line has to be commented
+    # out for the first build and during rebuilds. Then it has to be commented in again and then one has to do another
+    # build to get a proper application package.
     # This is as of gradle experimental plugin version 0.7.2.
     # Also, using cmake has the advantage that this creates a single point at which settings and source
     # information about the projects can be kept (for all platforms). And that is a considerable advantage.
 
-
-    gen = AndroidStudioProjectGenerator(platformBuildDir);  # could also use AndroidStudioProjectGenerator_Experimental here
+    gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
 
     gen.generateTopLevelProject(["boden", "app"]);
     gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)

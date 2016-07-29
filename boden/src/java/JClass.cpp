@@ -2,7 +2,6 @@
 #include <bdn/java/JClass.h>
 
 #include <bdn/java/Env.h>
-#include <bdn/java/ClassNotFoundError.h>
 
 
 namespace bdn
@@ -15,9 +14,7 @@ Reference JClass::findClass_ (const String& nameInSlashNotation)
     Env& env = Env::get();
 
     jclass clazz = env.getJniEnv()->FindClass(nameInSlashNotation.asUtf8Ptr());
-    if(clazz==NULL)
-        throw ClassNotFoundError(nameInSlashNotation);
-    env.throwExceptionFromLastJavaCall();
+    env.throwAndClearExceptionFromLastJavaCall();
 
     return OwnedLocalReference( (jobject)clazz );
 }
@@ -34,7 +31,7 @@ Reference JClass::_newObject( jclass cls, jmethodID methodId, ... )
 
     va_end(argList);
 
-    env.throwExceptionFromLastJavaCall();
+    env.throwAndClearExceptionFromLastJavaCall();
 
     return OwnedLocalReference(result);
 }

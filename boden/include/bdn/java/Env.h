@@ -134,15 +134,20 @@ public:
 
 
 
-    /** If the last JAVA call produced an exception then this is thrown as a C++ exception.*/
-    void throwExceptionFromLastJavaCall()
+    /** If the last JAVA call produced an exception then this is thrown as a C++ exception
+     *  and the exception is cleared from the global state. Since the exception is cleared,
+     *  a second call to throwAndClearExceptionFromLastJavaCall() will return without any exception.
+     * */
+    void throwAndClearExceptionFromLastJavaCall()
     {
         ensureHaveEnv();
 
         jthrowable exc = _pEnv->ExceptionOccurred();
+        _pEnv->ExceptionClear();
         if(exc!=nullptr)
             throw JavaException( JThrowable( OwnedLocalReference((jobject)exc) ) );
     }
+
 
     void setJavaSideException(const std::exception& e)
     {
