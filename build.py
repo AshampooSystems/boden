@@ -759,6 +759,10 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
                 CFlags.addAll(['-Wall'])
                 cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
 
+                # Passing this flag to the linker is important. Otherwise RTTI will not work properly across module
+                # boundaries (dynamic_casts will fail, exception catch clauses might not work, etc.)
+                ldFlags.add("-Wl,-E")
+
                 ldLibs.addAll([
                         "android",
                         "c++abi",

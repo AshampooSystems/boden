@@ -23,7 +23,7 @@ String JObject::getCanonicalClassName_ ()
 
     // GetObjectClass never throws java-side exceptions
 
-    JClass cls( OwnedLocalReference((jobject)clazz) );
+    JClass cls( Reference::convertAndDestroyOwnedLocal((jobject)clazz) );
 
     return cls.getCanonicalName();
 }

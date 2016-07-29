@@ -33,6 +33,7 @@ public:
     ViewCore(View* pOuterView, JView* pJView, bool initBounds=true )
     {
         _pJView = pJView;
+        _pOuterViewWeak = pOuterView;
 
         _uiScaleFactor = 1;
 

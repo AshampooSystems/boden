@@ -1,10 +1,7 @@
 #ifndef BDN_JAVA_TypeConversion_H_
 #define BDN_JAVA_TypeConversion_H_
 
-
-#include <bdn/java/OwnedLocalReference.h>
-
-#include <jni.h>
+#include <bdn/java/Reference.h>
 
 namespace bdn
 {
@@ -83,7 +80,7 @@ public:
      *  */
     static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
-        return NativeType( OwnedLocalReference(arg) );
+        return NativeType( Reference::convertAndDestroyOwnedLocal(arg) );
     }
 };
 
@@ -112,7 +109,7 @@ public:
 
     static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
-        return _getStringFromJava( OwnedLocalReference(arg) );
+        return _getStringFromJava( Reference::convertAndDestroyOwnedLocal(arg) );
     }
 };
 

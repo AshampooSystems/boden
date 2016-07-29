@@ -19,7 +19,7 @@ class JavaException : public std::exception
 {
 public:
     JavaException( JThrowable throwable)
-    : _throwable( throwable.getRef_().toStrong() )
+    : _throwable( throwable.getRef_() )
     {
         _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage()).asUtf8();
     }

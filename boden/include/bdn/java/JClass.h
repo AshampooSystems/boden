@@ -23,8 +23,6 @@ class JClass;
 
 #include <bdn/java/MethodId.h>
 #include <bdn/java/Reference.h>
-#include <bdn/java/OwnedLocalReference.h>
-#include <bdn/java/ExternalLocalReference.h>
 #include <bdn/java/TypeConversion.h>
 #include <bdn/java/MethodCaller.h>
 #include <bdn/java/StaticMethodCaller.h>
@@ -47,7 +45,7 @@ public:
      *  @param classNameInSlashNotation the fully qualified JAVA class name
      *      with slashes instead of dots. E.g. java/lang/Object instead of java.lang.Object.*/
     explicit JClass(const String& classNameInSlashNotation)
-    : JObject( findClass_ (classNameInSlashNotation).toStrong() )
+    : JObject( findClass_ (classNameInSlashNotation) )
     {
         _nameInSlashNotation = classNameInSlashNotation;
         _nameInSlashNotationInitialized = true;

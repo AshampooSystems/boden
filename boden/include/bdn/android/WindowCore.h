@@ -4,6 +4,7 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
+#include <bdn/java/WeakReference.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JNativeRootView.h>
 #include "JConfiguration.h"
@@ -126,7 +127,7 @@ public:
     {
         // we store only a weak referene in the registry. We do not want to
         // keep the java-side root view object alive.
-        getRootViewRegistryForCurrentThread().add( javaRef.toWeak() );
+        getRootViewRegistryForCurrentThread().add( bdn::java::WeakReference(javaRef) );
     }
 
     static void _rootViewDisposed( const bdn::java::Reference& javaRef )
@@ -176,7 +177,7 @@ protected:
 
         MutexLock lock(_rootViewMutex);
 
-        _weakRootViewRef = bdn::java::Reference();
+        _weakRootViewRef = bdn::java::WeakReference();
     }
 
     /** Called when the root view that this window is attached to has changed
@@ -257,13 +258,10 @@ private:
         {
             MutexLock lock(_rootViewMutex);
 
-            if(_weakRootViewRef.getType()!=bdn::java::Reference::Type::invalid )
-            {
-                accessibleRef = _weakRootViewRef.toAccessible();
+            accessibleRef = _weakRootViewRef.toStrong();
 
-                if(accessibleRef.isNull())
-                    const_cast<WindowCore*>(this)->rootViewDisposed();
-            }
+            if(accessibleRef.isNull())
+                const_cast<WindowCore*>(this)->rootViewDisposed();
         }
 
         return accessibleRef;
@@ -274,7 +272,7 @@ private:
     class RootViewRegistry : public Base
     {
     public:
-        void add( const bdn::java::Reference& javaRef )
+        void add( const bdn::java::WeakReference& javaRef )
         {
             _rootViewList.push_back( javaRef );
         }
@@ -316,7 +314,7 @@ private:
         }
 
     private:
-        std::list<bdn::java::Reference>  _rootViewList;
+        std::list<bdn::java::WeakReference>  _rootViewList;
     };
 
 
@@ -327,10 +325,10 @@ private:
     BDN_SAFE_STATIC_THREAD_LOCAL( RootViewRegistry, getRootViewRegistryForCurrentThread );
 
 
-    mutable Mutex           _rootViewMutex;
-    bdn::java::Reference    _weakRootViewRef;
+    mutable Mutex               _rootViewMutex;
+    bdn::java::WeakReference    _weakRootViewRef;
 
-    Rect                    _currentBounds;
+    Rect                        _currentBounds;
 };
 
 

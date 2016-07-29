@@ -65,26 +65,24 @@ public:
 
 
 
-    Reference getWrappedPointer()
+    JByteBuffer getWrappedPointer()
     {
         static MethodId methodId;
 
-        return invoke_<JObject>(getStaticClass_(), methodId, "getWrappedPointer").getRef_().toAccessible();
+        return invoke_<JByteBuffer>(getStaticClass_(), methodId, "getWrappedPointer");
     }
 
     P<IBase> getPointer_ ()
     {
-        Reference  bufferRef = getWrappedPointer();
+        JByteBuffer buffer = getWrappedPointer();
 
-        if(bufferRef.isNull())
+        if(buffer.isNull_())
         {
             // that means that the C++ pointer is null.
             return nullptr;
         }
         else
         {
-            JByteBuffer buffer( bufferRef );
-
             IBase* p = static_cast<IBase*>( buffer.getBuffer_() );
 
             return p;

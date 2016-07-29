@@ -8,7 +8,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeStrongPointer_disp
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::JByteBuffer byteBuffer(( bdn::java::ExternalLocalReference(rawByteBuffer) ));
+    bdn::java::JByteBuffer byteBuffer(( bdn::java::Reference::convertAndDestroyOwnedLocal(rawByteBuffer) ));
 
     bdn::IBase* pObject = static_cast<bdn::IBase*>( byteBuffer.getBuffer_() );
 

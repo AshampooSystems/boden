@@ -33,7 +33,7 @@ private:
         jobject obj = env.getJniEnv()->NewDirectByteBuffer(pBuffer, capacityBytes);
         env.throwAndClearExceptionFromLastJavaCall();
 
-        return OwnedLocalReference(obj);
+        return Reference::convertAndDestroyOwnedLocal(obj);
     }
 
 public:
@@ -57,7 +57,7 @@ public:
      *
      *  */
     JByteBuffer(void* pBuffer, int64_t capacityBytes)
-     : JObject( newInstance_ (pBuffer, capacityBytes).toStrong() )
+     : JObject( newInstance_ (pBuffer, capacityBytes) )
     {
     }
 
