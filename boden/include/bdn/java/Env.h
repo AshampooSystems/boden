@@ -141,7 +141,7 @@ public:
 
         jthrowable exc = _pEnv->ExceptionOccurred();
         if(exc!=nullptr)
-            throw JavaException( JThrowable( LocalReference((jobject)exc) ) );
+            throw JavaException( JThrowable( OwnedLocalReference((jobject)exc) ) );
     }
 
     void setJavaSideException(const std::exception& e)

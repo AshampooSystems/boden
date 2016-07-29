@@ -23,7 +23,8 @@ class JClass;
 
 #include <bdn/java/MethodId.h>
 #include <bdn/java/Reference.h>
-#include <bdn/java/LocalReference.h>
+#include <bdn/java/OwnedLocalReference.h>
+#include <bdn/java/ExternalLocalReference.h>
 #include <bdn/java/TypeConversion.h>
 #include <bdn/java/MethodCaller.h>
 #include <bdn/java/StaticMethodCaller.h>

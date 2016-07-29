@@ -11,7 +11,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_created(J
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::LocalReference self(rawSelf);
+    bdn::java::ExternalLocalReference self(rawSelf);
 
     bdn::android::WindowCore::_rootViewCreated( self );
 
@@ -22,7 +22,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_disposed(
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::LocalReference self(rawSelf);
+    bdn::java::ExternalLocalReference self(rawSelf);
 
     bdn::android::WindowCore::_rootViewDisposed( self );
 
@@ -34,7 +34,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_sizeChang
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::LocalReference self(rawSelf);
+    bdn::java::ExternalLocalReference self(rawSelf);
 
     bdn::android::WindowCore::_rootViewSizeChanged( self, newWidth, newHeight );
 
@@ -47,9 +47,9 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRootView_configura
 {
     BDN_JNI_BEGIN(pEnv);
 
-    bdn::java::LocalReference self(rawSelf);
+    bdn::java::ExternalLocalReference self(rawSelf);
 
-    bdn::android::JConfiguration newConfig(( bdn::java::LocalReference(rawNewConfig) ));
+    bdn::android::JConfiguration newConfig(( bdn::java::ExternalLocalReference(rawNewConfig) ));
 
     bdn::android::WindowCore::_rootViewConfigurationChanged( self, newConfig );
 

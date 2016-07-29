@@ -21,7 +21,7 @@ private:
         jstring obj = env.getJniEnv()->NewStringUTF( s.asUtf8Ptr() );
         env.throwExceptionFromLastJavaCall();
 
-        return LocalReference( (jobject)obj );
+        return OwnedLocalReference( (jobject)obj );
     }
 
 public:

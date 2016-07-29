@@ -27,7 +27,8 @@ namespace java
  *  cannot be garbage collected anymore while the new strong reference exists and can thus be accessed
  *  safely now.
  *
- *  There is a convenience class called LocalReference that makes it easy to create local reference objects.
+ *  There is are convenience classes called OwnedLocalReference and ExternalLocalReference
+ *  that makes it easy to create local reference objects for the types Type::ownedLocal and Type::externalLocal.
  *
  *  Note that the Reference class automatically deletes references of Type::local when the last Reference instance
  *  that refers to it is deleted. That is important because the total number of local references that can exist during a
@@ -43,10 +44,25 @@ public:
         /** An uninitialized reference.*/
         invalid=0,
 
-        /** A local reference. It becomes invalid once the current Jni callback returns.
+        /** A local reference that was created on the native code side (i.e. it was returns by one of the various
+         *  object creation functions that the native code side can use).
+         * 
+         *  Local references become invalid once the current Jni callback returns. To keep them beyond the current
+         *  callback they must be converted to strong or weak references with toStrong() or toWeak().
+         * 
          *  See Reference class documentation for more info.
          *  */
-        local,
+        ownedLocal,
+        
+        /** A local reference that is owned by the Java-side. Like ownedLocal references, these are also deleted
+         *  when the current Jni callback returns, BUT they are under the complete control of the calling java code
+         *  and must be handled differently than other local references.
+         * 
+         *  Use this for jobject references that you get as parameters in JNI callback functions.
+         * 
+         *  See Reference class documentation for more info.
+         *  */
+        externalLocal,
 
         /** A strong global reference. These prevent the object from being garbage collected
          *  and persist between Jni callbacks.
@@ -143,19 +159,6 @@ public:
      *
      *  See Reference class documentation for more information.*/
     Reference toWeak() const;
-
-
-    /** Creates a new local reference to the object. Local references are automatically released
-     *  at the end of the current Jni call.
-     *
-     *  The total number of local references are limited, so this should be used sparingly.
-     *
-     *  If the current reference is invalid (not initialized) then a null reference is returned.
-     *
-     *  If the current reference is already a local reference then another copy of the reference is returned.
-     *
-     *  See Reference class documentation for more information.*/
-    Reference toLocal() const;
 
 
 

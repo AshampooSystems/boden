@@ -20,6 +20,10 @@ import android.os.Bundle;
  * */
 public class NativeRootActivity extends android.app.Activity
 {
+    static
+    {
+        NativeInit.baseInit();
+    }
 
     /** Name of the meta variable that can be used in the manifest to specify the
      *  name of the native code library.
@@ -27,7 +31,6 @@ public class NativeRootActivity extends android.app.Activity
      *  If this is not specified then "main" is used.
      */
     public static final String META_DATA_LIB_NAME = "io.boden.android.lib_name";
-
 
     /** Called when the activity is first created. */
     @Override
@@ -39,11 +42,10 @@ public class NativeRootActivity extends android.app.Activity
 
         _libName = getMetaString(META_DATA_LIB_NAME, "main");
 
-        NativeInit.ensureInitialized( _libName );
-
         _rootView = new NativeRootView(this);
-
         setContentView( _rootView );
+
+        NativeInit.launch( _libName );
     }
 
     @Override

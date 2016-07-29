@@ -114,7 +114,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #elif BDN_PLATFORM_ANDROID
 
 	#define BDN_INIT_UI_APP( appControllerClass )  \
-		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_init( JNIEnv* pEnv ) \
+		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_launch( JNIEnv* pEnv ) \
 		{ \
 			BDN_JNI_BEGIN( pEnv ); \
  			bdn::_uiAppInit( bdn::newObj<appControllerClass>() ); \

@@ -25,6 +25,11 @@ import android.util.AttributeSet;
  */
 public class NativeRootView extends NativeViewGroup
 {
+    static
+    {
+        NativeInit.baseInit();
+    }
+
     public NativeRootView(Context context)
     {
         super(context);

@@ -21,7 +21,7 @@ String JObject::getCanonicalClassName_ ()
 {
     jclass clazz = Env::get().getJniEnv()->GetObjectClass( getJObject_() );
 
-    JClass cls( LocalReference((jobject)clazz) );
+    JClass cls( OwnedLocalReference((jobject)clazz) );
 
     return cls.getCanonicalName();
 }

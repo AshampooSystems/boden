@@ -2,7 +2,7 @@
 #define BDN_JAVA_TypeConversion_H_
 
 
-#include <bdn/java/LocalReference.h>
+#include <bdn/java/OwnedLocalReference.h>
 
 #include <jni.h>
 
@@ -83,7 +83,7 @@ public:
      *  */
     static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
-        return NativeType( LocalReference(arg) );
+        return NativeType( OwnedLocalReference(arg) );
     }
 };
 
@@ -112,7 +112,7 @@ public:
 
     static NativeType takeOwnershipOfJavaValueAndConvertToNative(JavaType arg)
     {
-        return _getStringFromJava( LocalReference(arg) );
+        return _getStringFromJava( OwnedLocalReference(arg) );
     }
 };
 

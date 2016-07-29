@@ -27,16 +27,6 @@ Reference Reference::toWeak() const
 }
 
 
-
-Reference Reference::toLocal() const
-{
-    if( _pShared->getType()==Type::local)
-        return Reference(*this);
-    else
-        return Reference(Type::local, Env::get().getJniEnv()->NewLocalRef( _pShared->getJObject() ) );
-}
-
-
 bool Reference::isNull() const
 {
     return (_pShared->getType()==Type::invalid
@@ -55,7 +45,9 @@ Reference::Shared::~Shared()
 {
     JNIEnv* pEnv = Env::get().getJniEnv();
 
-    if(_type==Type::local)
+    // note that externalLocal references must NEVER be deleted. They are under the control of
+    // the java code. If we delete them then a crash may occur.
+    if(_type==Type::ownedLocal)        
         pEnv->DeleteLocalRef( _ref );
 
     else if(_type==Type::strong)
