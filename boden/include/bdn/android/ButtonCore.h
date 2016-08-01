@@ -54,6 +54,7 @@ public:
     {
         _pJButton->setText( label );
 
+        // we must re-layout the button - otherwise its preferred size is not updated.
         _pJView->requestLayout();
 
         getOuterView()->needSizingInfoUpdate();

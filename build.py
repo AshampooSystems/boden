@@ -867,15 +867,13 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
 
     gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
 
-    gen.generateTopLevelProject(["boden", "app"]);
-    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui"]);
     gen.generateModule("boden", "io.boden.android.boden", "boden", "Boden", [], True)
-
-    # also generate a separate project for easy editing of the source files (not that easy with android studio)
-    prepareCmake(platform, config, arch, platformBuildDir+"-edit", "CodeLite - Unix Makefiles")
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", "TestBoden", ["boden"], False)
+    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", "TestBodenUI", ["boden"], False)
 
     
-
 
 
 def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):

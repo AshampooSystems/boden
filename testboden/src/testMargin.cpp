@@ -84,7 +84,7 @@ TEST_CASE("Margin")
         
         SECTION("-neg")
         {
-            REQUIRE( a+Margin(-11,-22,-33,-44) == Margin(12,24,36,48) );
+            REQUIRE( a-Margin(-11,-22,-33,-44) == Margin(12,24,36,48) );
             REQUIRE( a == Margin(1,2,3,4) );
         }
         

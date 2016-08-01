@@ -2053,7 +2053,7 @@ namespace bdn{
     void writeToDebugConsole( std::string const& text );
 }
 
-#ifdef BDN_PLATFORM_OSX
+#if BDN_PLATFORM_OSX
 
 
     // The following code snippet based on:
@@ -2075,7 +2075,7 @@ namespace bdn{
     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
     #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
 
-#elif defined(BDN_PLATFORM_POSIX)
+#elif BDN_PLATFORM_POSIX
 
     // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
     // However, we do not need it since we can raise a SIGTRAP that

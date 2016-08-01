@@ -54,6 +54,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 
 #elif BDN_PLATFORM_ANDROID
 	void _uiAppInit(AppControllerBase* pAppController);
+	void _commandLineAppInit(int (*appFunc)(const AppLaunchInfo& launchInfo), AppControllerBase* pAppController);
 
 #else
 	int _uiAppMain( AppControllerBase* pAppController,
@@ -215,19 +216,11 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #elif BDN_PLATFORM_ANDROID
 
 	#define BDN_INIT_COMMANDLINE_APP( appFunc, ... )  \
-		namespace bdn  \
-		{  \
-			namespace android  \
-			{  \
-				bdn::P<bdn::AppControllerBase> _createAppController() \
-				{ \
-					return bdn::_createCommandLineAppController<__VA_ARGS__>(); \
-				}  \
-				std::function<int(const AppLaunchInfo&)> _getAppFunc()  \
-				{  \
-					return appFunc;  \
-				} \
-			}  \
+		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls ) \
+		{ \
+			BDN_JNI_BEGIN( pEnv ); \
+ 			bdn::_commandLineAppInit( appFunc, bdn::_createCommandLineAppController<__VA_ARGS__>() );\
+			BDN_JNI_END; \
 		}
 
 #else
