@@ -3,18 +3,46 @@
 
 #include <iostream>
 
+#if BDN_PLATFORM_ANDROID
+#include <android/log.h>
+#endif
+
 namespace bdn
 {
 
-void logError(std::exception& e, const String& info)
+
+void logError(std::exception& e, const String& additionalInfo)
 {
-	logError( info + " ("+String(e.what())+")" );
+	logError( additionalInfo + " ("+String(e.what())+")" );
 }
 
-void logError(const String& info)
+
+#if BDN_PLATFORM_ANDROID
+
+void logError(const String& message)
 {
-	std::cerr << ("ERROR: "+info) << std::endl;
+    __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
 }
+
+void logInfo(const String& message)
+{
+	__android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+}
+
+#else
+
+void logError(const String& message)
+{
+	std::cerr << ("ERROR: "+message) << std::endl;
+}
+
+void logInfo(const String& message)
+{
+	std::cerr << message << std::endl;
+}
+
+
+#endif
 
 }
 

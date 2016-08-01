@@ -55,13 +55,6 @@ public:
         return cls;
     }
 
-    void setText(const String& text)
-    {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getRef_() ) );
-    }
-
     
 
 };

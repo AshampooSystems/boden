@@ -50,6 +50,51 @@ public:
     }
 
 
+
+    void setText(const String& text)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getRef_() ) );
+    }
+
+
+
+    void setSingleLine(bool singleLine)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setSingleLine", singleLine);
+    }
+
+
+    /** Makes the TextView at most this many pixels wide */
+    void setMaxWidth(int maxPixels)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setMaxWidth", maxPixels);
+    }
+
+
+    /** Makes the TextView at least this many pixels tall. Setting this value overrides any other (minimum) number of lines setting.*/
+    void setMaxHeight(int maxPixels)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setMaxHeight", maxPixels);
+    }
+
+
+    /** Makes the TextView exactly this many pixels wide. You could do the same thing by specifying this number in the LayoutParams. */
+    void setWidth(int pixels)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setWidth", pixels);
+    }
+
+
     /** Returns the JClass object for this class.s
      *
      *  Note that the returned class object is not necessarily unique for the whole
@@ -67,12 +112,11 @@ public:
         return cls;
     }
 
-    void setText(const String& text)
+    bdn::java::JClass& getClass_()
     {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "setText", bdn::java::JCharSequence( bdn::java::JString(text).getRef_() ) );
+        return getStaticClass_();
     }
+
 
 };
 

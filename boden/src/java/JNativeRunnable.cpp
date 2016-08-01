@@ -3,7 +3,7 @@
 
 #include <bdn/java/Env.h>
 
-extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeRunnable_nativeRun(JNIEnv* pEnv, jobject rawSelf, jobject rawNativeObject )
+extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv* pEnv, jobject rawSelf, jobject rawNativeObject )
 {
     BDN_JNI_BEGIN(pEnv);
 

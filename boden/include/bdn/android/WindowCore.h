@@ -7,7 +7,9 @@
 #include <bdn/java/WeakReference.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JNativeRootView.h>
-#include "JConfiguration.h"
+#include <bdn/android/JConfiguration.h>
+
+#include <bdn/log.h>
 
 namespace bdn
 {
@@ -45,6 +47,8 @@ public:
         setTitle( pOuterWindow->title() );
 
         JNativeRootView rootView( getJView().getParent().getRef_() );
+
+        _weakRootViewRef = bdn::java::WeakReference( rootView.getRef_() );
 
         updateUiScaleFactor( rootView.getContext().getResources().getConfiguration() );
 
@@ -118,6 +122,9 @@ public:
             int width = rootView.getWidth();
             int height = rootView.getHeight();
 
+            // XXX
+            logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
             return Rect(0, 0, width, height );
         }
     }
@@ -187,9 +194,22 @@ protected:
      *  */
     virtual void rootViewSizeChanged(int width, int height)
     {
+        // XXX
+        logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
+
+        // set our container view to the same size as the root.
+        // Note that this is necessary because the root view does not have a bdn::View associated with it.
+        // So there is not automatic layout happening.
+        JNativeRootView rootView( getJView().getParent().getRef_() );
+        rootView.setChildBounds( getJView(), 0, 0, width, height);
+        rootView.requestLayout();
+
         _currentBounds = Rect(0, 0, width, height);
 
-        getOuterView()->bounds() = _currentBounds;
+        P<View> pView = getOuterView();
+        pView->bounds() = _currentBounds;
+
+        pView->needLayout();
     }
 
     /** Called when the configuration changed for this window core.

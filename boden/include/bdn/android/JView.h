@@ -157,6 +157,7 @@ public:
     }
 
 
+
     class MeasureSpec
     {
     public:
@@ -181,6 +182,29 @@ public:
 
     };
 
+
+
+    void requestLayout ()
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "requestLayout");
+    }
+
+
+    int getSuggestedMinimumWidth()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumWidth");
+    }
+
+    int getSuggestedMinimumHeight()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumHeight");
+    }
 
 
     class OnClickListener : public bdn::java::JObject

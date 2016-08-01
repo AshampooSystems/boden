@@ -53,6 +53,13 @@ public:
         invoke_<void>(getStaticClass_(), methodId, "addView", child);
     }
 
+    void removeView(JView child)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "removeView", child);
+    }
+
 
     /** Returns the number of children in the group. */
     int	getChildCount()

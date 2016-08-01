@@ -21,6 +21,8 @@ class ViewCore;
 #include <bdn/android/JNativeViewGroup.h>
 #include <bdn/android/UIProvider.h>
 
+#include <bdn/log.h>
+
 
 namespace bdn
 {
@@ -141,7 +143,12 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
+            // XXX
+            logInfo("child view "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" setBounds: ("+std::to_string(bounds.width)+"x"+std::to_string(bounds.height)+")");
+
             parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
+
+            getOuterView()->needLayout();
         }
     }
 
@@ -258,6 +265,9 @@ private:
         int width = _pJView->getMeasuredWidth();
         int height = _pJView->getMeasuredHeight();
 
+        // XXX
+        logInfo("Preferred size ("+std::to_string(forWidth)+","+std::to_string(forHeight)+") of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
         return Size(width, height);
     }
 
@@ -278,7 +288,11 @@ private:
     }
 
     View*           _pOuterViewWeak;
+
+    // XXX
+protected:
     P<JView>        _pJView;
+private:
 
     double          _uiScaleFactor;
 };

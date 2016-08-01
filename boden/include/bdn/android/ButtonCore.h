@@ -39,6 +39,8 @@ public:
     {
         _pJButton = cast<JButton>( &getJView() );
 
+        _pJButton->setSingleLine(true);
+
         setLabel( pOuterButton->label() );
     }
 
@@ -51,6 +53,8 @@ public:
     void setLabel(const String& label) override
     {
         _pJButton->setText( label );
+
+        _pJView->requestLayout();
 
         getOuterView()->needSizingInfoUpdate();
     }

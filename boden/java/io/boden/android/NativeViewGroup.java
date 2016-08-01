@@ -3,6 +3,7 @@ package io.boden.android;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -56,32 +57,59 @@ public class NativeViewGroup extends ViewGroup
     {
         // modify the child's layout params
 
-        final LayoutParams params = (LayoutParams)child.getLayoutParams();
+        Log.i("boden", "setChildBounds " + child.toString()+" to "+Integer.toString(width)+"x"+Integer.toString(height));
 
-        params.x = x;
-        params.y = y;
-        params.width = width;
-        params.height = height;
-
+        final LayoutParams params = new LayoutParams(x, y, width, height);
+        child.setLayoutParams(params);
 
         // and then schedule a re-layout of this container so that the child will be repositioned
-        if(!isInLayout())
+        if(isInLayout())
+            Log.i("boden", "skipped requestLayout");
+        else
+        {
+            Log.i("boden", "requestLayout " + toString());
             requestLayout();
+        }
     }
+
+    public void addView (View child)
+    {
+        int x=0;
+        x++;
+
+        super.addView(child);
+    }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
+        // note that we MUST call measure on our children. Otherwise their
+        // onLayout method will not be called when we call their layout method from our onLayout.
+        final int childCount = getChildCount();
+        for(int i=0; i<childCount; i++) {
+            final View child = getChildAt(i);
+            child.measure(0, 0);
+        }
+
         setMeasuredDimension(
                 resolveSize(mWidth, widthMeasureSpec),
                 resolveSize(mHeight, heightMeasureSpec));
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom)
     {
+        // XXX
         final int childCount = getChildCount();
+
+        if(childCount==0)
+            Log.i("boden", getClass().getName()+".onLayout with zero children.");
+        else
+            Log.i("boden", getClass().getName()+".onLayout "+toString()+" started.");
 
         for(int i=0; i<childCount; i++)
         {
@@ -90,6 +118,8 @@ public class NativeViewGroup extends ViewGroup
             if(child.getVisibility() != GONE)
             {
                 final LayoutParams params = (LayoutParams)child.getLayoutParams();
+
+                Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
 
                 child.layout( params.x, params.y, params.x+params.width, params.y+params.height );
             }

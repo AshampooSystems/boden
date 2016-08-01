@@ -540,7 +540,8 @@ class AndroidStudioProjectGenerator(object):
           android:label="@string/app_name">
       
         <activity android:name="io.boden.android.NativeRootActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">
 
             <meta-data android:name="io.boden.android.lib_name"
               android:value="$$ModuleName$$" />
@@ -735,9 +736,9 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
     $$JniDependencyCode$$
                         }
 
-                        # this is important to ensure that the IDE will rebuild the module when
-                        # one of the headers changes. It also ensures that another module that imports
-                        # this has its include directories set automatically to find our headers.
+                        /* this is important to ensure that the IDE will rebuild the module when
+                           one of the headers changes. It also ensures that another module that imports
+                           this has its include directories set automatically to find our headers.*/
                         exportedHeaders {
                             srcDir "../../../$$ModuleName$$/include"
                         }
@@ -759,14 +760,16 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
                 CFlags.addAll(['-Wall'])
                 cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
 
-                # Passing this flag to the linker is important. Otherwise RTTI will not work properly across module
-                # boundaries (dynamic_casts will fail, exception catch clauses might not work, etc.)
-                ldFlags.add("-Wl,-E")
+                /* Passing this flag to the linker is important. Otherwise RTTI will not work properly across module
+                   boundaries (dynamic_casts will fail, exception catch clauses might not work, etc.)
+                   Update: not actually needed?
+                    ldFlags.add("-Wl,-E")*/
 
                 ldLibs.addAll([
                         "android",
                         "c++abi",
-                        "atomic"
+                        "atomic",
+                        "log"
                 ])
 
             }
