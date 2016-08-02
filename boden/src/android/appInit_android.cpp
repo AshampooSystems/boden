@@ -62,6 +62,7 @@ public:
 
         // when the app func is done then we have nothing else to do.
         // just end the thread.
+
         int x=0;
         x++;
     }

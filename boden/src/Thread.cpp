@@ -1,6 +1,10 @@
 #include <bdn/init.h>
 #include <bdn/Thread.h>
 
+#ifdef BDN_PLATFORM_ANDROID
+#include <bdn/java/Env.h>
+#endif
+
 namespace bdn
 {
 
@@ -41,6 +45,13 @@ Thread::~Thread() noexcept
 
 void Thread::run( P<ThreadData> pThreadData )
 {
+
+#ifdef BDN_PLATFORM_ANDROID
+    // ensure that the thread is connected to the VM. This is important for debugging so that
+    // the thread will always show up in the IDE.
+    bdn::java::Env::get().getJniEnv();
+#endif
+
     try
     {
         pThreadData->pRunnable->run();
