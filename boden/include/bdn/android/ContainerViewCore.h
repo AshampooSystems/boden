@@ -58,6 +58,17 @@ public:
 		throw ProgrammingError("ContainerView::calcPreferredWidthForHeight must be overloaded in derived class.");
 	}
 
+
+
+	void setBounds(const Rect& bounds) override
+	{
+		ViewCore::setBounds(bounds);
+
+		JNativeViewGroup thisGroup( getJView().getRef_() );
+
+		thisGroup.setSize(bounds.width, bounds.height);
+	}
+
 };
 
 }

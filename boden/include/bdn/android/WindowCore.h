@@ -4,9 +4,12 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
+#include <bdn/java/WeakReference.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JNativeRootView.h>
-#include "JConfiguration.h"
+#include <bdn/android/JConfiguration.h>
+
+#include <bdn/log.h>
 
 namespace bdn
 {
@@ -44,6 +47,8 @@ public:
         setTitle( pOuterWindow->title() );
 
         JNativeRootView rootView( getJView().getParent().getRef_() );
+
+        _weakRootViewRef = bdn::java::WeakReference( rootView.getRef_() );
 
         updateUiScaleFactor( rootView.getContext().getResources().getConfiguration() );
 
@@ -117,6 +122,9 @@ public:
             int width = rootView.getWidth();
             int height = rootView.getHeight();
 
+            // XXX
+            logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
             return Rect(0, 0, width, height );
         }
     }
@@ -126,7 +134,7 @@ public:
     {
         // we store only a weak referene in the registry. We do not want to
         // keep the java-side root view object alive.
-        getRootViewRegistryForCurrentThread().add( javaRef.toWeak() );
+        getRootViewRegistryForCurrentThread().add( bdn::java::WeakReference(javaRef) );
     }
 
     static void _rootViewDisposed( const bdn::java::Reference& javaRef )
@@ -176,7 +184,7 @@ protected:
 
         MutexLock lock(_rootViewMutex);
 
-        _weakRootViewRef = bdn::java::Reference();
+        _weakRootViewRef = bdn::java::WeakReference();
     }
 
     /** Called when the root view that this window is attached to has changed
@@ -186,9 +194,22 @@ protected:
      *  */
     virtual void rootViewSizeChanged(int width, int height)
     {
+        // XXX
+        logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
+
+        // set our container view to the same size as the root.
+        // Note that this is necessary because the root view does not have a bdn::View associated with it.
+        // So there is not automatic layout happening.
+        JNativeRootView rootView( getJView().getParent().getRef_() );
+        rootView.setChildBounds( getJView(), 0, 0, width, height);
+        rootView.requestLayout();
+
         _currentBounds = Rect(0, 0, width, height);
 
-        getOuterView()->bounds() = _currentBounds;
+        P<View> pView = getOuterView();
+        pView->bounds() = _currentBounds;
+
+        pView->needLayout();
     }
 
     /** Called when the configuration changed for this window core.
@@ -257,13 +278,10 @@ private:
         {
             MutexLock lock(_rootViewMutex);
 
-            if(_weakRootViewRef.getType()!=bdn::java::Reference::Type::invalid )
-            {
-                accessibleRef = _weakRootViewRef.toAccessible();
+            accessibleRef = _weakRootViewRef.toStrong();
 
-                if(accessibleRef.isNull())
-                    const_cast<WindowCore*>(this)->rootViewDisposed();
-            }
+            if(accessibleRef.isNull())
+                const_cast<WindowCore*>(this)->rootViewDisposed();
         }
 
         return accessibleRef;
@@ -274,7 +292,7 @@ private:
     class RootViewRegistry : public Base
     {
     public:
-        void add( const bdn::java::Reference& javaRef )
+        void add( const bdn::java::WeakReference& javaRef )
         {
             _rootViewList.push_back( javaRef );
         }
@@ -316,7 +334,7 @@ private:
         }
 
     private:
-        std::list<bdn::java::Reference>  _rootViewList;
+        std::list<bdn::java::WeakReference>  _rootViewList;
     };
 
 
@@ -327,10 +345,10 @@ private:
     BDN_SAFE_STATIC_THREAD_LOCAL( RootViewRegistry, getRootViewRegistryForCurrentThread );
 
 
-    mutable Mutex           _rootViewMutex;
-    bdn::java::Reference    _weakRootViewRef;
+    mutable Mutex               _rootViewMutex;
+    bdn::java::WeakReference    _weakRootViewRef;
 
-    Rect                    _currentBounds;
+    Rect                        _currentBounds;
 };
 
 

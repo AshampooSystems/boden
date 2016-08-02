@@ -18,13 +18,16 @@ public class NativeInit
      *  launc().
      *
      *  baseInit can be called multiple times. Subsequent calls have no effect.
+     *
+     *  @param nativeLibName name of the native code library that contains the
+     *  native code of the app and provides the app controller.
+     *
      */
-    static void baseInit()
+    static void baseInit(String nativeLibName)
     {
         if(!mBaseInitialized)
         {
-            // load the boden library
-            System.loadLibrary("boden");
+            System.loadLibrary(nativeLibName);
 
             // ensure that the NativeHandler object exists
             NativeHandler.getMainNativeHandler();
@@ -34,27 +37,21 @@ public class NativeInit
     }
 
     /** Launches the native side.
-     *
-     *  @param nativeLibName name of the native code library that contains the
-     *  actual code of the app.
      */
-    public static void launch(String nativeLibName)
+    public static void launch()
     {
         if(!mLaunched)
         {
-            System.loadLibrary( nativeLibName );
-
             mLaunched = true;
 
-            launch();
+            nativeLaunch();
         }
     }
 
     private static boolean mBaseInitialized = false;
     private static boolean mLaunched = false;
 
-    private static native void launch();
-
+    private static native void nativeLaunch();
 
 };
 

@@ -2053,7 +2053,7 @@ namespace bdn{
     void writeToDebugConsole( std::string const& text );
 }
 
-#ifdef BDN_PLATFORM_OSX
+#if BDN_PLATFORM_OSX
 
 
     // The following code snippet based on:
@@ -2075,7 +2075,7 @@ namespace bdn{
     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
     #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
 
-#elif defined(BDN_PLATFORM_POSIX)
+#elif BDN_PLATFORM_POSIX
 
     // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
     // However, we do not need it since we can raise a SIGTRAP that
@@ -2093,16 +2093,52 @@ namespace bdn{
 	// to deal with race conditions when multiple threads execute
 	// a debugBreak at the same time.
 
-	#include <signal.h>
+#include <signal.h>
 
-	#define BDN_BREAK_INTO_DEBUGGER() { \
-                                        struct sigaction dbrk_newAction_; \
-                                        dbrk_newAction_.sa_handler = SIG_IGN; \
-                                        sigemptyset(&dbrk_newAction_.sa_mask); \
-                                        dbrk_newAction_.sa_flags = 0; \
-                                        if(sigaction(SIGTRAP, &dbrk_newAction_, NULL)==0) \
-                                            raise(SIGTRAP); \
-                                    }
+#if BDN_PLATFORM_ANDROID
+
+// unfortunately SIGTRAP does not break into the debugger in android studio
+// (at least as of 2016-08-02). Instead the debugger and the program seem
+// to lock up.
+// So right now there is no good way to do a debug break on android.
+// What we will do is define an empty function that is called in that case
+// - that way one can at least set a breakpoint in the function and achieve
+// the debug break that way.
+namespace bdn
+{
+namespace android
+{
+
+inline void debugBreakDummy()
+{
+    // do nothing - see comment above.
+    // You can set a debug breakpoint here if you want to stop the debugger
+    // at points when BDN_BREAK_INTO_DEBUGGER is used.
+    bdn::alwaysTrue();
+}
+
+}
+}
+
+#define BDN_BREAK_INTO_DEBUGGER() bdn::android::debugBreakDummy();
+
+#else
+
+// we configure SIGTRAP to be ignored by the runtime lib and then
+// raise SIGTRAP. When a debugger is attached then it will pick up the signal
+// and interrupt the program. When no debugger is used then the
+// signal will be ignored and have no effect.
+#define BDN_BREAK_INTO_DEBUGGER() { \
+                                    struct sigaction dbrk_newAction_; \
+                                    dbrk_newAction_.sa_handler = SIG_IGN; \
+                                    sigemptyset(&dbrk_newAction_.sa_mask); \
+                                    dbrk_newAction_.sa_flags = 0; \
+                                    if(sigaction(SIGTRAP, &dbrk_newAction_, NULL)==0) \
+                                        raise(SIGTRAP); \
+                                }
+
+#endif
+
 
 #endif
 

@@ -1,8 +1,7 @@
-#ifndef BDN_ANDROID_JButton_H_
-#define BDN_ANDROID_JButton_H_
+#ifndef BDN_ANDROID_JViewParent_H_
+#define BDN_ANDROID_JViewParent_H_
 
-#include <bdn/android/JTextView.h>
-#include <bdn/java/JString.h>
+#include <bdn/java/JObject.h>
 
 namespace bdn
 {
@@ -10,30 +9,17 @@ namespace android
 {
 
 
-/** Accessor for Java android.widget.Button objects.*/
-class JButton : public JTextView
+/** Accessor for Java android.view.ViewParent objects.*/
+class JViewParent : public bdn::java::JObject
 {
-private:
-    static bdn::java::Reference newInstance_(JContext& context)
-    {
-        static bdn::java::MethodId constructorId;
-
-        return getStaticClass_().newInstance_(constructorId, context);
-    }
-
 public:
-    JButton(JContext& context)
-     : JTextView( newInstance_(context) )
-    {
-    }
-
     /** @param javaRef the reference to the Java object.
     *      The JObject instance will copy this reference and keep its type.
     *      So if you want the JObject instance to hold a strong reference
     *      then you need to call toStrong() on the reference first and pass the result.
     *      */
-    explicit JButton(const bdn::java::Reference& javaRef)
-     : JTextView(javaRef)
+    explicit JViewParent(const bdn::java::Reference& javaRef)
+    : JObject(javaRef)
     {
     }
 
@@ -48,14 +34,18 @@ public:
      *  If you want to check for type equality then you should compare the type name
      *  (see getTypeName() )
      *  */
-    static bdn::java::JClass& getStaticClass_ ()
+    static bdn::java::JClass& getStaticClass_()
     {
-        static bdn::java::JClass cls( "android/widget/Button" );
+        static bdn::java::JClass cls( "android/view/ViewParent" );
 
         return cls;
     }
 
-    
+    bdn::java::JClass& getClass_ () override
+    {
+        return getStaticClass_ ();
+    }
+
 
 };
 

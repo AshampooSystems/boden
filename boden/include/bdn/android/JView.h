@@ -3,6 +3,7 @@
 
 #include <bdn/java/JObject.h>
 #include <bdn/android/JContext.h>
+#include <bdn/android/JViewParent.h>
 
 namespace bdn
 {
@@ -96,11 +97,11 @@ public:
 
     /** Returns the view's parent. The object supports the interface
         android.view.ViewParent */
-    bdn::java::JObject getParent()
+    JViewParent getParent()
     {
         static bdn::java::MethodId methodId;
 
-        return invoke_<bdn::java::JObject>(getStaticClass_(), methodId, "getParent" );
+        return invoke_<JViewParent>(getStaticClass_(), methodId, "getParent" );
     }
 
 
@@ -120,7 +121,7 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        invoke_<void>(getStaticClass_(), methodId, "setTag" );
+        invoke_<void>(getStaticClass_(), methodId, "setTag", tagObject );
     }
 
 
@@ -156,6 +157,7 @@ public:
     }
 
 
+
     class MeasureSpec
     {
     public:
@@ -180,6 +182,29 @@ public:
 
     };
 
+
+
+    void requestLayout ()
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "requestLayout");
+    }
+
+
+    int getSuggestedMinimumWidth()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumWidth");
+    }
+
+    int getSuggestedMinimumHeight()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getSuggestedMinimumHeight");
+    }
 
 
     class OnClickListener : public bdn::java::JObject

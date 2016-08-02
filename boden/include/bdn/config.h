@@ -71,7 +71,6 @@
 #if !defined(BDN_PLATFORM_DETECTED) && (defined(__ANDROID__) || defined(ANDROID))
 	#define BDN_PLATFORM_ANDROID 1
 	#define BDN_PLATFORM_DETECTED 1
-
 #endif
 
 
@@ -95,7 +94,7 @@
 
 
 #if !defined(BDN_PLATFORM_POSIX)
-	#if BDN_PLATFORM_IOS || BDN_PLATFORM_OSX || BDN_PLATFORM_LINUX
+	#if BDN_PLATFORM_IOS || BDN_PLATFORM_OSX || BDN_PLATFORM_LINUX || BDN_PLATFORM_ANDROID
 		#define BDN_PLATFORM_POSIX 1
     #endif
 #endif
@@ -139,6 +138,13 @@
 #define BDN_COMPILER_STATIC_CONSTRUCTION_THREAD_SAFE 1
 #endif
 
+
+#if BDN_PLATFORM_ANDROID
+// the c++_shared and c++_static standard libraries do not implement the full locale
+// api and the android docs state that support for wchar_t is "limited".
+// So we hard-code UTF-8 encoding - it is the only encoding that android supports anyway.
+#define BDN_OVERRIDE_LOCALE_ENCODING_UTF8 1
+#endif
 
 
 #endif

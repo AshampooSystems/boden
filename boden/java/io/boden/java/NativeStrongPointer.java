@@ -14,7 +14,7 @@ public class NativeStrongPointer extends Object
     {
         if(mWrappedPointer!=null)
         {
-            disposed();
+            disposed(mWrappedPointer);
             mWrappedPointer = null;
         }
     }
@@ -32,7 +32,7 @@ public class NativeStrongPointer extends Object
     }
 
 
-    private native void disposed();
+    private native void disposed(java.nio.ByteBuffer wrappedPointer);
 
     private java.nio.ByteBuffer mWrappedPointer;
 }

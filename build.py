@@ -540,7 +540,8 @@ class AndroidStudioProjectGenerator(object):
           android:label="@string/app_name">
       
         <activity android:name="io.boden.android.NativeRootActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">
 
             <meta-data android:name="io.boden.android.lib_name"
               android:value="$$ModuleName$$" />
@@ -669,7 +670,7 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
             jniDependencyCode += '                        project ":%s"\n' % dep;
 
             moduleDependencyCode += "    compile project(':%s')\n" % dep;
-            moduleDependencyCode += "    compile(name:'%s-all-debug', ext:'aar')\n" % dep;
+            moduleDependencyCode += "    compile(name:'%s-_x86-debug', ext:'aar')\n" % dep;
 
             repositoriesCode += """\
          flatDir{
@@ -707,115 +708,118 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
 
 
         return """\
-    apply plugin: '$$PluginName$$'
+apply plugin: '$$PluginName$$'
 
-    model {
-        android {
-            compileSdkVersion = 23
-            buildToolsVersion = '23.0.2'
+model {
+    android {
+        compileSdkVersion = 23
+        buildToolsVersion = '23.0.2'
 
-            defaultConfig {
-                $$AppIdCode$$
-                minSdkVersion.apiLevel = 15
-                targetSdkVersion.apiLevel = 23
-            }
+        defaultConfig {
+            $$AppIdCode$$
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 23
+        }
 
 
 
-            sources {
-                main {
-                    jni {
-                        source {
-                            srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
-                            
-    $$ExcludeSourceDirCode$$
-                        }
-
-                        dependencies {
-    $$JniDependencyCode$$
-                        }
-
-                        # this is important to ensure that the IDE will rebuild the module when
-                        # one of the headers changes. It also ensures that another module that imports
-                        # this has its include directories set automatically to find our headers.
-                        exportedHeaders {
-                            srcDir "../../../$$ModuleName$$/include"
-                        }
+        sources {
+            main {
+                jni {
+                    source {
+                        srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
+                        
+$$ExcludeSourceDirCode$$
                     }
 
-                    java {
-                        source {
-                            srcDir "../../../$$ModuleName$$/java"
-                        }
+                    dependencies {
+$$JniDependencyCode$$
+                    }
+
+                    /* this is important to ensure that the IDE will rebuild the module when
+                       one of the headers changes. It also ensures that another module that imports
+                       this has its include directories set automatically to find our headers.*/
+                    exportedHeaders {
+                        srcDir "../../../$$ModuleName$$/include"
                     }
                 }
-            }
 
-            ndk {
-                moduleName = '$$ModuleName$$'
-                toolchain = 'clang'
-                stl = "c++_shared"
-
-                CFlags.addAll(['-Wall'])
-                cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
-
-                ldLibs.addAll([
-                        "android",
-                        "c++abi",
-                        "atomic"
-                ])
-
-            }
-            buildTypes {
-                release {
-                    minifyEnabled true
-                    proguardFiles.add(file('proguard-rules.txt'))
+                java {
+                    source {
+                        srcDir "../../../$$ModuleName$$/java"
+                    }
                 }
-
-                debug {
-                    applicationIdSuffix ".debug"
-                }
-            }
-            productFlavors {
-                // for detailed abiFilter descriptions, refer to "Supported ABIs" @
-                // https://developer.android.com/ndk/guides/abis.html#sa
-                create("arm") {
-                    ndk.abiFilters.add("armeabi")
-                }
-                create("arm7") {
-                    ndk.abiFilters.add("armeabi-v7a")
-                }
-                create("arm8") {
-                    ndk.abiFilters.add("arm64-v8a")
-                }
-                create("x86") {
-                    ndk.abiFilters.add("x86")
-                }
-                create("x86-64") {
-                    ndk.abiFilters.add("x86_64")
-                }
-                create("mips") {
-                    ndk.abiFilters.add("mips")
-                }
-                create("mips-64") {
-                    ndk.abiFilters.add("mips64")
-                }
-                // To include all cpu architectures, leaves abiFilters empty
-                create("all")
             }
         }
-    }
 
-    dependencies {
-    $$ModuleDependencyCode$$
-    }
+        ndk {
+            moduleName = '$$ModuleName$$'
+            toolchain = 'clang'
+            stl = "c++_shared"
+
+            CFlags.addAll(['-Wall'])
+            cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
+
+            /* Passing this flag to the linker is important. Otherwise RTTI will not work properly across module
+               boundaries (dynamic_casts will fail, exception catch clauses might not work, etc.)
+               Update: not actually needed?
+                ldFlags.add("-Wl,-E")*/
+
+            ldLibs.addAll([
+                    "android",
+                    "c++abi",
+                    "atomic",
+                    "log"
+            ])
+
+        }
+        buildTypes {
+            release {
+                minifyEnabled true
+                proguardFiles.add(file('proguard-rules.txt'))
+            }
+
+            debug {
+                applicationIdSuffix ".debug"
+            }
+        }
+        productFlavors {
+
+            // Android studio simply selects the first build variant in alphabetical order
+            // as the initial default build variant. Build variants are the combinations of
+            // all buildTypes with all productFlavors and their name consists of the name of
+            // the flavor with the name of the build type appended.
+
+            // By default we want the debug build type. That is easy, since "debug" comes before
+            // "release" in alphabetical order.
+
+            // As for the supported ABIs we want only one ABI since rebuilding
+            // the native code for all abis takes a long time.
+            // So we add two flavors: one just for x86 and one for "all". Here it is important
+            // that the x86 flavor has a name that comes before the "all" flavor, so we start the
+            // x86 name with an underscore (which come before the lower case letters in
+            // alphabetical order).
+
+            create("_x86") {
+                ndk.abiFilters.add("x86")
+             }
+
+            // To include all cpu architectures, leaves abiFilters empty
+            create("all")
+        }
+    }    
+}
+
+dependencies {
+$$ModuleDependencyCode$$
+}
 
 
-    repositories{    
-    $$RepositoriesCode$$
-    }
+repositories{    
+$$RepositoriesCode$$
+}
 
-    """ .replace("$$AppIdCode$$", appIdCode) \
+""" .replace("$$AppIdCode$$", appIdCode) \
     	.replace("$$PluginName$$", pluginName) \
         .replace("$$ModuleName$$", moduleName) \
         .replace("$$JniDependencyCode$$", jniDependencyCode) \
@@ -860,15 +864,13 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
 
     gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
 
-    gen.generateTopLevelProject(["boden", "app"]);
-    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui"]);
     gen.generateModule("boden", "io.boden.android.boden", "boden", "Boden", [], True)
-
-    # also generate a separate project for easy editing of the source files (not that easy with android studio)
-    prepareCmake(platform, config, arch, platformBuildDir+"-edit", "CodeLite - Unix Makefiles")
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
+    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", "TestBoden", ["boden"], False)
+    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", "TestBodenUI", ["boden"], False)
 
     
-
 
 
 def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):

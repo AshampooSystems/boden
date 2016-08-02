@@ -37,13 +37,23 @@ namespace bdn
 namespace java
 {
 
+
+/** Used to access the java environment. Wraps a JNIEnv instance.
+ *
+ *  Each Env object can only be used from a single thread. Because of this it is discouraged
+ *  to store pointers to Env objects for later use.
+ *
+ *  Instead you can use the static get() function to access the object for the current thread.
+ *
+ */
 class Env : public Base
 {
 public:
-    Env()
-    {
-    }
+    ~Env();
 
+    /** Static function that returns a reference to the Env instance for the current thread. The instance cannot be used
+     *  in other threads.
+     *  */
     BDN_SAFE_STATIC_THREAD_LOCAL(Env, get );
 
 
@@ -91,7 +101,10 @@ public:
      *  JNI function.*/
     void jniBlockBegun(JNIEnv* pEnv)
     {
-        _pEnv = pEnv;
+        // note that it is safe to cache the pointer since the Env objects are all
+        // thread local (and the JNIEnv stays the same for the same thread).
+        if(_pEnvIfKnown==nullptr)
+            setEnv(pEnv, false);
     }
 
     /** Indicates that a JNI block has ended with an exception.
@@ -117,7 +130,6 @@ public:
      * */
     void jniBlockEnded()
     {
-        _pEnv = nullptr;
     }
 
 
@@ -128,8 +140,9 @@ public:
      **/
     JNIEnv* getJniEnv()
     {
-        ensureHaveEnv();
-        return _pEnv;
+        if(_pEnvIfKnown==nullptr)
+            createEnv();
+        return _pEnvIfKnown;
     }
 
 
@@ -140,43 +153,51 @@ public:
      * */
     void throwAndClearExceptionFromLastJavaCall()
     {
-        ensureHaveEnv();
+        JNIEnv* pEnv = getJniEnv();
 
-        jthrowable exc = _pEnv->ExceptionOccurred();
-        _pEnv->ExceptionClear();
+        jthrowable exc = pEnv->ExceptionOccurred();
+        pEnv->ExceptionClear();
         if(exc!=nullptr)
-            throw JavaException( JThrowable( OwnedLocalReference((jobject)exc) ) );
+            throw JavaException( JThrowable( Reference::convertAndDestroyOwnedLocal((jobject)exc) ) );
     }
 
 
     void setJavaSideException(const std::exception& e)
     {
-        ensureHaveEnv();
+        JNIEnv* pEnv = getJniEnv();
 
         const JavaException* pJavaException = dynamic_cast<const JavaException*>(&e);
         if(pJavaException!=nullptr)
         {
             // the exception already wraps a java exception. Use the wrapped
             // java exception on the java side.
-            _pEnv->Throw( (jthrowable)const_cast<JavaException*>(pJavaException)->getJThrowable_().getRef_().getJObject() );
+            pEnv->Throw( (jthrowable)const_cast<JavaException*>(pJavaException)->getJThrowable_().getRef_().getJObject() );
         }
         else
         {
             // this is a C++ exception. Generate a corresponding java exception.
             JException javaException( "Error from JNI component: "+String(e.what()) );
 
-            _pEnv->Throw( (jthrowable)javaException.getRef_().getJObject() );
+            pEnv->Throw( (jthrowable)javaException.getRef_().getJObject() );
         }
     }
 
-private:
-    void ensureHaveEnv()
-    {
-        if(_pEnv==nullptr)
-            throw JniEnvNotSetError();
-    }
 
-    JNIEnv* _pEnv = nullptr;
+    /** Used internally. Do not call.*/
+    static void _onLoad(JavaVM* pVm);
+
+private:
+    Env();
+    friend class RawNewAllocator_Base_<Env>;
+
+    void createEnv();
+    void setEnv(JNIEnv* pEnv, bool mustDetachThread);
+
+
+    JNIEnv* _pEnvIfKnown;
+    bool    _mustDetachThread;
+
+    static JavaVM* _pGlobalVm;
 };
 
 }

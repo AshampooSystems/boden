@@ -16,7 +16,7 @@ Reference JClass::findClass_ (const String& nameInSlashNotation)
     jclass clazz = env.getJniEnv()->FindClass(nameInSlashNotation.asUtf8Ptr());
     env.throwAndClearExceptionFromLastJavaCall();
 
-    return OwnedLocalReference( (jobject)clazz );
+    return Reference::convertAndDestroyOwnedLocal( (jobject)clazz );
 }
 
 
@@ -33,7 +33,7 @@ Reference JClass::_newObject( jclass cls, jmethodID methodId, ... )
 
     env.throwAndClearExceptionFromLastJavaCall();
 
-    return OwnedLocalReference(result);
+    return Reference::convertAndDestroyOwnedLocal(result);
 }
 
 
