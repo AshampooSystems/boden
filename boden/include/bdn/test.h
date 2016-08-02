@@ -92,6 +92,7 @@
 
 #include <bdn/Size.h>
 #include <bdn/Rect.h>
+#include <bdn/Thread.h>
 
 // #included from: catch_compiler_capabilities.h
 #define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
@@ -3242,10 +3243,6 @@ return @ desc; \
 
 
 //////
-
-// If this config identifier is defined then all CATCH macros are prefixed with BDN_
-#ifdef BDN_CONFIG_PREFIX_ALL
-
 #define BDN_REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE" )
 #define BDN_REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "BDN_REQUIRE_FALSE" )
 
@@ -3253,6 +3250,8 @@ return @ desc; \
 #define BDN_REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THROWS_AS" )
 #define BDN_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "BDN_REQUIRE_THROWS_WITH" )
 #define BDN_REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE_NOTHROW" )
+
+#define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE( bdn::Thread::isCurrentMain() );
 
 #define BDN_CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK" )
 #define BDN_CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "BDN_CHECK_FALSE" )
@@ -3265,7 +3264,7 @@ return @ desc; \
 #define BDN_CHECK_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "BDN_CHECK_THROWS_WITH" )
 #define BDN_CHECK_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_NOTHROW" )
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT" )
+#define BDN_CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT" )
 #define BDN_REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THAT" )
 
 #define BDN_INFO( msg ) INTERNAL_BDN_INFO( msg, "BDN_INFO" )
@@ -3331,8 +3330,8 @@ return @ desc; \
 
 
 
-// If BDN_CONFIG_PREFIX_ALL is not defined then the BDN_ prefix is not required
-#else
+
+#ifndef BDN_TEST_ONLY_PREFIXED
 
 #define REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "REQUIRE" )
 #define REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "REQUIRE_FALSE" )
@@ -3341,6 +3340,8 @@ return @ desc; \
 #define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
 #define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
 #define REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
+
+#define REQUIRE_IN_MAIN_THREAD() REQUIRE( bdn::Thread::isCurrentMain() );
 
 #define REQUIRE_IN( value, container ) INTERNAL_BDN_IN( value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
 #define REQUIRE_NOT_IN( value, container ) INTERNAL_BDN_IN( value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")

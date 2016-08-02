@@ -6,6 +6,8 @@
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/Button.h>
 
+#include <bdn/test/MockUiProvider.h>
+
 
 using namespace bdn;
 
@@ -14,305 +16,7 @@ void verifyMainThread()
 	REQUIRE( Thread::isCurrentMain() );
 }
 
-class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore
-{
-public:
 
-	bool		_visible = false;
-	int			_visibleChangeCount = 0;
-
-	UiMargin	_margin;
-	int			_marginChangeCount = 0;
-
-	UiMargin	_padding;
-	int			_paddingChangeCount = 0;
-
-	Rect		_bounds;
-	int			_boundsChangeCount = 0;
-
-	View*		_pParentView = nullptr;
-	int			_parentViewChangeCount = 0;
-
-	View*		_pOuterView = nullptr;
-
-	explicit MockViewCore(View* pView)
-	{
-		verifyMainThread();
-
-		_pOuterView = pView;
-
-		_visible = pView->visible();
-		_margin = pView->margin();
-		_padding = pView->padding();
-		_bounds = pView->bounds();
-		_pParentView = pView->getParentView();
-	}
-
-	Size _getTextSize(const String& s) const
-	{
-		// our fake font has a size of 10x20 for each character.
-		return Size( s.getLength()*10, 20);
-	}
-
-	void	setVisible(const bool& visible)
-	{
-		verifyMainThread();
-
-		_visible = visible;
-		_visibleChangeCount++;
-	}
-	
-	
-	void setMargin(const UiMargin& margin)
-	{
-		verifyMainThread();
-
-		_margin = margin;	
-		_marginChangeCount++;
-	}
-
-	
-	void setPadding(const UiMargin& padding)
-	{
-		verifyMainThread();
-
-		_padding = padding;
-		_paddingChangeCount++;
-
-		_pOuterView->needSizingInfoUpdate();
-	}
-
-	
-	void setBounds(const Rect& bounds)
-	{
-		verifyMainThread();
-
-		_bounds = bounds;
-		_boundsChangeCount++;
-	}
-
-	
-	int uiLengthToPixels(const UiLength& uiLength) const
-	{
-		verifyMainThread();
-
-		if(uiLength.unit==UiLength::Unit::sem)
-		{
-			// one sem = 20 mock pixels
-			return std::lround( uiLength.value*20 );
-		}
-		else if(uiLength.unit==UiLength::Unit::pixel96)
-		{
-			// one pixel 96 = 3 mock pixels
-			return std::lround( uiLength.value*3 );
-		}
-		else if(uiLength.unit==UiLength::Unit::realPixel)
-			return std::lround( uiLength.value );
-		else
-		{
-			// invalid parameter passed to this function
-			REQUIRE(false);
-			return 0;
-		}
-	}
-	
-
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const
-	{
-		verifyMainThread();
-
-		return Margin( uiLengthToPixels(margin.top),
-						uiLengthToPixels(margin.right),
-						uiLengthToPixels(margin.bottom),
-						uiLengthToPixels(margin.left) );
-	}
-
-
-	
-	int calcPreferredHeightForWidth(int width) const
-	{
-		verifyMainThread();
-
-		return calcPreferredSize().height;
-	}
-
-
-	int calcPreferredWidthForHeight(int height) const
-	{
-		verifyMainThread();
-
-		return calcPreferredSize().width;
-	}
-	
-
-
-	bool tryChangeParentView(View* pNewParent)
-	{
-		verifyMainThread();
-
-		_pParentView = pNewParent;
-		_parentViewChangeCount++;
-		return true;
-	}
-};
-
-class MockButtonCore : public MockViewCore, BDN_IMPLEMENTS IButtonCore
-{
-public:
-
-	String _label;
-	int    _labelChangeCount = 0;
-
-	MockButtonCore(Button* pButton)
-		: MockViewCore(pButton)
-	{
-		_label = pButton->label();		
-	}
-	
-	void setLabel(const String& label)
-	{
-		_label = label;
-		_labelChangeCount++;
-	}
-
-
-	
-	Size calcPreferredSize() const
-	{
-		verifyMainThread();
-
-		Size size = _getTextSize(_label);
-
-		// add some space for the fake button border
-		size += Margin( 4, 5);
-
-		return size;
-	}
-	
-	
-	void generateClick()
-	{
-		ClickEvent evt(_pOuterView);
-
-		cast<Button>(_pOuterView)->onClick().notify(evt);
-	}
-
-};
-
-class MockWindowCore : public MockViewCore, BDN_IMPLEMENTS IWindowCore
-{
-public:
-
-	String _title;
-	int    _titleChangeCount = 0;
-
-	MockWindowCore(Window* pWindow)
-		: MockViewCore(pWindow)
-	{
-		verifyMainThread();
-
-		_title = pWindow->title();
-	}
-	
-	void setTitle(const String& title)
-	{
-		verifyMainThread();
-
-		_title = title;
-		_titleChangeCount++;
-	}
-
-
-	Rect getContentArea()
-	{
-		verifyMainThread();
-
-		return Rect(0, 0, _bounds.width-10-10, _bounds.height-20-10);
-	}
-
-
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize)
-	{
-		verifyMainThread();
-
-		return contentSize + Margin(20, 11, 12, 13);
-	}
-
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize)
-	{
-		verifyMainThread();
-
-		return windowSize - Margin(20, 11, 12, 13);
-	}
-
-
-	Size calcMinimumSize() const
-	{
-		verifyMainThread();
-
-		return Size(100, 32);
-	}
-
-	
-	Rect getScreenWorkArea() const
-	{
-		verifyMainThread();
-
-		return Rect(100, 100, 800, 800);
-	}
-	
-	Size calcPreferredSize() const
-	{
-		verifyMainThread();
-
-		// should not be called. The outer window should calculate the size
-		REQUIRE(false);		
-		return Size(0,0);
-	}
-	
-};
-
-
-class MockUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
-{
-public:
-
-	String getName() const
-	{
-		return "mock";
-	}
-
-
-	int _windowsCreated = 0;
-	int _buttonsCreated = 0;
-
-	P<IViewCore> _pLastCreatedCore;
-
-
-	P<IViewCore> createViewCore(const String& coreTypeName, View* pView)
-	{
-		verifyMainThread();
-
-		if(coreTypeName==Window::getWindowCoreTypeName())
-		{
-			_windowsCreated++;
-
-			_pLastCreatedCore = newObj<MockWindowCore>( cast<Window>(pView) );
-			return _pLastCreatedCore;
-		}
-		else if(coreTypeName==Button::getButtonCoreTypeName())
-		{
-			_buttonsCreated++;
-
-			_pLastCreatedCore = newObj<MockButtonCore>( cast<Button>(pView) );
-			return _pLastCreatedCore;
-		}
-		else
-			throw ViewCoreTypeNotSupportedError(coreTypeName);
-	}
-
-};
 
 
 
@@ -326,7 +30,7 @@ public:
 
 	int _sizingInfoUpdateCount = 0;
 
-	void updateSizingInfo()
+	void updateSizingInfo() override
 	{
 		REQUIRE( Thread::isCurrentMain() );
 		
@@ -426,7 +130,7 @@ void verifyOp(P<TestWindow> pWindow, std::function<void()> opFunc, std::function
 }
 
 
-void testSizingWithContentView(P<TestWindow> pWindow, P<MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(P<TestWindow> pWindow, P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
 {
 	
 	// we add a button as a content view
@@ -465,7 +169,7 @@ void testSizingWithContentView(P<TestWindow> pWindow, P<MockUiProvider> pUiProvi
 
 	pWindow->setContentView( pButton );
 
-	P<MockButtonCore> pButtonCore = cast<MockButtonCore>( pUiProvider->_pLastCreatedCore );
+	P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>( pButton->getViewCore() );
 
 	// Sanity check. Verify the fake button size. 10x20 per character, plus 10x8 for border
 	Size buttonSize( 10*10 + 10, 20 + 8);
@@ -496,31 +200,31 @@ void testSizingWithContentView(P<TestWindow> pWindow, P<MockUiProvider> pUiProvi
 
 TEST_CASE("Window", "[ui]")
 {   
-	P<MockUiProvider> pUiProvider = newObj<MockUiProvider>();
+	P<bdn::test::MockUiProvider> pUiProvider = newObj<bdn::test::MockUiProvider>();
 
 	SECTION("onlyNewAllocAllowed")
 	{
 		REQUIRE_THROWS_AS( Window window(pUiProvider), ProgrammingError);
 
-		REQUIRE( pUiProvider->_windowsCreated==0 );
+		REQUIRE( pUiProvider->getWindowCoresCreated()==0 );
 	}
 
 	P<TestWindow> pWindow = newObj<TestWindow>( pUiProvider );				
-	REQUIRE( pUiProvider->_windowsCreated==1 );
+	REQUIRE( pUiProvider->getWindowCoresCreated()==1 );
 
-	P<MockWindowCore> pCore = cast<MockWindowCore>( pUiProvider->_pLastCreatedCore );
+	P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>( pWindow->getViewCore() );
 	REQUIRE( pCore!=nullptr );
 
 	SECTION("construct")
 	{
 		// the core should initialize its properties from the outer window when it is created.
 		// The outer window should not set them manually after construction.		
-		REQUIRE( pCore->_visibleChangeCount==0 );
-		REQUIRE( pCore->_marginChangeCount==0 );
-		REQUIRE( pCore->_paddingChangeCount==0 );
-		REQUIRE( pCore->_boundsChangeCount==0 );
-		REQUIRE( pCore->_parentViewChangeCount==0 );
-		REQUIRE( pCore->_titleChangeCount==0 );
+		REQUIRE( pCore->getVisibleChangeCount()==0 );
+		REQUIRE( pCore->getMarginChangeCount()==0 );
+		REQUIRE( pCore->getPaddingChangeCount()==0 );
+		REQUIRE( pCore->getBoundsChangeCount()==0 );
+		REQUIRE( pCore->getParentViewChangeCount()==0 );
+		REQUIRE( pCore->getTitleChangeCount()==0 );
 
 		// windows should not be visible initially
 		REQUIRE( !pWindow->visible() );
@@ -573,8 +277,8 @@ TEST_CASE("Window", "[ui]")
 				},
 				[pCore, pWindow]()
 				{
-					REQUIRE( pCore->_visibleChangeCount==1 );
-					REQUIRE( pCore->_visible );	
+					REQUIRE( pCore->getVisibleChangeCount()==1 );
+					REQUIRE( pCore->getVisible() );	
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -592,8 +296,8 @@ TEST_CASE("Window", "[ui]")
 				},
 				[pCore, m, pWindow]()
 				{
-					REQUIRE( pCore->_marginChangeCount==1 );
-					REQUIRE( pCore->_margin == m);
+					REQUIRE( pCore->getMarginChangeCount()==1 );
+					REQUIRE( pCore->getMargin() == m);
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -611,8 +315,8 @@ TEST_CASE("Window", "[ui]")
 				},
 				[pCore, m, pWindow]()
 				{
-					REQUIRE( pCore->_paddingChangeCount==1 );
-					REQUIRE( pCore->_padding == m);
+					REQUIRE( pCore->getPaddingChangeCount()==1 );
+					REQUIRE( pCore->getPadding() == m);
 				},
 				1	// should have caused a sizing info update
 				);
@@ -630,8 +334,8 @@ TEST_CASE("Window", "[ui]")
 				},
 				[pCore, b, pWindow]()
 				{
-					REQUIRE( pCore->_boundsChangeCount==1 );
-					REQUIRE( pCore->_bounds == b);
+					REQUIRE( pCore->getBoundsChangeCount()==1 );
+					REQUIRE( pCore->getBounds() == b);
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -648,8 +352,8 @@ TEST_CASE("Window", "[ui]")
 				},
 				[pCore, pWindow]
 				{
-					REQUIRE( pCore->_titleChangeCount==1 );
-					REQUIRE( pCore->_title=="hello" );					
+					REQUIRE( pCore->getTitleChangeCount()==1 );
+					REQUIRE( pCore->getTitle()=="hello" );					
 				},
 				0	// should NOT cause a sizing info update, since the
 					// title is not part of the "preferred size" calculation
@@ -672,8 +376,8 @@ TEST_CASE("Window", "[ui]")
 			[pCore, pWindow]()
 			{
 				// padding changed twice
-				REQUIRE( pCore->_paddingChangeCount==2 );
-				REQUIRE( pCore->_padding == UiMargin(UiLength::Unit::sem, 6, 7, 8, 9));
+				REQUIRE( pCore->getPaddingChangeCount()==2 );
+				REQUIRE( pCore->getPadding() == UiMargin(UiLength::Unit::sem, 6, 7, 8, 9));
 			},
 
 			1	// should cause a single(!) sizing info update
