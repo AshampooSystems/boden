@@ -2714,6 +2714,8 @@ public:
 
 	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
 	{
+        MutexLock lock(_runTestMutex);
+
 		_testPrevTotals = m_totals;
 
 		_testRedirectedCout = "";
@@ -2987,12 +2989,62 @@ public:
 	};
 
 
+    void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive) override
+	{
+        MutexLock lock( _resultCaptureMutex );
+
+		_currentTestIsAsync = true;
+		_currentAsyncTestEnded = false;
+
+        // clear the continuation signal to ensure that
+        // the continuation will wait until we have exited from
+        // the test code.
+        _pAsyncContinuationSignal->clear();
+
+
+        asyncCallFromMainThread(
+            [this, continuationFunc, objectsToKeepAlive]()
+            {
+                asyncContinue(continuationFunc);
+            } );
+	}
+
+    void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive) override
+	{
+        MutexLock lock( _resultCaptureMutex );
+
+		_currentTestIsAsync = true;
+		_currentAsyncTestEnded = false;
+
+        Thread::exec(
+            [this, continuationFunc, objectsToKeepAlive]()
+            {
+                asyncContinue(continuationFunc);
+            } );
+	}
+
+    
+
+    void asyncContinue(std::function<void()> continuationFunc)
+    {
+        runTestCase_Continue();
+
+        continuationFunc();
+
+
+        MutexLock lock( _resultCaptureMutex );
+
+
+    }
+
 	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
 	{
         MutexLock lock( _resultCaptureMutex );
 
 		if(_currentTestIsAsync)
 		{
+            // it can happen that makeAsyncTest is called multiple times. For example, the test
+            // might 
 			// if a test is already async then we issue an error here.
 			// We would have two objects to keep alive. And, more importantly,
 			// it indicates that there is something wrong with the calling code.
@@ -3081,6 +3133,12 @@ private:
 
 	void runTestCase_Continue()
 	{
+        // hold a mutex here. We do that so that calls of continuation
+        // functions from SECTION_CONTINUE_ASYNC and SECTION_CONTINUE_THREAD
+        // cannot start before the previous test case code has exited.
+
+        MutexLock lock( _runTestMutex );
+
 		do
 		{
 			m_trackerContext.startCycle();

@@ -2329,6 +2329,23 @@ namespace bdn {
 #define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
 
 
+
+#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC( continuationFunc, ... ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
+
+
+#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, ... ) \
+    bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
+
+
+
+
+
+    
+    
+#define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
+
+
 // #included from: internal/catch_section.h
 #define TWOBLUECUBES_BDN_SECTION_H_INCLUDED
 
@@ -3315,6 +3332,18 @@ return @ desc; \
 #define BDN_AND_WHEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 #define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
+
+
+
+
+/** \def BDN_TEST_CONTINUE_ASYNC( timeoutSeconds, pObjectToKeepAlive1, ... )
+
+	\copybrief MAKE_ASYNC_TEST()
+	\copydetailed MAKE_ASYNC_TEST()
+
+	*/
+#define BDN_TEST_CONTINUE_ASYNC( func ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
+
 
 /** \def BDN_MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
 
