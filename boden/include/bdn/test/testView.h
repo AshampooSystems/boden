@@ -29,7 +29,7 @@ public:
 
 	void updateSizingInfo() override
 	{
-		REQUIRE_IN_MAIN_THREAD();
+		BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_sizingInfoUpdateCount++;
 		BaseViewClass::updateSizingInfo();		
@@ -47,7 +47,7 @@ public:
     ViewTestPreparer()
     {
         _pUiProvider = newObj<MockUiProvider>();
-        _pWindow = newObj<Window>(pUiProvider);
+        _pWindow = newObj<Window>(_pUiProvider);
     }
 
     P<MockUiProvider> getUiProvider()
@@ -64,7 +64,7 @@ public:
     {
         P< ViewWithTestExtensions<ViewType> > pView = newObj< ViewWithTestExtensions<ViewType> >();
 
-        pWindow->setContentView(pView);
+        _pWindow->setContentView(pView);
 
         return pView;
     }
@@ -121,13 +121,13 @@ protected:
 
 
 template<class ViewType>
-bool shouldViewBeInitiallyVisible()
+inline bool shouldViewBeInitiallyVisible()
 {
     return true;
 }
 
 template<>
-bool shouldViewBeInitiallyVisible<Window>()
+inline bool shouldViewBeInitiallyVisible<Window>()
 {
     return false;
 }
@@ -135,13 +135,13 @@ bool shouldViewBeInitiallyVisible<Window>()
 
 
 template<class ViewType>
-bool shouldViewHaveParent()
+inline bool shouldViewHaveParent()
 {
     return true;
 }
 
 template<>
-bool shouldViewHaveParent<Window>()
+inline bool shouldViewHaveParent<Window>()
 {
     return false;
 }
@@ -160,7 +160,7 @@ bool shouldViewHaveParent<Window>()
         either 0 (sizing info should not be updated) or 1 (sizing info should be updated).
 */
 template<class ViewType>
-void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
+inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
                 std::function<void()> opFunc,
                 std::function<void()> verifyFunc,
                 int expectedSizingInfoUpdates )
@@ -183,12 +183,12 @@ void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 				// sizing info updates should never happen immediately. We want them
 				// to happen asynchronously, so that multiple changes can be handled
 				// together with a single update.
-				REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
+				BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
 				asyncCallFromMainThread(
 					[pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 					{
-						REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+						BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
 
 						END_ASYNC_TEST();			
 					});
@@ -228,7 +228,7 @@ void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 						// so that multiple changes can be handled together with a single update.
 
 						// so the sizing info update count should still be unchanged
-						REQUIRE( pView->getSizingInfoUpdateCount()==initialSizingInfoUpdateCount );	
+						BDN_REQUIRE( pView->getSizingInfoUpdateCount()==initialSizingInfoUpdateCount );	
 
 						// now we do another async step. At that point the scheduled
 						// update should have happened and the sizing info should have been
@@ -238,7 +238,7 @@ void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 							{
 								verifyFunc();
 						
-								REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
+								BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
 
 								END_ASYNC_TEST();
 							}	 );
@@ -254,72 +254,121 @@ void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 
 
 template<class ViewType >
-void testView()
+inline void testView()
 {
-    ViewTestPreparer<ViewType> preparer;
-    
-	SECTION("onlyNewAllocAllowed")
-	{
-		REQUIRE_THROWS_AS( preparer.createLocalView(), ProgrammingError);
+    P< ViewTestPreparer<ViewType> > pPreparer = newObj< ViewTestPreparer<ViewType> >();
 
-		REQUIRE( preparer.getUiProvider()->getCoresCreated()==0 );
+    int initialCoresCreated = pPreparer->getUiProvider()->getCoresCreated();
+
+    SECTION("onlyNewAllocAllowed")
+	{
+		BDN_REQUIRE_THROWS_AS( pPreparer->createLocalView(), ProgrammingError);
+
+		BDN_REQUIRE( pPreparer->getUiProvider()->getCoresCreated()==initialCoresCreated );
 	}
 
-	P< ViewWithTestExtensions<ViewType> > pView = preparer.createView();
-	REQUIRE( preparer.getUiProvider()->getCoresCreated()==1 );
+	P< ViewWithTestExtensions<ViewType> > pView = pPreparer->createView();
+	BDN_REQUIRE( pPreparer->getUiProvider()->getCoresCreated()==initialCoresCreated+1 );
 
 	P<bdn::test::MockViewCore> pCore = cast<bdn::test::MockViewCore>( pView->getViewCore() );
-	REQUIRE( pCore!=nullptr );
+	BDN_REQUIRE( pCore!=nullptr );
 
-	SECTION("constructView")
+    P<Window> pWindow = pPreparer->getWindow();
+
+    // when the view core is created then the view schedules a sizing info update.
+    // We wait until that is done before we continue.
+    REQUIRE( pView->getSizingInfoUpdateCount()==0 );
+
+    BDN_MAKE_ASYNC_TEST(10);
+
+    asyncCallFromMainThread(
+[=]()
+{
+    // the pending update should have happened now
+    REQUIRE( pView->getSizingInfoUpdateCount()==1 );
+             
+
+	SECTION("initialViewState")
 	{
-		// the core should initialize its properties from the outer window when it is created.
+        // the core should initialize its properties from the outer window when it is created.
 		// The outer window should not set them manually after construction.		
-		REQUIRE( pCore->getVisibleChangeCount()==0 );
-		REQUIRE( pCore->getMarginChangeCount()==0 );
-		REQUIRE( pCore->getPaddingChangeCount()==0 );
-		REQUIRE( pCore->getBoundsChangeCount()==0 );
-		REQUIRE( pCore->getParentViewChangeCount()==0 );
+		BDN_REQUIRE( pCore->getVisibleChangeCount()==0 );
+		BDN_REQUIRE( pCore->getMarginChangeCount()==0 );
+		BDN_REQUIRE( pCore->getPaddingChangeCount()==0 );
+		BDN_REQUIRE( pCore->getBoundsChangeCount()==0 );
+		BDN_REQUIRE( pCore->getParentViewChangeCount()==0 );
 
-		REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
+		BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
 
-		REQUIRE( pView->bounds() == Rect(0,0,0,0) );
-		REQUIRE( pView->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
-		REQUIRE( pView->padding() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+		BDN_REQUIRE( pView->bounds() == Rect(0,0,0,0) );
+		BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+		BDN_REQUIRE( pView->padding() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
 
-		REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
-		REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
+		BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
+		BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
-		REQUIRE( pView->getUiProvider().getPtr() == preparer.getUiProvider() );
+		BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 
         if( shouldViewHaveParent<ViewType>() )
-		    REQUIRE( pView->getParentView()==cast<View>(preparer.getWindow()) );
+		    BDN_REQUIRE( pView->getParentView()==cast<View>(pPreparer->getWindow()) );
         else
-            REQUIRE( pView->getParentView()==nullptr );
+            BDN_REQUIRE( pView->getParentView()==nullptr );
 
-		REQUIRE( pView->getViewCore().getPtr() == pCore );
+		BDN_REQUIRE( pView->getViewCore().getPtr() == pCore );
 
 
         // the view should not have any child views
 		std::list< P<View> > childViews;
 		pView->getChildViews(childViews);
-		REQUIRE( childViews.empty() );
+		BDN_REQUIRE( childViews.empty() );
 		
 
 		// sizing info should not yet have been updated. It should
 		// update asynchronously, so that multiple property
 		// changes can be handled with a single update.
-		REQUIRE( pView->getSizingInfoUpdateCount()==0);
-
-		MAKE_ASYNC_TEST(10);
-
+		BDN_REQUIRE( pView->getSizingInfoUpdateCount()==0);
+        
 		asyncCallFromMainThread(
 			[pView]()
 			{
-				REQUIRE( pView->getSizingInfoUpdateCount()==1);			
+				BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);			
 
 				END_ASYNC_TEST();
 			});
+        return;
+	}
+
+
+    
+    SECTION("parentViewNullAfterParentDestroyed")
+	{
+        P<ViewType> pView;
+
+        {
+            ViewTestPreparer<ViewType> preparer2;
+
+            pView = preparer2.createView();
+
+            if(shouldViewHaveParent<ViewType>())
+                BDN_REQUIRE( pView->getParentView() != nullptr);
+            else
+                BDN_REQUIRE( pView->getParentView() == nullptr);
+        }
+
+        // preparer2 is now gone, so the parent view is not referenced there anymore.
+        // But there may still be a scheduled sizing info update pending that holds a
+        // reference to the window or child view.
+        // Since we want the window to be destroyed, we do the remaining test asynchronously
+        // after all pending operations are done.
+        
+        asyncCallFromMainThread( 
+            [pView]()
+            {                
+                BDN_REQUIRE( pView->getParentView() == nullptr);	    
+
+                BDN_END_ASYNC_TEST();
+            });    
+        return;
 	}
 
 	SECTION("changeViewProperty")
@@ -328,14 +377,14 @@ void testView()
 		{
 			testViewOp<ViewType>(
 				pView,
-				[pView]()
+				[pView, pWindow]()
 				{
 					pView->visible() = !shouldViewBeInitiallyVisible<ViewType>();
 				},
-				[pCore, pView]()
+				[pCore, pView, pWindow]()
 				{
-					REQUIRE( pCore->getVisibleChangeCount()==1 );
-					REQUIRE( pCore->getVisible() == !shouldViewBeInitiallyVisible<ViewType>() );	
+					BDN_REQUIRE( pCore->getVisibleChangeCount()==1 );
+					BDN_REQUIRE( pCore->getVisible() == !shouldViewBeInitiallyVisible<ViewType>() );	
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -347,14 +396,14 @@ void testView()
 
 			testViewOp<ViewType>( 
 				pView,
-				[pView, m]()
+				[pView, m, pWindow]()
 				{
 					pView->margin() = m;
 				},
-				[pCore, m, pView]()
+				[pCore, m, pView, pWindow]()
 				{
-					REQUIRE( pCore->getMarginChangeCount()==1 );
-					REQUIRE( pCore->getMargin() == m);
+					BDN_REQUIRE( pCore->getMarginChangeCount()==1 );
+					BDN_REQUIRE( pCore->getMargin() == m);
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -366,14 +415,14 @@ void testView()
 
 			testViewOp<ViewType>( 
 				pView,
-				[pView, m]()
+				[pView, m, pWindow]()
 				{
 					pView->padding() = m;
 				},
-				[pCore, m, pView]()
+				[pCore, m, pView, pWindow]()
 				{
-					REQUIRE( pCore->getPaddingChangeCount()==1 );
-					REQUIRE( pCore->getPadding() == m);
+					BDN_REQUIRE( pCore->getPaddingChangeCount()==1 );
+					BDN_REQUIRE( pCore->getPadding() == m);
 				},
 				1	// should have caused a sizing info update
 				);
@@ -385,14 +434,14 @@ void testView()
 
 			testViewOp<ViewType>( 
 				pView,
-				[pView, b]()
+				[pView, b, pWindow]()
 				{
 					pView->bounds() = b;
 				},
-				[pCore, b, pView]()
+				[pCore, b, pView, pWindow]()
 				{
-					REQUIRE( pCore->getBoundsChangeCount()==1 );
-					REQUIRE( pCore->getBounds() == b);
+					BDN_REQUIRE( pCore->getBoundsChangeCount()==1 );
+					BDN_REQUIRE( pCore->getBounds() == b);
 				},
 				0	// should NOT have caused a sizing info update
 				);
@@ -405,24 +454,30 @@ void testView()
 		testViewOp<ViewType>(
 			pView,
 
-			[pView]()
+			[pView, pWindow]()
 			{
 				pView->padding() = UiMargin(UiLength::Unit::sem, 7, 8, 9, 10);
 				pView->padding() = UiMargin(UiLength::Unit::sem, 6, 7, 8, 9);
 			},
 
-			[pCore, pView]()
+			[pCore, pView, pWindow]()
 			{
 				// padding changed twice
-				REQUIRE( pCore->getPaddingChangeCount()==2 );
-				REQUIRE( pCore->getPadding() == UiMargin(UiLength::Unit::sem, 6, 7, 8, 9));
+				BDN_REQUIRE( pCore->getPaddingChangeCount()==2 );
+				BDN_REQUIRE( pCore->getPadding() == UiMargin(UiLength::Unit::sem, 6, 7, 8, 9));
 			},
 
 			1	// should cause a single(!) sizing info update
 
 			);		
 	}
+
+    BDN_END_ASYNC_TEST();
+
+} );
+
 }
+    
 
 
 

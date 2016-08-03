@@ -2,6 +2,8 @@
 #define BDN_TEST_MockWindowCore_H_
 
 #include <bdn/IWindowCore.h>
+#include <bdn/Window.h>
+
 #include <bdn/test/MockViewCore.h>
 
 namespace bdn

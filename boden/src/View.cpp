@@ -94,7 +94,7 @@ void View::_setParentView(View* pParentView)
 
 	_pParentViewWeak = pParentView;
 
-	P<IUiProvider>	pNewUiProvider = _pParentViewWeak->getUiProvider();
+	P<IUiProvider>	pNewUiProvider = determineUiProvider();
 			
 	// see if we need to throw away our current core and create a new one.
 	// The reason why we don't always throw this away is that the change in parents

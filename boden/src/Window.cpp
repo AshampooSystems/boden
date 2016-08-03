@@ -20,6 +20,12 @@ Window::Window(IUiProvider* pUiProvider)
 	reinitCore();
 }
 
+Window::~Window()
+{
+    // if we have a content view, detach it from us.
+    setContentView(nullptr);
+}
+
 void Window::requestAutoSize()
 {
 	LayoutCoordinator::get()->windowNeedsAutoSizing(this);	

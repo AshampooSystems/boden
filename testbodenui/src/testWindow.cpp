@@ -117,6 +117,85 @@ TEST_CASE("Window", "[ui]")
 					// title is not part of the "preferred size" calculation
 				);
 		}
+
+        SECTION("contentView")
+		{
+            SECTION("!=null")
+		    {
+                P<Button> pButton = newObj<Button>();
+                bdn::test::testViewOp( 
+				    pWindow,
+				    [pWindow, pButton]()
+				    {
+					    pWindow->setContentView(pButton);
+				    },
+				    [pWindow, pButton]
+				    {
+                        REQUIRE( pWindow->getContentView() == cast<View>(pButton) );
+				    },
+				    1	// should have caused a sizing info update
+				);		        
+		    }
+
+
+            SECTION("null")
+		    {
+                // basically we only test here that there is no crash when the content view is set to null
+                // and that it does not result in a sizing info update.
+                bdn::test::testViewOp( 
+				    pWindow,
+				    [pWindow]()
+				    {
+					    pWindow->setContentView(nullptr);
+				    },
+				    [pWindow]
+				    {
+                        REQUIRE( pWindow->getContentView() == nullptr);
+				    },
+				    0	// should not have caused a sizing info update
+				);		        
+		    }
+		}
+	}
+
+    SECTION("childParent")
+	{
+        P<Button> pChild = newObj<Button>();
+
+	    SECTION("setWhenAdded")
+        {
+            pWindow->setContentView(pChild);
+
+            BDN_REQUIRE( pChild->getParentView() == cast<View>(pWindow) );
+        }
+
+        SECTION("nullAfterDestroy")
+        {
+            {
+                bdn::test::ViewTestPreparer<Window> preparer2;
+
+                P< bdn::test::ViewWithTestExtensions<Window> > pWindow2 = preparer2.createView();
+
+                pWindow2->setContentView(pChild);
+            }
+
+            
+            // preparer2 is now gone, so the window is not referenced there anymore.
+            // But there may still be a scheduled sizing info update pending that holds a
+            // reference to the window.
+            // Since we want the window to be destroyed, we do the remaining test asynchronously
+            // after all pending operations are done.
+
+            BDN_MAKE_ASYNC_TEST(10);
+
+            asyncCallFromMainThread( 
+                [pChild]()
+                {                
+                    BDN_REQUIRE( pChild->getParentView() == nullptr);	    
+
+                    BDN_END_ASYNC_TEST();
+                });
+        }
 	}
     
 	SECTION("sizing")
