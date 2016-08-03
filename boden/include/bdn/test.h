@@ -92,6 +92,9 @@
 
 #include <bdn/Size.h>
 #include <bdn/Rect.h>
+#include <bdn/Margin.h>
+#include <bdn/UiLength.h>
+#include <bdn/UiMargin.h>
 #include <bdn/Thread.h>
 
 // #included from: catch_compiler_capabilities.h
@@ -1602,6 +1605,8 @@ std::string toString( std::nullptr_t );
 std::string toString( const Size& size);
 std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);
+std::string toString( const UiLength& margin);
+std::string toString( const UiMargin& margin);
 
 
 namespace Detail {

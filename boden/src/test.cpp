@@ -5554,6 +5554,31 @@ std::string toString( const Margin& margin)
 	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
 }
 
+
+std::string toString( const UiLength& length)
+{
+    std::string unit;
+    switch(length.unit)
+    {
+    case UiLength::sem: unit = "sem";
+        break;
+    case UiLength::realPixel: unit = "realPixel";
+        break;
+    case UiLength::pixel96: unit = "pixel96";
+        break;
+    default:    unit = "unit"+std::to_string((int)length.unit);
+        break;
+    }
+	return toString(length.value) + " " + unit;
+}
+
+std::string toString( const UiMargin& margin)
+{
+	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
+}
+
+
+
 } // end namespace bdn
 
   // #included from: catch_result_builder.hpp

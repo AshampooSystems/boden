@@ -1,8 +1,11 @@
 #ifndef BDN_TEST_MockButtonCore_H_
 #define BDN_TEST_MockButtonCore_H_
 
-#include <bdn/IButtonCore.h>
+
 #include <bdn/test/MockViewCore.h>
+
+#include <bdn/IButtonCore.h>
+#include <bdn/Button.h>
 
 namespace bdn
 {

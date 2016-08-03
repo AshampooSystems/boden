@@ -6,6 +6,7 @@
 #include <bdn/test/MockButtonCore.h>
 
 #include <bdn/test.h>
+#include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
 {
@@ -65,18 +66,12 @@ public:
 	}
 
 
-	/** Returns the number of window cores that the UI provider has created.*/
-    int getWindowCoresCreated() const
+	/** Returns the number of cores that the UI provider has created.*/
+    int getCoresCreated() const
     {
-        return _windowCoresCreated;
+        return _coresCreated;
     }
-
-    /** Returns the number of button cores that the UI provider has created.*/
-    int getButtonCoresCreated() const
-    {
-        return _buttonCoresCreated;
-    }
-    
+        
     
 	P<IViewCore> createViewCore(const String& coreTypeName, View* pView)
 	{
@@ -84,27 +79,22 @@ public:
 
 		if(coreTypeName==Window::getWindowCoreTypeName())
 		{
-			_windowCoresCreated++;
+			_coresCreated++;
 
-			_pLastCreatedCore = newObj<MockWindowCore>( cast<Window>(pView) );
-			return _pLastCreatedCore;
+			return newObj<MockWindowCore>( cast<Window>(pView) );
 		}
 		else if(coreTypeName==Button::getButtonCoreTypeName())
 		{
-			_buttonCoresCreated++;
+			_coresCreated++;
 
-			_pLastCreatedCore = newObj<MockButtonCore>( cast<Button>(pView) );
-			return _pLastCreatedCore;
+			return newObj<MockButtonCore>( cast<Button>(pView) );
 		}
 		else
 			throw ViewCoreTypeNotSupportedError(coreTypeName);
 	}
     
 protected:
-    int _windowCoresCreated = 0;
-	int _buttonCoresCreated = 0;
-
-	P<IViewCore> _pLastCreatedCore;
+    int _coresCreated = 0;
 };
 
 

@@ -69,7 +69,7 @@ public:
     /** Returns the padding that is currently configured.*/
     UiMargin getPadding() const
 	{
-	    return _margin;
+	    return _padding;
 	}
 
     /** Returns the number of times the view's padding has changed.*/
