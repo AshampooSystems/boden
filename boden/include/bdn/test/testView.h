@@ -170,9 +170,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// schedule the test asynchronously, so that the initial sizing
 		// info update from the view construction is already done.
 
-		MAKE_ASYNC_TEST(10);
-
-		asyncCallFromMainThread(
+        BDN_CONTINUE_SECTION_ASYNC(
 			[pView, opFunc, verifyFunc, expectedSizingInfoUpdates]()
 			{
                 int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
@@ -185,12 +183,10 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 				// together with a single update.
 				BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
-				asyncCallFromMainThread(
+                BDN_CONTINUE_SECTION_ASYNC(
 					[pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 					{
 						BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
-
-						END_ASYNC_TEST();			
 					});
 			} );
 	}
@@ -202,9 +198,8 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// schedule the test asynchronously, so that the initial sizing
 		// info update from the view construction is already done.
 
-		MAKE_ASYNC_TEST(10);
+		BDN_CONTINUE_SECTION_ASYNC( 
 
-		asyncCallFromMainThread(
 			[pView, opFunc, verifyFunc, expectedSizingInfoUpdates]()
 			{
                 int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
@@ -219,7 +214,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 				// we want to wait until the changes have actually been made in the core.
 				// So do another async call. That one will be executed after the property
 				// changes.
-				asyncCallFromMainThread(
+                BDN_CONTINUE_SECTION_ASYNC( 
 					[pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 					{
 						// the core should now have been updated.
@@ -233,14 +228,13 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 						// now we do another async step. At that point the scheduled
 						// update should have happened and the sizing info should have been
 						// updated (once!)
-						asyncCallFromMainThread(
+
+                        BDN_CONTINUE_SECTION_ASYNC( 
 							[pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 							{
 								verifyFunc();
 						
 								BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
-
-								END_ASYNC_TEST();
 							}	 );
 					
 					}	);				
@@ -279,9 +273,8 @@ inline void testView()
     // We wait until that is done before we continue.
     REQUIRE( pView->getSizingInfoUpdateCount()==0 );
 
-    BDN_MAKE_ASYNC_TEST(10);
 
-    asyncCallFromMainThread(
+    BDN_CONTINUE_SECTION_ASYNC(
 [=]()
 {
     // the pending update should have happened now
@@ -328,14 +321,11 @@ inline void testView()
 		// changes can be handled with a single update.
 		BDN_REQUIRE( pView->getSizingInfoUpdateCount()==0);
         
-		asyncCallFromMainThread(
+		BDN_CONTINUE_SECTION_ASYNC(
 			[pView]()
 			{
 				BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);			
-
-				END_ASYNC_TEST();
 			});
-        return;
 	}
 
 
@@ -360,15 +350,12 @@ inline void testView()
         // reference to the window or child view.
         // Since we want the window to be destroyed, we do the remaining test asynchronously
         // after all pending operations are done.
-        
-        asyncCallFromMainThread( 
+
+        CONTINUE_SECTION_ASYNC(
             [pView]()
             {                
                 BDN_REQUIRE( pView->getParentView() == nullptr);	    
-
-                BDN_END_ASYNC_TEST();
-            });    
-        return;
+            } );
 	}
 
 	SECTION("changeViewProperty")
@@ -471,9 +458,7 @@ inline void testView()
 
 			);		
 	}
-
-    BDN_END_ASYNC_TEST();
-
+    
 } );
 
 }

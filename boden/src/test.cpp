@@ -2989,142 +2989,68 @@ public:
 	};
 
 
-    void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive) override
+    void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)
 	{
-        MutexLock lock( _resultCaptureMutex );
+		_currentTestWillContinueLater = true;
 
-		_currentTestIsAsync = true;
-		_currentAsyncTestEnded = false;
-
-        // clear the continuation signal to ensure that
-        // the continuation will wait until we have exited from
-        // the test code.
-        _pAsyncContinuationSignal->clear();
-
-
+        _currentTestKeepAliveObjects.insert( _currentTestKeepAliveObjects.end(), objectsToKeepAlive.begin(), objectsToKeepAlive.end() );
+		
         asyncCallFromMainThread(
             [this, continuationFunc, objectsToKeepAlive]()
             {
-                asyncContinue(continuationFunc);
+                doSectionContinuation(continuationFunc);
             } );
 	}
 
-    void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive) override
+    void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)
 	{
-        MutexLock lock( _resultCaptureMutex );
+		_currentTestWillContinueLater = true;
 
-		_currentTestIsAsync = true;
-		_currentAsyncTestEnded = false;
-
+        _currentTestKeepAliveObjects.insert( _currentTestKeepAliveObjects.end(), objectsToKeepAlive.begin(), objectsToKeepAlive.end() );
+		
         Thread::exec(
             [this, continuationFunc, objectsToKeepAlive]()
             {
-                asyncContinue(continuationFunc);
+                doSectionContinuation(continuationFunc);
             } );
 	}
-
     
-
-    void asyncContinue(std::function<void()> continuationFunc)
+    void doSectionContinuation(std::function<void()> continuationFunc)
     {
-        runTestCase_Continue();
+        // lock the mutex to ensure that the code that scheduled the continuation
+        // has exited.
+        MutexLock lock( _runTestMutex );
 
-        continuationFunc();
+        bool testDone = continueCurrentTest(continuationFunc);
 
+        if(testDone)
+        {
+            // ok, the test is done. Schedule the finalization.
+            // Note that we do that with asyncCallFromMainThread so that
+            // it is ensured that the next test executes in the main thread
+            // in a "clean" environment (i.e. no locked mutexes, etc.)
 
-        MutexLock lock( _resultCaptureMutex );
-
-
+            asyncCallFromMainThread(
+                [this]()
+                {
+                    if(shouldContinueTestCaseIteration())
+		            {
+			            // do the next iteration.
+			            runTestCase_Continue();
+		            }
+		            else
+			            runTestCase_Finalize();
+                });
+        }
+        else
+        {
+            // test is continued asynchronously. The async continuation is already scheduled,
+            // so there is nothing else we have to do.
+        }
     }
 
-	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		if(_currentTestIsAsync)
-		{
-            // it can happen that makeAsyncTest is called multiple times. For example, the test
-            // might 
-			// if a test is already async then we issue an error here.
-			// We would have two objects to keep alive. And, more importantly,
-			// it indicates that there is something wrong with the calling code.
-			// So we simply disallow this.
-			throw ProgrammingError("BDN_MAKE_ASYNC_TEST() called twice in same test.");
-		}
-
-		_currentTestIsAsync = true;
-		_currentTestObjectsToKeepAlive = objectsToKeepAlive;
-
-		_currentAsyncTestEnded = false;
-
-		if(timeoutSeconds>0)
-			_pCurrentAsyncTestTimeoutCaller = newObj<DelayedCallFromMainThread>( timeoutSeconds, std::bind(&RunContext::onAsyncTestTimeout, this, _currentAsyncTestId ) );
-	}
-
-	void onAsyncTestTimeout(int64_t asyncTestId)
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		// note that this is always called from the main thread. So no need for synchronization.
-
-		if(asyncTestId != _currentAsyncTestId )
-		{
-			// this call was for a test that has already ended in the meantime.
-			// Ignore it.
-			return;
-		}
-
-		// test failed. Timeout did not fire.
-		// We use a dummy variable here to communicate the reason
-		// for the test failure.
-
-		bool asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST = false;
-
-		// use CHECK instead of REQUIRE, because we do not want a TestFailureException
-		CHECK( asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST );
-
-		// call endAsyncTest. This will destroy the "objects to keep alive"
-		// and thus (hopefully, if implemented properly) abort the test.
-		endAsyncTest();
-	}
-
-	void endAsyncTest() override
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		if(!_currentTestIsAsync)
-			throw ProgrammingError("BDN_END_ASYNC_TEST() called without calling BDN_MAKE_ASYNC_TEST() before for this test.");
-
-		if(_currentAsyncTestEnded)
-		{
-			// already ended. This is an error. Since the next test can potentially start immediately
-			// after the first end call, this means that the second call could potentially be connected
-			// to the following test. So the test code MUST be written in a way that ensures that
-			// endAsync is only called once.
-			throw ProgrammingError("BDN_END_ASYNC_TEST() called twice in the same test.");
-		}
-
-
-		// destroy the timeout caller first to ensure that the timeout will not fire.
-		_pCurrentAsyncTestTimeoutCaller = nullptr;
-
-		_currentAsyncTestEnded = true;
-		_currentAsyncTestId++;
-
-		asyncCallFromMainThread(
-			[this]()
-			{
-				// we pass "passed" here. If an assertion fired then currentTestEnded
-				// will automatically change this to Failed.
-				currentTestEnded( CurrentTestResult::Passed );
-				runTestCase_AsyncIterationEnded();
-			} );
-	}
 
 private:
-
-
-
 	bool shouldContinueTestCaseIteration()
 	{
 
@@ -3145,7 +3071,7 @@ private:
 
 			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _pCurrentTestCaseInfo->name );
 
-			if(!runCurrentTest( _testRedirectedCout, _testRedirectedCerr ))
+			if(!runCurrentTest())
 			{
 				// test is running asynchronously.
 				// runTestCase_AsyncIterationEnded will be called when it is done.
@@ -3159,17 +3085,6 @@ private:
 		runTestCase_Finalize();
 
 		// done.
-	}
-
-	void runTestCase_AsyncIterationEnded()
-	{
-		if(shouldContinueTestCaseIteration())
-		{
-			// do the next iteration.
-			runTestCase_Continue();
-		}
-		else
-			runTestCase_Finalize();
 	}
 
 	Totals runTestCase_Finalize()
@@ -3210,11 +3125,12 @@ private:
 
 	/** Returns true if the test has finished (no matter whether failed or passed). Returns false if the
 		test runs asynchronously.*/
-	bool runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
+	bool runCurrentTest()
 	{
-		_currentTestIsAsync = false;
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
+
+        _currentTestKeepAliveObjects.clear();
 
 		_currentTestIgnoreExpectedToFail = false;
 
@@ -3245,17 +3161,68 @@ private:
         seedRng( *m_config );
 
         _currentTestTimer.start();
-        
+
+        bool testDone = continueCurrentTest(
+                            [this]()
+                            {
+                                m_activeTestCase->invoke();            
+                            });
+
+        return testDone;
+    }
+
+    bool continueCurrentTest( std::function<void()> continuationFunc )
+    {        
         if( m_reporter->getPreferences().shouldRedirectStdOut )
         {
-            StreamRedirect coutRedir( bdn::cout(), redirectedCout );
-            StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
+            StreamRedirect coutRedir( bdn::cout(), _testRedirectedCout );
+            StreamRedirect cerrRedir( bdn::cerr(), _testRedirectedCerr );
             
-            return invokeActiveTestCase();
+            return invokeTestContinuation(continuationFunc);
         }
         else
-            return invokeActiveTestCase();
+            return invokeTestContinuation(continuationFunc);
     }
+
+    
+	bool invokeTestContinuation(std::function<void()> continuationFunc )
+    {
+        _currentTestWillContinueLater = false;
+
+        try
+        {
+            FatalConditionHandler fatalConditionHandler; // Handle signals
+            
+            continuationFunc();
+            
+            fatalConditionHandler.reset();
+        }
+        catch( TestFailureException& )
+        {
+            // This just means the test was aborted due to failure
+            currentTestEnded(CurrentTestResult::Failed);
+            return true;    // test is done
+        }
+        catch(...)
+        {
+            currentTestEnded(CurrentTestResult::Exception);
+            return true; // test is done
+        }
+        
+        if(_currentTestWillContinueLater)
+        {
+            // the test is an async test (probably a UI test). I.e. it will run asynchronously and
+            // endUiTest will be called when it finishes.
+            // So, nothing else to do here. Just end and tell our caller that the
+            // test has not finished yet.
+            return false;
+        }
+        else
+        {
+            currentTestEnded(CurrentTestResult::Passed);
+            return true;
+        }
+	}
 
 	void currentTestEnded(CurrentTestResult result)
 	{
@@ -3298,14 +3265,15 @@ private:
 			}
 		}
 
-		_currentTestObjectsToKeepAlive.clear();
-		_currentTestIsAsync = false;
+		_currentTestWillContinueLater = false;
 
 		double duration = _currentTestTimer.getElapsedSeconds();
 
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
 		m_messages.clear();
+
+        _currentTestKeepAliveObjects.clear();
 
 		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
@@ -3353,42 +3321,6 @@ private:
 		}
 	}
 
-	bool invokeActiveTestCase()
-    {
-        try
-        {
-            FatalConditionHandler fatalConditionHandler; // Handle signals
-            
-            m_activeTestCase->invoke();
-            
-            fatalConditionHandler.reset();
-        }
-        catch( TestFailureException& )
-        {
-            // This just means the test was aborted due to failure
-            currentTestEnded(CurrentTestResult::Failed);
-            return true;    // test is done
-        }
-        catch(...)
-        {
-            currentTestEnded(CurrentTestResult::Exception);
-            return true; // test is done
-        }
-        
-        if(_currentTestIsAsync)
-        {
-            // the test is an async test (probably a UI test). I.e. it will run asynchronously and
-            // endUiTest will be called when it finishes.
-            // So, nothing else to do here. Just end and tell our caller that the
-            // test has not finished yet.
-            return false;
-        }
-        else
-        {
-            currentTestEnded(CurrentTestResult::Passed);
-            return true;
-        }
-	}
 
 private:
 
@@ -3432,16 +3364,12 @@ private:
 	SectionInfo*		_pCurrentTestCaseSection = nullptr;
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
-	bool				_currentTestIsAsync = false;
+	bool				_currentTestWillContinueLater = false;
+
+    std::list< P<IBase> > _currentTestKeepAliveObjects;
 
 	bool				_currentTestIgnoreExpectedToFail = false;
-
-	int64_t				_currentAsyncTestId = 0;
-	bool				_currentAsyncTestEnded = false;
-	P<DelayedCallFromMainThread> _pCurrentAsyncTestTimeoutCaller;
-
-	std::list< P<IBase>	> _currentTestObjectsToKeepAlive;
-
+    
 	bool				_currentTestAssertionFailed;
 	CurrentTestResult	_currentTestResult;
 	Mutex				_currentTestResultMutex;
@@ -3451,6 +3379,8 @@ private:
 	std::string			_testRedirectedCout;
 	std::string			_testRedirectedCerr;
 	Totals				_testPrevTotals;
+
+    mutable Mutex       _runTestMutex;
 
 	std::function< void(const Totals&) > _testDoneCallback;
 };

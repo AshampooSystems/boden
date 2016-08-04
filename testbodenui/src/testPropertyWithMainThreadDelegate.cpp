@@ -165,9 +165,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			MAKE_ASYNC_TEST(10);
-
-			Thread::exec(
+			CONTINUE_SECTION_IN_THREAD(
 				[pProp, pDelegate, pChangeCounter, pChangeSub]()
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -248,10 +246,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					// delegate should still not be updated.
 					REQUIRE( pDelegate->value=="world" );
 					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==2 );
-
-					END_ASYNC_TEST();
-			
+					REQUIRE( pDelegate->setCount==2 );			
 				});
 		}
 
@@ -266,9 +261,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			MAKE_ASYNC_TEST(10);
-
-			Thread::exec(
+			CONTINUE_SECTION_IN_THREAD(
 				[pProp, pDelegate, pChangeCounter, pChangeSub]()
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -323,10 +316,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 					REQUIRE( pDelegate->getCount==0 );
 					REQUIRE( pDelegate->setCount==3 );
 
-					REQUIRE(pChangeCounter->val==2);
-
-					END_ASYNC_TEST();
-			
+					REQUIRE(pChangeCounter->val==2);			
 				});
 		}
         
@@ -357,9 +347,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 			SECTION("fetchWhileSetScheduled")
 			{
-				MAKE_ASYNC_TEST(10);
-
-				Thread::exec(
+                CONTINUE_SECTION_IN_THREAD(
 					[pProp, pDelegate, pChangeCounter, pChangeSub]()
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -411,18 +399,13 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 						// instead the property should have gotten the latest delegate value
 						REQUIRE( prop.get()=="hi" );
 
-						REQUIRE(pChangeCounter->val==2);
-
-						END_ASYNC_TEST();
-			
+						REQUIRE(pChangeCounter->val==2);			
 					});
 			}
 
 			SECTION("setWhileFetchScheduled")
 			{
-				MAKE_ASYNC_TEST(10);
-
-				Thread::exec(
+                CONTINUE_SECTION_IN_THREAD(
 					[pProp, pDelegate, pChangeCounter, pChangeSub]()
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -472,10 +455,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 						REQUIRE( prop.get()=="world" );
 
 						// no further change notification should have happened
-						REQUIRE(pChangeCounter->val==1);
-
-						END_ASYNC_TEST();
-			
+						REQUIRE(pChangeCounter->val==1);                        			
 					});
 			}
             

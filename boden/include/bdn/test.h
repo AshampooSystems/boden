@@ -89,6 +89,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <list>
 
 #include <bdn/Size.h>
 #include <bdn/Rect.h>
@@ -2162,8 +2163,8 @@ namespace bdn {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 
-		virtual void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive)=0;
-		virtual void endAsyncTest()=0;
+        virtual void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)=0;
+        virtual void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)=0;
     };
 }
 
@@ -2324,26 +2325,11 @@ namespace bdn {
 
 
 
-
-#define INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) bdn::getCurrentContext().getRunner()->makeAsyncTest( timeoutSeconds, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
-#define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
-
-
-
 #define INTERNAL_BDN_CONTINUE_SECTION_ASYNC( continuationFunc, ... ) \
     bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
 
-
 #define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, ... ) \
     bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
-
-
-
-
-
-    
-    
-#define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
 
 
 // #included from: internal/catch_section.h
@@ -3336,33 +3322,22 @@ return @ desc; \
 
 
 
-/** \def BDN_TEST_CONTINUE_ASYNC( timeoutSeconds, pObjectToKeepAlive1, ... )
+/** \def BDN_CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
 
-	\copybrief MAKE_ASYNC_TEST()
-	\copydetailed MAKE_ASYNC_TEST()
-
-	*/
-#define BDN_TEST_CONTINUE_ASYNC( func ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
-
-
-/** \def BDN_MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
-
-	\copybrief MAKE_ASYNC_TEST()
-	\copydetailed MAKE_ASYNC_TEST()
+	\copybrief CONTINUE_SECTION_ASYNC()
+	\copydetailed CONTINUE_SECTION_ASYNC()
 
 	*/
-#define BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
+#define BDN_CONTINUE_SECTION_ASYNC( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC(  __VA_ARGS__ )
 
 
-/** \def BDN_END_ASYNC_TEST()
+/** \def BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, pObjectToKeepAlive1, ... )
 
-	\copybrief END_ASYNC_TEST()
-	\copydetailed END_ASYNC_TEST()
+	\copybrief CONTINUE_SECTION_IN_THREAD()
+	\copydetailed CONTINUE_SECTION_IN_THREAD()
 
 	*/
-#define BDN_END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
-
-
+#define BDN_CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
 
 
 #ifndef BDN_TEST_ONLY_PREFIXED
@@ -3422,88 +3397,112 @@ return @ desc; \
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
+/** \def CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
 
-	Makes the current test an asynchronous test. This is useful when testing
-	user interface components or components that rely on the normal event processing
-	to work.
+    Continues the current test section asynchronously.
+    
+    continuationFunc must be a function or lambda that takes no parameters and returns void.
+    It should contain the code that continues the test.
 
-	When MAKE_ASYNC_TEST has been called then the current test is still considered to
-	be running, even after the test case function has returned.
+    CONTINUE_SECTION_ASYNC is mainly useful if you need pending events to be processed
+    before the test continues. It is often used in tests that use user interface elements.
 
-	The normal event processing	will be performed after the test function returns,
-	so user interface components will function normally.
+    The continuation function is always called from the main thread.
+    There is also a similar macro called CONTINUE_SECTION_IN_THREAD which runs the continuation
+    function in a new thread.
 
-	The timeoutSeconds parameter is used to set up a timeout period (in seconds). When the async test
-	does not end within this timeframe then it is considered to have failed and will be aborted.
-	-1 means "no timeout", i.e. the test will run indefinitely.
-	timeoutSeconds is a floating point parameter, so you can pass something like 1.5 there to wait
-	1500 milliseconds.
-	It is recommended to use pretty high timeouts to account for cases when there are small interruptions
-	on the system that runs the test. If the timeout is too low then tests that would have passed might be
-	considered to have failed, simply because the host system had a small performance hiccup.
-	A 10 second timeout is recommended as a minimum for a test that is actually meant to finish	immediately.
+    CONTINUE_SECTION_ASYNC can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
 
-	The MAKE_ASYNC_TEST macro takes an arbitrary number of additional parameters after the timeout.
+    Your test section (or test case if you do not use sections) should end after calling CONTINUE_SECTION_ASYNC.
+    If there is additional test code afterwards then it will be executed BEFORE the continuation function
+    is run. Since that is unintuitive, it should be avoided.
+    
+    Continuation functions can be chained. I.e. continuation functions can also have a CONTINUE_SECTION_ASYNC statement
+    at the end to add another asynchronous continuation.
+        
+	The CONTINUE_SECTION_ASYNC macro takes an arbitrary number of additional parameters after the continuation function.
 	Each of these additional parameters must be a pointer to an object derived from bdn::Base.
-	These objects will be kept alive as long as the test runs. You should pass pointers to all the objects
-	that are needed during the test to the function. Otherwise the objects will be deleted as soon as the test
-	case function exits	and thus the test will not work.
+	These objects will be kept alive until the tests continuations have ended. So you can pass pointers to all the objects
+	that are needed during the test here.
 
-	For example, if you wanted to test a button implementation then you could create a Frame
-	with the button in it and pass a pointer to the frame and the button to MAKE_ASYNC_TEST.
-	That ensures that the frame will not be automatically closed when the test function exits and that it will
-	remain valid for the duration of the test.
+	For example, if you wanted to test a button implementation then you could create a Window
+	with the button in it and pass a pointer to the window to CONTINUE_SECTION_ASYNC.
+	That ensures that the window will not be automatically deleted and closed when the original test function exits and that it will
+	remain valid for the duration of the continuation (and any additional future continuations as well).
 
-	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
-	is no difference to a synchronous test in this regard. The REQUIRE macros can also be used from
-	other threads.
-
-	When the asynchronous test is done then END_ASYNC_TEST() must be called. That signals that the end
-	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
-	the test will be considered to have failed. Otherwise it will be considered to have passed.
-
+	The normal test macros (like REQUIRE() ) can all be used as normal in the continuation function. There
+	is no difference to a synchronous test in this regard.
+    
 	Example:
 
 	\code
 
-	void onMyButtonClicked()
+    void continueButtonClickTest();
+    
+	TEST_CASE("ButtonClick")
 	{
-		// the click handler was called. That is all we wanted to test.
-		// End the test here.
-		END_ASYNC_TEST();
-	}
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
 
-	TEST_CASE("MyButton")
-	{
-		P<Frame>	pFrame = newObj<Frame>("test frame");
-		P<MyButton> pMyButton = newObj<MyButton>(pFrame);
+        pWindow->setContentView(pMyButton);
 
-		pMyButton->onClick().subscribeVoid( onMyButtonClicked );
+        bool* pClicked = new bool;
+        *pClicked = false;
+
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
 
 		// cause the button to be clicked in 5 seconds.
 		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
 		pClicker->clickButtonIn5Seconds(pMyButton);
 
-		// pass all the objects that are needed during the test to MAKE_ASYNC_TEST
-		// to keep them alive.
-		MAKE_ASYNC_TEST( 20, pFrame, pMyButton, pClicker );
+        // we now need to wait for the click. User interface events must be handled
+        // while we wait, so we have to schedule an async continuation.
+        // We also need the Window object to be kept alive, so we pass that as a secondary
+        // parameter as well.
+		CONTINUE_SECTION_ASYNC( std::bind(continueButtonClickTest, pClicked), pWindow);
+    }
 
-		// simply return. MAKE_ASYNC_TEST was called, so the test will be considered
-		// to be still running, even when we return.
-		// The normal event processing will happen after we return, so the timer
-		// event we set up will fire and the button click will be simulated
-		// (and onMyButtonClicked will be called).
-	}
+    void continueButtonClickTest(bool* pClicked)
+    {
+        if( ! (*pClicked) )
+        {
+            // the button has not yet been clicked. We need to keep waiting, so we schedule
+            // another continuation.
+            CONTINUE_SECTION_ASYNC( std::bind(continueButtonClickTest, pClicked) );
+            
+            return;
+        }
+
+
+        // When we arrive here then the button has been clicked. The test is complete.
+        // We do not need to do anything else here. Once we return without
+        // scheduling another continuation the test will be marked as passed
+        // and the next test will be started.
+    }        
 
 	\endcode
 
 	*/
-#define MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
+#define CONTINUE_SECTION_ASYNC( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC( __VA_ARGS__ )
 
-/** \def END_ASYNC_TEST()
-	Ends an asynchronous test. See MAKE_ASYNC_TEST() for a detailed explanation.*/
-#define END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
+
+/** \def CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
+
+    Similar to CONTINUE_SECTION_ASYNC, except that the continuation function is executed from a newly created
+    secondary thread.
+    This is useful if you want to test your code from another thread (for example, to verify that it also works from
+    arbitrary threads, not just the main thread).
+
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+#define CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
+
+
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
 #define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )

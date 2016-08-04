@@ -13,12 +13,12 @@ public:
 	void call()
 	{
 		callCount++;
-
-		END_ASYNC_TEST();
 	}
 
 	int		callCount = 0;
 };
+
+void continueTestPostCall(P<TestCallable> pCallable, P<GlobalMessageWindow> pWindow);
 
 void testPostCall()
 {
@@ -30,9 +30,16 @@ void testPostCall()
 
 	REQUIRE( pCallable->callCount==0 );
 
-	MAKE_ASYNC_TEST( 10, pWindow, pCallable );
+    continueTestPostCall(pCallable, pWindow);
 }
 
+void continueTestPostCall(P<TestCallable> pCallable, P<GlobalMessageWindow> pWindow)
+{
+    if(pCallable->callCount==0)
+    {
+        CONTINUE_SECTION_ASYNC( [pCallable, pWindow](){ continueTestPostCall(pCallable, pWindow); } );
+    }
+}
 
 void testGlobalInstance()
 {

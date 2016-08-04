@@ -7,89 +7,191 @@
 
 using namespace bdn;
 
-class TimeoutChecker : public Base
+
+struct TestData : public Base
 {
-public:
-	TimeoutChecker()
-	{		
-		_pAsyncData = newObj<AsyncData>();
-
-		_pAsyncData->startTime = std::chrono::system_clock::now();
-	}
-
-	~TimeoutChecker()
-	{
-		// we got destructed. I.e. the async test was ended. Abort any pending
-		// async calls that might still be queued.
-		_pAsyncData->aborted = true;
-	}
-
-	void scheduleNextCheck()
-	{
-		scheduleNextCheckInternal(_pAsyncData);
-	}
-	
-
-private:
-	struct AsyncData : public Base
-	{
-		std::chrono::time_point<std::chrono::system_clock> startTime;
-		mutable bool aborted = false;
-	};
-
-	static void scheduleNextCheckInternal(AsyncData* pAsyncData)
-	{
-		// we want the lambda to hold a reference to the async data
-		// to ensure that it is not destroyed in the meantime.
-		P<AsyncData> pAsyncDataPtr = pAsyncData;
-
-		asyncCallFromMainThread( [pAsyncDataPtr](){ TimeoutChecker::doCheck(pAsyncDataPtr); } );
-	}
-
-	static void doCheck(AsyncData* pAsyncData)
-	{
-		if(pAsyncData->aborted)
-			return;
-
-		auto	now = std::chrono::system_clock::now();;
-
-		auto	elapsed = now-pAsyncData->startTime;
-		double	elapsedSeconds = static_cast<double>( std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() );
-
-		
-		// If elapsedSeconds is longer than 15 then this is an error.
-		// We should have had a timeout at 5 seconds!
-		if(elapsedSeconds>=15)
-		{
-			// the test "failed". However, it is marked as "shouldFail", since we expect a timeout.
-			// I.e. the result will be inverted. So we should just end here. That will mark it "passed"
-			// at first, which will be inverted to failed when the shouldFail tag is processed. So the 
-			// end result is fail.
-			END_ASYNC_TEST();			
-		}
-		else
-		{
-			// always sleep a little to ensure that we do not hog all processing time
-			Thread::sleepSeconds(1);
-
-			scheduleNextCheckInternal(pAsyncData);
-		}
-	}
-	
-	P<AsyncData> _pAsyncData;
+    int callCount = 0;
 };
 
 
-TEST_CASE("AsyncTest Timeout", "[!shouldfail]")
+
+template<typename FuncType>
+void testContinueSection( FuncType scheduleContinue )
 {
-	// we test here that the async test timeout works.
+    // we verify that CONTINUE_SECTION_ASYNC works as expected
 
-	P<TimeoutChecker> pChecker = newObj<TimeoutChecker>();
+    P<TestData> pData = newObj<TestData>();
 
-	pChecker->scheduleNextCheck();
-	
-	MAKE_ASYNC_TEST(5, pChecker);
+    SECTION("notCalledImmediately")
+    {
+        scheduleContinue(
+            [pData]()
+            {
+                pData->callCount++;            
+            } );        
+
+        // should not have been called yet
+        REQUIRE( pData->callCount==0 );
+    }
+
+
+    SECTION("notCalledBeforeExitingInitialFunction")
+    {
+        scheduleContinue(
+            [pData]()
+            {
+                pData->callCount++;            
+            } );        
+
+        // even if we wait a while, the continuation should not be called yet
+        // (not even if it runs in another thread).
+        Thread::sleepMillis(2000);
+        REQUIRE( pData->callCount==0 );
+    }
+
+
+    static P<TestData> pCalledBeforeNextSectionData;
+    SECTION("calledBeforeNextSection-a")
+    {
+        pCalledBeforeNextSectionData = pData;
+
+        scheduleContinue(
+            [pData]()
+            {
+                pData->callCount++;            
+            } );        
+    }
+
+    SECTION("calledBeforeNextSection-b")
+    {
+        REQUIRE( pCalledBeforeNextSectionData!=nullptr );
+
+        // the continuation of the previous section should have been called
+
+        REQUIRE( pCalledBeforeNextSectionData->callCount==1 );
+    }
+
+    SECTION("notCalledMultipleTimes")
+    {        
+        scheduleContinue(
+            [pData]()
+            {
+                pData->callCount++;            
+
+                REQUIRE( pData->callCount==1 );
+            } );
+    }
+
+
+    static int subSectionInContinuationMask=0;
+    SECTION("subSectionInContinuation-a")
+    {
+        scheduleContinue(
+            [scheduleContinue]()
+            {
+                SECTION("a")
+                {
+                    SECTION("a1")
+                    {
+                        subSectionInContinuationMask |= 1;
+                    }
+
+                    SECTION("a2")
+                    {
+                        subSectionInContinuationMask |= 2;
+                    }
+                }
+
+                // add another continuation
+                SECTION("b")
+                {
+                    scheduleContinue(
+                        []()
+                        {
+                            SECTION("b1")
+                            {
+                                subSectionInContinuationMask |= 4;
+                            }
+
+                            SECTION("b2")
+                            {
+                                subSectionInContinuationMask |= 8;
+                            }
+                        } );
+                }
+            });
+    }
+
+    SECTION("subSectionInContinuation-b")
+    {
+        REQUIRE( subSectionInContinuationMask==15 );
+    }
+
 }
 
+void testContinueSection_expectedFail( void (*scheduleContinue)(std::function<void()>) )
+{    
+    SECTION("exceptionInContinuation")
+    {
+        scheduleContinue(
+            []()
+            {
+                throw std::runtime_error("dummy error");
+            } );        
+    }
+
+
+    SECTION("failAfterContinuationScheduled")
+    {
+        scheduleContinue(
+            []()
+            {
+            } );        
+
+        REQUIRE(false);
+    }
+}
+
+
+void scheduleContinueAsync( std::function<void()> continuationFunc )
+{
+    CONTINUE_SECTION_ASYNC(
+        [continuationFunc]()
+        {
+            REQUIRE( Thread::isCurrentMain() );
+            continuationFunc();
+        } );    
+}
+
+TEST_CASE("CONTINUE_SECTION_ASYNC")
+{
+    testContinueSection( scheduleContinueAsync );
+}
+
+TEST_CASE("CONTINUE_SECTION_ASYNC-expectedFail", "[!shouldfail]")
+{
+    testContinueSection_expectedFail( scheduleContinueAsync );
+}
+
+
+void scheduleContinueInThread( std::function<void()> continuationFunc )
+{
+    CONTINUE_SECTION_IN_THREAD(
+        [continuationFunc]()
+        {
+            REQUIRE( !Thread::isCurrentMain() );
+            continuationFunc();
+        } );    
+}
+
+TEST_CASE("CONTINUE_SECTION_IN_THREAD")
+{
+    testContinueSection( scheduleContinueInThread );
+}
+
+TEST_CASE("CONTINUE_SECTION_IN_THREAD-expectedFail", "[!shouldfail]")
+{
+    testContinueSection_expectedFail( scheduleContinueInThread );
+}
 
 

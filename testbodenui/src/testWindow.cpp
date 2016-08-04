@@ -60,19 +60,12 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	MAKE_ASYNC_TEST(10);
-			
-	// the button's size change will propagate to the window asynchronously.
-	// So we must check async as well
-			
-	asyncCallFromMainThread(
+	CONTINUE_SECTION_ASYNC(
 		[getSizeFunc, expectedSize]()
 		{
 			Size size = getSizeFunc();
 
 			REQUIRE( size == expectedSize );
-
-			END_ASYNC_TEST();				
 		} );
 }
 
@@ -186,14 +179,10 @@ TEST_CASE("Window", "[ui]")
             // Since we want the window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            BDN_MAKE_ASYNC_TEST(10);
-
-            asyncCallFromMainThread( 
+            CONTINUE_SECTION_ASYNC(
                 [pChild]()
                 {                
                     BDN_REQUIRE( pChild->getParentView() == nullptr);	    
-
-                    BDN_END_ASYNC_TEST();
                 });
         }
 	}
@@ -214,16 +203,12 @@ TEST_CASE("Window", "[ui]")
 			{
 
 				// sizing info is updated asynchronously. So we need to check async as well.
-				MAKE_ASYNC_TEST(10);
-
-				asyncCallFromMainThread(
+                CONTINUE_SECTION_ASYNC(
 					[pWindow, expectedSize]()
 					{
 						View::SizingInfo sizingInfo = pWindow->sizingInfo();
 
 						REQUIRE( sizingInfo.preferredSize == expectedSize );
-
-						END_ASYNC_TEST();
 					
 					}	);				
 			}
@@ -264,14 +249,10 @@ TEST_CASE("Window", "[ui]")
 
 		REQUIRE( pWindow->bounds() == Rect(0,0,0,0) );
 
-		MAKE_ASYNC_TEST(10);
-
-		asyncCallFromMainThread(
+        CONTINUE_SECTION_ASYNC(
 			[pWindow]()
 			{
 				REQUIRE( pWindow->bounds() == Rect(0,0, 100, 32) );
-
-				END_ASYNC_TEST();
 			}
 			);		
 	}
@@ -305,9 +286,7 @@ TEST_CASE("Window", "[ui]")
 
 		REQUIRE( pWindow->bounds() == Rect(0, 0, 200, 200) );
 
-		MAKE_ASYNC_TEST(10);
-
-		asyncCallFromMainThread(
+		CONTINUE_SECTION_ASYNC(
 			[pWindow]()
 			{
 				// the work area of our mock window is 100,100 800x800
@@ -315,8 +294,6 @@ TEST_CASE("Window", "[ui]")
 													100 + (800-200)/2,
 													200,
 													200) );
-
-				END_ASYNC_TEST();
 			}
 			);		
 	}
