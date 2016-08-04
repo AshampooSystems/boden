@@ -2781,47 +2781,7 @@ private: // IResultCapture
 		m_lastResult = *pResultToReport;
 	}
 
-	virtual bool sectionStarted (
-		SectionInfo const& sectionInfo,
-		Counts& assertions
-		) override
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		std::ostringstream oss;
-		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
-
-		ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
-		if( !sectionTracker.isOpen() )
-			return false;
-		m_activeSections.push_back( &sectionTracker );
-
-        // print level 0 means no printing.
-        // print level 1 means just test cases
-        // print level 2 means first level of sections
-        // etc.
-        // the section tracker will have no children when the section is first entered.
-        // On subsequent enters it will have children. So this is a good way to filter
-        // out the subsequent enters.
-        if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
-        {
-            for(size_t i=0; i<m_activeSections.size(); i++)
-                std::cout << " ";
-            if(sectionInfo.name.empty())
-                std::cout << "@" << sectionInfo.lineInfo;
-            else
-                std::cout << sectionInfo.name;
-            std::cout << std::endl;
-        }
-
-		m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
-
-		m_reporter->sectionStarting( sectionInfo );
-
-		assertions = m_totals.assertions;
-
-		return true;
-	}
+    
 	bool testForMissingAssertions( Counts& assertions )
     {
         MutexLock lock( _resultCaptureMutex );
@@ -2837,33 +2797,162 @@ private: // IResultCapture
 		return true;
 	}
 
+
+
+	virtual bool sectionStarted (
+		SectionInfo const& sectionInfo,
+		Counts& assertions
+		) override
+	{
+        MutexLock lock( _resultCaptureMutex );
+
+        if(_currentTestWillContinueLater)
+        {
+            // a previous section will continue asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+
+            if( _postponedSectionEvents.empty() )
+            {
+                // we got a sectionStarted event directly after the CONTINUE_SECTION_ASYNC statement.
+                // This should never happen. CONTINUE_SECTION_ASYNC should be at the end of a section.
+                // So the first event we get should be that section being ended.
+                // So the test code is invalid.
+                assert(false);
+                throw ProgrammingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD.");
+            }
+            
+            _postponedSectionEvents.push_back(
+                [this, sectionInfo]()
+                {
+                    // sectionStarted SHOULD return false, i.e. new sections should not be entered.
+                    // When the section is not entered then the assertions parameter is ignored, so we
+                    // can pass a dummy object here.
+                    Counts dummyAssertions;
+                    if( sectionStarted(sectionInfo, dummyAssertions) )
+                    {
+                        // we expected the section to NOT be entered, but the system wants to enter it.
+                        // This should never happen. It is an internal error.
+                        // Also note that we cannot actually enter the section from here, even if we wanted to,
+                        // because sectionStarted is not actually called from the point in the actual test code.
+                        assert(false);
+                        throw ProgrammingError("Postponed sectionStarted event got true result.");
+                    }
+                } );
+
+            // we know that new CHILD sections of the async section will only be opened
+            // later during the async continuation. So that means that any section
+            // opened here and now is a sibling, so it should not be opened right now.
+            return false;
+        }
+        else
+        {
+		    std::ostringstream oss;
+		    oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
+
+		    ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
+		    if( !sectionTracker.isOpen() )
+			    return false;
+		    m_activeSections.push_back( &sectionTracker );
+
+            // print level 0 means no printing.
+            // print level 1 means just test cases
+            // print level 2 means first level of sections
+            // etc.
+            // the section tracker will have no children when the section is first entered.
+            // On subsequent enters it will have children. So this is a good way to filter
+            // out the subsequent enters.
+            if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
+            {
+                for(size_t i=0; i<m_activeSections.size(); i++)
+                    std::cout << " ";
+                if(sectionInfo.name.empty())
+                    std::cout << "@" << sectionInfo.lineInfo;
+                else
+                    std::cout << sectionInfo.name;
+                std::cout << std::endl;
+            }
+
+		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
+
+		    m_reporter->sectionStarting( sectionInfo );
+
+		    assertions = m_totals.assertions;
+
+		    return true;
+        }
+	}
+
 	virtual void sectionEnded( SectionEndInfo const& endInfo ) override
     {
         MutexLock lock( _resultCaptureMutex );
 
-		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
-		bool missingAssertions = testForMissingAssertions( assertions );
+        if(_currentTestWillContinueLater)
+        {
+            // the current section or a previous section will continue
+            // asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+            
+            _postponedSectionEvents.push_back(
+                [this, endInfo]()
+                {
+                    sectionEnded(endInfo);                
+                } );
 
-		if( !m_activeSections.empty() ) {
-			m_activeSections.back()->close();
-			m_activeSections.pop_back();
-		}
+        }
+        else
+        {
+		    Counts assertions = m_totals.assertions - endInfo.prevAssertions;
+		    bool missingAssertions = testForMissingAssertions( assertions );
 
-		m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
-		m_messages.clear();
+		    if( !m_activeSections.empty() ) {
+			    m_activeSections.back()->close();
+			    m_activeSections.pop_back();
+		    }
+
+		    m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
+		    m_messages.clear();
+        }
 	}
 
 	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override
     {
         MutexLock lock( _resultCaptureMutex );
 
-		if( m_unfinishedSections.empty() )
-			m_activeSections.back()->fail();
-		else
-			m_activeSections.back()->close();
-		m_activeSections.pop_back();
+        if(_currentTestWillContinueLater)
+        {
+            // the current section or a previous section will continue
+            // asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+            
+            _postponedSectionEvents.push_back(
+                [this, endInfo]()
+                {
+                    sectionEndedEarly(endInfo);                
+                } );
 
-		m_unfinishedSections.push_back( endInfo );
+        }
+        else
+        {
+		    if( m_unfinishedSections.empty() )
+			    m_activeSections.back()->fail();
+		    else
+			    m_activeSections.back()->close();
+		    m_activeSections.pop_back();
+
+		    m_unfinishedSections.push_back( endInfo );
+        }
+	}
+
+    void executePostponedSectionEvents()
+	{
+        for( auto& func: _postponedSectionEvents)
+        {
+            func();            
+        }
+        _postponedSectionEvents.clear();
 	}
 
 	virtual void pushScopedMessage( MessageInfo const& message ) override
@@ -2950,7 +3039,7 @@ public:
 			_func = func;
 
 			_shouldAbort = false;
-
+            
 			_result = std::async( std::launch::async, std::bind(&DelayedCallFromMainThread::doDelayedCall, this) );
 		}
 
@@ -2981,7 +3070,7 @@ public:
 
 		std::function<void()>	_func;
 		double					_waitSeconds;
-
+        
 		std::future<void>		_result;
 		std::condition_variable	_shouldAbortCondition;
 		volatile bool			_shouldAbort;
@@ -2989,27 +3078,23 @@ public:
 	};
 
 
-    void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)
+    void continueSectionAsync(std::function<void()> continuationFunc) override
 	{
 		_currentTestWillContinueLater = true;
-
-        _currentTestKeepAliveObjects.insert( _currentTestKeepAliveObjects.end(), objectsToKeepAlive.begin(), objectsToKeepAlive.end() );
-		
+        		
         asyncCallFromMainThread(
-            [this, continuationFunc, objectsToKeepAlive]()
+            [this, continuationFunc]()
             {
                 doSectionContinuation(continuationFunc);
             } );
 	}
 
-    void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)
+    void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
 		_currentTestWillContinueLater = true;
-
-        _currentTestKeepAliveObjects.insert( _currentTestKeepAliveObjects.end(), objectsToKeepAlive.begin(), objectsToKeepAlive.end() );
-		
+        		
         Thread::exec(
-            [this, continuationFunc, objectsToKeepAlive]()
+            [this, continuationFunc]()
             {
                 doSectionContinuation(continuationFunc);
             } );
@@ -3025,8 +3110,18 @@ public:
 
         if(testDone)
         {
-            // ok, the test is done. Schedule the finalization.
-            // Note that we do that with asyncCallFromMainThread so that
+            // ok, the test (=section) is done. I.e. there was no additional
+            // async continuation requested.
+
+            // at this point we want to do the postponed work from the initial "main"
+            // invocation.
+            // This includes subsequent sectionStarted/sectionEnded events, as well
+            // as the final cleanup at the end of the test iteration.
+
+            executePostponedSectionEvents();
+
+            // now we need to continue with the following test iterations.
+            // We do that with asyncCallFromMainThread so that
             // it is ensured that the next test executes in the main thread
             // in a "clean" environment (i.e. no locked mutexes, etc.)
 
@@ -3129,9 +3224,7 @@ private:
 	{
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
-
-        _currentTestKeepAliveObjects.clear();
-
+        
 		_currentTestIgnoreExpectedToFail = false;
 
 		if( std::uncaught_exception() )
@@ -3272,9 +3365,7 @@ private:
 		m_testCaseTracker->close();
 		handleUnfinishedSections();
 		m_messages.clear();
-
-        _currentTestKeepAliveObjects.clear();
-
+        
 		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
 		bool missingAssertions = testForMissingAssertions( assertions );
 
@@ -3365,9 +3456,7 @@ private:
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
 	bool				_currentTestWillContinueLater = false;
-
-    std::list< P<IBase> > _currentTestKeepAliveObjects;
-
+    
 	bool				_currentTestIgnoreExpectedToFail = false;
     
 	bool				_currentTestAssertionFailed;
@@ -3383,6 +3472,8 @@ private:
     mutable Mutex       _runTestMutex;
 
 	std::function< void(const Totals&) > _testDoneCallback;
+
+    std::list< std::function<void()> > _postponedSectionEvents;
 };
 
 IResultCapture& getResultCapture() {

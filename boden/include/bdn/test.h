@@ -2163,8 +2163,8 @@ namespace bdn {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 
-        virtual void continueSectionAsync(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)=0;
-        virtual void continueSectionInThread(std::function<void()> continuationFunc, const std::list< P<IBase> >& objectsToKeepAlive)=0;
+        virtual void continueSectionAsync(std::function<void()> continuationFunc )=0;
+        virtual void continueSectionInThread(std::function<void()> continuationFunc )=0;
     };
 }
 
@@ -2325,11 +2325,11 @@ namespace bdn {
 
 
 
-#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC( continuationFunc, ... ) \
-    bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
+#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC( continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc )
 
 #define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, ... ) \
-    bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
+    bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
 
 
 // #included from: internal/catch_section.h
@@ -3397,7 +3397,7 @@ return @ desc; \
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
+/** \def CONTINUE_SECTION_ASYNC( continuationFunc )
 
     Continues the current test section asynchronously.
     
@@ -3419,19 +3419,14 @@ return @ desc; \
     
     Continuation functions can be chained. I.e. continuation functions can also have a CONTINUE_SECTION_ASYNC statement
     at the end to add another asynchronous continuation.
-        
-	The CONTINUE_SECTION_ASYNC macro takes an arbitrary number of additional parameters after the continuation function.
-	Each of these additional parameters must be a pointer to an object derived from bdn::Base.
-	These objects will be kept alive until the tests continuations have ended. So you can pass pointers to all the objects
-	that are needed during the test here.
 
-	For example, if you wanted to test a button implementation then you could create a Window
-	with the button in it and pass a pointer to the window to CONTINUE_SECTION_ASYNC.
-	That ensures that the window will not be automatically deleted and closed when the original test function exits and that it will
-	remain valid for the duration of the continuation (and any additional future continuations as well).
-
-	The normal test macros (like REQUIRE() ) can all be used as normal in the continuation function. There
+    The normal test macros (like REQUIRE() ) can all be used as normal in the continuation function. There
 	is no difference to a synchronous test in this regard.
+        
+    If you need to access objects from your initial test function in the continuation then it is recommended to
+    pass a lambda as the continuation function and capture the objects you want to use in it. You can also
+    declare them as parameters to your continuation function and use std::bind to bind the objects as parameters
+    (see example below).	
     
 	Example:
 
@@ -3465,7 +3460,15 @@ return @ desc; \
         // while we wait, so we have to schedule an async continuation.
         // We also need the Window object to be kept alive, so we pass that as a secondary
         // parameter as well.
-		CONTINUE_SECTION_ASYNC( std::bind(continueButtonClickTest, pClicked), pWindow);
+		CONTINUE_SECTION_ASYNC( 
+            [pClicked, pWindow]()   // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+                                    // pWindow is in the capture list so that the window will not be deleted and destroyed when the
+                                    // initial test function exits (before the lambda continuation is called).
+                                    // We could also use std::bind here instead of a lambda. See below for an example
+
+            {
+                continueButtonClickTest(pClicked, pWindow);
+            }
     }
 
     void continueButtonClickTest(bool* pClicked)
@@ -3474,6 +3477,7 @@ return @ desc; \
         {
             // the button has not yet been clicked. We need to keep waiting, so we schedule
             // another continuation.
+            // This time we use std::bind instead of a lambda, just to demonstrate.
             CONTINUE_SECTION_ASYNC( std::bind(continueButtonClickTest, pClicked) );
             
             return;
@@ -3492,7 +3496,7 @@ return @ desc; \
 #define CONTINUE_SECTION_ASYNC( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC( __VA_ARGS__ )
 
 
-/** \def CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
+/** \def CONTINUE_SECTION_ASYNC( continuationFunc )
 
     Similar to CONTINUE_SECTION_ASYNC, except that the continuation function is executed from a newly created
     secondary thread.

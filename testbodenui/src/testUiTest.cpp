@@ -89,16 +89,18 @@ void testContinueSection( FuncType scheduleContinue )
         scheduleContinue(
             [scheduleContinue]()
             {
+                subSectionInContinuationMask |= 1;
+
                 SECTION("a")
                 {
                     SECTION("a1")
                     {
-                        subSectionInContinuationMask |= 1;
+                        subSectionInContinuationMask |= 2;
                     }
 
                     SECTION("a2")
                     {
-                        subSectionInContinuationMask |= 2;
+                        subSectionInContinuationMask |= 4;
                     }
                 }
 
@@ -108,14 +110,16 @@ void testContinueSection( FuncType scheduleContinue )
                     scheduleContinue(
                         []()
                         {
+                            subSectionInContinuationMask |= 8;
+
                             SECTION("b1")
                             {
-                                subSectionInContinuationMask |= 4;
+                                subSectionInContinuationMask |= 16;
                             }
 
                             SECTION("b2")
                             {
-                                subSectionInContinuationMask |= 8;
+                                subSectionInContinuationMask |= 32;
                             }
                         } );
                 }
@@ -124,7 +128,7 @@ void testContinueSection( FuncType scheduleContinue )
 
     SECTION("subSectionInContinuation-b")
     {
-        REQUIRE( subSectionInContinuationMask==15 );
+        REQUIRE( subSectionInContinuationMask==63 );
     }
 
 }
