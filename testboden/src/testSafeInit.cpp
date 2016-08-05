@@ -7,10 +7,10 @@ using namespace bdn;
 
 static std::atomic<int> constructedCount(0);
 
-class TestData : public Base
+class SafeInitTestData : public Base
 {
 public:
-	TestData()
+	SafeInitTestData()
 	{
 		val = 17;
 
@@ -20,16 +20,16 @@ public:
 	int val;
 };
 
-static TestData* getTestData1()
+static SafeInitTestData* getTestData1()
 {
-	static SafeInit<TestData> init;
+	static SafeInit<SafeInitTestData> init;
 
 	return init.get();
 }
 
-static TestData* getTestData2()
+static SafeInitTestData* getTestData2()
 {
-	static SafeInit<TestData> init;
+	static SafeInit<SafeInitTestData> init;
 
 	return init.get();
 }
@@ -38,7 +38,7 @@ TEST_CASE("SafeInit")
 {
 	SECTION("initialized")
 	{
-		static SafeInit<TestData> init;
+		static SafeInit<SafeInitTestData> init;
 
 		REQUIRE( init.get()->val == 17);
 	}
@@ -46,7 +46,7 @@ TEST_CASE("SafeInit")
 	SECTION("fromFunc")
 	{
 		// should be initialized
-		TestData* pData = getTestData1();
+		SafeInitTestData* pData = getTestData1();
 		REQUIRE(pData->val == 17);
 
 		// accessing again should give the same object

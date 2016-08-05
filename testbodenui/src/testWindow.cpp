@@ -77,13 +77,17 @@ TEST_CASE("Window", "[ui]")
         bdn::test::testView<Window>();
     
 
-    bdn::test::ViewTestPreparer<Window> preparer;
+    P<bdn::test::ViewTestPreparer<Window> > pPreparer = newObj<bdn::test::ViewTestPreparer<Window> >();
 
-    P< bdn::test::ViewWithTestExtensions<Window> > pWindow = preparer.createView();
+    P< bdn::test::ViewWithTestExtensions<Window> > pWindow = pPreparer->createView();
 
     P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>( pWindow->getViewCore() );
 	REQUIRE( pCore!=nullptr );
 
+    // continue testing after the async init has finished
+    std::function<void()> continuation =
+[pPreparer, pWindow, pCore]()
+{
     // testView already tests the initialization of properties defined in View.
     // So we only have to test the Window-specific things here.
 	SECTION("constructWindowSpecific")
@@ -219,10 +223,10 @@ TEST_CASE("Window", "[ui]")
 		SECTION("withContentView")
 		{
 			SECTION("calcPreferredSize")
-				testSizingWithContentView( pWindow, preparer.getUiProvider(), [pWindow](){ return pWindow->calcPreferredSize(); } );
+				testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->calcPreferredSize(); } );
 
 			SECTION("sizingInfo")
-				testSizingWithContentView( pWindow, preparer.getUiProvider(), [pWindow](){ return pWindow->sizingInfo().get().preferredSize; } );
+				testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->sizingInfo().get().preferredSize; } );
 		}
 	}
 
@@ -298,9 +302,10 @@ TEST_CASE("Window", "[ui]")
 													200) );
 			}
 			);		
-	}
-		
-}
+	}		
+};
 
+    CONTINUE_SECTION_ASYNC(continuation);
+}
 
 

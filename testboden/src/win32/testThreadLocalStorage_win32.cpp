@@ -8,10 +8,10 @@
 using namespace bdn;
 using namespace bdn::win32;
 
-class TestData
+class TlsTestData
 {
 public:
-	TestData(int v = 17)
+	TlsTestData(int v = 17)
 	{
 		val = v;
 	}
@@ -20,7 +20,7 @@ public:
 };
 
 
-class TestData2 : public Base
+class TlsTestData2 : public Base
 {
 public:
 	static int& getConstructed()
@@ -38,13 +38,13 @@ public:
 		return destructed;
 	}
 
-	TestData2(int v = 17)
+	TlsTestData2(int v = 17)
 	{
 		val = v;
 		getConstructed()++;
 	}
 
-	~TestData2()
+	~TlsTestData2()
 	{
 		getDestructed()++;
 	}
@@ -52,7 +52,7 @@ public:
 	int val;
 };
 
-static ThreadLocalStorage< P<TestData2> > pGlobalThreadLocal;
+static ThreadLocalStorage< P<TlsTestData2> > pGlobalThreadLocal;
 	
 TEST_CASE("win32::ThreadLocalStorage")
 {
@@ -62,9 +62,9 @@ TEST_CASE("win32::ThreadLocalStorage")
     {
         SECTION("withConstructor")
         {
-            ThreadLocalStorage<TestData> data;
+            ThreadLocalStorage<TlsTestData> data;
 
-			TestData& ref = data;
+			TlsTestData& ref = data;
     
             REQUIRE( ref.val == 17 );
         }
@@ -93,27 +93,27 @@ TEST_CASE("win32::ThreadLocalStorage")
     
     SECTION( "setGet" )
     {
-		ThreadLocalStorage<TestData> data;
+		ThreadLocalStorage<TlsTestData> data;
 
-        REQUIRE( ((TestData&)data).val == 17 );
+        REQUIRE( ((TlsTestData&)data).val == 17 );
 
-		data = TestData(19);
+		data = TlsTestData(19);
 
-		REQUIRE( ((TestData&)data).val == 19 );		        
+		REQUIRE( ((TlsTestData&)data).val == 19 );		        
     }
     
 #if BDN_HAVE_THREADS
 
     SECTION("setGetReleaseOtherThread")
     {
-		int constructedBefore = TestData2::getConstructed();
-        int destructedBefore = TestData2::getDestructed();        
+		int constructedBefore = TlsTestData2::getConstructed();
+        int destructedBefore = TlsTestData2::getDestructed();        
         
         auto threadResult = Thread::exec(   []()
                         {
 							REQUIRE( pGlobalThreadLocal == nullptr );
 
-                            P<TestData2> pData = newObj<TestData2>( 143 );
+                            P<TlsTestData2> pData = newObj<TlsTestData2>( 143 );
                             pGlobalThreadLocal = pData;
                             
                             Thread::sleepMillis(3000);
@@ -125,20 +125,20 @@ TEST_CASE("win32::ThreadLocalStorage")
         Thread::sleepMillis(1000);
 
         // a new instance should have been created (but not yet destroyed)
-        REQUIRE( TestData2::getConstructed() == constructedBefore+1);
-        REQUIRE( TestData2::getDestructed() == destructedBefore);
+        REQUIRE( TlsTestData2::getConstructed() == constructedBefore+1);
+        REQUIRE( TlsTestData2::getDestructed() == destructedBefore);
         
         // in this thread the pointer should still be null for this thread
         REQUIRE( pGlobalThreadLocal==nullptr );
         
-        P<TestData2> pData = newObj<TestData2>(42);
+        P<TlsTestData2> pData = newObj<TlsTestData2>(42);
         pGlobalThreadLocal = pData;
         
         REQUIRE( pGlobalThreadLocal!=nullptr );
         
         // one more object should exist now
-		REQUIRE( TestData2::getConstructed() == constructedBefore+2);
-        REQUIRE( TestData2::getDestructed() == destructedBefore);
+		REQUIRE( TlsTestData2::getConstructed() == constructedBefore+2);
+        REQUIRE( TlsTestData2::getDestructed() == destructedBefore);
         
         // wait for the thread to end
         threadResult.get();
@@ -147,8 +147,8 @@ TEST_CASE("win32::ThreadLocalStorage")
         Thread::sleepMillis(2000);
         
         // now the object from the other thread should have been released
-        REQUIRE( TestData2::getConstructed() == constructedBefore+2);
-        REQUIRE( TestData2::getDestructed() == destructedBefore+1);
+        REQUIRE( TlsTestData2::getConstructed() == constructedBefore+2);
+        REQUIRE( TlsTestData2::getDestructed() == destructedBefore+1);
         
         // and ours should still be there
         REQUIRE( pGlobalThreadLocal==pData );

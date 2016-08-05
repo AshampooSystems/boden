@@ -104,6 +104,8 @@ public:
     {
         P<ViewWithTestExtensions<Window> > pWindow = newObj< ViewWithTestExtensions<Window> >( _pUiProvider );
 
+        pWindow->requestAutoSize();
+
         _pWindow = pWindow;
 
         return pWindow;

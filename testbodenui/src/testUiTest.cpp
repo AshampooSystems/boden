@@ -181,11 +181,33 @@ TEST_CASE("CONTINUE_SECTION_ASYNC")
     testContinueSection( scheduleContinueAsync );
 }
 
+
 TEST_CASE("CONTINUE_SECTION_ASYNC-expectedFail", "[!shouldfail]")
 {
     testContinueSection_expectedFail( scheduleContinueAsync );
 }
 
+TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation")
+{
+    SECTION("initialChild")
+    {
+        CONTINUE_SECTION_IN_THREAD( [](){} );
+    }
+
+    std::function<void()> continuation =
+        []()
+        {
+            SECTION("asyncChild1")
+            {
+            }
+
+            SECTION("asyncChild2")
+            {
+            }
+        };
+
+    CONTINUE_SECTION_ASYNC(continuation);
+}
 
 void scheduleContinueInThread( std::function<void()> continuationFunc )
 {
@@ -207,4 +229,27 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-expectedFail", "[!shouldfail]")
     testContinueSection_expectedFail( scheduleContinueInThread );
 }
 
+
+
+TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation")
+{
+    SECTION("initialChild")
+    {
+        CONTINUE_SECTION_IN_THREAD( [](){} );
+    }
+
+    std::function<void()> continuation =
+        []()
+        {
+            SECTION("asyncChild1")
+            {
+            }
+
+            SECTION("asyncChild2")
+            {
+            }
+        };
+
+    CONTINUE_SECTION_IN_THREAD(continuation);
+}
 
