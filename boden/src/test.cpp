@@ -2821,15 +2821,18 @@ private: // IResultCapture
                 assert(false);
                 throw ProgrammingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD.");
             }
+
+
+            SectionInfo sectionInfoCopy = sectionInfo;
             
             _postponedSectionEvents.push_back(
-                [this, sectionInfo]()
+                [this, sectionInfoCopy]()
                 {
                     // sectionStarted SHOULD return false, i.e. new sections should not be entered.
                     // When the section is not entered then the assertions parameter is ignored, so we
                     // can pass a dummy object here.
                     Counts dummyAssertions;
-                    if( sectionStarted(sectionInfo, dummyAssertions) )
+                    if( sectionStarted(sectionInfoCopy, dummyAssertions) )
                     {
                         // we expected the section to NOT be entered, but the system wants to enter it.
                         // This should never happen. It is an internal error.
@@ -2894,10 +2897,12 @@ private: // IResultCapture
             // but do not actually execute them now. The recorded events
             // will be executed when the section ends in the async continuation.
             
+            SectionEndInfo endInfoCopy = endInfo;
+            
             _postponedSectionEvents.push_back(
-                [this, endInfo]()
+                [this, endInfoCopy]()
                 {
-                    sectionEnded(endInfo);                
+                    sectionEnded(endInfoCopy);                
                 } );
 
         }
@@ -3112,14 +3117,7 @@ public:
         {
             // ok, the test (=section) is done. I.e. there was no additional
             // async continuation requested.
-
-            // at this point we want to do the postponed work from the initial "main"
-            // invocation.
-            // This includes subsequent sectionStarted/sectionEnded events, as well
-            // as the final cleanup at the end of the test iteration.
-
-            executePostponedSectionEvents();
-
+            
             // now we need to continue with the following test iterations.
             // We do that with asyncCallFromMainThread so that
             // it is ensured that the next test executes in the main thread
@@ -3322,7 +3320,7 @@ private:
 		// we must hold a mutex here. If the test uses multiple threads
 		// then we might get failures from multiple threads at once.
 
-		{
+        {
 			MutexLock lock(_currentTestResultMutex);
 
 			if(_currentTestResult != CurrentTestResult::Unfinished)
@@ -3331,6 +3329,12 @@ private:
 				// from a different thread. We ignore the new result.
 				return;
 			}
+
+            
+            // If we had an asynchronous continuation then we have postponed sectionStarted and
+            // sectionEnded events. We need to execute those at this point to get back into a state
+            // as if those sections had started/ended in a normal synchronous way.
+            executePostponedSectionEvents();
 
 			if(result==CurrentTestResult::Passed && _currentTestAssertionFailed)
 			{
