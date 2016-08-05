@@ -170,12 +170,18 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// schedule the test asynchronously, so that the initial sizing
 		// info update from the view construction is already done.
 
-        BDN_CONTINUE_SECTION_ASYNC(
-			[pView, opFunc, verifyFunc, expectedSizingInfoUpdates]()
+        std::function<void()> continuation =
+            [pView, opFunc, verifyFunc, expectedSizingInfoUpdates]()
 			{
                 int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
 
 				opFunc();
+
+                // sizing info updates should never happen immediately. We want them
+				// to happen asynchronously, so that multiple changes can be handled
+				// together with a single update.
+				BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
+
 				verifyFunc();
 
 				// sizing info updates should never happen immediately. We want them
@@ -183,12 +189,16 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 				// together with a single update.
 				BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
-                BDN_CONTINUE_SECTION_ASYNC(
-					[pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
+                std::function<void()> continuation =
+                    [pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc]()
 					{
 						BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
-					});
-			} );
+					};
+
+                BDN_CONTINUE_SECTION_ASYNC(continuation);
+			};
+
+        BDN_CONTINUE_SECTION_ASYNC(continuation);
 	}
 
 #if BDN_HAVE_THREADS
@@ -198,8 +208,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// schedule the test asynchronously, so that the initial sizing
 		// info update from the view construction is already done.
 
-		BDN_CONTINUE_SECTION_ASYNC( 
-
+		std::function<void()> continuation =
 			[pView, opFunc, verifyFunc, expectedSizingInfoUpdates]()
 			{
                 int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
@@ -214,7 +223,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 				// we want to wait until the changes have actually been made in the core.
 				// So do another async call. That one will be executed after the property
 				// changes.
-                BDN_CONTINUE_SECTION_ASYNC( 
+                std::function<void()> continuation =
 					[pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 					{
 						// the core should now have been updated.
@@ -229,16 +238,19 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 						// update should have happened and the sizing info should have been
 						// updated (once!)
 
-                        BDN_CONTINUE_SECTION_ASYNC( 
+                        std::function<void()> continuation =
 							[pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates]()
 							{
 								verifyFunc();
 						
 								BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
-							}	 );
+							};
+                        BDN_CONTINUE_SECTION_ASYNC( continuation );
 					
-					}	);				
-			} );
+                    };
+                BDN_CONTINUE_SECTION_ASYNC( continuation );
+			};
+        BDN_CONTINUE_SECTION_ASYNC( continuation);
 	}
 
 #endif
@@ -246,6 +258,13 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 }
 
 
+template<class ViewType >
+inline void testView_Continue(
+    P< ViewTestPreparer<ViewType> >         pPreparer,
+    int                                     initialCoresCreated,
+    P<Window>                               pWindow,
+    P< ViewWithTestExtensions<ViewType> >   pView,
+    P<bdn::test::MockViewCore>              pCore);
 
 template<class ViewType >
 inline void testView()
@@ -274,8 +293,16 @@ inline void testView()
     REQUIRE( pView->getSizingInfoUpdateCount()==0 );
 
 
-    BDN_CONTINUE_SECTION_ASYNC(
-[=]()
+    BDN_CONTINUE_SECTION_ASYNC( std::bind(&testView_Continue<ViewType>, pPreparer, initialCoresCreated, pWindow, pView, pCore) );
+}
+
+template<class ViewType >
+inline void testView_Continue(
+    P< ViewTestPreparer<ViewType> >         pPreparer,
+    int                                     initialCoresCreated,
+    P<Window>                               pWindow,
+    P< ViewWithTestExtensions<ViewType> >   pView,
+    P<bdn::test::MockViewCore>              pCore)
 {
     // the pending update should have happened now
     REQUIRE( pView->getSizingInfoUpdateCount()==1 );
@@ -288,12 +315,11 @@ inline void testView()
 		BDN_REQUIRE( pCore->getVisibleChangeCount()==0 );
 		BDN_REQUIRE( pCore->getMarginChangeCount()==0 );
 		BDN_REQUIRE( pCore->getPaddingChangeCount()==0 );
-		BDN_REQUIRE( pCore->getBoundsChangeCount()==0 );
+		BDN_REQUIRE( pCore->getBoundsChangeCount()==1 );
 		BDN_REQUIRE( pCore->getParentViewChangeCount()==0 );
 
 		BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
 
-		BDN_REQUIRE( pView->bounds() == Rect(0,0,0,0) );
 		BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
 		BDN_REQUIRE( pView->padding() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
 
@@ -316,19 +342,9 @@ inline void testView()
 		BDN_REQUIRE( childViews.empty() );
 		
 
-		// sizing info should not yet have been updated. It should
-		// update asynchronously, so that multiple property
-		// changes can be handled with a single update.
-		BDN_REQUIRE( pView->getSizingInfoUpdateCount()==0);
-        
-		BDN_CONTINUE_SECTION_ASYNC(
-			[pView]()
-			{
-				BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);			
-			});
+		// sizing info should have been updated now.
+		BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);        
 	}
-
-
     
     SECTION("parentViewNullAfterParentDestroyed")
 	{
@@ -352,7 +368,7 @@ inline void testView()
         // after all pending operations are done.
 
         CONTINUE_SECTION_ASYNC(
-            [pView]()
+            [pView, pPreparer]()
             {                
                 BDN_REQUIRE( pView->getParentView() == nullptr);	    
             } );
@@ -427,7 +443,7 @@ inline void testView()
 				},
 				[pCore, b, pView, pWindow]()
 				{
-					BDN_REQUIRE( pCore->getBoundsChangeCount()==1 );
+					BDN_REQUIRE( pCore->getBoundsChangeCount()==2 );
 					BDN_REQUIRE( pCore->getBounds() == b);
 				},
 				0	// should NOT have caused a sizing info update
@@ -459,8 +475,6 @@ inline void testView()
 			);		
 	}
     
-} );
-
 }
     
 

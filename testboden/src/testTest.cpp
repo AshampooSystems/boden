@@ -285,6 +285,19 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections
 }
 
 
+TEST_CASE("test.shouldFailWithFailOnTopLevel", "[!shouldfail]")
+{
+    REQUIRE(false);
+}
+
+TEST_CASE("test.shouldFailWithFailInSection", "[!shouldfail]")
+{
+	SECTION("failSection")
+	{
+        REQUIRE(false);
+	}
+}
+
 TEST_CASE("test.uncaughtExceptionBugWorkaround", "[test]")
 {
     // std::uncaught_exception is used by the test system to determine

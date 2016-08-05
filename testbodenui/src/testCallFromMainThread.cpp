@@ -172,7 +172,7 @@ public:
         }
 
         // start 100 threads. Each schedules a call in the main thread.
-        _scheduledPending = 100;
+        _scheduledPending = 101;
         for(int i=0; i<_scheduledPending; i++)
         {
             futures.push_back( Thread::exec(

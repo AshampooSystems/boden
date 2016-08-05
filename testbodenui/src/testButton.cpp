@@ -9,10 +9,11 @@ using namespace bdn;
 TEST_CASE("Button")
 {
     // test the generic view properties of Button
-    bdn::test::testView<Button>();
+    SECTION("View")
+        bdn::test::testView<Button>();
 
-    bdn::test::ViewTestPreparer<Button>             preparer;
-    P< bdn::test::ViewWithTestExtensions<Button> >  pButton = preparer.createView();
+    P<bdn::test::ViewTestPreparer<Button> >         pPreparer = newObj< bdn::test::ViewTestPreparer<Button> >();
+    P< bdn::test::ViewWithTestExtensions<Button> >  pButton = pPreparer->createView();
     P<bdn::test::MockButtonCore>                    pCore = cast<bdn::test::MockButtonCore>( pButton->getViewCore() );
 
 	REQUIRE( pCore!=nullptr );
@@ -22,6 +23,8 @@ TEST_CASE("Button")
         SECTION("label")
         {
             REQUIRE( pButton->label() == "" );
+            REQUIRE( pCore->getLabel()=="" );
+            REQUIRE( pCore->getLabelChangeCount()==0 );
         }
     }
 
@@ -31,14 +34,14 @@ TEST_CASE("Button")
 		{
 			bdn::test::testViewOp( 
 				pButton,
-				[pButton]()
+				[pButton, pPreparer]()
 				{
 					pButton->label() = "hello";					
 				},
-				[pCore, pButton]
+				[pCore, pButton, pPreparer]
 				{
-					REQUIRE( pCore->getLabelChangeCount()==1 );
-					REQUIRE( pCore->getLabel()=="hello" );					
+                    REQUIRE( pCore->getLabel()=="hello" );					
+					REQUIRE( pCore->getLabelChangeCount()==1 );					
 				},
 				1 // should cause a sizing update.
 				);

@@ -97,6 +97,7 @@
 #include <bdn/UiLength.h>
 #include <bdn/UiMargin.h>
 #include <bdn/Thread.h>
+#include <bdn/Property.h>
 
 // #included from: catch_compiler_capabilities.h
 #define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
@@ -1608,6 +1609,18 @@ std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);
 std::string toString( const UiLength& margin);
 std::string toString( const UiMargin& margin);
+
+template<class PropValueType>
+inline std::string toString( const ReadProperty<PropValueType>& prop)
+{
+    return toString(prop.get());
+}
+
+template<class PropValueType>
+inline std::string toString( const Property<PropValueType>& prop)
+{
+    return toString(prop.get());
+}
 
 
 namespace Detail {

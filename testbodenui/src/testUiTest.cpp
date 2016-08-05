@@ -144,6 +144,15 @@ void testContinueSection_expectedFail( void (*scheduleContinue)(std::function<vo
             } );        
     }
 
+    SECTION("exceptionAfterContinuationScheduled")
+    {
+        scheduleContinue(
+            []()
+            {                
+            } );        
+
+        throw std::runtime_error("dummy error");
+    }
 
     SECTION("failAfterContinuationScheduled")
     {

@@ -73,7 +73,9 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 TEST_CASE("Window", "[ui]")
 {   
-    bdn::test::testView<Window>();
+    SECTION("View")
+        bdn::test::testView<Window>();
+    
 
     bdn::test::ViewTestPreparer<Window> preparer;
 
