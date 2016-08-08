@@ -538,8 +538,63 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
 
 
 
+static bool continueAsyncComplicated_Started = false;
+static bool continueAsyncComplicated_Sub2Called = false;
 
+TEST_CASE("CONTINUE_SECTION_ASYNC-complicated" )
+{
+    static bool async1Called=false;
+    static bool async2Called=false;
 
+    continueAsyncComplicated_Started = true;
+
+    SECTION("a")
+    {
+        CONTINUE_SECTION_ASYNC()
+        {
+            SECTION("sub")
+            {
+                CONTINUE_SECTION_ASYNC()
+                {
+                    async1Called = true;
+
+                    CONTINUE_SECTION_ASYNC()
+                    {
+                        async2Called = true;
+                    };
+                };
+            }
+
+            // we also want to verify that sub2 is actually executed.
+            // This is quite difficult, since there is no code of the test case
+            // that is guaranteed to be called afterwards. So we cannot
+            // do a test at the end to see which sections were called.
+            // So we do the best we can: add another test case after it that tests
+            // IF this test case was executed before that sub2 was executed.
+            // Since we cannot control which test cases are executed, this second test does
+            // not always have an effect, but at least it will work if all tests are executed
+            // (either in alphabetical or code order).
+    
+            SECTION("sub2")
+            {
+                continueAsyncComplicated_Sub2Called = true;
+
+                REQUIRE( async1Called );
+                REQUIRE( async2Called );        
+            }
+        };
+    };
+}
+
+TEST_CASE("CONTINUE_SECTION_ASYNC-complicated-B" )
+{
+    // see comment in previous test case for explanation
+
+    if(continueAsyncComplicated_Started)
+    {
+        REQUIRE( continueAsyncComplicated_Sub2Called );
+    }
+}
 
 
 

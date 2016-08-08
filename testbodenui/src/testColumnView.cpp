@@ -6,6 +6,110 @@
 
 using namespace bdn;
 
+
+void testChildAlignment(
+    P<bdn::test::ViewTestPreparer<ColumnView> > pPreparer,
+    P< bdn::test::ViewWithTestExtensions<ColumnView> > pColumnView,
+    P<Button> pButton,
+    View::HorizontalAlignment horzAlign,
+    View::VerticalAlignment vertAlign)
+{
+    // add a second button that is considerably bigger.
+    // That will cause the column view to become bigger.
+    P<Button> pButton2 = newObj<Button>();
+    pButton2->padding() = UiMargin(UiLength::realPixel, 500, 500 );
+
+    pColumnView->addChildView(pButton2);
+
+    CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
+    {
+        int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
+        int layoutCountBefore = pColumnView->getLayoutCount();
+
+        SECTION("horizontal")
+        {
+            pButton->horizontalAlignment() = horzAlign;
+
+            CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, horzAlign, sizingInfoBeforeCount, layoutCountBefore)
+            {
+                // sizing info should NOT have been updated
+                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
+
+                // but layout should have
+                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+
+                Rect bounds = pButton->bounds();
+                Rect containerBounds = pColumnView->bounds();
+
+                // sanity check: the button should be smaller than the columnview
+                // unless the alignment is "expand"
+                if(horzAlign!=View::HorizontalAlignment::expand)
+                    REQUIRE( bounds.width < containerBounds.width );
+                
+                // and the view should now be aligned accordingly.
+                if(horzAlign==View::HorizontalAlignment::left)
+                {
+                    REQUIRE( bounds.x==0 );
+                }
+                else if(horzAlign==View::HorizontalAlignment::center)
+                {
+                    REQUIRE( bounds.x == (containerBounds.width-bounds.width)/2  );
+                }
+                else if(horzAlign==View::HorizontalAlignment::right)
+                {
+                    REQUIRE( bounds.x == containerBounds.width-bounds.width  );
+                }
+                else if(horzAlign==View::HorizontalAlignment::expand)
+                {
+                    REQUIRE( bounds.x == 0);
+                    REQUIRE( bounds.width == containerBounds.width );
+                }
+            };
+        }
+        
+        SECTION("vertical")
+        {
+            pButton->verticalAlignment() = vertAlign;
+
+            CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, vertAlign, sizingInfoBeforeCount, layoutCountBefore)
+            {
+                // sizing info should NOT have been updated
+                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
+
+                // but layout should have
+                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+
+                Rect bounds = pButton->bounds();
+                Rect containerBounds = pColumnView->bounds();
+
+                // sanity check: the button should be smaller than the columnview
+                // unless the alignment is "expand"
+                if(vertAlign!=View::VerticalAlignment::expand)
+                    REQUIRE( bounds.width < containerBounds.width );
+                
+                // and the view should now be aligned accordingly.
+                if(vertAlign==View::VerticalAlignment::top)
+                {
+                    REQUIRE( bounds.y==0 );
+                }
+                else if(vertAlign==View::VerticalAlignment::middle)
+                {
+                    REQUIRE( bounds.y == (containerBounds.height-bounds.height)/2  );
+                }
+                else if(vertAlign==View::VerticalAlignment::bottom)
+                {
+                    REQUIRE( bounds.y == containerBounds.height-bounds.height  );
+                }
+                else if(vertAlign==View::VerticalAlignment::expand)
+                {
+                    REQUIRE( bounds.y == 0);
+                    REQUIRE( bounds.height == containerBounds.height );
+                }
+            };
+        }
+    };
+}
+
 TEST_CASE("ColumnView")
 {
     // test the generic view properties of Button
@@ -56,7 +160,7 @@ TEST_CASE("ColumnView")
 
             CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pCore)
             {
-                SECTION("child margins handled")
+                SECTION("child margins")
                 {
                     CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pCore)
                     {
@@ -77,6 +181,18 @@ TEST_CASE("ColumnView")
                             REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
                         };         
                     };
+                }
+
+                SECTION("child alignment")
+                {
+                    for(int horzAlign = (int)View::HorizontalAlignment::left; horzAlign<=(int)View::HorizontalAlignment::expand; horzAlign++)
+                    {
+                        for(int vertAlign = (int)View::VerticalAlignment::top; vertAlign<=(int)View::VerticalAlignment::expand; vertAlign++)
+                        {
+                            SECTION( toString(horzAlign)+", "+toString(vertAlign) )
+                                testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+                        }
+                    }
                 }
             };
         }
