@@ -22,26 +22,63 @@ TEST_CASE("ColumnView")
 
         P<Button> pButton = newObj<Button>();
 
+        pButton->bounds() = Rect(10, 10, 10, 10);
+
         SECTION("addChildView")
+        {
+            CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, pCore)
+            {
+                int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
+                int layoutCountBefore = pColumnView->getLayoutCount();
+
+                pColumnView->addChildView(pButton);
+
+                CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                {
+                    // should cause a sizing update and a layout update
+                    REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
+                    REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
+
+                    Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
+
+                    Size buttonPreferredSize = pButton->sizingInfo().get().preferredSize;
+
+                    REQUIRE( preferredSize!=Size(0,0) );
+
+                    REQUIRE( preferredSize == pButton->sizingInfo().get().preferredSize );
+                };            
+            };
+        }
+
+        SECTION("with child view")
         {
             pColumnView->addChildView(pButton);
 
-            ASYNC_SECTION("updates sizingInfo", = )
-            {            
-                // should cause a sizing update and a layout update
-                REQUIRE( pColumnView->getSizingInfoUpdateCount()==1 );
-                REQUIRE( pColumnView->getLayoutCount()==1 );                
+            CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pCore)
+            {
+                SECTION("child margins handled")
+                {
+                    CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pCore)
+                    {
+                        Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
+                        int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
+                        int layoutCountBefore = pColumnView->getLayoutCount();
 
-                Size prefSize = pColumnView->sizingInfo().get().preferredSize;
+                        pButton->margin() = UiMargin(UiLength::realPixel, 1, 2, 3, 4);
 
-                REQUIRE( prefSize!=Size(0,0) );
+                        CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                        {
+                            // should cause a sizing update for the column view, followed by a layout update
+                            REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
+                            REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
 
-                REQUIRE( prefSize == pButton->sizingInfo().get().preferredSize );
-            };            
-        }
+                            Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
 
-        SECTION("margins properly included in layout")
-        {
+                            REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
+                        };         
+                    };
+                }
+            };
         }
 	}	
 }

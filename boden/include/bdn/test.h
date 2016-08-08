@@ -3504,8 +3504,8 @@ public:
 
     The code block after ASYNC_SECTION will actually end up being executed as a lambda function.
     The capture statement of the lambda expression are the remaining parameters of the 
-    ASYNC_SECTION macro, after the section name. Often one will simply specify = here, to capture
-    the local variables around the section by value.
+    ASYNC_SECTION macro, after the section name. Often one will simply specify = here, to automatically
+    capture the local variables that you use inside the continuation.
     
     This macro is primarily useful if you want pending user interface events to be executed
     between the initialization code for your test case and the actual test code. For example,

@@ -81,6 +81,8 @@ public:
 		_childViews.insert(it, pChildView);
 
 		pChildView->_setParentView(this);
+
+        // the child will schedule a sizing info update for us when it gets its core.
 	}
 
 

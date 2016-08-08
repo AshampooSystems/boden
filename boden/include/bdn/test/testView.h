@@ -75,8 +75,6 @@ public:
     {
         P<ViewWithTestExtensions<Window> > pWindow = newObj< ViewWithTestExtensions<Window> >( _pUiProvider );
 
-        pWindow->requestAutoSize();
-
         _pWindow = pWindow;
 
         return pWindow;
@@ -249,7 +247,7 @@ inline void testView()
     
     BDN_CONTINUE_SECTION_ASYNC( pPreparer, initialCoresCreated, pWindow, pView, pCore )
     {
-        // the pending update should have happened now
+        // the pending updates should have happened now
         REQUIRE( pView->getSizingInfoUpdateCount()==1 );
         
 	    SECTION("initialViewState")
@@ -259,7 +257,6 @@ inline void testView()
 		    BDN_REQUIRE( pCore->getVisibleChangeCount()==0 );
 		    BDN_REQUIRE( pCore->getMarginChangeCount()==0 );
 		    BDN_REQUIRE( pCore->getPaddingChangeCount()==0 );
-		    BDN_REQUIRE( pCore->getBoundsChangeCount()==1 );
 		    BDN_REQUIRE( pCore->getParentViewChangeCount()==0 );
 
 		    BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
@@ -289,6 +286,19 @@ inline void testView()
 		    // sizing info should have been updated now.
 		    BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);        
 	    }
+
+        SECTION("multiple needSizingInfoUpdate calls cause single update")
+        {
+            int updateCountBefore = pView->getSizingInfoUpdateCount();
+
+            pView->needSizingInfoUpdate();
+            pView->needSizingInfoUpdate();
+
+            CONTINUE_SECTION_ASYNC(pPreparer, pView, updateCountBefore)
+            {
+                REQUIRE( pView->getSizingInfoUpdateCount() == updateCountBefore+1 );
+            };
+        }
     
         SECTION("parentViewNullAfterParentDestroyed")
 	    {

@@ -136,6 +136,13 @@ public:
 
 		_margin = margin;	
 		_marginChangeCount++;
+
+        View* pParent = getParentViewWeak();
+        if(pParent!=nullptr)
+        {
+            pParent->needSizingInfoUpdate();
+            pParent->needLayout();
+        }
 	}
 
 	
