@@ -233,6 +233,8 @@ TEST_CASE("Window", "[ui]")
 
 	SECTION("autoSize")
 	{
+        Rect boundsBefore = pWindow->bounds();
+
 		SECTION("mainThread")
 		{
 			pWindow->requestAutoSize();
@@ -254,7 +256,7 @@ TEST_CASE("Window", "[ui]")
 		// which thread the request is coming from.
 		// So nothing should have happened yet.
 
-		REQUIRE( pWindow->bounds() == Rect(0,0,0,0) );
+		REQUIRE( pWindow->bounds() == boundsBefore );
 
         CONTINUE_SECTION_ASYNC(
 			[pWindow]()

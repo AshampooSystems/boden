@@ -93,24 +93,25 @@ TEST_CASE("Signal")
             Thread::exec( 
                 [pSignal]()
                 {
-                    Thread::sleepMillis(1000);
+                    Thread::sleepMillis(3000);
 
                     pSignal->set();            
                 } );
 
+            StopWatch stopWatch;
+
             // should not yet be set
             verifySignalState(pSignal, false);
-
-            StopWatch stopWatch;
+            
             REQUIRE( pSignal->wait(5000) );
-            // should have waited about 1000ms
-            REQUIRE( stopWatch.getMillis()>500 );
-            REQUIRE( stopWatch.getMillis()<1500 );
+            // should have waited about 3000ms in total
+            REQUIRE( stopWatch.getMillis()>2500 );
+            REQUIRE( stopWatch.getMillis()<4500 );
         }
 
         SECTION("pulseOne")
         {
-            std::atomic<int> signalledCount;
+            std::atomic<int> signalledCount(0);
 
             std::list< std::future<void> > futureList;
             for(int i=0; i<10; i++)
@@ -146,7 +147,7 @@ TEST_CASE("Signal")
 
         SECTION("pulseAll")
         {
-            std::atomic<int> signalledCount;
+            std::atomic<int> signalledCount(0);
 
             std::list< std::future<void> > futureList;
             for(int i=0; i<10; i++)
