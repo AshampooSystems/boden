@@ -73,19 +73,20 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 TEST_CASE("Window", "[ui]")
 {   
-    SECTION("View")
+    SECTION("View-base")
         bdn::test::testView<Window>();
-    
 
-    P<bdn::test::ViewTestPreparer<Window> > pPreparer = newObj<bdn::test::ViewTestPreparer<Window> >();
+	SECTION("Window-specific")
+	{
+		P<bdn::test::ViewTestPreparer<Window> > pPreparer = newObj<bdn::test::ViewTestPreparer<Window> >();
 
-    P< bdn::test::ViewWithTestExtensions<Window> > pWindow = pPreparer->createView();
+		P< bdn::test::ViewWithTestExtensions<Window> > pWindow = pPreparer->createView();
 
-    P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>( pWindow->getViewCore() );
-	REQUIRE( pCore!=nullptr );
+		P<bdn::test::MockWindowCore> pCore = cast<bdn::test::MockWindowCore>( pWindow->getViewCore() );
+		REQUIRE( pCore!=nullptr );
 
-    // continue testing after the async init has finished
-    std::function<void()> continuation =
+		// continue testing after the async init has finished
+		std::function<void()> continuation =	
 [pPreparer, pWindow, pCore]()
 {
     // testView already tests the initialization of properties defined in View.
@@ -305,7 +306,8 @@ TEST_CASE("Window", "[ui]")
 	}		
 };
 
-    CONTINUE_SECTION_ASYNC(continuation);
+		CONTINUE_SECTION_ASYNC(continuation);
+	}
 }
 
 

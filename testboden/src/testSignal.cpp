@@ -3,6 +3,7 @@
 #include <bdn/Signal.h>
 
 #include <bdn/test.h>
+#include <bdn/StopWatch.h>
 
 using namespace bdn;
 
@@ -31,7 +32,7 @@ void verifySignalState(Signal* pSignal, bool expectedSet)
     }
 
     // the wait functions must not have modified the state.
-    REQUIRE( pSignal->isSet(), expectedSet );
+    REQUIRE( pSignal->isSet() == expectedSet );
 }
 
 
@@ -92,7 +93,7 @@ TEST_CASE("Signal")
             Thread::exec( 
                 [pSignal]()
                 {
-                    Thread::sleep(1000);
+                    Thread::sleepMillis(1000);
 
                     pSignal->set();            
                 } );
@@ -116,16 +117,16 @@ TEST_CASE("Signal")
             {
                 futureList.push_back(
                     Thread::exec( 
-                        [pSignal, signalledCount]()
+                        [pSignal, &signalledCount]()
                         {
-                            Thread::sleep(1000);
+                            Thread::sleepMillis(1000);
     
                             if(pSignal->wait(10000))
                                 signalledCount++;
                         } ) );
             }
 
-            Thread::sleep(4000);
+            Thread::sleepMillis(4000);
 
             pSignal->pulseOne();
 
@@ -152,16 +153,16 @@ TEST_CASE("Signal")
             {
                 futureList.push_back(
                     Thread::exec( 
-                        [pSignal, signalledCount]()
+                        [pSignal, &signalledCount]()
                         {
-                            Thread::sleep(1000);
+                            Thread::sleepMillis(1000);
     
                             if(pSignal->wait(10000))
                                 signalledCount++;
                         } ) );
             }
 
-            Thread::sleep(4000);
+            Thread::sleepMillis(4000);
 
             pSignal->pulseAll();
 

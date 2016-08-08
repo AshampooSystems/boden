@@ -98,6 +98,8 @@
 #include <bdn/UiMargin.h>
 #include <bdn/Thread.h>
 #include <bdn/Property.h>
+#include <bdn/ProgrammingError.h>
+#include <bdn/ExpectProgrammingError.h>
 
 // #included from: catch_compiler_capabilities.h
 #define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
@@ -2175,7 +2177,7 @@ namespace bdn {
     struct IRunner {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
-
+				
         virtual void continueSectionAsync(std::function<void()> continuationFunc )=0;
         virtual void continueSectionInThread(std::function<void()> continuationFunc )=0;
     };
@@ -2265,6 +2267,8 @@ namespace bdn {
     } while( bdn::alwaysFalse() )
 
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_IN( val, container, negate, resultDisposition, macroName ) \
 	do { \
@@ -2343,6 +2347,9 @@ namespace bdn {
 
 #define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, ... ) \
     bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
+
+#define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR() \
+	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
 
 
 // #included from: internal/catch_section.h
@@ -3272,6 +3279,12 @@ return @ desc; \
 #define BDN_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "BDN_REQUIRE_THROWS_WITH" )
 #define BDN_REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE_NOTHROW" )
 
+#define BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr) \
+	{ \
+		bdn::ExpectProgrammingError _expectProgrammingError_ ; \
+		BDN_REQUIRE_THROWS_AS(expr, bdn::ProgrammingError); \
+	}
+
 #define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE( bdn::Thread::isCurrentMain() );
 
 #define BDN_CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK" )
@@ -3353,6 +3366,7 @@ return @ desc; \
 #define BDN_CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
 
 
+
 #ifndef BDN_TEST_ONLY_PREFIXED
 
 #define REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "REQUIRE" )
@@ -3362,6 +3376,17 @@ return @ desc; \
 #define REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "REQUIRE_THROWS_AS" )
 #define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
 #define REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
+
+
+/** Verifies that the specified expression throws a ProgrammingError.
+
+	This is very similar to REQUIRE_THROWS_AS( expr, bdn::ProgrammingError). But in
+	addition to that functionality, this macro automatically uses ExpectProgrammingError
+	to prevent debug breaks, asserts and logging to happen when the bdn::programmingError()
+	function is called in the specified expression. See bdn::programmingError() for more information.
+*/
+#define REQUIRE_THROWS_PROGRAMMING_ERROR(expr) BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)
+
 
 #define REQUIRE_IN_MAIN_THREAD() REQUIRE( bdn::Thread::isCurrentMain() );
 
@@ -3518,7 +3543,6 @@ return @ desc; \
 
     Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
 #define CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
-
 
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )

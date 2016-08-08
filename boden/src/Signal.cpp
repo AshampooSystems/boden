@@ -135,7 +135,7 @@ bool Signal::wait(int timeoutMillis)
                 _condition.wait(lock);
             else
             {
-                bool waitResult;
+                std::cv_status waitResult;
 
                 if(waitIteration==0)
                 {
@@ -151,7 +151,7 @@ bool Signal::wait(int timeoutMillis)
                     waitResult = _condition.wait_until<std::chrono::steady_clock>(lock, absoluteTimeoutTime);
                 }
 
-                if( !waitResult )
+                if( waitResult == std::cv_status::timeout )
                 {
                     // we had a timeout. Signal did not happen.
                     return false;

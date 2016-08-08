@@ -3113,9 +3113,17 @@ public:
 		std::mutex				_shouldAbortInitiateWaitMutex;
 	};
 
+	void verifyContinuationAllowed()
+	{
+		if(_currentTestWillContinueLater)
+			programmingError("Cannot use CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
+	}
 
+	
     void continueSectionAsync(std::function<void()> continuationFunc) override
 	{
+		verifyContinuationAllowed();
+		
 		_currentTestWillContinueLater = true;
         		
         asyncCallFromMainThread(
@@ -3127,6 +3135,8 @@ public:
 
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
+		verifyContinuationAllowed();
+
 		_currentTestWillContinueLater = true;
         		
         Thread::exec(
@@ -3142,7 +3152,7 @@ public:
         // has exited.
         MutexLock lock( _runTestMutex );
 
-        bool testDone = continueCurrentTest(continuationFunc);
+		bool testDone = continueCurrentTest(continuationFunc);
 
         if(testDone)
         {
@@ -3556,6 +3566,7 @@ private:
 	SectionInfo*		_pCurrentTestCaseSection = nullptr;
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
+
 	bool				_currentTestWillContinueLater = false;
     
 	bool				_currentTestIgnoreExpectedToFail = false;

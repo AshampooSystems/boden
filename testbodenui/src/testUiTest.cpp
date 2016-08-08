@@ -187,11 +187,14 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-expectedFail", "[!shouldfail]")
     testContinueSection_expectedFail( scheduleContinueAsync );
 }
 
-TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation")
+TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
 {
+	bool enteredSection = false;
+
     SECTION("initialChild")
     {
-        CONTINUE_SECTION_IN_THREAD( [](){} );
+		enteredSection = true;
+        CONTINUE_SECTION_ASYNC( [](){} );
     }
 
     std::function<void()> continuation =
@@ -206,7 +209,19 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation")
             }
         };
 
-    CONTINUE_SECTION_ASYNC(continuation);
+
+	if(enteredSection)
+	{
+		// we should get a programmingerror here. It is not allowed to schedule a 
+		// continuation when one was already scheduled
+		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_ASYNC(continuation) );
+	}
+	else
+	{
+		// if we did not enter the section then it should be fine to schedule the
+		// continuation here.
+		CONTINUE_SECTION_ASYNC(continuation);
+	}
 }
 
 void scheduleContinueInThread( std::function<void()> continuationFunc )
@@ -233,8 +248,12 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-expectedFail", "[!shouldfail]")
 
 TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation")
 {
+	bool enteredSection = false;
+
     SECTION("initialChild")
     {
+		enteredSection = true;
+
         CONTINUE_SECTION_IN_THREAD( [](){} );
     }
 
@@ -250,6 +269,21 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation"
             }
         };
 
-    CONTINUE_SECTION_IN_THREAD(continuation);
+
+	
+	if(enteredSection)
+	{
+		// we should get a programmingerror here. It is not allowed to schedule a 
+		// continuation when one was already scheduled
+		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_IN_THREAD(continuation) );
+	}
+	else
+	{
+		// if we did not enter the section then it should be fine to schedule the
+		// continuation here.
+		CONTINUE_SECTION_IN_THREAD(continuation);
+	}
+
+    
 }
 
