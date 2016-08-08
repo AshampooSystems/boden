@@ -60,7 +60,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_ASYNC(
+	CONTINUE_SECTION_ASYNC_WITH(
 		[getSizeFunc, expectedSize]()
 		{
 			Size size = getSizeFunc();
@@ -186,7 +186,7 @@ TEST_CASE("Window", "[ui]")
             // Since we want the window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            CONTINUE_SECTION_ASYNC(
+            CONTINUE_SECTION_ASYNC_WITH(
                 [pChild]()
                 {                
                     BDN_REQUIRE( pChild->getParentView() == nullptr);	    
@@ -210,7 +210,7 @@ TEST_CASE("Window", "[ui]")
 			{
 
 				// sizing info is updated asynchronously. So we need to check async as well.
-                CONTINUE_SECTION_ASYNC(
+                CONTINUE_SECTION_ASYNC_WITH(
 					[pWindow, expectedSize]()
 					{
 						View::SizingInfo sizingInfo = pWindow->sizingInfo();
@@ -258,7 +258,7 @@ TEST_CASE("Window", "[ui]")
 
 		REQUIRE( pWindow->bounds() == boundsBefore );
 
-        CONTINUE_SECTION_ASYNC(
+        CONTINUE_SECTION_ASYNC_WITH(
 			[pWindow]()
 			{
 				REQUIRE( pWindow->bounds() == Rect(0,0, 100, 32) );
@@ -295,7 +295,7 @@ TEST_CASE("Window", "[ui]")
 
 		REQUIRE( pWindow->bounds() == Rect(0, 0, 200, 200) );
 
-		CONTINUE_SECTION_ASYNC(
+		CONTINUE_SECTION_ASYNC_WITH(
 			[pWindow]()
 			{
 				// the work area of our mock window is 100,100 800x800
@@ -308,7 +308,7 @@ TEST_CASE("Window", "[ui]")
 	}		
 };
 
-		CONTINUE_SECTION_ASYNC(continuation);
+		CONTINUE_SECTION_ASYNC_WITH(continuation);
 	}
 }
 

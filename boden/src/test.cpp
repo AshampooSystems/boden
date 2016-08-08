@@ -2837,9 +2837,7 @@ private: // IResultCapture
                 // This should never happen. CONTINUE_SECTION_ASYNC should be at the end of a section.
                 // So the first event we get should be that section being ended.
                 // So the test code is invalid.
-                BDN_BREAK_INTO_DEBUGGER();
-                assert(false);
-                throw ProgrammingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD.");
+                programmingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD.");
             }
 
 
@@ -2858,8 +2856,7 @@ private: // IResultCapture
                         // This should never happen. It is an internal error.
                         // Also note that we cannot actually enter the section from here, even if we wanted to,
                         // because sectionStarted is not actually called from the point in the actual test code.
-                        assert(false);
-                        throw ProgrammingError("Postponed sectionStarted event got true result.");
+                        programmingError("Postponed sectionStarted event got true result.");
                     }
                 } );
 
@@ -3789,7 +3786,7 @@ Totals runTests( Ptr<Config> const& config ) {
 			// we cannot support asynchronous tests with this interface.
 			// Caller should use the TestAppWithUiController app controller
 			// or use the TestRunner object directly.
-			throw ProgrammingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
+			programmingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
 		}
     }
 

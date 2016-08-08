@@ -22,7 +22,7 @@ TEST_CASE("RequireNewAlloc")
 	SECTION("NoParams")
 	{
 		SECTION("nonNew")
-			REQUIRE_THROWS_AS( TestDummy test;, ProgrammingError );
+			REQUIRE_THROWS_PROGRAMMING_ERROR( TestDummy test; );
 
 		SECTION("new")
 			newObj<TestDummy>();
@@ -31,7 +31,7 @@ TEST_CASE("RequireNewAlloc")
 	SECTION("withParams")
 	{
 		SECTION("nonNew")
-			REQUIRE_THROWS_AS( TestDummy test(2.3);, ProgrammingError );
+			REQUIRE_THROWS_PROGRAMMING_ERROR( TestDummy test(2.3); );
 
 		SECTION("new")
 			newObj<TestDummy>(2.3);
@@ -39,6 +39,8 @@ TEST_CASE("RequireNewAlloc")
 
 	SECTION("errorMessageContainsCorrectClassName")
 	{
+        bdn::ExpectProgrammingError expectProgrammingErr;
+
 		String errorMessage;
 		try
 		{

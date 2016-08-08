@@ -39,7 +39,7 @@ void View::needLayout()
 void View::verifyInMainThread(const String& methodName) const
 {
 	if(!Thread::isCurrentMain())
-		throw ProgrammingError(methodName + " must be called from main thread.");
+		programmingError(methodName + " must be called from main thread.");
 }
 
 Margin View::uiMarginToPixelMargin( const UiMargin& uiMargin) const

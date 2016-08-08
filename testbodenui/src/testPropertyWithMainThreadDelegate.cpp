@@ -165,7 +165,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			CONTINUE_SECTION_IN_THREAD(
+			CONTINUE_SECTION_IN_THREAD_WITH(
 				[pProp, pDelegate, pChangeCounter, pChangeSub]()
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -261,7 +261,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			CONTINUE_SECTION_IN_THREAD(
+			CONTINUE_SECTION_IN_THREAD_WITH(
 				[pProp, pDelegate, pChangeCounter, pChangeSub]()
 				{
 					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -347,7 +347,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 			SECTION("fetchWhileSetScheduled")
 			{
-                CONTINUE_SECTION_IN_THREAD(
+                CONTINUE_SECTION_IN_THREAD_WITH(
 					[pProp, pDelegate, pChangeCounter, pChangeSub]()
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
@@ -405,7 +405,7 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 			SECTION("setWhileFetchScheduled")
 			{
-                CONTINUE_SECTION_IN_THREAD(
+                CONTINUE_SECTION_IN_THREAD_WITH(
 					[pProp, pDelegate, pChangeCounter, pChangeSub]()
 					{
 						PropertyWithMainThreadDelegate<String>&		prop = *pProp;

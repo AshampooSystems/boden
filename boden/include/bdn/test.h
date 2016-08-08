@@ -2342,14 +2342,16 @@ namespace bdn {
 
 
 
-#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC( continuationFunc ) \
+#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc ) \
     bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc )
 
-#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, ... ) \
+#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc ) \
     bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
+
 
 #define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR() \
 	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
+
 
 
 // #included from: internal/catch_section.h
@@ -2511,6 +2513,9 @@ namespace bdn {
     #define INTERNAL_BDN_SECTION( name, desc ) \
         if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
 #endif
+
+
+
 
 // #included from: internal/catch_generators.hpp
 #define TWOBLUECUBES_BDN_GENERATORS_HPP_INCLUDED
@@ -3307,23 +3312,15 @@ return @ desc; \
 #define BDN_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
 #define BDN_SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
 
-#ifdef BDN_CONFIG_VARIADIC_MACROS
-    #define BDN_TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
-    #define BDN_TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define BDN_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define BDN_REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define BDN_SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
-    #define BDN_FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__ )
-    #define BDN_SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__ )
-#else
-    #define BDN_TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
-    #define BDN_TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
-    #define BDN_METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
-    #define BDN_REGISTER_TEST_CASE( function, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( function, name, description )
-    #define BDN_SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
-    #define BDN_FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", msg )
-    #define BDN_SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", msg )
-#endif
+#define BDN_TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+#define BDN_TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+#define BDN_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+#define BDN_REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+#define BDN_SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+#define BDN_ASYNC_SECTION( sectionName, ... ) INTERNAL_BDN_ASYNC_SECTION( sectionName, __VA_ARGS__ )
+#define BDN_FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__ )
+#define BDN_SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__ )
+
 #define BDN_ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 #define BDN_REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
@@ -3348,22 +3345,93 @@ return @ desc; \
 
 
 
-/** \def BDN_CONTINUE_SECTION_ASYNC( continuationFunc, pObjectToKeepAlive1, ... )
+/** \def BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
 
-	\copybrief CONTINUE_SECTION_ASYNC()
-	\copydetailed CONTINUE_SECTION_ASYNC()
-
-	*/
-#define BDN_CONTINUE_SECTION_ASYNC( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC(  __VA_ARGS__ )
-
-
-/** \def BDN_CONTINUE_SECTION_IN_THREAD( continuationFunc, pObjectToKeepAlive1, ... )
-
-	\copybrief CONTINUE_SECTION_IN_THREAD()
-	\copydetailed CONTINUE_SECTION_IN_THREAD()
+	\copybrief CONTINUE_SECTION_ASYNC_WITH()
+	\copydetailed CONTINUE_SECTION_ASYNC_WITH()
 
 	*/
-#define BDN_CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
+#define BDN_CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH(  __VA_ARGS__ )
+
+
+/** \def BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
+
+	\copybrief CONTINUE_SECTION_IN_THREAD_WITH()
+	\copydetailed CONTINUE_SECTION_IN_THREAD_WITH()
+
+	*/
+#define BDN_CONTINUE_SECTION_IN_THREAD_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( __VA_ARGS__ )
+
+
+
+
+namespace bdn
+{
+namespace test
+{
+
+class ContinueSectionAsyncStarter_
+{
+public:
+    void operator << ( std::function<void()> continuation )
+    {
+        BDN_CONTINUE_SECTION_ASYNC_WITH( continuation );
+    }
+};
+
+}
+}
+
+#define BDN_CONTINUE_SECTION_ASYNC(...) \
+    bdn::test::ContinueSectionAsyncStarter_() << [__VA_ARGS__]()
+
+
+
+namespace bdn
+{
+namespace test
+{
+
+class ContinueSectionInThreadStarter_
+{
+public:
+    void operator << ( std::function<void()> continuation )
+    {
+        BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuation );
+    }
+};
+
+}
+}
+
+#define BDN_CONTINUE_SECTION_IN_THREAD(...) \
+    bdn::test::ContinueSectionInThreadStarter_() << [__VA_ARGS__]()
+
+
+
+namespace bdn
+{
+namespace test
+{
+    
+class AsyncSectionStarter_
+{
+public:
+
+    void operator<<(std::function<void()> continuationFunc) const
+    {
+        BDN_CONTINUE_SECTION_ASYNC_WITH(continuationFunc);
+    }
+};
+
+}
+}
+
+
+#define INTERNAL_BDN_ASYNC_SECTION( sectionName, ... ) \
+        INTERNAL_BDN_SECTION( sectionName ) \
+            bdn::test::AsyncSectionStarter_() << [ __VA_ARGS__ ]()
+            
 
 
 
@@ -3415,63 +3483,89 @@ return @ desc; \
 #define CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
 #define SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
 
-#ifdef BDN_CONFIG_VARIADIC_MACROS
-    #define TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
-    #define TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
-    #define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
-#else
-    #define TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
-    #define TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
-    #define METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
-    #define REGISTER_TEST_CASE( method, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( method, name, description )
-    #define SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
-    #define FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", msg )
-    #define SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
-#endif
+
+#define TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+#define TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+#define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+#define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+#define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+
+
+/** \def #define ASYNC_SECTION( sectionName, captures... )
+
+    Starts a section that is executed asynchronously.
+
+    Just as with a normal SECTION, a code block must follow that contains the
+    section code. The difference is that this code will be executed asynchronously,
+    as if CONTINUE_SECTION_ASYNC was used at the end of a normal section.
+
+    There is one difference in usage compared to SECTION, though: there must be a semicolon
+    at the end of the async section's code block (see example below).
+
+    The code block after ASYNC_SECTION will actually end up being executed as a lambda function.
+    The capture statement of the lambda expression are the remaining parameters of the 
+    ASYNC_SECTION macro, after the section name. Often one will simply specify = here, to capture
+    the local variables around the section by value.
+    
+    This macro is primarily useful if you want pending user interface events to be executed
+    between the initialization code for your test case and the actual test code. For example,
+    you might set up a user interface and might want a layout cycle to happen between the
+    initialization and the tests.
+
+    Examples:
+
+    \code
+
+    // do some generic initalization here that applies to all sections
+    P<SomeClass>    pSomeTestObject = newObj<SomeClass>();
+    int             someValue = 17;
+    double          someOtherValue = 42;
+    ... more initialization code....
+
+    ASYNC_SECTION("some section", = )   // capture statement is "=", i.e. capture all local variables by value
+    {
+        // this is the async test code.
+        // pSomeTestObject, someValue and someOtherValue can all be used here, since all local variables are captured by value.
+    };
+
+
+    ASYNC_SECTION("some other section", pSomeTestObject, someValue )   // capture statement explicitly lists what to capture here
+    {
+        // we can only access pSomeTestObject and someValue here, since only those have been captured.
+    };
+
+    \endcode
+*/
+#define ASYNC_SECTION( sectionName, ... ) INTERNAL_BDN_ASYNC_SECTION( sectionName, __VA_ARGS__ )
+
+#define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
+#define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
+
+
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def CONTINUE_SECTION_ASYNC( continuationFunc )
+/** \def CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
 
-    Continues the current test section asynchronously.
+    Continues the current test section asynchronously by calling the specified continuation function / lambda.
+
+    This is very similar to CONTINUE_SECTION_ASYNC, except that you can pass the code to be executed as
+    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_ASYNC statement.
+
+    This can sometimes be useful if you want the continuation to be a real function, or a function with
+    bounds parameters (using std::bind) or things like that.
     
-    continuationFunc must be a function or lambda that takes no parameters and returns void.
-    It should contain the code that continues the test.
+    Apart from this difference, the macro works exactly like CONTINUE_SECTION_ASYNC.
 
-    CONTINUE_SECTION_ASYNC is mainly useful if you need pending events to be processed
-    before the test continues. It is often used in tests that use user interface elements.
-
-    The continuation function is always called from the main thread.
-    There is also a similar macro called CONTINUE_SECTION_IN_THREAD which runs the continuation
-    function in a new thread.
-
-    CONTINUE_SECTION_ASYNC can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
-
-    Your test section (or test case if you do not use sections) should end after calling CONTINUE_SECTION_ASYNC.
-    If there is additional test code afterwards then it will be executed BEFORE the continuation function
-    is run. Since that is unintuitive, it should be avoided.
-    
-    Continuation functions can be chained. I.e. continuation functions can also have a CONTINUE_SECTION_ASYNC statement
-    at the end to add another asynchronous continuation.
-
-    The normal test macros (like REQUIRE() ) can all be used as normal in the continuation function. There
-	is no difference to a synchronous test in this regard.
-        
-    If you need to access objects from your initial test function in the continuation then it is recommended to
-    pass a lambda as the continuation function and capture the objects you want to use in it. You can also
-    declare them as parameters to your continuation function and use std::bind to bind the objects as parameters
-    (see example below).	
-    
 	Example:
 
 	\code
 
-    void continueButtonClickTest();
-    
+    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    {
+        REQUIRE( *pClicked );
+    }
+
 	TEST_CASE("ButtonClick")
 	{
 		P<Window> pWindow = newObj<Window>();
@@ -3490,51 +3584,122 @@ return @ desc; \
                 *pClicked = true;
             } );
 
-		// cause the button to be clicked in 5 seconds.
+        // schedule a button click
 		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-		pClicker->clickButtonIn5Seconds(pMyButton);
+		pClicker->scheduleButtonClick(pMyButton);
 
-        // we now need to wait for the click. User interface events must be handled
-        // while we wait, so we have to schedule an async continuation.
-        // We also need the Window object to be kept alive, so we pass that as a secondary
-        // parameter as well.
-		CONTINUE_SECTION_ASYNC( 
-            [pClicked, pWindow]()   // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
-                                    // pWindow is in the capture list so that the window will not be deleted and destroyed when the
-                                    // initial test function exits (before the lambda continuation is called).
-                                    // We could also use std::bind here instead of a lambda. See below for an example
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
 
-            {
-                continueButtonClickTest(pClicked, pWindow);
-            }
+        // So we now need user interface events to be handled, causing the click to be
+        // actually executed. So we have to schedule an async continuation.
+		CONTINUE_SECTION_ASYNC_WITH( std::bind( continueButtonClickTest, pClicked, pWindow) );        
     }
-
-    void continueButtonClickTest(bool* pClicked)
-    {
-        if( ! (*pClicked) )
-        {
-            // the button has not yet been clicked. We need to keep waiting, so we schedule
-            // another continuation.
-            // This time we use std::bind instead of a lambda, just to demonstrate.
-            CONTINUE_SECTION_ASYNC( std::bind(continueButtonClickTest, pClicked) );
-            
-            return;
-        }
-
-
-        // When we arrive here then the button has been clicked. The test is complete.
-        // We do not need to do anything else here. Once we return without
-        // scheduling another continuation the test will be marked as passed
-        // and the next test will be started.
-    }        
-
+    
 	\endcode
 
 	*/
-#define CONTINUE_SECTION_ASYNC( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC( __VA_ARGS__ )
+#define CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( __VA_ARGS__ )
 
 
-/** \def CONTINUE_SECTION_ASYNC( continuationFunc )
+/** \def CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
+
+    Similar to CONTINUE_SECTION_ASYNC_WITH, except that the continuation function is executed from a newly created
+    secondary thread.
+    This is useful if you want to test your code from another thread (for example, to verify that it also works from
+    arbitrary threads, not just the main thread).
+
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+#define CONTINUE_SECTION_IN_THREAD_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( __VA_ARGS__ )
+
+
+    
+/** \def CONTINUE_SECTION_ASYNC( captures... )
+
+    Continues the current test section asynchronously.
+    
+    A code block with the code for the asynchronous continuation must follow (see example below).
+    There must be a semicolon after the code block.
+    
+    CONTINUE_SECTION_ASYNC is mainly useful if you need pending events to be processed
+    before the test continues. It is often used in tests that use user interface elements.
+
+    The continuation code block that follows is always called from the main thread.
+    There is also a similar macro called CONTINUE_SECTION_IN_THREAD which runs the continuation
+    function in a new thread instead of the main thread.
+
+    CONTINUE_SECTION_ASYNC can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
+
+    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_ASYNC statement
+    and its code block.
+    If there is additional test code afterwards then it will be executed BEFORE the continuation code
+    is run. Since that is unintuitive, it should be avoided.
+    
+    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_ASYNC statement
+    at the end (inside the continuation code block) to add another asynchronous continuation.
+
+    The normal test macros (like REQUIRE() ) can all be used as normal in the continuation. There
+	is no difference to a synchronous test in this regard.
+        
+    The code block after CONTINUE_SECTION_ASYNC will actually end up being executed as a lambda function.
+    The capture statement of the lambda expression are the (optional) parameters of the 
+    CONTINUE_SECTION_ASYNC macro. Often one will simply specify = here to capture
+    the local variables by value.
+    
+	Example:
+
+	\code
+
+	TEST_CASE("ButtonClick")
+	{
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
+
+        pWindow->setContentView(pMyButton);
+
+        bool* pClicked = new bool;
+        *pClicked = false;
+
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
+
+		// schedule a button click
+		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
+		pClicker->scheduleButtonClick(pMyButton);
+
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
+
+        // So we now need user interface events to be handled, causing the click to be
+        // actually executed. So we have to schedule an async continuation.
+		CONTINUE_SECTION_ASYNC( pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+                                                    // pWindow is in the capture list so that the window will not be deleted and destroyed when the
+                                                    // initial test function exits (before the lambda continuation is called).
+                                                    // We could also use std::bind here instead of a lambda. See below for an example
+        {
+            REQUIRE( *pClicked );
+        };
+
+        // as an alternative we could also have captured ALL local variables with a "=" capture statement like this:
+        CONTINUE_SECTION_ASYNC( = )
+        {
+            REQUIRE( *pClicked );
+        };
+
+    }
+
+	\endcode
+    */
+
+#define CONTINUE_SECTION_ASYNC(...) BDN_CONTINUE_SECTION_ASYNC(__VA_ARGS__)
+
+
+/** \def CONTINUE_SECTION_IN_THREAD( captures... )
 
     Similar to CONTINUE_SECTION_ASYNC, except that the continuation function is executed from a newly created
     secondary thread.
@@ -3542,7 +3707,7 @@ return @ desc; \
     arbitrary threads, not just the main thread).
 
     Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
-#define CONTINUE_SECTION_IN_THREAD( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD( __VA_ARGS__ )
+#define CONTINUE_SECTION_IN_THREAD(...) BDN_CONTINUE_SECTION_IN_THREAD(__VA_ARGS__)
 
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )

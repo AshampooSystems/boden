@@ -40,7 +40,7 @@ void testCallFromMainThread(bool throwException)
 	{
         SECTION("storingFuture")
         {
-            CONTINUE_SECTION_IN_THREAD(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              volatile int   callCount = 0;
@@ -94,7 +94,7 @@ void testCallFromMainThread(bool throwException)
 
         SECTION("notStoringFuture")
         {
-            CONTINUE_SECTION_IN_THREAD(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              struct Data : public Base
@@ -244,11 +244,10 @@ public:
         {
             P<TestCallFromMainThreadOrderingBase> pThis = this;
 
-            CONTINUE_SECTION_ASYNC(
-                [pThis]()
-                {
-                    pThis->scheduleTestContinuationIfNecessary();
-                } );
+            CONTINUE_SECTION_ASYNC(pThis)
+            {
+                pThis->scheduleTestContinuationIfNecessary();
+            };
         }
     }
 
@@ -345,29 +344,26 @@ void testAsyncCallFromMainThread(bool throwException)
         // should not have waited
         REQUIRE( watch.getMillis()<1000 );
 
-        CONTINUE_SECTION_ASYNC(
-            [pData]()
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            // the test continuation will be executed after the async call we scheduled.
+            REQUIRE( pData->callCount==1 );
+
+            // another async call was scheduled by the previous one. Check that in another
+            // test continuation.
+            CONTINUE_SECTION_ASYNC(pData)
             {
-                // the test continuation will be executed after the async call we scheduled.
-                REQUIRE( pData->callCount==1 );
-
-                // another async call was scheduled by the previous one. Check that in another
-                // test continuation.
-
-                 CONTINUE_SECTION_ASYNC(
-                    [pData]()
-                    {
-                        REQUIRE( pData->callCount==2 );
-                        // done.
-                    } );
-            } );
+                REQUIRE( pData->callCount==2 );
+                // done.
+            };
+        };
     }
 
 #if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
-        CONTINUE_SECTION_IN_THREAD(
+        CONTINUE_SECTION_IN_THREAD_WITH(
                      [throwException]()
                      {
                          P<Data> pData = newObj<Data>();
@@ -492,7 +488,7 @@ void testWrapCallFromMainThread(bool throwException)
     {
         SECTION("storingFuture")
         {
-            CONTINUE_SECTION_IN_THREAD(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              volatile int   callCount = 0;
@@ -557,7 +553,7 @@ void testWrapCallFromMainThread(bool throwException)
 
         SECTION("notStoringFuture")
         {
-            CONTINUE_SECTION_IN_THREAD(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              struct Data : public Base
@@ -673,24 +669,23 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         // shoudl not have waited.
         REQUIRE( watch.getMillis()<500 );        
         
-        CONTINUE_SECTION_ASYNC(
-                      [pData]()
-                      {
-                          Thread::sleepMillis(2000);
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            Thread::sleepMillis(2000);
 
-                          // now the call should have happened.
-                          REQUIRE( pData->callCount==1 );
+            // now the call should have happened.
+            REQUIRE( pData->callCount==1 );
 
-                          // and it should have happened from the main thread.
-                          REQUIRE( pData->threadId==Thread::getMainId() );
-                      } );
+            // and it should have happened from the main thread.
+            REQUIRE( pData->threadId==Thread::getMainId() );
+        };
     }
     
 #if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
-        CONTINUE_SECTION_IN_THREAD(
+        CONTINUE_SECTION_IN_THREAD_WITH(
                      [throwException]()
                      {
                          volatile int   callCount = 0;

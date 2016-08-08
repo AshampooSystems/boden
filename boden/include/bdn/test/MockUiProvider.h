@@ -4,6 +4,7 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
+#include <bdn/test/MockContainerViewCore.h>
 
 #include <bdn/test.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -77,7 +78,13 @@ public:
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		if(coreTypeName==Window::getWindowCoreTypeName())
+        if(coreTypeName==ContainerView::getContainerViewCoreTypeName())
+		{
+			_coresCreated++;
+
+			return newObj<MockContainerViewCore>( cast<ContainerView>(pView) );
+		}
+		else if(coreTypeName==Window::getWindowCoreTypeName())
 		{
 			_coresCreated++;
 
