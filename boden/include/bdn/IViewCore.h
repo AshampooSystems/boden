@@ -19,7 +19,7 @@ class IViewCore : BDN_IMPLEMENTS IBase
 public:
 
 	/** Shows/hides the view core.*/
-	virtual void	setVisible(const bool& visible)=0;
+	virtual void setVisible(const bool& visible)=0;
 	
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const UiMargin& padding)=0;

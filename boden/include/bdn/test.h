@@ -2299,6 +2299,28 @@ namespace bdn {
     } while( bdn::alwaysFalse() ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
 
 
+
+#define INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, resultDisposition, macroName ) \
+	do { \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #value ", " #expectedValue ", " #maxDeviation, resultDisposition ); \
+        try { \
+            /* capture the concrete values, in case the parameters are a function call or similar.*/ \
+            auto _val = value; \
+            auto _expectedVal = expectedValue; \
+            auto _dev = maxDeviation; \
+			bool _result = (_val>=_expectedVal-_dev && _val<=_expectedVal+_dev); \
+			__catchResult.setLhs(bdn::toString(_val) ); \
+			__catchResult.setRhs(bdn::toString(_expectedVal) ); \
+			__catchResult.setOp( "~~");  \
+			__catchResult.captureResult( _result ? bdn::ResultWas::Ok : bdn::ResultWas::ExpressionFailed ); \
+        } \
+        catch( ... ) { \
+            __catchResult.useActiveException( bdn::ResultDisposition::Normal ); \
+        } \
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
+
+
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef BDN_CONFIG_VARIADIC_MACROS
     #define INTERNAL_BDN_MSG( messageType, resultDisposition, macroName, ... ) \
@@ -3292,6 +3314,8 @@ return @ desc; \
 
 #define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE( bdn::Thread::isCurrentMain() );
 
+#define BDN_REQUIRE_ALMOST_EQUAL( value, expectedValue, maxDeviation )  INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal, "BDN_REQUIRE_ALMOST_EQUAL" )
+
 #define BDN_CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK" )
 #define BDN_CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "BDN_CHECK_FALSE" )
 #define BDN_CHECKED_IF( expr ) INTERNAL_BDN_IF( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECKED_IF" )
@@ -3456,10 +3480,12 @@ public:
 #define REQUIRE_THROWS_PROGRAMMING_ERROR(expr) BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)
 
 
-#define REQUIRE_IN_MAIN_THREAD() REQUIRE( bdn::Thread::isCurrentMain() );
-
 #define REQUIRE_IN( value, container ) INTERNAL_BDN_IN( value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
 #define REQUIRE_NOT_IN( value, container ) INTERNAL_BDN_IN( value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")
+
+#define REQUIRE_ALMOST_EQUAL( value, expectedValue, maxDeviation )  INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal, "REQUIRE_ALMOST_EQUAL" )
+
+#define REQUIRE_IN_MAIN_THREAD() REQUIRE( bdn::Thread::isCurrentMain() );
 
 /** Checks the specified condition and records failures, but does not abort the test if the condition failed (i.e. does not throw TestFailureException
 	like REQUIRE would).*/
