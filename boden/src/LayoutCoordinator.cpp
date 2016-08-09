@@ -173,6 +173,21 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 					toDoList.clear();
 					toDoList.insert( toDoList.end(), temp.begin(), temp.end() );
+
+                    // remove duplicates from the toDoList. We can get those if the same view
+                    // is added in subsequent iterations after we moved the initial entry from
+                    // the set to the toDoList.
+                    P<View> pPrevView;
+                    for(auto it = toDoList.begin(); it!=toDoList.end(); )
+                    {
+                        if(it->pView == pPrevView)
+                            it = toDoList.erase(it);
+                        else
+                        {
+                            pPrevView = it->pView;
+                            ++it;
+                        }
+                    }
 				}		
 
 				if(toDoList.empty())
@@ -255,6 +270,21 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 					toDoList.clear();
 					toDoList.insert( toDoList.end(), temp.begin(), temp.end() );
+
+                    // remove duplicates from the toDoList. We can get those if the same view
+                    // is added in subsequent iterations after we moved the initial entry from
+                    // the set to the toDoList.
+                    P<View> pPrevView;
+                    for(auto it = toDoList.begin(); it!=toDoList.end(); )
+                    {
+                        if(it->pView == pPrevView)
+                            it = toDoList.erase(it);
+                        else
+                        {
+                            pPrevView = it->pView;
+                            ++it;
+                        }
+                    }
 				}
 
 

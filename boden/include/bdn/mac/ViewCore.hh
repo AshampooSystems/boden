@@ -36,18 +36,8 @@ public:
         _nsView.hidden = !visible;
     }
     
-    
-    void setMargin(const UiMargin& margin) override
-    {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-
     void setPadding(const UiMargin& padding) override
     {
-        // store the padding so that we can use it during size calulation
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
     
 
@@ -56,8 +46,6 @@ public:
         // our parent view's coordinate system is "normal" i.e. with
         // the top left being (0,0). So there is no need to flip the coordinates.
         _nsView.frame = rectToMacRect(bounds, -1);
-        
-        getOuterView()->needLayout();
     }
     
     

@@ -52,25 +52,14 @@ public:
     }
     
     
-    void setMargin(const UiMargin& margin) override
-    {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-    
     void setPadding(const UiMargin& padding) override
     {
-        // store the padding so that we can use it during size calulation
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
     
     
     void setBounds(const Rect& bounds) override
     {
         _view.frame = rectToIosRect(bounds);
-        
-        getOuterView()->needLayout();
     }
     
     

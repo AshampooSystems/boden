@@ -1,14 +1,18 @@
 #ifndef BDN_IViewCore_H_
 #define BDN_IViewCore_H_
 
+namespace bdn
+{
+    class IViewCore;
+}
+
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
 #include <bdn/Size.h>
+#include <bdn/View.h>
 
 namespace bdn
 {
-
-class View;
 
 class IViewCore : BDN_IMPLEMENTS IBase
 {
@@ -17,16 +21,12 @@ public:
 	/** Shows/hides the view core.*/
 	virtual void	setVisible(const bool& visible)=0;
 	
-	/** Sets the view core's margin. See View::margin() */
-	virtual void setMargin(const UiMargin& margin)=0;
-
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const UiMargin& padding)=0;
 
 	/** Sets the view core's bounding rectangle. See View::bounds() */
 	virtual void setBounds(const Rect& bounds)=0;
-
-
+    
 	
 	/** Converts the specified Ui length to pixels.*/
 	virtual int uiLengthToPixels(const UiLength& uiLength) const=0;

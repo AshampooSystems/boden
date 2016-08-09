@@ -89,12 +89,6 @@ public:
 	{
 		_pFrameworkElement->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
 	}
-			
-	void setMargin(const UiMargin& margin) override
-	{
-		// we don't care. The outer view object takes care of these things.
-	}
-
 	
 	void setBounds(const Rect& bounds) override
 	{
@@ -117,8 +111,6 @@ public:
 		
 		_pFrameworkElement->Width = intToUwpDimension( bounds.width, uiScaleFactor );
 		_pFrameworkElement->Height = intToUwpDimension( bounds.height, uiScaleFactor );
-
-		// XXX _pOuterViewWeak->needLayout();
 	}
 
 

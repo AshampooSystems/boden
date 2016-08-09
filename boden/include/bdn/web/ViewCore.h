@@ -72,14 +72,7 @@ public:
         (*_pJsObj)["style"].set("visibility", visible ? "visible" : "hidden");
     }
     
-    
-    void setMargin(const UiMargin& margin) override
-    {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-    
+        
     void setPadding(const UiMargin& padding) override
     {
         // we need to set the padding in the DOM element, so that it can adjust its
@@ -93,8 +86,6 @@ public:
                          + " " + UiProvider::get().uiLengthToHtmlString(padding.left);
 
         (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
-
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
     
     
@@ -106,9 +97,7 @@ public:
         styleObj.set("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
 
         styleObj.set("left", UiProvider::pixelsToHtmlString(bounds.x).asUtf8() );
-        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );
-        
-        getOuterView()->needLayout();
+        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
     }
     
     

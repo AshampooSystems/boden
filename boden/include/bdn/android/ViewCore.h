@@ -103,20 +103,12 @@ public:
     {
         _pJView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible );
     }
-
-    void setMargin(const UiMargin& margin) override
-    {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
+        
     void setPadding(const UiMargin& padding) override
     {
         Margin pixelPadding = uiMarginToPixelMargin(padding);
 
         _pJView->setPadding( pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom );
-
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
 
 
@@ -147,8 +139,6 @@ public:
             logInfo("child view "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" setBounds: ("+std::to_string(bounds.width)+"x"+std::to_string(bounds.height)+")");
 
             parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
-
-            getOuterView()->needLayout();
         }
     }
 

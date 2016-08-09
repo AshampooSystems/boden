@@ -26,7 +26,6 @@ public:
 		_pOuterViewWeak = pView;
 
 		_visible = pView->visible();
-		_margin = pView->margin();
 		_padding = pView->padding();
 		_bounds = pView->bounds();
 		_pParentViewWeak = pView->getParentView();
@@ -50,19 +49,6 @@ public:
     int getVisibleChangeCount() const
 	{
 	    return _visibleChangeCount;
-	}
-
-
-    /** Returns the margin that is currently configured.*/
-    UiMargin getMargin() const
-	{
-	    return _margin;
-	}
-
-    /** Returns the number of times the view's margin has changed.*/
-    int getMarginChangeCount() const
-	{
-	    return _marginChangeCount;
 	}
 
 
@@ -92,6 +78,8 @@ public:
 	    return _boundsChangeCount;
 	}
 
+
+    
 
     /** Returns the view's current parent view.
         Note that the MockViewCore does not hold a reference to it, so it
@@ -129,21 +117,6 @@ public:
 		_visibleChangeCount++;
 	}
 	
-	
-	void setMargin(const UiMargin& margin) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		_margin = margin;	
-		_marginChangeCount++;
-
-        View* pParent = getParentViewWeak();
-        if(pParent!=nullptr)
-        {
-            pParent->needSizingInfoUpdate();
-            pParent->needLayout();
-        }
-	}
 
 	
 	void setPadding(const UiMargin& padding) override
@@ -152,8 +125,6 @@ public:
 
 		_padding = padding;
 		_paddingChangeCount++;
-
-		_pOuterViewWeak->needSizingInfoUpdate();
 	}
 
 	
@@ -165,6 +136,8 @@ public:
 		_boundsChangeCount++;
 	}
 
+        
+    
 	
 	int uiLengthToPixels(const UiLength& uiLength) const override
 	{
@@ -233,8 +206,6 @@ protected:
 	bool		_visible = false;
 	int			_visibleChangeCount = 0;
 
-	UiMargin	_margin;
-	int			_marginChangeCount = 0;
 
 	UiMargin	_padding;
 	int			_paddingChangeCount = 0;
@@ -244,7 +215,7 @@ protected:
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;
-
+    
 	View*		_pOuterViewWeak = nullptr;
 
 };

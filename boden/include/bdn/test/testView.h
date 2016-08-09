@@ -186,11 +186,12 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
         CONTINUE_SECTION_ASYNC( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
 		{
 			// the core should now have been updated.
-			// However, sizing info updates should never happen immediately when
-			// a core changes. We want them to happen asynchronously,
+			
+            // However, sizing info updates should never happen immediately when
+			// a core property changes. They should be scheduled asynchronously
 			// so that multiple changes can be handled together with a single update.
 
-			// so the sizing info update count should still be unchanged
+			// so the sizing info update count should still be unchanged at this point.
 			BDN_REQUIRE( pView->getSizingInfoUpdateCount()==initialSizingInfoUpdateCount );	
 
 			// now we do another async step. At that point the scheduled
@@ -255,7 +256,6 @@ inline void testView()
             // the core should initialize its properties from the outer window when it is created.
 		    // The outer window should not set them manually after construction.		
 		    BDN_REQUIRE( pCore->getVisibleChangeCount()==0 );
-		    BDN_REQUIRE( pCore->getMarginChangeCount()==0 );
 		    BDN_REQUIRE( pCore->getPaddingChangeCount()==0 );
 		    BDN_REQUIRE( pCore->getParentViewChangeCount()==0 );
 
@@ -358,8 +358,8 @@ inline void testView()
 				    },
 				    [pCore, m, pView, pWindow]()
 				    {
-					    BDN_REQUIRE( pCore->getMarginChangeCount()==1 );
-					    BDN_REQUIRE( pCore->getMargin() == m);
+                        // margin should still have the value we set
+                        REQUIRE( pView->margin().get() == m );
 				    },
 				    0	// should NOT have caused a sizing info update
 				    );
@@ -388,15 +388,17 @@ inline void testView()
 		    {
 			    Rect b(1, 2, 3, 4);
 
+                int boundsChangeCountBefore = pCore->getBoundsChangeCount();
+
 			    testViewOp<ViewType>( 
 				    pView,
 				    [pView, b, pWindow]()
 				    {
 					    pView->bounds() = b;
 				    },
-				    [pCore, b, pView, pWindow]()
+				    [pCore, b, pView, pWindow, boundsChangeCountBefore]()
 				    {
-					    BDN_REQUIRE( pCore->getBoundsChangeCount()==2 );
+					    BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
 					    BDN_REQUIRE( pCore->getBounds() == b);
 				    },
 				    0	// should NOT have caused a sizing info update

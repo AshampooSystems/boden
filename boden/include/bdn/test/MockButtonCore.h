@@ -44,8 +44,6 @@ public:
 	{
 		_label = label;
 		_labelChangeCount++;
-
-        getOuterViewWeak()->needSizingInfoUpdate();
 	}
 
 

@@ -215,12 +215,6 @@ public:
 		}
 	}
 	
-
-	void setMargin(const UiMargin& margin) override
-	{
-		// we don't care. The outer Window object will handle the layout.
-	}
-
 	
 	void setPadding(const UiMargin& padding) override
 	{

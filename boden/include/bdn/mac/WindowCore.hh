@@ -102,15 +102,7 @@ public:
             [_nsWindow orderOut:NSApp];
     }
     
-    
-    
-    void setMargin(const UiMargin& margin) override
-    {
-        // margins have no effect on top level windows. So, ignore.
-    }
-    
-    
-    
+        
     void setPadding(const UiMargin& padding) override
     {
         // the outer window handles padding during layout. So nothing to do here.

@@ -21,6 +21,20 @@ void testChildAlignment(
 
     pColumnView->addChildView(pButton2);
 
+    if(pButton->horizontalAlignment()==horzAlign)
+    {
+        // change to another horizontal alignment, so that the setting
+        // of the requested alignment is registered as a change
+        pButton->horizontalAlignment() = (horzAlign==View::HorizontalAlignment::left) ? View::HorizontalAlignment::right : View::HorizontalAlignment::left;
+    }
+
+    if(pButton->verticalAlignment()==vertAlign)
+    {
+        // change to another vertical alignment, so that the setting
+        // of the requested alignment is registered as a change
+        pButton->verticalAlignment() = (vertAlign==View::VerticalAlignment::top) ? View::VerticalAlignment::bottom : View::VerticalAlignment::top;
+    }
+
     CONTINUE_SECTION_ASYNC(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
     {
         int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
@@ -35,7 +49,7 @@ void testChildAlignment(
                 // sizing info should NOT have been updated
                 REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
 
-                // but layout should have
+                // but layout should have happened
                 REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
 
                 Rect bounds = pButton->bounds();
@@ -79,32 +93,13 @@ void testChildAlignment(
                 // but layout should have
                 REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
 
+                // vertical alignment should have NO effect in a column view.
                 Rect bounds = pButton->bounds();
                 Rect containerBounds = pColumnView->bounds();
 
-                // sanity check: the button should be smaller than the columnview
-                // unless the alignment is "expand"
-                if(vertAlign!=View::VerticalAlignment::expand)
-                    REQUIRE( bounds.width < containerBounds.width );
-                
-                // and the view should now be aligned accordingly.
-                if(vertAlign==View::VerticalAlignment::top)
-                {
-                    REQUIRE( bounds.y==0 );
-                }
-                else if(vertAlign==View::VerticalAlignment::middle)
-                {
-                    REQUIRE( bounds.y == (containerBounds.height-bounds.height)/2  );
-                }
-                else if(vertAlign==View::VerticalAlignment::bottom)
-                {
-                    REQUIRE( bounds.y == containerBounds.height-bounds.height  );
-                }
-                else if(vertAlign==View::VerticalAlignment::expand)
-                {
-                    REQUIRE( bounds.y == 0);
-                    REQUIRE( bounds.height == containerBounds.height );
-                }
+                REQUIRE( bounds.y==0 );
+                REQUIRE( bounds.height < containerBounds.height );
+
             };
         }
     };
@@ -157,6 +152,8 @@ TEST_CASE("ColumnView")
         SECTION("with child view")
         {
             pColumnView->addChildView(pButton);
+
+            pPreparer->getWindow()->requestAutoSize();
 
             CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pCore)
             {

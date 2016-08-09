@@ -85,12 +85,6 @@ void	ViewCore::setVisible(const bool& visible)
 	::ShowWindow( getHwnd(), visible ? SW_SHOW : SW_HIDE);		
 }
 
-
-void ViewCore::setMargin(const UiMargin& margin)
-{
-	// do nothing. It only influences the parent layout
-}
-
 void ViewCore::setPadding(const UiMargin& padding)
 {
 	// do nothing. We handle it on the fly when our preferred size is calculated.
@@ -99,6 +93,16 @@ void ViewCore::setPadding(const UiMargin& padding)
 void ViewCore::setBounds(const Rect& bounds)
 {
 	::SetWindowPos( getHwnd(), NULL, (int)bounds.x, (int)bounds.y, (int)bounds.width, (int)bounds.height, SWP_NOACTIVATE | SWP_NOZORDER);
+}
+
+void ViewCore::setHorizontalAlignment(const View::HorizontalAlignment& align)
+{
+    // do nothing. The parent handles this.
+}
+
+void ViewCore::setVerticalAlignment(const View::VerticalAlignment& align)
+{
+    // do nothing. The parent handles this.
 }
 
 

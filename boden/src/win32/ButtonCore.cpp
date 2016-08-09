@@ -18,8 +18,6 @@ ButtonCore::ButtonCore(Button* pOuter)
 void ButtonCore::setLabel(const String& label)
 {
 	setWindowText(getHwnd(), label);
-
-	_pOuterViewWeak->needSizingInfoUpdate();
 }
 
 Size ButtonCore::calcPreferredSize() const

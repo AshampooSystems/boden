@@ -29,10 +29,12 @@ public:
 	
 	void setVisible(const bool& visible) override;
 			
-	void setMargin(const UiMargin& margin) override;	
 	void setPadding(const UiMargin& padding) override;
 
 	void setBounds(const Rect& bounds) override;
+        
+    void setHorizontalAlignment(const View::HorizontalAlignment& align);
+    void setVerticalAlignment(const View::VerticalAlignment& align);
 
 
 	int uiLengthToPixels(const UiLength& uiLength) const override;

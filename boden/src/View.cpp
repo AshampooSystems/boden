@@ -11,10 +11,16 @@ BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 View::View()
 	: _visible(true) // most views are initially visible
 {
-	initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
-	initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);
-	initProperty<UiMargin, IViewCore, &IViewCore::setPadding>(_padding);
-	initProperty<Rect, IViewCore, &IViewCore::setBounds>(_bounds);
+	initProperty<bool, IViewCore, &IViewCore::setVisible, (int)PropertyInfluence_::none>(_visible);
+
+	initProperty<UiMargin, IViewCore, nullptr, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
+
+	initProperty<UiMargin, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
+
+	initProperty<Rect, IViewCore, &IViewCore::setBounds, (int)PropertyInfluence_::none | (int)PropertyInfluence_::childLayout>(_bounds);
+
+    initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
+    initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
 }
 
 View::~View()

@@ -35,16 +35,8 @@ public:
         
 	
 	
-	void setMargin(const UiMargin& margin)
-    {
-        // we don't care about the margins        
-    }
-
-	
 	void setPadding(const UiMargin& padding)
     {
-        getOuterView()->needSizingInfoUpdate();
-        getOuterView()->needLayout();
     }
 
 	
@@ -66,8 +58,6 @@ public:
             
             pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
         }
-        
-        getOuterView()->needLayout();
     }
 
 

@@ -15,7 +15,7 @@ Window::Window(IUiProvider* pUiProvider)
 
 	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider().getPtr();
 
-	initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
+	initProperty<String, IWindowCore, &IWindowCore::setTitle, (int)PropertyInfluence_::none>(_title);
 
 	reinitCore();
 }

@@ -86,8 +86,6 @@ public:
         
         if(bounds.getPosition() != _currBounds.getPosition() )            
             gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
-        
-        getOuterView()->needLayout();
     }
 
 

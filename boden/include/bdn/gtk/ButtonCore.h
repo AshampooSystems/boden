@@ -38,8 +38,6 @@ public:
     void setLabel(const String& label) override
     {
         ButtonCoreBase::setLabel(label);
-        
-        getOuterView()->needSizingInfoUpdate();
     }
         
 

@@ -25,8 +25,6 @@ public:
     {
         NSString* macLabel = stringToMacString(label);
         [_nsButton setTitle: macLabel];
-        
-        getOuterView()->needSizingInfoUpdate();
     }
     
     

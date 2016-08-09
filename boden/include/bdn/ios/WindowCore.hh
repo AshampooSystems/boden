@@ -38,8 +38,6 @@ public:
     {
         // we do not modify our frame. Just reset the bounds property back to the current bounds.
         getOuterView()->bounds() = iosRectToRect(_window.frame);
-        
-        getOuterView()->needLayout();
     }
     
     
