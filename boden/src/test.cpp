@@ -3143,9 +3143,7 @@ public:
 	void continueSectionAsync(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
-		
-        std::cout << "Scheduling async continuation" << std::endl;
-        		
+		        		
         asyncCallFromMainThread(
             [this, continuationFunc]()
             {
