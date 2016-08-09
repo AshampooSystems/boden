@@ -2817,6 +2817,14 @@ private: // IResultCapture
 	}
 
 
+    void postponeSectionEvent( std::function<void()> func)
+    {
+        _postponedSectionEventsInsertPos = _postponedSectionEvents.insert( _postponedSectionEventsInsertPos, func );
+
+        // next one should be inserted after the newly inserted one
+        ++_postponedSectionEventsInsertPos;
+    }
+
 
 	virtual bool sectionStarted (
 		SectionInfo const& sectionInfo,
@@ -2843,7 +2851,7 @@ private: // IResultCapture
 
             SectionInfo sectionInfoCopy = sectionInfo;
             
-            _postponedSectionEvents.push_back(
+            postponeSectionEvent(
                 [this, sectionInfoCopy]()
                 {
                     // sectionStarted SHOULD return false, i.e. new sections should not be entered.
@@ -2859,7 +2867,7 @@ private: // IResultCapture
                         programmingError("Postponed sectionStarted event got true result.");
                     }
                 } );
-
+            
             // we know that new CHILD sections of the async section will only be opened
             // later during the async continuation. So that means that any section
             // opened here and now is a sibling, so it should not be opened right now.
@@ -2867,7 +2875,7 @@ private: // IResultCapture
         }
         else
         {
-		    std::ostringstream oss;
+            std::ostringstream oss;
 		    oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
 
 		    ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
@@ -2915,8 +2923,8 @@ private: // IResultCapture
             // will be executed when the section ends in the async continuation.
             
             SectionEndInfo endInfoCopy = endInfo;
-            
-            _postponedSectionEvents.push_back(
+
+            postponeSectionEvent(
                 [this, endInfoCopy]()
                 {
                     sectionEnded(endInfoCopy);                
@@ -2955,12 +2963,11 @@ private: // IResultCapture
             // but do not actually execute them now. The recorded events
             // will be executed when the section ends in the async continuation.
             
-            _postponedSectionEvents.push_back(
+            postponeSectionEvent(
                 [this, endInfo]()
                 {
                     sectionEndedEarly(endInfo);                
                 } );
-
         }
         else
         {
@@ -3110,18 +3117,34 @@ public:
 		std::mutex				_shouldAbortInitiateWaitMutex;
 	};
 
-	void verifyContinuationAllowed()
-	{
-		if(_currentTestWillContinueLater)
-			programmingError("Cannot use CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
-	}
-
 	
-    void continueSectionAsync(std::function<void()> continuationFunc) override
+    void beginScheduleContinuation()
+    {
+        if(_currentTestWillContinueLater)
+			programmingError("Cannot use CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
+        
+        _currentTestWillContinueLater = true;
+
+        // events that happen after the continuation is scheduled and before it is executed
+        // should be postponed until after the continuation was executed.
+
+        // If there are any events already in the postponed list then that means that we are
+        // already in a continuation and those events come from the caller of the continuation.
+        // Those postponed events from the caller should be executed AFTER the events we postpone
+        // now.
+
+        // So we insert our first postponed event at the start of the list. If we insert another
+        // postponed event after that then it must be inserted after the first one, to keep the order
+        // of events inside the same continuation unchanged.
+
+        _postponedSectionEventsInsertPos = _postponedSectionEvents.begin();
+    }
+
+	void continueSectionAsync(std::function<void()> continuationFunc) override
 	{
-		verifyContinuationAllowed();
+		beginScheduleContinuation();
 		
-		_currentTestWillContinueLater = true;
+        std::cout << "Scheduling async continuation" << std::endl;
         		
         asyncCallFromMainThread(
             [this, continuationFunc]()
@@ -3132,10 +3155,8 @@ public:
 
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
-		verifyContinuationAllowed();
-
-		_currentTestWillContinueLater = true;
-        		
+		beginScheduleContinuation();
+		
         Thread::exec(
             [this, continuationFunc]()
             {
@@ -3149,8 +3170,8 @@ public:
         // has exited.
         MutexLock lock( _runTestMutex );
 
-		bool testDone = continueCurrentTest(continuationFunc);
-
+        bool testDone = continueCurrentTest(continuationFunc);
+        
         if(testDone)
         {
             // ok, the test (=section) is done. I.e. there was no additional
@@ -3166,11 +3187,11 @@ public:
                 {
                     if(shouldContinueTestCaseIteration())
 		            {
-			            // do the next iteration.
+                        // do the next iteration.
 			            runTestCase_Continue();
 		            }
 		            else
-			            runTestCase_Finalize();
+                        runTestCase_Finalize();
                 });
         }
         else
@@ -3263,7 +3284,7 @@ private:
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
         _currentTestFailureResultAfterContinuationScheduled = CurrentTestResult::Passed;
-        
+
 		_currentTestIgnoreExpectedToFail = false;
 
 		if( std::uncaught_exception() )
@@ -3586,7 +3607,8 @@ private:
 
 	std::function< void(const Totals&) > _testDoneCallback;
 
-    std::list< std::function<void()> > _postponedSectionEvents;
+    std::list< std::function<void()> >              _postponedSectionEvents;
+    std::list< std::function<void()> >::iterator    _postponedSectionEventsInsertPos;
 };
 
 IResultCapture& getResultCapture() {
