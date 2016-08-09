@@ -193,6 +193,53 @@ TEST_CASE("ColumnView")
                 }
             };
         }
+
+        SECTION("multiple child views")
+        {
+            pColumnView->addChildView(pButton);
+
+            P<Button> pButton2 = newObj<Button>();
+            pColumnView->addChildView(pButton2);
+            
+            pPreparer->getWindow()->requestAutoSize();
+
+            Margin m;
+            Margin m2;
+
+            SECTION("no margins")
+            {
+                m = Margin(0);
+                m2 = Margin(0);
+            }
+
+            SECTION("with margins")
+            {
+                m = Margin(10, 20, 30, 40);
+                m2 = Margin(11, 22, 33, 44);
+            }
+
+            pButton->margin() = UiMargin(UiLength::realPixel, m.top, m.right, m.bottom, m.left );
+            pButton2->margin() = UiMargin(UiLength::realPixel, m2.top, m2.right, m2.bottom, m2.left );
+
+            CONTINUE_SECTION_ASYNC( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
+            {
+                Rect bounds = pButton->bounds();
+                Rect bounds2 = pButton2->bounds();
+
+                SECTION("properly arranged")
+                {
+                    REQUIRE( bounds.x == m.left);
+                    REQUIRE( bounds.y == m.top);
+                    REQUIRE( bounds.width == pButton->sizingInfo().get().preferredSize.width );
+                    REQUIRE( bounds.height == pButton->sizingInfo().get().preferredSize.height );
+
+                    REQUIRE( bounds2.x == m2.left );
+                    REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
+                    REQUIRE( bounds2.width == pButton2->sizingInfo().get().preferredSize.width );
+                    REQUIRE( bounds2.height == pButton2->sizingInfo().get().preferredSize.height );
+                }
+            };
+        }
 	}	
 }
 
