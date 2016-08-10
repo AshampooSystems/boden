@@ -8,6 +8,7 @@ namespace bdn
 
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
+#include <bdn/Nullable.h>
 #include <bdn/Size.h>
 #include <bdn/View.h>
 
@@ -22,7 +23,7 @@ public:
 	virtual void setVisible(const bool& visible)=0;
 	
 	/** Sets the view core's padding. See View::padding() */
-	virtual void setPadding(const UiMargin& padding)=0;
+	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
 	/** Sets the view core's bounding rectangle. See View::bounds() */
 	virtual void setBounds(const Rect& bounds)=0;

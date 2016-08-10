@@ -53,7 +53,7 @@ public:
 
 
     /** Returns the padding that is currently configured.*/
-    UiMargin getPadding() const
+    Nullable<UiMargin> getPadding() const
 	{
 	    return _padding;
 	}
@@ -207,7 +207,7 @@ protected:
 	int			_visibleChangeCount = 0;
 
 
-	UiMargin	_padding;
+	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
 	Rect		_bounds;

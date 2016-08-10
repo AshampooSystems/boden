@@ -208,14 +208,13 @@ TEST_CASE("Window", "[ui]")
 			    {
 
 				    // sizing info is updated asynchronously. So we need to check async as well.
-                    CONTINUE_SECTION_ASYNC_WITH(
-					    [pWindow, expectedSize]()
-					    {
-						    View::SizingInfo sizingInfo = pWindow->sizingInfo();
+                    CONTINUE_SECTION_ASYNC(pWindow, expectedSize)
+                    {
+                        View::SizingInfo sizingInfo = pWindow->sizingInfo();
 
-						    REQUIRE( sizingInfo.preferredSize == expectedSize );
-					
-					    }	);				
+                        REQUIRE( sizingInfo.preferredSize == expectedSize );
+                
+                    };				
 			    }
 		    }
 

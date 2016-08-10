@@ -270,7 +270,7 @@ public:
         callFromMainThread(func);
     }
 
-    bool mainThreadCallsShouldExecuteImmediately()
+    bool mainThreadCallsShouldExecuteImmediately() override
     {
         return true;
     }
@@ -414,7 +414,7 @@ public:
         asyncCallFromMainThread(func);
     }
 
-    bool mainThreadCallsShouldExecuteImmediately()
+    bool mainThreadCallsShouldExecuteImmediately() override
     {
         return false;
     }

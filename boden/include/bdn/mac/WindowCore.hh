@@ -103,7 +103,7 @@ public:
     }
     
         
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
         // the outer window handles padding during layout. So nothing to do here.
     }

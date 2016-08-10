@@ -262,7 +262,7 @@ inline void testView()
 		    BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
 
 		    BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
-		    BDN_REQUIRE( pView->padding() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+		    BDN_REQUIRE( pView->padding().isNull() )
 
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );

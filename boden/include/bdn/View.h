@@ -8,10 +8,11 @@ namespace bdn
     class IUiProvider;      // included below
 }
 
-#include <bdn/RequireNewAlloc.h>
-#include <bdn/DefaultProperty.h>
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
+#include <bdn/Nullable.h>
+#include <bdn/RequireNewAlloc.h>
+#include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
 
 namespace bdn
@@ -101,15 +102,18 @@ public:
 		the view (in contrast to the margin(), which is NOT part of the view).
 
 		It is recommended to specify the padding in UiLength::sem units.
-
-		The default padding is 0.
+        
+        The padding can also be "null", which means that the implementation
+        should use the "normal" or "most commonly used" padding for the UI element on the platform.
+        
+        The default padding is "null".
 	*/
-	virtual Property<UiMargin>& padding()
+	virtual Property< Nullable<UiMargin> >& padding()
 	{
 		return _padding;
 	}
 
-	virtual const ReadProperty<UiMargin>& padding() const
+	virtual const ReadProperty< Nullable<UiMargin> >& padding() const
 	{
 		return _padding;
 	}
@@ -657,10 +661,10 @@ private:
 
 
 protected:
-	DefaultProperty<bool>		_visible;
-	DefaultProperty<UiMargin>	_margin;
-	DefaultProperty<UiMargin>	_padding;
-	DefaultProperty<Rect>		_bounds;
+	DefaultProperty<bool>                   _visible;
+	DefaultProperty<UiMargin>               _margin;
+	DefaultProperty< Nullable<UiMargin> >	_padding;
+	DefaultProperty<Rect>                   _bounds;
 
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;

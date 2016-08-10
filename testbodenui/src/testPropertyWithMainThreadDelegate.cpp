@@ -165,89 +165,88 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			CONTINUE_SECTION_IN_THREAD_WITH(
-				[pProp, pDelegate, pChangeCounter, pChangeSub]()
-				{
-					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
+			CONTINUE_SECTION_IN_THREAD(pProp, pDelegate, pChangeCounter, pChangeSub)
+            {
+                PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==1 );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==1 );
 
-					prop = "world";
+                prop = "world";
 
-					REQUIRE(pChangeCounter->val==1);
+                REQUIRE(pChangeCounter->val==1);
 
-					// the delegate delay 1000ms. So the delegate value should still
-					// be the same right now.
-					REQUIRE( pDelegate->value=="hello" );
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==1 );
+                // the delegate delay 1000ms. So the delegate value should still
+                // be the same right now.
+                REQUIRE( pDelegate->value=="hello" );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==1 );
 
-					// but the property should already have the new value
-					REQUIRE( prop.get()=="world" );
+                // but the property should already have the new value
+                REQUIRE( prop.get()=="world" );
 
-					Thread::sleepMillis(2000);
+                Thread::sleepMillis(2000);
 
-					// now the delegate should have been updated.
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==2 );
-					REQUIRE( pDelegate->value == "world" );
+                // now the delegate should have been updated.
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==2 );
+                REQUIRE( pDelegate->value == "world" );
 
-					// now we block the main thread.
-					Mutex blockMutex;
-					{
-						MutexLock blockMutexLock(blockMutex);;
-				
-						callFromMainThread([&blockMutex]()
-						{
-							MutexLock lock(blockMutex);					
-						});
+                // now we block the main thread.
+                Mutex blockMutex;
+                {
+                    MutexLock blockMutexLock(blockMutex);;
+            
+                    callFromMainThread([&blockMutex]()
+                    {
+                        MutexLock lock(blockMutex);					
+                    });
 
-						// wait a little to ensure that the main thread is really blocked
-						Thread::sleepMillis(1000);
-				
-						// and now we set the property
-						prop = "newworld";
-						REQUIRE( prop.get()=="newworld" );
+                    // wait a little to ensure that the main thread is really blocked
+                    Thread::sleepMillis(1000);
+            
+                    // and now we set the property
+                    prop = "newworld";
+                    REQUIRE( prop.get()=="newworld" );
 
-						REQUIRE(pChangeCounter->val==2);
+                    REQUIRE(pChangeCounter->val==2);
 
-						// the delegate should not be updated yet
-						REQUIRE( pDelegate->value=="world" );
-						REQUIRE( pDelegate->getCount==0 );
-						REQUIRE( pDelegate->setCount==2 );
+                    // the delegate should not be updated yet
+                    REQUIRE( pDelegate->value=="world" );
+                    REQUIRE( pDelegate->getCount==0 );
+                    REQUIRE( pDelegate->setCount==2 );
 
-						// now we detach the delegate
-						prop.detachDelegate();
+                    // now we detach the delegate
+                    prop.detachDelegate();
 
-						// the property should still be usable normally
-						REQUIRE( prop.get()=="newworld" );
+                    // the property should still be usable normally
+                    REQUIRE( prop.get()=="newworld" );
 
-						// and release the main thread lock
-					}
+                    // and release the main thread lock
+                }
 
-					// wait a little
-					Thread::sleepMillis(2000);
+                // wait a little
+                Thread::sleepMillis(2000);
 
-					// delegate should still not be updated.
-					REQUIRE( pDelegate->value=="world" );
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==2 );
+                // delegate should still not be updated.
+                REQUIRE( pDelegate->value=="world" );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==2 );
 
-					// but the property should still be usable normally
-					REQUIRE( prop.get()=="newworld" );
+                // but the property should still be usable normally
+                REQUIRE( prop.get()=="newworld" );
 
-					prop.set("hi");
+                prop.set("hi");
 
-					REQUIRE(pChangeCounter->val==3);
+                REQUIRE(pChangeCounter->val==3);
 
-					REQUIRE( prop.get()=="hi" );
+                REQUIRE( prop.get()=="hi" );
 
-					// delegate should still not be updated.
-					REQUIRE( pDelegate->value=="world" );
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==2 );			
-				});
+                // delegate should still not be updated.
+                REQUIRE( pDelegate->value=="world" );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==2 );			
+            };
 		}
 
 
@@ -261,63 +260,62 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 			P<IBase> pChangeSub;
 			prop.onChange().subscribeVoidMember<ChangeCounter>(pChangeSub, pChangeCounter, &ChangeCounter::changed);
 
-			CONTINUE_SECTION_IN_THREAD_WITH(
-				[pProp, pDelegate, pChangeCounter, pChangeSub]()
-				{
-					PropertyWithMainThreadDelegate<String>&		prop = *pProp;
+			CONTINUE_SECTION_IN_THREAD(pProp, pDelegate, pChangeCounter, pChangeSub)
+            {
+                PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==1 );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==1 );
 
-					// now we block the main thread.
-					Mutex blockMutex;
-					{
-						MutexLock blockMutexLock(blockMutex);;
-				
-						callFromMainThread([&blockMutex]()
-						{
-							MutexLock lock(blockMutex);					
-						});
+                // now we block the main thread.
+                Mutex blockMutex;
+                {
+                    MutexLock blockMutexLock(blockMutex);;
+            
+                    callFromMainThread([&blockMutex]()
+                    {
+                        MutexLock lock(blockMutex);					
+                    });
 
-						// wait a little to ensure that the main thread is really blocked
-						Thread::sleepMillis(1000);
-				
-						// and now we set a new value
-						prop = "world";
-						REQUIRE( prop.get()=="world" );
+                    // wait a little to ensure that the main thread is really blocked
+                    Thread::sleepMillis(1000);
+            
+                    // and now we set a new value
+                    prop = "world";
+                    REQUIRE( prop.get()=="world" );
 
-						REQUIRE(pChangeCounter->val==1);
+                    REQUIRE(pChangeCounter->val==1);
 
-						// and immediately another new value
-						prop = "hi";
-						REQUIRE( prop.get()=="hi" );
+                    // and immediately another new value
+                    prop = "hi";
+                    REQUIRE( prop.get()=="hi" );
 
-						REQUIRE(pChangeCounter->val==2);
+                    REQUIRE(pChangeCounter->val==2);
 
-						// the delegate should not be updated yet
-						REQUIRE( pDelegate->value=="hello" );
-						REQUIRE( pDelegate->getCount==0 );
-						REQUIRE( pDelegate->setCount==1 );
+                    // the delegate should not be updated yet
+                    REQUIRE( pDelegate->value=="hello" );
+                    REQUIRE( pDelegate->getCount==0 );
+                    REQUIRE( pDelegate->setCount==1 );
 
-						// now release the main thread
-					}
+                    // now release the main thread
+                }
 
-					// wait a little
-					Thread::sleepMillis(2000);
+                // wait a little
+                Thread::sleepMillis(2000);
 
-					// delegate should have been updated twice.
-					// Note that it might seem better if the first update would
-					// be skipped if another is pending. However, that would open
-					// the risk that frequent updates could cause the delegate to
-					// NEVER be updated, since each new pending update would invalidate
-					// the previous pending updates. To prevent that we simply let all
-					// updates happen.
-					REQUIRE( pDelegate->value=="hi" );
-					REQUIRE( pDelegate->getCount==0 );
-					REQUIRE( pDelegate->setCount==3 );
+                // delegate should have been updated twice.
+                // Note that it might seem better if the first update would
+                // be skipped if another is pending. However, that would open
+                // the risk that frequent updates could cause the delegate to
+                // NEVER be updated, since each new pending update would invalidate
+                // the previous pending updates. To prevent that we simply let all
+                // updates happen.
+                REQUIRE( pDelegate->value=="hi" );
+                REQUIRE( pDelegate->getCount==0 );
+                REQUIRE( pDelegate->setCount==3 );
 
-					REQUIRE(pChangeCounter->val==2);			
-				});
+                REQUIRE(pChangeCounter->val==2);			
+            };
 		}
         
 #endif
@@ -347,116 +345,114 @@ TEST_CASE("PropertyWithMainThreadDelegate")
 
 			SECTION("fetchWhileSetScheduled")
 			{
-                CONTINUE_SECTION_IN_THREAD_WITH(
-					[pProp, pDelegate, pChangeCounter, pChangeSub]()
-					{
-						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
+                CONTINUE_SECTION_IN_THREAD(pProp, pDelegate, pChangeCounter, pChangeSub)
+                {
+                    PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-						REQUIRE( pDelegate->getCount==0 );
-						REQUIRE( pDelegate->setCount==1 );
+                    REQUIRE( pDelegate->getCount==0 );
+                    REQUIRE( pDelegate->setCount==1 );
 
-						// now we block the main thread.
-						Mutex blockMutex;
-						{
-							MutexLock blockMutexLock(blockMutex);;
-				
-							callFromMainThread([&blockMutex]()
-							{
-								MutexLock lock(blockMutex);					
-							});
+                    // now we block the main thread.
+                    Mutex blockMutex;
+                    {
+                        MutexLock blockMutexLock(blockMutex);;
+            
+                        callFromMainThread([&blockMutex]()
+                        {
+                            MutexLock lock(blockMutex);					
+                        });
 
-							// wait a little to ensure that the main thread is really blocked
-							Thread::sleepMillis(1000);
+                        // wait a little to ensure that the main thread is really blocked
+                        Thread::sleepMillis(1000);
 
-							// cause the property to schedule a value change
-							prop = "world";
-							REQUIRE( prop.get()=="world" );
+                        // cause the property to schedule a value change
+                        prop = "world";
+                        REQUIRE( prop.get()=="world" );
 
-							REQUIRE(pChangeCounter->val==1);
+                        REQUIRE(pChangeCounter->val==1);
 
-							// delegate should not be affected yet
-							REQUIRE( pDelegate->value=="hello" );
-							REQUIRE( pDelegate->getCount==0 );
-							REQUIRE( pDelegate->setCount==1 );
+                        // delegate should not be affected yet
+                        REQUIRE( pDelegate->value=="hello" );
+                        REQUIRE( pDelegate->getCount==0 );
+                        REQUIRE( pDelegate->setCount==1 );
 
-							// BUT then change the current value of the delegate manually
-							pDelegate->value = "hi";
+                        // BUT then change the current value of the delegate manually
+                        pDelegate->value = "hi";
 
-							// and tell the property to fetch the value
-							prop.updateCachedValue();
+                        // and tell the property to fetch the value
+                        prop.updateCachedValue();
 
-							// now release the main thread
-						}
+                        // now release the main thread
+                    }
 
-						// wait a little
-						Thread::sleepMillis(2000);
+                    // wait a little
+                    Thread::sleepMillis(2000);
 
-						// the delegate should NOT have been updated.
-						REQUIRE( pDelegate->value=="hi" );
-						REQUIRE( pDelegate->getCount==1 );
-						REQUIRE( pDelegate->setCount==1 );
+                    // the delegate should NOT have been updated.
+                    REQUIRE( pDelegate->value=="hi" );
+                    REQUIRE( pDelegate->getCount==1 );
+                    REQUIRE( pDelegate->setCount==1 );
 
-						// instead the property should have gotten the latest delegate value
-						REQUIRE( prop.get()=="hi" );
+                    // instead the property should have gotten the latest delegate value
+                    REQUIRE( prop.get()=="hi" );
 
-						REQUIRE(pChangeCounter->val==2);			
-					});
+                    REQUIRE(pChangeCounter->val==2);			
+                };
 			}
 
 			SECTION("setWhileFetchScheduled")
 			{
-                CONTINUE_SECTION_IN_THREAD_WITH(
-					[pProp, pDelegate, pChangeCounter, pChangeSub]()
-					{
-						PropertyWithMainThreadDelegate<String>&		prop = *pProp;
+                CONTINUE_SECTION_IN_THREAD(pProp, pDelegate, pChangeCounter, pChangeSub)
+                {
+                    PropertyWithMainThreadDelegate<String>&		prop = *pProp;
 
-						REQUIRE( pDelegate->getCount==0 );
-						REQUIRE( pDelegate->setCount==1 );
+                    REQUIRE( pDelegate->getCount==0 );
+                    REQUIRE( pDelegate->setCount==1 );
 
-						// now we block the main thread.
-						Mutex blockMutex;
-						{
-							MutexLock blockMutexLock(blockMutex);;
-				
-							callFromMainThread([&blockMutex]()
-							{
-								MutexLock lock(blockMutex);					
-							});
+                    // now we block the main thread.
+                    Mutex blockMutex;
+                    {
+                        MutexLock blockMutexLock(blockMutex);;
+            
+                        callFromMainThread([&blockMutex]()
+                        {
+                            MutexLock lock(blockMutex);					
+                        });
 
-							// wait a little to ensure that the main thread is really blocked
-							Thread::sleepMillis(1000);
+                        // wait a little to ensure that the main thread is really blocked
+                        Thread::sleepMillis(1000);
 
-							// change the current value of the delegate manually
-							pDelegate->value = "hi";
+                        // change the current value of the delegate manually
+                        pDelegate->value = "hi";
 
-							// and tell the property to fetch the value.
-							// This will be done in the background.
-							prop.updateCachedValue();
+                        // and tell the property to fetch the value.
+                        // This will be done in the background.
+                        prop.updateCachedValue();
 
-							REQUIRE( prop.get()=="hello" );
+                        REQUIRE( prop.get()=="hello" );
 
-							// then change the value of the property
-							prop = "world";
+                        // then change the value of the property
+                        prop = "world";
 
-							REQUIRE(pChangeCounter->val==1);
+                        REQUIRE(pChangeCounter->val==1);
 
-							// now release the main thread
-						}
+                        // now release the main thread
+                    }
 
-						// wait a little
-						Thread::sleepMillis(2000);
+                    // wait a little
+                    Thread::sleepMillis(2000);
 
-						// the delegate should have been updated to the value that was set.
-						REQUIRE( pDelegate->value=="world" );
-						REQUIRE( pDelegate->getCount==0 );
-						REQUIRE( pDelegate->setCount==2 );
+                    // the delegate should have been updated to the value that was set.
+                    REQUIRE( pDelegate->value=="world" );
+                    REQUIRE( pDelegate->getCount==0 );
+                    REQUIRE( pDelegate->setCount==2 );
 
-						// and the property should still have the new value
-						REQUIRE( prop.get()=="world" );
+                    // and the property should still have the new value
+                    REQUIRE( prop.get()=="world" );
 
-						// no further change notification should have happened
-						REQUIRE(pChangeCounter->val==1);                        			
-					});
+                    // no further change notification should have happened
+                    REQUIRE(pChangeCounter->val==1);                        			
+                };
 			}
             
 #endif

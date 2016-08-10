@@ -36,7 +36,7 @@ public:
         _nsView.hidden = !visible;
     }
     
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
     }
     
@@ -68,11 +68,21 @@ public:
         Size size = macSizeToSize( _nsView.fittingSize );
         
         // add the padding
-        Margin additionalPadding = uiMarginToPixelMargin( getOuterView()->padding() );
+        Nullable<UiMargin> pad = getOuterView()->padding();
+        
+        Margin additionalPadding;
+        if(pad.isNull())
+        {
+            // we should use the "default" padding. So additionalPadding should be zero.
+        }
+        else
+        {
+            additionalPadding = uiMarginToPixelMargin( pad );
 
-        // some controls auto-include a base padding in the fittingSize.
-        // We need to subtract that.
-        additionalPadding -= getPaddingIncludedInFittingSize();
+            // some controls auto-include a base padding in the fittingSize.
+            // We need to subtract that.
+            additionalPadding -= getPaddingIncludedInFittingSize();
+        }
         
         // if the padding we get from the outer window is less than the auto-included
         // padding then we have to use the auto-included padding. Otherwise parts of the content

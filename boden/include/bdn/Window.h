@@ -189,6 +189,8 @@ protected:
 	DefaultProperty<String> _title;
 
 private:
+    Margin getPixelPadding() const;
+    
 	P<View>					_pContentView;
 };
 
