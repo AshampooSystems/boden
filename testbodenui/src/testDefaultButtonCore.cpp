@@ -16,7 +16,7 @@ TEST_CASE("ButtonCore-default")
 
     pWindow->setContentView(pButton);
 
-    bdn::test::testButtonCore( pButton );        
+    bdn::test::testButtonCore(pWindow, pButton );        
 }
 
 

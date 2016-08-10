@@ -10,7 +10,7 @@ ButtonCore::ButtonCore(Button* pOuter)
 	: ViewCore(	pOuter, 
 				"BUTTON",
 				pOuter->label().get(),
-				BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD,
+				BS_PUSHBUTTON | WS_CHILD,
 				0 )
 {
 }

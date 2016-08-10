@@ -20,10 +20,10 @@ namespace test
         Some view cores (e.g. ContainerViewCore) do not support that and instead require the outer view
         object to provide the preferred size.
         */
-inline void testWin32ViewCore(View* pView, bool canCalculatePreferredSize)
+inline void testWin32ViewCore(P<Window> pWindow, P<View> pView, bool canCalculatePreferredSize)
 {
     SECTION("generic")
-        bdn::test::testViewCore(pView, canCalculatePreferredSize);
+        bdn::test::testViewCore(pWindow, pView, canCalculatePreferredSize);
 
     SECTION("win32-specific")
     {
@@ -36,14 +36,16 @@ inline void testWin32ViewCore(View* pView, bool canCalculatePreferredSize)
 
         SECTION("visible")
         {
+            REQUIRE( ((::GetWindowLong( hwnd, GWL_STYLE) & WS_VISIBLE)==WS_VISIBLE) == pView->visible().get() );
+            
             pView->visible() = true;
-            REQUIRE( ::IsWindowVisible(hwnd) );
+            REQUIRE( (::GetWindowLong( hwnd, GWL_STYLE) & WS_VISIBLE)==WS_VISIBLE );
 
             pView->visible() = false;
-            REQUIRE( !::IsWindowVisible(hwnd) );
+            REQUIRE( (::GetWindowLong( hwnd, GWL_STYLE) & WS_VISIBLE)!=WS_VISIBLE );
 
             pView->visible() = true;
-            REQUIRE( ::IsWindowVisible(hwnd) );
+            REQUIRE( (::GetWindowLong( hwnd, GWL_STYLE) & WS_VISIBLE)==WS_VISIBLE );
         }
 
         
@@ -56,14 +58,39 @@ inline void testWin32ViewCore(View* pView, bool canCalculatePreferredSize)
         SECTION("bounds")
         {
             // bounds should translate 1:1
-            pView->bounds() = Rect(11, 22, 33, 44);
+            pView->bounds() = Rect(110, 220, 880, 990);
 
-            RECT winRect;
-            ::GetWindowRect(hwnd, &winRect);
-            REQUIRE( winRect.left == 11 );
-            REQUIRE( winRect.top == 22 );
-            REQUIRE( winRect.right == 11+33 );
-            REQUIRE( winRect.bottom == 22+44 );
+
+            int x=-1;
+            int y=-1;
+            int width=-1;
+            int height=-1;
+
+            {
+                RECT winRect{};
+                ::GetWindowRect(hwnd, &winRect);
+
+                x = winRect.left;
+                y = winRect.top;
+                width = winRect.right-winRect.left;
+                height = winRect.bottom-winRect.top;
+            
+                HWND parentHwnd = ::GetParent(hwnd);
+                if(parentHwnd!=NULL)
+                {
+                    POINT pos { x, y };
+
+                    ::ScreenToClient( parentHwnd, &pos);
+
+                    x = pos.x;
+                    y = pos.y;
+                }
+            }
+            
+            REQUIRE( x == 110 );
+            REQUIRE( y == 220 );
+            REQUIRE( width == 880 );
+            REQUIRE( height == 990 );
         }
 
         SECTION("tryChangeParent")

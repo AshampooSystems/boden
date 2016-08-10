@@ -12,7 +12,7 @@ ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 	: ViewCore(	pOuter, 
 				ContainerViewCoreClass::get().getName(),
 				"",
-				WS_VISIBLE | WS_CHILD,
+				WS_CHILD,
 				0 )
 {
 }

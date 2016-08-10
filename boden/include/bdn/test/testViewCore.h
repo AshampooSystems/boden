@@ -21,7 +21,7 @@ namespace test
         object to provide the preferred size.
 
 */
-inline void testViewCore(View* pView, bool canCalculatePreferredSize)
+inline void testViewCore(P<Window> pWindow, P<View> pView, bool canCalculatePreferredSize)
 {
     P<IViewCore> pCore = pView->getViewCore();
     REQUIRE( pCore!=nullptr );

@@ -19,10 +19,10 @@ TEST_CASE("ButtonCore-win32")
     pWindow->setContentView(pButton);
 
     SECTION("generic")
-        bdn::test::testButtonCore( pButton );        
+        bdn::test::testButtonCore(pWindow, pButton );        
 
     SECTION("win32-view")
-        bdn::win32::test::testWin32ViewCore(pButton, true);
+        bdn::win32::test::testWin32ViewCore(pWindow, pButton, true);
 
     SECTION("win32-button")
     {

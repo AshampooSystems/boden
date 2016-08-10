@@ -160,14 +160,14 @@ Size WindowCore::calcMinimumSize() const
 Size WindowCore::calcPreferredSize() const
 {
 	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+	throw NotImplementedError("WindowCore::calcPreferredSize");	
 }
 
 	
 int WindowCore::calcPreferredHeightForWidth(int width) const
 {
 	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+	throw NotImplementedError("WindowCore::calcPreferredHeightForWidth");	
 }
 
 

@@ -16,14 +16,14 @@ namespace test
     implementation that the core accesses. So the unit tests for the concrete implementation should verify these
     effects in addition to executing these generic tests.
 */
-inline void testContainerViewCore(ContainerView* pView)
+inline void testContainerViewCore(P<Window> pWindow, P<ContainerView> pView)
 {
     // note that there currently is no IContainerViewCore
     P<IViewCore> pCore = pView->getViewCore();
     REQUIRE( pCore!=nullptr );
 
     SECTION("ViewCore-base")
-        testViewCore(pView, false);
+        testViewCore(pWindow, pView, false);
 
     SECTION("preferredSize")
     {

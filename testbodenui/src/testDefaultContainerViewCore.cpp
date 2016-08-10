@@ -20,7 +20,7 @@ TEST_CASE("ContainerViewCore-default")
 
     pWindow->setContentView(pColumnView);
 
-    bdn::test::testContainerViewCore( pColumnView );        
+    bdn::test::testContainerViewCore(pWindow, pColumnView );        
 }
 
 

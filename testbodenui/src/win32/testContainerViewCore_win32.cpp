@@ -24,10 +24,10 @@ TEST_CASE("ContainerViewCore-win32")
     pWindow->setContentView(pColumnView);
 
     SECTION("generic")
-        bdn::test::testContainerViewCore( pColumnView );        
+        bdn::test::testContainerViewCore(pWindow, pColumnView );        
 
     SECTION("win32-ViewCore")
-        bdn::win32::test::testWin32ViewCore(pColumnView, false);
+        bdn::win32::test::testWin32ViewCore(pWindow, pColumnView, false);
 
     SECTION("win32-ContainerViewCore")
     {

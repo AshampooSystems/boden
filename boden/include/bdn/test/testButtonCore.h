@@ -16,13 +16,13 @@ namespace test
     implementation that the core accesses. So the unit tests for the concrete implementation should verify these
     effects in addition to executing these generic tests.
 */
-inline void testButtonCore(Button* pButton)
+inline void testButtonCore(P<Window> pWindow, P<Button> pButton)
 {
     P<IButtonCore> pCore = cast<IButtonCore>( pButton->getViewCore() );
     REQUIRE( pCore!=nullptr );
 
     SECTION("ViewCore-base")
-        testViewCore(pButton, true);
+        testViewCore(pWindow, pButton, true);
     
     SECTION("label")
     {

@@ -16,23 +16,23 @@ namespace test
     implementation that the core accesses. So the unit tests for the concrete implementation should verify these
     effects in addition to executing these generic tests.
 */
-inline void testWindowCore(Window* pWindow)
+inline void testWindowCore(P<Window> pWindow)
 {
     P<IWindowCore> pCore = cast<IWindowCore>( pWindow->getViewCore() );
     REQUIRE( pCore!=nullptr );
 
     SECTION("ViewCore-base")
-        testViewCore(pWindow, true);
+        testViewCore(pWindow, pWindow, false);
 
 
     SECTION("title")
     {
         // the title should not affect the window's preferred size.
-        Size prefSizeBefore = pCore->calcPreferredSize();
+        Size prefSizeBefore = pWindow->calcPreferredSize();
 
         pWindow->title() = "hello world";
         
-        REQUIRE( pCore->calcPreferredSize() == prefSizeBefore );
+        REQUIRE( pWindow->calcPreferredSize() == prefSizeBefore );
     }
 
     SECTION("contentArea")
@@ -50,8 +50,8 @@ inline void testWindowCore(Window* pWindow)
 
             Rect contentArea = pCore->getContentArea();
 
-            REQUIRE( contentArea.x>0 );
-            REQUIRE( contentArea.y>0 );
+            REQUIRE( contentArea.x>=0 );
+            REQUIRE( contentArea.y>=0 );
             REQUIRE( contentArea.width>0 );
             REQUIRE( contentArea.height>0 );
             

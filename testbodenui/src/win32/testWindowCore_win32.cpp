@@ -14,10 +14,10 @@ TEST_CASE("WindowCore-win32")
     P<Window> pWindow = newObj<Window>( &bdn::win32::UiProvider::get() );
 
     SECTION("generic")
-        bdn::test::testWindowCore( pWindow );        
+        bdn::test::testWindowCore(pWindow );        
 
     SECTION("win32-view")
-        bdn::win32::test::testWin32ViewCore(pWindow, true);
+        bdn::win32::test::testWin32ViewCore(pWindow, pWindow, false);
 
     SECTION("win32-window")
     {
