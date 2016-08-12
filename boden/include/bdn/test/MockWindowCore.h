@@ -68,8 +68,12 @@ public:
 	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return windowSize - Margin(20, 11, 12, 13);
+        
+        Size contentSize = windowSize - Margin(20, 11, 12, 13);
+        contentSize.width = std::max(contentSize.width, 0);
+        contentSize.height = std::max(contentSize.height, 0);
+        
+        return contentSize;
 	}
 
 

@@ -103,6 +103,10 @@ public:
 
 		It is recommended to specify the padding in UiLength::sem units.
         
+        On some platforms some UI elements may have a built-in minimum for the padding.
+        If you specify a smaller padding then the minimum padding will be silently
+        used instead.
+        
         The padding can also be "null", which means that the implementation
         should use the "normal" or "most commonly used" padding for the UI element on the platform.
         

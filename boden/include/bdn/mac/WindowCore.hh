@@ -68,8 +68,12 @@ public:
         
         NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
         
-        return macRectToRect(macContentRect, -1).getSize();
+        Size resultSize = macRectToRect(macContentRect, -1).getSize();
         
+        resultSize.width = std::max(resultSize.width, 0);
+        resultSize.height = std::max(resultSize.height, 0);
+        
+        return resultSize;
     }
     
 

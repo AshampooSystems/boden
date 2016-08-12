@@ -28,6 +28,13 @@ static void verifyNotNull( const Nullable<ValueType>& n, ValueType expectedValue
     REQUIRE( value == expectedValue );
 }
 
+template<typename ValueType, typename ParamType>
+static void verifyEquality( const Nullable<ValueType>& n, ParamType param, bool expectedEqual)
+{
+    REQUIRE( (n==param) == expectedEqual );
+    REQUIRE( (n!=param) == !expectedEqual );
+}
+
 template<typename ValueType>
 static void testNullable(ValueType exampleValue, ValueType exampleValue2)
 {
@@ -144,6 +151,73 @@ static void testNullable(ValueType exampleValue, ValueType exampleValue2)
                 n = n2;
                 verifyNotNull(n, exampleValue2);
             }
+        }
+    }
+    
+    SECTION("equality")
+    {
+        SECTION("null")
+        {
+            Nullable<ValueType> n;
+            
+            SECTION("nullptr")
+                verifyEquality(n, nullptr, true);
+            
+            SECTION("Nullable null")
+            {
+                Nullable<ValueType> n2;
+                
+                verifyEquality(n, n2, true);
+            }
+            
+            SECTION("Nullable non-null default-constructed")
+            {
+                Nullable<ValueType> n2{ ValueType() };
+                
+                verifyEquality(n, n2, false);
+            }
+            
+            SECTION("Nullable non-null non-constructed")
+            {
+                Nullable<ValueType> n2( exampleValue );
+                
+                verifyEquality(n, n2, false);
+            }
+            
+            SECTION("self")
+                verifyEquality(n, n, true);
+        }
+        
+        SECTION("non-null")
+        {
+            Nullable<ValueType> n(exampleValue);
+            
+            SECTION("nullptr")
+                verifyEquality(n, nullptr, false);
+            
+            SECTION("Nullable null")
+            {
+                Nullable<ValueType> n2;
+                
+                verifyEquality(n, n2, false);
+            }
+            
+            SECTION("Nullable equal")
+            {
+                Nullable<ValueType> n2( exampleValue );
+                
+                verifyEquality(n, n2, true);
+            }
+            
+            SECTION("Nullable non-equal")
+            {
+                Nullable<ValueType> n2( exampleValue2 );
+                
+                verifyEquality(n, n2, false);
+            }
+            
+            SECTION("self")
+                verifyEquality(n, n, true);
         }
     }
     

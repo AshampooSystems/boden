@@ -99,21 +99,33 @@ inline void testViewCore(P<Window> pWindow, P<View> pView, bool canCalculatePref
 
     SECTION("padding")
     {
+        // For some UI elements on some platforms there may be a silent minimum
+        // padding. If we specify a smaller padding then the minimum will be used
+        // instead.
+        
+        // So to verify the effects of padding we first set a big padding that
+        // we are fairly confident to be over any minimum.
+        
+        Margin paddingBefore(1000, 1000, 1000, 1000);
+        
+        pView->padding() = UiMargin(UiLength::realPixel, paddingBefore.top, paddingBefore.right, paddingBefore.bottom, paddingBefore.left);
+        
         Size prefSizeBefore;
         if(canCalculatePreferredSize)
             prefSizeBefore = pCore->calcPreferredSize();
 
-        Margin padding(10, 20, 30, 40);
+        Margin additionalPadding(10, 20, 30, 40);
+        Margin increasedPadding = paddingBefore + additionalPadding;
 
         // setting padding should increase the preferred size
         // of the core.
-        pView->padding() = UiMargin(UiLength::realPixel, padding.top, padding.right, padding.bottom, padding.left);
+        pView->padding() = UiMargin(UiLength::realPixel, increasedPadding.top, increasedPadding.right, increasedPadding.bottom, increasedPadding.left);
 
         // the padding should increase the preferred size.
         if(canCalculatePreferredSize)
         {
             Size prefSize = pCore->calcPreferredSize();
-            REQUIRE( prefSize == prefSizeBefore+padding );
+            REQUIRE( prefSize == prefSizeBefore+additionalPadding );
         }
     }
 

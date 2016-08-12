@@ -31,6 +31,11 @@ public:
 	/** Calculates the size of the content area from the size of the whole window.
 	
 		This is the inverse of calcWindowSizeFromContentAreaSize().	
+        
+        The returned size should never be negative. If the specified window size
+        is smaller than the size needed for the window frame, titlebar, etc and a
+        size with a negative component would be the result of the calculation then
+        that component should be set to zero.
 	*/
 	virtual Size calcContentAreaSizeFromWindowSize(const Size& windowSize)=0;
 

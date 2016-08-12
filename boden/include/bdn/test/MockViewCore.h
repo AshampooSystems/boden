@@ -119,7 +119,7 @@ public:
 	
 
 	
-	void setPadding(const UiMargin& padding) override
+	void setPadding(const Nullable<UiMargin>& padding) override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
