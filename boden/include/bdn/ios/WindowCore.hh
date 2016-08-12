@@ -25,6 +25,9 @@ public:
     : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow) )
     {
         _window = (UIWindow*)getUIView();
+        
+        // set the outer object's bounds to the bounds of the ios window
+        pOuterWindow->bounds() = iosRectToRect(_window.frame);
     }
     
     
