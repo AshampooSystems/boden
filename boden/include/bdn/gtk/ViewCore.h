@@ -35,12 +35,12 @@ public:
         
 	
 	
-	void setPadding(const UiMargin& padding)
+	void setPadding(const Nullable<UiMargin>& padding) override
     {
     }
 
 	
-	void setBounds(const Rect& bounds)
+	void setBounds(const Rect& bounds) override
     {
         GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
         
@@ -62,38 +62,38 @@ public:
 
 
 	
-	int uiLengthToPixels(const UiLength& uiLength) const
+	int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixelsForWidget( getGtkWidget(), uiLength);
     }
 	
 
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const
+	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMarginForWidget( getGtkWidget(), margin);
     }
 
 	
 
-	Size calcPreferredSize() const
+	Size calcPreferredSize() const override
     {
         return _calcPreferredSize(-1, -1);
     }
 
 	
-	int calcPreferredHeightForWidth(int width) const
+	int calcPreferredHeightForWidth(int width) const override
     {
         return _calcPreferredSize(width, -1).height;
     }
 
 	
-	int calcPreferredWidthForHeight(int height) const
+	int calcPreferredWidthForHeight(int height) const override
     {
         return _calcPreferredSize(-1, height).width;
     }
 	
-
-	bool tryChangeParentView(View* pNewParent)
+ 
+	bool tryChangeParentView(View* pNewParent) override
     {
         _addToParent();
         
@@ -133,8 +133,24 @@ public:
         return gtk_widget_get_scale_factor(_pWidget);
     }
     
+    
+protected:    
+    virtual Margin getDefaultPaddingPixels() const
+    {
+        return Margin();
+    }
+    
 
 private:
+
+    Margin _getPaddingPixels() const
+    {
+        Nullable<UiMargin> pad = getOuterView()->padding();
+        if(pad.isNull())
+            return getDefaultPaddingPixels();
+        else            
+            return uiMarginToPixelMargin( pad.get() );
+    }
 
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
@@ -146,6 +162,13 @@ private:
         gint oldWidth;
         gint oldHeight;
         gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
+        
+        // invisible widgets do not take up any size in the layout.
+        // So if it is 
+        gboolean oldVisible = gtk_widget_get_visible(_pWidget);
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, TRUE);
+            
                              
         gtk_widget_set_size_request( _pWidget, 0, 0);
         
@@ -181,14 +204,19 @@ private:
         }
         else        
             gtk_widget_get_preferred_size (_pWidget, &minSize, &naturalSize );
+            
+            
+        // restore the old visibility
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, oldVisible);
         
         // restore the old size
         gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
         
         Size size = gtkSizeToSize(naturalSize, getGtkScaleFactor() );
         
-        // add the padding
-        Margin padding = uiMarginToPixelMargin( getOuterView()->padding() );
+
+        Margin padding = _getPaddingPixels();
         size += padding;
         
         return size;

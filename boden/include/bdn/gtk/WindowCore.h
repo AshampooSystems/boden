@@ -68,7 +68,7 @@ public:
     }
 
 
-    void setBounds(const Rect& bounds)
+    void setBounds(const Rect& bounds) override
     {   
         // GTK will assume that the requested size is without any window decorations
         // and borders. That is OK, since we ignore these nonclient sizes as well.
@@ -86,6 +86,11 @@ public:
         
         if(bounds.getPosition() != _currBounds.getPosition() )            
             gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
+            
+            
+        // it seems that we will not get a configure event when we modify the
+        // size and position ourselves. So we call the handler manually.
+        _reconfigured();
     }
 
 
@@ -139,7 +144,15 @@ public:
         
         GdkWindow* pGdkWindow = gtk_widget_get_window( getGtkWidget() );
         
-        gint monitorNum = gdk_screen_get_monitor_at_window( pScreen, pGdkWindow );
+        gint monitorNum;
+        
+        if(pGdkWindow!=nullptr)
+            monitorNum = gdk_screen_get_monitor_at_window( pScreen, pGdkWindow );
+        else
+        {
+            // widget is not realized. Just return the default monitor
+            monitorNum = gdk_screen_get_primary_monitor( pScreen );
+        }
         
         
         GdkRectangle workArea;
