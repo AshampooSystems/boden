@@ -73,19 +73,29 @@ public:
     }
     
         
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
         // we need to set the padding in the DOM element, so that it can adjust its
         // display and the minimum size accordingly.
 
-        String paddingString;
+        if(padding.isNull())
+        {
+            // we should use "default" padding.
+            (*_pJsObj)["style"].set("padding", "initial");
+        }
+        else
+        {
+            String paddingString;
 
-        paddingString = UiProvider::get().uiLengthToHtmlString(padding.top)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.right)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.bottom)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.left);
+            UiMargin pad = padding.get();
 
-        (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
+            paddingString = UiProvider::get().uiLengthToHtmlString(pad.top)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.right)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
+
+            (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
+        }
     }
     
     

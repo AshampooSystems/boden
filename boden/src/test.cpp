@@ -40,6 +40,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/TestAppWithUiController.h>
 #include <bdn/Window.h>
 #include <bdn/mainThread.h>
+#include <bdn/NotImplementedError.h>
 
 
 #include <cstring>
@@ -3151,6 +3152,7 @@ public:
             } );
 	}
 
+#if BDN_HAVE_THREADS
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
@@ -3161,6 +3163,18 @@ public:
                 doSectionContinuation(continuationFunc);
             } );
 	}
+
+#else
+	// the platform does not support threads. So we hide continueSectionInThread.
+private:
+	void continueSectionInThread(std::function<void()> continuationFunc) override
+	{		
+		throw NotImplementedError("continueSectionInThread not implemented because multi-threading is not supported on the platform.");
+	}
+public:
+
+#endif
+
     
     void doSectionContinuation(std::function<void()> continuationFunc)
     {

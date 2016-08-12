@@ -111,8 +111,7 @@ inline void testWindowCore(P<Window> pWindow)
     {
         Rect area = pCore->getScreenWorkArea();
 
-        REQUIRE( area.x>=0 );
-        REQUIRE( area.y>=0 );
+        // note that the work area may have negative coordinates.
         REQUIRE( area.width>0 );
         REQUIRE( area.height>0 );
     }

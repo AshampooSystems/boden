@@ -49,6 +49,10 @@ public:
 		That excludes taskbars, sidebars and the like (if they are always visible).
 		The returned rect applies only to the screen that the window is currently on.
 		Other screens can have different window areas.
+        
+        Note that the work area position may have negative coordinates on systems
+        with multiple monitors. That can be normal.
+     
         */
 	virtual Rect getScreenWorkArea() const=0;
 	

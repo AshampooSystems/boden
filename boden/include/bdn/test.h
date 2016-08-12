@@ -83,6 +83,18 @@
 #define INTERNAL_BDN_UNIQUE_NAME_LINE( name, line ) INTERNAL_BDN_UNIQUE_NAME_LINE2( name, line )
 #define INTERNAL_BDN_UNIQUE_NAME( name ) INTERNAL_BDN_UNIQUE_NAME_LINE( name, __LINE__ )
 
+
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2( name, line, counter ) name##_##line##_##counter
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, line, counter ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2( name, line, counter )
+
+#ifdef __COUNTER__
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( name ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, __LINE__, __COUNTER__ )
+#else
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( name ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, __LINE__, 0 )
+#endif
+
+
+
 #define INTERNAL_BDN_STRINGIFY2( expr ) #expr
 #define INTERNAL_BDN_STRINGIFY( expr ) INTERNAL_BDN_STRINGIFY2( expr )
 
@@ -706,12 +718,12 @@ void registerTestCaseFunction
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TESTCASE( ... ) \
         static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) ); }\
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) ); }\
         static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, ... ) \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); }
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoMethodAsTestCaseRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); }
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, ... )\
@@ -719,7 +731,7 @@ void registerTestCaseFunction
             struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseMethodRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); \
         } \
         void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
@@ -731,12 +743,12 @@ void registerTestCaseFunction
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TESTCASE( Name, Desc ) \
         static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) ); }\
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) ); }\
         static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, Name, Desc ) \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( Name, Desc ), BDN_INTERNAL_LINEINFO ); }
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoMethodAsTestCaseRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( Name, Desc ), BDN_INTERNAL_LINEINFO ); }
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, TestName, Desc )\
@@ -744,7 +756,7 @@ void registerTestCaseFunction
             struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( TestName, Desc ), BDN_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseMethodRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( TestName, Desc ), BDN_INTERNAL_LINEINFO ); \
         } \
         void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
@@ -2342,7 +2354,7 @@ namespace bdn {
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_INFO( log, macroName ) \
-    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME( scopedMessage ) = bdn::MessageBuilder( macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info ) << log;
+    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( scopedMessage ) = bdn::MessageBuilder( macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info ) << log;
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CHECK_THAT( arg, matcher, resultDisposition, macroName ) \
@@ -2372,7 +2384,7 @@ namespace bdn {
 
 
 #define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR() \
-	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
+	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
 
 
 
@@ -2530,10 +2542,10 @@ namespace bdn {
 
 #ifdef BDN_CONFIG_VARIADIC_MACROS
     #define INTERNAL_BDN_SECTION( ... ) \
-        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, __VA_ARGS__ ) )
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, __VA_ARGS__ ) )
 #else
     #define INTERNAL_BDN_SECTION( name, desc ) \
-        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
 #endif
 
 
@@ -2828,7 +2840,7 @@ namespace bdn {
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_TRANSLATE_EXCEPTION( signature ) \
     static std::string INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator )( signature ); \
-    namespace{ bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionRegistrar )( &INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
+    namespace{ bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_ExceptionRegistrar )( &INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
     static std::string INTERNAL_BDN_UNIQUE_NAME(  catch_internal_ExceptionTranslator )( signature )
 
 // #included from: internal/catch_approx.hpp

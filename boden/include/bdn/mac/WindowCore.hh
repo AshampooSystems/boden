@@ -27,7 +27,7 @@ public:
     
     ~WindowCore();
    
-    NSWindow* getNsWindow()
+    NSWindow* getNSWindow()
     {
         return _nsWindow;
     }
