@@ -52,7 +52,7 @@ public:
     }
     
     
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
     }
     
@@ -110,14 +110,34 @@ public:
     
     
 protected:
+
+    /** Returns the default padding for the control.
+        The default implementation returns zero-padding.*/
+    virtual Margin getDefaultPaddingPixels() const
+    {
+        return Margin();
+    }
+
+    Margin getPaddingPixels() const
+    {
+        // add the padding
+        Margin padding;
+        Nullable<UiMargin> pad = getOuterView()->padding();
+        if(pad.isNull())
+            padding = getDefaultPaddingPixels();
+        else
+            padding = uiMarginToPixelMargin(pad.get());
+        
+        return padding;
+    }
+    
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
         CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
         
         Size size = iosSizeToSize(iosSize);
         
-        // add the padding
-        Margin padding = uiMarginToPixelMargin( getOuterView()->padding() );
+        Margin padding = getPaddingPixels();
         
         size += padding;
         

@@ -106,7 +106,7 @@ public:
 	Size _getTextSize(const String& s) const
 	{
 		// our fake font has a size of 10x20 for each character.
-		return Size( s.getLength()*10, 20);
+		return Size( static_cast<int>( s.getLength()*10 ), 20);
 	}
 
 	void	setVisible(const bool& visible) override
@@ -146,15 +146,15 @@ public:
 		if(uiLength.unit==UiLength::Unit::sem)
 		{
 			// one sem = 20 mock pixels
-			return std::lround( uiLength.value*20 );
+			return static_cast<int>( std::lround( uiLength.value*20 ) );
 		}
 		else if(uiLength.unit==UiLength::Unit::pixel96)
 		{
 			// one pixel 96 = 3 mock pixels
-			return std::lround( uiLength.value*3 );
+			return static_cast<int>( std::lround( uiLength.value*3 ) );
 		}
 		else if(uiLength.unit==UiLength::Unit::realPixel)
-			return std::lround( uiLength.value );
+			return static_cast<int>( std::lround( uiLength.value ) );
 		else
 		{
 			// invalid parameter passed to this function
