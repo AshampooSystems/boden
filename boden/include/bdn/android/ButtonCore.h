@@ -55,7 +55,7 @@ public:
         _pJButton->setText( label );
 
         // we must re-layout the button - otherwise its preferred size is not updated.
-        _pJView->requestLayout();
+        _pJButton->requestLayout();
     }
 
     void clicked() override

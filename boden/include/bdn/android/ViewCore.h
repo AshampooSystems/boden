@@ -42,6 +42,11 @@ public:
         // set a weak pointer to ourselves as the tag object of the java view
         _pJView->setTag( bdn::java::NativeWeakPointer(this) );
 
+        _defaultPadding = Margin( _pJView->getPaddingTop(),
+                                  _pJView->getPaddingRight(),
+                                  _pJView->getPaddingBottom(),
+                                  _pJView->getPaddingLeft() );
+
         setVisible( pOuterView->visible() );
         setPadding( pOuterView->padding() );
 
@@ -104,11 +109,16 @@ public:
         _pJView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible );
     }
         
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
-        Margin pixelPadding = uiMarginToPixelMargin(padding);
+        Margin pixelPadding;
+        if(padding.isNull())
+            pixelPadding = _defaultPadding;
+        else
+            pixelPadding = uiMarginToPixelMargin(padding);
 
-        _pJView->setPadding( pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom );
+        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right,
+                                pixelPadding.bottom);
     }
 
 
@@ -134,9 +144,6 @@ public:
         {
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
-
-            // XXX
-            logInfo("child view "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" setBounds: ("+std::to_string(bounds.width)+"x"+std::to_string(bounds.height)+")");
 
             parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
         }
@@ -279,12 +286,11 @@ private:
 
     View*           _pOuterViewWeak;
 
-    // XXX
-protected:
-    P<JView>        _pJView;
 private:
-
+    P<JView>        _pJView;
     double          _uiScaleFactor;
+
+    Margin          _defaultPadding;
 };
 
 }

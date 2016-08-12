@@ -67,6 +67,29 @@ public:
         invoke_<void>(getStaticClass_(), methodId, "setVisibility", (int)visibility);
     }
 
+    Visibility getVisibility()
+    {
+        static bdn::java::MethodId methodId;
+
+        return (Visibility)invoke_<int>(getStaticClass_(), methodId, "getVisibility");
+    }
+
+
+    int getLeft()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getLeft" );
+    }
+
+
+    int getTop()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getTop" );
+    }
+
 
     int getWidth()
     {
@@ -92,6 +115,35 @@ public:
         static bdn::java::MethodId methodId;
 
         invoke_<void>(getStaticClass_(), methodId, "setPadding", left, top, right, bottom );
+    }
+
+
+    int getPaddingLeft()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getPaddingLeft" );
+    }
+
+    int getPaddingTop()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getPaddingTop" );
+    }
+
+    int getPaddingRight()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getPaddingRight" );
+    }
+
+    int getPaddingBottom()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getPaddingBottom" );
     }
 
 
