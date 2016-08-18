@@ -43,6 +43,11 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/NotImplementedError.h>
 
 
+namespace bdn
+{
+    std::vector<String> _askForCommandlineParameters();
+}
+
 #include <cstring>
 
 #  ifndef CLARA_CONFIG_MAIN
@@ -7959,10 +7964,21 @@ public:
 	}
 
 
-	void init(const std::vector<String>& args)
+	void init(std::vector<String> args)
 	{
-		try
+        try
         {
+#if BDN_PLATFORM_WINRT
+		    if(args.size()<=1)
+            {
+		        // WinRT apps do not support commandline arguments (at least not at the time of this writing).
+		        // So we let the user enter them programmatically.
+		        // Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
+		        // commandline instead. But for the moment this works.
+                args = _askForCommandlineParameters();
+            }
+#endif
+
             _pTestSession = new bdn::Session;
 
 			// this is just a place holder frame so that we have something visible.

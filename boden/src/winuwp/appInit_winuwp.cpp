@@ -6,6 +6,7 @@
 
 #include <bdn/win32/ThreadLocalStorageManager.h>
 #include <bdn/RequireNewAlloc.h>
+#include <bdn/winuwp/DispatcherAccess.h>
 
 namespace bdn
 {
@@ -199,7 +200,11 @@ protected:
 	virtual void OnLaunched(  Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ pArgs ) override
 	{
 		try
-		{
+		{            
+            
+            // ensure that the global dispatcher access object is initialized
+            bdn::winuwp::DispatcherAccess::get();
+
 			_pAppController->beginLaunch(*_pLaunchInfo);
 			_pAppController->finishLaunch(*_pLaunchInfo);				
 		}

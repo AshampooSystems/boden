@@ -12,13 +12,10 @@ class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 {
 public:
 	UiProvider()
-	{
-		
+	{		
 		Windows::UI::ViewManagement::ApplicationView^ pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 
-
 		Windows::UI::Xaml::Window^ pWindow = Windows::UI::Xaml::Window::Current;
-
 
 		Windows::Graphics::Display::DisplayInformation^ pDisplayInfo = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 

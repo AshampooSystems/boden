@@ -182,16 +182,20 @@ void View::_deinitCore()
 		
 	P<IViewCore>	pOldCore = _pCore;
 
-	_pCore = nullptr;
-
-	std::list< P<View> > childViewsCopy;
+    std::list< P<View> > childViewsCopy;
 	getChildViews( childViewsCopy );
+
+    // tell the old core that it is about to be released.
+    if(_pCore!=nullptr)
+        _pCore->dispose();
+
+    _pCore = nullptr;
 	
 	// also release the core of all child views
 	for( auto pChildView: childViewsCopy )
 		pChildView->_deinitCore();
 
-	// now schedule the core reference to be released from the main thread.
+    // now schedule the core reference to be released from the main thread.
 	// note that we do nothing in the scheduled function. We only use this to keep the core alive
 	// and cause its final release to be called from the main thread.
 	callFromMainThread( [pOldCore](){} );

@@ -59,9 +59,21 @@ public:
 		setLabel( pOuter->label() );
 	}
 
-	void setPadding(const UiMargin& uiPadding) override
+	void setPadding(const Nullable<UiMargin>& pad) override
 	{
 		// Apply the padding to the control, so that the content is positioned accordingly.
+        UiMargin uiPadding;
+        if(pad.isNull())
+        {
+            // we should use a default padding that looks good.
+            // Xaml uses zero padding as the default, so we cannot use their
+            // default value. So we choose our own default that matches the
+            // normal aesthetic of Windows apps.
+            uiPadding = UiMargin(UiLength::sem, 0.4, 1);
+        }
+        else
+            uiPadding = pad;
+
 		Margin padding = UiProvider::get().uiMarginToPixelMargin(uiPadding);
 
 		_doSizingInfoUpdateOnNextLayout = true;		
@@ -96,9 +108,12 @@ protected:
 
 	void _clicked()
 	{
-		ClickEvent evt(getOuterView());
-
-		cast<Button>(getOuterView())->onClick().notify(evt);
+        View* pOuterView = getOuterView();
+        if(pOuterView!=nullptr)
+        {
+		    ClickEvent evt(pOuterView);
+		    cast<Button>(pOuterView)->onClick().notify(evt);
+        }
 	}
 
 	void _layoutUpdated() override
@@ -107,7 +122,9 @@ protected:
 		{
 			_doSizingInfoUpdateOnNextLayout = false;
 
-			getOuterView()->needSizingInfoUpdate();
+            View* pOuterView = getOuterView();
+            if(pOuterView!=nullptr)
+			    pOuterView->needSizingInfoUpdate();
 		}
 	}
 

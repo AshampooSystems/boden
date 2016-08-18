@@ -498,67 +498,62 @@ void testWrapCallFromMainThread(bool throwException)
     {
         SECTION("storingFuture")
         {
-            CONTINUE_SECTION_IN_THREAD_WITH(
-                         [throwException]()
-                         {
-                             volatile int   callCount = 0;
-                             Thread::Id     threadId;
+            CONTINUE_SECTION_IN_THREAD(throwException)
+            {
+                volatile int   callCount = 0;
+                Thread::Id     threadId;
 
-                             auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x)
-                                                                        {
-                                                                            // sleep a little to ensure that we have time to check callCount
-                                                                            Thread::sleepSeconds(1);
-                                                                            threadId = Thread::getCurrentId();
-                                                                            callCount++;
-                                                                            if(throwException)
-                                                                                throw InvalidArgumentError("hello");
-                                                                            return x*2;
-                                                                        } );
+                auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x)
+                                                        {
+                                                            // sleep a little to ensure that we have time to check callCount
+                                                            Thread::sleepSeconds(1);
+                                                            threadId = Thread::getCurrentId();
+                                                            callCount++;
+                                                            if(throwException)
+                                                                throw InvalidArgumentError("hello");
+                                                            return x*2;
+                                                        } );
 
-                             // should NOT have been called.
-                             REQUIRE( callCount==0 );
+                // should NOT have been called.
+                REQUIRE( callCount==0 );
 
-                             Thread::sleepSeconds(2);
+                Thread::sleepSeconds(2);
 
-                             // should STILL not have been called, since the wrapper was not executed yet
-                             REQUIRE( callCount==0 );
+                // should STILL not have been called, since the wrapper was not executed yet
+                REQUIRE( callCount==0 );
 
-                             StopWatch threadWatch;
+                StopWatch threadWatch;
 
-                             std::future<int> result = wrapped(42);
+                std::future<int> result = wrapped(42);
 
-                             // should NOT have been called immediately, since we are in a different thread.
-                             // Instead the call should have been deferred to the main thread.
-                             REQUIRE( callCount==0 );
+                // should NOT have been called immediately, since we are in a different thread.
+                // Instead the call should have been deferred to the main thread.
+                REQUIRE( callCount==0 );
 
-                             // should not have waited
-                             REQUIRE( threadWatch.getMillis()<500 );
+                // should not have waited
+                REQUIRE( threadWatch.getMillis()<500 );
 
-                             REQUIRE( result.wait_for( std::chrono::milliseconds(5000) ) == std::future_status::ready );
+                REQUIRE( result.wait_for( std::chrono::milliseconds(5000) ) == std::future_status::ready );
 
-                             // the inner function sleeps for 1 second.
-                             REQUIRE( threadWatch.getMillis()>=1000-10 );
-                             REQUIRE( threadWatch.getMillis()<2500 );
+                // the inner function sleeps for 1 second.
+                REQUIRE( threadWatch.getMillis()>=1000-10 );
+                REQUIRE( threadWatch.getMillis()<2500 );
 
-                             REQUIRE( callCount==1 );
+                REQUIRE( callCount==1 );
 
-                             REQUIRE( threadId==Thread::getMainId() );
-                             REQUIRE( threadId!=Thread::getCurrentId() );
+                REQUIRE( threadId==Thread::getMainId() );
+                REQUIRE( threadId!=Thread::getCurrentId() );
 
-                             threadWatch.start();
+                threadWatch.start();
 
-                             if(throwException)
-                                 REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
-                             else
-                                 REQUIRE( result.get()==84 );
+                if(throwException)
+                    REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
+                else
+                    REQUIRE( result.get()==84 );
 
-                             // should not have waited
-                             REQUIRE( threadWatch.getMillis()<=500 );
-                         } );
-
-
-            // time to start thread should have been less than 1000ms
-            REQUIRE( watch.getMillis()<1000 );
+                // should not have waited
+                REQUIRE( threadWatch.getMillis()<=500 );
+            };
         }
 
         SECTION("notStoringFuture")

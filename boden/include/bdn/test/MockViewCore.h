@@ -32,6 +32,11 @@ public:
 	}
 
 
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+    }
+
     /** Returns the outer view object that this core is embedded in.*/
     View* getOuterViewWeak()
 	{

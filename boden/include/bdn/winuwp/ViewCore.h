@@ -84,6 +84,11 @@ public:
 	{
 		_pEventForwarder->dispose();
 	}
+
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+    }
 	
 	void setVisible(const bool& visible) override
 	{
@@ -170,7 +175,9 @@ public:
 	}
 
 
-	/** Returns a pointer to the outer view object that is associated with this core.*/
+	/** Returns a pointer to the outer view object that is associated with this core.
+        Can return null if the core has been disposed (i.e. if it is not connected
+        to an outer view anymore).*/
 	View* getOuterView()
 	{
 		return _pOuterViewWeak;
@@ -192,7 +199,8 @@ protected:
 	{
 		// Xaml has done a layout cycle. At this point all the controls should know their
 		// desired sizes. So this is when we schedule our layout updated
-		_pOuterViewWeak->needLayout();
+        if(_pOuterViewWeak!=nullptr)
+		    _pOuterViewWeak->needLayout();
 	}
 
 		

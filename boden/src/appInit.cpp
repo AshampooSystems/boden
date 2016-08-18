@@ -12,6 +12,7 @@
 #include <bdn/win32/util.h>
 #endif
 
+
 #if BDN_PLATFORM_WINRT
 #include <Shellapi.h>
 #endif
@@ -41,6 +42,40 @@ void _mainInit()
 
 	// the older function would be ::SetProcessDPIAware()
 #endif
+
+
+}
+
+std::vector<String> _askForCommandlineParameters()
+{
+    std::vector<String> args;
+
+    std::cout << "Please enter commandline parameters and press enter.\nLeave empty and press enter to run with no parameters." << std::endl;
+
+	std::string input;
+	std::getline(std::cin, input );
+
+	String params = String::fromLocaleEncoding(input);
+
+	// add an empty entry for the executable name first. We do not know it.
+	args.push_back("");
+
+	while(!params.isEmpty())
+	{
+		char32_t chr = params.front();
+		
+		if(chr==' ')
+			params.erase(params.begin() );
+		else if(chr=='\"')
+		{
+			params.erase(params.begin());
+			args.push_back( params.splitOffToken("\"") );
+		}
+		else
+			args.push_back( params.splitOffToken(" \t") );
+	}
+	
+    return args;
 }
     
 
@@ -81,37 +116,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 		// Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
 		// commandline instead. But for the moment this works.
 		if(args.empty())
-		{			
-			std::cout << "Please enter commandline parameters and press enter.\nLeave empty and press enter to run with no parameters." << std::endl;
-
-			std::string input;
-			std::getline(std::cin, input );
-
-			String params = String::fromLocaleEncoding(input);
-
-			std::vector<String> argStrings;
-
-			// add an empty entry for the executable name first. We do not know it.
-			argStrings.push_back("");
-
-			while(!params.isEmpty())
-			{
-				char32_t chr = params.front();
-		
-				if(chr==' ')
-					params.erase(params.begin() );
-				else if(chr=='\"')
-				{
-					params.erase(params.begin());
-					argStrings.push_back( params.splitOffToken("\"") );
-				}
-				else
-					argStrings.push_back( params.splitOffToken(" \t") );
-			}
-	
-			for(const String& s: argStrings)
-				args.push_back( s.asUtf8Ptr() );
-		}
+            args = _askForCommandlineParameters();
 		
 #elif BDN_PLATFORM_WIN32
 		args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );		

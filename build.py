@@ -917,7 +917,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
             args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=8.1" ] );
             
         elif platform=="winuwp":
-            args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0" ] );                     
+            args.extend( ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0.10240.0" ] );                     
 
     elif platform=="mac":
 

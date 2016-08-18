@@ -32,7 +32,7 @@ public:
 	}
 
 
-	void setPadding(const UiMargin& uiPadding) override
+	void setPadding(const Nullable<UiMargin>& uiPadding) override
 	{
 		// the outer class automatically handles our own padding. So nothing to do here.
 	}

@@ -35,10 +35,10 @@ else()
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" )	
 
-		if(CMAKE_SYSTEM_VERSION STREQUAL "10.0")
-			SET( BODEN_TARGET "winuwp" )
-		else()
+		if(CMAKE_SYSTEM_VERSION VERSION_LESS "10.0")
 			SET( BODEN_TARGET "winstore" )
+		else()
+			SET( BODEN_TARGET "winuwp" )			
 		endif()
 
 		SET( BODEN_TARGET_FAMILY "windows")
@@ -130,6 +130,8 @@ endif()
 
 if( "${BODEN_TARGET}" STREQUAL "winuwp" )	
 	SET(VS_WINRT_COMPONENT TRUE)	
+
+    SET(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "10.0.10240.0")
 
     SET(VS_WINRT_REFERENCES "Windows;Windows.UI.Core;System")
 
