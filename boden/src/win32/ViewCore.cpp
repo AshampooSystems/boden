@@ -85,7 +85,7 @@ void	ViewCore::setVisible(const bool& visible)
 	::ShowWindow( getHwnd(), visible ? SW_SHOW : SW_HIDE);		
 }
 
-void ViewCore::setPadding(const UiMargin& padding)
+void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 {
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }

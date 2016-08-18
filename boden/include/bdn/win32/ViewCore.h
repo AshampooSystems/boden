@@ -29,7 +29,7 @@ public:
 	
 	void setVisible(const bool& visible) override;
 			
-	void setPadding(const UiMargin& padding) override;
+	void setPadding(const Nullable<UiMargin>& padding) override;
 
 	void setBounds(const Rect& bounds) override;
         
