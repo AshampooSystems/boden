@@ -62,6 +62,19 @@ void throwHresultError(long hresultCode, const ErrorFields& fields )
 	throw makeHresultError(hresultCode, fields );	
 }
 
+
+
+SystemError makePlatformError(::Platform::Exception^ e, const ErrorFields& infoFields)
+{
+    return makeHresultError( e->HResult, ErrorFields(infoFields.toString()).add("_message", String(e->Message->Data()) ) );
+}
+
+
+void throwPlatformError(::Platform::Exception^ e, const ErrorFields& infoFields )
+{
+    throw makePlatformError( e, infoFields );
+}
+
 }
 
 

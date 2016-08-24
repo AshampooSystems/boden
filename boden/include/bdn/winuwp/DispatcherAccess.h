@@ -1,6 +1,8 @@
 #ifndef BDN_WINUWP_DispatcherAccess_H_
 #define BDN_WINUWP_DispatcherAccess_H_
 
+#include <bdn/winuwp/util.h>
+
 namespace bdn
 {
 namespace winuwp
@@ -13,7 +15,11 @@ class DispatcherAccess : public Base
 public:
 	DispatcherAccess()
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
         _pMainDispatcher = Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher;
+
+        BDN_WINUWP_TO_STDEXC_END;
     }
 
     Windows::UI::Core::CoreDispatcher^ getMainDispatcher()

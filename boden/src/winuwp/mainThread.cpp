@@ -8,6 +8,8 @@ namespace bdn
 
 void CallFromMainThreadBase_::dispatch()
 {
+    BDN_WINUWP_TO_STDEXC_BEGIN;
+
 	P<ISimpleCallable> pThis = this;
 
 
@@ -18,6 +20,9 @@ void CallFromMainThreadBase_::dispatch()
 			{
 				pThis->call();
 			} ) );
+
+
+    BDN_WINUWP_TO_STDEXC_END;
 
 }
 

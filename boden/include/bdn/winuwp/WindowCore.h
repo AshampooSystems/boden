@@ -23,6 +23,8 @@ class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IPare
 public:
 	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_pUiProvider = pUiProvider;
 		_pOuterWindowWeak = pOuterWindow;
 
@@ -79,6 +81,8 @@ public:
 		_scheduleUpdateOuterBoundsProperty();				
 
         setVisible( pOuterWindow->visible() );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	~WindowCore()
@@ -88,6 +92,8 @@ public:
 
     void dispose() override
     {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
         _pOuterWindowWeak = nullptr;
 
         if(_pEventForwarder!=nullptr)
@@ -98,14 +104,24 @@ public:
             // remove our window panel from the parent window
             if(_pWindowPanelParent!=nullptr)
             {
-                unsigned index=0;
-                if(_pWindowPanelParent->Children->IndexOf(_pWindowPanel, &index))
-                    _pWindowPanelParent->Children->RemoveAt(index);
+                try
+                {
+                    unsigned index=0;
+                    if(_pWindowPanelParent->Children->IndexOf(_pWindowPanel, &index))
+                        _pWindowPanelParent->Children->RemoveAt(index);
+                }
+                catch(::Platform::DisconnectedException^ e)
+                {
+                    // window is already destroyed. Ignore this.
+                }
             }
             _pWindowPanel = nullptr;
         }
 
         _pWindowPanelParent = nullptr;
+
+        BDN_WINUWP_TO_STDEXC_END;
+
     }
 	
 	void setTitle(const String& title) override
@@ -151,10 +167,15 @@ public:
 
 	void	setVisible(const bool& visible) override
 	{
-        _pWindowPanel->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
+        BDN_WINUWP_TO_STDEXC_BEGIN;
 
+        _pWindowPanel->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
+        
 		if(visible)
 			_pXamlWindow->Activate();            
+
+        BDN_WINUWP_TO_STDEXC_END;
+
 	}
 	
 	
@@ -216,10 +237,14 @@ public:
 
 	void addChildUiElement( ::Windows::UI::Xaml::UIElement^ pUiElement ) override
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
         // we have only one child (our own content view).
         _pWindowPanel->Children->Clear();
 
 		_pWindowPanel->Children->Append(pUiElement);
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 	
 
@@ -236,7 +261,19 @@ private:
 
 	Rect _getBounds() const
 	{
-		Rect bounds = uwpRectToRect( _pXamlWindow->Bounds, UiProvider::get().getUiScaleFactor() );
+        Rect bounds;
+
+        try
+        {
+            bounds = uwpRectToRect( _pXamlWindow->Bounds, UiProvider::get().getUiScaleFactor() );
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // this means that the window is already destroyed.
+            // Use an empty rect in that case.
+            bounds = Rect();
+        }
+
 		if(bounds.width == std::numeric_limits<int>::max())
 			bounds.width = 0;
 		if(bounds.height == std::numeric_limits<int>::max())
@@ -295,23 +332,34 @@ private:
 	void _windowPanelParentLayoutUpdated()
 	{
 		// Xaml has done a layout cycle on the window panel parent.
-        
-        if(_pOuterWindowWeak!=nullptr)
-        {
-            // Update our window panel to the same size.
-            if(_pWindowPanel->Width != _pWindowPanelParent->Width
-                || _pWindowPanel->Height != _pWindowPanelParent->Height)
+
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {        
+            if(_pOuterWindowWeak!=nullptr)
             {
-                _pWindowPanel->Width = _pWindowPanelParent->Width;
-                _pWindowPanel->Height = _pWindowPanelParent->Height;
+                // Update our window panel to the same size.
+                if(_pWindowPanel->Width != _pWindowPanelParent->Width
+                    || _pWindowPanel->Height != _pWindowPanelParent->Height)
+                {
+                    _pWindowPanel->Width = _pWindowPanelParent->Width;
+                    _pWindowPanel->Height = _pWindowPanelParent->Height;
 
-                // Update the bounds of the outer window object        
-			    _pOuterWindowWeak->bounds() = _getBounds();
+                    // Update the bounds of the outer window object        
+			        _pOuterWindowWeak->bounds() = _getBounds();
 
-                // and the size and position of our content panel
-		        _pOuterWindowWeak->needLayout();
+                    // and the size and position of our content panel
+		            _pOuterWindowWeak->needLayout();
+                }
             }
         }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // window is already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 

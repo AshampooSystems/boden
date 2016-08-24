@@ -3,6 +3,8 @@
 
 #include <bdn/IUiProvider.h>
 
+#include <bdn/winuwp/util.h>
+
 namespace bdn
 {
 namespace winuwp
@@ -13,6 +15,8 @@ class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 public:
 	UiProvider()
 	{		
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		Windows::UI::ViewManagement::ApplicationView^ pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 
 		Windows::UI::Xaml::Window^ pWindow = Windows::UI::Xaml::Window::Current;
@@ -28,6 +32,8 @@ public:
 				(_pEventForwarder, &EventForwarder::dpiChanged);
 
 		updateUiScaleFactor( pDisplayInfo );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	~UiProvider()
@@ -48,6 +54,8 @@ public:
 
 	Rect			getScreenWorkArea() const
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		Windows::Foundation::Rect bounds =  Windows::UI::ViewManagement::ApplicationView::GetForCurrentView()->VisibleBounds;
 		
 		return Rect(
@@ -55,11 +63,15 @@ public:
 			std::lround( bounds.Y * _uiScaleFactor ),
 			std::lround( bounds.Width * _uiScaleFactor ),
 			std::lround( bounds.Height * _uiScaleFactor ) );		
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 	
 
 	int				uiLengthToPixels(const UiLength& uiLength) const
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		if(uiLength.unit==UiLength::sem)
 			return std::lround( uiLength.value * _semPixels );
 
@@ -75,16 +87,22 @@ public:
 
 		else
 			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 	
 
 	Margin			uiMarginToPixelMargin(const UiMargin& margin) const
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		return Margin(
 			uiLengthToPixels(margin.top),
 			uiLengthToPixels(margin.right),
 			uiLengthToPixels(margin.bottom),
 			uiLengthToPixels(margin.left) );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 
@@ -127,10 +145,14 @@ protected:
 
 	void updateUiScaleFactor( Windows::Graphics::Display::DisplayInformation^ pDisplayInfo )
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_uiScaleFactor = pDisplayInfo->RawPixelsPerViewPixel;		
 		
 		// Todo: need to properly determine base font size.
 		_semPixels = 15 * _uiScaleFactor;
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	

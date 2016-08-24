@@ -14,7 +14,11 @@ class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 private:
 	static ::Windows::UI::Xaml::Controls::Button^ _createButton(Button* pOuter)
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		return ref new ::Windows::UI::Xaml::Controls::Button();		
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 public:
@@ -49,6 +53,8 @@ public:
 	ButtonCore(	Button* pOuter)
 		: ViewCore(pOuter, _createButton(pOuter), ref new ButtonCoreEventForwarder(this) )
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_pButton = dynamic_cast< ::Windows::UI::Xaml::Controls::Button^ >( getFrameworkElement() );
 
 		ButtonCoreEventForwarder^ pEventForwarder = dynamic_cast<ButtonCoreEventForwarder^>( getViewCoreEventForwarder() );
@@ -57,10 +63,14 @@ public:
 		
 		setPadding( pOuter->padding() );
 		setLabel( pOuter->label() );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	void setPadding(const Nullable<UiMargin>& pad) override
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		// Apply the padding to the control, so that the content is positioned accordingly.
         UiMargin uiPadding;
         if(pad.isNull())
@@ -85,10 +95,14 @@ public:
 			padding.top/uiScaleFactor,
 			padding.right/uiScaleFactor,
 			padding.bottom/uiScaleFactor );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	void setLabel(const String& label)
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		::Windows::UI::Xaml::Controls::TextBlock^ pLabel = ref new ::Windows::UI::Xaml::Controls::TextBlock();
 
 		pLabel->Text = ref new ::Platform::String( label.asWidePtr() );
@@ -100,7 +114,9 @@ public:
 
 		_doSizingInfoUpdateOnNextLayout = true;		
 
-		_pButton->Content = pLabel;		
+        _pButton->Content = pLabel;		
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 

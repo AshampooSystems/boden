@@ -3,6 +3,8 @@
 
 #include <limits>
 
+#include <bdn/Rect.h>
+
 namespace bdn
 {
 namespace winuwp

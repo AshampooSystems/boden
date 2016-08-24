@@ -47,7 +47,7 @@ public:
 
 	virtual void call() override
 	{
-		_packagedTask();
+        _packagedTask();        
 	}
 
 protected:

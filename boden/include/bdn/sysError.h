@@ -122,6 +122,56 @@ SystemError makeHresultError(long hresultCode, const ErrorFields& infoFields = E
 	*/
 void throwHresultError(long hresultCode, const ErrorFields& fields = ErrorFields() );
 
+
+#if BDN_PLATFORM_WINRT
+
+/** Creates a SystemError / std::system_error object for the system error with the
+	specified UWP Platform::Exception object.
+
+	@param e the error object
+
+	@param fields an ErrorFields instance contains arbitrary additional information
+		about the error. For example, if the error occurred while accessing a file you
+		could add a "path" field with the file path.
+
+		The fields object is encoded into the message returned by std::exception::what().
+		You can use ErrorInfo to access the fields from an exception object.
+
+		The easiest way to construct the params object is to create an ad-hoc temporary object
+		and call ErrorFields::add() on it, as shown in the following example.
+
+	*/
+SystemError makePlatformError(::Platform::Exception^ e, const ErrorFields& infoFields = ErrorFields() );
+
+
+/** Throws an appropriate exception for the specified Windows ::Platform::Exception error object.
+
+	The exception will have the type std::system_error and bdn::SystemError (which are actually the
+	same type).
+
+	@param e the error object
+
+	@param fields an ErrorFields instance contains arbitrary additional information
+		about the error. For example, if the error occurred while accessing a file you
+		could add a "path" field with the file path.
+
+		The fields object is encoded into the message returned by std::exception::what().
+		You can use ErrorInfo to access the fields from an exception object.
+
+		The easiest way to construct the params object is to create an ad-hoc temporary object
+		and call ErrorFields::add() on it, as shown in the following example.
+
+	*/
+void throwPlatformError(::Platform::Exception^ e, const ErrorFields& fields = ErrorFields() );
+
+
+#define BDN_WINUWP_TO_STDEXC_BEGIN try{
+
+#define BDN_WINUWP_TO_STDEXC_END }catch(::Platform::Exception^ e){ throw bdn::makePlatformError(e); }
+
+
+#endif
+
 #endif
 
 

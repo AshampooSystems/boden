@@ -46,6 +46,8 @@ public:
 	{
 		_mainInit();
 
+        AppControllerBase::_set(_pAppController);
+
 		// Register event handlers for app lifecycle. This example includes Activated, so that we
 		// can make the CoreWindow active and start rendering on the window.
 		applicationView->Activated +=
@@ -164,6 +166,8 @@ internal:
 
 		_mainInit();
 
+        AppControllerBase::_set(_pAppController);
+
 		InitializeComponent();
 
 		Suspending +=
@@ -201,12 +205,15 @@ protected:
 	{
 		try
 		{            
-            
+            BDN_WINUWP_TO_STDEXC_BEGIN;
+                        
             // ensure that the global dispatcher access object is initialized
             bdn::winuwp::DispatcherAccess::get();
 
 			_pAppController->beginLaunch(*_pLaunchInfo);
 			_pAppController->finishLaunch(*_pLaunchInfo);				
+
+            BDN_WINUWP_TO_STDEXC_END;
 		}
 		catch(std::exception& e)
 		{
