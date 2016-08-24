@@ -57,7 +57,7 @@ inline void testWindowCore(P<Window> pWindow)
             
             // the content area must be fully inside the window bounds.
             REQUIRE( contentArea.x + contentArea.width <= bounds.width);
-            REQUIRE( contentArea.y + contentArea.height <= bounds.height);         
+            REQUIRE( contentArea.y + contentArea.height <= bounds.height);
         };
     }
 
