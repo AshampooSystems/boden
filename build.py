@@ -81,6 +81,12 @@ class InvalidPlatformNameError(ProgramArgumentError):
         ProgramArgumentError.__init__(self, "Invalid platform name: '%s'" % platformName);
 
 
+
+class InvalidArchitectureError(ProgramArgumentError):
+    def __init__(self, arch):
+        ProgramArgumentError.__init__(self, "Invalid architecture name: '%s'" % arch);
+
+
 class InvalidConfigNameError(ProgramArgumentError):
     def __init__(self, platformName):
         ProgramArgumentError.__init__(self, "Invalid config name: '%s'" % configName);
@@ -1101,31 +1107,34 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
                         f.write(data.encode("utf-8"));
 
     elif platform=="winuwp":
-        # CMake ALWAYS sets the GenerateWindowsMetaData option in Visual Studio project files to false
-        # for executables. This is incorrect for universal Windows Apps and it causes the executable
-        # to crash during the startup process.
-        # Unfortunately there is no way to override this from within the Cmake files, so we are
-        # forced to post-process the generated projects.
+        
+        # At the time of this writing, an UWP app built with cmake may generate a "cannot open file" exception
+        # when it is started in a debugger.
+        # 0x00000004: The system cannot open the file (parameters: 0x80073B1F, 0x00000005).
+        # 0x80073B1F means "ResourceMap Not Found"
+        # This is caused by a bug in cmake that is described here:
+        # https://gitlab.kitware.com/cmake/cmake/issues/16106
+        # The problem is an incorrect path in the project file. We fix this manually.
 
-        # for name in os.listdir(cmakeBuildDir):
-        #     if name.endswith(".vcxproj"):
-        #         filePath = os.path.join(cmakeBuildDir, name);
+        for name in os.listdir(cmakeBuildDir):
+            if name.endswith(".vcxproj"):
+                filePath = os.path.join(cmakeBuildDir, name);
 
-        #         with open( filePath, "rb") as f:
-        #             data = f.read().decode("utf-8");
+                with open( filePath, "rb") as f:
+                    data = f.read().decode("utf-8");
 
-        #         modified = False;
-        #         if "<ConfigurationType>Application</ConfigurationType>" in data and "<GenerateWindowsMetadata>false</GenerateWindowsMetadata>" in data:
+                title = os.path.splitext( name )[0];
 
-        #             print("Modifying %s (changing GenerateWindowsMetaData setting)..." % name);
-        #             data = data.replace("<GenerateWindowsMetadata>false</GenerateWindowsMetadata>", "<GenerateWindowsMetadata>true</GenerateWindowsMetadata>");                            
+                modified = False;
+                if "<ProjectPriFullPath>$(TargetDir)resources.pri</ProjectPriFullPath>" in data:
+                    print("Modifying %s (fixing ProjectPriFullPath entry)..." % name);
+                    data = data.replace("<ProjectPriFullPath>$(TargetDir)resources.pri</ProjectPriFullPath>", "<ProjectPriFullPath>%s.dir\\resources.pri</ProjectPriFullPath>" % title);                            
+                    modified = True;
 
-        #             modified = True;
+                if modified:
+                    with open( filePath, "wb") as f:
+                        f.write(data.encode("utf-8"));
 
-        #         if modified:
-        #             with open( filePath, "wb") as f:
-        #                 f.write(data.encode("utf-8"));
-        pass;
 
 
 
