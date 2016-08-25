@@ -1,7 +1,7 @@
 #ifndef BDN_WINUWP_DispatcherAccess_H_
 #define BDN_WINUWP_DispatcherAccess_H_
 
-#include <bdn/winuwp/util.h>
+#include <bdn/winuwp/platformError.h>
 
 namespace bdn
 {

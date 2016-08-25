@@ -14,6 +14,7 @@
 
 
 #if BDN_PLATFORM_WINUWP
+#include <bdn/winuwp/platformError.h>
 #include <Shellapi.h>
 #endif
 

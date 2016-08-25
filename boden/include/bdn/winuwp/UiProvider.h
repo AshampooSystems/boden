@@ -3,7 +3,7 @@
 
 #include <bdn/IUiProvider.h>
 
-#include <bdn/winuwp/util.h>
+#include <bdn/winuwp/platformError.h>
 
 namespace bdn
 {
