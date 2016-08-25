@@ -30,6 +30,10 @@ public:
         setPadding( pOuterView->padding() );
     }
     
+    void dispose() override
+    {
+        _nsView = nil;
+    }
     
     void setVisible(const bool& visible) override
     {

@@ -33,6 +33,11 @@ public:
     }
     
     
+    void dispose() override
+    {
+        _nsWindow = nil;
+    }
+    
     void setTitle(const String& title) override
     {
         [_nsWindow setTitle: stringToMacString(title)];
