@@ -7968,7 +7968,7 @@ public:
 	{
         try
         {
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 		    if(args.size()<=1)
             {
 		        // WinRT apps do not support commandline arguments (at least not at the time of this writing).

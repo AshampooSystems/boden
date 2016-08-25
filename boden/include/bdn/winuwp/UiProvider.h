@@ -125,10 +125,14 @@ protected:
 		void dpiChanged(	Windows::Graphics::Display::DisplayInformation^ pDisplayInfo,
 						Platform::Object^ args)
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			MutexLock lock(_parentMutex);
 			
 			if(_pParentWeak!=nullptr)
 				_pParentWeak->updateUiScaleFactor(pDisplayInfo);
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 		void dispose()

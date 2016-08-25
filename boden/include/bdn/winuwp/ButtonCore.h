@@ -40,9 +40,13 @@ public:
 	public:
 		void clicked(Object^ sender, ::Windows::UI::Xaml::RoutedEventArgs^ pArgs)
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			ButtonCore* pButtonCore = getButtonCoreIfAlive();
 			if(pButtonCore!=nullptr)
 				pButtonCore->_clicked();			
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}		
 
 	private:

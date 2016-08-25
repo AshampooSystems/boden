@@ -163,7 +163,7 @@
 				return (typeName&)*init.get(); \
 			}
 
-	#elif BDN_PLATFORM_WINRT
+	#elif BDN_PLATFORM_WINUWP
 		
 		// on WinRT the thread local keyword does not work with objects that have a destructor.
 		// So we use the manual implementation here. Note that we can use the one for the win32
