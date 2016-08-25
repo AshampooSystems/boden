@@ -25,7 +25,7 @@ public:
 				int width=0,
 				int height=0 );
 	
-
+    void dispose() override;
 	
 	void setVisible(const bool& visible) override;
 			

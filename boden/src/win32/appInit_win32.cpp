@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/appInit.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 #include <bdn/Thread.h>
 
 #include <bdn/win32/util.h>

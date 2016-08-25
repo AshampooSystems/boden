@@ -102,7 +102,7 @@ void verifyNotFoundSystemSysError(const SystemError& err)
 
 void testWin32ErrorCodeToSystemError()
 {
-	SystemError err = win32ErrorCodeToSystemError(ERROR_FILE_NOT_FOUND, ErrorFields().add("bla", "blub")
+	SystemError err = bdn::win32::win32ErrorCodeToSystemError(ERROR_FILE_NOT_FOUND, ErrorFields().add("bla", "blub")
 															.add("gubbel", "hurz") );
 
 	verifyNotFoundSystemSysError(err);
@@ -144,7 +144,7 @@ void testThrowLastError()
 		    // then call BDN_throwLastSysError with a parameter object that will modify
 		    // the last sys error
 
-		    BDN_throwLastSysError( ErrorFields()
+		    BDN_WIN32_throwLastError( ErrorFields()
 			    // construct the ErrorFields object in a way so that it modifies the last error
 			    .add(setAccessError() ? "bla" : "blax", "blub")
 			    .add("gubbel", "hurz") );
@@ -162,7 +162,7 @@ void testThrowLastError()
     }
 }
 
-TEST_CASE("sysError")
+TEST_CASE("win32Error")
 {
 	SECTION("codeMapping")
 		testErrorCodeMapping();

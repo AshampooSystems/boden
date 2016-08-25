@@ -76,7 +76,7 @@ inline SystemError win32ErrorCodeToSystemError(unsigned long errorCode, const Er
 #define BDN_WIN32_throwLastError( fields )	\
 { \
 	DWORD _savedSysError = ::GetLastError(); \
-	throw win32ErrorCodeToSystemError(_savedSysError, fields); \
+	throw bdn::win32::win32ErrorCodeToSystemError(_savedSysError, fields); \
 }
 
 

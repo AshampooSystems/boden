@@ -47,7 +47,7 @@ namespace win32
 	\endcode
 
 	*/
-SystemError hresultToSystemError(long hresultCode, const ErrorFields& fields = ErrorFields() )
+inline SystemError hresultToSystemError(long hresultCode, const ErrorFields& fields = ErrorFields() )
 {
     if( HRESULT_FACILITY(hresultCode) == FACILITY_WIN32)
 	{
@@ -97,7 +97,7 @@ SystemError hresultToSystemError(long hresultCode, const ErrorFields& fields = E
     to a HRESULT code.
 
     */
-long exceptionToHresult(const std::exception& e)
+inline long exceptionToHresult(const std::exception& e)
 {
     HRESULT res = E_FAIL;   // "unspecified error" is the default error code.
 
