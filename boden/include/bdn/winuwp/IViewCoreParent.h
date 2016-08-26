@@ -1,5 +1,5 @@
-#ifndef BDN_WINUWP_IParentViewCore_H_
-#define BDN_WINUWP_IParentViewCore_H_
+#ifndef BDN_WINUWP_IViewCoreParent_H_
+#define BDN_WINUWP_IViewCoreParent_H_
 
 
 namespace bdn
@@ -9,7 +9,7 @@ namespace winuwp
 
 
 /** Interface for view cores that can act as parents for other view cores.*/
-class IParentViewCore : BDN_IMPLEMENTS IBase
+class IViewCoreParent : BDN_IMPLEMENTS IBase
 {
 public:
 

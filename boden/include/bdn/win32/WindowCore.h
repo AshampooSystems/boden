@@ -17,6 +17,8 @@ class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 {
 public:
 	WindowCore(Window* pWindow);			
+
+    void dispose() override;
 	
 	void	setTitle(const String& title) override;
 

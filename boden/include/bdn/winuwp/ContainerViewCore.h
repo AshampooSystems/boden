@@ -2,15 +2,15 @@
 #define BDN_WINUWP_ContainerViewCore_H_
 
 #include <bdn/ContainerView.h>
-#include <bdn/winuwp/ViewCore.h>
-#include <bdn/winuwp/IParentViewCore.h>
+#include <bdn/winuwp/ChildViewCore.h>
+#include <bdn/winuwp/IViewCoreParent.h>
 
 namespace bdn
 {
 namespace winuwp
 {
 
-class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
+class ContainerViewCore : public ChildViewCore, BDN_IMPLEMENTS IViewCoreParent
 {
 private:
 	static ::Windows::UI::Xaml::Controls::Canvas^ _createCanvas(ContainerView* pOuter)
@@ -24,7 +24,7 @@ private:
 
 public:
 	ContainerViewCore(	ContainerView* pOuter)
-		: ViewCore(pOuter, _createCanvas(pOuter), ref new ViewCoreEventForwarder(this) )
+		: ChildViewCore(pOuter, _createCanvas(pOuter), ref new ViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 

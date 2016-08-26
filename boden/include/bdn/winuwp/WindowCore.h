@@ -6,7 +6,8 @@
 #include <bdn/log.h>
 #include <bdn/NotImplementedError.h>
 
-#include <bdn/winuwp/IParentViewCore.h>
+#include <bdn/winuwp/IViewCoreParent.h>
+#include <bdn/winuwp/IFrameworkElementOwner.h>
 #include <bdn/winuwp/util.h>
 #include <bdn/winuwp/UiProvider.h>
 
@@ -18,7 +19,10 @@ namespace bdn
 namespace winuwp
 {
 	
-class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore
+class WindowCore : public Base,
+                    BDN_IMPLEMENTS IWindowCore,
+                    BDN_IMPLEMENTS IViewCoreParent,
+                    BDN_IMPLEMENTS IFrameworkElementOwner
 {
 public:
 	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
@@ -73,7 +77,7 @@ public:
         _pWindowPanel = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
 		_pWindowPanel->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
         _pWindowPanelParent->Children->Append(_pWindowPanel);
-
+        
         _pWindowPanelParent->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
 				    ( _pEventForwarder, &EventForwarder::windowPanelParentLayoutUpdated );
 
@@ -123,6 +127,16 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 
     }
+
+
+    /** Returns the Xaml UI element that represents the window.
+        Note that this is NOT a Windows.UI.Xaml.Window object. Instead it is a child
+        container panel inside the actual Windows.UI.Xaml.Window.
+    */
+	::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement() override
+	{
+		return _pWindowPanel;
+	}
 	
 	void setTitle(const String& title) override
 	{

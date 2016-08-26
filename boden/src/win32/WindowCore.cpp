@@ -32,6 +32,15 @@ WindowCore::WindowCore(Window* pWindow)
 	initUiScaleFactor();
 }
 
+
+void WindowCore::dispose()
+{
+    ViewCore::dispose();
+
+    Win32Window::destroy();
+}
+
+
 void WindowCore::initUiScaleFactor()
 {
 	HMONITOR	hMonitor = ::MonitorFromWindow(getHwnd(), MONITOR_DEFAULTTONEAREST);
