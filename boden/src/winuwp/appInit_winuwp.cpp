@@ -6,6 +6,7 @@
 
 #include <bdn/win32/ThreadLocalStorageManager.h>
 #include <bdn/RequireNewAlloc.h>
+#include <bdn/winuwp/DispatcherAccess.h>
 
 namespace bdn
 {
@@ -44,6 +45,8 @@ public:
 	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView)
 	{
 		_mainInit();
+
+        AppControllerBase::_set(_pAppController);
 
 		// Register event handlers for app lifecycle. This example includes Activated, so that we
 		// can make the CoreWindow active and start rendering on the window.
@@ -163,6 +166,8 @@ internal:
 
 		_mainInit();
 
+        AppControllerBase::_set(_pAppController);
+
 		InitializeComponent();
 
 		Suspending +=
@@ -177,20 +182,32 @@ public:
 	
 	virtual ::Windows::UI::Xaml::Markup::IXamlType^ GetXamlType(::Windows::UI::Xaml::Interop::TypeName type)
 	{	
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		int x=0;
 		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByType(type);
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 	virtual ::Windows::UI::Xaml::Markup::IXamlType^ GetXamlType(::Platform::String^ fullName)
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		int x=0;
 		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByName(fullName);
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 	virtual ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>^ GetXmlnsDefinitions()
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		int x=0;
 		return nullptr;//return ref new ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>(0);
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 
@@ -198,8 +215,13 @@ protected:
 
 	virtual void OnLaunched(  Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ pArgs ) override
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		try
-		{
+		{            
+            // ensure that the global dispatcher access object is initialized
+            bdn::winuwp::DispatcherAccess::get();
+
 			_pAppController->beginLaunch(*_pLaunchInfo);
 			_pAppController->finishLaunch(*_pLaunchInfo);				
 		}
@@ -213,10 +235,14 @@ protected:
 			// let error through.
 			throw;
 		}
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 	void unhandledException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		String errorMessage( pArgs->Message->Data() );
 
 		logError("Unhandled top level exception: "+errorMessage);
@@ -225,21 +251,35 @@ protected:
 		if (IsDebuggerPresent())
             __debugbreak();
 #endif
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 	
 	void InitializeComponent()
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		UnhandledException += ref new ::Windows::UI::Xaml::UnhandledExceptionEventHandler( this, &App::unhandledException );
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 	void suspending(Platform::Object^ pSender, Windows::ApplicationModel::SuspendingEventArgs^ pArgs)
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		_pAppController->onSuspend();
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 	void resuming(Platform::Object^ pSender, Platform::Object^ pArgs)
 	{
+        BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 		_pAppController->onResume();
+
+        BDN_WINUWP_TO_PLATFORMEXC_END
 	}
 
 
@@ -252,6 +292,8 @@ internal:
 
 int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args)
 {
+    BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 	P<AppLaunchInfo> pLaunchInfo = newObj<AppLaunchInfo>();
 
 	// note: apparently the args array is always empty (there does not seem to be a way
@@ -281,6 +323,9 @@ int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::Stri
 
     ::Windows::ApplicationModel::Core::CoreApplication::Run(frameworkViewSource);
 	*/
+
+    BDN_WINUWP_TO_PLATFORMEXC_END
+
     return 0;
 }
 

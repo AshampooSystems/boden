@@ -59,6 +59,13 @@ public:
     }
 
 
+    String getText()
+    {
+        static bdn::java::MethodId methodId;
+
+        return bdn::java::JString( invoke_<bdn::java::JCharSequence>(getStaticClass_(), methodId, "getText" ).getRef_() ).getValue_();
+    }
+
 
     void setSingleLine(bool singleLine)
     {

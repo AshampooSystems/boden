@@ -18,17 +18,27 @@ void testCallFromMainThread(bool throwException)
 
         StopWatch watch;
 
+        std::cout << "1" << std::endl;
+
         std::future<int> result = callFromMainThread( [&callCount, throwException](int x){ callCount++; if(throwException){ throw InvalidArgumentError("hello"); } return x*2; }, 42 );
+
+        std::cout << "2" << std::endl;
 
         // should have been called immediately, since we are currently in the main thread
         REQUIRE( callCount==1 );
 
+        std::cout << "3" << std::endl;
+
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
+
+        std::cout << "4" << std::endl;
 
         if(throwException)
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
         else
             REQUIRE( result.get()==84 );
+
+        std::cout << "5" << std::endl;
 
         // should not have waited at any point.
         REQUIRE( watch.getMillis()<1000 );
@@ -40,7 +50,7 @@ void testCallFromMainThread(bool throwException)
 	{
         SECTION("storingFuture")
         {
-            Thread::exec(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              volatile int   callCount = 0;
@@ -85,22 +95,16 @@ void testCallFromMainThread(bool throwException)
 
                              // should not have waited
                              REQUIRE( threadWatch.getMillis()<=500 );
-
-                             END_ASYNC_TEST();
                          } );
 
 
             // time to start thread should have been less than 1000ms
             REQUIRE( watch.getMillis()<1000 );
-
-            MAKE_ASYNC_TEST(10);
         }
 
         SECTION("notStoringFuture")
         {
-            MAKE_ASYNC_TEST(10);
-
-            Thread::exec(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              struct Data : public Base
@@ -114,6 +118,8 @@ void testCallFromMainThread(bool throwException)
 
                              callFromMainThread(   [pData, throwException](int x)
                                                 {
+                                                    Thread::sleepMillis(1000);
+
                                                     pData->callCount++;
                                                     if(throwException)
                                                         throw InvalidArgumentError("hello");
@@ -126,19 +132,22 @@ void testCallFromMainThread(bool throwException)
                              // Instead the call should have been deferred to the main thread.
                              REQUIRE( pData->callCount==0 );
 
-                             // should NOT have waited.
+                             // should NOT have waited in this thread.
                              REQUIRE( threadWatch.getMillis()<1000 );
 
-                             END_ASYNC_TEST();
+                             // wait until the call happened before we exit
+                             while(true)
+                             {
+                                 Thread::sleepMillis(100);
+                                 if(pData->callCount!=0)
+                                     break;
+                             }
+
                          } );
 
 
             // time to start thread should have been less than 1000ms
             REQUIRE( watch.getMillis()<1000 );
-
-
-            // wait a little
-            Thread::sleepMillis(2000);
         }
     }
 	    
@@ -173,8 +182,8 @@ public:
         }
 
         // start 100 threads. Each schedules a call in the main thread.
-        _scheduledPending = 100;
-        for(int i=0; i<_scheduledPending; i++)
+        _scheduledPending = 101;
+        for(int i=0; i<_scheduledPending-1 ; i++)
         {
             futures.push_back( Thread::exec(
                     [i, pThis]()
@@ -198,6 +207,7 @@ public:
             scheduleCall([pThis]()
                           {
                               pThis->_actualOrder.push_back(9999);
+							  pThis->onScheduledDone();
                           });
 
             if(mainThreadCallsShouldExecuteImmediately())
@@ -215,7 +225,7 @@ public:
         for( std::future<void>& f: futures)
             f.get();
 
-        MAKE_ASYNC_TEST(10);
+        scheduleTestContinuationIfNecessary();
     }
 
     void onScheduledDone()
@@ -235,7 +245,20 @@ public:
         }
         REQUIRE( _actualOrder.size() == _expectedOrder.size());
 
-        END_ASYNC_TEST();
+        _done = true;
+    }
+
+    void scheduleTestContinuationIfNecessary()
+    {
+        if(!_done)
+        {
+            P<TestCallFromMainThreadOrderingBase> pThis = this;
+
+            CONTINUE_SECTION_ASYNC(pThis)
+            {
+                pThis->scheduleTestContinuationIfNecessary();
+            };
+        }
     }
 
     Mutex               _mutex;
@@ -243,6 +266,8 @@ public:
     std::vector<int>	_actualOrder;
 
     int                 _scheduledPending;
+
+    bool                _done = false;
 };
 
 
@@ -255,7 +280,7 @@ public:
         callFromMainThread(func);
     }
 
-    bool mainThreadCallsShouldExecuteImmediately()
+    bool mainThreadCallsShouldExecuteImmediately() override
     {
         return true;
     }
@@ -304,38 +329,18 @@ void testAsyncCallFromMainThread(bool throwException)
 
         StopWatch watch;
         
-#if BDN_HAVE_THREADS
-
-        asyncCallFromMainThread( [pData, throwException](int x){ pData->callCount++; if(throwException){ throw InvalidArgumentError("hello"); } return x*2; }, 42 );
-
-        // should NOT have been called immediately, even though we are on the main thread
-        REQUIRE( pData->callCount==0 );
-
-        // should not have waited at any point.
-        REQUIRE( watch.getMillis()<1000 );
-
-
-        MAKE_ASYNC_TEST(10);
-
-        // start a check thread that waits until the function was called
-        // and ends the test
-        Thread::exec([pData]()
-                     {
-                         Thread::sleepMillis(2000);
-
-                         // should have been called now
-                         REQUIRE(pData->callCount==1);
-
-                         END_ASYNC_TEST();
-                     } );
-        
-#else
-
         asyncCallFromMainThread(    [pData, throwException](int x)
                                     {
                                         pData->callCount++;
                                         
-                                        asyncCallFromMainThread( [pData](){ REQUIRE(pData->callCount==1); END_ASYNC_TEST(); } );
+                                        // schedule another call. We verify that
+                                        // additional calls are still processed even if
+                                        // an exception occurred in a previous call
+                                        asyncCallFromMainThread(
+                                            [pData]()
+                                            {
+                                                pData->callCount++;
+                                            } );
                                         
                                         if(throwException)
                                             throw InvalidArgumentError("hello");
@@ -346,22 +351,29 @@ void testAsyncCallFromMainThread(bool throwException)
         // should NOT have been called immediately, even though we are on the main thread
         REQUIRE( pData->callCount==0 );
         
-        // should not have waited at any point.
+        // should not have waited
         REQUIRE( watch.getMillis()<1000 );
-        
-        MAKE_ASYNC_TEST(10);
-        
-#endif
 
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            // the test continuation will be executed after the async call we scheduled.
+            REQUIRE( pData->callCount==1 );
+
+            // another async call was scheduled by the previous one. Check that in another
+            // test continuation.
+            CONTINUE_SECTION_ASYNC(pData)
+            {
+                REQUIRE( pData->callCount==2 );
+                // done.
+            };
+        };
     }
 
 #if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
-        MAKE_ASYNC_TEST(10);
-
-        Thread::exec(
+        CONTINUE_SECTION_IN_THREAD_WITH(
                      [throwException]()
                      {
                          P<Data> pData = newObj<Data>();
@@ -390,8 +402,6 @@ void testAsyncCallFromMainThread(bool throwException)
 
                          // NOW the function should have been called
                          REQUIRE( pData->callCount==1 );
-
-                         END_ASYNC_TEST();
                      } );
 
     }
@@ -414,7 +424,7 @@ public:
         asyncCallFromMainThread(func);
     }
 
-    bool mainThreadCallsShouldExecuteImmediately()
+    bool mainThreadCallsShouldExecuteImmediately() override
     {
         return false;
     }
@@ -488,78 +498,67 @@ void testWrapCallFromMainThread(bool throwException)
     {
         SECTION("storingFuture")
         {
-            Thread::exec(
-                         [throwException]()
-                         {
-                             volatile int   callCount = 0;
-                             Thread::Id     threadId;
+            CONTINUE_SECTION_IN_THREAD(throwException)
+            {
+                volatile int   callCount = 0;
+                Thread::Id     threadId;
 
-                             auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x)
-                                                                        {
-                                                                            // sleep a little to ensure that we have time to check callCount
-                                                                            Thread::sleepSeconds(1);
-                                                                            threadId = Thread::getCurrentId();
-                                                                            callCount++;
-                                                                            if(throwException)
-                                                                                throw InvalidArgumentError("hello");
-                                                                            return x*2;
-                                                                        } );
+                auto wrapped = wrapCallFromMainThread<int>([&callCount, throwException, &threadId](int x)
+                                                        {
+                                                            // sleep a little to ensure that we have time to check callCount
+                                                            Thread::sleepSeconds(1);
+                                                            threadId = Thread::getCurrentId();
+                                                            callCount++;
+                                                            if(throwException)
+                                                                throw InvalidArgumentError("hello");
+                                                            return x*2;
+                                                        } );
 
-                             // should NOT have been called.
-                             REQUIRE( callCount==0 );
+                // should NOT have been called.
+                REQUIRE( callCount==0 );
 
-                             Thread::sleepSeconds(2);
+                Thread::sleepSeconds(2);
 
-                             // should STILL not have been called, since the wrapper was not executed yet
-                             REQUIRE( callCount==0 );
+                // should STILL not have been called, since the wrapper was not executed yet
+                REQUIRE( callCount==0 );
 
-                             StopWatch threadWatch;
+                StopWatch threadWatch;
 
-                             std::future<int> result = wrapped(42);
+                std::future<int> result = wrapped(42);
 
-                             // should NOT have been called immediately, since we are in a different thread.
-                             // Instead the call should have been deferred to the main thread.
-                             REQUIRE( callCount==0 );
+                // should NOT have been called immediately, since we are in a different thread.
+                // Instead the call should have been deferred to the main thread.
+                REQUIRE( callCount==0 );
 
-                             // should not have waited
-                             REQUIRE( threadWatch.getMillis()<500 );
+                // should not have waited
+                REQUIRE( threadWatch.getMillis()<500 );
 
-                             REQUIRE( result.wait_for( std::chrono::milliseconds(5000) ) == std::future_status::ready );
+                REQUIRE( result.wait_for( std::chrono::milliseconds(5000) ) == std::future_status::ready );
 
-                             // the inner function sleeps for 1 second.
-                             REQUIRE( threadWatch.getMillis()>=1000-10 );
-                             REQUIRE( threadWatch.getMillis()<2500 );
+                // the inner function sleeps for 1 second.
+                REQUIRE( threadWatch.getMillis()>=1000-10 );
+                REQUIRE( threadWatch.getMillis()<2500 );
 
-                             REQUIRE( callCount==1 );
+                REQUIRE( callCount==1 );
 
-                             REQUIRE( threadId==Thread::getMainId() );
-                             REQUIRE( threadId!=Thread::getCurrentId() );
+                REQUIRE( threadId==Thread::getMainId() );
+                REQUIRE( threadId!=Thread::getCurrentId() );
 
-                             threadWatch.start();
+                threadWatch.start();
 
-                             if(throwException)
-                                 REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
-                             else
-                                 REQUIRE( result.get()==84 );
+                if(throwException)
+                    REQUIRE_THROWS_AS(result.get(), InvalidArgumentError);
+                else
+                    REQUIRE( result.get()==84 );
 
-                             // should not have waited
-                             REQUIRE( threadWatch.getMillis()<=500 );
-
-                             END_ASYNC_TEST();
-                         } );
-
-
-            // time to start thread should have been less than 1000ms
-            REQUIRE( watch.getMillis()<1000 );
-
-            MAKE_ASYNC_TEST(10);
+                // should not have waited
+                REQUIRE( threadWatch.getMillis()<=500 );
+            };
         }
 
         SECTION("notStoringFuture")
         {
-            MAKE_ASYNC_TEST(10);
-
-            Thread::exec(
+            CONTINUE_SECTION_IN_THREAD_WITH(
                          [throwException]()
                          {
                              struct Data : public Base
@@ -615,8 +614,6 @@ void testWrapCallFromMainThread(bool throwException)
 
                              // the other thread's pData reference should have been released
                              REQUIRE( pData->getRefCount()==1 );
-
-                             END_ASYNC_TEST();
                          } );
 
         }
@@ -659,19 +656,6 @@ void testWrapAsyncCallFromMainThread(bool throwException)
                                                         {
                                                             pData->callCount++;
                                                             pData->threadId = Thread::getCurrentId();
-                                                            
-#if ! BDN_HAVE_THREADS
-                                                            asyncCallFromMainThread([pData]()
-                                                                                    {
-                                                                                        // now the call should have happened.
-                                                                                        REQUIRE( pData->callCount==1 );
-                                                                                        REQUIRE( pData->threadId==Thread::getMainId() );
-                                                                                        END_ASYNC_TEST();
-                                                                                    } );
-#endif
-                                                            
-
-
 
                                                             if(throwException)
                                                                 throw InvalidArgumentError("hello");
@@ -688,34 +672,25 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         REQUIRE( pData->callCount==0 );
 
         // shoudl not have waited.
-        REQUIRE( watch.getMillis()<500 );
-
-        MAKE_ASYNC_TEST(10);
+        REQUIRE( watch.getMillis()<500 );        
         
-#if BDN_HAVE_THREADS
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            Thread::sleepMillis(2000);
 
-        Thread::exec( [pData]()
-                      {
-                          Thread::sleepMillis(2000);
+            // now the call should have happened.
+            REQUIRE( pData->callCount==1 );
 
-                          // now the call should have happened.
-                          REQUIRE( pData->callCount==1 );
-
-                          REQUIRE( pData->threadId==Thread::getMainId() );
-
-                          END_ASYNC_TEST();
-                      } );
-        
-#endif
+            // and it should have happened from the main thread.
+            REQUIRE( pData->threadId==Thread::getMainId() );
+        };
     }
     
 #if BDN_HAVE_THREADS
 
     SECTION("otherThread")
     {
-        MAKE_ASYNC_TEST(10);
-
-        Thread::exec(
+        CONTINUE_SECTION_IN_THREAD_WITH(
                      [throwException]()
                      {
                          volatile int   callCount = 0;
@@ -759,9 +734,6 @@ void testWrapAsyncCallFromMainThread(bool throwException)
 
                          REQUIRE( threadId==Thread::getMainId() );
                          REQUIRE( threadId!=Thread::getCurrentId() );
-
-
-                         END_ASYNC_TEST();
                      } );
     }
     

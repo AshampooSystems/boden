@@ -27,11 +27,16 @@ public:
     
     ~WindowCore();
    
-    NSWindow* getNsWindow()
+    NSWindow* getNSWindow()
     {
         return _nsWindow;
     }
     
+    
+    void dispose() override
+    {
+        _nsWindow = nil;
+    }
     
     void setTitle(const String& title) override
     {
@@ -68,8 +73,12 @@ public:
         
         NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
         
-        return macRectToRect(macContentRect, -1).getSize();
+        Size resultSize = macRectToRect(macContentRect, -1).getSize();
         
+        resultSize.width = std::max(resultSize.width, 0);
+        resultSize.height = std::max(resultSize.height, 0);
+        
+        return resultSize;
     }
     
 
@@ -102,16 +111,8 @@ public:
             [_nsWindow orderOut:NSApp];
     }
     
-    
-    
-    void setMargin(const UiMargin& margin) override
-    {
-        // margins have no effect on top level windows. So, ignore.
-    }
-    
-    
-    
-    void setPadding(const UiMargin& padding) override
+        
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
         // the outer window handles padding during layout. So nothing to do here.
     }

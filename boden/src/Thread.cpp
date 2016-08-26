@@ -169,7 +169,7 @@ Thread::Id Thread::getMainId()
 	// So there is no need for any synchronization or mutexes.
 	Id mainId = getMainIdRef();
 	if(mainId==Id())
-		throw ProgrammingError("Thread::getMainId called but main thread ID was not set yet.");
+		programmingError("Thread::getMainId called but main thread ID was not set yet.");
 
 	return mainId;
 #else

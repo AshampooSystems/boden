@@ -19,7 +19,7 @@ namespace bdn
 /** Performs common global initialization that should be done at the start of every program.*/
 void _mainInit();
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 	int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 								AppControllerBase* pAppController,
@@ -48,7 +48,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 #if BDN_PLATFORM_WIN32
 	int _uiAppMain(AppControllerBase* pAppController, int showCommand);
 
-#elif BDN_PLATFORM_WINRT
+#elif BDN_PLATFORM_WINUWP
 
 	int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::String^>^ args);
 
@@ -104,7 +104,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), showCommand); \
 		}
 
-#elif BDN_PLATFORM_WINRT
+#elif BDN_PLATFORM_WINUWP
 
 	#define BDN_INIT_UI_APP( appControllerClass )  \
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
@@ -205,7 +205,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
     \endcode
  
     */
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 	#define BDN_INIT_COMMANDLINE_APP( appFunc, ... )  \
 		int main(Platform::Array<Platform::String^>^ args) \
@@ -262,7 +262,7 @@ int _commandLineTestAppFunc( const AppLaunchInfo& launchInfo );
 			return bdn::_uiAppMain( bdn::newObj<appControllerClass>(), 1 /*SW_SHOWNORMAL*/ ); \
 		}
 
-#elif BDN_PLATFORM_WINRT
+#elif BDN_PLATFORM_WINUWP
 
 #define BDN_INIT_COMMANDLINE_APP_WITH_UI( appControllerClass )  \
 		int main(Platform::Array<Platform::String^>^ args) \

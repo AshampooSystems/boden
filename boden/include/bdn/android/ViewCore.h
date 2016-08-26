@@ -42,6 +42,11 @@ public:
         // set a weak pointer to ourselves as the tag object of the java view
         _pJView->setTag( bdn::java::NativeWeakPointer(this) );
 
+        _defaultPadding = Margin( _pJView->getPaddingTop(),
+                                  _pJView->getPaddingRight(),
+                                  _pJView->getPaddingBottom(),
+                                  _pJView->getPaddingLeft() );
+
         setVisible( pOuterView->visible() );
         setPadding( pOuterView->padding() );
 
@@ -58,12 +63,21 @@ public:
 
     ~ViewCore()
     {
-        // remove the the reference to ourselves from the java-side view object.
-        // Note that we hold a strong reference to the java-side object,
-        // So we know that the reference to the java-side object is still valid.
-        _pJView->setTag( bdn::java::JObject( bdn::java::Reference() ) );
+        dispose();
     }
 
+    void dispose() override
+    {
+        if(_pJView!=nullptr)
+        {
+            // remove the the reference to ourselves from the java-side view object.
+            // Note that we hold a strong reference to the java-side object,
+            // So we know that the reference to the java-side object is still valid.
+            _pJView->setTag(bdn::java::JObject(bdn::java::Reference()));
+
+            _pJView = nullptr;
+        }
+    }
 
     static ViewCore* getViewCoreFromJavaViewRef( const bdn::java::Reference& javaViewRef )
     {
@@ -103,20 +117,17 @@ public:
     {
         _pJView->setVisibility(visible ? JView::Visibility::visible : JView::Visibility::invisible );
     }
-
-    void setMargin(const UiMargin& margin) override
+        
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-    void setPadding(const UiMargin& padding) override
-    {
-        Margin pixelPadding = uiMarginToPixelMargin(padding);
+        Margin pixelPadding;
+        if(padding.isNull())
+            pixelPadding = _defaultPadding;
+        else
+            pixelPadding = uiMarginToPixelMargin(padding);
 
-        _pJView->setPadding( pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom );
-
-        _pOuterViewWeak->needSizingInfoUpdate();
+        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right,
+                                pixelPadding.bottom);
     }
 
 
@@ -143,12 +154,7 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            // XXX
-            logInfo("child view "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" setBounds: ("+std::to_string(bounds.width)+"x"+std::to_string(bounds.height)+")");
-
             parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
-
-            getOuterView()->needLayout();
         }
     }
 
@@ -289,12 +295,11 @@ private:
 
     View*           _pOuterViewWeak;
 
-    // XXX
-protected:
-    P<JView>        _pJView;
 private:
-
+    P<JView>        _pJView;
     double          _uiScaleFactor;
+
+    Margin          _defaultPadding;
 };
 
 }

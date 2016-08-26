@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/win32/Font.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 
 namespace bdn
 {
@@ -14,7 +14,7 @@ Font::Font(const LOGFONT& fontInfo)
 	_handle = ::CreateFontIndirect(&fontInfo);
 	if(_handle==NULL)
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "CreateFontIndirect")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "CreateFontIndirect")
 											.add("action", "Font constructor") );
 	}
 }
@@ -33,7 +33,7 @@ TEXTMETRIC Font::getMetrics() const
 	HDC screenContext = ::GetDC( NULL );
 	if(screenContext==NULL)
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "GetDC")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "GetDC")
 											.add("action", "Font::getSizePixels") );
 	}
 
@@ -41,7 +41,7 @@ TEXTMETRIC Font::getMetrics() const
 	
 	if(!::GetTextMetricsW(screenContext, &metrics))
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "GetTextMetricsW")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "GetTextMetricsW")
 											.add("action", "Font::getSizePixels") );		
 	}
 

@@ -15,9 +15,15 @@ Window::Window(IUiProvider* pUiProvider)
 
 	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider().getPtr();
 
-	initProperty<String, IWindowCore, &IWindowCore::setTitle>(_title);
+	initProperty<String, IWindowCore, &IWindowCore::setTitle, (int)PropertyInfluence_::none>(_title);
 
 	reinitCore();
+}
+
+Window::~Window()
+{
+    // if we have a content view, detach it from us.
+    setContentView(nullptr);
 }
 
 void Window::requestAutoSize()
@@ -133,8 +139,8 @@ Size Window::calcPreferredSize() const
 
 			preferredSize = contentSizingInfo.preferredSize + contentMargin;
 		}
-			
-		Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
+        
+        Margin myPadding = getPixelPadding();
 
 		preferredSize += myPadding;
 
@@ -162,8 +168,8 @@ int Window::calcPreferredWidthForHeight(int height) const
 	// we do not yet know our width. So we use a very large width for the purpose of the calculation.
 	int contentAreaHeight = pCore->calcContentAreaSizeFromWindowSize( Size(10000, height) ).height;
 	
-	Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
-
+    Margin myPadding = getPixelPadding();
+    
 	Margin contentMargin;
 	P<const View>	pContentView = getContentView();
 	if(pContentView!=nullptr)
@@ -196,7 +202,7 @@ int Window::calcPreferredHeightForWidth(int width) const
 	// we do not yet know our height. So we use a very large height for the purpose of the calculation.
 	int contentAreaWidth = pCore->calcContentAreaSizeFromWindowSize( Size(width, 10000) ).width;
 	
-	Margin myPadding = pCore->uiMarginToPixelMargin( padding() );
+    Margin myPadding = getPixelPadding();
 
 	Margin contentMargin;
 	P<const View>	pContentView = getContentView();
@@ -232,7 +238,7 @@ void Window::layout()
 	Rect contentBounds = pCore->getContentArea();
     			
 	// subtract our padding
-	contentBounds -= pCore->uiMarginToPixelMargin( padding() );
+	contentBounds -= getPixelPadding();
 
 	// subtract the content view's margins
 	contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );    
@@ -243,6 +249,23 @@ void Window::layout()
 	// note that we do not need to call layout on the content view.
 	// If it needs to update its layout then the bounds change should have caused
 	// it to schedule an update.
+}
+
+
+Margin Window::getPixelPadding() const
+{
+    Margin myPadding;
+    
+    P<IViewCore> pCore = getViewCore();
+    if(pCore!=nullptr)
+    {
+        // default padding is zero
+        Nullable<UiMargin> pad = padding();
+        if(!pad.isNull())
+            myPadding = getViewCore()->uiMarginToPixelMargin( pad );
+    }
+        
+    return myPadding;
 }
 
 

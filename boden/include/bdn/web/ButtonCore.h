@@ -31,8 +31,6 @@ public:
     void setLabel(const String& label) override
     {
         _pJsObj->set("textContent", label.asUtf8());
-
-        getOuterView()->needSizingInfoUpdate();
     }
     
     

@@ -29,6 +29,12 @@ public:
         setPadding( pOuterView->padding() );
     }
     
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+        _view = nil;
+    }
+    
     const View* getOuterView() const
     {
         return _pOuterViewWeak;
@@ -52,25 +58,14 @@ public:
     }
     
     
-    void setMargin(const UiMargin& margin) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-    
-    void setPadding(const UiMargin& padding) override
-    {
-        // store the padding so that we can use it during size calulation
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
     
     
     void setBounds(const Rect& bounds) override
     {
         _view.frame = rectToIosRect(bounds);
-        
-        getOuterView()->needLayout();
     }
     
     
@@ -121,14 +116,34 @@ public:
     
     
 protected:
+
+    /** Returns the default padding for the control.
+        The default implementation returns zero-padding.*/
+    virtual Margin getDefaultPaddingPixels() const
+    {
+        return Margin();
+    }
+
+    Margin getPaddingPixels() const
+    {
+        // add the padding
+        Margin padding;
+        Nullable<UiMargin> pad = getOuterView()->padding();
+        if(pad.isNull())
+            padding = getDefaultPaddingPixels();
+        else
+            padding = uiMarginToPixelMargin(pad.get());
+        
+        return padding;
+    }
+    
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
         CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
         
         Size size = iosSizeToSize(iosSize);
         
-        // add the padding
-        Margin padding = uiMarginToPixelMargin( getOuterView()->padding() );
+        Margin padding = getPaddingPixels();
         
         size += padding;
         

@@ -40,7 +40,7 @@ public:
     }
 
     
-    void setPadding(const UiMargin& padding) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
         ViewCore::setPadding(padding);
         

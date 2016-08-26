@@ -14,7 +14,7 @@ class Button :	public View
 public:
 	Button()
 	{
-		initProperty<String, IButtonCore, &IButtonCore::setLabel>(_label);
+		initProperty<String, IButtonCore, &IButtonCore::setLabel, (int)PropertyInfluence_::preferredSize>(_label);
 	}
 
 	/** Returns the button's label property.

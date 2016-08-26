@@ -43,16 +43,24 @@ public:
 
 		void sizeChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs)
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			ViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_sizeChanged();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 		void layoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			ViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_layoutUpdated();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 	private:
@@ -63,6 +71,8 @@ public:
 				::Windows::UI::Xaml::FrameworkElement^ pFrameworkElement,
 				ViewCoreEventForwarder^ pEventForwarder )
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_pOuterViewWeak = pOuterView;
 		_pFrameworkElement = pFrameworkElement;
 
@@ -78,26 +88,40 @@ public:
 		setVisible( pOuterView->visible() );
 				
 		_addToParent( _pOuterViewWeak->getParentView() );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	~ViewCore()
 	{
 		_pEventForwarder->dispose();
 	}
+
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+    }
 	
 	void setVisible(const bool& visible) override
 	{
-		_pFrameworkElement->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
-	}
-			
-	void setMargin(const UiMargin& margin) override
-	{
-		// we don't care. The outer view object takes care of these things.
-	}
+        BDN_WINUWP_TO_STDEXC_BEGIN;
 
+        try
+        {
+		    _pFrameworkElement->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+	}
 	
 	void setBounds(const Rect& bounds) override
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		// we can only control the position of a control indirectly. While there is the Arrange
 		// method, it does not actually work outside of a Layout call.
 		
@@ -110,15 +134,22 @@ public:
 
 		double uiScaleFactor = UiProvider::get().getUiScaleFactor();
 
-		::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, bounds.x / uiScaleFactor );
-		::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, bounds.y / uiScaleFactor );
+        try
+        {
+		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, bounds.x / uiScaleFactor );
+		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, bounds.y / uiScaleFactor );
 
-		// The size is set by manipulating the Width and Height property.
+		    // The size is set by manipulating the Width and Height property.
 		
-		_pFrameworkElement->Width = intToUwpDimension( bounds.width, uiScaleFactor );
-		_pFrameworkElement->Height = intToUwpDimension( bounds.height, uiScaleFactor );
+		    _pFrameworkElement->Width = intToUwpDimension( bounds.width, uiScaleFactor );
+		    _pFrameworkElement->Height = intToUwpDimension( bounds.height, uiScaleFactor );
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
 
-		// XXX _pOuterViewWeak->needLayout();
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 
@@ -178,7 +209,9 @@ public:
 	}
 
 
-	/** Returns a pointer to the outer view object that is associated with this core.*/
+	/** Returns a pointer to the outer view object that is associated with this core.
+        Can return null if the core has been disposed (i.e. if it is not connected
+        to an outer view anymore).*/
 	View* getOuterView()
 	{
 		return _pOuterViewWeak;
@@ -200,7 +233,8 @@ protected:
 	{
 		// Xaml has done a layout cycle. At this point all the controls should know their
 		// desired sizes. So this is when we schedule our layout updated
-		_pOuterViewWeak->needLayout();
+        if(_pOuterViewWeak!=nullptr)
+		    _pOuterViewWeak->needLayout();
 	}
 
 		
@@ -227,40 +261,52 @@ private:
 
 	Size _calcPreferredSize(float availableWidth, float availableHeight) const
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		// tell the element that it has a huge available size.
 		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
 		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
 
-		::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
-		if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-		{
-			// invisible elements all report a zero size. So we must make the element temporarily visible
-			_pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
-		}
+        try
+        {
+		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+		    {
+			    // invisible elements all report a zero size. So we must make the element temporarily visible
+			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
+		    }
 
-		if(availableWidth<0)
-			availableWidth = 0;
-		if(availableHeight<0)
-			availableHeight = 0;
+		    if(availableWidth<0)
+			    availableWidth = 0;
+		    if(availableHeight<0)
+			    availableHeight = 0;
 
-		// the Width and Height properties indicate to the layout process how big we want to be.
-		// If they are set then they are incorporated into the DesiredSize measurements.
-		// So we set them to "Auto" now, so that the size is only measured according to the content size.
-		_pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-		_pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+		    // the Width and Height properties indicate to the layout process how big we want to be.
+		    // If they are set then they are incorporated into the DesiredSize measurements.
+		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
+		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
 
-		_pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidth, availableHeight ) );
+		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidth, availableHeight ) );
 
-		::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
+		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 		
-		double uiScaleFactor = UiProvider::get().getUiScaleFactor();
+		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
 
-		Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
+		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
 
-		if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-			_pFrameworkElement->Visibility = oldVisibility;
-				
-		return size;
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+			    _pFrameworkElement->Visibility = oldVisibility;
+
+            return size;
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this and return zero size
+            return Size();
+        }
+        
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 

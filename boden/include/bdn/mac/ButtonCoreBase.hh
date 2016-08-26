@@ -21,12 +21,17 @@ public:
         _nsButton = nsButton;
     }
     
+    void dispose() override
+    {
+        ViewCore::dispose();
+        
+        _nsButton = nil;
+    }
+    
     void setLabel(const String& label)
     {
         NSString* macLabel = stringToMacString(label);
         [_nsButton setTitle: macLabel];
-        
-        getOuterView()->needSizingInfoUpdate();
     }
     
     

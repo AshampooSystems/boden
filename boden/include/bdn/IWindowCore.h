@@ -31,6 +31,11 @@ public:
 	/** Calculates the size of the content area from the size of the whole window.
 	
 		This is the inverse of calcWindowSizeFromContentAreaSize().	
+        
+        The returned size should never be negative. If the specified window size
+        is smaller than the size needed for the window frame, titlebar, etc and a
+        size with a negative component would be the result of the calculation then
+        that component should be set to zero.
 	*/
 	virtual Size calcContentAreaSizeFromWindowSize(const Size& windowSize)=0;
 
@@ -44,6 +49,10 @@ public:
 		That excludes taskbars, sidebars and the like (if they are always visible).
 		The returned rect applies only to the screen that the window is currently on.
 		Other screens can have different window areas.
+        
+        Note that the work area position may have negative coordinates on systems
+        with multiple monitors. That can be normal.
+     
         */
 	virtual Rect getScreenWorkArea() const=0;
 	

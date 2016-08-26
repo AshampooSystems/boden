@@ -25,8 +25,17 @@ public:
     : ViewCore(pOuterWindow, _createUIWindow(pOuterWindow) )
     {
         _window = (UIWindow*)getUIView();
+        
+        // set the outer object's bounds to the bounds of the ios window
+        pOuterWindow->bounds() = iosRectToRect(_window.frame);
     }
     
+    void dispose() override
+    {
+        ViewCore::dispose();
+        
+        _window = nil;
+    }
     
     UIWindow* getUIWindow() const
     {
@@ -38,8 +47,6 @@ public:
     {
         // we do not modify our frame. Just reset the bounds property back to the current bounds.
         getOuterView()->bounds() = iosRectToRect(_window.frame);
-        
-        getOuterView()->needLayout();
     }
     
     

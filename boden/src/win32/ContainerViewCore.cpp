@@ -12,7 +12,7 @@ ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 	: ViewCore(	pOuter, 
 				ContainerViewCoreClass::get().getName(),
 				"",
-				WS_VISIBLE | WS_CHILD,
+				WS_CHILD,
 				0 )
 {
 }
@@ -21,21 +21,24 @@ Size ContainerViewCore::calcPreferredSize() const
 {
 	// this core function should never have been called.
 	// The outer window is responsible for everything layout-related.
-	throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
+	programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
+    return Size();
 }
 
 int ContainerViewCore::calcPreferredHeightForWidth(int width) const
 {
 	// this core function should never have been called.
 	// The outer window is responsible for everything layout-related.
-	throw ProgrammingError("ContainerView::calcPreferredHeightForWidth must be overloaded in derived class.");
+	programmingError("ContainerView::calcPreferredHeightForWidth must be overloaded in derived class.");
+    return 0;
 }
 
 int ContainerViewCore::calcPreferredWidthForHeight(int height) const
 {
 	// this core function should never have been called.
 	// The outer window is responsible for everything layout-related.
-	throw ProgrammingError("ContainerView::calcPreferredWidthForHeight must be overloaded in derived class.");
+	programmingError("ContainerView::calcPreferredWidthForHeight must be overloaded in derived class.");
+    return 0;
 }
 
 

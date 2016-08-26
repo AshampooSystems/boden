@@ -15,24 +15,36 @@ class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
 private:
 	static ::Windows::UI::Xaml::Controls::Canvas^ _createCanvas(ContainerView* pOuter)
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		return ref new ::Windows::UI::Xaml::Controls::Canvas();		
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 public:
 	ContainerViewCore(	ContainerView* pOuter)
 		: ViewCore(pOuter, _createCanvas(pOuter), ref new ViewCoreEventForwarder(this) )
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_pCanvas = dynamic_cast< ::Windows::UI::Xaml::Controls::Canvas^ >( getFrameworkElement() );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 
 	void addChildUiElement( ::Windows::UI::Xaml::UIElement^ pUiElement ) override
 	{
-		_pCanvas->Children->Append( pUiElement );		
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        _pCanvas->Children->Append( pUiElement );		
+
+        BDN_WINUWP_TO_STDEXC_END;        
 	}
 
 
-	void setPadding(const UiMargin& uiPadding) override
+	void setPadding(const Nullable<UiMargin>& uiPadding) override
 	{
 		// the outer class automatically handles our own padding. So nothing to do here.
 	}

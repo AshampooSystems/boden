@@ -11,10 +11,16 @@ BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 View::View()
 	: _visible(true) // most views are initially visible
 {
-	initProperty<bool, IViewCore, &IViewCore::setVisible>(_visible);
-	initProperty<UiMargin, IViewCore, &IViewCore::setMargin>(_margin);
-	initProperty<UiMargin, IViewCore, &IViewCore::setPadding>(_padding);
-	initProperty<Rect, IViewCore, &IViewCore::setBounds>(_bounds);
+	initProperty<bool, IViewCore, &IViewCore::setVisible, (int)PropertyInfluence_::none>(_visible);
+
+	initProperty<UiMargin, IViewCore, nullptr, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
+
+	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
+
+	initProperty<Rect, IViewCore, &IViewCore::setBounds, (int)PropertyInfluence_::none | (int)PropertyInfluence_::childLayout>(_bounds);
+
+    initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
+    initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
 }
 
 View::~View()
@@ -39,7 +45,7 @@ void View::needLayout()
 void View::verifyInMainThread(const String& methodName) const
 {
 	if(!Thread::isCurrentMain())
-		throw ProgrammingError(methodName + " must be called from main thread.");
+		programmingError(methodName + " must be called from main thread.");
 }
 
 Margin View::uiMarginToPixelMargin( const UiMargin& uiMargin) const
@@ -94,7 +100,7 @@ void View::_setParentView(View* pParentView)
 
 	_pParentViewWeak = pParentView;
 
-	P<IUiProvider>	pNewUiProvider = _pParentViewWeak->getUiProvider();
+	P<IUiProvider>	pNewUiProvider = determineUiProvider();
 			
 	// see if we need to throw away our current core and create a new one.
 	// The reason why we don't always throw this away is that the change in parents
@@ -176,16 +182,20 @@ void View::_deinitCore()
 		
 	P<IViewCore>	pOldCore = _pCore;
 
-	_pCore = nullptr;
-
-	std::list< P<View> > childViewsCopy;
+    std::list< P<View> > childViewsCopy;
 	getChildViews( childViewsCopy );
+
+    // tell the old core that it is about to be released.
+    if(_pCore!=nullptr)
+        _pCore->dispose();
+
+    _pCore = nullptr;
 	
 	// also release the core of all child views
 	for( auto pChildView: childViewsCopy )
 		pChildView->_deinitCore();
 
-	// now schedule the core reference to be released from the main thread.
+    // now schedule the core reference to be released from the main thread.
 	// note that we do nothing in the scheduled function. We only use this to keep the core alive
 	// and cause its final release to be called from the main thread.
 	callFromMainThread( [pOldCore](){} );

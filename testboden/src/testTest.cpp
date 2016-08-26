@@ -285,6 +285,19 @@ TEST_CASE("test.conditionalNestedSectionsNoExtraCalls.withThenWithoutSubSections
 }
 
 
+TEST_CASE("test.shouldFailWithFailOnTopLevel", "[!shouldfail]")
+{
+    REQUIRE(false);
+}
+
+TEST_CASE("test.shouldFailWithFailInSection", "[!shouldfail]")
+{
+	SECTION("failSection")
+	{
+        REQUIRE(false);
+	}
+}
+
 TEST_CASE("test.uncaughtExceptionBugWorkaround", "[test]")
 {
     // std::uncaught_exception is used by the test system to determine
@@ -359,4 +372,58 @@ TEST_CASE("test.uncaughtExceptionBugWorkaround", "[test]")
 }
 
 
+TEST_CASE("REQUIRE_ALMOST_EQUAL")
+{
+    SECTION("deviation 0")
+    {
+        SECTION("equal")
+            REQUIRE_ALMOST_EQUAL( 7, 7, 0);
+    }
+
+    SECTION("deviation 3")
+    {
+        SECTION("equal")
+            REQUIRE_ALMOST_EQUAL( 7, 7, 3);
+
+        SECTION("+1")
+            REQUIRE_ALMOST_EQUAL( 8, 7, 3);
+
+        SECTION("+2")
+            REQUIRE_ALMOST_EQUAL( 9, 7, 3);
+
+        SECTION("+3")
+            REQUIRE_ALMOST_EQUAL( 10, 7, 3);
+
+        SECTION("-1")
+            REQUIRE_ALMOST_EQUAL( 6, 7, 3);
+
+        SECTION("-2")
+            REQUIRE_ALMOST_EQUAL( 5, 7, 3);
+
+        SECTION("-3")
+            REQUIRE_ALMOST_EQUAL( 4, 7, 3);
+    }
+}
+
+
+TEST_CASE("REQUIRE_ALMOST_EQUAL-fail", "[!shouldfail]")
+{
+    SECTION("deviation 0")
+    {
+        SECTION("bigger")
+            REQUIRE_ALMOST_EQUAL( 8, 7, 0);
+
+        SECTION("smaller")
+            REQUIRE_ALMOST_EQUAL( 6, 7, 0);
+    }
+
+    SECTION("deviation 3")
+    {
+        SECTION("+4")
+            REQUIRE_ALMOST_EQUAL( 11, 7, 3);
+
+        SECTION("-4")
+            REQUIRE_ALMOST_EQUAL( 3, 7, 3);
+    }
+}
 

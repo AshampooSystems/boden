@@ -26,7 +26,10 @@ Size ColumnView::calcPreferredSize() const
 	}
 
 	// add our own padding
-	preferredSize += uiMarginToPixelMargin( padding() );
+    Nullable<UiMargin> pad = padding();
+    // If padding is null then we use zero padding (i.e. add nothing)
+    if(!pad.isNull())
+        preferredSize += uiMarginToPixelMargin( pad );
 
 	return preferredSize;
 }
@@ -54,7 +57,12 @@ int ColumnView::calcPreferredWidthForHeight(int height) const
 
 int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const
 {
-	Margin myPadding = uiMarginToPixelMargin( padding() );
+	Margin myPadding;
+    
+    Nullable<UiMargin> pad = padding();
+    // If padding is null then we use zero padding
+    if(!pad.isNull())
+        myPadding = uiMarginToPixelMargin( pad );
 
 	int contentWidth = width - (myPadding.left + myPadding.right);
 

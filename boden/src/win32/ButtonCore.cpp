@@ -10,7 +10,7 @@ ButtonCore::ButtonCore(Button* pOuter)
 	: ViewCore(	pOuter, 
 				"BUTTON",
 				pOuter->label().get(),
-				BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD,
+				BS_PUSHBUTTON | WS_CHILD,
 				0 )
 {
 }
@@ -18,8 +18,6 @@ ButtonCore::ButtonCore(Button* pOuter)
 void ButtonCore::setLabel(const String& label)
 {
 	setWindowText(getHwnd(), label);
-
-	_pOuterViewWeak->needSizingInfoUpdate();
 }
 
 Size ButtonCore::calcPreferredSize() const
@@ -45,7 +43,18 @@ Size ButtonCore::calcPreferredSize() const
 
 	Size buttonSize(textSize.cx, textSize.cy);
 
-	buttonSize += uiMarginToPixelMargin( _pOuterViewWeak->padding() );	
+    Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+    UiMargin            uiPadding;
+    if(pad.isNull())
+    {
+        // we should use the "default" padding. On win32 there is no real system-defined
+        // default, so we choose one that looks good for most buttons:
+        uiPadding = UiMargin(UiLength::sem, 0.12, 0.5);
+    }
+    else
+        uiPadding = pad;
+
+	buttonSize += uiMarginToPixelMargin( uiPadding );	
 
 	// size for the 3D border around the button
 	buttonSize.width += ((int)std::ceil( ::GetSystemMetrics(SM_CXEDGE) * _uiScaleFactor )) * 2;

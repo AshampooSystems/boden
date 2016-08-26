@@ -1,7 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/win32/WindowCore.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
+#include <bdn/win32/hresultError.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/win32/util.h>
 
@@ -40,7 +41,7 @@ void WindowCore::initUiScaleFactor()
 	HRESULT result = ::GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX ,&dpiY);
 	if(FAILED(result))
 	{
-		throwHresultError( result, ErrorFields().add("func", "GetDpiForMonitor")
+		throw hresultToSystemError( result, ErrorFields().add("func", "GetDpiForMonitor")
 												.add("action", "WindowCore::initUiScaleFactor") );
 	}
 
@@ -160,14 +161,14 @@ Size WindowCore::calcMinimumSize() const
 Size WindowCore::calcPreferredSize() const
 {
 	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+	throw NotImplementedError("WindowCore::calcPreferredSize");	
 }
 
 	
 int WindowCore::calcPreferredHeightForWidth(int width) const
 {
 	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");	
+	throw NotImplementedError("WindowCore::calcPreferredHeightForWidth");	
 }
 
 
@@ -191,7 +192,7 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 
 	if(!::AdjustWindowRectEx( &rect, style, (menuHandle!=NULL) ? TRUE : FALSE, exStyle ) )
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "AdjustWindowRectEx")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "AdjustWindowRectEx")
 											.add("action", "WindowCore::calcWindowSizeFromContentAreaSize")
 											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
 	}
@@ -236,7 +237,7 @@ Rect WindowCore::getScreenWorkArea() const
 	monitorInfo.cbSize = sizeof(monitorInfo);
 	if(!::GetMonitorInfo(hMonitor, &monitorInfo))
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "MonitorFromWindow")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "MonitorFromWindow")
 											.add("context", "WindowCore::getScreenWorkArea")  );
 	}
 	

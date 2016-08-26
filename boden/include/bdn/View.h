@@ -1,18 +1,18 @@
 #ifndef BDN_View_H_
 #define BDN_View_H_
 
-
 namespace bdn
 {
 	class View;
+    class IViewCore;    // included below
+    class IUiProvider;      // included below
 }
 
-#include <bdn/IUiProvider.h>
-#include <bdn/IViewCore.h>
-#include <bdn/RequireNewAlloc.h>
-#include <bdn/DefaultProperty.h>
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
+#include <bdn/Nullable.h>
+#include <bdn/RequireNewAlloc.h>
+#include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
 
 namespace bdn
@@ -102,15 +102,22 @@ public:
 		the view (in contrast to the margin(), which is NOT part of the view).
 
 		It is recommended to specify the padding in UiLength::sem units.
-
-		The default padding is 0.
+        
+        On some platforms some UI elements may have a built-in minimum for the padding.
+        If you specify a smaller padding then the minimum padding will be silently
+        used instead.
+        
+        The padding can also be "null", which means that the implementation
+        should use the "normal" or "most commonly used" padding for the UI element on the platform.
+        
+        The default padding is "null".
 	*/
-	virtual Property<UiMargin>& padding()
+	virtual Property< Nullable<UiMargin> >& padding()
 	{
 		return _padding;
 	}
 
-	virtual const ReadProperty<UiMargin>& padding() const
+	virtual const ReadProperty< Nullable<UiMargin> >& padding() const
 	{
 		return _padding;
 	}
@@ -501,14 +508,69 @@ protected:
 		}
 	}
 
-	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*Func)(const ValueType &)>
+    enum class PropertyInfluence_
+    {
+        /** The property has no influence on the view size or layout.*/
+        none=0,
+
+        /** The property influences the view's preferredSize (and as such it can also influence the 
+            parent layout)*/
+        preferredSize = 1,
+
+        /** The property influences how the view lays out its own children*/
+        childLayout = 2,
+
+
+        /** The property influences the size of the view's parent, but not the view's own preferred size.
+            An example of a property with this influence would be the view's margin.
+            */
+        parentPreferredSize = 4,
+
+        /** The property influences how the view is arranged within the parent, but it does not
+            influence the view's own PREFERRED size. Note that the property may influence the actual size
+            that the parent assigns to the view, based on the arrangement values.*/
+        parentLayout = 8,
+    };
+
+	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType &), int propertyInfluences>
 	void initProperty( Property<ValueType>& prop )
 	{	
 		_propertySubs.emplace_front();
-		prop.onChange().template subscribeMember<View>( _propertySubs.front(), this, &View::propertyChanged<ValueType, CoreInterfaceType, Func> );
+		prop.onChange().template subscribeMember<View>( _propertySubs.front(), this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences> );
 	}
 
-	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*Func)(const ValueType&) >	
+
+    void handlePropertyInfluences(int propertyInfluences)
+    {
+        if( (propertyInfluences & (int)PropertyInfluence_::preferredSize)!=0 )
+        {
+            // update the sizing information. If that changes then the parent
+            // layout will automatically be updated.
+            needSizingInfoUpdate();
+        }    
+        
+        if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
+        {
+            // the layout of our children is influenced by this
+            needLayout();
+        }
+
+        if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
+        {
+            P<View> pParent = getParentView();
+            if(pParent!=nullptr)
+                pParent->needSizingInfoUpdate();
+        }
+
+        if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
+        {
+            P<View> pParent = getParentView();
+            if(pParent!=nullptr)
+                pParent->needLayout();
+        }
+    }
+
+	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType&), int propertyInfluences >	
 	void propertyChanged(const ReadProperty<ValueType>& prop )
 	{
 		// note that our object is guaranteed to be fully alive during this function call.
@@ -516,7 +578,7 @@ protected:
 		// in deleteThis, before the object is deleted. And that deletion will block
 		// until this call has finished.
 
-		// get the core. Note that it is OK if the core object
+        // get the core. Note that it is OK if the core object
 		// is replaced directly after this during this call.
 		// We will update an outdated core, but thats should have no effect.
 		// And the new core will automatically get the up-to-date value from
@@ -529,14 +591,35 @@ protected:
 			// propertyChanged call to end. That is because we check the refCount after the subscriptions
 			// are deleted and if there is a new reference then we abort the deletion.
 			P<View>	pThis = this;
-		
-			// now schedule an update to the core from the main thread.
-			callFromMainThread(
-				[pCore, pThis, &prop]()
-				{	
-					(pCore->*Func)( prop.get() );
-				} );
-		}
+
+            if(CoreFunc!=nullptr)
+            {		
+			    // now schedule an update to the core from the main thread.
+			    callFromMainThread(
+				    [pCore, pThis, &prop]()
+				    {	
+					    (pCore->*CoreFunc)( prop.get() );
+
+                        // after the core has been updated we need to handle the influences.
+                        pThis->handlePropertyInfluences(propertyInfluences);
+				    } );
+            }
+            else
+            {
+                // we still need to handle the influences, even if the core is not
+                // notified of the change.
+                // The influences are only handled in the main thread to ensure that
+                // we have some time to batch together multiple updates. This also causes
+                // these property changes that are not forwarded to the core to happen
+                // in exactly the same way as the core updates - which must also be executed
+                // on the main thread (see above).
+                callFromMainThread(
+				    [pThis]()
+				    {	
+                        pThis->handlePropertyInfluences(propertyInfluences);
+				    } );                
+            }
+		}        
 	}
 
 
@@ -582,10 +665,10 @@ private:
 
 
 protected:
-	DefaultProperty<bool>		_visible;
-	DefaultProperty<UiMargin>	_margin;
-	DefaultProperty<UiMargin>	_padding;
-	DefaultProperty<Rect>		_bounds;
+	DefaultProperty<bool>                   _visible;
+	DefaultProperty<UiMargin>               _margin;
+	DefaultProperty< Nullable<UiMargin> >	_padding;
+	DefaultProperty<Rect>                   _bounds;
 
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;
@@ -603,6 +686,10 @@ private:
 };
 
 }
+
+
+#include <bdn/IViewCore.h>
+#include <bdn/IUiProvider.h>
 
 #endif
 

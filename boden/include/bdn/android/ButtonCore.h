@@ -44,6 +44,13 @@ public:
         setLabel( pOuterButton->label() );
     }
 
+    void dispose() override
+    {
+        ViewCore::dispose();
+
+        _pJButton = nullptr;
+    }
+
     JButton& getJButton()
     {
         return *_pJButton;
@@ -55,9 +62,7 @@ public:
         _pJButton->setText( label );
 
         // we must re-layout the button - otherwise its preferred size is not updated.
-        _pJView->requestLayout();
-
-        getOuterView()->needSizingInfoUpdate();
+        _pJButton->requestLayout();
     }
 
     void clicked() override

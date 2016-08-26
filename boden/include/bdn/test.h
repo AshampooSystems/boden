@@ -83,15 +83,35 @@
 #define INTERNAL_BDN_UNIQUE_NAME_LINE( name, line ) INTERNAL_BDN_UNIQUE_NAME_LINE2( name, line )
 #define INTERNAL_BDN_UNIQUE_NAME( name ) INTERNAL_BDN_UNIQUE_NAME_LINE( name, __LINE__ )
 
+
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2( name, line, counter ) name##_##line##_##counter
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, line, counter ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE2( name, line, counter )
+
+#ifdef __COUNTER__
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( name ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, __LINE__, __COUNTER__ )
+#else
+#define INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( name ) INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER_LINE( name, __LINE__, 0 )
+#endif
+
+
+
 #define INTERNAL_BDN_STRINGIFY2( expr ) #expr
 #define INTERNAL_BDN_STRINGIFY( expr ) INTERNAL_BDN_STRINGIFY2( expr )
 
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <list>
 
 #include <bdn/Size.h>
 #include <bdn/Rect.h>
+#include <bdn/Margin.h>
+#include <bdn/UiLength.h>
+#include <bdn/UiMargin.h>
+#include <bdn/Thread.h>
+#include <bdn/Property.h>
+#include <bdn/ProgrammingError.h>
+#include <bdn/ExpectProgrammingError.h>
 
 // #included from: catch_compiler_capabilities.h
 #define TWOBLUECUBES_BDN_COMPILER_CAPABILITIES_HPP_INCLUDED
@@ -698,12 +718,12 @@ void registerTestCaseFunction
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TESTCASE( ... ) \
         static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) ); }\
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( __VA_ARGS__ ) ); }\
         static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, ... ) \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); }
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoMethodAsTestCaseRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); }
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, ... )\
@@ -711,7 +731,7 @@ void registerTestCaseFunction
             struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseMethodRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( __VA_ARGS__ ), BDN_INTERNAL_LINEINFO ); \
         } \
         void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
@@ -723,12 +743,12 @@ void registerTestCaseFunction
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TESTCASE( Name, Desc ) \
         static void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )(); \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) ); }\
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseRegistrar )( &INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ ), BDN_INTERNAL_LINEINFO, bdn::NameAndDesc( Name, Desc ) ); }\
         static void INTERNAL_BDN_UNIQUE_NAME(  ____C_A_T_C_H____T_E_S_T____ )()
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_METHOD_AS_TEST_CASE( QualifiedMethod, Name, Desc ) \
-        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( Name, Desc ), BDN_INTERNAL_LINEINFO ); }
+        namespace{ bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoMethodAsTestCaseRegistrar )( &QualifiedMethod, "&" #QualifiedMethod, bdn::NameAndDesc( Name, Desc ), BDN_INTERNAL_LINEINFO ); }
 
     ///////////////////////////////////////////////////////////////////////////////
     #define INTERNAL_BDN_TEST_CASE_METHOD( ClassName, TestName, Desc )\
@@ -736,7 +756,7 @@ void registerTestCaseFunction
             struct INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ ) : ClassName{ \
                 void test(); \
             }; \
-            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME( autoRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( TestName, Desc ), BDN_INTERNAL_LINEINFO ); \
+            bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( autoTestCaseMethodRegistrar ) ( &INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test, #ClassName, bdn::NameAndDesc( TestName, Desc ), BDN_INTERNAL_LINEINFO ); \
         } \
         void INTERNAL_BDN_UNIQUE_NAME( ____C_A_T_C_H____T_E_S_T____ )::test()
 
@@ -1601,6 +1621,20 @@ std::string toString( std::nullptr_t );
 std::string toString( const Size& size);
 std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);
+std::string toString( const UiLength& margin);
+std::string toString( const UiMargin& margin);
+
+template<class PropValueType>
+inline std::string toString( const ReadProperty<PropValueType>& prop)
+{
+    return toString(prop.get());
+}
+
+template<class PropValueType>
+inline std::string toString( const Property<PropValueType>& prop)
+{
+    return toString(prop.get());
+}
 
 
 namespace Detail {
@@ -2155,9 +2189,9 @@ namespace bdn {
     struct IRunner {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
-
-		virtual void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive)=0;
-		virtual void endAsyncTest()=0;
+				
+        virtual void continueSectionAsync(std::function<void()> continuationFunc )=0;
+        virtual void continueSectionInThread(std::function<void()> continuationFunc )=0;
     };
 }
 
@@ -2245,6 +2279,8 @@ namespace bdn {
     } while( bdn::alwaysFalse() )
 
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_IN( val, container, negate, resultDisposition, macroName ) \
 	do { \
@@ -2275,6 +2311,28 @@ namespace bdn {
     } while( bdn::alwaysFalse() ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
 
 
+
+#define INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, resultDisposition, macroName ) \
+	do { \
+        bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #value ", " #expectedValue ", " #maxDeviation, resultDisposition ); \
+        try { \
+            /* capture the concrete values, in case the parameters are a function call or similar.*/ \
+            auto _val = value; \
+            auto _expectedVal = expectedValue; \
+            auto _dev = maxDeviation; \
+			bool _result = (_val>=_expectedVal-_dev && _val<=_expectedVal+_dev); \
+			__catchResult.setLhs(bdn::toString(_val) ); \
+			__catchResult.setRhs(bdn::toString(_expectedVal) ); \
+			__catchResult.setOp( "~~");  \
+			__catchResult.captureResult( _result ? bdn::ResultWas::Ok : bdn::ResultWas::ExpressionFailed ); \
+        } \
+        catch( ... ) { \
+            __catchResult.useActiveException( bdn::ResultDisposition::Normal ); \
+        } \
+        INTERNAL_BDN_REACT( __catchResult ) \
+    } while( bdn::alwaysFalse() ) // expr here is never evaluated at runtime but it forces the compiler to give it a look
+
+
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef BDN_CONFIG_VARIADIC_MACROS
     #define INTERNAL_BDN_MSG( messageType, resultDisposition, macroName, ... ) \
@@ -2296,7 +2354,7 @@ namespace bdn {
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_INFO( log, macroName ) \
-    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME( scopedMessage ) = bdn::MessageBuilder( macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info ) << log;
+    bdn::ScopedMessage INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( scopedMessage ) = bdn::MessageBuilder( macroName, BDN_INTERNAL_LINEINFO, bdn::ResultWas::Info ) << log;
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_CHECK_THAT( arg, matcher, resultDisposition, macroName ) \
@@ -2318,9 +2376,16 @@ namespace bdn {
 
 
 
+#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc )
 
-#define INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) bdn::getCurrentContext().getRunner()->makeAsyncTest( timeoutSeconds, std::list< bdn::P<bdn::IBase> >( {__VA_ARGS__} ) )
-#define INTERNAL_BDN_END_ASYNC_TEST() bdn::getCurrentContext().getRunner()->endAsyncTest()
+#define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
+
+
+#define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR() \
+	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
+
 
 
 // #included from: internal/catch_section.h
@@ -2477,11 +2542,14 @@ namespace bdn {
 
 #ifdef BDN_CONFIG_VARIADIC_MACROS
     #define INTERNAL_BDN_SECTION( ... ) \
-        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, __VA_ARGS__ ) )
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, __VA_ARGS__ ) )
 #else
     #define INTERNAL_BDN_SECTION( name, desc ) \
-        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
+        if( bdn::Section const& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_Section ) = bdn::SectionInfo( BDN_INTERNAL_LINEINFO, name, desc ) )
 #endif
+
+
+
 
 // #included from: internal/catch_generators.hpp
 #define TWOBLUECUBES_BDN_GENERATORS_HPP_INCLUDED
@@ -2772,7 +2840,7 @@ namespace bdn {
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_TRANSLATE_EXCEPTION( signature ) \
     static std::string INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator )( signature ); \
-    namespace{ bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionRegistrar )( &INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
+    namespace{ bdn::ExceptionTranslatorRegistrar INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER( catch_internal_ExceptionRegistrar )( &INTERNAL_BDN_UNIQUE_NAME( catch_internal_ExceptionTranslator ) ); }\
     static std::string INTERNAL_BDN_UNIQUE_NAME(  catch_internal_ExceptionTranslator )( signature )
 
 // #included from: internal/catch_approx.hpp
@@ -3242,10 +3310,6 @@ return @ desc; \
 
 
 //////
-
-// If this config identifier is defined then all CATCH macros are prefixed with BDN_
-#ifdef BDN_CONFIG_PREFIX_ALL
-
 #define BDN_REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE" )
 #define BDN_REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "BDN_REQUIRE_FALSE" )
 
@@ -3253,6 +3317,16 @@ return @ desc; \
 #define BDN_REQUIRE_THROWS_AS( expr, exceptionType ) INTERNAL_BDN_THROWS_AS( expr, exceptionType, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THROWS_AS" )
 #define BDN_REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "BDN_REQUIRE_THROWS_WITH" )
 #define BDN_REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "BDN_REQUIRE_NOTHROW" )
+
+#define BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr) \
+	{ \
+		bdn::ExpectProgrammingError _expectProgrammingError_ ; \
+		BDN_REQUIRE_THROWS_AS(expr, bdn::ProgrammingError); \
+	}
+
+#define BDN_REQUIRE_IN_MAIN_THREAD() BDN_REQUIRE( bdn::Thread::isCurrentMain() );
+
+#define BDN_REQUIRE_ALMOST_EQUAL( value, expectedValue, maxDeviation )  INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal, "BDN_REQUIRE_ALMOST_EQUAL" )
 
 #define BDN_CHECK( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK" )
 #define BDN_CHECK_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::ContinueOnFailure | bdn::ResultDisposition::FalseTest, "BDN_CHECK_FALSE" )
@@ -3265,7 +3339,7 @@ return @ desc; \
 #define BDN_CHECK_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::ContinueOnFailure, matcher, "BDN_CHECK_THROWS_WITH" )
 #define BDN_CHECK_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_NOTHROW" )
 
-#define CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT" )
+#define BDN_CHECK_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::ContinueOnFailure, "BDN_CHECK_THAT" )
 #define BDN_REQUIRE_THAT( arg, matcher ) INTERNAL_CHECK_THAT( arg, matcher, bdn::ResultDisposition::Normal, "BDN_REQUIRE_THAT" )
 
 #define BDN_INFO( msg ) INTERNAL_BDN_INFO( msg, "BDN_INFO" )
@@ -3274,23 +3348,15 @@ return @ desc; \
 #define BDN_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
 #define BDN_SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "BDN_CAPTURE" )
 
-#ifdef BDN_CONFIG_VARIADIC_MACROS
-    #define BDN_TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
-    #define BDN_TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define BDN_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define BDN_REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define BDN_SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
-    #define BDN_FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__ )
-    #define BDN_SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__ )
-#else
-    #define BDN_TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
-    #define BDN_TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
-    #define BDN_METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
-    #define BDN_REGISTER_TEST_CASE( function, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( function, name, description )
-    #define BDN_SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
-    #define BDN_FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", msg )
-    #define BDN_SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", msg )
-#endif
+#define BDN_TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+#define BDN_TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+#define BDN_METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+#define BDN_REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+#define BDN_SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+#define BDN_ASYNC_SECTION( sectionName, ... ) INTERNAL_BDN_ASYNC_SECTION( sectionName, __VA_ARGS__ )
+#define BDN_FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "BDN_FAIL", __VA_ARGS__ )
+#define BDN_SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "BDN_SUCCEED", __VA_ARGS__ )
+
 #define BDN_ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 #define BDN_REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
@@ -3312,27 +3378,100 @@ return @ desc; \
 #define BDN_THEN( desc )     BDN_SECTION( std::string( " Then: ") + desc, "" )
 #define BDN_AND_THEN( desc ) BDN_SECTION( std::string( "  And: ") + desc, "" )
 
-/** \def BDN_MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
-
-	\copybrief MAKE_ASYNC_TEST()
-	\copydetailed MAKE_ASYNC_TEST()
-
-	*/
-#define BDN_MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
 
 
-/** \def BDN_END_ASYNC_TEST()
 
-	\copybrief END_ASYNC_TEST()
-	\copydetailed END_ASYNC_TEST()
+/** \def BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
+
+	\copybrief CONTINUE_SECTION_ASYNC_WITH()
+	\copydetailed CONTINUE_SECTION_ASYNC_WITH()
 
 	*/
-#define BDN_END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
+#define BDN_CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH(  __VA_ARGS__ )
+
+
+/** \def BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
+
+	\copybrief CONTINUE_SECTION_IN_THREAD_WITH()
+	\copydetailed CONTINUE_SECTION_IN_THREAD_WITH()
+
+	*/
+#define BDN_CONTINUE_SECTION_IN_THREAD_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( __VA_ARGS__ )
 
 
 
-// If BDN_CONFIG_PREFIX_ALL is not defined then the BDN_ prefix is not required
-#else
+
+namespace bdn
+{
+namespace test
+{
+
+class ContinueSectionAsyncStarter_
+{
+public:
+    void operator << ( std::function<void()> continuation )
+    {
+        BDN_CONTINUE_SECTION_ASYNC_WITH( continuation );
+    }
+};
+
+}
+}
+
+#define BDN_CONTINUE_SECTION_ASYNC(...) \
+    bdn::test::ContinueSectionAsyncStarter_() << [__VA_ARGS__]()
+
+
+
+namespace bdn
+{
+namespace test
+{
+
+class ContinueSectionInThreadStarter_
+{
+public:
+    void operator << ( std::function<void()> continuation )
+    {
+        BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuation );
+    }
+};
+
+}
+}
+
+#define BDN_CONTINUE_SECTION_IN_THREAD(...) \
+    bdn::test::ContinueSectionInThreadStarter_() << [__VA_ARGS__]()
+
+
+
+namespace bdn
+{
+namespace test
+{
+    
+class AsyncSectionStarter_
+{
+public:
+
+    void operator<<(std::function<void()> continuationFunc) const
+    {
+        BDN_CONTINUE_SECTION_ASYNC_WITH(continuationFunc);
+    }
+};
+
+}
+}
+
+
+#define INTERNAL_BDN_ASYNC_SECTION( sectionName, ... ) \
+        INTERNAL_BDN_SECTION( sectionName ) \
+            bdn::test::AsyncSectionStarter_() << [ __VA_ARGS__ ]()
+            
+
+
+
+#ifndef BDN_TEST_ONLY_PREFIXED
 
 #define REQUIRE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal, "REQUIRE" )
 #define REQUIRE_FALSE( expr ) INTERNAL_BDN_TEST( expr, bdn::ResultDisposition::Normal | bdn::ResultDisposition::FalseTest, "REQUIRE_FALSE" )
@@ -3342,8 +3481,23 @@ return @ desc; \
 #define REQUIRE_THROWS_WITH( expr, matcher ) INTERNAL_BDN_THROWS( expr, bdn::ResultDisposition::Normal, matcher, "REQUIRE_THROWS_WITH" )
 #define REQUIRE_NOTHROW( expr ) INTERNAL_BDN_NO_THROW( expr, bdn::ResultDisposition::Normal, "REQUIRE_NOTHROW" )
 
+
+/** Verifies that the specified expression throws a ProgrammingError.
+
+	This is very similar to REQUIRE_THROWS_AS( expr, bdn::ProgrammingError). But in
+	addition to that functionality, this macro automatically uses ExpectProgrammingError
+	to prevent debug breaks, asserts and logging to happen when the bdn::programmingError()
+	function is called in the specified expression. See bdn::programmingError() for more information.
+*/
+#define REQUIRE_THROWS_PROGRAMMING_ERROR(expr) BDN_REQUIRE_THROWS_PROGRAMMING_ERROR(expr)
+
+
 #define REQUIRE_IN( value, container ) INTERNAL_BDN_IN( value, container, false, bdn::ResultDisposition::Normal, "REQUIRE_IN")
 #define REQUIRE_NOT_IN( value, container ) INTERNAL_BDN_IN( value, container, true, bdn::ResultDisposition::Normal, "REQUIRE_NOT_IN")
+
+#define REQUIRE_ALMOST_EQUAL( value, expectedValue, maxDeviation )  INTERNAL_BDN_ALMOST_EQUAL( value, expectedValue, maxDeviation, bdn::ResultDisposition::Normal, "REQUIRE_ALMOST_EQUAL" )
+
+#define REQUIRE_IN_MAIN_THREAD() REQUIRE( bdn::Thread::isCurrentMain() );
 
 /** Checks the specified condition and records failures, but does not abort the test if the condition failed (i.e. does not throw TestFailureException
 	like REQUIRE would).*/
@@ -3367,108 +3521,232 @@ return @ desc; \
 #define CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
 #define SCOPED_CAPTURE( msg ) INTERNAL_BDN_INFO( #msg " := " << msg, "CAPTURE" )
 
-#ifdef BDN_CONFIG_VARIADIC_MACROS
-    #define TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
-    #define TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
-    #define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
-    #define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
-    #define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
-    #define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
-    #define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
-#else
-    #define TEST_CASE( name, description ) INTERNAL_BDN_TESTCASE( name, description )
-    #define TEST_CASE_METHOD( className, name, description ) INTERNAL_BDN_TEST_CASE_METHOD( className, name, description )
-    #define METHOD_AS_TEST_CASE( method, name, description ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, name, description )
-    #define REGISTER_TEST_CASE( method, name, description ) INTERNAL_BDN_REGISTER_TESTCASE( method, name, description )
-    #define SECTION( name, description ) INTERNAL_BDN_SECTION( name, description )
-    #define FAIL( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", msg )
-    #define SUCCEED( msg ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", msg )
-#endif
+
+#define TEST_CASE( ... ) INTERNAL_BDN_TESTCASE( __VA_ARGS__ )
+#define TEST_CASE_METHOD( className, ... ) INTERNAL_BDN_TEST_CASE_METHOD( className, __VA_ARGS__ )
+#define METHOD_AS_TEST_CASE( method, ... ) INTERNAL_BDN_METHOD_AS_TEST_CASE( method, __VA_ARGS__ )
+#define REGISTER_TEST_CASE( ... ) INTERNAL_BDN_REGISTER_TESTCASE( __VA_ARGS__ )
+#define SECTION( ... ) INTERNAL_BDN_SECTION( __VA_ARGS__ )
+
+
+/** \def #define ASYNC_SECTION( sectionName, captures... )
+
+    Starts a section that is executed asynchronously.
+
+    Just as with a normal SECTION, a code block must follow that contains the
+    section code. The difference is that this code will be executed asynchronously,
+    as if CONTINUE_SECTION_ASYNC was used at the end of a normal section.
+
+    There is one difference in usage compared to SECTION, though: there must be a semicolon
+    at the end of the async section's code block (see example below).
+
+    The code block after ASYNC_SECTION will actually end up being executed as a lambda function.
+    The capture statement of the lambda expression are the remaining parameters of the 
+    ASYNC_SECTION macro, after the section name. Often one will simply specify = here, to automatically
+    capture the local variables that you use inside the continuation.
+    
+    This macro is primarily useful if you want pending user interface events to be executed
+    between the initialization code for your test case and the actual test code. For example,
+    you might set up a user interface and might want a layout cycle to happen between the
+    initialization and the tests.
+
+    Examples:
+
+    \code
+
+    // do some generic initalization here that applies to all sections
+    P<SomeClass>    pSomeTestObject = newObj<SomeClass>();
+    int             someValue = 17;
+    double          someOtherValue = 42;
+    ... more initialization code....
+
+    ASYNC_SECTION("some section", = )   // capture statement is "=", i.e. capture all local variables by value
+    {
+        // this is the async test code.
+        // pSomeTestObject, someValue and someOtherValue can all be used here, since all local variables are captured by value.
+    };
+
+
+    ASYNC_SECTION("some other section", pSomeTestObject, someValue )   // capture statement explicitly lists what to capture here
+    {
+        // we can only access pSomeTestObject and someValue here, since only those have been captured.
+    };
+
+    \endcode
+*/
+#define ASYNC_SECTION( sectionName, ... ) INTERNAL_BDN_ASYNC_SECTION( sectionName, __VA_ARGS__ )
+
+#define FAIL( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::ExplicitFailure, bdn::ResultDisposition::Normal, "FAIL", __VA_ARGS__ )
+#define SUCCEED( ... ) INTERNAL_BDN_MSG( bdn::ResultWas::Ok, bdn::ResultDisposition::ContinueOnFailure, "SUCCEED", __VA_ARGS__ )
+
+
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def MAKE_ASYNC_TEST( timeoutSeconds, pObjectToKeepAlive1, ... )
+/** \def CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
 
-	Makes the current test an asynchronous test. This is useful when testing
-	user interface components or components that rely on the normal event processing
-	to work.
+    Continues the current test section asynchronously by calling the specified continuation function / lambda.
 
-	When MAKE_ASYNC_TEST has been called then the current test is still considered to
-	be running, even after the test case function has returned.
+    This is very similar to CONTINUE_SECTION_ASYNC, except that you can pass the code to be executed as
+    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_ASYNC statement.
 
-	The normal event processing	will be performed after the test function returns,
-	so user interface components will function normally.
-
-	The timeoutSeconds parameter is used to set up a timeout period (in seconds). When the async test
-	does not end within this timeframe then it is considered to have failed and will be aborted.
-	-1 means "no timeout", i.e. the test will run indefinitely.
-	timeoutSeconds is a floating point parameter, so you can pass something like 1.5 there to wait
-	1500 milliseconds.
-	It is recommended to use pretty high timeouts to account for cases when there are small interruptions
-	on the system that runs the test. If the timeout is too low then tests that would have passed might be
-	considered to have failed, simply because the host system had a small performance hiccup.
-	A 10 second timeout is recommended as a minimum for a test that is actually meant to finish	immediately.
-
-	The MAKE_ASYNC_TEST macro takes an arbitrary number of additional parameters after the timeout.
-	Each of these additional parameters must be a pointer to an object derived from bdn::Base.
-	These objects will be kept alive as long as the test runs. You should pass pointers to all the objects
-	that are needed during the test to the function. Otherwise the objects will be deleted as soon as the test
-	case function exits	and thus the test will not work.
-
-	For example, if you wanted to test a button implementation then you could create a Frame
-	with the button in it and pass a pointer to the frame and the button to MAKE_ASYNC_TEST.
-	That ensures that the frame will not be automatically closed when the test function exits and that it will
-	remain valid for the duration of the test.
-
-	The normal test macros (like REQUIRE() ) can be used to verify things in asynchronous mode. There
-	is no difference to a synchronous test in this regard. The REQUIRE macros can also be used from
-	other threads.
-
-	When the asynchronous test is done then END_ASYNC_TEST() must be called. That signals that the end
-	of the test has been reached. If any REQUIRE calls have failed before the END_ASYNC_TEST call then
-	the test will be considered to have failed. Otherwise it will be considered to have passed.
+    This can sometimes be useful if you want the continuation to be a real function, or a function with
+    bounds parameters (using std::bind) or things like that.
+    
+    Apart from this difference, the macro works exactly like CONTINUE_SECTION_ASYNC.
 
 	Example:
 
 	\code
 
-	void onMyButtonClicked()
+    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    {
+        REQUIRE( *pClicked );
+    }
+
+	TEST_CASE("ButtonClick")
 	{
-		// the click handler was called. That is all we wanted to test.
-		// End the test here.
-		END_ASYNC_TEST();
-	}
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
 
-	TEST_CASE("MyButton")
-	{
-		P<Frame>	pFrame = newObj<Frame>("test frame");
-		P<MyButton> pMyButton = newObj<MyButton>(pFrame);
+        pWindow->setContentView(pMyButton);
 
-		pMyButton->onClick().subscribeVoid( onMyButtonClicked );
+        bool* pClicked = new bool;
+        *pClicked = false;
 
-		// cause the button to be clicked in 5 seconds.
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
+
+        // schedule a button click
 		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
-		pClicker->clickButtonIn5Seconds(pMyButton);
+		pClicker->scheduleButtonClick(pMyButton);
 
-		// pass all the objects that are needed during the test to MAKE_ASYNC_TEST
-		// to keep them alive.
-		MAKE_ASYNC_TEST( 20, pFrame, pMyButton, pClicker );
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
 
-		// simply return. MAKE_ASYNC_TEST was called, so the test will be considered
-		// to be still running, even when we return.
-		// The normal event processing will happen after we return, so the timer
-		// event we set up will fire and the button click will be simulated
-		// (and onMyButtonClicked will be called).
-	}
-
+        // So we now need user interface events to be handled, causing the click to be
+        // actually executed. So we have to schedule an async continuation.
+		CONTINUE_SECTION_ASYNC_WITH( std::bind( continueButtonClickTest, pClicked, pWindow) );        
+    }
+    
 	\endcode
 
 	*/
-#define MAKE_ASYNC_TEST( timeoutSeconds, ... ) INTERNAL_BDN_MAKE_ASYNC_TEST( timeoutSeconds, __VA_ARGS__ )
+#define CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( __VA_ARGS__ )
 
-/** \def END_ASYNC_TEST()
-	Ends an asynchronous test. See MAKE_ASYNC_TEST() for a detailed explanation.*/
-#define END_ASYNC_TEST() INTERNAL_BDN_END_ASYNC_TEST()
+
+/** \def CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
+
+    Similar to CONTINUE_SECTION_ASYNC_WITH, except that the continuation function is executed from a newly created
+    secondary thread.
+    This is useful if you want to test your code from another thread (for example, to verify that it also works from
+    arbitrary threads, not just the main thread).
+
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+#define CONTINUE_SECTION_IN_THREAD_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( __VA_ARGS__ )
+
+
+    
+/** \def CONTINUE_SECTION_ASYNC( captures... )
+
+    Continues the current test section asynchronously.
+    
+    A code block with the code for the asynchronous continuation must follow (see example below).
+    There must be a semicolon after the code block.
+    
+    CONTINUE_SECTION_ASYNC is mainly useful if you need pending events to be processed
+    before the test continues. It is often used in tests that use user interface elements.
+
+    The continuation code block that follows is always called from the main thread.
+    There is also a similar macro called CONTINUE_SECTION_IN_THREAD which runs the continuation
+    function in a new thread instead of the main thread.
+
+    CONTINUE_SECTION_ASYNC can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
+
+    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_ASYNC statement
+    and its code block.
+    If there is additional test code afterwards then it will be executed BEFORE the continuation code
+    is run. Since that is unintuitive, it should be avoided.
+    
+    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_ASYNC statement
+    at the end (inside the continuation code block) to add another asynchronous continuation.
+
+    The normal test macros (like REQUIRE() ) can all be used as normal in the continuation. There
+	is no difference to a synchronous test in this regard.
+        
+    The code block after CONTINUE_SECTION_ASYNC will actually end up being executed as a lambda function.
+    The capture statement of the lambda expression are the (optional) parameters of the 
+    CONTINUE_SECTION_ASYNC macro. Often one will simply specify = here to capture
+    the local variables by value.
+    
+	Example:
+
+	\code
+
+	TEST_CASE("ButtonClick")
+	{
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
+
+        pWindow->setContentView(pMyButton);
+
+        bool* pClicked = new bool;
+        *pClicked = false;
+
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
+
+		// schedule a button click
+		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
+		pClicker->scheduleButtonClick(pMyButton);
+
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
+
+        // So we now need user interface events to be handled, causing the click to be
+        // actually executed. So we have to schedule an async continuation.
+		CONTINUE_SECTION_ASYNC( pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+                                                    // pWindow is in the capture list so that the window will not be deleted and destroyed when the
+                                                    // initial test function exits (before the lambda continuation is called).
+                                                    // We could also use std::bind here instead of a lambda. See below for an example
+        {
+            REQUIRE( *pClicked );
+        };
+
+        // as an alternative we could also have captured ALL local variables with a "=" capture statement like this:
+        CONTINUE_SECTION_ASYNC( = )
+        {
+            REQUIRE( *pClicked );
+        };
+
+    }
+
+	\endcode
+    */
+
+#define CONTINUE_SECTION_ASYNC(...) BDN_CONTINUE_SECTION_ASYNC(__VA_ARGS__)
+
+
+/** \def CONTINUE_SECTION_IN_THREAD( captures... )
+
+    Similar to CONTINUE_SECTION_ASYNC, except that the continuation function is executed from a newly created
+    secondary thread.
+    This is useful if you want to test your code from another thread (for example, to verify that it also works from
+    arbitrary threads, not just the main thread).
+
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+#define CONTINUE_SECTION_IN_THREAD(...) BDN_CONTINUE_SECTION_IN_THREAD(__VA_ARGS__)
+
 
 #define REGISTER_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_REPORTER( name, reporterType )
 #define REGISTER_LEGACY_REPORTER( name, reporterType ) INTERNAL_BDN_REGISTER_LEGACY_REPORTER( name, reporterType )

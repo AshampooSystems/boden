@@ -44,7 +44,19 @@ public:
 
     ~ViewCore()
     {
-        delete _pJsObj;
+        dispose();
+    }
+    
+    
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+        
+        if(_pJsObj!=nullptr)
+        {
+            delete _pJsObj;
+            _pJsObj = nullptr;
+        }
     }
 
     /** Returns the id of the DOM element that corresponds to the view.*/
@@ -72,29 +84,30 @@ public:
         (*_pJsObj)["style"].set("visibility", visible ? "visible" : "hidden");
     }
     
-    
-    void setMargin(const UiMargin& margin) override
-    {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-    
-    void setPadding(const UiMargin& padding) override
+        
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
         // we need to set the padding in the DOM element, so that it can adjust its
         // display and the minimum size accordingly.
 
-        String paddingString;
+        if(padding.isNull())
+        {
+            // we should use "default" padding.
+            (*_pJsObj)["style"].set("padding", "initial");
+        }
+        else
+        {
+            String paddingString;
 
-        paddingString = UiProvider::get().uiLengthToHtmlString(padding.top)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.right)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.bottom)
-                         + " " + UiProvider::get().uiLengthToHtmlString(padding.left);
+            UiMargin pad = padding.get();
 
-        (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
+            paddingString = UiProvider::get().uiLengthToHtmlString(pad.top)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.right)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
+                             + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
 
-        _pOuterViewWeak->needSizingInfoUpdate();
+            (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
+        }
     }
     
     
@@ -106,9 +119,7 @@ public:
         styleObj.set("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
 
         styleObj.set("left", UiProvider::pixelsToHtmlString(bounds.x).asUtf8() );
-        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );
-        
-        getOuterView()->needLayout();
+        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
     }
     
     

@@ -8,8 +8,10 @@
 
 #include <bdn/winuwp/IParentViewCore.h>
 #include <bdn/winuwp/util.h>
+#include <bdn/winuwp/UiProvider.h>
 
 #include <limits>
+#include <atomic>
 
 namespace bdn
 {
@@ -21,99 +23,106 @@ class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IPare
 public:
 	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
 		_pUiProvider = pUiProvider;
 		_pOuterWindowWeak = pOuterWindow;
 
-		// the concept of a top level window in a UWP app is an "application view".
-		// Application views are independent of one another.
-		// IMPORTANT: each application view has its own UI thread!
+        // In UWP there is no normal "top level window" in the classical sense.
+        // An UWP app has one or more "application views". While these views look
+        // like a normal window to the user, they are actually something different.
+        // Each application view has its own UI thread and runs independent of other application
+        // views. So the problem with multiple UI threads alone means that we cannot simply
+        // map application views directly to window objects.
+        // Instead it is probably best to consider an application view as a kind of "screen"
+        // instead and create our window objects as child panels of the application view.
 
-		static bool firstWindowCore = true;
+        // For the time being, we also do not support multiple application views. This concept only
+        // exists on Windows and other platforms do not have a similar construct. So it does not
+        // make much sense to support it right now.
 
-		if(firstWindowCore)
-		{
-			// wrap the existing main view.
+        // So we use one application view with a child panel for each of our window objects.
 
-			firstWindowCore = false;
+		_pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
+        _appViewId = _pAppView->Id;			
 
-			_mainView = true;
+        _pXamlWindow = Windows::UI::Xaml::Window::Current;			
 
-			_pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
-			_appViewId = _pAppView->Id;			
-
-			_pWindow = Windows::UI::Xaml::Window::Current;			
-		}
-		else
-		{
-			_mainView = false; 
-
-			// create a new secondary application view
-
-			// This is currently untested. Throw an exception for the time being
-			throw NotImplementedError("winuwp::WindowCore not implemented for secondary Window objects.");
-
-			/*_pCoreAppView = Windows::ApplicationModel::Core::CoreApplication::CreateNewView();
-		
-			// initialize the new view. We do that in the new view's new UI thread.
-			auto pInitOp = _pCoreAppView->Dispatcher->RunAsync(
-				Windows::UI::Core::CoreDispatcherPriority::Normal,
-				ref new Windows::UI::Core::DispatchedHandler( [this]()
-				{
-					_pWindow = Windows::UI::Xaml::Window::Current;
-
-					// Frame frame = new Frame();
-					// frame.Navigate(typeof(SecondaryPage), null);   
-					// Window.Current.Content = frame;
-					// You have to activate the window in order to show it later.
-					Windows::UI::Xaml::Window::Current->Activate();
-
-					this->_pAppView =  Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
-					this->_appViewId = _pAppView->Id;
-				}) );
-
-			auto initTask = concurrency::create_task(pInitOp);
-
-
-			// wait for the initialization to finish.
-			// If there is an error then we will get an exception here.
-			initTask.get();
-
-			// now the _pAppView and _pAppViewId members are initialized.
-			*/
-		}
-
-
+        // create a sub-panel inside the xaml window. The sub-panel is what we actually
+        // consider our "window". 
+        
 		_pEventForwarder = ref new EventForwarder(this);
-		_pWindow->SizeChanged += ref new ::Windows::UI::Xaml::WindowSizeChangedEventHandler( _pEventForwarder, &EventForwarder::sizeChanged );
 
-		// we want full control over the placement of our content window.
-		// Unfortunately Xaml automatically arranges our content view.
+		// we want full control over the placement of our "window" panel.
+		// Unfortunately Xaml automatically arranges our content view of the top level window.
 		// To work around that we add a canvas as the content view and then
 		// add the real content view to the canvas.
+		_pWindowPanelParent = (Windows::UI::Xaml::Controls::Canvas^)_pXamlWindow->Content;
+        if(_pWindowPanelParent==nullptr)
+        {
+            _pWindowPanelParent = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
+		    _pWindowPanelParent->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
+		    _pXamlWindow->Content = _pWindowPanelParent;
+        }
 
-		_pContentCanvas = ref new ::Windows::UI::Xaml::Controls::Canvas();
+        // now add the panel that should represent this "window". Note that we need
+        // a separate panel for the window (as opposed to directly adding our content view
+        // to the top level container) because we need a way to represent the window's own properties
+        // (like visible/hidden) without modifying the content panel. So we add a panel for the window
+        // to get this intermediate control.
+        _pWindowPanel = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
+		_pWindowPanel->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
+        _pWindowPanelParent->Children->Append(_pWindowPanel);
 
+        _pWindowPanelParent->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
+				    ( _pEventForwarder, &EventForwarder::windowPanelParentLayoutUpdated );
 
-		// when windows updates the size of the content canvas then that
-		// means that we have to update our layout.
-		_pContentCanvas->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler( _pEventForwarder, &EventForwarder::contentSizeChanged );
-
-		_pContentCanvas->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
-				( _pEventForwarder, &EventForwarder::layoutUpdated );
-
-		_pContentCanvas->Visibility = ::Windows::UI::Xaml::Visibility::Visible;
-
-		
-		_pWindow->Content = _pContentCanvas;
-
-		// update the bounds property of the outer window to reflect the current bounds
+        // update the bounds property of the outer window to reflect the current bounds
 		_scheduleUpdateOuterBoundsProperty();				
+
+        setVisible( pOuterWindow->visible() );
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	~WindowCore()
 	{
-		_pEventForwarder->dispose();		
+        dispose();
 	}
+
+    void dispose() override
+    {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        _pOuterWindowWeak = nullptr;
+
+        if(_pEventForwarder!=nullptr)
+            _pEventForwarder->dispose();		
+
+        if(_pWindowPanel!=nullptr)
+        {
+            // remove our window panel from the parent window
+            if(_pWindowPanelParent!=nullptr)
+            {
+                try
+                {
+                    unsigned index=0;
+                    if(_pWindowPanelParent->Children->IndexOf(_pWindowPanel, &index))
+                        _pWindowPanelParent->Children->RemoveAt(index);
+                }
+                catch(::Platform::DisconnectedException^ e)
+                {
+                    // window is already destroyed. Ignore this.
+                }
+            }
+            _pWindowPanel = nullptr;
+        }
+
+        _pWindowPanelParent = nullptr;
+
+        BDN_WINUWP_TO_STDEXC_END;
+
+    }
 	
 	void setTitle(const String& title) override
 	{
@@ -158,71 +167,19 @@ public:
 
 	void	setVisible(const bool& visible) override
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        _pWindowPanel->Visibility = visible ? ::Windows::UI::Xaml::Visibility::Visible : ::Windows::UI::Xaml::Visibility::Collapsed;
+        
 		if(visible)
-		{		 
-			_pWindow->Activate();
+			_pXamlWindow->Activate();            
 
-			/*auto pShowOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::TryShowAsStandaloneAsync(_appViewId);
-			auto showTask = concurrency::create_task(pShowOp);
+        BDN_WINUWP_TO_STDEXC_END;
 
-			// keep ourselves alive while we do this.
-			P<WindowCore> pThis = this;
-
-			showTask.then(
-				[pThis](concurrency::task<bool> previousTask)
-				{
-					try
-					{
-						// it may well be that it is not possible to show
-						// another application window. So result may be false.
-						if(!previousTask.get())
-						{
-							// if we cannot show this as a standalone window then we switch to it.
-							auto pSwitchOp = Windows::UI::ViewManagement::ApplicationViewSwitcher::SwitchAsync( pThis->_appViewId );
-							auto switchTask = concurrency::create_task(pSwitchOp);
-
-							switchTask.then(
-								[pThis](concurrency::task<void> previousTask)
-								{
-									try
-									{
-										previousTask.get();
-									}
-									catch(std::exception& e)
-									{
-										logError(e, "Error showing WindowCore (ApplicationViewSwitcher::SwitchAsync resulted in exception). Ignoring.");
-
-										// since we were unable to show the window we have to correct the value of the visible property.
-										pThis->_pOuterWindowWeak->visible() = false;
-									}
-								} );
-						}
-					}
-					catch(std::exception& e)
-					{
-						logError(e, "Error showing WindowCore (ApplicationViewSwitcher.TryShowAsStandaloneAsync resulted in exception). Ignoring.");
-
-						// since we were unable to show the window we have to correct the value of the visible property.
-						pThis->_pOuterWindowWeak->visible() = false;
-					}				
-				});		*/
-		}
-		else
-		{
-			// Apparently there is no real way to hide a window (not even a secondary one).
-			// If another window is shown by "switching" then the previous one is automatically hidden.
-			// So we do not do anything here.
-		}
 	}
 	
-
-	void setMargin(const UiMargin& margin) override
-	{
-		// we don't care. The outer Window object will handle the layout.
-	}
-
 	
-	void setPadding(const UiMargin& padding) override
+	void setPadding(const Nullable<UiMargin>& padding) override
 	{
 		// we don't care. The outer Window object will handle the layout.
 	}
@@ -280,12 +237,19 @@ public:
 
 	void addChildUiElement( ::Windows::UI::Xaml::UIElement^ pUiElement ) override
 	{
-		_pContentCanvas->Children->Clear();
-		_pContentCanvas->Children->Append(pUiElement);
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        // we have only one child (our own content view).
+        _pWindowPanel->Children->Clear();
+
+		_pWindowPanel->Children->Append(pUiElement);
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 	
 
 private:
+    
 	Size _getContentSize() const
 	{
 		// The Bounds rect actually does NOT include the title bar etc.
@@ -297,13 +261,29 @@ private:
 
 	Rect _getBounds() const
 	{
-		Rect bounds = uwpRectToRect( _pWindow->Bounds, UiProvider::get().getUiScaleFactor() );
+        BDN_WINUWP_TO_STDEXC_BEGIN
+
+        Rect bounds;
+
+        try
+        {
+            bounds = uwpRectToRect( _pXamlWindow->Bounds, UiProvider::get().getUiScaleFactor() );
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // this means that the window is already destroyed.
+            // Use an empty rect in that case.
+            bounds = Rect();
+        }
+
 		if(bounds.width == std::numeric_limits<int>::max())
 			bounds.width = 0;
 		if(bounds.height == std::numeric_limits<int>::max())
 			bounds.height = 0;
 
 		return bounds;
+
+        BDN_WINUWP_TO_STDEXC_END
 	}
 
 	Size _getNonContentSize() const
@@ -324,9 +304,7 @@ private:
 			[pThis]()
 			{
 				if(pThis->_pOuterWindowWeak!=nullptr)
-				{
 					pThis->_pOuterWindowWeak->bounds() = pThis->_getBounds();
-				}			
 			});		
 	}
 
@@ -343,49 +321,57 @@ private:
 		{
 			_pParentWeak = nullptr;
 		}
-
-		void sizeChanged( Platform::Object^ pSender,  ::Windows::UI::Core::WindowSizeChangedEventArgs^ pArgs)
+        
+		void windowPanelParentLayoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
 		{
-			if(_pParentWeak!=nullptr)
-				_pParentWeak->_sizeChanged();
-		}
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-		void contentSizeChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs)
-		{
 			if(_pParentWeak!=nullptr)
-				_pParentWeak->_contentSizeChanged();
-		}
+				_pParentWeak->_windowPanelParentLayoutUpdated();
 
-		void layoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
-		{
-			if(_pParentWeak!=nullptr)
-				_pParentWeak->_layoutUpdated();
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 	private:
 		WindowCore* _pParentWeak;
 	};
 
-
-	void _sizeChanged()
+    
+	void _windowPanelParentLayoutUpdated()
 	{
-		// do nothing
+		// Xaml has done a layout cycle on the window panel parent.
+
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {        
+            if(_pOuterWindowWeak!=nullptr)
+            {
+                // Update our window panel to the same size.
+                if(_pWindowPanel->Width != _pWindowPanelParent->Width
+                    || _pWindowPanel->Height != _pWindowPanelParent->Height)
+                {
+                    _pWindowPanel->Width = _pWindowPanelParent->Width;
+                    _pWindowPanel->Height = _pWindowPanelParent->Height;
+
+                    // Update the bounds of the outer window object        
+			        _pOuterWindowWeak->bounds() = _getBounds();
+
+                    // and the size and position of our content panel
+		            _pOuterWindowWeak->needLayout();
+                }
+            }
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // window is already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
-	void _layoutUpdated()
-	{
-		// Xaml has done a layout cycle. At this point all the controls should know their
-		// desired sizes. So this is when we schedule our layout updated
-		_pOuterWindowWeak->needLayout();
-	}
-
-	void _contentSizeChanged()
-	{
-		// do nothing
-	}
 
 	P<UiProvider>	_pUiProvider;
-	bool			_mainView;
 	Window*			_pOuterWindowWeak;
 
 	// Windows::ApplicationModel::Core::CoreApplicationView^ _pCoreAppView;
@@ -393,9 +379,11 @@ private:
 	::Windows::UI::ViewManagement::ApplicationView^	_pAppView;
 	int												_appViewId;
 
-	::Windows::UI::Xaml::Window^			_pWindow;
-	::Windows::UI::Xaml::Controls::Canvas^	_pContentCanvas;
+	::Windows::UI::Xaml::Window^			_pXamlWindow;
+	::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanelParent;
 
+    ::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanel;
+        
 	EventForwarder^ _pEventForwarder;
 };
 

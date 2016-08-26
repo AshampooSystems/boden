@@ -40,7 +40,13 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/TestAppWithUiController.h>
 #include <bdn/Window.h>
 #include <bdn/mainThread.h>
+#include <bdn/NotImplementedError.h>
 
+
+namespace bdn
+{
+    std::vector<String> _askForCommandlineParameters();
+}
 
 #include <cstring>
 
@@ -2465,7 +2471,21 @@ public:
 	virtual void fail() BDN_OVERRIDE {
 		m_runState = Failed;
 		if( m_parent )
+        {
+            // if we have a parent then that means that we are in a SECTION
+            // (not top level TEST_CASE).
+            // Since a failure means that an exception was thrown (TestFailureException
+            // or other (unexpected) exception) it means that the test code was aborted
+            // prematurely. That means that other child-section of the parent (if he has any)
+            // have not been recorded yet. So If we do nothing here then the caller will assume
+            // that there are no more children (we assume that all children are recorded after
+            // one pass).
+            // So, because of this we have to do another safety pass. The failed child section
+            // will not be entered again (since it is done) and if there are other child sections
+            // then they will be entered.
 			m_parent->markAsNeedingAnotherRun();
+        }
+
 		moveToParent();
 		m_ctx.completeCycle();
 	}
@@ -2474,7 +2494,10 @@ public:
 	}
 private:
 	void moveToParent() {
-		assert( m_parent );
+        if(m_parent==nullptr)
+        {
+		    assert( m_parent );
+        }
 		m_ctx.setCurrentTracker( m_parent );
 	}
 	void moveToThis() {
@@ -2714,12 +2737,16 @@ public:
 
 	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
 	{
+        MutexLock lock(_runTestMutex);
+
 		_testPrevTotals = m_totals;
 
 		_testRedirectedCout = "";
 		_testRedirectedCerr = "";
 
-		_pCurrentTestCaseInfo = &testCase.getTestCaseInfo();
+        _pCurrentTestCaseInfo = &testCase.getTestCaseInfo();
+
+        _currentTestLeafSectionsExited = 0;
 
 		m_reporter->testCaseStarting( *_pCurrentTestCaseInfo );
 
@@ -2779,47 +2806,7 @@ private: // IResultCapture
 		m_lastResult = *pResultToReport;
 	}
 
-	virtual bool sectionStarted (
-		SectionInfo const& sectionInfo,
-		Counts& assertions
-		) override
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		std::ostringstream oss;
-		oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
-
-		ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
-		if( !sectionTracker.isOpen() )
-			return false;
-		m_activeSections.push_back( &sectionTracker );
-
-        // print level 0 means no printing.
-        // print level 1 means just test cases
-        // print level 2 means first level of sections
-        // etc.
-        // the section tracker will have no children when the section is first entered.
-        // On subsequent enters it will have children. So this is a good way to filter
-        // out the subsequent enters.
-        if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
-        {
-            for(size_t i=0; i<m_activeSections.size(); i++)
-                std::cout << " ";
-            if(sectionInfo.name.empty())
-                std::cout << "@" << sectionInfo.lineInfo;
-            else
-                std::cout << sectionInfo.name;
-            std::cout << std::endl;
-        }
-
-		m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
-
-		m_reporter->sectionStarting( sectionInfo );
-
-		assertions = m_totals.assertions;
-
-		return true;
-	}
+    
 	bool testForMissingAssertions( Counts& assertions )
     {
         MutexLock lock( _resultCaptureMutex );
@@ -2835,33 +2822,183 @@ private: // IResultCapture
 		return true;
 	}
 
+
+    void postponeSectionEvent( std::function<void()> func)
+    {
+        _postponedSectionEventsInsertPos = _postponedSectionEvents.insert( _postponedSectionEventsInsertPos, func );
+
+        // next one should be inserted after the newly inserted one
+        ++_postponedSectionEventsInsertPos;
+    }
+
+
+	virtual bool sectionStarted (
+		SectionInfo const& sectionInfo,
+		Counts& assertions
+		) override
+	{
+        MutexLock lock( _resultCaptureMutex );
+
+        if(_currentTestWillContinueLater)
+        {
+            // a previous section will continue asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+
+            if( _postponedSectionEvents.empty() )
+            {
+                // we got a sectionStarted event directly after the CONTINUE_SECTION_ASYNC statement.
+                // This should never happen. CONTINUE_SECTION_ASYNC should be at the end of a section.
+                // So the first event we get should be that section being ended.
+                // So the test code is invalid.
+                programmingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD.");
+            }
+
+
+            SectionInfo sectionInfoCopy = sectionInfo;
+            
+            postponeSectionEvent(
+                [this, sectionInfoCopy]()
+                {
+                    // sectionStarted SHOULD return false, i.e. new sections should not be entered.
+                    // When the section is not entered then the assertions parameter is ignored, so we
+                    // can pass a dummy object here.
+                    Counts dummyAssertions;
+                    if( sectionStarted(sectionInfoCopy, dummyAssertions) )
+                    {
+                        // we expected the section to NOT be entered, but the system wants to enter it.
+                        // This should never happen. It is an internal error.
+                        // Also note that we cannot actually enter the section from here, even if we wanted to,
+                        // because sectionStarted is not actually called from the point in the actual test code.
+                        programmingError("Postponed sectionStarted event got true result.");
+                    }
+                } );
+            
+            // we know that new CHILD sections of the async section will only be opened
+            // later during the async continuation. So that means that any section
+            // opened here and now is a sibling, so it should not be opened right now.
+            return false;
+        }
+        else
+        {
+            std::ostringstream oss;
+		    oss << sectionInfo.name << "@" << sectionInfo.lineInfo;
+
+		    ITracker& sectionTracker = SectionTracker::acquire( m_trackerContext, oss.str() );
+		    if( !sectionTracker.isOpen() )
+			    return false;
+		    m_activeSections.push_back( &sectionTracker );
+
+            // print level 0 means no printing.
+            // print level 1 means just test cases
+            // print level 2 means first level of sections
+            // etc.
+            // the section tracker will have no children when the section is first entered.
+            // On subsequent enters it will have children. So this is a good way to filter
+            // out the subsequent enters.
+            if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
+            {
+                for(size_t i=0; i<m_activeSections.size(); i++)
+                    std::cout << " ";
+                if(sectionInfo.name.empty())
+                    std::cout << "@" << sectionInfo.lineInfo;
+                else
+                    std::cout << sectionInfo.name;
+                std::cout << std::endl;
+            }
+
+		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
+
+		    m_reporter->sectionStarting( sectionInfo );
+
+		    assertions = m_totals.assertions;
+
+		    return true;
+        }
+	}
+
 	virtual void sectionEnded( SectionEndInfo const& endInfo ) override
     {
         MutexLock lock( _resultCaptureMutex );
 
-		Counts assertions = m_totals.assertions - endInfo.prevAssertions;
-		bool missingAssertions = testForMissingAssertions( assertions );
+        if(_currentTestWillContinueLater)
+        {
+            // the current section or a previous section will continue
+            // asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+            
+            SectionEndInfo endInfoCopy = endInfo;
 
-		if( !m_activeSections.empty() ) {
-			m_activeSections.back()->close();
-			m_activeSections.pop_back();
-		}
+            postponeSectionEvent(
+                [this, endInfoCopy]()
+                {
+                    sectionEnded(endInfoCopy);                
+                } );
 
-		m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
-		m_messages.clear();
+        }
+        else
+        {
+		    Counts assertions = m_totals.assertions - endInfo.prevAssertions;
+		    bool missingAssertions = testForMissingAssertions( assertions );
+
+		    if( !m_activeSections.empty() )
+            {
+                ITracker* pSectionTracker = m_activeSections.back();
+
+                if(!pSectionTracker->hasChildren())
+                    _currentTestLeafSectionsExited++;
+
+			    pSectionTracker->close();
+			    m_activeSections.pop_back();
+		    }
+
+		    m_reporter->sectionEnded( SectionStats( endInfo.sectionInfo, assertions, endInfo.durationInSeconds, missingAssertions ) );
+		    m_messages.clear();
+        }
 	}
 
 	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override
     {
         MutexLock lock( _resultCaptureMutex );
 
-		if( m_unfinishedSections.empty() )
-			m_activeSections.back()->fail();
-		else
-			m_activeSections.back()->close();
-		m_activeSections.pop_back();
+        if(_currentTestWillContinueLater)
+        {
+            // the current section or a previous section will continue
+            // asynchronously. We only record sectionStarted/sectionEnded events
+            // but do not actually execute them now. The recorded events
+            // will be executed when the section ends in the async continuation.
+            
+            postponeSectionEvent(
+                [this, endInfo]()
+                {
+                    sectionEndedEarly(endInfo);                
+                } );
+        }
+        else
+        {
+            ITracker* pSectionTracker = m_activeSections.back();
 
-		m_unfinishedSections.push_back( endInfo );
+            if(!pSectionTracker->hasChildren())
+                _currentTestLeafSectionsExited++;
+
+		    if( m_unfinishedSections.empty() )
+			    pSectionTracker->fail();
+		    else
+			    pSectionTracker->close();
+		    m_activeSections.pop_back();
+
+		    m_unfinishedSections.push_back( endInfo );
+        }
+	}
+
+    void executePostponedSectionEvents()
+	{
+        for( auto& func: _postponedSectionEvents)
+        {
+            func();            
+        }
+        _postponedSectionEvents.clear();
 	}
 
 	virtual void pushScopedMessage( MessageInfo const& message ) override
@@ -2948,7 +3085,7 @@ public:
 			_func = func;
 
 			_shouldAbort = false;
-
+            
 			_result = std::async( std::launch::async, std::bind(&DelayedCallFromMainThread::doDelayedCall, this) );
 		}
 
@@ -2979,100 +3116,110 @@ public:
 
 		std::function<void()>	_func;
 		double					_waitSeconds;
-
+        
 		std::future<void>		_result;
 		std::condition_variable	_shouldAbortCondition;
 		volatile bool			_shouldAbort;
 		std::mutex				_shouldAbortInitiateWaitMutex;
 	};
 
+	
+    void beginScheduleContinuation()
+    {
+        if(_currentTestWillContinueLater)
+			programmingError("Cannot use CONTINUE_SECTION_ASYNC or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
+        
+        _currentTestWillContinueLater = true;
 
-	void makeAsyncTest(double timeoutSeconds, const std::list< P<IBase> > objectsToKeepAlive) override
+        // events that happen after the continuation is scheduled and before it is executed
+        // should be postponed until after the continuation was executed.
+
+        // If there are any events already in the postponed list then that means that we are
+        // already in a continuation and those events come from the caller of the continuation.
+        // Those postponed events from the caller should be executed AFTER the events we postpone
+        // now.
+
+        // So we insert our first postponed event at the start of the list. If we insert another
+        // postponed event after that then it must be inserted after the first one, to keep the order
+        // of events inside the same continuation unchanged.
+
+        _postponedSectionEventsInsertPos = _postponedSectionEvents.begin();
+    }
+
+	void continueSectionAsync(std::function<void()> continuationFunc) override
 	{
-        MutexLock lock( _resultCaptureMutex );
-
-		if(_currentTestIsAsync)
-		{
-			// if a test is already async then we issue an error here.
-			// We would have two objects to keep alive. And, more importantly,
-			// it indicates that there is something wrong with the calling code.
-			// So we simply disallow this.
-			throw ProgrammingError("BDN_MAKE_ASYNC_TEST() called twice in same test.");
-		}
-
-		_currentTestIsAsync = true;
-		_currentTestObjectsToKeepAlive = objectsToKeepAlive;
-
-		_currentAsyncTestEnded = false;
-
-		if(timeoutSeconds>0)
-			_pCurrentAsyncTestTimeoutCaller = newObj<DelayedCallFromMainThread>( timeoutSeconds, std::bind(&RunContext::onAsyncTestTimeout, this, _currentAsyncTestId ) );
+		beginScheduleContinuation();
+		        		
+        asyncCallFromMainThread(
+            [this, continuationFunc]()
+            {
+                doSectionContinuation(continuationFunc);
+            } );
 	}
 
-	void onAsyncTestTimeout(int64_t asyncTestId)
+#if BDN_HAVE_THREADS
+    void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
-        MutexLock lock( _resultCaptureMutex );
-
-		// note that this is always called from the main thread. So no need for synchronization.
-
-		if(asyncTestId != _currentAsyncTestId )
-		{
-			// this call was for a test that has already ended in the meantime.
-			// Ignore it.
-			return;
-		}
-
-		// test failed. Timeout did not fire.
-		// We use a dummy variable here to communicate the reason
-		// for the test failure.
-
-		bool asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST = false;
-
-		// use CHECK instead of REQUIRE, because we do not want a TestFailureException
-		CHECK( asyncTestFinishedBeforeTimeout_Did_You_Forget_END_ASYNC_TEST );
-
-		// call endAsyncTest. This will destroy the "objects to keep alive"
-		// and thus (hopefully, if implemented properly) abort the test.
-		endAsyncTest();
+		beginScheduleContinuation();
+		
+        Thread::exec(
+            [this, continuationFunc]()
+            {
+                doSectionContinuation(continuationFunc);
+            } );
 	}
 
-	void endAsyncTest() override
-	{
-        MutexLock lock( _resultCaptureMutex );
-
-		if(!_currentTestIsAsync)
-			throw ProgrammingError("BDN_END_ASYNC_TEST() called without calling BDN_MAKE_ASYNC_TEST() before for this test.");
-
-		if(_currentAsyncTestEnded)
-		{
-			// already ended. This is an error. Since the next test can potentially start immediately
-			// after the first end call, this means that the second call could potentially be connected
-			// to the following test. So the test code MUST be written in a way that ensures that
-			// endAsync is only called once.
-			throw ProgrammingError("BDN_END_ASYNC_TEST() called twice in the same test.");
-		}
-
-
-		// destroy the timeout caller first to ensure that the timeout will not fire.
-		_pCurrentAsyncTestTimeoutCaller = nullptr;
-
-		_currentAsyncTestEnded = true;
-		_currentAsyncTestId++;
-
-		asyncCallFromMainThread(
-			[this]()
-			{
-				// we pass "passed" here. If an assertion fired then currentTestEnded
-				// will automatically change this to Failed.
-				currentTestEnded( CurrentTestResult::Passed );
-				runTestCase_AsyncIterationEnded();
-			} );
+#else
+	// the platform does not support threads. So we hide continueSectionInThread.
+private:
+	void continueSectionInThread(std::function<void()> continuationFunc) override
+	{		
+		throw NotImplementedError("continueSectionInThread not implemented because multi-threading is not supported on the platform.");
 	}
+public:
+
+#endif
+
+    
+    void doSectionContinuation(std::function<void()> continuationFunc)
+    {
+        // lock the mutex to ensure that the code that scheduled the continuation
+        // has exited.
+        MutexLock lock( _runTestMutex );
+
+        bool testDone = continueCurrentTest(continuationFunc);
+        
+        if(testDone)
+        {
+            // ok, the test (=section) is done. I.e. there was no additional
+            // async continuation requested.
+            
+            // now we need to continue with the following test iterations.
+            // We do that with asyncCallFromMainThread so that
+            // it is ensured that the next test executes in the main thread
+            // in a "clean" environment (i.e. no locked mutexes, etc.)
+
+            asyncCallFromMainThread(
+                [this]()
+                {
+                    if(shouldContinueTestCaseIteration())
+		            {
+                        // do the next iteration.
+			            runTestCase_Continue();
+		            }
+		            else
+                        runTestCase_Finalize();
+                });
+        }
+        else
+        {
+            // test is continued asynchronously. The async continuation is already scheduled,
+            // so there is nothing else we have to do.
+        }
+    }
+
 
 private:
-
-
-
 	bool shouldContinueTestCaseIteration()
 	{
 
@@ -3081,13 +3228,21 @@ private:
 
 	void runTestCase_Continue()
 	{
+        // hold a mutex here. We do that so that calls of continuation
+        // functions from SECTION_CONTINUE_ASYNC and SECTION_CONTINUE_THREAD
+        // cannot start before the previous test case code has exited.
+
+        MutexLock lock( _runTestMutex );
+
 		do
 		{
 			m_trackerContext.startCycle();
 
 			m_testCaseTracker = &SectionTracker::acquire( m_trackerContext, _pCurrentTestCaseInfo->name );
 
-			if(!runCurrentTest( _testRedirectedCout, _testRedirectedCerr ))
+            _currentTestLeafSectionsExited = 0;
+
+			if(!runCurrentTest())
 			{
 				// test is running asynchronously.
 				// runTestCase_AsyncIterationEnded will be called when it is done.
@@ -3101,17 +3256,6 @@ private:
 		runTestCase_Finalize();
 
 		// done.
-	}
-
-	void runTestCase_AsyncIterationEnded()
-	{
-		if(shouldContinueTestCaseIteration())
-		{
-			// do the next iteration.
-			runTestCase_Continue();
-		}
-		else
-			runTestCase_Finalize();
 	}
 
 	Totals runTestCase_Finalize()
@@ -3152,11 +3296,11 @@ private:
 
 	/** Returns true if the test has finished (no matter whether failed or passed). Returns false if the
 		test runs asynchronously.*/
-	bool runCurrentTest( std::string& redirectedCout, std::string& redirectedCerr )
+	bool runCurrentTest()
 	{
-		_currentTestIsAsync = false;
 		_currentTestResult = CurrentTestResult::Unfinished;
 		_currentTestAssertionFailed = false;
+        _currentTestFailureResultAfterContinuationScheduled = CurrentTestResult::Passed;
 
 		_currentTestIgnoreExpectedToFail = false;
 
@@ -3187,121 +3331,39 @@ private:
         seedRng( *m_config );
 
         _currentTestTimer.start();
-        
-        if( m_reporter->getPreferences().shouldRedirectStdOut )
-        {
-            StreamRedirect coutRedir( bdn::cout(), redirectedCout );
-            StreamRedirect cerrRedir( bdn::cerr(), redirectedCerr );
-            
-            return invokeActiveTestCase();
-        }
-        else
-            return invokeActiveTestCase();
+
+        bool testDone = continueCurrentTest(
+                            [this]()
+                            {
+                                m_activeTestCase->invoke();            
+                            });
+
+        return testDone;
     }
 
-	void currentTestEnded(CurrentTestResult result)
-	{
-		// we must hold a mutex here. If the test uses multiple threads
-		// then we might get failures from multiple threads at once.
+    bool continueCurrentTest( std::function<void()> continuationFunc )
+    {        
+        if( m_reporter->getPreferences().shouldRedirectStdOut )
+        {
+            StreamRedirect coutRedir( bdn::cout(), _testRedirectedCout );
+            StreamRedirect cerrRedir( bdn::cerr(), _testRedirectedCerr );
+            
+            return invokeTestContinuation(continuationFunc);
+        }
+        else
+            return invokeTestContinuation(continuationFunc);
+    }
 
-		{
-			MutexLock lock(_currentTestResultMutex);
-
-			if(_currentTestResult != CurrentTestResult::Unfinished)
-			{
-				// the current test was already finished. So the new result we got is
-				// from a different thread. We ignore the new result.
-				return;
-			}
-
-			if(result==CurrentTestResult::Passed && _currentTestAssertionFailed)
-			{
-				// an assertion has failed, but the caller thinks the test case passed.
-				// This usually means that the failed exception happened in another thread and
-				// the caller has not checked that thread or not propagated its TestFailureException.
-				// That is OK. We simply switch the result to failed.
-				result = CurrentTestResult::Failed;
-			}
-
-			_currentTestResult = result;
-		}
-
-		if(result == CurrentTestResult::Passed)
-			m_totals.tests.passed++;
-		else
-		{
-			m_totals.tests.failed++;
-
-			if(result == CurrentTestResult::Exception)
-			{
-				ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
-				unexpectedResultBuilder.useActiveException();
-				INTERNAL_BDN_REACT( unexpectedResultBuilder );
-			}
-		}
-
-		_currentTestObjectsToKeepAlive.clear();
-		_currentTestIsAsync = false;
-
-		double duration = _currentTestTimer.getElapsedSeconds();
-
-		m_testCaseTracker->close();
-		handleUnfinishedSections();
-		m_messages.clear();
-
-		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
-		bool missingAssertions = testForMissingAssertions( assertions );
-
-		if( _pCurrentTestCaseInfo->okToFail() )
-		{
-			// convert "failed" assertions to "failed but ok" assertions
-			m_totals.assertions.failed -= assertions.failed;
-			m_totals.assertions.failedButOk += assertions.failed;
-
-			assertions.failedButOk += assertions.failed;
-			assertions.failed = 0;
-
-			if( _pCurrentTestCaseInfo->expectedToFail() && assertions.failedButOk==0)
-			{
-				// test case was supposed to fail, but it did not fail
-
-				// set a flag that we actually DO want the following failure to be recorded.
-				// If we do not set this then the following failure would be ignored.
-				_currentTestIgnoreExpectedToFail = true;
-
-				ResultBuilder shouldFailResultBuilder(	"testShouldHaveFailed",
-														_pCurrentTestCaseInfo->lineInfo,
-														"testResult",
-														// we must use the disposition "ContinueOnFailure" here. Otherwise the react
-														// call below will throw an exception
-														ResultDisposition::ContinueOnFailure );
-
-				shouldFailResultBuilder.setLhs("didNotFail");
-
-				// cause error message to be printed and debugger to break.
-				shouldFailResultBuilder.captureResult( ResultWas::ExplicitFailure );
-
-				INTERNAL_BDN_REACT( shouldFailResultBuilder );
-			}
-		}
-
-		SectionStats testCaseSectionStats( *_pCurrentTestCaseSection, assertions, duration, missingAssertions );
-		m_reporter->sectionEnded( testCaseSectionStats );
-
-		if(_pCurrentTestCaseSection!=nullptr)
-		{
-			delete _pCurrentTestCaseSection;
-			_pCurrentTestCaseSection = nullptr;
-		}
-	}
-
-	bool invokeActiveTestCase()
+    
+	bool invokeTestContinuation(std::function<void()> continuationFunc )
     {
+        _currentTestWillContinueLater = false;
+
         try
         {
             FatalConditionHandler fatalConditionHandler; // Handle signals
             
-            m_activeTestCase->invoke();
+            continuationFunc();
             
             fatalConditionHandler.reset();
         }
@@ -3309,15 +3371,15 @@ private:
         {
             // This just means the test was aborted due to failure
             currentTestEnded(CurrentTestResult::Failed);
-            return true;    // test is done
+            return !_currentTestWillContinueLater;
         }
         catch(...)
         {
             currentTestEnded(CurrentTestResult::Exception);
-            return true; // test is done
+            return !_currentTestWillContinueLater;
         }
         
-        if(_currentTestIsAsync)
+        if(_currentTestWillContinueLater)
         {
             // the test is an async test (probably a UI test). I.e. it will run asynchronously and
             // endUiTest will be called when it finishes.
@@ -3332,13 +3394,178 @@ private:
         }
 	}
 
+	void currentTestEnded(CurrentTestResult result)
+	{
+		// we must hold a mutex here. If the test uses multiple threads
+		// then we might get failures from multiple threads at once.
+
+        CurrentTestResult actualCurrentResult = result;
+
+        {
+			MutexLock lock(_currentTestResultMutex);
+
+			if(_currentTestResult != CurrentTestResult::Unfinished)
+			{
+				// the current test was already finished. So the new result we got is
+				// from a different thread. We ignore the new result.
+				return;
+			}
+
+            if(_currentTestWillContinueLater)
+            {
+                // we got an exception or a failed assertion AFTER a continuation had
+                // been scheduled.
+                // We cannot unschedule the continuation, so we must pick up this error
+                // in the continuation later.
+
+                // First of all, we MUST NOT execute the postponed events, since we are not
+                // yet in the continuation.
+            }
+            else
+            {            
+                // If we had an asynchronous continuation then we have postponed sectionStarted and
+                // sectionEnded events. We need to execute those at this point to get back into a state
+                // as if those sections had started/ended in a normal synchronous way.
+                executePostponedSectionEvents();
+            }
+
+			if(result==CurrentTestResult::Passed)
+            {
+                if(_currentTestAssertionFailed)
+			    {
+				    // an assertion has failed, but the caller thinks the test case passed.
+				    // This usually means that the failed exception happened in another thread and
+				    // the caller has not checked that thread or not propagated its TestFailureException.
+				    // That is OK. We simply switch the result to failed.
+				    result = CurrentTestResult::Failed;
+			    }
+
+                if(_currentTestFailureResultAfterContinuationScheduled!=CurrentTestResult::Passed)
+                {
+                    // we are in an async continuation and there was a failure (exception or failed exception)
+                    // after the continuation had already been scheduled.
+                    // we have to handle that.
+                    result = _currentTestFailureResultAfterContinuationScheduled;
+                }
+            }
+
+			_currentTestResult = result;
+		}
+
+		if(result == CurrentTestResult::Passed)
+			m_totals.tests.passed++;
+		else
+		{
+			m_totals.tests.failed++;
+
+            // if result is Exception but actualResult is not Exception then
+            // we are in an async continuation and the exception happened after the
+            // continuation was already scheduled. In that case the exception was already
+            // added to the results at the time when it actually happened, so we do not
+            // do it again. We actually can't even do it again because the exception
+            // must be "active" (i.e. we must still be in the catch handler) for the
+            // result capturing to work.
+			if(actualCurrentResult == CurrentTestResult::Exception)
+			{
+                ResultBuilder unexpectedResultBuilder = makeUnexpectedResultBuilder();
+                // we never want the exception to be rethrown here. So we pass the continueOnFailure disposition here
+				unexpectedResultBuilder.useActiveException( ResultDisposition::ContinueOnFailure );
+    		    INTERNAL_BDN_REACT( unexpectedResultBuilder );
+			}
+
+            if(_currentTestWillContinueLater)
+            {
+                // a failure happened after a continuation was scheduled (see comments above).
+                // just stop here. currentTestEnded will be called again from the continuation.
+                _currentTestFailureResultAfterContinuationScheduled = result;
+                _currentTestResult = CurrentTestResult::Unfinished;
+                return;
+            }
+		}
+
+      
+
+		_currentTestWillContinueLater = false;
+
+		double duration = _currentTestTimer.getElapsedSeconds();
+
+		m_testCaseTracker->close();
+		handleUnfinishedSections();
+		m_messages.clear();
+        
+		Counts assertions = m_totals.assertions - _currentTestPrevAssertions;
+		bool missingAssertions = testForMissingAssertions( assertions );
+
+		if( _pCurrentTestCaseInfo->okToFail() )
+		{
+			// convert "failed" assertions to "failed but ok" assertions
+			m_totals.assertions.failed -= assertions.failed;
+			m_totals.assertions.failedButOk += assertions.failed;
+
+			assertions.failedButOk += assertions.failed;
+			assertions.failed = 0;
+
+			if( _pCurrentTestCaseInfo->expectedToFail() && assertions.failedButOk==0)
+			{
+				// test case was supposed to fail, but it did not fail.
+
+                // There is one special case where this is ok. If a child section
+                // failed then the parent section is marked as needing another run because
+                // it is unknown wether it has additional child sections. This can lead
+                // to a run in which no sections are entered and that does not test anything
+                // and as such will never fail. This is ok to happen for a "shouldfail" test case,
+                // so we have to filter this case out.
+                // These are runs in which that have no leaf sections entered (i.e. all entered
+                // sections had child sections).
+
+                if(m_testCaseTracker->hasChildren() && _currentTestLeafSectionsExited==0)
+                {
+                    // yup, we have the case discussed above. It is ok that this pass did not fail
+                    // (even though the test case is marked as "shouldfail").
+                    // So, simply do nothing here.
+                }
+                else
+                {
+				    // set a flag that we actually DO want the following failure to be recorded.
+				    // If we do not set this then the following failure would be ignored
+                    // and we would not record this error.
+				    _currentTestIgnoreExpectedToFail = true;
+
+				    ResultBuilder shouldFailResultBuilder(	"testShouldHaveFailed",
+														    _pCurrentTestCaseInfo->lineInfo,
+														    "testResult",
+														    // we must use the disposition "ContinueOnFailure" here. Otherwise the react
+														    // call below will throw an exception
+														    ResultDisposition::ContinueOnFailure );
+
+				    shouldFailResultBuilder.setLhs("didNotFail");
+
+				    // cause error message to be printed and debugger to break.
+				    shouldFailResultBuilder.captureResult( ResultWas::ExplicitFailure );
+
+				    INTERNAL_BDN_REACT( shouldFailResultBuilder );
+                }
+			}
+		}
+
+		SectionStats testCaseSectionStats( *_pCurrentTestCaseSection, assertions, duration, missingAssertions );
+		m_reporter->sectionEnded( testCaseSectionStats );
+
+		if(_pCurrentTestCaseSection!=nullptr)
+		{
+			delete _pCurrentTestCaseSection;
+			_pCurrentTestCaseSection = nullptr;
+		}
+	}
+
+
 private:
 
 	ResultBuilder makeUnexpectedResultBuilder() const {
 		return ResultBuilder(   m_lastAssertionInfo.macroName.c_str(),
-			m_lastAssertionInfo.lineInfo,
-			m_lastAssertionInfo.capturedExpression.c_str(),
-			m_lastAssertionInfo.resultDisposition );
+			                    m_lastAssertionInfo.lineInfo,
+			                    m_lastAssertionInfo.capturedExpression.c_str(),
+			                    m_lastAssertionInfo.resultDisposition );
 	}
 
 	void handleUnfinishedSections() {
@@ -3374,18 +3601,17 @@ private:
 	SectionInfo*		_pCurrentTestCaseSection = nullptr;
 	Timer				_currentTestTimer;
 	Counts				_currentTestPrevAssertions;
-	bool				_currentTestIsAsync = false;
 
+	bool				_currentTestWillContinueLater = false;
+    
 	bool				_currentTestIgnoreExpectedToFail = false;
-
-	int64_t				_currentAsyncTestId = 0;
-	bool				_currentAsyncTestEnded = false;
-	P<DelayedCallFromMainThread> _pCurrentAsyncTestTimeoutCaller;
-
-	std::list< P<IBase>	> _currentTestObjectsToKeepAlive;
-
+    
 	bool				_currentTestAssertionFailed;
+    CurrentTestResult   _currentTestFailureResultAfterContinuationScheduled;
 	CurrentTestResult	_currentTestResult;
+
+    int                 _currentTestLeafSectionsExited;
+
 	Mutex				_currentTestResultMutex;
 
     mutable Mutex       _resultCaptureMutex;
@@ -3394,7 +3620,12 @@ private:
 	std::string			_testRedirectedCerr;
 	Totals				_testPrevTotals;
 
+    mutable Mutex       _runTestMutex;
+
 	std::function< void(const Totals&) > _testDoneCallback;
+
+    std::list< std::function<void()> >              _postponedSectionEvents;
+    std::list< std::function<void()> >::iterator    _postponedSectionEventsInsertPos;
 };
 
 IResultCapture& getResultCapture() {
@@ -3594,7 +3825,7 @@ Totals runTests( Ptr<Config> const& config ) {
 			// we cannot support asynchronous tests with this interface.
 			// Caller should use the TestAppWithUiController app controller
 			// or use the TestRunner object directly.
-			throw ProgrammingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
+			programmingError("Asynchronous tests (UI tests) not supported. You have to use BDN_INIT_UI_TEST_APP for your test app if you want to perform asynchronous / UI tests.");
 		}
     }
 
@@ -5545,7 +5776,7 @@ std::string toString( const Size& size)
 
 std::string toString( const Rect& rect)
 {
-	return "("+toString(rect.x)+", "+toString(rect.y)+";"+toString(rect.width)+" x "+toString(rect.height)+")";
+	return "("+toString(rect.x)+", "+toString(rect.y)+"; "+toString(rect.width)+" x "+toString(rect.height)+")";
 }
 
 
@@ -5553,6 +5784,31 @@ std::string toString( const Margin& margin)
 {
 	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
 }
+
+
+std::string toString( const UiLength& length)
+{
+    std::string unit;
+    switch(length.unit)
+    {
+    case UiLength::sem: unit = "sem";
+        break;
+    case UiLength::realPixel: unit = "realPixel";
+        break;
+    case UiLength::pixel96: unit = "pixel96";
+        break;
+    default:    unit = "unit"+std::to_string((int)length.unit);
+        break;
+    }
+	return toString(length.value) + " " + unit;
+}
+
+std::string toString( const UiMargin& margin)
+{
+	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
+}
+
+
 
 } // end namespace bdn
 
@@ -7708,10 +7964,21 @@ public:
 	}
 
 
-	void init(const std::vector<String>& args)
+	void init(std::vector<String> args)
 	{
-		try
+        try
         {
+#if BDN_PLATFORM_WINUWP
+		    if(args.size()<=1)
+            {
+		        // WinRT apps do not support commandline arguments (at least not at the time of this writing).
+		        // So we let the user enter them programmatically.
+		        // Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
+		        // commandline instead. But for the moment this works.
+                args = _askForCommandlineParameters();
+            }
+#endif
+
             _pTestSession = new bdn::Session;
 
 			// this is just a place holder frame so that we have something visible.

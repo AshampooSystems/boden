@@ -12,7 +12,9 @@
 #include <bdn/win32/util.h>
 #endif
 
-#if BDN_PLATFORM_WINRT
+
+#if BDN_PLATFORM_WINUWP
+#include <bdn/winuwp/platformError.h>
 #include <Shellapi.h>
 #endif
 
@@ -41,15 +43,50 @@ void _mainInit()
 
 	// the older function would be ::SetProcessDPIAware()
 #endif
+
+
+}
+
+std::vector<String> _askForCommandlineParameters()
+{
+    std::vector<String> args;
+
+    std::cout << "Please enter commandline parameters and press enter.\nLeave empty and press enter to run with no parameters." << std::endl;
+
+	std::string input;
+	std::getline(std::cin, input );
+
+	String params = String::fromLocaleEncoding(input);
+
+	// add an empty entry for the executable name first. We do not know it.
+	args.push_back("");
+
+	while(!params.isEmpty())
+	{
+		char32_t chr = params.front();
+		
+		if(chr==' ')
+			params.erase(params.begin() );
+		else if(chr=='\"')
+		{
+			params.erase(params.begin());
+			args.push_back( params.splitOffToken("\"") );
+		}
+		else
+			args.push_back( params.splitOffToken(" \t") );
+	}
+	
+    return args;
 }
     
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 						AppControllerBase* pAppController,
 						Platform::Array<Platform::String^>^ argsArray )
 {
+    BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
 #else
 int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
@@ -72,7 +109,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 		std::vector<String> args;
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 		for(auto s: argsArray)
 			args.push_back(s->Data() );
 
@@ -81,37 +118,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 		// Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
 		// commandline instead. But for the moment this works.
 		if(args.empty())
-		{			
-			std::cout << "Please enter commandline parameters and press enter.\nLeave empty and press enter to run with no parameters." << std::endl;
-
-			std::string input;
-			std::getline(std::cin, input );
-
-			String params = String::fromLocaleEncoding(input);
-
-			std::vector<String> argStrings;
-
-			// add an empty entry for the executable name first. We do not know it.
-			argStrings.push_back("");
-
-			while(!params.isEmpty())
-			{
-				char32_t chr = params.front();
-		
-				if(chr==' ')
-					params.erase(params.begin() );
-				else if(chr=='\"')
-				{
-					params.erase(params.begin());
-					argStrings.push_back( params.splitOffToken("\"") );
-				}
-				else
-					argStrings.push_back( params.splitOffToken(" \t") );
-			}
-	
-			for(const String& s: argStrings)
-				args.push_back( s.asUtf8Ptr() );
-		}
+            args = _askForCommandlineParameters();
 		
 #elif BDN_PLATFORM_WIN32
 		args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );		
@@ -149,7 +156,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
     
     pAppController->onTerminate();
 			
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 	// we must not exit. Otherwise we will get an error message, stating that the app did not start.
 	// Also, even if we had a way to end without the error message: if we did that then the user would
@@ -159,9 +166,15 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 	while(true)
 		Thread::sleepSeconds(1);
 
-#endif
+    return result;
+
+    BDN_WINUWP_TO_PLATFORMEXC_END
+
+#else
     
     return result;
+
+#endif
 }
 
 

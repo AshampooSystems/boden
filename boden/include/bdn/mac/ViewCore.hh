@@ -30,24 +30,19 @@ public:
         setPadding( pOuterView->padding() );
     }
     
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+        _nsView = nil;
+    }
     
     void setVisible(const bool& visible) override
     {
         _nsView.hidden = !visible;
     }
     
-    
-    void setMargin(const UiMargin& margin) override
+    void setPadding(const Nullable<UiMargin>& padding) override
     {
-        // we don't care about OUR margin. Our parent uses it during layout.
-        // So, do nothing here.
-    }
-    
-
-    void setPadding(const UiMargin& padding) override
-    {
-        // store the padding so that we can use it during size calulation
-        _pOuterViewWeak->needSizingInfoUpdate();
     }
     
 
@@ -56,8 +51,6 @@ public:
         // our parent view's coordinate system is "normal" i.e. with
         // the top left being (0,0). So there is no need to flip the coordinates.
         _nsView.frame = rectToMacRect(bounds, -1);
-        
-        getOuterView()->needLayout();
     }
     
     
@@ -80,11 +73,21 @@ public:
         Size size = macSizeToSize( _nsView.fittingSize );
         
         // add the padding
-        Margin additionalPadding = uiMarginToPixelMargin( getOuterView()->padding() );
+        Nullable<UiMargin> pad = getOuterView()->padding();
+        
+        Margin additionalPadding;
+        if(pad.isNull())
+        {
+            // we should use the "default" padding. So additionalPadding should be zero.
+        }
+        else
+        {
+            additionalPadding = uiMarginToPixelMargin( pad );
 
-        // some controls auto-include a base padding in the fittingSize.
-        // We need to subtract that.
-        additionalPadding -= getPaddingIncludedInFittingSize();
+            // some controls auto-include a base padding in the fittingSize.
+            // We need to subtract that.
+            additionalPadding -= getPaddingIncludedInFittingSize();
+        }
         
         // if the padding we get from the outer window is less than the auto-included
         // padding then we have to use the auto-included padding. Otherwise parts of the content

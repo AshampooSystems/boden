@@ -66,7 +66,7 @@ public:
 			// Because of this we added the additional template parameter ActualType, which we use to
 			// get a better name.
 		
-			throw ProgrammingError("Instances of "+String(typeid(ActualType).name())+" must be allocated with newObj or new.");
+			programmingError("Instances of "+String(typeid(ActualType).name())+" must be allocated with newObj or new.");
 		}
 	}
 
