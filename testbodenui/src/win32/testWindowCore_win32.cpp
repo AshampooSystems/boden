@@ -37,6 +37,46 @@ TEST_CASE("WindowCore-win32")
             REQUIRE( text == "hello world" );
         }                
     }
+
+    SECTION("HWND destroyed when object destroyed")
+    {
+        // there may be pending sizing info updates for the window, which keep it alive.
+        // Ensure that those are done first.
+
+        // wrap pWindow in a struct so that we can destroy all references
+        // in the continuation.
+        struct CaptureData : public Base
+        {
+            P<Window> pWindow;
+        };
+        P<CaptureData> pData = newObj<CaptureData>();
+        pData->pWindow = pWindow;
+        pWindow = nullptr;
+        
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            P<bdn::win32::WindowCore> pCore = cast<bdn::win32::WindowCore>( pData->pWindow->getViewCore() );
+            REQUIRE( pCore!=nullptr );
+
+            HWND hwnd = pCore->getHwnd();
+            REQUIRE( hwnd!=NULL );
+
+            SECTION("core not kept alive")
+            {
+                pCore = nullptr;
+            }
+
+            SECTION("core kept alive")
+            {
+                // do nothing
+            }        
+
+            pData->pWindow = nullptr;
+
+            // window should have been destroyed
+            REQUIRE( ! ::IsWindow(hwnd) );
+        };
+    }
 }
 
 
