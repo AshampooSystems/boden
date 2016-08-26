@@ -63,12 +63,21 @@ public:
 
     ~ViewCore()
     {
-        // remove the the reference to ourselves from the java-side view object.
-        // Note that we hold a strong reference to the java-side object,
-        // So we know that the reference to the java-side object is still valid.
-        _pJView->setTag( bdn::java::JObject( bdn::java::Reference() ) );
+        dispose();
     }
 
+    void dispose() override
+    {
+        if(_pJView!=nullptr)
+        {
+            // remove the the reference to ourselves from the java-side view object.
+            // Note that we hold a strong reference to the java-side object,
+            // So we know that the reference to the java-side object is still valid.
+            _pJView->setTag(bdn::java::JObject(bdn::java::Reference()));
+
+            _pJView = nullptr;
+        }
+    }
 
     static ViewCore* getViewCoreFromJavaViewRef( const bdn::java::Reference& javaViewRef )
     {

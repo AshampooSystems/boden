@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/win32/Win32Window.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 #include <bdn/log.h>
 
 #include <unordered_map>
@@ -80,7 +80,7 @@ Win32Window::Win32Window(	const String& className,
 
 	if(_hwnd==NULL)
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "CreateWindowEx")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "CreateWindowEx")
 											.add("context", "Window::create") );
 	}
 

@@ -44,7 +44,19 @@ public:
 
     ~ViewCore()
     {
-        delete _pJsObj;
+        dispose();
+    }
+    
+    
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+        
+        if(_pJsObj!=nullptr)
+        {
+            delete _pJsObj;
+            _pJsObj = nullptr;
+        }
     }
 
     /** Returns the id of the DOM element that corresponds to the view.*/

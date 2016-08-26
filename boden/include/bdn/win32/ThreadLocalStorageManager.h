@@ -1,7 +1,7 @@
 #ifndef BDN_WIN32_ThreadLocalStorageManager_H_
 #define BDN_WIN32_ThreadLocalStorageManager_H_
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 
 #include <unordered_map>
 
@@ -73,7 +73,7 @@ public:
         _key = ::FlsAlloc(&ThreadLocalStorageManager::_threadExitCleanup);
         if(_key == FLS_OUT_OF_INDEXES)
         {
-            BDN_throwLastSysError( ErrorFields().add("func", "FlsAlloc")
+            BDN_WIN32_throwLastError( ErrorFields().add("func", "FlsAlloc")
                                         .add("action", "ThreadLocalStorageManager constructor") );
         }
     }
@@ -111,7 +111,7 @@ public:
             
             if(!::FlsSetValue(_key, pMap ))            
             {
-                BDN_throwLastSysError( 
+                BDN_WIN32_throwLastError( 
                               ErrorFields() .add("func", "FlsSetValue")
                                             .add("action", "ThreadLocalStorageManager::getThreadValueHolder") );
                 

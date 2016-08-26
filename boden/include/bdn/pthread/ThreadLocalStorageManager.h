@@ -1,7 +1,7 @@
 #ifndef BDN_PTHREAD_ThreadLocalStorageManager_H_
 #define BDN_PTHREAD_ThreadLocalStorageManager_H_
 
-#include <bdn/sysError.h>
+#include <bdn/errno.h>
 
 #include <unordered_map>
 
@@ -69,9 +69,10 @@ public:
         int result = pthread_key_create(&_key, &ThreadLocalStorageManager::_threadExitCleanup);
         if(result!=0)
         {
-            throwSysError( result,
-                           ErrorFields().add("func", "pthread_key_create")
-                                        .add("action", "PosixThreadLocalStorageManager constructor") );
+            throw errnoCodeToSystemError(
+                 result,
+                 ErrorFields().add("func", "pthread_key_create")
+                              .add("action", "bdn::pthread::ThreadLocalStorageManager constructor") );
         }
     }
     
@@ -109,9 +110,10 @@ public:
             int result = pthread_setspecific(_key, pMap );
             if(result!=0)
             {
-                throwSysError( result,
-                              ErrorFields() .add("func", "pthread_setspecific")
-                                            .add("action", "PosixThreadLocalStorageManager::getThreadPtrRef") );
+                throw errnoCodeToSystemError(
+                    result,
+                    ErrorFields() .add("func", "pthread_setspecific")
+                                  .add("action", "bdn::pthread::ThreadLocalStorageManager::getThreadPtrRef") );
                 
             }
         }

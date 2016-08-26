@@ -30,6 +30,12 @@ public:
         pOuterWindow->bounds() = iosRectToRect(_window.frame);
     }
     
+    void dispose() override
+    {
+        ViewCore::dispose();
+        
+        _window = nil;
+    }
     
     UIWindow* getUIWindow() const
     {

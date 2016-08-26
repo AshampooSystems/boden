@@ -48,6 +48,10 @@ ViewCore::ViewCore(	View* pOuterView,
 }
 
 
+void ViewCore::dispose()
+{
+    _pOuterViewWeak = nullptr;
+}
 
 void ViewCore::setUiScaleFactor(double factor)
 {

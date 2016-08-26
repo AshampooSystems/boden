@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/win32/util.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 
 namespace bdn
 {
@@ -20,7 +20,7 @@ std::vector<String> parseWin32CommandLine(const String& commandLine)
 	wchar_t** argPtrs = ::CommandLineToArgvW(commandLine.asWidePtr(), &argCount);
 	if( argPtrs==NULL )
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "CommandLineToArgvW")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "CommandLineToArgvW")
 											.add("context", "parseWin32CommandLine") );
 	}
 

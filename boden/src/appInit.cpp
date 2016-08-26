@@ -13,7 +13,8 @@
 #endif
 
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
+#include <bdn/winuwp/platformError.h>
 #include <Shellapi.h>
 #endif
 
@@ -79,12 +80,13 @@ std::vector<String> _askForCommandlineParameters()
 }
     
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
 						AppControllerBase* pAppController,
 						Platform::Array<Platform::String^>^ argsArray )
 {
+    BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
 #else
 int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > appFunc,
@@ -107,7 +109,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 
 		std::vector<String> args;
 
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 		for(auto s: argsArray)
 			args.push_back(s->Data() );
 
@@ -154,7 +156,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
     
     pAppController->onTerminate();
 			
-#if BDN_PLATFORM_WINRT
+#if BDN_PLATFORM_WINUWP
 
 	// we must not exit. Otherwise we will get an error message, stating that the app did not start.
 	// Also, even if we had a way to end without the error message: if we did that then the user would
@@ -164,9 +166,15 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 	while(true)
 		Thread::sleepSeconds(1);
 
-#endif
+    return result;
+
+    BDN_WINUWP_TO_PLATFORMEXC_END
+
+#else
     
     return result;
+
+#endif
 }
 
 

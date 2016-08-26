@@ -5,7 +5,7 @@
 #include <bdn/win32/WindowCore.h>
 #include <bdn/win32/ContainerViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 
 #include <ShellScalingAPI.h>
 
@@ -41,7 +41,7 @@ UiProvider::UiProvider()
 		
 	if( ! ::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, FALSE) )
 	{
-		BDN_throwLastSysError( ErrorFields().add("func", "SystemParametersInfo(SPI_GETNONCLIENTMETRICS)")
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "SystemParametersInfo(SPI_GETNONCLIENTMETRICS)")
 											.add("action", "UiProvider constructor") );
 	}
 

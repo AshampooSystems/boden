@@ -22,12 +22,19 @@ public:
     
     ~ButtonCore();
     
+    void dispose() override
+    {
+        ViewCore::dispose();
+        
+        _button = nil;
+    }
+    
     UIButton* getUIButton()
     {
         return _button;
     }
     
-    void setLabel(const String& label)
+    void setLabel(const String& label) override
     {
         [_button setTitle: stringToIosString(label)
                  forState:UIControlStateNormal];

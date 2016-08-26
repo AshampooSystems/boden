@@ -18,7 +18,11 @@ void CallFromMainThreadBase_::dispatch()
 		ref new Windows::UI::Core::DispatchedHandler(
 			[pThis]()
 			{
+                BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 				pThis->call();
+
+                BDN_WINUWP_TO_PLATFORMEXC_END
 			} ) );
 
 

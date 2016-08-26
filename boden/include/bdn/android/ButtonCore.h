@@ -44,6 +44,13 @@ public:
         setLabel( pOuterButton->label() );
     }
 
+    void dispose() override
+    {
+        ViewCore::dispose();
+
+        _pJButton = nullptr;
+    }
+
     JButton& getJButton()
     {
         return *_pJButton;

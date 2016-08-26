@@ -261,6 +261,8 @@ private:
 
 	Rect _getBounds() const
 	{
+        BDN_WINUWP_TO_STDEXC_BEGIN
+
         Rect bounds;
 
         try
@@ -280,6 +282,8 @@ private:
 			bounds.height = 0;
 
 		return bounds;
+
+        BDN_WINUWP_TO_STDEXC_END
 	}
 
 	Size _getNonContentSize() const
@@ -320,8 +324,12 @@ private:
         
 		void windowPanelParentLayoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			if(_pParentWeak!=nullptr)
 				_pParentWeak->_windowPanelParentLayoutUpdated();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 	private:

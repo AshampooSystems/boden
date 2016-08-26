@@ -43,16 +43,24 @@ public:
 
 		void sizeChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs)
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			ViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_sizeChanged();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 		void layoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
 		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
 			ViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_layoutUpdated();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
 	private:
@@ -297,7 +305,7 @@ private:
             // view was already destroyed. Ignore this and return zero size
             return Size();
         }
-
+        
         BDN_WINUWP_TO_STDEXC_END;
 	}
 

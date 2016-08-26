@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/win32/Win32WindowClass.h>
 
-#include <bdn/sysError.h>
+#include <bdn/win32/win32Error.h>
 
 namespace bdn
 {
@@ -27,7 +27,7 @@ void Win32WindowClass::ensureRegistered()
 	{
 		if(::RegisterClassEx(&_info)==0)
 		{
-			BDN_throwLastSysError(
+			BDN_WIN32_throwLastError(
 				ErrorFields().add("func", "RegisterClassEx")
 							.add("name", _name) );
 		}
