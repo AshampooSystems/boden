@@ -32,6 +32,7 @@ public:
     
     void dispose() override
     {
+        _pOuterViewWeak = nullptr;
         _nsView = nil;
     }
     
