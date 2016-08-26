@@ -16,7 +16,7 @@ namespace bdn
      
     This function is only available on the Windows Win32 and Windows Universal (UWP) platforms.
      
-    @param errorCode an errno error code (ENOENT, ERANGE, etc.).
+    @param errnoCode an errno error code (ENOENT, ERANGE, etc.).
      
     @param fields an ErrorFields instance contains arbitrary additional information
      about the error. For example, if the error occurred while accessing a file you
@@ -32,13 +32,13 @@ namespace bdn
      
      \code
      
-     errnoToSystemError(errorCode, ErrorFields().add("path", filePath)
+     errnoCodeToSystemError(errorCode, ErrorFields().add("path", filePath)
                                                 .add("anotherArbitraryValue", "some more info") );
      
      \endcode
      
     */
-inline SystemError errnoToSystemError(int errnoCode, const ErrorFields& fields = ErrorFields() )
+inline SystemError errnoCodeToSystemError(int errnoCode, const ErrorFields& fields = ErrorFields() )
 {
 #if BDN_PLATFORM_POSIX
     return SystemError(errnoCode, std::system_category(), fields.toString() );

@@ -9,9 +9,9 @@
 using namespace bdn;
 
 
-void verifyErrnoToSystemError(int errnoCode)
+void verifyErrnoCodeToSystemError(int errnoCode)
 {
-	SystemError err = errnoToSystemError(errnoCode, ErrorFields().add("bla", "blub")
+	SystemError err = errnoCodeToSystemError(errnoCode, ErrorFields().add("bla", "blub")
 															.add("gubbel", "hurz") );
 
 #if BDN_PLATFORM_POSIX
@@ -49,10 +49,14 @@ TEST_CASE("errno")
 	SECTION("errnoToSystemError")
     {
         SECTION("ERANGE")
-            verifyErrnoToSystemError( ERANGE );
+            verifyErrnoCodeToSystemError( ERANGE );
         SECTION("EDOM")
-            verifyErrnoToSystemError( EDOM );
+            verifyErrnoCodeToSystemError( EDOM );
         SECTION("ENOENT")
-            verifyErrnoToSystemError( ENOENT );
-    }}
+            verifyErrnoCodeToSystemError( ENOENT );
+    }
+
+}
+
+
 
