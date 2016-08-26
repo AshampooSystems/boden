@@ -28,6 +28,11 @@ public:
     }
     
     
+    void dispose() override
+    {
+        _pOuterViewWeak = nullptr;
+    }
+    
 	void setVisible(const bool& visible) override
     {
         gtk_widget_set_visible(_pWidget, visible ? TRUE : FALSE);
