@@ -29,6 +29,11 @@ public:
         setPadding( pOuterView->padding() );
     }
     
+    void dispose() override
+    {
+        _view = nil;
+    }
+    
     const View* getOuterView() const
     {
         return _pOuterViewWeak;
