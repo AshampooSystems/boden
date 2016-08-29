@@ -36,7 +36,7 @@ UiProvider::UiProvider()
     
     NSAttributedString* attrString = [NSAttributedString alloc];
     
-    [attrString initWithString:@"M"];
+    attrString = [attrString initWithString:@"M"];
     
     NSSize fontSize = attrString.size;
     

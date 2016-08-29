@@ -32,7 +32,7 @@ TEST_CASE("ButtonCore-mac")
         
         NSButton* pNS = (NSButton*)pCore->getNSView();
 
-        REQUIRE(  pNS!=NULL );
+        REQUIRE(  pNS!=nullptr );
 
         SECTION("label")
         {

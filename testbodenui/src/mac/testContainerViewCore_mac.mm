@@ -35,7 +35,7 @@ TEST_CASE("ContainerViewCore-mac")
         REQUIRE( pCore!=nullptr );
 
         NSView* pNS = pCore->getNSView();
-        REQUIRE(  pNS!=NULL );
+        REQUIRE(  pNS!=nullptr );
 
         // there is nothing mac specific to test here.
         // The generic container view tests and the mac view test have already tested

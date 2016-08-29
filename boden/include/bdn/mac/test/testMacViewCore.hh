@@ -37,7 +37,7 @@ inline void testMacViewCore(P<Window> pWindow, P<View> pView, bool canCalculateP
             REQUIRE( pCore!=nullptr );
             
             NSWindow* pNS = pCore->getNSWindow();
-            REQUIRE( pNS!=NULL );
+            REQUIRE( pNS!=nullptr );
             
             SECTION("visible")
             {
@@ -80,7 +80,7 @@ inline void testMacViewCore(P<Window> pWindow, P<View> pView, bool canCalculateP
             REQUIRE( pCore!=nullptr );
             
             NSView* pNS = pCore->getNSView();
-            REQUIRE( pNS!=NULL );
+            REQUIRE( pNS!=nullptr );
 
             SECTION("visible")
             {
