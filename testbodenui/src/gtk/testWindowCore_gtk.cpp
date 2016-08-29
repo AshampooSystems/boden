@@ -66,7 +66,7 @@ TEST_CASE("WindowCore-gtk")
         pData->pWindow = pWindow;
         pWindow = nullptr;
         
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::gtk::WindowCore> pCore = cast<bdn::gtk::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );

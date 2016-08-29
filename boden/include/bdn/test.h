@@ -2207,7 +2207,7 @@ namespace bdn {
         virtual ~IRunner();
         virtual bool aborting() const = 0;
 				
-        virtual void continueSectionAsync(std::function<void()> continuationFunc )=0;
+        virtual void continueSectionAfterPendingEvents(std::function<void()> continuationFunc )=0;
         virtual void continueSectionInThread(std::function<void()> continuationFunc )=0;
     };
 }
@@ -2393,8 +2393,8 @@ namespace bdn {
 
 
 
-#define INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc ) \
-    bdn::getCurrentContext().getRunner()->continueSectionAsync( continuationFunc )
+#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAfterPendingEvents( continuationFunc )
 
 #define INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc ) \
     bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
@@ -3398,13 +3398,13 @@ return @ desc; \
 
 
 
-/** \def BDN_CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
+/** \def BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( continuationFunc )
 
-	\copybrief CONTINUE_SECTION_ASYNC_WITH()
-	\copydetailed CONTINUE_SECTION_ASYNC_WITH()
+	\copybrief CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH()
+	\copydetailed CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH()
 
 	*/
-#define BDN_CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH(  __VA_ARGS__ )
+#define BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(  __VA_ARGS__ )
 
 
 /** \def BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
@@ -3423,20 +3423,20 @@ namespace bdn
 namespace test
 {
 
-class ContinueSectionAsyncStarter_
+class ContinueSectionAfterPendingEventsStarter_
 {
 public:
     void operator << ( std::function<void()> continuation )
     {
-        BDN_CONTINUE_SECTION_ASYNC_WITH( continuation );
+        BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( continuation );
     }
 };
 
 }
 }
 
-#define BDN_CONTINUE_SECTION_ASYNC(...) \
-    bdn::test::ContinueSectionAsyncStarter_() << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS(...) \
+    bdn::test::ContinueSectionAfterPendingEventsStarter_() << [__VA_ARGS__]()
 
 
 
@@ -3473,7 +3473,7 @@ public:
 
     void operator<<(std::function<void()> continuationFunc) const
     {
-        BDN_CONTINUE_SECTION_ASYNC_WITH(continuationFunc);
+        BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(continuationFunc);
     }
 };
 
@@ -3552,7 +3552,7 @@ public:
 
     Just as with a normal SECTION, a code block must follow that contains the
     section code. The difference is that this code will be executed asynchronously,
-    as if CONTINUE_SECTION_ASYNC was used at the end of a normal section.
+    as if CONTINUE_SECTION_AFTER_PENDING_EVENTS was used at the end of a normal section.
 
     There is one difference in usage compared to SECTION, though: there must be a semicolon
     at the end of the async section's code block (see example below).
@@ -3600,17 +3600,17 @@ public:
 #define ANON_TEST_CASE() INTERNAL_BDN_TESTCASE( "", "" )
 
 
-/** \def CONTINUE_SECTION_ASYNC_WITH( continuationFunc )
+/** \def CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( continuationFunc )
 
     Continues the current test section asynchronously by calling the specified continuation function / lambda.
 
-    This is very similar to CONTINUE_SECTION_ASYNC, except that you can pass the code to be executed as
-    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_ASYNC statement.
+    This is very similar to CONTINUE_SECTION_AFTER_PENDING_EVENTS, except that you can pass the code to be executed as
+    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_AFTER_PENDING_EVENTS statement.
 
     This can sometimes be useful if you want the continuation to be a real function, or a function with
     bounds parameters (using std::bind) or things like that.
     
-    Apart from this difference, the macro works exactly like CONTINUE_SECTION_ASYNC.
+    Apart from this difference, the macro works exactly like CONTINUE_SECTION_AFTER_PENDING_EVENTS.
 
 	Example:
 
@@ -3648,57 +3648,57 @@ public:
 
         // So we now need user interface events to be handled, causing the click to be
         // actually executed. So we have to schedule an async continuation.
-		CONTINUE_SECTION_ASYNC_WITH( std::bind( continueButtonClickTest, pClicked, pWindow) );        
+		CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( std::bind( continueButtonClickTest, pClicked, pWindow) );        
     }
     
 	\endcode
 
 	*/
-#define CONTINUE_SECTION_ASYNC_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_ASYNC_WITH( __VA_ARGS__ )
+#define CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( __VA_ARGS__ )
 
 
 /** \def CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
 
-    Similar to CONTINUE_SECTION_ASYNC_WITH, except that the continuation function is executed from a newly created
+    Similar to CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH, except that the continuation function is executed from a newly created
     secondary thread.
     This is useful if you want to test your code from another thread (for example, to verify that it also works from
     arbitrary threads, not just the main thread).
 
-    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_AFTER_PENDING_EVENTS.*/
 #define CONTINUE_SECTION_IN_THREAD_WITH( ... ) INTERNAL_BDN_CONTINUE_SECTION_IN_THREAD_WITH( __VA_ARGS__ )
 
 
     
-/** \def CONTINUE_SECTION_ASYNC( captures... )
+/** \def CONTINUE_SECTION_AFTER_PENDING_EVENTS( captures... )
 
     Continues the current test section asynchronously.
     
     A code block with the code for the asynchronous continuation must follow (see example below).
     There must be a semicolon after the code block.
     
-    CONTINUE_SECTION_ASYNC is mainly useful if you need pending events to be processed
+    CONTINUE_SECTION_AFTER_PENDING_EVENTS is mainly useful if you need pending events to be processed
     before the test continues. It is often used in tests that use user interface elements.
 
     The continuation code block that follows is always called from the main thread.
     There is also a similar macro called CONTINUE_SECTION_IN_THREAD which runs the continuation
     function in a new thread instead of the main thread.
 
-    CONTINUE_SECTION_ASYNC can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
+    CONTINUE_SECTION_AFTER_PENDING_EVENTS can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
 
-    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_ASYNC statement
+    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_AFTER_PENDING_EVENTS statement
     and its code block.
     If there is additional test code afterwards then it will be executed BEFORE the continuation code
     is run. Since that is unintuitive, it should be avoided.
     
-    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_ASYNC statement
+    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_AFTER_PENDING_EVENTS statement
     at the end (inside the continuation code block) to add another asynchronous continuation.
 
     The normal test macros (like REQUIRE() ) can all be used as normal in the continuation. There
 	is no difference to a synchronous test in this regard.
         
-    The code block after CONTINUE_SECTION_ASYNC will actually end up being executed as a lambda function.
+    The code block after CONTINUE_SECTION_AFTER_PENDING_EVENTS will actually end up being executed as a lambda function.
     The capture statement of the lambda expression are the (optional) parameters of the 
-    CONTINUE_SECTION_ASYNC macro. Often one will simply specify = here to capture
+    CONTINUE_SECTION_AFTER_PENDING_EVENTS macro. Often one will simply specify = here to capture
     the local variables by value.
     
 	Example:
@@ -3732,7 +3732,7 @@ public:
 
         // So we now need user interface events to be handled, causing the click to be
         // actually executed. So we have to schedule an async continuation.
-		CONTINUE_SECTION_ASYNC( pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+		CONTINUE_SECTION_AFTER_PENDING_EVENTS( pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
                                                     // pWindow is in the capture list so that the window will not be deleted and destroyed when the
                                                     // initial test function exits (before the lambda continuation is called).
                                                     // We could also use std::bind here instead of a lambda. See below for an example
@@ -3741,7 +3741,7 @@ public:
         };
 
         // as an alternative we could also have captured ALL local variables with a "=" capture statement like this:
-        CONTINUE_SECTION_ASYNC( = )
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS( = )
         {
             REQUIRE( *pClicked );
         };
@@ -3751,17 +3751,17 @@ public:
 	\endcode
     */
 
-#define CONTINUE_SECTION_ASYNC(...) BDN_CONTINUE_SECTION_ASYNC(__VA_ARGS__)
+#define CONTINUE_SECTION_AFTER_PENDING_EVENTS(...) BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS(__VA_ARGS__)
 
 
 /** \def CONTINUE_SECTION_IN_THREAD( captures... )
 
-    Similar to CONTINUE_SECTION_ASYNC, except that the continuation function is executed from a newly created
+    Similar to CONTINUE_SECTION_AFTER_PENDING_EVENTS, except that the continuation function is executed from a newly created
     secondary thread.
     This is useful if you want to test your code from another thread (for example, to verify that it also works from
     arbitrary threads, not just the main thread).
 
-    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_ASYNC.*/
+    Apart from this difference, CONTINUE_SECTION_IN_THREAD works just like CONTINUE_SECTION_AFTER_PENDING_EVENTS.*/
 #define CONTINUE_SECTION_IN_THREAD(...) BDN_CONTINUE_SECTION_IN_THREAD(__VA_ARGS__)
 
 

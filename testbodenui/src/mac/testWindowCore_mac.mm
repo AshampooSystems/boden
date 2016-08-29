@@ -59,7 +59,7 @@ TEST_CASE("WindowCore-mac")
         pWindow = nullptr;
         
         
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::mac::WindowCore> pCore = cast<bdn::mac::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );

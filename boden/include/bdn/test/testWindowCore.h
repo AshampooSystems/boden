@@ -44,7 +44,7 @@ inline void testWindowCore(P<Window> pWindow)
 
         // continue async to give the core a chance to correct / override
         // the new bounds.
-        CONTINUE_SECTION_ASYNC(pWindow, pCore)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow, pCore)
         {
             Rect bounds = pWindow->bounds();
 

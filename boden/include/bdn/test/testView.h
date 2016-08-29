@@ -158,7 +158,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
 
-        CONTINUE_SECTION_ASYNC(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc)
         {
             BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
         };
@@ -183,7 +183,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// So do another async call. That one will be executed after the property
 		// changes.
 
-        CONTINUE_SECTION_ASYNC( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
 		{
 			// the core should now have been updated.
 			
@@ -198,7 +198,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 			// update should have happened and the sizing info should have been
 			// updated (once!)
 
-            CONTINUE_SECTION_ASYNC( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates)
             {
 				verifyFunc();
 						
@@ -246,7 +246,7 @@ inline void testView()
     // We wait until that is done before we continue.
     REQUIRE( pView->getSizingInfoUpdateCount()==0 );
     
-    BDN_CONTINUE_SECTION_ASYNC( pPreparer, initialCoresCreated, pWindow, pView, pCore )
+    BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, initialCoresCreated, pWindow, pView, pCore )
     {
         // the pending updates should have happened now
         REQUIRE( pView->getSizingInfoUpdateCount()==1 );
@@ -294,7 +294,7 @@ inline void testView()
             pView->needSizingInfoUpdate();
             pView->needSizingInfoUpdate();
 
-            CONTINUE_SECTION_ASYNC(pPreparer, pView, updateCountBefore)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pView, updateCountBefore)
             {
                 REQUIRE( pView->getSizingInfoUpdateCount() == updateCountBefore+1 );
             };
@@ -321,7 +321,7 @@ inline void testView()
             // Since we want the window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            CONTINUE_SECTION_ASYNC(pView, pPreparer)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pView, pPreparer)
             {                
                 BDN_REQUIRE( pView->getParentView() == nullptr);	    
             };

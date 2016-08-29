@@ -18,7 +18,7 @@ struct TestData : public Base
 template<typename FuncType>
 void testContinueSectionWith( FuncType scheduleContinueWith )
 {
-    // we verify that CONTINUE_SECTION_ASYNC works as expected
+    // we verify that CONTINUE_SECTION_AFTER_PENDING_EVENTS works as expected
 
     P<TestData> pData = newObj<TestData>();
 
@@ -166,9 +166,9 @@ void testContinueSectionWith_expectedFail( void (*scheduleContinueWith)(std::fun
 }
 
 
-void scheduleContinueAsyncWith( std::function<void()> continuationFunc )
+void scheduleContinueAfterPendingEventsWith( std::function<void()> continuationFunc )
 {
-    CONTINUE_SECTION_ASYNC_WITH(
+    CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(
         [continuationFunc]()
         {
             REQUIRE( Thread::isCurrentMain() );
@@ -176,25 +176,25 @@ void scheduleContinueAsyncWith( std::function<void()> continuationFunc )
         } );    
 }
 
-TEST_CASE("CONTINUE_SECTION_ASYNC_WITH")
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH")
 {
-    testContinueSectionWith( scheduleContinueAsyncWith );
+    testContinueSectionWith( scheduleContinueAfterPendingEventsWith );
 }
 
 
-TEST_CASE("CONTINUE_SECTION_ASYNC_WITH-expectedFail", "[!shouldfail]")
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH-expectedFail", "[!shouldfail]")
 {
-    testContinueSectionWith_expectedFail( scheduleContinueAsyncWith );
+    testContinueSectionWith_expectedFail( scheduleContinueAfterPendingEventsWith );
 }
 
-TEST_CASE("CONTINUE_SECTION_ASYNC_WITH-asyncAfterSectionThatHadAsyncContinuation" )
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH-asyncAfterSectionThatHadAsyncContinuation" )
 {
 	bool enteredSection = false;
 
     SECTION("initialChild")
     {
 		enteredSection = true;
-        CONTINUE_SECTION_ASYNC_WITH( [](){} );
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( [](){} );
     }
 
     std::function<void()> continuation =
@@ -214,13 +214,13 @@ TEST_CASE("CONTINUE_SECTION_ASYNC_WITH-asyncAfterSectionThatHadAsyncContinuation
 	{
 		// we should get a programmingerror here. It is not allowed to schedule a 
 		// continuation when one was already scheduled
-		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_ASYNC_WITH(continuation) );
+		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(continuation) );
 	}
 	else
 	{
 		// if we did not enter the section then it should be fine to schedule the
 		// continuation here.
-		CONTINUE_SECTION_ASYNC_WITH(continuation);
+		CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(continuation);
 	}
 }
 
@@ -367,13 +367,13 @@ TEST_CASE("ASYNC_SECTION-fail", "[!shouldfail]")
 
 
 
-TEST_CASE( "CONTINUE_SECTION_ASYNC" )
+TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
 {
     P<TestData> pData = newObj<TestData>();
 
     SECTION("notCalledImmediately")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             pData->callCount++;            
         };
@@ -385,7 +385,7 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
 
     SECTION("notCalledBeforeExitingInitialFunction")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             pData->callCount++;            
         };
@@ -402,7 +402,7 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
     {
         pCalledBeforeNextSectionData = pData;
 
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             pData->callCount++;            
         };
@@ -419,7 +419,7 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
 
     SECTION("notCalledMultipleTimes")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             pData->callCount++;            
 
@@ -431,7 +431,7 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
     static int subSectionInContinuationMask=0;
     SECTION("subSectionInContinuation-a")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             subSectionInContinuationMask |= 1;
 
@@ -451,7 +451,7 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
             // add another continuation
             SECTION("b")
             {
-                CONTINUE_SECTION_ASYNC(=)
+                CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
                 {
                     subSectionInContinuationMask |= 8;
 
@@ -476,11 +476,11 @@ TEST_CASE( "CONTINUE_SECTION_ASYNC" )
 }
 
 
-TEST_CASE("CONTINUE_SECTION_ASYNC-fail", "[!shouldfail]")
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-fail", "[!shouldfail]")
 {
     SECTION("exceptionInContinuation")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
             throw std::runtime_error("dummy error");
         };
@@ -488,7 +488,7 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-fail", "[!shouldfail]")
 
     SECTION("exceptionAfterContinuationScheduled")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
         };
 
@@ -497,7 +497,7 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-fail", "[!shouldfail]")
 
     SECTION("failAfterContinuationScheduled")
     {
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
         };
         
@@ -505,14 +505,14 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-fail", "[!shouldfail]")
     }
 }
 
-TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-asyncAfterSectionThatHadAsyncContinuation" )
 {
 	bool enteredSection = false;
 
     SECTION("initialChild")
     {
 		enteredSection = true;
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
         };
     }
@@ -522,7 +522,7 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
 		// we should get a programmingerror here. It is not allowed to schedule a 
 		// continuation when one was already scheduled
 		REQUIRE_THROWS_PROGRAMMING_ERROR(
-            CONTINUE_SECTION_ASYNC(=)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
             {
             }; );
 	}
@@ -530,7 +530,7 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
 	{
 		// if we did not enter the section then it should be fine to schedule the
 		// continuation here.
-        CONTINUE_SECTION_ASYNC(=)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
         {
         };
 	}
@@ -538,27 +538,27 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-asyncAfterSectionThatHadAsyncContinuation" )
 
 
 
-static bool continueAsyncComplicated_Started = false;
-static bool continueAsyncComplicated_Sub2Called = false;
+static bool continueAfterPendingEventsComplicated_Started = false;
+static bool continueAfterPendingEventsComplicated_Sub2Called = false;
 
-TEST_CASE("CONTINUE_SECTION_ASYNC-complicated" )
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated" )
 {
     static bool async1Called=false;
     static bool async2Called=false;
 
-    continueAsyncComplicated_Started = true;
+    continueAfterPendingEventsComplicated_Started = true;
 
     SECTION("a")
     {
-        CONTINUE_SECTION_ASYNC()
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS()
         {
             SECTION("sub")
             {
-                CONTINUE_SECTION_ASYNC()
+                CONTINUE_SECTION_AFTER_PENDING_EVENTS()
                 {
                     async1Called = true;
 
-                    CONTINUE_SECTION_ASYNC()
+                    CONTINUE_SECTION_AFTER_PENDING_EVENTS()
                     {
                         async2Called = true;
                     };
@@ -577,7 +577,7 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-complicated" )
     
             SECTION("sub2")
             {
-                continueAsyncComplicated_Sub2Called = true;
+                continueAfterPendingEventsComplicated_Sub2Called = true;
 
                 REQUIRE( async1Called );
                 REQUIRE( async2Called );        
@@ -586,13 +586,13 @@ TEST_CASE("CONTINUE_SECTION_ASYNC-complicated" )
     };
 }
 
-TEST_CASE("CONTINUE_SECTION_ASYNC-complicated-B" )
+TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated-B" )
 {
     // see comment in previous test case for explanation
 
-    if(continueAsyncComplicated_Started)
+    if(continueAfterPendingEventsComplicated_Started)
     {
-        REQUIRE( continueAsyncComplicated_Sub2Called );
+        REQUIRE( continueAfterPendingEventsComplicated_Sub2Called );
     }
 }
 

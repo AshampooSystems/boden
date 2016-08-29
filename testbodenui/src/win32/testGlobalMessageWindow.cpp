@@ -37,7 +37,7 @@ void continueTestPostCall(P<TestCallable> pCallable, P<GlobalMessageWindow> pWin
 {
     if(pCallable->callCount==0)
     {
-        CONTINUE_SECTION_ASYNC_WITH( [pCallable, pWindow](){ continueTestPostCall(pCallable, pWindow); } );
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( [pCallable, pWindow](){ continueTestPostCall(pCallable, pWindow); } );
     }
 }
 

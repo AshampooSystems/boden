@@ -49,7 +49,7 @@ TEST_CASE("WindowCore-web")
         pData->pWindow = pWindow;
         pWindow = nullptr;
         
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::web::WindowCore> pCore = cast<bdn::web::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );

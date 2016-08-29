@@ -66,7 +66,7 @@ TEST_CASE("WindowCore-ios")
         pData->pReplacementWindow = newObj<Window>( &bdn::ios::UiProvider::get() );
         pData->pReplacementWindow->visible() = true;
 
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::ios::WindowCore> pCore = cast<bdn::ios::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );
@@ -83,7 +83,7 @@ TEST_CASE("WindowCore-ios")
             
             arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pUIWindow);
             
-            CONTINUE_SECTION_ASYNC(pData, pUIWindow)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData, pUIWindow)
             {
             int arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pUIWindow);
             
