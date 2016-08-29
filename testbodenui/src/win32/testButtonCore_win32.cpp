@@ -6,7 +6,7 @@
 #include <bdn/test/testButtonCore.h>
 #include <bdn/win32/UiProvider.h>
 #include <bdn/win32/ButtonCore.h>
-#include <bdn/win32/test/testWin32ViewCore.h>
+#include "testWin32ViewCore.h"
 
 using namespace bdn;
 
