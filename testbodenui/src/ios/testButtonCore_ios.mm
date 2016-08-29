@@ -32,7 +32,7 @@ TEST_CASE("ButtonCore-ios")
         
         UIButton* pUIButton = pCore->getUIButton();
 
-        REQUIRE(  pUIButton!=NULL );
+        REQUIRE(  pUIButton!=nullptr );
 
         SECTION("label")
         {

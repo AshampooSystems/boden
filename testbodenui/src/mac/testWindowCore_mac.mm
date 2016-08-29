@@ -38,6 +38,37 @@ TEST_CASE("WindowCore-mac")
             REQUIRE( text == "hello world" );
         }
     }
+    
+    SECTION("Window deleted when object destroyed")
+    {
+        // there may be pending sizing info updates for the window, which keep it alive.
+        // Ensure that those are done first.
+        
+        // wrap pWindow in a struct so that we can destroy all references
+        // in the continuation.
+        struct CaptureData : public Base
+        {
+            P<Window> pWindow;
+        };
+        P<CaptureData> pData = newObj<CaptureData>();
+        pData->pWindow = pWindow;
+        pWindow = nullptr;
+        
+        
+        CONTINUE_SECTION_ASYNC(pData)
+        {
+            P<bdn::mac::WindowCore> pCore = cast<bdn::mac::WindowCore>( pData->pWindow->getViewCore() );
+            REQUIRE( pCore!=nullptr );
+            
+            __weak NSWindow* pNSWindow = pCore->getNSWindow();
+            REQUIRE( pUIWindow!=nullptr );
+            
+            pCore = nullptr;
+            pData->pWindow = nullptr;
+            
+            REQUIRE( pNSWindow==nullptr );
+        };
+    }
 }
 
 

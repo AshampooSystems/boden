@@ -274,8 +274,13 @@ if( BODEN_TARGET STREQUAL "ios")
 	# set it for all builds - waiting for a fix from ios cmake maintainer.
 	# XXX needs to be removed for release build
 	set_xcode_property(boden GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+
+	target_compile_options(boden PUBLIC "-fobjc-arc")
 endif()
 
+if( BODEN_TARGET STREQUAL "mac")
+	target_compile_options(boden PUBLIC "-fobjc-arc")
+endif()
 
 
 # testboden
@@ -345,9 +350,15 @@ if( BODEN_TARGET STREQUAL "ios")
 	mark_as_advanced(UIKIT_LIBRARY)	
 
 	target_link_libraries(testboden ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+
+	target_compile_options(testboden PUBLIC "-fobjc-arc")
 	
 endif()
 
+
+if( BODEN_TARGET STREQUAL "mac")
+	target_compile_options(testboden PUBLIC "-fobjc-arc")	
+endif()
 
 # testbodenui
 
@@ -408,6 +419,13 @@ if( BODEN_TARGET STREQUAL "ios")
 	mark_as_advanced(UIKIT_LIBRARY)	
 
 	target_link_libraries(testbodenui ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+
+	target_compile_options(testbodenui PUBLIC "-fobjc-arc")
+
+endif()
+
+if( BODEN_TARGET STREQUAL "mac")
+	target_compile_options(testbodenui PUBLIC "-fobjc-arc")
 endif()
 
 if( BODEN_TARGET STREQUAL "dotnet")
@@ -485,7 +503,13 @@ if( BODEN_TARGET STREQUAL "ios")
 	mark_as_advanced(UIKIT_LIBRARY)	
 
 	target_link_libraries(uidemo ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+
+	target_compile_options(uidemo PUBLIC "-fobjc-arc")
 	
+endif()
+
+if( BODEN_TARGET STREQUAL "mac")
+	target_compile_options(uidemo PUBLIC "-fobjc-arc")	
 endif()
 
 if( BODEN_TARGET STREQUAL "dotnet")
