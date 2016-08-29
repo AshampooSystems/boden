@@ -5,13 +5,13 @@
 #include <bdn/ColumnView.h>
 #include <bdn/test/testContainerViewCore.h>
 
-#include <bdn/win32/UiProvider.h>
-#include <bdn/win32/ContainerViewCore.h>
-#include "testWin32ViewCore.h"
+#include <bdn/web/UiProvider.h>
+#include <bdn/web/ContainerViewCore.h>
+#include "testWebViewCore.h"
 
 using namespace bdn;
 
-TEST_CASE("ContainerViewCore-win32")
+TEST_CASE("ContainerViewCore-web")
 {
     P<Window> pWindow = newObj<Window>();
 
@@ -26,19 +26,21 @@ TEST_CASE("ContainerViewCore-win32")
     SECTION("generic")
         bdn::test::testContainerViewCore(pWindow, pColumnView );        
 
-    SECTION("win32-ViewCore")
-        bdn::win32::test::testWin32ViewCore(pWindow, pColumnView, false);
+    SECTION("web-ViewCore")
+        bdn::web::test::testWebViewCore(pWindow, pColumnView, false);
 
-    SECTION("win32-ContainerViewCore")
+    SECTION("web-ContainerViewCore")
     {
-        P<bdn::win32::ContainerViewCore> pCore = cast<bdn::win32::ContainerViewCore>( pColumnView->getViewCore() );
+        P<bdn::web::ContainerViewCore> pCore = cast<bdn::web::ContainerViewCore>( pColumnView->getViewCore() );
         REQUIRE( pCore!=nullptr );
 
-        HWND hwnd = pCore->getHwnd();
-        REQUIRE( hwnd!=NULL );
+        emscripten::val domObject = pCore->getDomObject();
+        REQUIRE( !domObject.isNull() );
+        REQUIRE( !domObject.isUndefined() );
 
-        // there is nothing win32-specific to test here.
-        // The generic container view tests and the win32 view test have already tested
+
+        // there is nothing web-specific to test here.
+        // The generic container view tests and the web view test have already tested
         // everything that the container view core does.        
     }
 }

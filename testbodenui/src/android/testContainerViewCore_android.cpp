@@ -7,7 +7,7 @@
 
 #include <bdn/android/UiProvider.h>
 #include <bdn/android/ContainerViewCore.h>
-#include <bdn/android/test/testAndroidViewCore.h>
+#include "testAndroidViewCore.h"
 
 using namespace bdn;
 

@@ -7,7 +7,7 @@
 
 #import <bdn/mac/UiProvider.hh>
 #import <bdn/mac/ButtonCore.hh>
-#import <bdn/mac/test/testMacViewCore.hh>
+#import "testMacViewCore.hh"
 
 using namespace bdn;
 
@@ -32,7 +32,7 @@ TEST_CASE("ButtonCore-mac")
         
         NSButton* pNS = (NSButton*)pCore->getNSView();
 
-        REQUIRE(  pNS!=NULL );
+        REQUIRE(  pNS!=nullptr );
 
         SECTION("label")
         {

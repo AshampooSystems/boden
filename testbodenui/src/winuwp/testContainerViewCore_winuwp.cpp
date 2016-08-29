@@ -5,13 +5,13 @@
 #include <bdn/ColumnView.h>
 #include <bdn/test/testContainerViewCore.h>
 
-#include <bdn/win32/UiProvider.h>
-#include <bdn/win32/ContainerViewCore.h>
-#include "testWin32ViewCore.h"
+#include <bdn/winuwp/UiProvider.h>
+#include <bdn/winuwp/ContainerViewCore.h>
+#include "testWinuwpViewCore.h"
 
 using namespace bdn;
 
-TEST_CASE("ContainerViewCore-win32")
+TEST_CASE("ContainerViewCore-winuwp")
 {
     P<Window> pWindow = newObj<Window>();
 
@@ -26,19 +26,17 @@ TEST_CASE("ContainerViewCore-win32")
     SECTION("generic")
         bdn::test::testContainerViewCore(pWindow, pColumnView );        
 
-    SECTION("win32-ViewCore")
-        bdn::win32::test::testWin32ViewCore(pWindow, pColumnView, false);
+    SECTION("winuwp-ViewCore")
+        bdn::winuwp::test::testWinuwpViewCore(pWindow, pColumnView, false, true);
 
-    SECTION("win32-ContainerViewCore")
+    SECTION("winuwp-ContainerViewCore")
     {
-        P<bdn::win32::ContainerViewCore> pCore = cast<bdn::win32::ContainerViewCore>( pColumnView->getViewCore() );
+        P<bdn::winuwp::ContainerViewCore> pCore = cast<bdn::winuwp::ContainerViewCore>( pColumnView->getViewCore() );
         REQUIRE( pCore!=nullptr );
 
-        HWND hwnd = pCore->getHwnd();
-        REQUIRE( hwnd!=NULL );
 
-        // there is nothing win32-specific to test here.
-        // The generic container view tests and the win32 view test have already tested
+        // there is nothing winuwp-specific to test here.
+        // The generic container view tests and the winuwp view test have already tested
         // everything that the container view core does.        
     }
 }

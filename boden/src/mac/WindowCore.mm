@@ -50,7 +50,6 @@ WindowCore::WindowCore(View* pOuter)
                                                backing:NSBackingStoreBuffered
                                                  defer:NO];
     
-    
     NSRect contentRect{};
     contentRect.size = rect.size;
     

@@ -36,6 +36,9 @@
 #ifndef _BDN_test_H_
 #define _BDN_test_H_
 
+#include <type_traits>
+
+
 #define TWOBLUECUBES_BDN_HPP_INCLUDED
 
 #ifdef __clang__
@@ -1321,7 +1324,7 @@ namespace Internal {
     template<> struct OperatorTraits<IsGreaterThan>         { static const char* getName(){ return ">"; } };
     template<> struct OperatorTraits<IsLessThanOrEqualTo>   { static const char* getName(){ return "<="; } };
     template<> struct OperatorTraits<IsGreaterThanOrEqualTo>{ static const char* getName(){ return ">="; } };
-
+    
     template<typename T>
     inline T& opCast(T const& t) { return const_cast<T&>(t); }
 
@@ -1487,12 +1490,26 @@ namespace Internal {
 #endif // BDN_CONFIG_CPP11_LONG_LONG
 
 #ifdef BDN_CONFIG_CPP11_NULLPTR
+    
     // pointer to nullptr_t (when comparing against nullptr)
     template<Operator Op, typename T> bool compare( std::nullptr_t lhs, T* rhs ) {
-        return Evaluator<T*, T*, Op>::evaluate( lhs, rhs );
+        T* p( nullptr );    // this temporary variable is needed so that the code compiled
+                            // with ios automatic reference counting (ARC). nullptr cannot
+                            // be implicity converted to a reference counted pointer, so
+                            // passing it to evaluate(T*,T*) directly would cause an error.
+                            // With this temp object we explicitly create a null pointer variable
+                            // so this will work.
+        return Evaluator<T*, T*, Op>::evaluate( p, rhs );
     }
+    
     template<Operator Op, typename T> bool compare( T* lhs, std::nullptr_t rhs ) {
-        return Evaluator<T*, T*, Op>::evaluate( lhs, rhs );
+        T* p( nullptr );    // this temporary variable is needed so that the code compiled
+                            // with ios automatic reference counting (ARC). nullptr cannot
+                            // be implicity converted to a reference counted pointer, so
+                            // passing it to evaluate(T*,T*) directly would cause an error.
+                            // With this temp object we explicitly create a null pointer variable
+                            // so this will work.
+        return Evaluator<T*, T*, Op>::evaluate( lhs, p );
     }
 #endif // BDN_CONFIG_CPP11_NULLPTR
 

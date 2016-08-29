@@ -1,11 +1,12 @@
-#ifndef BDN_WINUWP_ViewCore_H_
-#define BDN_WINUWP_ViewCore_H_
+#ifndef BDN_WINUWP_ChildViewCore_H_
+#define BDN_WINUWP_ChildViewCore_H_
 
 #include <bdn/View.h>
 
 #include <bdn/winuwp/util.h>
-#include <bdn/winuwp/IParentViewCore.h>
+#include <bdn/winuwp/IViewCoreParent.h>
 #include <bdn/winuwp/UiProvider.h>
+#include <bdn/winuwp/IFrameworkElementOwner.h>
 
 #include <cassert>
 
@@ -14,23 +15,24 @@ namespace bdn
 namespace winuwp
 {
 
-/** Base implementation for most Windows Universal view cores (see IViewCore).
+/** Base implementation for Windows Universal view cores that are children
+    of another view (see IViewCore).
 	Note that top level windows do not derive from this - they provider their own
 	implementation of IViewCore.	
 */
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IFrameworkElementOwner
 {
 public:	
 	/** Used internally.*/
 	ref class ViewCoreEventForwarder : public Platform::Object
 	{
 	internal:
-		ViewCoreEventForwarder(ViewCore* pParent)
+		ViewCoreEventForwarder(ChildViewCore* pParent)
 		{
 			_pParentWeak = pParent;
 		}
 
-		ViewCore* getViewCoreIfAlive()
+		ChildViewCore* getViewCoreIfAlive()
 		{
 			return _pParentWeak;
 		}
@@ -45,7 +47,7 @@ public:
 		{
             BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-			ViewCore* pViewCore = getViewCoreIfAlive();
+			ChildViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_sizeChanged();
 
@@ -56,7 +58,7 @@ public:
 		{
             BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-			ViewCore* pViewCore = getViewCoreIfAlive();
+			ChildViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
 				pViewCore->_layoutUpdated();
 
@@ -64,10 +66,10 @@ public:
 		}
 
 	private:
-		ViewCore* _pParentWeak;
+		ChildViewCore* _pParentWeak;
 	};
 
-	ViewCore(	View* pOuterView, 
+	ChildViewCore(	View* pOuterView, 
 				::Windows::UI::Xaml::FrameworkElement^ pFrameworkElement,
 				ViewCoreEventForwarder^ pEventForwarder )
 	{
@@ -92,7 +94,7 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-	~ViewCore()
+	~ChildViewCore()
 	{
 		_pEventForwarder->dispose();
 	}
@@ -203,7 +205,7 @@ public:
 
 
 	/** Returns the XAML FrameworkElement object for this view.*/
-	::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement()
+	::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement() override
 	{
 		return _pFrameworkElement;
 	}
@@ -256,7 +258,7 @@ private:
 			throw ProgrammingError("bdn::winuwp::ViewCore constructed for a view whose parent does not have a core.");
 		}
 
-		cast<IParentViewCore>( pParentCore )->addChildUiElement( _pFrameworkElement );
+		cast<IViewCoreParent>( pParentCore )->addChildUiElement( _pFrameworkElement );
 	}
 
 	Size _calcPreferredSize(float availableWidth, float availableHeight) const

@@ -34,7 +34,14 @@ public:
     {
         ViewCore::dispose();
         
-        _window = nil;
+        // there are always references to a visible window. So we have to make
+        // sure that the window is hidden before we release our own reference.
+        if(_window!=nil)
+        {
+            _window.hidden = YES;
+        
+            _window = nil;
+        }
     }
     
     UIWindow* getUIWindow() const

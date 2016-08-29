@@ -34,7 +34,7 @@ inline void testIosViewCore(P<Window> pWindow, P<View> pView, bool canCalculateP
         REQUIRE( pCore!=nullptr );
         
         UIView* pUI = pCore->getUIView();
-        REQUIRE( pUI!=NULL );
+        REQUIRE( pUI!=nullptr );
 
         SECTION("visible")
         {

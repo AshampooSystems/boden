@@ -54,12 +54,19 @@ public:
 
 	~WindowCore()
 	{
+        dispose();        
+	}
+    
+    void dispose() override
+    {
         // windows must be destroyed explicitly. Child widgets are destroyed
         // automatically.
         GtkWidget* pWidget = getGtkWidget();
 		if(pWidget!=nullptr)
-            gtk_widget_destroy( pWidget );
-	}
+            gtk_widget_destroy( pWidget );        
+        
+        ViewCore::dispose();
+    }
     
     
     void setTitle(const String& title) override

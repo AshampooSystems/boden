@@ -7,7 +7,7 @@
 
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/ButtonCore.hh>
-#import <bdn/ios/test/testIosViewCore.hh>
+#import "testIosViewCore.hh"
 
 using namespace bdn;
 
@@ -32,7 +32,7 @@ TEST_CASE("ButtonCore-ios")
         
         UIButton* pUIButton = pCore->getUIButton();
 
-        REQUIRE(  pUIButton!=NULL );
+        REQUIRE(  pUIButton!=nullptr );
 
         SECTION("label")
         {

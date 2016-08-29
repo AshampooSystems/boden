@@ -7,7 +7,7 @@
 
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/ContainerViewCore.hh>
-#import <bdn/ios/test/testIosViewCore.hh>
+#import "testIosViewCore.hh"
 
 using namespace bdn;
 
@@ -35,7 +35,7 @@ TEST_CASE("ContainerViewCore-ios")
         REQUIRE( pCore!=nullptr );
 
         UIView* pUIView = pCore->getUIView();
-        REQUIRE(  pUIView!=NULL );
+        REQUIRE(  pUIView!=nullptr );
 
         // there is nothing mac specific to test here.
         // The generic container view tests and the mac view test have already tested

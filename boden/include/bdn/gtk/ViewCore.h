@@ -31,6 +31,8 @@ public:
     void dispose() override
     {
         _pOuterViewWeak = nullptr;
+        
+        _pWidget = nullptr;
     }
     
 	void setVisible(const bool& visible) override

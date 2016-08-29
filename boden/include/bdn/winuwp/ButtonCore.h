@@ -2,14 +2,14 @@
 #define BDN_WINUWP_ButtonCore_H_
 
 #include <bdn/Button.h>
-#include <bdn/winuwp/ViewCore.h>
+#include <bdn/winuwp/ChildViewCore.h>
 
 namespace bdn
 {
 namespace winuwp
 {
 
-class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
+class ButtonCore : public ChildViewCore, BDN_IMPLEMENTS IButtonCore
 {
 private:
 	static ::Windows::UI::Xaml::Controls::Button^ _createButton(Button* pOuter)
@@ -50,12 +50,12 @@ public:
 		}		
 
 	private:
-		ViewCore* _pParentWeak;
+		ChildViewCore* _pParentWeak;
 	};
 
 
 	ButtonCore(	Button* pOuter)
-		: ViewCore(pOuter, _createButton(pOuter), ref new ButtonCoreEventForwarder(this) )
+		: ChildViewCore(pOuter, _createButton(pOuter), ref new ButtonCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
