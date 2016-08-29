@@ -6,7 +6,7 @@
 
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/WindowCore.hh>
-#import <bdn/ios/test/testIosViewCore.hh>
+#import "testIosViewCore.hh"
 
 using namespace bdn;
 

@@ -6,7 +6,7 @@
 
 #import <bdn/mac/UiProvider.hh>
 #import <bdn/mac/WindowCore.hh>
-#import <bdn/mac/test/testMacViewCore.hh>
+#import "testMacViewCore.hh"
 
 using namespace bdn;
 
