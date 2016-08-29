@@ -7,7 +7,7 @@
 
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/ContainerViewCore.h>
-#include <bdn/gtk/test/testGtkViewCore.h>
+#include "testGtkViewCore.h"
 
 using namespace bdn;
 
