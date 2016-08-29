@@ -6,7 +6,7 @@
 #include <bdn/test/testButtonCore.h>
 #include <bdn/android/UiProvider.h>
 #include <bdn/android/ButtonCore.h>
-#include <bdn/android/test/testAndroidViewCore.h>
+#include "testAndroidViewCore.h"
 
 using namespace bdn;
 

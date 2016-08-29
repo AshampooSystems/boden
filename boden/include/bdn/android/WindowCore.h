@@ -56,6 +56,20 @@ public:
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
     }
 
+    void dispose() override
+    {
+        JView* pView = &getJView();
+        if(pView!=nullptr)
+        {
+            // remove the view from its parent.
+            JViewGroup parent( pView->getParent().getRef_() );
+            if (!parent.isNull_())
+                parent.removeView(*pView);
+        }
+
+        ViewCore::dispose();
+    }
+
 
     void setTitle(const String& title) override
     {
