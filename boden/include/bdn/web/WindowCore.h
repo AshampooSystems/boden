@@ -21,12 +21,25 @@ public:
         setTitle( pOuterWindow->title() );
 
         // the window div always has the same size as the browser window.        
-        (*_pJsObj)["style"].set("width", "100%");
-        (*_pJsObj)["style"].set("height", "100%");
+        _domObject["style"].set("width", "100%");
+        _domObject["style"].set("height", "100%");
 
         emscripten_set_resize_callback( "#window", static_cast<void*>(this), false, &WindowCore::_resizedCallback);
 
         updateOuterViewBounds();
+    }
+
+    void dispose() override
+    {
+        if(!_domObject.isNull() && !_domObject.isUndefined())
+        {
+            // delete the DOM object
+            emscripten::val parent = _domObject["parentNode"];
+            if(!parent.isNull())
+                parent.call<void>("removeChild", _domObject);
+        }
+
+        ViewCore::dispose();
     }
 
 
@@ -89,8 +102,8 @@ public:
 private:
     void updateOuterViewBounds()
     {
-        int width = (*_pJsObj)["offsetWidth"].as<int>();
-        int height = (*_pJsObj)["offsetHeight"].as<int>();
+        int width = _domObject["offsetWidth"].as<int>();
+        int height = _domObject["offsetHeight"].as<int>();
         getOuterView()->bounds() = Rect(0, 0, width, height);
 
         getOuterView()->needLayout();

@@ -5,6 +5,7 @@
 #include <bdn/IdGen.h>
 
 #include <emscripten/val.h>
+#include <emscripten/html5.h>
 
 
 namespace bdn
@@ -18,6 +19,7 @@ public:
     ViewCore(   View* pOuterView,
                 const String& elementName,
                 const std::map<String,String>& attribMap = std::map<String,String>())
+    : _domObject( emscripten::val::null() )
     {
         _pOuterViewWeak = pOuterView;
 
@@ -25,16 +27,16 @@ public:
 
         emscripten::val docVal = emscripten::val::global("document");
         
-        _pJsObj = new emscripten::val( docVal.call<emscripten::val>("createElement", elementName.asUtf8() ) );
+        _domObject = docVal.call<emscripten::val>("createElement", elementName.asUtf8() );
 
         for(auto attribPair: attribMap)
-            _pJsObj->set(attribPair.first.asUtf8(), attribPair.second.asUtf8());
+            _domObject.set(attribPair.first.asUtf8(), attribPair.second.asUtf8());
 
         // we always use absolute positioning. Set this here.
-        emscripten::val styleObj = (*_pJsObj)["style"];
+        emscripten::val styleObj = _domObject["style"];
         styleObj.set("position", "absolute");
         
-        _pJsObj->set("id", _elementId.asUtf8() );
+        _domObject.set("id", _elementId.asUtf8() );
 
         setVisible( pOuterView->visible() );
         setPadding( pOuterView->padding() );
@@ -47,16 +49,19 @@ public:
         dispose();
     }
     
+
+    /** Returns the DOM object that corresponds to this view.*/
+    emscripten::val getDomObject()
+    {
+        return _domObject;
+    }
     
     void dispose() override
     {
         _pOuterViewWeak = nullptr;
-        
-        if(_pJsObj!=nullptr)
-        {
-            delete _pJsObj;
-            _pJsObj = nullptr;
-        }
+
+        _domObject = emscripten::val::null();        
+
     }
 
     /** Returns the id of the DOM element that corresponds to the view.*/
@@ -81,7 +86,7 @@ public:
     
     void setVisible(const bool& visible) override
     {
-        (*_pJsObj)["style"].set("visibility", visible ? "visible" : "hidden");
+        _domObject["style"].set("visibility", visible ? "visible" : "hidden");
     }
     
         
@@ -93,7 +98,7 @@ public:
         if(padding.isNull())
         {
             // we should use "default" padding.
-            (*_pJsObj)["style"].set("padding", "initial");
+            _domObject["style"].set("padding", "initial");
         }
         else
         {
@@ -106,14 +111,14 @@ public:
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
 
-            (*_pJsObj)["style"].set("padding", paddingString.asUtf8() );
+            _domObject["style"].set("padding", paddingString.asUtf8() );
         }
     }
     
     
     void setBounds(const Rect& bounds) override
     {
-        emscripten::val styleObj = (*_pJsObj)["style"];
+        emscripten::val styleObj = _domObject["style"];
 
         styleObj.set("width", UiProvider::pixelsToHtmlString(bounds.width).asUtf8() );
         styleObj.set("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
@@ -167,7 +172,7 @@ public:
 protected:
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
-        emscripten::val styleObj = (*_pJsObj)["style"];
+        emscripten::val styleObj = _domObject["style"];
 
         // If we would simply look at the width/height property here, we would only
         // get the size we have last set ourselves.
@@ -181,8 +186,8 @@ protected:
         styleObj.set("width", (forWidth==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forWidth).asUtf8() );        
         styleObj.set("height", (forHeight==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forHeight).asUtf8() );
 
-        int width = (*_pJsObj)["offsetWidth"].as<int>();
-        int height = (*_pJsObj)["offsetHeight"].as<int>();
+        int width = _domObject["offsetWidth"].as<int>();
+        int height = _domObject["offsetHeight"].as<int>();
 
         styleObj.set("width", oldWidthStyle);
         styleObj.set("height", oldHeightStyle);
@@ -195,14 +200,14 @@ protected:
         emscripten::val docVal = emscripten::val::global("document");
 
         if(pParent==nullptr)
-            docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", *_pJsObj);
+            docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", _domObject);
         else
         {
             P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
                 throw ProgrammingError("Internal error: parent of bdn::web::ViewCore does not have a core.");
 
-            docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", *_pJsObj);
+            docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", _domObject);
         }
     }
 
@@ -210,7 +215,7 @@ protected:
     String              _elementId;
     Rect                _currBounds;
     
-    emscripten::val*    _pJsObj;
+    emscripten::val     _domObject;
 };
 
 }
