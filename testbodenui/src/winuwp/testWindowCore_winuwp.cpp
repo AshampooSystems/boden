@@ -52,7 +52,7 @@ TEST_CASE("WindowCore-winuwp")
         pData->pWindow = pWindow;
         pWindow = nullptr;
 
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::winuwp::WindowCore> pCore = cast<bdn::winuwp::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );
@@ -85,7 +85,7 @@ TEST_CASE("WindowCore-winuwp")
             // give the WinRT background updater some time to do its work
             Thread::sleepSeconds(2);
 
-            CONTINUE_SECTION_ASYNC(pData, pEl)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData, pEl)
             {
                 // window panel should have been removed from the parent
                 ::Windows::UI::Xaml::DependencyObject^ pParent = pEl->Parent;

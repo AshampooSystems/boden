@@ -51,7 +51,7 @@ TEST_CASE("WindowCore-android")
         pData->pWindow = pWindow;
         pWindow = nullptr;
 
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::android::WindowCore> pCore = cast<bdn::android::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );

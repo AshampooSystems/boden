@@ -81,7 +81,7 @@ inline void testAndroidViewCore(P<Window> pWindow, P<View> pView, bool canCalcul
             // to be processed
             pView->bounds() = Rect(110, 220, 880, 990);
 
-            CONTINUE_SECTION_ASYNC(pWindow, pView, jv) mutable
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow, pView, jv) mutable
             {
                 REQUIRE( jv.getLeft()==110 );
                 REQUIRE( jv.getTop()==220 );

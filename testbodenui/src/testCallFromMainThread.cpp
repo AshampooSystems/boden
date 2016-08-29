@@ -254,7 +254,7 @@ public:
         {
             P<TestCallFromMainThreadOrderingBase> pThis = this;
 
-            CONTINUE_SECTION_ASYNC(pThis)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
             {
                 pThis->scheduleTestContinuationIfNecessary();
             };
@@ -354,14 +354,14 @@ void testAsyncCallFromMainThread(bool throwException)
         // should not have waited
         REQUIRE( watch.getMillis()<1000 );
 
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             // the test continuation will be executed after the async call we scheduled.
             REQUIRE( pData->callCount==1 );
 
             // another async call was scheduled by the previous one. Check that in another
             // test continuation.
-            CONTINUE_SECTION_ASYNC(pData)
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
             {
                 REQUIRE( pData->callCount==2 );
                 // done.
@@ -674,7 +674,7 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         // shoudl not have waited.
         REQUIRE( watch.getMillis()<500 );        
         
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             Thread::sleepMillis(2000);
 

@@ -53,7 +53,7 @@ TEST_CASE("WindowCore-win32")
         pData->pWindow = pWindow;
         pWindow = nullptr;
         
-        CONTINUE_SECTION_ASYNC(pData)
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
         {
             P<bdn::win32::WindowCore> pCore = cast<bdn::win32::WindowCore>( pData->pWindow->getViewCore() );
             REQUIRE( pCore!=nullptr );
