@@ -120,16 +120,7 @@ namespace bdn
 	derived from it.
 */
 
-#ifdef BDN_GENERATING_DOCS
-
-class String : public StringImpl<NativeStringData>
-{
-};
-
-#else
 typedef StringImpl<NativeStringData> String;
-
-#endif
 
 
 
