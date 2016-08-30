@@ -71,6 +71,14 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
+
+    void dispose() override
+    {
+        _pButton = nullptr;
+
+        ChildViewCore::dispose();
+    }
+
 	void setPadding(const Nullable<UiMargin>& pad) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;

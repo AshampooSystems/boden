@@ -21,23 +21,40 @@ TEST_CASE("ContainerViewCore-winuwp")
 
     P<ColumnView> pColumnView = newObj<ColumnView>();
 
-    pWindow->setContentView(pColumnView);
-
-    SECTION("generic")
-        bdn::test::testContainerViewCore(pWindow, pColumnView );        
-
-    SECTION("winuwp-ViewCore")
-        bdn::winuwp::test::testWinuwpViewCore(pWindow, pColumnView, false, true);
-
-    SECTION("winuwp-ContainerViewCore")
+    SECTION("init")
     {
-        P<bdn::winuwp::ContainerViewCore> pCore = cast<bdn::winuwp::ContainerViewCore>( pColumnView->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        SECTION("ViewCore")
+            bdn::winuwp::test::testWinuwpViewCoreInitialization( pWindow, pColumnView);
+
+        SECTION("ContainerViewCore")
+        {
+            // nothing to test here at the moment
+        }
+    }
+
+    SECTION("postInit")
+    {
+        pWindow->setContentView(pColumnView);
+
+        SECTION("generic")
+            bdn::test::testContainerViewCore(pWindow, pColumnView );        
+
+        SECTION("winuwp")
+        {
+            SECTION("ViewCore")
+                bdn::winuwp::test::testWinuwpViewCore(pWindow, pColumnView, false, true);
+
+            SECTION("ContainerViewCore")
+            {
+                P<bdn::winuwp::ContainerViewCore> pCore = cast<bdn::winuwp::ContainerViewCore>( pColumnView->getViewCore() );
+                REQUIRE( pCore!=nullptr );
 
 
-        // there is nothing winuwp-specific to test here.
-        // The generic container view tests and the winuwp view test have already tested
-        // everything that the container view core does.        
+                // there is nothing winuwp-specific to test here.
+                // The generic container view tests and the winuwp view test have already tested
+                // everything that the container view core does.        
+            }
+        }
     }
 }
 

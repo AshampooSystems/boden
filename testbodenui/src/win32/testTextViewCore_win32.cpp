@@ -22,9 +22,9 @@ TEST_CASE("TextViewCore-win32")
             bdn::win32::test::testWin32ViewCoreInitialization( pWindow, pTextView);
 
         SECTION("TextViewCore")
-        {
+        {            
             SECTION("text")
-                pTextView->text() == "hello";
+                pTextView->text() = "hello";
 
             String expectedText = pTextView->text();
                 
