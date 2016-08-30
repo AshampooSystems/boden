@@ -1,7 +1,7 @@
-#ifndef BDN_TEST_testContainerViewCore_H_
-#define BDN_TEST_testContainerViewCore_H_
+#ifndef BDN_TEST_TestContainerViewCore_H_
+#define BDN_TEST_TestContainerViewCore_H_
 
-#include <bdn/test/testViewCore.h>
+#include <bdn/test/TestViewCore.h>
 #include <bdn/ContainerView.h>
 
 namespace bdn
@@ -10,33 +10,59 @@ namespace test
 {
 
 
-/** Performs generic tests for the container view core that is currently associated with the specified ContainerView.
-
-    Note that these tests cannot test the effects of some of the functions on the actual UI element
-    implementation that the core accesses. So the unit tests for the concrete implementation should verify these
-    effects in addition to executing these generic tests.
-*/
-inline void testContainerViewCore(P<Window> pWindow, P<ContainerView> pView)
+/** Helper for tests that verify IContainerViewCore implementations.*/
+class TestContainerViewCore : public TestViewCore
 {
-    // note that there currently is no IContainerViewCore
-    P<IViewCore> pCore = pView->getViewCore();
-    REQUIRE( pCore!=nullptr );
 
-    SECTION("ViewCore-base")
-        testViewCore(pWindow, pView, false);
+protected:
 
-    SECTION("preferredSize")
+    P<View> createView() override
     {
-        // container view cores do not calculate a preferred size. That is always done
-        // by the other container view implementation.
-        // As such, the container view core should throw exceptions when size calculation
-        // is used.
-
-        REQUIRE_THROWS_PROGRAMMING_ERROR( pCore->calcPreferredSize() );
-        REQUIRE_THROWS_PROGRAMMING_ERROR( pCore->calcPreferredWidthForHeight(100) );
-        REQUIRE_THROWS_PROGRAMMING_ERROR( pCore->calcPreferredHeightForWidth(100) );
+        return newObj<ColumnView>();
     }
-}
+
+    void setView(View* pView) override
+    {
+        TestViewCore::setView(pView);
+
+        _pContainerView = cast<ContainerView>( pView );
+    }
+
+    void runInitTests() override
+    {
+        TestViewCore::runInitTests();
+
+        // nothing containerview-specific to test here.
+    }
+
+    void runPostInitTests() override
+    {
+        TestViewCore::runPostInitTests();
+
+        SECTION("preferredSize")
+        {
+            // container view cores do not calculate a preferred size. That is always done
+            // by the other container view implementation.
+            // As such, the container view core should throw exceptions when size calculation
+            // is used.
+
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize() );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredWidthForHeight(100) );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredHeightForWidth(100) );
+        }
+    }
+
+    void verifyCorePadding() override
+    {
+        // padding is not reflexted by the container view core. It is managed entirely by the outer view.
+        // So nothing to check.       
+    }
+
+    P<ContainerView> _pContainerView;
+};
+
+
+
 
 }
 }

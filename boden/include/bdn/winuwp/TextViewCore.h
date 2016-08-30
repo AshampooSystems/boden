@@ -71,7 +71,7 @@ public:
 			padding.top/uiScaleFactor,
 			padding.right/uiScaleFactor,
 			padding.bottom/uiScaleFactor );
-
+        
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
@@ -104,10 +104,10 @@ protected:
 			    pOuterView->needSizingInfoUpdate();
 		}
 	}
-
+    
 	::Windows::UI::Xaml::Controls::TextBlock^ _pTextBlock;
 
-	double _doSizingInfoUpdateOnNextLayout = true;
+	double      _doSizingInfoUpdateOnNextLayout = true;
 	
 };
 

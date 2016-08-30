@@ -3,77 +3,51 @@
 
 #include <bdn/TextView.h>
 #include <bdn/Window.h>
-#include <bdn/test/testTextViewCore.h>
+#include <bdn/test/TestTextViewCore.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/TextViewCore.h>
-#include "testWinuwpViewCore.h"
+#include "TestWinuwpViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("TextViewCore-winuwp")
+class TestWinuwpTextViewCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestTextViewCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::winuwp::UiProvider::get() );
+protected:
 
-    P<TextView> pTextView = newObj<TextView>();
-
-    SECTION("init")
+    void initCore() override
     {
-        SECTION("ViewCore")
-            bdn::winuwp::test::testWinuwpViewCoreInitialization( pWindow, pTextView);
+        bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestTextViewCore >::initCore();
 
-        SECTION("TextViewCore")
-        {
-            SECTION("text")
-                pTextView->text() = "hello";
-
-            String expectedText = pTextView->text();
-                
-            pWindow->setContentView(pTextView);
-
-            P<bdn::winuwp::TextViewCore> pCore = cast<bdn::winuwp::TextViewCore>( pTextView->getViewCore() );
-            REQUIRE( pCore!=nullptr );
-
-            ::Windows::UI::Xaml::Controls::TextBlock^ pTextBlock = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( pCore->getFrameworkElement() );
-            REQUIRE( pTextBlock!=nullptr );
-
-            String text = pTextBlock->Text->Data();
-
-            REQUIRE( text == expectedText );
-        }
+        _pWinTextBlock = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( _pWinFrameworkElement );
+        REQUIRE( _pWinTextBlock!=nullptr );
     }
 
-    SECTION("postInit")
+    void verifyCorePadding() override
     {
-        pWindow->setContentView(pTextView);
-
-        SECTION("generic")
-            bdn::test::testTextViewCore(pWindow, pTextView );        
-
-        SECTION("winuwp")
-        {
-            SECTION("ViewCore")
-                bdn::winuwp::test::testWinuwpViewCore(pWindow, pTextView, true, true);
-
-            SECTION("TextViewCore")
-            {
-                P<bdn::winuwp::TextViewCore> pCore = cast<bdn::winuwp::TextViewCore>( pTextView->getViewCore() );
-                REQUIRE( pCore!=nullptr );
-
-                ::Windows::UI::Xaml::Controls::TextBlock^ pTextBlock = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( pCore->getFrameworkElement() );
-                REQUIRE( pTextBlock!=nullptr );
-
-                SECTION("text")
-                {
-                    pTextView->text() = "hello world";
-
-                    String text = pTextBlock->Text->Data();
-
-                    REQUIRE( text == "hello world" );
-                }                
-            }
-        }
+        verifyIsExpectedWinPadding( _pWinTextBlock->Padding );
     }
+
+    void verifyCoreText() override
+    {
+        String expectedText = _pTextView->text();
+
+        String text = _pWinTextBlock->Text->Data();                
+        
+        REQUIRE( text == expectedText );
+    }
+
+
+    ::Windows::UI::Xaml::Controls::TextBlock^ _pWinTextBlock;
+};
+
+TEST_CASE("winuwp.TextViewCore")
+{
+    P<TestWinuwpTextViewCore> pTest = newObj<TestWinuwpTextViewCore>();
+
+    pTest->runTests();
 }
+
+
 
 
 

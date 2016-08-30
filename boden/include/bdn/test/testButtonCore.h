@@ -1,7 +1,7 @@
-#ifndef BDN_TEST_testButtonCore_H_
-#define BDN_TEST_testButtonCore_H_
+#ifndef BDN_TEST_TestButtonCore_H_
+#define BDN_TEST_TestButtonCore_H_
 
-#include <bdn/test/testViewCore.h>
+#include <bdn/test/TestViewCore.h>
 #include <bdn/Button.h>
 
 namespace bdn
@@ -10,44 +10,79 @@ namespace test
 {
 
 
-/** Performs generic tests for the button core that is currently associated with the specified Button.
-
-    Note that these tests cannot test the effects of some of the functions on the actual UI element
-    implementation that the core accesses. So the unit tests for the concrete implementation should verify these
-    effects in addition to executing these generic tests.
-*/
-inline void testButtonCore(P<Window> pWindow, P<Button> pButton)
+/** Helper for tests that verify IButtonCore implementations.*/
+class TestButtonCore : public TestViewCore
 {
-    P<IButtonCore> pCore = cast<IButtonCore>( pButton->getViewCore() );
-    REQUIRE( pCore!=nullptr );
 
-    SECTION("ViewCore-base")
-        testViewCore(pWindow, pButton, true);
-    
-    SECTION("label")
+protected:
+
+    P<View> createView() override
     {
-        // we cannot test the effects of the label change on the actual UI implementation here.
-        // But we can test that it affects the preferred size and that it does not cause a crash or exception.
-
-        Size prefSizeBefore = pButton->calcPreferredSize();
-
-        pButton->label() = "helloworld";
-
-        Size prefSize = pButton->calcPreferredSize();
-
-        // width must increase with a bigger label
-        REQUIRE( prefSize.width > prefSizeBefore.width );
-
-        // note that the height might or might not increase. But it cannot be smaller.
-        REQUIRE( prefSize.height >= prefSizeBefore.height );
-
-        // when we go back to the same label as before then the preferred size should
-        // also be the same again
-        pButton->label() = "";
-
-        REQUIRE( pButton->calcPreferredSize() == prefSizeBefore );
+        return newObj<Button>();
     }
-}
+
+    void setView(View* pView) override
+    {
+        TestViewCore::setView(pView);
+
+        _pButton = cast<Button>( pView );
+    }
+
+    void runInitTests() override
+    {
+        TestViewCore::runInitTests();
+
+        SECTION("label")
+        {
+            _pButton->label() = "helloworld";
+            initCore();
+            verifyCoreLabel();
+        }
+    }
+
+    void runPostInitTests() override
+    {
+        TestViewCore::runPostInitTests();
+
+        SECTION("label")
+        {
+            SECTION("value")
+            {
+                _pButton->label() = "helloworld";
+                verifyCoreLabel();
+            }
+
+            SECTION("effectsOnPreferredSize")
+            {
+                Size prefSizeBefore = _pButton->calcPreferredSize();
+
+                _pButton->label() = "helloworld";
+
+                Size prefSize = _pButton->calcPreferredSize();
+
+                // width must increase with a bigger label
+                REQUIRE( prefSize.width > prefSizeBefore.width );
+
+                // note that the height might or might not increase. But it cannot be smaller.
+                REQUIRE( prefSize.height >= prefSizeBefore.height );
+
+                // when we go back to the same label as before then the preferred size should
+                // also be the same again
+                _pButton->label() = "";
+
+                REQUIRE( _pButton->calcPreferredSize() == prefSizeBefore );
+            }
+        }
+    }
+
+    /** Verifies that the button core's label has the expected value
+        (the label set in the outer button object's Button::label() property.*/
+    virtual void verifyCoreLabel()=0;
+
+
+    P<Button> _pButton;
+};
+
 
 }
 }

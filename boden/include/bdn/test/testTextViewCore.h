@@ -1,53 +1,88 @@
-#ifndef BDN_TEST_testTextViewCore_H_
-#define BDN_TEST_testTextViewCore_H_
+#ifndef BDN_TEST_TestTextViewCore_H_
+#define BDN_TEST_TestTextViewCore_H_
 
-#include <bdn/test/testViewCore.h>
+#include <bdn/TextView.h>
+#include <bdn/test/TestViewCore.h>
 #include <bdn/TextView.h>
 
 namespace bdn
 {
 namespace test
 {
-
-
-/** Performs generic tests for the text view core that is currently associated with the specified TextView.
-
-    Note that these tests cannot test the effects of some of the functions on the actual UI element
-    implementation that the core accesses. So the unit tests for the concrete implementation should verify these
-    effects in addition to executing these generic tests.
-*/
-inline void testTextViewCore(P<Window> pWindow, P<TextView> pTextView)
-{
-    P<ITextViewCore> pCore = cast<ITextViewCore>( pTextView->getViewCore() );
-    REQUIRE( pCore!=nullptr );
-
-    SECTION("ViewCore-base")
-        testViewCore(pWindow, pTextView, true);
     
-    SECTION("text")
+/** Helper for tests that verify ITextViewCore implementations.*/
+class TestTextViewCore : public TestViewCore
+{
+
+protected:
+
+    P<View> createView() override
     {
-        // we cannot test the effects of the text change on the actual UI implementation here.
-        // But we can test that it affects the preferred size and that it does not cause a crash or exception.
-
-        Size prefSizeBefore = pTextView->calcPreferredSize();
-
-        pTextView->text() = "helloworld";
-
-        Size prefSize = pTextView->calcPreferredSize();
-
-        // width must increase with a bigger text
-        REQUIRE( prefSize.width > prefSizeBefore.width );
-
-        // note that the height might or might not increase. But it cannot be smaller.
-        REQUIRE( prefSize.height >= prefSizeBefore.height );
-
-        // when we go back to the same label as before then the preferred size should
-        // also be the same again
-        pTextView->text() = "";
-
-        REQUIRE( pTextView->calcPreferredSize() == prefSizeBefore );
+        return newObj<TextView>();
     }
-}
+
+    void setView(View* pView) override
+    {
+        TestViewCore::setView(pView);
+
+        _pTextView = cast<TextView>( pView );
+    }
+
+    void runInitTests() override
+    {
+        TestViewCore::runInitTests();
+
+        SECTION("text")
+        {
+            _pTextView->text() = "helloworld";
+            initCore();
+            verifyCoreText();
+        }
+    }
+
+    void runPostInitTests() override
+    {
+        TestViewCore::runPostInitTests();
+
+        SECTION("text")
+        {
+            SECTION("value")
+            {
+                _pTextView->text() = "helloworld";
+                verifyCoreText();
+            }
+
+            SECTION("effectsOnPreferredSize")
+            {
+                Size prefSizeBefore = _pTextView->calcPreferredSize();
+
+                _pTextView->text() = "helloworld";
+
+                Size prefSize = _pTextView->calcPreferredSize();
+
+                // width must increase with a bigger text
+                REQUIRE( prefSize.width > prefSizeBefore.width );
+
+                // note that the height might or might not increase. But it cannot be smaller.
+                REQUIRE( prefSize.height >= prefSizeBefore.height );
+
+                // when we go back to the same text as before then the preferred size should
+                // also be the same again
+                _pTextView->text() = "";
+
+                REQUIRE( _pTextView->calcPreferredSize() == prefSizeBefore );
+            }
+        }
+    }
+
+    /** Verifies that the text view core's text has the expected value
+        (the text set in the outer TextView object's TextView::text() property.*/
+    virtual void verifyCoreText()=0;
+
+
+    P<TextView> _pTextView;
+};
+
 
 }
 }

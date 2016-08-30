@@ -1,123 +1,244 @@
-#ifndef BDN_TEST_testWindowCore_H_
-#define BDN_TEST_testWindowCore_H_
+#ifndef BDN_TEST_TestWindowCore_H_
+#define BDN_TEST_TestWindowCore_H_
 
-#include <bdn/test/testViewCore.h>
+#include <bdn/test/TestViewCore.h>
 #include <bdn/Window.h>
 
 namespace bdn
 {
 namespace test
 {
+    
 
-
-/** Performs generic tests for the window core that is currently associated with the specified Window.
-
-    Note that these tests cannot test the effects of some of the functions on the actual UI element
-    implementation that the core accesses. So the unit tests for the concrete implementation should verify these
-    effects in addition to executing these generic tests.
-*/
-inline void testWindowCore(P<Window> pWindow)
+/** Helper for tests that verify IWindowCore implementations.*/
+class TestWindowCore : public TestViewCore
 {
-    P<IWindowCore> pCore = cast<IWindowCore>( pWindow->getViewCore() );
-    REQUIRE( pCore!=nullptr );
 
-    SECTION("ViewCore-base")
-        testViewCore(pWindow, pWindow, false);
+protected:
 
-
-    SECTION("title")
+    bool coreCanCalculatePreferredSize() override
     {
-        // the title should not affect the window's preferred size.
-        Size prefSizeBefore = pWindow->calcPreferredSize();
+        // Window cores cannot calculate a preferred size
+        return false;
+    }
 
-        pWindow->title() = "hello world";
+    P<View> createView() override
+    {
+        return _pWindow;
+    }
+
+    void setView(View* pView) override
+    {
+        TestViewCore::setView(pView);
+    }
+
+    void initCore() override
+    {
+        TestViewCore::initCore();
+
+        _pWindowCore = cast<IWindowCore>( _pCore );
+    }
+
+    void runInitTests() override
+    {
+        TestViewCore::runInitTests();
+
+        SECTION("title")
+        {
+            _pWindow->title() = "hello world";
+
+            initCore();
+            verifyCoreTitle();
+        }
+    }
+
+    void runPostInitTests() override
+    {
+        TestViewCore::runPostInitTests();
+
+        SECTION("title")
+        {
+            SECTION("value")
+            {
+                _pWindow->title() = "hello world";
+                verifyCoreTitle();
+            }
+
+            SECTION("does not affect preferred size")
+            {                
+                // the title should not affect the window's preferred size.
+                Size prefSizeBefore = _pWindow->calcPreferredSize();
+
+                _pWindow->title() = "this is a long long long long long long long long long long long long title";
+
+                Size prefSize = _pWindow->calcPreferredSize();
+
+                REQUIRE( prefSize == prefSizeBefore);
+            }
+        }
+
         
-        REQUIRE( pWindow->calcPreferredSize() == prefSizeBefore );
-    }
-
-    SECTION("contentArea")
-    {
-        // make the window a somewhat big size.
-        // Note that fullscreen windows may ignore this, but that is ok.
-        // We only want to avoid cases where the window is tiny.
-        pWindow->bounds() = Rect(0, 0, 1000, 1000);
-
-        // continue async to give the core a chance to correct / override
-        // the new bounds.
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow, pCore)
+        SECTION("contentArea")
         {
-            Rect bounds = pWindow->bounds();
+            // make the window a somewhat big size.
+            // Note that fullscreen windows may ignore this, but that is ok.
+            // We only want to avoid cases where the window is tiny.
+            _pWindow->bounds() = Rect(0, 0, 1000, 1000);
 
-            Rect contentArea = pCore->getContentArea();
+            P<TestWindowCore> pThis = this;
 
-            REQUIRE( contentArea.x>=0 );
-            REQUIRE( contentArea.y>=0 );
-            REQUIRE( contentArea.width>0 );
-            REQUIRE( contentArea.height>0 );
+            // continue async to give the core a chance to correct / override
+            // the new bounds.
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            {
+                Rect bounds = pThis->_pWindow->bounds();
+
+                Rect contentArea = pThis->_pWindowCore->getContentArea();
+
+                REQUIRE( contentArea.x>=0 );
+                REQUIRE( contentArea.y>=0 );
+                REQUIRE( contentArea.width>0 );
+                REQUIRE( contentArea.height>0 );
             
-            // the content area must be fully inside the window bounds.
-            REQUIRE( contentArea.x + contentArea.width <= bounds.width);
-            REQUIRE( contentArea.y + contentArea.height <= bounds.height);
-        };
+                // the content area must be fully inside the window bounds.
+                REQUIRE( contentArea.x + contentArea.width <= bounds.width);
+                REQUIRE( contentArea.y + contentArea.height <= bounds.height);
+            };
+        }
+
+        SECTION("calcWindowSizeFromContentAreaSize")
+        {
+            SECTION("zero")
+            {
+                Size windowSize = _pWindowCore->calcWindowSizeFromContentAreaSize( Size() );
+                REQUIRE( windowSize.width>=0 );
+                REQUIRE( windowSize.height>=0 );
+            }
+
+            SECTION("nonzero")
+            {
+                Size contentSize(1000, 2000);
+                Size windowSize = _pWindowCore->calcWindowSizeFromContentAreaSize( contentSize );
+                REQUIRE( windowSize.width>=contentSize.width );
+                REQUIRE( windowSize.height>=contentSize.height );
+            }
+        }
+
+
+        SECTION("calcContentAreaSizeFromWindowSize")
+        {
+            SECTION("zero")
+            {
+                // should never get a negative size
+                REQUIRE( _pWindowCore->calcContentAreaSizeFromWindowSize( Size() ) == Size() );
+            }
+
+            SECTION("nonzero")
+            {
+                Size windowSize(1000, 2000);
+                Size contentSize = _pWindowCore->calcContentAreaSizeFromWindowSize( windowSize );
+                REQUIRE( contentSize.width>0 );
+                REQUIRE( contentSize.height>0 );
+                REQUIRE( contentSize.width<=windowSize.width );
+                REQUIRE( contentSize.height<=windowSize.height );
+            }
+        }
+    
+        SECTION("calcMinimumSize")
+        {
+            Size minSize = _pWindowCore->calcMinimumSize();
+
+            REQUIRE( minSize.width>=0 );
+            REQUIRE( minSize.height>=0 );
+        }
+
+        SECTION("getScreenWorkArea")
+        {
+            Rect area = _pWindowCore->getScreenWorkArea();
+
+            // note that the work area may have negative coordinates.
+            REQUIRE( area.width>0 );
+            REQUIRE( area.height>0 );
+        }
+
+        
+        SECTION("Ui element destroyed when object destroyed")
+        {
+            // there may be pending sizing info updates for the window, which keep it alive.
+            // Ensure that those are done first.
+
+            P<TestWindowCore> pThis = this;
+
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            {
+                pThis->testCoreUiElementDestroyedWhenObjectDestroyed();                
+            };
+        }
     }
 
-    SECTION("calcWindowSizeFromContentAreaSize")
-    {
-        SECTION("zero")
-        {
-            Size windowSize = pCore->calcWindowSizeFromContentAreaSize( Size() );
-            REQUIRE( windowSize.width>=0 );
-            REQUIRE( windowSize.height>=0 );
-        }
 
-        SECTION("nonzero")
-        {
-            Size contentSize(1000, 2000);
-            Size windowSize = pCore->calcWindowSizeFromContentAreaSize( contentSize );
-            REQUIRE( windowSize.width>=contentSize.width );
-            REQUIRE( windowSize.height>=contentSize.height );
-        }
+    /** Implementations must return an object with the necessary information to be able to verify later
+        that the core Ui element for the window was destroyed (see verifyCoreUiElementDestruction() ).
+        
+        The returned object must not hold a reference to the Window object or the core object.
+        
+        */
+    virtual P<IBase> createInfoToVerifyCoreUiElementDestruction()=0;
+
+
+    /** Verify that the core UI element of the window was destroyed.
+        
+        The outer Window object and possible also the core object have already been
+        destroyed at this point.
+    
+        pVerificationInfo is the object with the verification information that was returned by an earlier
+        call to createInfoToVerifyCoreUiElementDestruction().        
+        */
+    virtual void verifyCoreUiElementDestruction(IBase* pVerificationInfo)=0;
+
+
+    /** Removes all references to the outer window object, causing it to be destroyed.*/
+    virtual void clearAllReferencesToOuterWindow()
+    {
+        _pView = nullptr;
+        _pWindow = nullptr;
+    }
+
+    /** Removes all references to the core object.*/
+    virtual void clearAllReferencesToCore()
+    {
+        _pCore = nullptr;
+        _pWindowCore = nullptr;
     }
 
 
-    SECTION("calcContentAreaSizeFromWindowSize")
+    void testCoreUiElementDestroyedWhenObjectDestroyed()
     {
-        SECTION("zero")
+        P<IBase> pVerifyInfo = createInfoToVerifyCoreUiElementDestruction();
+
+        clearAllReferencesToOuterWindow();
+        
+        SECTION("core not kept alive")
+            clearAllReferencesToCore();
+
+        SECTION("core kept alive")
         {
-            // should never get a negative size
-            REQUIRE( pCore->calcContentAreaSizeFromWindowSize( Size() ) == Size() );
+            // do nothing
         }
 
-        SECTION("nonzero")
-        {
-            Size windowSize(1000, 2000);
-            Size contentSize = pCore->calcContentAreaSizeFromWindowSize( windowSize );
-            REQUIRE( contentSize.width>0 );
-            REQUIRE( contentSize.height>0 );
-            REQUIRE( contentSize.width<=windowSize.width );
-            REQUIRE( contentSize.height<=windowSize.height );
-        }
+        verifyCoreUiElementDestruction(pVerifyInfo);
     }
     
-    SECTION("calcMinimumSize")
-    {
-        Size minSize = pCore->calcMinimumSize();
-
-        REQUIRE( minSize.width>=0 );
-        REQUIRE( minSize.height>=0 );
-    }
-
-    SECTION("getScreenWorkArea")
-    {
-        Rect area = pCore->getScreenWorkArea();
-
-        // note that the work area may have negative coordinates.
-        REQUIRE( area.width>0 );
-        REQUIRE( area.height>0 );
-    }
+    /** Verifies that the window core's title has the expected value
+        (the title set in the outer window object's Window::title() property.*/
+    virtual void verifyCoreTitle()=0;
 
 
-}
+    P<IWindowCore>  _pWindowCore;
+};
+
+
+
 
 }
 }
