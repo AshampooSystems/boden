@@ -21,25 +21,42 @@ TEST_CASE("ContainerViewCore-win32")
 
     P<ColumnView> pColumnView = newObj<ColumnView>();
 
-    pWindow->setContentView(pColumnView);
-
-    SECTION("generic")
-        bdn::test::testContainerViewCore(pWindow, pColumnView );        
-
-    SECTION("win32-ViewCore")
-        bdn::win32::test::testWin32ViewCore(pWindow, pColumnView, false);
-
-    SECTION("win32-ContainerViewCore")
+    SECTION("init")
     {
-        P<bdn::win32::ContainerViewCore> pCore = cast<bdn::win32::ContainerViewCore>( pColumnView->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        SECTION("ViewCore")
+            bdn::win32::test::testWin32ViewCoreInitialization( pWindow, pColumnView);
 
-        HWND hwnd = pCore->getHwnd();
-        REQUIRE( hwnd!=NULL );
+        SECTION("ContainerViewCore")
+        {
+            // nothing container-view specific to test
+        }
+    }
 
-        // there is nothing win32-specific to test here.
-        // The generic container view tests and the win32 view test have already tested
-        // everything that the container view core does.        
+    SECTION("postInit")
+    {
+        pWindow->setContentView(pColumnView);
+
+        SECTION("generic")
+            bdn::test::testContainerViewCore(pWindow, pColumnView );        
+
+        SECTION("win32")
+        {
+            SECTION("ViewCore")
+                bdn::win32::test::testWin32ViewCore(pWindow, pColumnView, false);
+
+            SECTION("ContainerViewCore")
+            {
+                P<bdn::win32::ContainerViewCore> pCore = cast<bdn::win32::ContainerViewCore>( pColumnView->getViewCore() );
+                REQUIRE( pCore!=nullptr );
+
+                HWND hwnd = pCore->getHwnd();
+                REQUIRE( hwnd!=NULL );
+
+                // there is nothing win32-specific to test here.
+                // The generic container view tests and the win32 view test have already tested
+                // everything that the container view core does.        
+            }
+        }
     }
 }
 

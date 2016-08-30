@@ -4,6 +4,7 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
+#include <bdn/test/MockTextViewCore.h>
 #include <bdn/test/MockContainerViewCore.h>
 
 #include <bdn/test.h>
@@ -95,6 +96,12 @@ public:
 			_coresCreated++;
 
 			return newObj<MockButtonCore>( cast<Button>(pView) );
+		}
+        else if(coreTypeName==TextView::getTextViewCoreTypeName())
+		{
+			_coresCreated++;
+
+			return newObj<MockTextViewCore>( cast<TextView>(pView) );
 		}
 		else
 			throw ViewCoreTypeNotSupportedError(coreTypeName);

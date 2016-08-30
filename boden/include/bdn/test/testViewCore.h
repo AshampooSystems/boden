@@ -176,7 +176,7 @@ inline void testViewCore(P<Window> pWindow, P<View> pView, bool canCalculatePref
 
             SECTION("zero")
             {
-                REQUIRE( pCore->calcPreferredHeightForWidth(0) > 0);
+                REQUIRE( pCore->calcPreferredHeightForWidth(0) >= prefSize.height );
             }
         }
 
@@ -188,7 +188,7 @@ inline void testViewCore(P<Window> pWindow, P<View> pView, bool canCalculatePref
                 REQUIRE( pCore->calcPreferredWidthForHeight(prefSize.height) == prefSize.width );
         
             SECTION("zero")
-                REQUIRE( pCore->calcPreferredWidthForHeight(0) > 0);
+                REQUIRE( pCore->calcPreferredWidthForHeight(0) >= prefSize.width );
         }
     }
 

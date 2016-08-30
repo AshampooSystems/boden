@@ -16,31 +16,60 @@ TEST_CASE("ButtonCore-win32")
 
     P<Button> pButton = newObj<Button>();
 
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("win32-view")
-        bdn::win32::test::testWin32ViewCore(pWindow, pButton, true);
-
-    SECTION("win32-button")
+    SECTION("init")
     {
-        P<bdn::win32::ButtonCore> pCore = cast<bdn::win32::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        SECTION("ViewCore")
+            bdn::win32::test::testWin32ViewCoreInitialization( pWindow, pButton);
 
-        HWND hwnd = pCore->getHwnd();
-        REQUIRE( hwnd!=NULL );
-
-        SECTION("label")
+        SECTION("ButtonCore")
         {
-            // setLabel should change the window test
-            pButton->label() = "hello world";
+            SECTION("label")
+                pButton->label() == "hello";
 
-            String text = bdn::win32::Win32Window::getWindowText(hwnd);
+            String expectedLabel = pButton->label();
+                
+            pWindow->setContentView(pButton);
 
-            REQUIRE( text == "hello world" );
-        }                
+            P<bdn::win32::ButtonCore> pCore = cast<bdn::win32::ButtonCore>( pButton->getViewCore() );
+            REQUIRE( pCore!=nullptr );
+
+            String text = bdn::win32::Win32Window::getWindowText( pCore->getHwnd() );
+
+            REQUIRE( text == expectedLabel );
+        }
+    }
+
+    SECTION("postInit")
+    {
+        pWindow->setContentView(pButton);
+
+        SECTION("generic")
+            bdn::test::testButtonCore(pWindow, pButton );        
+    
+        SECTION("win32")
+        {
+            SECTION("ViewCore")
+                bdn::win32::test::testWin32ViewCore(pWindow, pButton, true);
+
+            SECTION("ButtonCore")
+            {
+                P<bdn::win32::ButtonCore> pCore = cast<bdn::win32::ButtonCore>( pButton->getViewCore() );
+                REQUIRE( pCore!=nullptr );
+
+                HWND hwnd = pCore->getHwnd();
+                REQUIRE( hwnd!=NULL );
+
+                SECTION("label")
+                {
+                    // setLabel should change the window test
+                    pButton->label() = "hello world";
+
+                    String text = bdn::win32::Win32Window::getWindowText(hwnd);
+
+                    REQUIRE( text == "hello world" );
+                }                
+            }
+        }
     }
 }
 

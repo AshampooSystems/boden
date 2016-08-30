@@ -4,6 +4,7 @@
 #include <bdn/win32/ButtonCore.h>
 #include <bdn/win32/WindowCore.h>
 #include <bdn/win32/ContainerViewCore.h>
+#include <bdn/win32/TextViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/win32/win32Error.h>
 
@@ -114,6 +115,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
 	else if(coreTypeName == Window::getWindowCoreTypeName() )
 		return newObj<WindowCore>( cast<Window>(pView) );
+
+    else if(coreTypeName == TextView::getTextViewCoreTypeName() )
+		return newObj<TextViewCore>( cast<TextView>(pView) );
 
 	else	
 		throw ViewCoreTypeNotSupportedError(coreTypeName);
