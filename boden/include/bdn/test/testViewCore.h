@@ -38,6 +38,9 @@ public:
         {
             initCore();
 
+            // view should always be visible for these tests
+            _pView->visible() = true;
+
             // ensure that all pending initializations have finished.
             P<TestViewCore> pThis = this;
             CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
@@ -305,20 +308,34 @@ protected:
                 }
                 else
                 {
-                    // the control cannot manually change its bounds.
-                    // In that case the core must reset the bounds property back
-                    // to what it was originally. This reset may be done in a scheduled async call,
-                    // so we must process pending events before we test for it.
-                    Rect origBounds = _pView->bounds();
-                    _pView->bounds() = Rect(117, 227, 887, 997);
-
+                    // when the control does not have control over its own bounds then there is sometimes
+                    // a delay in the bounds processing.
+                    // We must ensure that the control has finished its initial initialization before
+                    // we continue. That might take some time in some ports - and a simple
+                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
+                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
                     P<TestViewCore> pThis = this;
 
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, origBounds )
+                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
                     {
-                        REQUIRE( pThis->_pView->bounds().get() == origBounds );
+                        // the control cannot manually change its bounds.
+                        // In that case the core must reset the bounds property back
+                        // to what it was originally. This reset may be done in a scheduled async call,
+                        // so we must process pending events before we test for it.
+                        Rect origBounds = pThis->_pView->bounds();
 
+                        // sanity check: at this point the core bounds should always match
                         pThis->verifyCoreBounds();
+
+                        pThis->_pView->bounds() = Rect(117, 227, 887, 997);
+
+                        // again, we must wait until the changes have propagated
+                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origBounds )
+                        {
+                            REQUIRE( pThis->_pView->bounds().get() == origBounds );
+
+                            pThis->verifyCoreBounds();
+                        };
                     };
                 }
             }
