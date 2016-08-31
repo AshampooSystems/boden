@@ -13,7 +13,7 @@ class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ISimpleCallable
 {
 public:
 	void dispatch();
-
+    void dispatchWithDelaySeconds(double seconds);
 };
 
 template <class FuncType, class... Args>
@@ -93,6 +93,21 @@ void asyncCallFromMainThread(FuncType&& func, Args&&... args)
 	pCall->dispatch();
 }
 
+
+/** Schedules the specified function to be called from the main thread asynchronously
+    after a delay of the specified number of seconds. The seconds parameter is a floating
+    point number, so you can specify non-integer amounts of seconds (e.g.
+    a value 0.2 would cause a delay of 200 milliseconds).
+
+	The main thread is the thread that runs the user interface and the event loop.
+*/
+template <class FuncType, class... Args>
+void asyncCallFromMainThreadAfterSeconds(double seconds, FuncType&& func, Args&&... args)
+{
+	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(std::forward<FuncType>(func), std::forward<Args>(args)... );
+
+	pCall->dispatchWithDelaySeconds(seconds);
+}
 
 /** Wraps a function (called the "inner function") into a wrapper function. When the returned wrapper function
 	is called it causes the inner function to be executed in the main thread (as if by calling callFromMainThread() ).

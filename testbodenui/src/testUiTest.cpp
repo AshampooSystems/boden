@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/mainThread.h>
+#include <bdn/StopWatch.h>
 
 #include <chrono>
 
@@ -765,5 +766,108 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation"
         {
         };
 	}
+}
+
+TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
+{
+    SECTION("zero")
+    {
+        static bool zeroContinuationCalled = false;
+
+        SECTION("actualTest")
+        {
+            P<StopWatch> pWatch = newObj<StopWatch>();
+
+            CONTINUE_SECTION_AFTER_SECONDS(0, pWatch)
+            {
+                zeroContinuationCalled = true;
+
+                REQUIRE( pWatch->getMillis() < 500);
+
+                REQUIRE_IN_MAIN_THREAD();
+            };
+        }
+
+        SECTION("checkHandlerCalled")
+        {
+            REQUIRE(zeroContinuationCalled);
+        }
+    }
+
+
+    SECTION("almostZero")
+    {
+        static bool almostZeroContinuationCalled = false;
+
+        SECTION("actualTest")
+        {
+            P<StopWatch> pWatch = newObj<StopWatch>();
+
+            CONTINUE_SECTION_AFTER_SECONDS(0.00000000001, pWatch)
+            {
+                almostZeroContinuationCalled = true;
+
+                REQUIRE( pWatch->getMillis() < 500);
+
+                REQUIRE_IN_MAIN_THREAD();
+            };
+        }
+
+        SECTION("checkHandlerCalled")
+        {
+            REQUIRE(almostZeroContinuationCalled);
+        }
+    }
+
+
+    SECTION("millis")
+    {
+        static bool millisContinuationCalled = false;
+
+        SECTION("actualTest")
+        {
+            P<StopWatch> pWatch = newObj<StopWatch>();
+
+            CONTINUE_SECTION_AFTER_SECONDS( 0.2, pWatch)
+            {
+                millisContinuationCalled = true;
+
+                REQUIRE( pWatch->getMillis() >= 200-1);
+                REQUIRE( pWatch->getMillis() < 700);
+
+                REQUIRE_IN_MAIN_THREAD();
+            };
+        }
+
+        SECTION("checkHandlerCalled")
+        {
+            REQUIRE(millisContinuationCalled);
+        }
+    }
+
+    SECTION("2 seconds")
+    {
+        static bool twoSecondsContinuationCalled = false;
+
+        SECTION("actualTest")
+        {
+            P<StopWatch> pWatch = newObj<StopWatch>();
+
+            CONTINUE_SECTION_AFTER_SECONDS( 2, pWatch)
+            {
+                twoSecondsContinuationCalled = true;
+
+                REQUIRE( pWatch->getMillis() >= 2000-1);
+                REQUIRE( pWatch->getMillis() < 2500);
+
+                REQUIRE_IN_MAIN_THREAD();
+            };
+        }
+
+        SECTION("checkHandlerCalled")
+        {
+            REQUIRE(twoSecondsContinuationCalled);
+        }
+    }
 }
 

@@ -751,4 +751,120 @@ TEST_CASE("wrapAsyncCallFromMainThread")
 }
 
 
+class TestAsyncCallFromMainThreadAfterSeconds : public Base
+{
+public:
+    TestAsyncCallFromMainThreadAfterSeconds(bool exception, double seconds)
+    {
+        _exception = exception;
+        _seconds = seconds;
+    }
+
+    void runTest()
+    {
+        _pStopWatch = newObj<StopWatch>();
+
+        P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+        
+        asyncCallFromMainThreadAfterSeconds(
+            _seconds,
+            [pThis]
+            {
+                pThis->onCalled();
+            } );
+
+        
+        // should not have been called yet
+        REQUIRE( !_called );
+
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+        {
+            pThis->continueTest();
+        };
+    }
+
+    void onCalled()
+    {
+        // should only be called once
+        REQUIRE( !_called );
+
+        REQUIRE_IN_MAIN_THREAD();
+
+        _called = true;        
+
+        if(_exception)
+            throw InvalidArgumentError("hello");
+    }
+
+protected:
+    void continueTest()
+    {
+        int64_t expectedMillis = (int64_t)(_seconds * 1000);
+        int64_t maxMillis = expectedMillis + 500;
+        
+        int64_t elapsedMillis = _pStopWatch->getMillis();        
+
+        if( _called )
+        {
+            REQUIRE( elapsedMillis>=expectedMillis-1 );
+            REQUIRE( elapsedMillis <= maxMillis);
+
+            // test successfully done.
+        }
+        else
+        {
+            // not yet called. Has the time expired yet?           
+
+            REQUIRE( elapsedMillis <= maxMillis);
+
+            // sleep a short time and then run another continuation
+    
+            Thread::sleepMillis(20);
+
+            P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            {
+                pThis->continueTest();
+            };
+        }
+    }
+
+    bool            _called = false;
+
+    bool            _exception;
+    double          _seconds;
+    P<StopWatch>    _pStopWatch;
+};
+
+void testAsyncCallFromMainThreadAfterSeconds(bool exception)
+{
+    double seconds;
+
+    SECTION("zero")
+        seconds = 0;
+
+    SECTION("almostZero")
+        seconds = 0.0000000001;
+
+    SECTION("millis")
+        seconds = 0.2;   
+
+    SECTION("seconds")
+        seconds = 2.5;    
+
+    P<TestAsyncCallFromMainThreadAfterSeconds> pTest = newObj<TestAsyncCallFromMainThreadAfterSeconds>(exception, seconds);
+    
+    pTest->runTest();
+}
+
+TEST_CASE("asyncCallFromMainThreadAfterSeconds")
+{
+    SECTION("noException")
+        testAsyncCallFromMainThreadAfterSeconds(false);
+
+    SECTION("exception")
+        testAsyncCallFromMainThreadAfterSeconds(true);
+}
+
 

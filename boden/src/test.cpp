@@ -3157,6 +3157,18 @@ public:
             } );
 	}
 
+    void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
+	{
+		beginScheduleContinuation();
+		        		
+        asyncCallFromMainThreadAfterSeconds(
+            seconds,
+            [this, continuationFunc]()
+            {
+                doSectionContinuation(continuationFunc);
+            } );
+	}
+
 #if BDN_HAVE_THREADS
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
