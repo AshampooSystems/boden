@@ -3,6 +3,8 @@
 
 #include <bdn/win32/GlobalMessageWindow.h>
 
+#include <bdn/StopWatch.h>
+
 using namespace bdn;
 using namespace bdn::win32;
 
@@ -20,15 +22,16 @@ public:
 
 void continueTestPostCall(P<TestCallable> pCallable, P<GlobalMessageWindow> pWindow);
 
-void testPostCall()
+void testPostCall(P<GlobalMessageWindow> pWindow)
 {
-	P<GlobalMessageWindow>	pWindow = newObj<GlobalMessageWindow>();
-
 	P<TestCallable>			pCallable = newObj<TestCallable>();		
 		
 	pWindow->postCall( pCallable );
 
-	REQUIRE( pCallable->callCount==0 );
+    if( Thread::isCurrentMain() )
+    {
+	    REQUIRE( pCallable->callCount==0 );
+    }
 
     continueTestPostCall(pCallable, pWindow);
 }
@@ -52,10 +55,26 @@ void testGlobalInstance()
 	REQUIRE( &GlobalMessageWindow::get() == pWindow);
 }
 
+
+
+
 TEST_CASE("GlobalMessageWindow")
 {
+    P<GlobalMessageWindow>	            pWindow = newObj<GlobalMessageWindow>();
+
 	SECTION("postCall")
-		testPostCall();
+    {
+        SECTION("mainThread")
+            testPostCall(pWindow);
+
+        SECTION("otherThread")
+        {
+            CONTINUE_SECTION_IN_THREAD(pWindow)
+            {
+                testPostCall(pWindow);
+            };
+        }
+    }
 
 	SECTION("globalInstance")
 		testGlobalInstance();

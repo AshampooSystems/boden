@@ -32,7 +32,26 @@ public:
         REQUIRE( _pView->getParentView()==nullptr );
 
         SECTION("init")
-            runInitTests();
+        {      
+            if( _pView == cast<View>(_pWindow) )
+            {
+                // the view is a window. These always have a core from
+                // the start, so we cannot do any init tests with them.
+
+                // only check that the view core is indeed already there.
+                REQUIRE(_pView->getViewCore()!=nullptr );
+            }
+            else
+            {
+                // non-windows should not have a view core in the beginning
+                // (before they are added to the window).
+
+                REQUIRE(_pView->getViewCore()==nullptr );
+
+                // run the init tests for them
+                runInitTests();
+            }
+        }
 
         SECTION("postInit")
         {

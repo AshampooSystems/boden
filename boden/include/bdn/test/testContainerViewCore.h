@@ -3,6 +3,7 @@
 
 #include <bdn/test/TestViewCore.h>
 #include <bdn/ContainerView.h>
+#include <bdn/ColumnView.h>
 
 namespace bdn
 {
