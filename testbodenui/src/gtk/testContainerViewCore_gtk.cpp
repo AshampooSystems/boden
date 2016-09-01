@@ -1,48 +1,40 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/Window.h>
-#include <bdn/ColumnView.h>
-#include <bdn/test/testContainerViewCore.h>
+
+#include <bdn/test/TestContainerViewCore.h>
 
 #include <bdn/gtk/UiProvider.h>
-#include <bdn/gtk/ContainerViewCore.h>
-#include "testGtkViewCore.h"
+#include "TestGtkViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("ContainerViewCore-gtk")
+
+
+class TestGtkContainerViewCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestContainerViewCore >
 {
-    P<Window> pWindow = newObj<Window>();
+protected:
 
-    // ContainerView is an abstract base class, so we cannot instantiate it.
-    // But we can use any ContainerView subclass for these tests because
-    // they all use the same core.
-
-    P<ColumnView> pColumnView = newObj<ColumnView>();
-
-    pWindow->setContentView(pColumnView);
-
-    SECTION("generic")
-        bdn::test::testContainerViewCore(pWindow, pColumnView );        
-
-    SECTION("gtk-ViewCore")
-        bdn::gtk::test::testGtkViewCore(pWindow, pColumnView, false);
-
-    SECTION("gtk-ContainerViewCore")
+    void initCore() override
     {
-        P<bdn::gtk::ContainerViewCore> pCore = cast<bdn::gtk::ContainerViewCore>( pColumnView->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        TestGtkViewCoreMixin< TestContainerViewCore >::initCore();
+    }    
 
-        GtkWidget* pWidget = pCore->getGtkWidget();
-        REQUIRE( pWidget!=nullptr );
-
-        // there is nothing gtk-specific to test here.
-        // The generic container view tests and the gtk view test have already tested
-        // everything that the container view core does.        
+    bool coreCanCalculatePreferredSize() override
+    {
+        return false;
     }
-}
 
+};
+
+
+
+TEST_CASE("gtk.ContainerViewCore")
+{
+    P<TestGtkContainerViewCore> pTest = newObj<TestGtkContainerViewCore>();
+
+    pTest->runTests();
+}
 
 
 

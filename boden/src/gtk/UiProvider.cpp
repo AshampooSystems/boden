@@ -4,6 +4,7 @@
 #include <bdn/gtk/WindowCore.h>
 #include <bdn/gtk/ContainerViewCore.h>
 #include <bdn/gtk/ButtonCore.h>
+#include <bdn/gtk/TextViewCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -41,6 +42,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );
+        
+    else if(coreTypeName == TextView::getTextViewCoreTypeName() )
+        return newObj<TextViewCore>( cast<TextView>(pView) );
     
     else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
