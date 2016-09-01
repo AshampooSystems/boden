@@ -832,7 +832,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
             {
                 millisContinuationCalled = true;
 
-                REQUIRE( pWatch->getMillis() >= 200-1);
+                REQUIRE( pWatch->getMillis() >= 200-10);
                 REQUIRE( pWatch->getMillis() < 700);
 
                 REQUIRE_IN_MAIN_THREAD();
@@ -857,7 +857,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE( pWatch->getMillis() >= 2000-1);
+                REQUIRE( pWatch->getMillis() >= 2000-10);
                 REQUIRE( pWatch->getMillis() < 2500);
 
                 REQUIRE_IN_MAIN_THREAD();

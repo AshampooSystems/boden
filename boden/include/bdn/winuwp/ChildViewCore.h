@@ -239,18 +239,7 @@ protected:
 		    _pOuterViewWeak->needLayout();
 	}
 
-    /** Returns a size value that is added to the control's DesiredSize when the preferred size
-        is calculated.
-
-        The default implementation returns a zero size. Subclasses can use this to cause the
-        desired size to be bigger (for example, if the Windows control does not automatically
-        factor in the Padding when calculating the DesiredSize).
-        */
-    virtual Size getAdditionalDesiredSizeToAdd() const
-    {
-        return Size(0,0);
-    }
-
+    
 		
 private:
 	void _addToParent(View* pParentView)
@@ -309,12 +298,6 @@ private:
 		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
 
 		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
-
-            // for some controls we need to manually add a little bit because the control
-            // does not factor in all properties correctly into the reported DesiredSize.
-            size += getAdditionalDesiredSizeToAdd();
-
-            
 
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;

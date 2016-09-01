@@ -283,9 +283,12 @@ protected:
 
                     _pView->padding() = paddingBefore;
                     
-                    // handle pending events so that the sizing info is updated.
+                    // wait a little so that sizing info is updated.
+                    // Note that on some platforms CONTINUE_SECTION_AFTER_PENDING_EVENTS is not good enough
+                    // because the sizing updates happen with a low priority.
+                    // So we explicitly wait a little bit.
                     P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, paddingBefore )
+                    CONTINUE_SECTION_AFTER_SECONDS(0.5, pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
 

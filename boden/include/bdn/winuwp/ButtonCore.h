@@ -158,12 +158,7 @@ protected:
 		}
 	}
 
-    Size getAdditionalDesiredSizeToAdd() const override
-    {
-        // the button control does not include the padding when it calculates the desired size.
-        return ChildViewCore::getAdditionalDesiredSizeToAdd() + uiMarginToPixelMargin( _activePadding );
-    }
-
+   
 	::Windows::UI::Xaml::Controls::Button^ _pButton;
 
 	double      _doSizingInfoUpdateOnNextLayout = true;
