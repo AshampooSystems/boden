@@ -8,6 +8,7 @@
 
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
+#import <bdn/mac/TextViewCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
 
 namespace bdn
@@ -56,6 +57,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+    
+    else if(coreTypeName == TextView::getTextViewCoreTypeName() )
+        return newObj<TextViewCore>( cast<TextView>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );

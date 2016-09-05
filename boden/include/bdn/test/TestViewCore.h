@@ -326,6 +326,7 @@ protected:
                 if(canManuallyChangeBounds())
                 {
                     _pView->bounds() = Rect(110, 220, 880, 990);
+                    
                     verifyCoreBounds();
                 }
                 else

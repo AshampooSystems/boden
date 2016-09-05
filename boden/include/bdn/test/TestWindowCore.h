@@ -215,18 +215,29 @@ protected:
     void testCoreUiElementDestroyedWhenObjectDestroyed()
     {
         P<IBase> pVerifyInfo = createInfoToVerifyCoreUiElementDestruction();
-
+        
         clearAllReferencesToOuterWindow();
         
+        P<IViewCore> pCoreKeepAlive;
+        
         SECTION("core not kept alive")
-            clearAllReferencesToCore();
-
-        SECTION("core kept alive")
         {
             // do nothing
         }
 
-        verifyCoreUiElementDestruction(pVerifyInfo);
+        SECTION("core kept alive")
+        {
+            pCoreKeepAlive = _pCore;
+        }
+        
+        clearAllReferencesToCore();
+        
+        P<TestWindowCore> pThis = this;
+        
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, pVerifyInfo )
+        {
+            pThis->verifyCoreUiElementDestruction(pVerifyInfo);
+        };
     }
     
     /** Verifies that the window core's title has the expected value

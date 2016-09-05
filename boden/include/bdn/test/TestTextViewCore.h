@@ -57,8 +57,10 @@ protected:
                 Size prefSizeBefore = _pTextView->calcPreferredSize();
 
                 _pTextView->text() = "helloworld";
-
-                Size prefSize = _pTextView->calcPreferredSize();
+                
+                P<TestTextViewCore> pThis = this;
+                
+                Size prefSize = pThis->_pTextView->calcPreferredSize();
 
                 // width must increase with a bigger text
                 REQUIRE( prefSize.width > prefSizeBefore.width );
@@ -68,9 +70,9 @@ protected:
 
                 // when we go back to the same text as before then the preferred size should
                 // also be the same again
-                _pTextView->text() = "";
+                pThis->_pTextView->text() = "";
 
-                REQUIRE( _pTextView->calcPreferredSize() == prefSizeBefore );
+                REQUIRE( pThis->_pTextView->calcPreferredSize() == prefSizeBefore );
             }
         }
     }

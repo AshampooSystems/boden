@@ -33,17 +33,7 @@ public:
     }
     
     
-    void dispose() override
-    {
-        if(_nsWindow!=nil)
-        {
-            // hide the window before we release our reference (to ensure that it is actually deleted).
-            [_nsWindow orderOut:NSApp];
-            _nsWindow = nil;
-        }
-        
-        _pOuterWindowWeak = nullptr;
-    }
+    void dispose() override;
     
     void setTitle(const String& title) override
     {
@@ -222,6 +212,8 @@ private:
     Window*     _pOuterWindowWeak;
     NSWindow*   _nsWindow;
     NSView*     _nsContentParent;
+    
+    NSObject*   _ourDelegate;
     
     Rect        _currActualWindowBounds;
 };

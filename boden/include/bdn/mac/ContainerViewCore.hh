@@ -2,7 +2,7 @@
 #define BDN_MAC_ContainerViewCore_HH_
 
 #include <bdn/ContainerView.h>
-#import <bdn/mac/ViewCore.hh>
+#import <bdn/mac/ChildViewCore.hh>
 #include <bdn/mac/IParentViewCore.h>
 
 
@@ -12,14 +12,14 @@ namespace bdn
 namespace mac
 {
 
-class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
+class ContainerViewCore : public ChildViewCore, BDN_IMPLEMENTS IParentViewCore
 {
 private:
 	static NSView* _createContainer(ContainerView* pOuter);
 
 public:
 	ContainerViewCore(	ContainerView* pOuter)
-		: ViewCore(pOuter, _createContainer(pOuter) )
+		: ChildViewCore(pOuter, _createContainer(pOuter) )
 	{
 	}
 

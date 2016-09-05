@@ -87,6 +87,16 @@ inline Size macSizeToSize(const NSSize& macSize)
 }
 
 
+inline NSSize sizeToMacSize(const Size& size)
+{
+    NSSize macSize;
+    macSize.width = size.width;
+    macSize.height = size.height;
+    
+    return macSize;
+}
+
+
 inline NSString* stringToMacString(const String& val)
 {
     return [NSString stringWithCString: val.asUtf8Ptr()

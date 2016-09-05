@@ -2,82 +2,147 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/testWindowCore.h>
-
+#include <bdn/test/TestWindowCore.h>
 #import <bdn/mac/UiProvider.hh>
 #import <bdn/mac/WindowCore.hh>
-#import "testMacViewCore.hh"
+#import <bdn/mac/ChildViewCore.hh>
 
 using namespace bdn;
 
-TEST_CASE("WindowCore-mac")
+
+class TestMacWindowCore : public bdn::test::TestWindowCore
 {
-    P<Window> pWindow = newObj<Window>( &bdn::mac::UiProvider::get() );
+protected:
 
-    SECTION("generic")
-        bdn::test::testWindowCore(pWindow );        
 
-    SECTION("mac-view")
-        bdn::mac::test::testMacViewCore(pWindow, pWindow, false);
-
-    SECTION("mac-window")
+    void runPostInitTests() override
     {
-        P<bdn::mac::WindowCore> pCore = cast<bdn::mac::WindowCore>( pWindow->getViewCore() );
-        REQUIRE( pCore!=nullptr );
-
-        NSWindow* pNS = pCore->getNSWindow();
-        REQUIRE( pNS!=nullptr );
-
-        SECTION("title")
+        bdn::test::TestWindowCore::runPostInitTests();
+        
+        SECTION("content parent is flipped")
         {
-            // setTitle should change the window test
-            pWindow->title() = "hello world";
+            // the window's content parent must have the flipped
+            // flag set, so that the origin of the coordinate
+            // system is the top-left.
+            P<Button> pButton = newObj<Button>();
+            _pWindow->setContentView(pButton);
             
-            String text = bdn::mac::macStringToString( pNS.title );
+            NSView* pChild = cast<bdn::mac::ChildViewCore>(pButton->getViewCore())->getNSView();
             
-            REQUIRE( text == "hello world" );
+            REQUIRE( pChild.superview.flipped );
         }
     }
+
     
-    /*  XXX test disabled. Someone still holds a reference to the NSWindow, even after
-        we have released our last reference. So we cannot test window deletion until we find
-        out where those refs are stored. It is probably some global window registry
-        in the OS.
-    SECTION("Window deleted when object destroyed")
+    void initCore() override
     {
-        // there may be pending sizing info updates for the window, which keep it alive.
-        // Ensure that those are done first.
+        TestWindowCore::initCore();
         
-        // wrap pWindow in a struct so that we can destroy all references
-        // in the continuation.
-        struct CaptureData : public Base
+        _pMacWindowCore = cast<bdn::mac::WindowCore>( _pView->getViewCore() );
+        REQUIRE( _pMacWindowCore!=nullptr );
+        
+        _pNSWindow = _pMacWindowCore->getNSWindow();
+        REQUIRE( _pNSWindow!=nullptr );
+    }
+    
+    IUiProvider& getUiProvider() override
+    {
+        return bdn::mac::UiProvider::get();
+    }
+    
+    void verifyCoreVisibility() override
+    {
+        bool expectedVisible = _pView->visible();
+        
+        REQUIRE( _pNSWindow.visible == expectedVisible );
+    }
+    
+    bdn::Rect getFrameRect() const
+    {
+        return bdn::mac::macRectToRect( _pNSWindow.frame, _pNSWindow.screen.frame.size.height);
+    }
+    
+    void verifyInitialDummyCoreBounds() override
+    {
+        bdn::Rect rect = getFrameRect();
+        
+        REQUIRE( rect == bdn::Rect() );
+    }
+    
+    void verifyCoreBounds() override
+    {
+        bdn::Rect rect = getFrameRect();
+        bdn::Rect expectedRect = _pView->bounds();
+        
+        REQUIRE( rect == expectedRect );
+    }
+    
+    
+    void verifyCorePadding() override
+    {
+        // the padding is not reflected in Cocoa properties.
+        // So nothing to test here.
+    }
+    
+    
+    
+    void verifyCoreTitle() override
+    {
+        String expectedTitle = _pWindow->title();
+        
+        String title = bdn::mac::macStringToString( _pNSWindow.title );
+        
+        REQUIRE( title == expectedTitle );
+    }
+    
+    
+    
+    void clearAllReferencesToCore() override
+    {
+        _pMacWindowCore = nullptr;
+        _pNSWindow = nullptr;
+    }
+    
+    
+    struct DestructVerificationInfo : public Base
+    {
+        DestructVerificationInfo(NSWindow* pNSWindow)
         {
-            P<Window> pWindow;
-        };
-        P<CaptureData> pData = newObj<CaptureData>();
-        pData->pWindow = pWindow;
-        pWindow = nullptr;
+            this->_pNSWindow = pNSWindow;
+        }
         
+        // store a weak reference so that we do not keep the window alive
+        NSWindow __weak* _pNSWindow;
+    };
+    
+    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    {
+        // sanity check
+        REQUIRE( _pNSWindow!=nullptr );
         
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
-        {
-            P<bdn::mac::WindowCore> pCore = cast<bdn::mac::WindowCore>( pData->pWindow->getViewCore() );
-            REQUIRE( pCore!=nullptr );
-            
-            __weak NSWindow* pNSWindow = pCore->getNSWindow();
-            REQUIRE( pNSWindow!=nullptr );
-            
-            int arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pNSWindow);
-            
-            pCore = nullptr;
-            pData->pWindow = nullptr;
-            
-            arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pNSWindow);
-            
-            REQUIRE( pNSWindow==nullptr );
-        };
-    }*/
+        return newObj<DestructVerificationInfo>( _pNSWindow );
+    }
+    
+    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    {
+        NSWindow __weak* pNSWindow = cast<DestructVerificationInfo>( pVerificationInfo )->_pNSWindow;
+        
+        // window should have been destroyed.
+        REQUIRE( pNSWindow == nullptr );
+    }
+
+    P<bdn::mac::WindowCore>  _pMacWindowCore;
+    NSWindow*                _pNSWindow;
+};
+
+
+TEST_CASE("mac.WindowCore")
+{
+    P<TestMacWindowCore> pTest = newObj<TestMacWindowCore>();
+    
+    pTest->runTests();
 }
+
 
 
 
