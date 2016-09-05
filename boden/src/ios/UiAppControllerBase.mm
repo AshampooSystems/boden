@@ -9,6 +9,8 @@ namespace bdn
 void UiAppControllerBase::closeAtNextOpportunityIfPossible(int exitCode)
 {
     // ios apps cannot close themselves. So we do nothing here.
+    int x=0;
+    x++;
 }
 
 

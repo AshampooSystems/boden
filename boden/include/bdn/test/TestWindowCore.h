@@ -220,6 +220,7 @@ protected:
         
         P<IViewCore> pCoreKeepAlive;
         
+       
         SECTION("core not kept alive")
         {
             // do nothing

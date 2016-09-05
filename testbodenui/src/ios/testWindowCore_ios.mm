@@ -2,95 +2,95 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/testWindowCore.h>
-
+#include <bdn/test/TestWindowCore.h>
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/WindowCore.hh>
-#import "testIosViewCore.hh"
+#import <bdn/ios/ViewCore.hh>
+
+#import "TestIosViewCoreMixin.hh"
 
 using namespace bdn;
 
-TEST_CASE("WindowCore-ios")
+
+class TestIosWindowCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestWindowCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::ios::UiProvider::get() );
-
-    SECTION("generic")
-        bdn::test::testWindowCore(pWindow );        
-
-    SECTION("ios-view")
-        bdn::ios::test::testIosViewCore(pWindow, pWindow, false, false);
-
-    SECTION("ios-window")
+protected:
+    
+    void initCore() override
     {
-        P<bdn::ios::WindowCore> pCore = cast<bdn::ios::WindowCore>( pWindow->getViewCore() );
-        REQUIRE( pCore!=nullptr );
-
-        UIWindow* pUIWindow = pCore->getUIWindow();
-        REQUIRE( pUIWindow!=nullptr );
-
-        SECTION("title")
-        {
-            // setTitle should change the window test
-            pWindow->title() = "hello world";
-            
-            String text = bdn::ios::iosStringToString( pUIWindow.rootViewController.title );
-            
-            REQUIRE( text == "hello world" );
-        }
+        TestIosViewCoreMixin<TestWindowCore>::initCore();
+        
+        
+        _pUIWindow = (UIWindow*) _pUIView;
+        REQUIRE( _pUIWindow!=nullptr );
+    }
+    
+    IUiProvider& getUiProvider() override
+    {
+        return bdn::ios::UiProvider::get();
     }
     
     
-    /* XXX test disabled. Someone still holds a reference to the UIWindow, even after
-       we have released our last reference. So we cannot test window deletion until we find
-       out where those refs are stored. It is probably some global window registry
-       in ios.
-    SECTION("Window deleted when object destroyed")
+    void verifyCoreTitle() override
     {
-        // there may be pending sizing info updates for the window, which keep it alive.
-        // Ensure that those are done first.
+        String expectedTitle = _pWindow->title();
         
-        // wrap pWindow in a struct so that we can destroy all references
-        // in the continuation.
-        struct CaptureData : public Base
-        {
-            P<Window> pWindow;
-            P<Window> pReplacementWindow;
-        };
-        P<CaptureData> pData = newObj<CaptureData>();
-        pData->pWindow = pWindow;
-        pWindow = nullptr;
+        String title = bdn::ios::iosStringToString( _pUIWindow.rootViewController.title );
         
-        // Before a window will be completely deleted by the OS there has to be
-        // a new one to replace it. Otherwise the other one will not be completely
-        // deleted.
-        pData->pReplacementWindow = newObj<Window>( &bdn::ios::UiProvider::get() );
-        pData->pReplacementWindow->visible() = true;
+        REQUIRE( title == expectedTitle );
+    }
+    
+    
+    
+    void clearAllReferencesToCore() override
+    {
+        // XXX
+        UIWindow* firstWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:0];
+        [firstWindow makeKeyAndVisible];
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
-        {
-            P<bdn::ios::WindowCore> pCore = cast<bdn::ios::WindowCore>( pData->pWindow->getViewCore() );
-            REQUIRE( pCore!=nullptr );
+
+        TestIosViewCoreMixin<TestWindowCore>::clearAllReferencesToCore();
         
-            __weak UIWindow* pUIWindow = pCore->getUIWindow();
-            REQUIRE( pUIWindow!=nullptr );
-            
-            int windowRefCount = pData->pWindow->getRefCount();
-            
-            int arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pUIWindow);
-            
-            pCore = nullptr;
-            pData->pWindow = nullptr;
-            
-            arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pUIWindow);
-            
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData, pUIWindow)
-            {
-            int arcRefCount = CFGetRetainCount((__bridge CFTypeRef)pUIWindow);
-            
-                REQUIRE( pUIWindow==nullptr );
-            };
-        };
-    }*/
+        _pUIWindow = nullptr;
+    }
+    
+    
+    struct DestructVerificationInfo : public Base
+    {
+        DestructVerificationInfo(UIWindow* pUIWindow)
+        {
+            this->pUIWindow = pUIWindow;
+        }
+        
+        // store a weak reference so that we do not keep the window alive
+        UIWindow __weak* pUIWindow;
+    };
+    
+    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    {
+        // sanity check
+        REQUIRE( _pUIWindow!=nullptr );
+        
+        return newObj<DestructVerificationInfo>( _pUIWindow );
+    }
+    
+    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    {
+        UIWindow __weak* pUIWindow = cast<DestructVerificationInfo>( pVerificationInfo )->pUIWindow;
+        
+        // window should have been destroyed.
+        REQUIRE( pUIWindow == nullptr );
+    }
+    
+    UIWindow*                _pUIWindow;
+};
+
+
+TEST_CASE("ios.WindowCore")
+{
+    P<TestIosWindowCore> pTest = newObj<TestIosWindowCore>();
+    
+    pTest->runTests();
 }
 
 

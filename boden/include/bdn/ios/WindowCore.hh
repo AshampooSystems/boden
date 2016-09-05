@@ -30,6 +30,11 @@ public:
         pOuterWindow->bounds() = iosRectToRect(_window.frame);
     }
     
+    ~WindowCore()
+    {
+        dispose();
+    }
+    
     void dispose() override
     {
         ViewCore::dispose();
@@ -39,8 +44,11 @@ public:
         if(_window!=nil)
         {
             _window.hidden = YES;
-        
+            
+            _window.rootViewController = nil;
+            
             _window = nil;
+            
         }
     }
     

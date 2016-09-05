@@ -14,6 +14,7 @@ UIWindow* WindowCore::_createUIWindow(Window* pOuterWindow)
     UIWindow* window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     MainViewController* controller = [MainViewController alloc];
+    
     window.rootViewController = controller;
     
     window.backgroundColor = [UIColor whiteColor];
