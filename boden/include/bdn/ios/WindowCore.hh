@@ -48,7 +48,6 @@ public:
             _window.rootViewController = nil;
             
             _window = nil;
-            
         }
     }
     
