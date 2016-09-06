@@ -37,6 +37,10 @@ public:
     {
     }
 
+    JButton()
+    {
+    }
+
 
     /** Returns the JClass object for this class.
      *

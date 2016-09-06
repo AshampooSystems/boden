@@ -41,6 +41,11 @@ public:
     }
 
 
+    JTextView()
+    {
+    }
+
+
     /** Returns the TextPaint object that is used by this text view.*/
     JTextPaint getPaint()
     {

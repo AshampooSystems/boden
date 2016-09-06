@@ -21,8 +21,6 @@ protected:
     void initCore() override
     {
         bdn::test::TestGtkViewCoreMixin< bdn::test::TestWindowCore >::initCore();
-
-        _pWindow->visible() = true;
     }
 
     void verifyCoreTitle() override

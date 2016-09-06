@@ -2,89 +2,64 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/testWindowCore.h>
+#include <bdn/test/TestWindowCore.h>
 #include <bdn/android/UiProvider.h>
 #include <bdn/android/WindowCore.h>
-
-#include "testAndroidViewCore.h"
+#include "TestAndroidViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("WindowCore-android")
+
+class TestAndroidWindowCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestWindowCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::android::UiProvider::get() );
+protected:
 
-    SECTION("generic")
-        bdn::test::testWindowCore(pWindow );        
-
-    SECTION("android-view")
-        bdn::android::test::testAndroidViewCore(pWindow, pWindow, false);
-
-    SECTION("android-window")
+    void initCore() override
     {
-        P<bdn::android::WindowCore> pCore = cast<bdn::android::WindowCore>( pWindow->getViewCore() );
-        REQUIRE( pCore!=nullptr );
-
-        bdn::android::JView jv = pCore->getJView();
-        REQUIRE( !jv.isNull_() );
-
-        SECTION("title")
-        {
-            pWindow->title() = "hello world";
-
-            // window title changes are ignored on android, so there is nothing to test here.
-        }                
+        bdn::test::TestAndroidViewCoreMixin< bdn::test::TestWindowCore >::initCore();
     }
 
-    SECTION("View destroyed when object destroyed")
+    void verifyCoreTitle() override
     {
-        // there may be pending sizing info updates for the window, which keep it alive.
-        // Ensure that those are done first.
-
-        // wrap pWindow in a struct so that we can destroy all references
-        // in the continuation.
-        struct CaptureData : public Base
-        {
-            P<Window> pWindow;
-        };
-        P<CaptureData> pData = newObj<CaptureData>();
-        pData->pWindow = pWindow;
-        pWindow = nullptr;
-
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
-        {
-            P<bdn::android::WindowCore> pCore = cast<bdn::android::WindowCore>( pData->pWindow->getViewCore() );
-            REQUIRE( pCore!=nullptr );
-
-            // we cannot predict when the garbage collector will actually destroy
-            // the view object. So we cannot test for actual object destruction.
-            // Instead we verify that the view is removed from its parent.
-
-            bdn::android::JView jv = pCore->getJView();
-            REQUIRE( !jv.isNull_() );
-
-            // sanity check
-            REQUIRE( !jv.getParent().isNull_() );
-
-            SECTION("core not kept alive")
-            {
-                pCore = nullptr;
-            }
-
-            SECTION("core kept alive")
-            {
-                // do nothing
-            }
-
-            pData->pWindow = nullptr;
-
-            // we cannot predu
-
-            // view object should have been removed from its parent
-            REQUIRE( jv.getParent().isNull_() );
-        };
+        // the title is ignored on android. So nothing to test here
     }
+
+    struct DestructVerificationInfo : public Base
+    {
+        DestructVerificationInfo(bdn::android::JView jView)
+        : jView(jView)
+        {
+        }
+
+        bdn::android::JView jView;
+    };
+
+    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    {
+        // sanity check
+        REQUIRE( !_jView.isNull_() );
+        REQUIRE( !_jView.getParent().isNull_() );
+
+        return newObj<DestructVerificationInfo>( _jView );
+    }
+
+
+    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    {
+        bdn::android::JView jv = cast<DestructVerificationInfo>( pVerificationInfo )->jView;
+
+        // the view object should have been removed from its parent
+        REQUIRE( jv.getParent().isNull_() );
+    }
+};
+
+TEST_CASE("android.WindowCore")
+{
+    P<TestAndroidWindowCore> pTest = newObj<TestAndroidWindowCore>();
+
+    pTest->runTests();
 }
+
 
 
 

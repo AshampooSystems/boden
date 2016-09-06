@@ -48,9 +48,10 @@ public:
                                   _pJView->getPaddingLeft() );
 
         setVisible( pOuterView->visible() );
-        setPadding( pOuterView->padding() );
 
         _addToParent( pOuterView->getParentView() );
+
+        setPadding( pOuterView->padding() );
 
         if(initBounds)
             setBounds( pOuterView->bounds() );

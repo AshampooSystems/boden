@@ -62,9 +62,7 @@ public:
     {
     }
 
-    /** move constructor*/
-    JObject(JObject&& o)
-    : _javaRef( std::move(o._javaRef) )
+    JObject()
     {
     }
 

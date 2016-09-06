@@ -36,6 +36,8 @@ protected:
     {
         TestViewCore::initCore();
 
+        _pWindow->visible() = true;
+
         _pWindowCore = cast<IWindowCore>( _pCore );
     }
 

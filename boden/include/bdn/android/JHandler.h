@@ -39,6 +39,24 @@ public:
     }
 
 
+    /** Causes the Runnable r to be added to the message queue, to be run after the specified amount
+     *  of time elapses. The runnable will be run on the thread to which this handler is attached.
+     *  The time-base is uptimeMillis(). Time spent in deep sleep will add an additional delay
+     *  to execution.
+     *
+     *  Returns true if the Runnable was successfully placed in to the message queue. Returns false
+     *  on failure, usually because the looper processing the message queue is exiting. Note that a
+     *  result of true does not mean the Runnable will be processed -- if the looper is quit before
+     *  the delivery time of the message occurs then the message will be dropped.
+     *  */
+    bool postDelayed( bdn::java::JRunnable runnable, int64_t delayMillis)
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<bool>( getStaticClass_(), methodId, "postDelayed", runnable, delayMillis);
+    }
+
+
 
     /** Returns the JClass object for this class.
      *

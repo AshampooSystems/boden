@@ -326,8 +326,13 @@ protected:
                 if(canManuallyChangeBounds())
                 {
                     _pView->bounds() = Rect(110, 220, 880, 990);
-                    
-                    verifyCoreBounds();
+
+                    // it may take a layout cycle until the bounds have updated
+                    P<TestViewCore> pThis = this;
+                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+                    {
+                        pThis->verifyCoreBounds();
+                    };
                 }
                 else
                 {

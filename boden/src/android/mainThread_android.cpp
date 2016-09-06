@@ -17,6 +17,23 @@ void CallFromMainThreadBase_::dispatch()
 }
 
 
+void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+{
+    int64_t millis = (int64_t)(seconds*1000);
+
+    if(millis<=0)
+        dispatch();
+    else
+    {
+        bdn::android::JNativeHandler handler = bdn::android::JNativeHandler::getMainNativeHandler();
+
+        bdn::java::JNativeOnceRunnable runnable(this);
+
+        handler.postDelayed(runnable, millis);
+    }
+}
+
+
 
 }
 

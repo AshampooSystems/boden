@@ -24,8 +24,6 @@ protected:
     void initCore() override
     {
         bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestWindowCore >::initCore();
-
-        _pWindow->visible() = true;
     }
 
     void verifyCorePadding() override
