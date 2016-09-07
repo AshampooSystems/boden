@@ -21,8 +21,8 @@ public:
         setTitle( pOuterWindow->title() );
 
         // the window div always has the same size as the browser window.        
-        setStyleEntry("width", "100%");
-        setStyleEntry("height", "100%");
+        _domObject["style"].set("width", "100%");
+        _domObject["style"].set("height", "100%");
 
         emscripten_set_resize_callback( "#window", static_cast<void*>(this), false, &WindowCore::_resizedCallback);
 

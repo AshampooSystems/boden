@@ -126,9 +126,15 @@ protected:
         Nullable<UiMargin> expectedPad = BaseClass::_pView->padding();
         if(expectedPad.isNull())
         {
+            // the padding object apparently ALWAYS exists in the style object. This seems
+            // to be a special handling by the DOM.
+            // So it is normal for isUndefined to return false here.
             if(!pad.isUndefined())
-                std::cout << "Padding: '"+pad.as<std::string>()<<"'" << std::endl;
-            REQUIRE( pad.isUndefined() );
+            {
+                std::string padString = pad.as<std::string>();
+
+                REQUIRE( padString=="" );
+            }            
         }
         else
         {            

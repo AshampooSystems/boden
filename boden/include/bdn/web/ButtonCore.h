@@ -25,7 +25,7 @@ public:
         setLabel( pOuterButton->label() );        
 
         // we do not want automatic wrapping for a simply button
-        setStyleEntry("white-space", "nowrap");
+        _domObject["style"].set("white-space", "nowrap");
 
         emscripten_set_click_callback( _elementId.asUtf8Ptr(), this, false, _clickedCallback);
     }
