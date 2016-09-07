@@ -18,11 +18,6 @@ protected:
         bdn::test::TestAndroidViewCoreMixin< bdn::test::TestContainerViewCore >::initCore();
     }
 
-    bool coreCanCalculatePreferredSize() override
-    {
-        return false;
-    }
-
 };
 
 

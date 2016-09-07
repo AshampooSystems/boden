@@ -18,27 +18,28 @@ void testCallFromMainThread(bool throwException)
 
         StopWatch watch;
 
-        std::cout << "1" << std::endl;
-
         std::future<int> result = callFromMainThread( [&callCount, throwException](int x){ callCount++; if(throwException){ throw InvalidArgumentError("hello"); } return x*2; }, 42 );
-
-        std::cout << "2" << std::endl;
 
         // should have been called immediately, since we are currently in the main thread
         REQUIRE( callCount==1 );
 
-        std::cout << "3" << std::endl;
-
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
-        std::cout << "4" << std::endl;
-
         if(throwException)
+        {
+#if BDN_PLATFORM_WEB
+            // XXX             
+            // result.get() causes a crash here with emscripten (due to a compiler bug).
+            // See https://github.com/kripken/emscripten/issues/4546
+            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
+            REQUIRE( false );   // let test fail
+#else
+
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+#endif
+        }
         else
             REQUIRE( result.get()==84 );
-
-        std::cout << "5" << std::endl;
 
         // should not have waited at any point.
         REQUIRE( watch.getMillis()<1000 );
@@ -484,7 +485,17 @@ void testWrapCallFromMainThread(bool throwException)
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
         if(throwException)
+        {
+#if BDN_PLATFORM_WEB
+            // XXX             
+            // result.get() causes a crash here with emscripten (due to a compiler bug).
+            // See https://github.com/kripken/emscripten/issues/4546
+            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
+            REQUIRE( false );   // let test fail
+#else
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+#endif
+        }
         else
             REQUIRE( result.get()==84 );
 

@@ -59,6 +59,11 @@ protected:
         // So nothing to check.       
     }
 
+    bool coreCanCalculatePreferredSize() override
+    {
+        return false;
+    }
+
     P<ContainerView> _pContainerView;
 };
 

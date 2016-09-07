@@ -235,6 +235,8 @@ void scheduleContinueInThreadWith( std::function<void()> continuationFunc )
         } );    
 }
 
+#if BDN_HAVE_THREADS
+
 TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH")
 {
     testContinueSectionWith( scheduleContinueInThreadWith );
@@ -286,6 +288,7 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD_WITH-asyncAfterSectionThatHadAsyncContinua
 	}    
 }
 
+#endif
 
 TEST_CASE("ASYNC_SECTION")
 {
@@ -598,6 +601,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated-B" )
 }
 
 
+#if BDN_HAVE_THREADS
 
 TEST_CASE( "CONTINUE_SECTION_IN_THREAD" )
 {
@@ -767,6 +771,8 @@ TEST_CASE("CONTINUE_SECTION_IN_THREAD-asyncAfterSectionThatHadAsyncContinuation"
         };
 	}
 }
+
+#endif
 
 TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
 {

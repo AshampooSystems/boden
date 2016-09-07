@@ -3,47 +3,37 @@
 
 #include <bdn/Button.h>
 #include <bdn/Window.h>
-#include <bdn/test/testButtonCore.h>
-#include <bdn/web/UiProvider.h>
-#include <bdn/web/ButtonCore.h>
-#include "testWebViewCore.h"
+#include <bdn/test/TestButtonCore.h>
+#include "TestWebViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("ButtonCore-web")
+
+class TestWebButtonCore : public bdn::test::TestWebViewCoreMixin< bdn::test::TestButtonCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::web::UiProvider::get() );
+protected:
 
-    P<Button> pButton = newObj<Button>();
-
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("web-view")
-        bdn::web::test::testWebViewCore(pWindow, pButton, true);
-
-    SECTION("web-button")
+    void verifyCoreLabel() override
     {
-        P<bdn::web::ButtonCore> pCore = cast<bdn::web::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        String expectedLabel = _pButton->label();
 
-        emscripten::val domObject = pCore->getDomObject();
-        REQUIRE( !domObject.isNull() );
-        REQUIRE( !domObject.isUndefined() );
-
-        SECTION("label")
-        {
-            pButton->label() = "hello world";
-
-            // should update the element text content
-            String text = domObject["textContent"].as<std::string>();
-
-            REQUIRE( text == "hello world" );
-        }                
+        String label = _domObject["textContent"].as<std::string>();
+        
+        REQUIRE( label == expectedLabel );
     }
+};
+
+TEST_CASE("web.ButtonCore")
+{
+    P<TestWebButtonCore> pTest = newObj<TestWebButtonCore>();
+
+    pTest->runTests();
 }
+
+
+
+
+
 
 
 

@@ -25,11 +25,6 @@ protected:
         REQUIRE( _pWinCanvas!=nullptr );
     }    
 
-    bool coreCanCalculatePreferredSize() override
-    {
-        return false;
-    }
-
     ::Windows::UI::Xaml::Controls::Canvas^ _pWinCanvas;
 };
 

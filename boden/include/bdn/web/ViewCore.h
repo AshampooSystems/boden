@@ -4,6 +4,8 @@
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
 
+#include <bdn/web/UiProvider.h>
+
 #include <emscripten/val.h>
 #include <emscripten/html5.h>
 

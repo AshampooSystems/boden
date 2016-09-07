@@ -19,11 +19,6 @@ protected:
         TestMacChildViewCoreMixin< TestContainerViewCore >::initCore();
     }
     
-    bool coreCanCalculatePreferredSize() override
-    {
-        return false;
-    }
-    
 };
 
 

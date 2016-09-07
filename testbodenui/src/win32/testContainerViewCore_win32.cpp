@@ -19,11 +19,6 @@ protected:
         TestWin32ViewCoreMixin< TestContainerViewCore >::initCore();
     }    
 
-    bool coreCanCalculatePreferredSize() override
-    {
-        return false;
-    }
-
 };
 
 

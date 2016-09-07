@@ -17,8 +17,6 @@ protected:
     void initCore() override
     {
         bdn::test::TestWin32ViewCoreMixin< bdn::test::TestWindowCore >::initCore();
-
-        _pWindow->visible() = true;
     }
 
     void verifyCoreTitle() override
