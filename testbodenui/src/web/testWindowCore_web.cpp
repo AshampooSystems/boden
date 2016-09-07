@@ -19,6 +19,19 @@ protected:
         bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >::initCore();
     }
 
+    bool canManuallyChangeBounds() const override
+    {
+        return false;
+    }
+
+    Rect getViewRect() override
+    {
+        int width = _domObject["offsetWidth"].as<int>();
+        int height = _domObject["offsetHeight"].as<int>();
+        
+        return Rect(0, 0, width, height);
+    }
+
     void verifyCoreTitle() override
     {
         String expectedTitle = _pWindow->title();
@@ -65,7 +78,6 @@ protected:
         
         emscripten::val el = doc.call<emscripten::val>("getElementById", elementId.asUtf8() );
         REQUIRE( el.isNull() );
-        
     }
 };
 

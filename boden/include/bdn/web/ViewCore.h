@@ -19,8 +19,8 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
     ViewCore(   View* pOuterView,
-                const String& elementName,
-                const std::map<String,String>& attribMap = std::map<String,String>())
+                const String& elementName,                
+                const std::map<String,String>& attribMap = std::map<String,String>() )
     : _domObject( emscripten::val::null() )
     {
         _pOuterViewWeak = pOuterView;
@@ -35,8 +35,7 @@ public:
             _domObject.set(attribPair.first.asUtf8(), attribPair.second.asUtf8());
 
         // we always use absolute positioning. Set this here.
-        emscripten::val styleObj = _domObject["style"];
-        styleObj.set("position", "absolute");
+        setStyleEntry("position", "absolute");
         
         _domObject.set("id", _elementId.asUtf8() );
 
@@ -88,10 +87,10 @@ public:
     
     void setVisible(const bool& visible) override
     {
-        _domObject["style"].set("visibility", visible ? "visible" : "hidden");
+        setStyleEntry("visibility", visible ? "visible" : "hidden");
     }
-    
-        
+
+
     void setPadding(const Nullable<UiMargin>& padding) override
     {
         // we need to set the padding in the DOM element, so that it can adjust its
@@ -99,34 +98,36 @@ public:
 
         if(padding.isNull())
         {
-            // we should use "default" padding.
-            _domObject["style"].set("padding", "initial");
+            // we should use "default" padding. There is "padding=initial", which, according to the standard,
+            // should mean "use default padding". However, our tests have shown that padding=initial with buttons
+            // sets the padding to 0, while not specifying a padding at all causes the padding to be nonzero.
+            // We tested this with Safari and Chrome.
+            // So, padding=initial seems to be out as an option. We need to actually remove the entry.
+            removeStyleEntry("padding");
         }
         else
         {
-            String paddingString;
-
             UiMargin pad = padding.get();
+            
+            String paddingString;
 
             paddingString = UiProvider::get().uiLengthToHtmlString(pad.top)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.right)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
 
-            _domObject["style"].set("padding", paddingString.asUtf8() );
+            setStyleEntry("padding", paddingString.asUtf8() );
         }
     }
     
     
     void setBounds(const Rect& bounds) override
     {
-        emscripten::val styleObj = _domObject["style"];
+        setStyleEntry("width", UiProvider::pixelsToHtmlString(bounds.width).asUtf8() );
+        setStyleEntry("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
 
-        styleObj.set("width", UiProvider::pixelsToHtmlString(bounds.width).asUtf8() );
-        styleObj.set("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
-
-        styleObj.set("left", UiProvider::pixelsToHtmlString(bounds.x).asUtf8() );
-        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
+        setStyleEntry("left", UiProvider::pixelsToHtmlString(bounds.x).asUtf8() );
+        setStyleEntry("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
     }
     
     
@@ -172,6 +173,89 @@ public:
     
     
 protected:
+
+    // we need this wrapper struct around emscripten::val because
+    // emscripten val does not have a default constructor (and can thus
+    // not be used as a map value directly).
+    struct StyleMapEntry_
+    {
+        StyleMapEntry_()
+        : value( emscripten::val::undefined() )
+        {            
+        }
+
+        StyleMapEntry_(const std::string& value)
+        : value( value )
+        {            
+        }
+
+        StyleMapEntry_(const emscripten::val& value)
+        : value( value )
+        {            
+        }
+
+        emscripten::val value;
+    };
+
+    void setStyleEntry(const String& entryName, const std::string& value)
+    {
+        setStyleEntry(entryName, emscripten::val(value) );
+    }
+
+    /** Sets a style entry for the element.*/
+    void setStyleEntry(const String& entryName, const emscripten::val& value)
+    {
+        // we have to cache all settings we make, so that we can later remove entries
+        _styleMap[entryName] = StyleMapEntry_(value);
+
+        _domObject["style"].set(entryName.asUtf8Ptr(), value);
+    }
+
+    /** Completely removes an entry from the element's style property.*/
+    void removeStyleEntry(const String& entryName)
+    {
+        auto it = _styleMap.find(entryName);
+        if(it!=_styleMap.end())
+            _styleMap.erase(it);
+
+        if( ! _domObject["style"][entryName.asUtf8Ptr()].isUndefined() )
+        {
+            // entry currently exists. We have to remove it.
+            // Unfortunately, emscripten::val does not offer any method to delete
+            // a sub-value. Assigning emscripten::val::undefined() does not work.
+            // So that means that we have to re-create the entire style object.
+            // And since emscripten::val also does not offer a way to discover
+            // all existing sub-values, that means that we need to track all styles
+            // we have set on our own side. We do that in _styleMap.
+
+            std::cout << "Removing " << entryName.asUtf8() << " from style" << std::endl;
+
+            // now recreate the style object
+            emscripten::val styleObj = emscripten::val::object();
+
+            // XXX
+            std::cout << "rebuilding style..." << std::endl;
+
+            for(const std::pair<String, StyleMapEntry_>& item: _styleMap)
+            {
+                std::cout << item.first.asUtf8() << std::endl;
+                styleObj.set( item.first.asUtf8Ptr(), item.second.value );
+            }
+
+            std::cout << "styleObj.padding isUndefined: " << styleObj["padding"].isUndefined() << std::endl;
+
+            _domObject["style"] = styleObj;
+
+            std::cout << "style.padding isUndefined: " << _domObject["style"]["padding"].isUndefined() << std::endl;
+
+
+        }
+        else
+        {
+            std::cout << entryName.asUtf8() << " not currently in style" << std::endl;
+        }
+    }
+    
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
         emscripten::val styleObj = _domObject["style"];
@@ -213,11 +297,15 @@ protected:
         }
     }
 
+
+
     View*               _pOuterViewWeak;
     String              _elementId;
     Rect                _currBounds;
     
     emscripten::val     _domObject;
+
+    std::map<String, StyleMapEntry_> _styleMap;
 };
 
 }

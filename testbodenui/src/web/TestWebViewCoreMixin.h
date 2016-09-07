@@ -49,17 +49,53 @@ protected:
         REQUIRE( vis == String(expectedVisible ? "visible" : "hidden") );
     }
 
-    Rect getViewRect()
+    std::string getValueAsString(emscripten::val obj, const char* valueName)
+    {
+        emscripten::val valueObj = obj[valueName];
+        if(valueObj.isUndefined() || valueObj.isNull())
+            return "";
+
+        return valueObj.as<std::string>();
+    }
+
+    int getValueAsPixelInt(emscripten::val obj, const char* valueName)
+    {
+        std::string val = getValueAsString(obj, valueName);
+
+        // do not use as<int>. It can cause crashes when the value is incompatible
+        if(val.empty())
+            return 0;
+
+        // if the string ends with "px" then cut it off
+        if(val.length()>=2 && val.substr( val.length()-2, 2)=="px")
+            val = val.substr( 0, val.length()-2 );
+
+        for(auto c: val)
+        {
+            if(!isdigit(c))
+                return 0;
+        }
+
+        return std::stoi(val);
+    }
+
+    virtual Rect getViewRect()
     {
         // bounds should translate to style setting
 
-        emscripten::val style = _domObject["padding"];
-        int width = style["width"].as<int>();
-        int height = style["height"].as<int>();
-        int x = style["left"].as<int>();
-        int y = style["top"].as<int>();
+        emscripten::val style = _domObject["style"];
 
-        return Rect(x, y, width, height);
+        if(style.isNull() || style.isUndefined())
+            return Rect();
+        else
+        {
+            int width = getValueAsPixelInt(style, "width");
+            int height = getValueAsPixelInt(style, "height");
+            int x = getValueAsPixelInt(style, "left");
+            int y = getValueAsPixelInt(style, "top");
+
+            return Rect(x, y, width, height);
+        }
     }
 
     void verifyInitialDummyCoreBounds() override
@@ -80,25 +116,35 @@ protected:
 
     void verifyCorePadding() override
     {
-        emscripten::val pad = _domObject["padding"];
+        emscripten::val styleObj = _domObject["style"];
+
+        REQUIRE( !styleObj.isNull() );
+        REQUIRE( !styleObj.isUndefined() );
+        
+        emscripten::val pad = styleObj["padding"];
         
         Nullable<UiMargin> expectedPad = BaseClass::_pView->padding();
         if(expectedPad.isNull())
         {
-            // padding should be left at default.
-            REQUIRE( ( pad.isNull() || pad.isUndefined() ) );
+            if(!pad.isUndefined())
+                std::cout << "Padding: '"+pad.as<std::string>()<<"'" << std::endl;
+            REQUIRE( pad.isUndefined() );
         }
         else
-        {
+        {            
             REQUIRE( !pad.isNull() );
             REQUIRE( !pad.isUndefined() );
 
+            std::string padString = pad.as<std::string>();
+
             Margin expectedPixelPadding = BaseClass::_pView->uiMarginToPixelMargin( expectedPad );
 
-            REQUIRE( pad["top"].as<std::string>() == std::to_string(expectedPixelPadding.top)+"px" );
-            REQUIRE( pad["right"].as<std::string>() == std::to_string(expectedPixelPadding.right)+"px" );
-            REQUIRE( pad["bottom"].as<std::string>() == std::to_string(expectedPixelPadding.bottom)+"px" );
-            REQUIRE( pad["left"].as<std::string>() == std::to_string(expectedPixelPadding.left)+"px" );
+            String expectedPadString = std::to_string(expectedPixelPadding.top)+"px "
+                                        + std::to_string(expectedPixelPadding.right)+"px "
+                                        + std::to_string(expectedPixelPadding.bottom)+"px "
+                                        + std::to_string(expectedPixelPadding.left)+"px";
+
+            REQUIRE( padString == expectedPadString );
         }
     }
 

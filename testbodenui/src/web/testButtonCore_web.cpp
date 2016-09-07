@@ -17,7 +17,10 @@ protected:
     {
         String expectedLabel = _pButton->label();
 
-        String label = _domObject["textContent"].as<std::string>();
+        emscripten::val contentObj = _domObject["textContent"];
+        REQUIRE( !contentObj.isUndefined() );
+
+        String label = contentObj.as<std::string>();
         
         REQUIRE( label == expectedLabel );
     }

@@ -110,10 +110,22 @@ protected:
 
         SECTION("padding")
         {
-            _pView->padding() = UiMargin( UiLength::sem, 11, 22, 33, 44);
+            SECTION("default")
+            {
+                // the default padding of the outer view should be null (i.e. "use default").
+                REQUIRE( _pView->padding().get().isNull() );
 
-            initCore();
-            verifyCorePadding();
+                initCore();
+                verifyCorePadding();
+            }
+
+            SECTION("explicit")
+            {
+                _pView->padding() = UiMargin( UiLength::sem, 11, 22, 33, 44);
+
+                initCore();
+                verifyCorePadding();
+            }
         }
 
         SECTION("bounds")
@@ -265,6 +277,15 @@ protected:
             SECTION("custom")
             {
                 _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                verifyCorePadding();
+            }
+
+            SECTION("default after custom")
+            {
+                // set a non-default padding, then go back to default padding.
+                _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                _pView->padding() = nullptr;
+
                 verifyCorePadding();
             }
 
