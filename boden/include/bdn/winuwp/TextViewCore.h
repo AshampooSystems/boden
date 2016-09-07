@@ -49,15 +49,7 @@ public:
 
 		// Apply the padding to the control, so that the content is positioned accordingly.
         UiMargin uiPadding;
-        if(pad.isNull())
-        {
-            // we should use a default padding that looks good.
-            // Xaml uses zero padding as the default, so we cannot use their
-            // default value. So we choose our own default that matches the
-            // normal aesthetic of Windows apps.
-            uiPadding = UiMargin(UiLength::sem, 0.4, 1);
-        }
-        else
+        if(!pad.isNull())
             uiPadding = pad;
 
 		Margin padding = UiProvider::get().uiMarginToPixelMargin(uiPadding);
