@@ -3,46 +3,49 @@
 
 #include <bdn/Button.h>
 #include <bdn/Window.h>
-#include <bdn/test/testButtonCore.h>
+#include <bdn/test/TestButtonCore.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/ButtonCore.h>
-#include "testWinuwpViewCore.h"
+#include "TestWinuwpViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("ButtonCore-winuwp")
+
+class TestWinuwpButtonCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestButtonCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::winuwp::UiProvider::get() );
+protected:
 
-    P<Button> pButton = newObj<Button>();
-
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("winuwp-view")
-        bdn::winuwp::test::testWinuwpViewCore(pWindow, pButton, true, true);
-
-    SECTION("winuwp-button")
+    void initCore() override
     {
-        P<bdn::winuwp::ButtonCore> pCore = cast<bdn::winuwp::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        TestWinuwpViewCoreMixin< TestButtonCore >::initCore();
 
-        ::Windows::UI::Xaml::Controls::Button^ pWinButton = dynamic_cast<::Windows::UI::Xaml::Controls::Button^>( pCore->getFrameworkElement() );
-
-        REQUIRE( pWinButton!=nullptr );
-
-        SECTION("label")
-        {
-            // setLabel should change the window test
-            pButton->label() = "hello world";
-
-            String text = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( pWinButton->Content )->Text->Data();                
-
-            REQUIRE( text == "hello world" );
-        }                
+        _pWinButton = dynamic_cast<::Windows::UI::Xaml::Controls::Button^>( _pWinFrameworkElement );
+        REQUIRE( _pWinButton!=nullptr );
     }
+
+    void verifyCorePadding() override
+    {
+        verifyIsExpectedWinPadding( _pWinButton->Padding );
+    }
+
+    void verifyCoreLabel() override
+    {
+        String expectedLabel = _pButton->label();
+
+        String label = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( _pWinButton->Content )->Text->Data();                
+        
+        REQUIRE( label == expectedLabel );
+    }
+
+
+    ::Windows::UI::Xaml::Controls::Button^ _pWinButton;
+};
+
+TEST_CASE("winuwp.ButtonCore")
+{
+    P<TestWinuwpButtonCore> pTest = newObj<TestWinuwpButtonCore>();
+
+    pTest->runTests();
 }
 
 

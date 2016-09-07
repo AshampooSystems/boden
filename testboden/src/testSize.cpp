@@ -141,6 +141,73 @@ TEST_CASE("Size")
 		}
 	}
 
+    SECTION("operator<")
+    {
+        Size a(10, 20);
+
+        REQUIRE( ! (a < Size(9, 19)) );
+        REQUIRE( ! (a < Size(9, 20)) );
+        REQUIRE( ! (a < Size(9, 21)) );
+        
+        REQUIRE( ! (a < Size(10, 19)) );
+        REQUIRE( ! (a < Size(10, 20)) );
+        REQUIRE( ! (a < Size(10, 21)) );
+
+        REQUIRE( ! (a < Size(11, 19)) );
+        REQUIRE( ! (a < Size(11, 20)) );
+        REQUIRE( a < Size(11, 21) );
+    }
+
+    SECTION("operator<=")
+    {
+        Size a(10, 20);
+
+        REQUIRE( ! (a <= Size(9, 19)) );
+        REQUIRE( ! (a <= Size(9, 20)) );
+        REQUIRE( ! (a <= Size(9, 21)) );
+        
+        REQUIRE( ! (a <= Size(10, 19)) );
+        REQUIRE( a <= Size(10, 20) );
+        REQUIRE( a <= Size(10, 21) );
+
+        REQUIRE( ! (a <= Size(11, 19)) );
+        REQUIRE( a <= Size(11, 20) );
+        REQUIRE( a <= Size(11, 21) );
+    }
+
+    SECTION("operator>")
+    {
+        Size a(10, 20);
+
+        REQUIRE( a > Size(9, 19) );
+        REQUIRE( ! (a > Size(9, 20)) );
+        REQUIRE( ! (a > Size(9, 21)) );
+        
+        REQUIRE( ! (a > Size(10, 19)) );
+        REQUIRE( ! (a > Size(10, 20)) );
+        REQUIRE( ! (a > Size(10, 21)) );
+
+        REQUIRE( ! (a > Size(11, 19)) );
+        REQUIRE( ! (a > Size(11, 20)) );
+        REQUIRE( ! (a > Size(11, 21)) );
+    }
+
+    SECTION("operator>=")
+    {
+        Size a(10, 20);
+
+        REQUIRE( a >= Size(9, 19) );
+        REQUIRE( a >= Size(9, 20) );
+        REQUIRE( ! (a >= Size(9, 21)) );
+        
+        REQUIRE( a >= Size(10, 19) );
+        REQUIRE( a >= Size(10, 20) );
+        REQUIRE( ! (a >= Size(10, 21)) );
+
+        REQUIRE( ! (a >= Size(11, 19)) );
+        REQUIRE( ! (a >= Size(11, 20)) );
+        REQUIRE( ! (a >= Size(11, 21)) );
+    }
 }
 
 

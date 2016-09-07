@@ -48,7 +48,9 @@ template <class BaseType, class ActualType>
 class RequireNewAlloc : public BaseType
 {
 public:
-	RequireNewAlloc()
+	template<typename... Args>
+    RequireNewAlloc(Args... args)
+        : BaseType( std::forward<Args>(args)... )
 	{
 		bool&	allocatedWithNewRef = _requireNewAlloc_getThreadLocalAllocatedWithNewRef();
 

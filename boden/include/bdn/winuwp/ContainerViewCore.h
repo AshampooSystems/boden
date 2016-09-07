@@ -74,6 +74,7 @@ public:
 
 
 protected:
+    
 	::Windows::UI::Xaml::Controls::Canvas^ _pCanvas;
 	
 };

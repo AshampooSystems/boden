@@ -3,49 +3,45 @@
 
 #include <bdn/Button.h>
 #include <bdn/Window.h>
-#include <bdn/test/testButtonCore.h>
+#include <bdn/test/TestButtonCore.h>
 
-#import <bdn/ios/UiProvider.hh>
-#import <bdn/ios/ButtonCore.hh>
-#import "testIosViewCore.hh"
+#import "TestIosViewCoreMixin.hh"
 
 using namespace bdn;
 
-TEST_CASE("ButtonCore-ios")
+
+class TestIosButtonCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestButtonCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::ios::UiProvider::get() );
-
-    P<Button> pButton = newObj<Button>();
-
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("ios-view")
-        bdn::ios::test::testIosViewCore(pWindow, pButton, true, true);
-
-    SECTION("ios-button")
+protected:
+    
+    void initCore() override
     {
-        P<bdn::ios::ButtonCore> pCore = cast<bdn::ios::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        bdn::test::TestIosViewCoreMixin< bdn::test::TestButtonCore >::initCore();
         
-        UIButton* pUIButton = pCore->getUIButton();
-
-        REQUIRE(  pUIButton!=nullptr );
-
-        SECTION("label")
-        {
-            // setLabel should change the window test
-            pButton->label() = "hello world";
-
-            String text = bdn::ios::iosStringToString( pUIButton.currentTitle );
-
-            REQUIRE( text == "hello world" );
-        }                
+        _pUIButton = (UIButton*) _pUIView;
+        REQUIRE( _pUIButton!=nullptr );
     }
+    
+    
+    void verifyCoreLabel() override
+    {
+        String expectedLabel = _pButton->label();
+        
+        String label = bdn::ios::iosStringToString( _pUIButton.currentTitle );
+        
+        REQUIRE( label == expectedLabel );
+    }
+    
+protected:
+    UIButton* _pUIButton;
+};
+
+
+TEST_CASE("ios.ButtonCore")
+{
+    P<TestIosButtonCore> pTest = newObj<TestIosButtonCore>();
+    
+    pTest->runTests();
 }
-
-
 
 

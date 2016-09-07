@@ -23,7 +23,7 @@ public:
 	double getSizePixels() const;
 
 
-	HFONT getHandle()
+	HFONT getHandle() const
 	{
 		return _handle;
 	}

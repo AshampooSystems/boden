@@ -973,9 +973,26 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
                 subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
 
-                subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                # subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                # subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                # subprocess.check_call( '"%s" install sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                # subprocess.check_call( '"%s" activate sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
 
-                subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                ver = "1.36.6-64bit"
+
+                subprocess.check_call( '"%s" install emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
+                subprocess.check_call( '"%s" activate emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
+                subprocess.check_call( '"%s" install clang-tag-e%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
+                subprocess.check_call( '"%s" activate clang-tag-e%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
+
+                subprocess.check_call( '"%s" install node-4.1.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                subprocess.check_call( '"%s" activate node-4.1.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                #subprocess.check_call( '"%s" install spidermonkey-37.0.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+                #subprocess.check_call( '"%s" activate spidermonkey-37.0.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+                #subprocess.check_call( '"%s" install crunch-1.04' % emsdkExePath, shell=True, cwd=emsdkDir);
+                #subprocess.check_call( '"%s" activate crunch-1.04' % emsdkExePath, shell=True, cwd=emsdkDir);
 
 
             except:

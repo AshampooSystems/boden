@@ -4,6 +4,8 @@
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
 
+#include <bdn/web/UiProvider.h>
+
 #include <emscripten/val.h>
 #include <emscripten/html5.h>
 
@@ -17,8 +19,8 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
     ViewCore(   View* pOuterView,
-                const String& elementName,
-                const std::map<String,String>& attribMap = std::map<String,String>())
+                const String& elementName,                
+                const std::map<String,String>& attribMap = std::map<String,String>() )
     : _domObject( emscripten::val::null() )
     {
         _pOuterViewWeak = pOuterView;
@@ -33,8 +35,7 @@ public:
             _domObject.set(attribPair.first.asUtf8(), attribPair.second.asUtf8());
 
         // we always use absolute positioning. Set this here.
-        emscripten::val styleObj = _domObject["style"];
-        styleObj.set("position", "absolute");
+        _domObject["style"].set("position", "absolute");
         
         _domObject.set("id", _elementId.asUtf8() );
 
@@ -88,8 +89,8 @@ public:
     {
         _domObject["style"].set("visibility", visible ? "visible" : "hidden");
     }
-    
-        
+
+
     void setPadding(const Nullable<UiMargin>& padding) override
     {
         // we need to set the padding in the DOM element, so that it can adjust its
@@ -97,21 +98,29 @@ public:
 
         if(padding.isNull())
         {
-            // we should use "default" padding.
-            _domObject["style"].set("padding", "initial");
+            // we should use "default" padding. There is "padding=initial", which, according to the standard,
+            // should mean "use default padding". However, our tests have shown that padding=initial with buttons
+            // sets the padding to 0, while not specifying a padding at all causes the padding to be nonzero.
+            // We tested this with Safari and Chrome.
+            // So, padding=initial seems to be out as an option. We need to actually remove the entry.
+            // Note that apparently the padding cannot be fully removed from the DOM. Even when we assign
+            // an empty style object and then access its padding, we will still get an empty object (as opposed
+            // to "undefined"). This seems to be a special case for the DOM.
+            // So instead we assign an empty string. That seems to do what we want.
+            _domObject["style"].set("padding", "");
         }
         else
         {
-            String paddingString;
-
             UiMargin pad = padding.get();
+            
+            String paddingString;
 
             paddingString = UiProvider::get().uiLengthToHtmlString(pad.top)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.right)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
                              + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
 
-            _domObject["style"].set("padding", paddingString.asUtf8() );
+            _domObject["style"].set("padding", paddingString.asUtf8());
         }
     }
     
@@ -170,6 +179,8 @@ public:
     
     
 protected:
+
+    
     Size _calcPreferredSize(int forWidth, int forHeight) const
     {
         emscripten::val styleObj = _domObject["style"];
@@ -210,6 +221,8 @@ protected:
             docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", _domObject);
         }
     }
+
+
 
     View*               _pOuterViewWeak;
     String              _elementId;

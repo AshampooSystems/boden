@@ -18,7 +18,9 @@ class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 {
 public:
     ButtonCore( Button* pOuterButton )
-    : ViewCore( pOuterButton, "button" )
+    : ViewCore( pOuterButton,
+                "button",
+                std::map<String,String>()  )
     {
         setLabel( pOuterButton->label() );        
 
@@ -35,6 +37,7 @@ public:
     
     
 protected:    
+
     bool _clicked(int eventType, const EmscriptenMouseEvent* pMouseEvent)
     {
         if(eventType==EMSCRIPTEN_EVENT_CLICK)

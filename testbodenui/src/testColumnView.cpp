@@ -241,11 +241,6 @@ TEST_CASE("ColumnView")
             };
         }
 
-        SECTION("XXX")
-        {
-            int x=0;
-            x++;
-        }
 	}	
 }
 

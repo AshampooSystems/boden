@@ -2,98 +2,105 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
-#include <bdn/test/testWindowCore.h>
+#include <bdn/test/TestWindowCore.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/WindowCore.h>
-#include "testWinuwpViewCore.h"
+#include "TestWinuwpViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("WindowCore-winuwp")
+
+
+
+class TestWinuwpWindowCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestWindowCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::winuwp::UiProvider::get() );
+protected:
 
-    SECTION("generic")
-        bdn::test::testWindowCore(pWindow );        
-
-    SECTION("winuwp-view")
-        bdn::winuwp::test::testWinuwpViewCore(pWindow, pWindow, false, false);
-
-    SECTION("winuwp-window")
+    bool canManuallyChangeBounds() const override
     {
-        P<bdn::winuwp::WindowCore> pCore = cast<bdn::winuwp::WindowCore>( pWindow->getViewCore() );
-        REQUIRE( pCore!=nullptr );
-
-        ::Windows::UI::Xaml::FrameworkElement^ pEl = dynamic_cast< ::Windows::UI::Xaml::FrameworkElement^ >(pCore->getFrameworkElement());
-        REQUIRE( pEl!=nullptr );
-
-        SECTION("title")
-        {
-            // setTitle currently has no effect.
-        }                
+        return false;
     }
 
-    // XXX test disabled. For some reason the Parent property is always null,
-    // so we cannot test for the destruction.
-    /*SECTION("Xaml window destroyed when object destroyed")
+    void initCore() override
     {
-        // there may be pending sizing info updates for the window, which keep it alive.
-        // Ensure that those are done first.
+        bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+    }
 
-        pWindow->visible() = true;
+    void verifyCorePadding() override
+    {
+        // the padding is not reflected in the core UI element. The outer view object handles it.
+        // So, nothing to test here.
+    }
 
-        // wrap pWindow in a struct so that we can destroy all references
-        // in the continuation.
-        struct CaptureData : public Base
+    void verifyCoreTitle() override
+    {
+        String expectedTitle = _pWindow->title();
+
+        // the title is not reflected by the core UI element. So, nothing to test here.
+    }
+
+
+    void verifyCoreBounds() override
+    {   
+        double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
+        double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
+        double width = _pWinFrameworkElement->Width;
+        if(std::isnan(width))
+            width = 0;
+        double height = _pWinFrameworkElement->Height;
+        if(std::isnan(height))
+            height = 0;
+
+        Rect bounds = _pView->bounds();
+
+        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
+
+        REQUIRE_ALMOST_EQUAL( x, bounds.x/scaleFactor, 1 );
+        REQUIRE_ALMOST_EQUAL( y, bounds.y/scaleFactor, 1 );
+        REQUIRE_ALMOST_EQUAL( width, bounds.width/scaleFactor, 1 );
+        REQUIRE_ALMOST_EQUAL( height, bounds.height/scaleFactor, 1 );
+    }
+
+
+
+    struct DestructVerificationInfo : public Base
+    {
+        DestructVerificationInfo(::Windows::UI::Xaml::FrameworkElement^ pEl)
         {
-            P<Window> pWindow;
-        };
-        P<CaptureData> pData = newObj<CaptureData>();
-        pData->pWindow = pWindow;
-        pWindow = nullptr;
+            this->pEl = pEl;
+        }
+        
+        ::Windows::UI::Xaml::FrameworkElement^ pEl;
+    };
+    
+    P<IBase> createInfoToVerifyCoreUiElementDestruction() override
+    {
+        // sanity check. If Parent is null then initialization has not yet completed.
+        // Note that the initialization happens with low priority, so it will not happen
+        // when there are events in the queue.
+        REQUIRE( _pWinFrameworkElement->Parent!=nullptr );
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
-        {
-            P<bdn::winuwp::WindowCore> pCore = cast<bdn::winuwp::WindowCore>( pData->pWindow->getViewCore() );
-            REQUIRE( pCore!=nullptr );
-
-            ::Windows::UI::Xaml::FrameworkElement^ pEl = pCore->getFrameworkElement();
-            REQUIRE( pEl!=nullptr );
-
-            // note that we cannot actually test whether the object is deleted or not.
-            // That is done by the garbage collector at some point in time that we cannot predict.
-            // But we CAN check if the panel is removed from the parent.
-            
-            ::Windows::UI::Xaml::DependencyObject^ pParent = pEl->Parent;
-            REQUIRE( pParent != nullptr );
+        return newObj<DestructVerificationInfo>( _pWinFrameworkElement );
+    }
 
 
-            SECTION("core not kept alive")
-            {
-                pCore = nullptr;
-            }
+    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    {
+        ::Windows::UI::Xaml::FrameworkElement^ pEl = cast<DestructVerificationInfo>( pVerificationInfo )->pEl;
+        
+        // should have been removed from its parent.
+        REQUIRE( _pWinFrameworkElement->Parent==nullptr );
+    }
+};
 
-            SECTION("core kept alive")
-            {
-                // do nothing
-            }        
+TEST_CASE("winuwp.WindowCore")
+{
+    P<TestWinuwpWindowCore> pTest = newObj<TestWinuwpWindowCore>();
 
-            pData->pWindow = nullptr;
-
-            // the parent might be updated asynchronously. So process events before we continue.
-
-            // give the WinRT background updater some time to do its work
-            Thread::sleepSeconds(2);
-
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData, pEl)
-            {
-                // window panel should have been removed from the parent
-                ::Windows::UI::Xaml::DependencyObject^ pParent = pEl->Parent;
-                REQUIRE( pParent == nullptr );
-            };
-        };
-    }*/
+    pTest->runTests();
 }
+
+
 
 
 

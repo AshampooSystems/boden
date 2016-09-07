@@ -71,7 +71,15 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-	void setPadding(const Nullable<UiMargin>& pad) override
+
+    void dispose() override
+    {
+        _pButton = nullptr;
+
+        ChildViewCore::dispose();
+    }
+
+    void setPadding(const Nullable<UiMargin>& pad) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -99,6 +107,8 @@ public:
 			padding.top/uiScaleFactor,
 			padding.right/uiScaleFactor,
 			padding.bottom/uiScaleFactor );
+
+        _activePadding = uiPadding;
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -148,9 +158,11 @@ protected:
 		}
 	}
 
+   
 	::Windows::UI::Xaml::Controls::Button^ _pButton;
 
-	double _doSizingInfoUpdateOnNextLayout = true;
+	double      _doSizingInfoUpdateOnNextLayout = true;
+    UiMargin    _activePadding;
 	
 };
 

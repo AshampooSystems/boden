@@ -25,17 +25,17 @@ public:
     int				uiLengthToPixels(const UiLength& uiLength) const
     {
         if(uiLength.unit==UiLength::sem)
-            return std::lround( uiLength.value * _semPixels );
+            return (int)std::lround( uiLength.value * _semPixels );
         
         else if(uiLength.unit==UiLength::pixel96)
         {
             // See UiLength documentation for more information about the pixel96 unit
             // and why this is correct.
-            return std::lround( uiLength.value );
+            return (int)std::lround( uiLength.value );
         }
         
         else if(uiLength.unit==UiLength::realPixel)
-            return std::lround( uiLength.value );
+            return (int)std::lround( uiLength.value );
         
         else
             throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );

@@ -239,6 +239,7 @@ protected:
 		    _pOuterViewWeak->needLayout();
 	}
 
+    
 		
 private:
 	void _addToParent(View* pParentView)
@@ -260,6 +261,7 @@ private:
 
 		cast<IViewCoreParent>( pParentCore )->addChildUiElement( _pFrameworkElement );
 	}
+
 
 	Size _calcPreferredSize(float availableWidth, float availableHeight) const
 	{

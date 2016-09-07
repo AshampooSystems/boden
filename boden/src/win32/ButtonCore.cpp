@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/win32/ButtonCore.h>
 
+#include <bdn/win32/WindowDeviceContext.h>
+
 namespace bdn
 {
 namespace win32
@@ -24,26 +26,17 @@ Size ButtonCore::calcPreferredSize() const
 {
 	String label = cast<Button>(_pOuterViewWeak)->label();
 
-	const std::wstring& labelWide = label.asWide();
+    Size prefSize;
 
-	HDC deviceContext = ::GetWindowDC(getHwnd());
+    {
+        WindowDeviceContext dc( getHwnd() );
 
-	HGDIOBJ oldFontHandle = NULL;
-	if(_pFont!=nullptr)
-		oldFontHandle = ::SelectObject( deviceContext, _pFont->getHandle() );
-
-	SIZE textSize = {0};
-	::GetTextExtentPoint32W( deviceContext, labelWide.c_str(), labelWide.length(), &textSize);
-
-	if(_pFont!=nullptr)
-		::SelectObject( deviceContext, oldFontHandle );
-
-	::ReleaseDC(getHwnd(), deviceContext);
-
-
-	Size buttonSize(textSize.cx, textSize.cy);
-
-    Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+        if(_pFont!=nullptr)
+		    dc.setFont( *_pFont );
+        prefSize = dc.getTextSize( label );
+    }
+    
+	Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {
@@ -54,17 +47,17 @@ Size ButtonCore::calcPreferredSize() const
     else
         uiPadding = pad;
 
-	buttonSize += uiMarginToPixelMargin( uiPadding );	
+	prefSize += uiMarginToPixelMargin( uiPadding );	
 
 	// size for the 3D border around the button
-	buttonSize.width += ((int)std::ceil( ::GetSystemMetrics(SM_CXEDGE) * _uiScaleFactor )) * 2;
-	buttonSize.height += ((int)std::ceil( ::GetSystemMetrics(SM_CYEDGE) * _uiScaleFactor )) * 2;
+	prefSize.width += ((int)std::ceil( ::GetSystemMetrics(SM_CXEDGE) * _uiScaleFactor )) * 2;
+	prefSize.height += ((int)std::ceil( ::GetSystemMetrics(SM_CYEDGE) * _uiScaleFactor )) * 2;
 
 	// size for the focus rect and one pixel of free space next to it
-	buttonSize.width += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
-	buttonSize.height += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
+	prefSize.width += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
+	prefSize.height += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
 
-	return buttonSize;
+	return prefSize;
 }
 
 int ButtonCore::calcPreferredHeightForWidth(int width) const

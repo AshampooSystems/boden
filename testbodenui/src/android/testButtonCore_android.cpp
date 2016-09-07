@@ -3,46 +3,48 @@
 
 #include <bdn/Button.h>
 #include <bdn/Window.h>
-#include <bdn/test/testButtonCore.h>
-#include <bdn/android/UiProvider.h>
-#include <bdn/android/ButtonCore.h>
-#include "testAndroidViewCore.h"
+#include <bdn/test/TestButtonCore.h>
+#include <bdn/android/JButton.h>
+#include "TestAndroidViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("ButtonCore-android")
+
+class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestButtonCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::android::UiProvider::get() );
+protected:
 
-    P<Button> pButton = newObj<Button>();
-
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("android-view")
-        bdn::android::test::testAndroidViewCore(pWindow, pButton, true);
-
-    SECTION("android-button")
+    void initCore() override
     {
-        P<bdn::android::ButtonCore> pCore = cast<bdn::android::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>::initCore();
 
-        bdn::android::JButton jb = pCore->getJButton();
-        REQUIRE( !jb.isNull_() );
-
-        SECTION("label")
-        {
-            // setLabel should change the window test
-            pButton->label() = "hello world";
-
-            String text = jb.getText();
-
-            REQUIRE( text == "hello world" );
-        }                
+        _jButton = bdn::android::JButton( _jView.getRef_() );
     }
+
+    void verifyCoreLabel() override
+    {
+        String expectedLabel = _pButton->label();
+
+        String label = _jButton.getText();
+
+        REQUIRE( label == expectedLabel );
+    }
+
+protected:
+    bdn::android::JButton _jButton;
+};
+
+TEST_CASE("android.ButtonCore")
+{
+    P<TestAndroidButtonCore> pTest = newObj<TestAndroidButtonCore>();
+
+    pTest->runTests();
 }
+
+
+
+
+
 
 
 

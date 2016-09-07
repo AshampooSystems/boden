@@ -18,27 +18,28 @@ void testCallFromMainThread(bool throwException)
 
         StopWatch watch;
 
-        std::cout << "1" << std::endl;
-
         std::future<int> result = callFromMainThread( [&callCount, throwException](int x){ callCount++; if(throwException){ throw InvalidArgumentError("hello"); } return x*2; }, 42 );
-
-        std::cout << "2" << std::endl;
 
         // should have been called immediately, since we are currently in the main thread
         REQUIRE( callCount==1 );
 
-        std::cout << "3" << std::endl;
-
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
-        std::cout << "4" << std::endl;
-
         if(throwException)
+        {
+#if BDN_PLATFORM_WEB
+            // XXX             
+            // result.get() causes a crash here with emscripten (due to a compiler bug).
+            // See https://github.com/kripken/emscripten/issues/4546
+            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
+            REQUIRE( false );   // let test fail
+#else
+
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+#endif
+        }
         else
             REQUIRE( result.get()==84 );
-
-        std::cout << "5" << std::endl;
 
         // should not have waited at any point.
         REQUIRE( watch.getMillis()<1000 );
@@ -484,7 +485,17 @@ void testWrapCallFromMainThread(bool throwException)
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
         if(throwException)
+        {
+#if BDN_PLATFORM_WEB
+            // XXX             
+            // result.get() causes a crash here with emscripten (due to a compiler bug).
+            // See https://github.com/kripken/emscripten/issues/4546
+            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
+            REQUIRE( false );   // let test fail
+#else
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
+#endif
+        }
         else
             REQUIRE( result.get()==84 );
 
@@ -750,5 +761,121 @@ TEST_CASE("wrapAsyncCallFromMainThread")
         testWrapAsyncCallFromMainThread(true);
 }
 
+
+class TestAsyncCallFromMainThreadAfterSeconds : public Base
+{
+public:
+    TestAsyncCallFromMainThreadAfterSeconds(bool exception, double seconds)
+    {
+        _exception = exception;
+        _seconds = seconds;
+    }
+
+    void runTest()
+    {
+        _pStopWatch = newObj<StopWatch>();
+
+        P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+        
+        asyncCallFromMainThreadAfterSeconds(
+            _seconds,
+            [pThis]
+            {
+                pThis->onCalled();
+            } );
+
+        
+        // should not have been called yet
+        REQUIRE( !_called );
+
+        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+        {
+            pThis->continueTest();
+        };
+    }
+
+    void onCalled()
+    {
+        // should only be called once
+        REQUIRE( !_called );
+
+        REQUIRE_IN_MAIN_THREAD();
+
+        _called = true;        
+
+        if(_exception)
+            throw InvalidArgumentError("hello");
+    }
+
+protected:
+    void continueTest()
+    {
+        int64_t expectedMillis = (int64_t)(_seconds * 1000);
+        int64_t maxMillis = expectedMillis + 500;
+        
+        int64_t elapsedMillis = _pStopWatch->getMillis();        
+
+        if( _called )
+        {
+            REQUIRE( elapsedMillis>=expectedMillis-1 );
+            REQUIRE( elapsedMillis <= maxMillis);
+
+            // test successfully done.
+        }
+        else
+        {
+            // not yet called. Has the time expired yet?           
+
+            REQUIRE( elapsedMillis <= maxMillis);
+
+            // sleep a short time and then run another continuation
+    
+            Thread::sleepMillis(20);
+
+            P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
+
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            {
+                pThis->continueTest();
+            };
+        }
+    }
+
+    bool            _called = false;
+
+    bool            _exception;
+    double          _seconds;
+    P<StopWatch>    _pStopWatch;
+};
+
+void testAsyncCallFromMainThreadAfterSeconds(bool exception)
+{
+    double seconds;
+
+    SECTION("zero")
+        seconds = 0;
+
+    SECTION("almostZero")
+        seconds = 0.0000000001;
+
+    SECTION("millis")
+        seconds = 0.2;   
+
+    SECTION("seconds")
+        seconds = 2.5;    
+
+    P<TestAsyncCallFromMainThreadAfterSeconds> pTest = newObj<TestAsyncCallFromMainThreadAfterSeconds>(exception, seconds);
+    
+    pTest->runTest();
+}
+
+TEST_CASE("asyncCallFromMainThreadAfterSeconds")
+{
+    SECTION("noException")
+        testAsyncCallFromMainThreadAfterSeconds(false);
+
+    SECTION("exception")
+        testAsyncCallFromMainThreadAfterSeconds(true);
+}
 
 

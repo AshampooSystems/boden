@@ -2,7 +2,10 @@
 #define BDN_WIN32_GlobalMessageWindow_H_
 
 #include <bdn/win32/MessageWindowBase.h>
+#include <bdn/RequireNewAlloc.h>
 #include <bdn/ISimpleCallable.h>
+
+#include <atomic>
 
 namespace bdn
 {
@@ -15,7 +18,7 @@ namespace win32
 
 	This class is only available on Windows Classic / Win32 platforms.
 */
-class GlobalMessageWindow : public MessageWindowBase
+class GlobalMessageWindow : public RequireNewAlloc<MessageWindowBase, GlobalMessageWindow>
 {
 public:
 	GlobalMessageWindow();
@@ -28,6 +31,8 @@ public:
 	/** Causes the specified callable object to be called from the main thread.
 		The ISimpleCallable::call method of the object will be called from 
 		the normal message loop processing in the main thread.
+
+        postCall can be used from any thread.
 		*/
 	void postCall(ISimpleCallable* pCallable);	
 
@@ -39,7 +44,6 @@ protected:
 	};
 
 	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-
 };
 
 

@@ -3,7 +3,7 @@
 
 #include <bdn/ClickEvent.h>
 
-#import <bdn/mac/ViewCore.hh>
+#import <bdn/mac/ChildViewCore.hh>
 
 #import <bdn/mac/util.hh>
 
@@ -12,18 +12,18 @@ namespace bdn
 namespace mac
 {
 
-class ButtonCoreBase : public ViewCore
+class ButtonCoreBase : public ChildViewCore
 {
 public:
     ButtonCoreBase(View* pOuter, NSButton* nsButton)
-    : ViewCore(pOuter, nsButton)
+    : ChildViewCore(pOuter, nsButton)
     {
         _nsButton = nsButton;
     }
     
     void dispose() override
     {
-        ViewCore::dispose();
+        ChildViewCore::dispose();
         
         _nsButton = nil;
     }

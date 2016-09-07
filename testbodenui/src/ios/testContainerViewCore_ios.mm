@@ -1,47 +1,37 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/Window.h>
-#include <bdn/ColumnView.h>
-#include <bdn/test/testContainerViewCore.h>
+#include <bdn/test/TestContainerViewCore.h>
 
-#import <bdn/ios/UiProvider.hh>
-#import <bdn/ios/ContainerViewCore.hh>
-#import "testIosViewCore.hh"
+#import <bdn/mac/UiProvider.hh>
+#import "TestIosViewCoreMixin.hh"
 
 using namespace bdn;
 
-TEST_CASE("ContainerViewCore-ios")
+
+
+class TestIosContainerViewCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestContainerViewCore >
 {
-    P<Window> pWindow = newObj<Window>();
-
-    // ContainerView is an abstract base class, so we cannot instantiate it.
-    // But we can use any ContainerView subclass for these tests because
-    // they all use the same core.
-
-    P<ColumnView> pColumnView = newObj<ColumnView>();
-
-    pWindow->setContentView(pColumnView);
-
-    SECTION("generic")
-        bdn::test::testContainerViewCore(pWindow, pColumnView );        
-
-    SECTION("ios-ViewCore")
-        bdn::ios::test::testIosViewCore(pWindow, pColumnView, false, true);
-
-    SECTION("ios-ContainerViewCore")
+protected:
+    
+    void initCore() override
     {
-        P<bdn::ios::ContainerViewCore> pCore = cast<bdn::ios::ContainerViewCore>( pColumnView->getViewCore() );
-        REQUIRE( pCore!=nullptr );
-
-        UIView* pUIView = pCore->getUIView();
-        REQUIRE(  pUIView!=nullptr );
-
-        // there is nothing mac specific to test here.
-        // The generic container view tests and the mac view test have already tested
-        // everything that the container view core does.        
+        TestIosViewCoreMixin< TestContainerViewCore >::initCore();
     }
+    
+};
+
+
+
+TEST_CASE("ios.ContainerViewCore")
+{
+    P<TestIosContainerViewCore> pTest = newObj<TestIosContainerViewCore>();
+    
+    pTest->runTests();
 }
+
+
+
 
 
 

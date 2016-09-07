@@ -6,6 +6,7 @@
 
 #include <bdn/web/ContainerViewCore.h>
 #include <bdn/web/ButtonCore.h>
+#include <bdn/web/TextViewCore.h>
 #include <bdn/web/WindowCore.h>
 
 
@@ -39,6 +40,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == TextView::getTextViewCoreTypeName() )
+        return newObj<TextViewCore>( cast<TextView>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );

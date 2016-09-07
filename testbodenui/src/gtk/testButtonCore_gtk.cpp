@@ -3,45 +3,31 @@
 
 #include <bdn/Button.h>
 #include <bdn/Window.h>
-#include <bdn/test/testButtonCore.h>
-#include <bdn/gtk/UiProvider.h>
-#include <bdn/gtk/ButtonCore.h>
-#include "testGtkViewCore.h"
+#include <bdn/test/TestButtonCore.h>
+#include "TestGtkViewCoreMixin.h"
 
 using namespace bdn;
 
-TEST_CASE("ButtonCore-gtk")
+
+class TestGtkButtonCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestButtonCore >
 {
-    P<Window> pWindow = newObj<Window>( &bdn::gtk::UiProvider::get() );
+protected:
 
-    P<Button> pButton = newObj<Button>();
-
-    pWindow->setContentView(pButton);
-
-    SECTION("generic")
-        bdn::test::testButtonCore(pWindow, pButton );        
-
-    SECTION("gtk-view")
-        bdn::gtk::test::testGtkViewCore(pWindow, pButton, true);
-
-    SECTION("gtk-button")
+    void verifyCoreLabel() override
     {
-        P<bdn::gtk::ButtonCore> pCore = cast<bdn::gtk::ButtonCore>( pButton->getViewCore() );
-        REQUIRE( pCore!=nullptr );
+        String expectedLabel = _pButton->label();
         
-        GtkWidget* pWidget = pCore->getGtkWidget();
-        REQUIRE( pWidget!=nullptr );
-
-        SECTION("label")
-        {
-            // setLabel should change the window test
-            pButton->label() = "hello world";
-            
-            String label = gtk_button_get_label( GTK_BUTTON(pWidget) );
-
-            REQUIRE( label == "hello world" );
-        }                
+        String label = gtk_button_get_label( GTK_BUTTON(_pGtkWidget) );
+        
+        REQUIRE( label == expectedLabel );
     }
+};
+
+TEST_CASE("gtk.ButtonCore")
+{
+    P<TestGtkButtonCore> pTest = newObj<TestGtkButtonCore>();
+
+    pTest->runTests();
 }
 
 

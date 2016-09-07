@@ -3157,6 +3157,18 @@ public:
             } );
 	}
 
+    void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
+	{
+		beginScheduleContinuation();
+		        		
+        asyncCallFromMainThreadAfterSeconds(
+            seconds,
+            [this, continuationFunc]()
+            {
+                doSectionContinuation(continuationFunc);
+            } );
+	}
+
 #if BDN_HAVE_THREADS
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
@@ -4241,8 +4253,14 @@ public:
 		catch( const char* msg ) {
 			return msg;
 		}
+#if BDN_PLATFORM_WINUWP
+        catch( ::Platform::Exception^ e)
+        {
+            return String( e->Message->Data() ).asUtf8();
+        }
+#endif
 		catch(...) {
-			return "Unknown exception";
+			return "Unknown exception type";
 		}
 	}
 

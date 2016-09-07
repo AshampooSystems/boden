@@ -25,6 +25,10 @@ public:
     {
     }
 
+    JView()
+    {
+    }
+
 
     /** Returns the JClass object for this class.
      *

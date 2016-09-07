@@ -39,6 +39,17 @@ public:
 	/** Create thes core for the specified UI object.
 
 		If the view type is not supported then a ViewTypeNotSupportedError is thrown.
+
+        Initialization of the created core objects
+        ------------------------------------------
+
+        In general, the core objects must initialize themselves from the properties of the specified outer
+        #View object. I.e. if the View has a property like a label then the core object must copy this
+        initially.
+
+        The only exception to this is the size and position of the view. The View::bounds() property should
+        not be used by the core - it will automatically be updated in a subsequent layout cycle after the core was created.
+        The core objects should initially have a size and position of zero.
 	
 		@param coreTypeName the type of the view core. All standard view core types start with "bdn."
 			(e.g. bdn.SomeViewName). If you create custom views with custom cores then you should start

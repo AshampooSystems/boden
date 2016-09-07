@@ -127,6 +127,17 @@ public:
 	
 		The default bounds for a newly constructed view are always position 0,0, size 0x0.
 		The bounds are usually set automatically by the parent view's layout routine.
+
+        IMPORTANT:
+
+        The bounds of top level #Window objects are restricted on some platforms. Sometimes
+        it is not possible to change the Window bounds at all (in that case the bounds property
+        will automatically revert back to the previous value whenever it is changed).
+
+        On some platforms top level windows may also report a zero position at all times, even though
+        the window is not at the top left corner of the screen.
+        
+
 	*/
 	virtual Property<Rect>& bounds()
 	{

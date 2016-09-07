@@ -48,9 +48,16 @@ ViewCore::ViewCore(	View* pOuterView,
 }
 
 
+ViewCore::~ViewCore()
+{
+    dispose();
+}
+
 void ViewCore::dispose()
 {
     _pOuterViewWeak = nullptr;
+
+    Win32Window::destroy();
 }
 
 void ViewCore::setUiScaleFactor(double factor)

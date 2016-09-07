@@ -3,6 +3,9 @@
 
 #include <bdn/log.h>
 
+#include <bdn/win32/win32Error.h>
+#include <bdn/Thread.h>
+
 namespace bdn
 {
 namespace win32
@@ -11,7 +14,7 @@ namespace win32
 BDN_SAFE_STATIC_IMPL( GlobalMessageWindow, GlobalMessageWindow::get );
 
 GlobalMessageWindow::GlobalMessageWindow()
-	: MessageWindowBase("bdn::GlobalMessageWindow")
+	: RequireNewAlloc<MessageWindowBase, GlobalMessageWindow>("bdn::GlobalMessageWindow")
 {
 }
 	
@@ -20,6 +23,7 @@ void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 	pCallable->addRef();
 	::PostMessage( getHwnd(), MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
 }
+
 
 void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -40,7 +44,7 @@ void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHand
 		pCallable->releaseRef();
 
 		context.setResult(0, false);
-	}
+	}    
 }
 
 

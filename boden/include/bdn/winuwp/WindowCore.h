@@ -50,7 +50,7 @@ public:
 		_pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
         _appViewId = _pAppView->Id;			
 
-        _pXamlWindow = Windows::UI::Xaml::Window::Current;			
+        _pXamlWindow = ::Windows::UI::Xaml::Window::Current;			
 
         // create a sub-panel inside the xaml window. The sub-panel is what we actually
         // consider our "window". 
@@ -295,6 +295,15 @@ private:
 		if(bounds.height == std::numeric_limits<int>::max())
 			bounds.height = 0;
 
+        // there is no "moved" event for Xaml windows. As such, we cannot find out when
+        // the window position changes. So we cannot update the outer window's bounds property
+        // with the position.
+        // As a result it is better to always assume zero position. Otherwise we can get inconsistencies
+        // with different bounds being reported at different times, even though there is no change event
+        // in between
+        bounds.x = 0;
+        bounds.y = 0;
+
 		return bounds;
 
         BDN_WINUWP_TO_STDEXC_END
@@ -361,12 +370,17 @@ private:
         {        
             if(_pOuterWindowWeak!=nullptr)
             {
-                // Update our window panel to the same size.
-                if(_pWindowPanel->Width != _pWindowPanelParent->Width
-                    || _pWindowPanel->Height != _pWindowPanelParent->Height)
-                {
-                    _pWindowPanel->Width = _pWindowPanelParent->Width;
-                    _pWindowPanel->Height = _pWindowPanelParent->Height;
+                ::Windows::Foundation::Rect bounds = _pXamlWindow->Bounds;
+
+                double width = bounds.Width;
+                double height = bounds.Height;
+
+                // Update our window panel to the same size as the outer window.
+                if(_pWindowPanel->Width != width
+                    || _pWindowPanel->Height != height)
+                {                    
+                    _pWindowPanel->Width = width;
+                    _pWindowPanel->Height = height;
 
                     // Update the bounds of the outer window object        
 			        _pOuterWindowWeak->bounds() = _getBounds();

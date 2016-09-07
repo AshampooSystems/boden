@@ -1,5 +1,5 @@
-#ifndef BDN_MAC_ViewCore_HH_
-#define BDN_MAC_ViewCore_HH_
+#ifndef BDN_MAC_ChildViewCore_HH_
+#define BDN_MAC_ChildViewCore_HH_
 
 #include <Cocoa/Cocoa.h>
 
@@ -15,10 +15,10 @@ namespace bdn
 namespace mac
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IParentViewCore
+class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IParentViewCore
 {
 public:
-    ViewCore(View* pOuterView, NSView* nsView)
+    ChildViewCore(View* pOuterView, NSView* nsView)
     {
         _pOuterViewWeak = pOuterView;
         
@@ -43,13 +43,15 @@ public:
     
     void setPadding(const Nullable<UiMargin>& padding) override
     {
+        // NSView does not have any padding properties. subclasses will override this
+        // if the corresponding Cocoa view class supports setting a padding.
     }
     
 
     void setBounds(const Rect& bounds) override
     {
-        // our parent view's coordinate system is "normal" i.e. with
-        // the top left being (0,0). So there is no need to flip the coordinates.
+        // our parent view's coordinate system is usually "normal" i.e. with
+        // the top left being (0,0). So there is no need to flip the coordinates.        
         _nsView.frame = rectToMacRect(bounds, -1);
     }
     
@@ -174,9 +176,9 @@ private:
      {
          if(pParentView==nullptr)
          {
-             // classes derived from ViewCore MUST have a parent. Top level windows do not
-             // derive from ViewCore.
-             throw ProgrammingError("bdn::mac::ViewCore constructed for a view that does not have a parent.");
+             // classes derived from ChildViewCore MUST have a parent. Top level windows do not
+             // derive from ChildViewCore.
+             throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view that does not have a parent.");
          }
          
          P<IViewCore> pParentCore = pParentView->getViewCore();
@@ -184,7 +186,7 @@ private:
          {
              // this should not happen. The parent MUST have a core - otherwise we cannot
              // initialize ourselves.
-             throw ProgrammingError("bdn::mac::ViewCore constructed for a view whose parent does not have a core.");
+             throw ProgrammingError("bdn::mac::ChildViewCore constructed for a view whose parent does not have a core.");
          }
          
          cast<IParentViewCore>( pParentCore )->addChildNsView( _nsView );

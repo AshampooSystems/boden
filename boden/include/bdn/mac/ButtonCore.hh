@@ -35,14 +35,14 @@ public:
     
     void setBounds(const Rect& bounds) override
     {
-        ViewCore::setBounds(bounds);
+        ChildViewCore::setBounds(bounds);
         _updateBezelStyle();
     }
 
     
     void setPadding(const Nullable<UiMargin>& padding) override
     {
-        ViewCore::setPadding(padding);
+        ChildViewCore::setPadding(padding);
         
         // we may need to update the bezel style.
     }

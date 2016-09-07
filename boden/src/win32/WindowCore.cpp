@@ -21,11 +21,7 @@ WindowCore::WindowCore(Window* pWindow)
 				WindowCore::WindowCoreClass::get().getName(),
 				pWindow->title().get(),
 				WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW,
-				WS_EX_APPWINDOW,
-				200,
-				200,
-				300,
-				200 )
+				WS_EX_APPWINDOW )
 {
 	_uiScaleFactor = 0;
 
