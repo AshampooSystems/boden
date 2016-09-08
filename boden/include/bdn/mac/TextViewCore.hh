@@ -64,15 +64,7 @@ public:
         
         setText( pOuterTextView->text() );
     }
-    
-    void dispose() override
-    {
-        ChildViewCore::dispose();
         
-        _nsTextView = nil;
-    }
-
-    
     void setText(const String& text) override
     {
         NSString* macText = stringToMacString(text);

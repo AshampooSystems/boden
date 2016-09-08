@@ -42,12 +42,6 @@ public:
         setText( pOuterTextView->text() );
     }
 
-    void dispose() override
-    {
-        ViewCore::dispose();
-
-        _pJTextView = nullptr;
-    }
 
     JTextView& getJTextView()
     {

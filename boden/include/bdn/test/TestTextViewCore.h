@@ -51,31 +51,57 @@ protected:
                 _pTextView->text() = "helloworld";
                 verifyCoreText();
             }
+        }
 
-            SECTION("effectsOnPreferredSize")
-            {
-                Size prefSizeBefore = _pTextView->calcPreferredSize();
+        SECTION("wider text causes wider preferred size")
+        {
+            Size prefSizeBefore = _pTextView->calcPreferredSize();
 
-                _pTextView->text() = "helloworld";
+            _pTextView->text() = "helloworld";
                 
-                P<TestTextViewCore> pThis = this;
-                
-                Size prefSize = pThis->_pTextView->calcPreferredSize();
+            Size prefSize = _pTextView->calcPreferredSize();
 
-                // width must increase with a bigger text
-                REQUIRE( prefSize.width > prefSizeBefore.width );
+            // width must increase with a bigger text
+            REQUIRE( prefSize.width > prefSizeBefore.width );
 
-                // note that the height might or might not increase. But it cannot be smaller.
-                REQUIRE( prefSize.height >= prefSizeBefore.height );
+            // note that the height might or might not increase. But it cannot be smaller.
+            REQUIRE( prefSize.height >= prefSizeBefore.height );
 
-                // when we go back to the same text as before then the preferred size should
-                // also be the same again
-                pThis->_pTextView->text() = "";
+            // when we go back to the same text as before then the preferred size should
+            // also be the same again
+            _pTextView->text() = "";
+    
+            REQUIRE( _pTextView->calcPreferredSize() == prefSizeBefore );
+        }
 
-                REQUIRE( pThis->_pTextView->calcPreferredSize() == prefSizeBefore );
-            }
+        SECTION("linebreaks cause multiline")
+        {
+            Size emptyTextPreferredSize = _pTextView->calcPreferredSize();
+
+            _pTextView->text() = "hello";
+
+            Size prefSizeBefore = _pTextView->calcPreferredSize();                   
+
+            _pTextView->text() = "hello\nhello";
+
+            Size prefSize = _pTextView->calcPreferredSize();                   
+
+            // should have same width as before (since both lines have the same texts).
+            REQUIRE( prefSize.width == prefSizeBefore.width);
+
+            // should have roughly twice the height as before. Note that the exact height
+            // can vary because the line spacing can be different.
+
+            REQUIRE( prefSize.height >= prefSizeBefore.height*2 );
+            REQUIRE( prefSize.height < prefSizeBefore.height*3 );
+
+            // when we go back to empty text then we should get the original size
+            _pTextView->text() = "";    
+            REQUIRE( _pTextView->calcPreferredSize() == emptyTextPreferredSize );
         }
     }
+
+
 
     /** Verifies that the text view core's text has the expected value
         (the text set in the outer TextView object's TextView::text() property.*/

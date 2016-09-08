@@ -18,7 +18,7 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 public:
     ViewCore(View* pOuterView, GtkWidget* pWidget)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         
         _pWidget = pWidget;
         
@@ -27,14 +27,7 @@ public:
         _addToParent();        
     }
     
-    
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
         
-        _pWidget = nullptr;
-    }
-    
 	void setVisible(const bool& visible) override
     {
         gtk_widget_set_visible(_pWidget, visible ? TRUE : FALSE);
@@ -58,12 +51,16 @@ public:
         
         gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );
         
-        P<View> pParentView = getOuterView()->getParentView();
-        if(pParentView!=nullptr)
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
         {
-            P<ViewCore> pParentViewCore = cast<ViewCore>( pParentView->getViewCore() );
+            P<View> pParentView = pView->getParentView();
+            if(pParentView!=nullptr)
+            {
+                P<ViewCore> pParentViewCore = cast<ViewCore>( pParentView->getViewCore() );
             
-            pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
+                pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
+            }
         }
     }
 
@@ -114,14 +111,14 @@ public:
     }
     
     
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
     virtual void _addChildViewCore(ViewCore* pChildCore)
@@ -152,7 +149,11 @@ private:
 
     Margin _getPaddingPixels() const
     {
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        P<View> pView = getOuterViewIfStillAttached();
+        Nullable<UiMargin> pad;
+        if(pView!=nullptr)
+            pad = pView->padding();
+
         if(pad.isNull())
             return getDefaultPaddingPixels();
         else            
@@ -232,7 +233,10 @@ private:
 
     void _addToParent()
     {
-        P<View> pParent = getOuterView()->getParentView();
+        P<View> pView = getOuterViewIfStillAttached();
+        P<View> pParent;
+        if(pView!=nullptr)
+            pParent = pView->getParentView();
         if(pParent==nullptr)
         {
             // nothing to do. We are a top level window.            
@@ -253,7 +257,7 @@ private:
 
 
     GtkWidget*  _pWidget;
-    View*       _pOuterViewWeak;
+    WeakP<View> _outerViewWeak;
 };
 
 

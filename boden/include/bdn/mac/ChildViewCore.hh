@@ -20,7 +20,7 @@ class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IPar
 public:
     ChildViewCore(View* pOuterView, NSView* nsView)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         
         _nsView = nsView;
         
@@ -29,13 +29,7 @@ public:
         setVisible( pOuterView->visible() );
         setPadding( pOuterView->padding() );
     }
-    
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-        _nsView = nil;
-    }
-    
+        
     void setVisible(const bool& visible) override
     {
         _nsView.hidden = !visible;
@@ -75,7 +69,10 @@ public:
         Size size = macSizeToSize( _nsView.fittingSize );
         
         // add the padding
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        Nullable<UiMargin> pad;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pad = pView->padding();
         
         Margin additionalPadding;
         if(pad.isNull())
@@ -135,14 +132,14 @@ public:
     
     
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
 
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-      return _pOuterViewWeak;
+      return _outerViewWeak.toStrong();
     }
 
     
@@ -192,8 +189,8 @@ private:
          cast<IParentViewCore>( pParentCore )->addChildNsView( _nsView );
     }
     
-    View*       _pOuterViewWeak;
-    NSView*     _nsView;
+    WeakP<View>       _outerViewWeak;
+    NSView*           _nsView;
 };
 
 

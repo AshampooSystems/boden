@@ -60,7 +60,8 @@ namespace mac
 
 WindowCore::WindowCore(View* pOuter)
 {
-    _pOuterWindowWeak = cast<Window>(pOuter);
+	P<Window> pOuterWindow = cast<Window>(pOuter);
+    _pOuterWindowWeak = pOuterWindow;
     
     NSScreen* screen = [NSScreen mainScreen];
     
@@ -86,18 +87,11 @@ WindowCore::WindowCore(View* pOuter)
     _ourDelegate = delegate;
     _nsWindow.delegate = delegate;
     
-    setTitle(_pOuterWindowWeak->title());
-    setVisible(_pOuterWindowWeak->visible());
+    setTitle(pOuterWindow->title());
+    setVisible(pOuterWindow->visible());
 }
 
 WindowCore::~WindowCore()
-{
-    dispose();
-}
-
-
-
-void WindowCore::dispose()
 {
     if(_nsWindow!=nil)
     {
@@ -114,8 +108,6 @@ void WindowCore::dispose()
     }
     
     _nsContentParent = nil;
-    
-    _pOuterWindowWeak = nullptr;
 }
 
 

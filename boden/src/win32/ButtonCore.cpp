@@ -24,7 +24,11 @@ void ButtonCore::setLabel(const String& label)
 
 Size ButtonCore::calcPreferredSize() const
 {
-	String label = cast<Button>(_pOuterViewWeak)->label();
+    String label;
+
+    P<Button> pButton = cast<Button>( _outerViewWeak.toStrong() );
+    if(pButton!=nullptr)
+	    label = pButton->label();
 
     Size prefSize;
 
@@ -36,7 +40,9 @@ Size ButtonCore::calcPreferredSize() const
         prefSize = dc.getTextSize( label );
     }
     
-	Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+	Nullable<UiMargin>  pad;
+    if(pButton!=nullptr)
+        pad = pButton->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {

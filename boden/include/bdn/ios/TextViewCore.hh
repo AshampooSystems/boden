@@ -32,12 +32,6 @@ public:
         setText( pOuterTextView->text() );
     }
     
-    void dispose() override
-    {
-        ViewCore::dispose();
-        
-        _uiLabel = nil;
-    }
     
     UILabel* getUILabel()
     {

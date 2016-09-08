@@ -27,7 +27,7 @@ ViewCore::ViewCore(	View* pOuterView,
 					width,
 					height )
 {
-	_pOuterViewWeak = pOuterView;
+	_outerViewWeak = pOuterView;
 
 	_uiScaleFactor = 0;
 
@@ -50,14 +50,6 @@ ViewCore::ViewCore(	View* pOuterView,
 
 ViewCore::~ViewCore()
 {
-    dispose();
-}
-
-void ViewCore::dispose()
-{
-    _pOuterViewWeak = nullptr;
-
-    Win32Window::destroy();
 }
 
 void ViewCore::setUiScaleFactor(double factor)
@@ -70,8 +62,10 @@ void ViewCore::setUiScaleFactor(double factor)
 		updateFont();
 
 		// and we must also notify our child views.
+        P<View> pOuter = getOuterViewIfStillAttached();
 		std::list< P<View> > childViews;
-		_pOuterViewWeak->getChildViews(childViews);
+        if(pOuter!=nullptr)
+		    pOuter->getChildViews(childViews);
 
 		for( const P<View>& pChildView: childViews)
 		{
@@ -85,9 +79,13 @@ void ViewCore::setUiScaleFactor(double factor)
 
 void ViewCore::updateFont()
 {
-	_pFont = UiProvider::get().getFontForView( _pOuterViewWeak, _uiScaleFactor);
+    P<View> pOuter = getOuterViewIfStillAttached();
+    if(pOuter!=nullptr)
+    {
+	    _pFont = UiProvider::get().getFontForView( pOuter, _uiScaleFactor);
 
-	::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
+	    ::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
+    }
 }
 
 
@@ -119,29 +117,33 @@ void ViewCore::setVerticalAlignment(const View::VerticalAlignment& align)
 
 void ViewCore::updateOrderAmongSiblings()
 {
-	HWND ourHwnd = getHwnd();
-	if(ourHwnd!=NULL)
-	{
-		View* pParentView = _pOuterViewWeak->getParentView();
+    P<View> pOuter = getOuterViewIfStillAttached();
+    if(pOuter!=nullptr)
+    {
+	    HWND ourHwnd = getHwnd();
+	    if(ourHwnd!=NULL)
+	    {
+		    View* pParentView = pOuter->getParentView();
 
-		if(pParentView!=nullptr)
-		{		
-			View* pPrevSibling = pParentView->findPreviousChildView( _pOuterViewWeak );
+		    if(pParentView!=nullptr)
+		    {		
+			    View* pPrevSibling = pParentView->findPreviousChildView( pOuter );
 
-			if(pPrevSibling==nullptr)
-			{
-				// we are the first child
-				::SetWindowPos(ourHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-			}
-			else
-			{
-				HWND prevSiblingHwnd = getViewHwnd(pPrevSibling);
+			    if(pPrevSibling==nullptr)
+			    {
+				    // we are the first child
+				    ::SetWindowPos(ourHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			    }
+			    else
+			    {
+				    HWND prevSiblingHwnd = getViewHwnd(pPrevSibling);
 						
-				if(prevSiblingHwnd!=NULL)
-					::SetWindowPos(ourHwnd, prevSiblingHwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-			}			
-		}
-	}
+				    if(prevSiblingHwnd!=NULL)
+					    ::SetWindowPos(ourHwnd, prevSiblingHwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			    }			
+		    }
+	    }
+    }
 }
 
 bool ViewCore::tryChangeParentView(View* pNewParentView)
@@ -195,7 +197,9 @@ void ViewCore::handleMessage(MessageContext& context, HWND windowHandle, UINT me
 	if(message==WM_SIZE)
 	{
 		// whenever our size changes it means that we have to update our layout
-		_pOuterViewWeak->needLayout();
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+		    pView->needLayout();
 	}
 	
 	Win32Window::handleMessage(context, windowHandle, message, wParam, lParam);

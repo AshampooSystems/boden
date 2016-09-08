@@ -54,18 +54,11 @@ public:
 
 	~WindowCore()
 	{
-        dispose();        
-	}
-    
-    void dispose() override
-    {
         // windows must be destroyed explicitly. Child widgets are destroyed
         // automatically.
         GtkWidget* pWidget = getGtkWidget();
 		if(pWidget!=nullptr)
-            gtk_widget_destroy( pWidget );        
-        
-        ViewCore::dispose();
+            gtk_widget_destroy( pWidget );                
     }
     
     
@@ -178,7 +171,10 @@ public:
     
     void _addChildViewCore(ViewCore* pChildCore) override
     {
-        Rect bounds = pChildCore->getOuterView()->bounds();
+        Rect bounds;
+        P<View> pChildView = pChildCore->getOuterViewIfStillAttached();
+        if(pChildView!=nullptr)
+            bounds = pChildView->bounds();
         
         GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
         
@@ -227,7 +223,9 @@ protected:
         // another configure event, because the setBounds method will only
         // reposition or resize the window if the new size/position are different
         // from the current ones.
-        getOuterView()->bounds() = _currBounds;                
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pView->bounds() = _currBounds;                
     }
     
     

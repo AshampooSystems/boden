@@ -42,9 +42,12 @@ protected:
     {
         if(eventType==EMSCRIPTEN_EVENT_CLICK)
         {
-            ClickEvent evt( getOuterView() );
-            
-            cast<Button>(getOuterView())->onClick().notify(evt);
+            P<View> pView = getOuterViewIfStillAttached();
+            if(pView!=nullptr)
+            {
+                ClickEvent evt( pView );            
+                cast<Button>(pView)->onClick().notify(evt);
+            }
         }
         
         return false;

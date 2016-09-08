@@ -29,7 +29,7 @@ public:
         updateOuterViewBounds();
     }
 
-    void dispose() override
+    ~WindowCore()
     {
         if(!_domObject.isNull() && !_domObject.isUndefined())
         {
@@ -38,8 +38,6 @@ public:
             if(!parent.isNull())
                 parent.call<void>("removeChild", _domObject);
         }
-
-        ViewCore::dispose();
     }
 
 
@@ -61,7 +59,11 @@ public:
 
     Rect getContentArea() override
     {
-        return Rect( Point(0,0), getOuterView()->bounds().get().getSize() );
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            return Rect( Point(0,0), pView->bounds().get().getSize() );
+        else
+            return Rect();
     }
 
 
@@ -104,9 +106,13 @@ private:
     {
         int width = _domObject["offsetWidth"].as<int>();
         int height = _domObject["offsetHeight"].as<int>();
-        getOuterView()->bounds() = Rect(0, 0, width, height);
 
-        getOuterView()->needLayout();
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            pView->bounds() = Rect(0, 0, width, height);
+            pView->needLayout();
+        }
     }
 
     bool resized(int eventType, const EmscriptenUiEvent* pEvent)

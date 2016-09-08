@@ -69,7 +69,7 @@ public:
 			the view object will exist at least as long as the core object, so a strong reference is
 			not necessary.
 			So you should not store the view pointer in a smart pointer (like P<View>).
-			Use weak pointers (like View*) instead.
+			Use weak pointers (like WeakP<View>) instead.
 			*/
 	virtual P<IViewCore> createViewCore(const String& coreTypeName, View* pView)=0;
 

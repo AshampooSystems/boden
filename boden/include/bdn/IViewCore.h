@@ -19,12 +19,6 @@ class IViewCore : BDN_IMPLEMENTS IBase
 {
 public:
 
-    /** Informs the core that it is about to be released.
-        The core is not allowed to access its outer view object
-        anymore after dispose returns.
-        */
-    virtual void dispose()=0;
-
 
 	/** Shows/hides the view core.*/
 	virtual void setVisible(const bool& visible)=0;

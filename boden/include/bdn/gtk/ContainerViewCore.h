@@ -48,7 +48,11 @@ public:
     
     void _addChildViewCore(ViewCore* pChildCore) override
     {
-        Rect bounds = pChildCore->getOuterView()->bounds();
+        P<View> pChildView = pChildCore->getOuterViewIfStillAttached();
+
+        Rect bounds;
+        if(pChildView!=nullptr)
+            bounds = pChildView->bounds();
         
         GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
         

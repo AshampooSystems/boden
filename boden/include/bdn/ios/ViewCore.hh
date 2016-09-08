@@ -20,7 +20,7 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 public:
     ViewCore(View* pOuterView, UIView* view)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         _view = view;
         
         _addToParent( pOuterView->getParentView() );
@@ -29,20 +29,15 @@ public:
         setPadding( pOuterView->padding() );
     }
     
-    void dispose() override
+    
+    P<const View> getOuterViewIfStillAttached() const
     {
-        _pOuterViewWeak = nullptr;
-        _view = nil;
+        return _outerViewWeak.toStrong();
     }
     
-    const View* getOuterView() const
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
-    }
-    
-    View* getOuterView()
-    {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
     UIView* getUIView() const
@@ -128,7 +123,12 @@ protected:
     {
         // add the padding
         Margin padding;
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        
+        Nullable<UiMargin> pad;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pad = pView->padding();
+
         if(pad.isNull())
             padding = getDefaultPaddingPixels();
         else
@@ -178,7 +178,7 @@ private:
     }
 
 
-    View*   _pOuterViewWeak;
+    WeakP<View>   _outerViewWeak;
     
     UIView* _view;
 };

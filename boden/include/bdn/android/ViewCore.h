@@ -35,7 +35,7 @@ public:
     ViewCore(View* pOuterView, JView* pJView, bool initBounds=true )
     {
         _pJView = pJView;
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
 
         _uiScaleFactor = 1;
 
@@ -64,11 +64,6 @@ public:
 
     ~ViewCore()
     {
-        dispose();
-    }
-
-    void dispose() override
-    {
         if(_pJView!=nullptr)
         {
             // remove the the reference to ourselves from the java-side view object.
@@ -94,14 +89,16 @@ public:
     }
 
 
-    const View* getOuterView() const
+    /** Returns a pointer to the outer View object, if this core is still attached to it
+        or null otherwise.*/
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
 
@@ -237,8 +234,10 @@ public:
         {
             _uiScaleFactor = scaleFactor;
 
+            P<View> pView = getOuterViewIfStillAttached();
             std::list<P<View> > childList;
-            getOuterView()->getChildViews(childList);
+            if(pView!=nullptr)
+                pView->getChildViews(childList);
 
             for (P<View> &pChild: childList) {
                 P<ViewCore> pChildCore = cast<ViewCore>(pChild->getViewCore());
@@ -294,7 +293,7 @@ private:
         }
     }
 
-    View*           _pOuterViewWeak;
+    WeakP<View>     _outerViewWeak;
 
 private:
     P<JView>        _pJView;

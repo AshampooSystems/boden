@@ -144,10 +144,11 @@ protected:
 		reached 0). This can be overloaded to do custom cleanup or prevent normal
         deletion with the delete operator.
 
-        Note that when deleteThis is called at a point in time when all exï¿½sting weak pointers
+        Note that when deleteThis is called at a point in time when all exísting weak pointers
         (see WeakP) to the object have already been invalidated / set to null. So the object is
         actually already considered "dead" at this point.
 
+		deleteThis can also "revive" the object by calling #reviveDuringDeleteThis.
 		This aborts the deletion process and returns a pointer with a new reference to the
 		object. But since weak pointers were already invalidated, they will stay null and
         can NOT be used to access the revived object.
@@ -160,6 +161,7 @@ protected:
         delete this;
     }
 	
+	/** This can be called during the execution of deleteThis() to "revive" the object. This means
         that the object is not actually deleted and a new strong reference to the object is returned.
         The caller must store this returned pointer/reference, otherwise the object is deleted again
         immediately when the returned pointer object is destroyed.
@@ -167,6 +169,7 @@ protected:
         Note that if weak pointers to the object existed then they have already been invalidated before
         deleteThis was called. So even if the object is revived then the weak pointers will still be null.
 		*/
+	P<IBase> reviveDuringDeleteThis()
 	{
 		_refCount += _deleteThisRefCountDelta + 1;
 

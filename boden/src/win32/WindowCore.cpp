@@ -29,10 +29,8 @@ WindowCore::WindowCore(Window* pWindow)
 }
 
 
-void WindowCore::dispose()
+WindowCore::~WindowCore()
 {
-    ViewCore::dispose();
-
     Win32Window::destroy();
 }
 
@@ -72,7 +70,9 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
 	{
 		Rect newRect(pSuggestedNewRect->left, pSuggestedNewRect->top, pSuggestedNewRect->right-pSuggestedNewRect->left, pSuggestedNewRect->bottom-pSuggestedNewRect->top);
 
-		_pOuterViewWeak->bounds() = newRect;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+		    pView->bounds() = newRect;
 	}
 }
 

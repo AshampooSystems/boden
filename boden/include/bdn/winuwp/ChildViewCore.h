@@ -75,7 +75,7 @@ public:
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		_pOuterViewWeak = pOuterView;
+		_outerViewWeak = pOuterView;
 		_pFrameworkElement = pFrameworkElement;
 
 		_pEventForwarder = pEventForwarder;
@@ -89,7 +89,7 @@ public:
 
 		setVisible( pOuterView->visible() );
 				
-		_addToParent( _pOuterViewWeak->getParentView() );
+		_addToParent( pOuterView->getParentView() );
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -99,11 +99,6 @@ public:
 		_pEventForwarder->dispose();
 	}
 
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-    }
-	
 	void setVisible(const bool& visible) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -214,9 +209,9 @@ public:
 	/** Returns a pointer to the outer view object that is associated with this core.
         Can return null if the core has been disposed (i.e. if it is not connected
         to an outer view anymore).*/
-	View* getOuterView()
+	P<View> getOuterViewIfStillAttached()
 	{
-		return _pOuterViewWeak;
+		return _outerViewWeak.toStrong();
 	}
 
 protected:
@@ -235,8 +230,9 @@ protected:
 	{
 		// Xaml has done a layout cycle. At this point all the controls should know their
 		// desired sizes. So this is when we schedule our layout updated
-        if(_pOuterViewWeak!=nullptr)
-		    _pOuterViewWeak->needLayout();
+        P<View> pView = _outerViewWeak.toStrong();
+        if(pView!=nullptr)
+		    pView->needLayout();
 	}
 
     
@@ -316,7 +312,7 @@ private:
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
-	View*					_pOuterViewWeak;	// weak by design	
+	WeakP<View> 			_outerViewWeak;	// weak by design
 
 	ViewCoreEventForwarder^ _pEventForwarder;
 };

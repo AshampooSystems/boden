@@ -24,7 +24,10 @@ void TextViewCore::setText(const String& text)
 
 Size TextViewCore::calcPreferredSize() const
 {
-	String text = cast<TextView>(_pOuterViewWeak)->text();
+    P<TextView> pTextView = cast<TextView>( getOuterViewIfStillAttached() );
+	String text;
+    if(pTextView!=nullptr)
+        text = pTextView->text();
 
     Size prefSize;
 
@@ -36,7 +39,9 @@ Size TextViewCore::calcPreferredSize() const
         prefSize = dc.getTextSize( text );
     }
 
-    Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+    Nullable<UiMargin>  pad;
+    if(pTextView!=nullptr)
+        pad = pTextView->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {

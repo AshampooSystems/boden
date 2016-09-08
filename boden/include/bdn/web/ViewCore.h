@@ -23,7 +23,7 @@ public:
                 const std::map<String,String>& attribMap = std::map<String,String>() )
     : _domObject( emscripten::val::null() )
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
 
         _elementId = "bdn_view_"+std::to_string(IdGen::newID());
 
@@ -45,10 +45,6 @@ public:
         _addToParent( pOuterView->getParentView() );        
     }
 
-    ~ViewCore()
-    {
-        dispose();
-    }
     
 
     /** Returns the DOM object that corresponds to this view.*/
@@ -57,14 +53,6 @@ public:
         return _domObject;
     }
     
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-
-        _domObject = emscripten::val::null();        
-
-    }
-
     /** Returns the id of the DOM element that corresponds to the view.*/
     String getHtmlElementId() const
     {
@@ -72,14 +60,14 @@ public:
     }
 
 
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
 
@@ -224,7 +212,7 @@ protected:
 
 
 
-    View*               _pOuterViewWeak;
+    WeakP<View>         _outerViewWeak;
     String              _elementId;
     Rect                _currBounds;
     

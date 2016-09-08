@@ -26,9 +26,7 @@ public:
 				int height=0 );
 
     ~ViewCore();
-	
-    void dispose() override;
-	
+		
 	void setVisible(const bool& visible) override;
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
@@ -124,7 +122,7 @@ protected:
 	virtual P<ViewCore> findChildCoreForMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 
-	View* _pOuterViewWeak;	// weak by design
+	WeakP<View> _outerViewWeak;	// weak by design
 
 	/** See setUiScaleFactor() */
 	double _uiScaleFactor;

@@ -56,7 +56,7 @@ public:
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
     }
 
-    void dispose() override
+    ~WindowCore()
     {
         JView* pView = &getJView();
         if(pView!=nullptr)
@@ -66,8 +66,6 @@ public:
             if (!parent.isNull_())
                 parent.removeView(*pView);
         }
-
-        ViewCore::dispose();
     }
 
 
@@ -82,7 +80,11 @@ public:
         // any changes we get from the outside world.
 
         if(bounds!=_currentBounds)
-            getOuterView()->bounds() = _currentBounds;
+        {
+            P<View> pView = getOuterViewIfStillAttached();
+            if(pView!=nullptr)
+                pView->bounds() = _currentBounds;
+        }
     }
 
     void setVisible(const bool& visible) override
@@ -220,10 +222,13 @@ protected:
 
         _currentBounds = Rect(0, 0, width, height);
 
-        P<View> pView = getOuterView();
-        pView->bounds() = _currentBounds;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            pView->bounds() = _currentBounds;
 
-        pView->needLayout();
+            pView->needLayout();
+        }
     }
 
     /** Called when the configuration changed for this window core.

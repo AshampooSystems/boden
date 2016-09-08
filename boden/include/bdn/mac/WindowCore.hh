@@ -33,8 +33,6 @@ public:
     }
     
     
-    void dispose() override;
-    
     void setTitle(const String& title) override
     {
         [_nsWindow setTitle: stringToMacString(title)];
@@ -185,15 +183,22 @@ public:
     void _resized()
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
-        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
-        
-        _pOuterWindowWeak->needLayout();
+
+        P<View> pOuter = getOuterViewIfStillAttached();
+        if(pOuter!=nullptr)
+        {     
+            pOuter->bounds() = _currActualWindowBounds;        
+            pOuter->needLayout();
+        }
     }
     
     void _moved()
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
-        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
+
+        P<View> pOuter = getOuterViewIfStillAttached();
+        if(pOuter!=nullptr)        
+            pOuter->bounds() = _currActualWindowBounds;
     }
     
 private:
@@ -209,13 +214,13 @@ private:
     }
     
     
-    Window*     _pOuterWindowWeak;
-    NSWindow*   _nsWindow;
-    NSView*     _nsContentParent;
+    WeakP<Window>   _pOuterWindowWeak;
+    NSWindow*       _nsWindow;
+    NSView*         _nsContentParent;
     
-    NSObject*   _ourDelegate;
+    NSObject*       _ourDelegate;
     
-    Rect        _currActualWindowBounds;
+    Rect            _currActualWindowBounds;
 };
 
 

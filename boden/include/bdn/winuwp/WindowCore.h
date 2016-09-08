@@ -30,7 +30,7 @@ public:
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		_pUiProvider = pUiProvider;
-		_pOuterWindowWeak = pOuterWindow;
+		_outerWindowWeak = pOuterWindow;
 
         // In UWP there is no normal "top level window" in the classical sense.
         // An UWP app has one or more "application views". While these views look
@@ -91,14 +91,7 @@ public:
 
 	~WindowCore()
 	{
-        dispose();
-	}
-
-    void dispose() override
-    {
         BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        _pOuterWindowWeak = nullptr;
 
         if(_pEventForwarder!=nullptr)
             _pEventForwarder->dispose();		
@@ -326,8 +319,9 @@ private:
 		asyncCallFromMainThread(
 			[pThis]()
 			{
-				if(pThis->_pOuterWindowWeak!=nullptr)
-					pThis->_pOuterWindowWeak->bounds() = pThis->_getBounds();
+                P<View> pView = pThis->_outerWindowWeak.toStrong();
+				if(pView!=nullptr)
+					pView->bounds() = pThis->_getBounds();
 			});		
 	}
 
@@ -368,7 +362,8 @@ private:
 
         try
         {        
-            if(_pOuterWindowWeak!=nullptr)
+            P<View> pOuterView = _outerWindowWeak.toStrong();
+            if(pOuterView!=nullptr)
             {
                 ::Windows::Foundation::Rect bounds = _pXamlWindow->Bounds;
 
@@ -383,10 +378,10 @@ private:
                     _pWindowPanel->Height = height;
 
                     // Update the bounds of the outer window object        
-			        _pOuterWindowWeak->bounds() = _getBounds();
+			        pOuterView->bounds() = _getBounds();
 
                     // and the size and position of our content panel
-		            _pOuterWindowWeak->needLayout();
+		            pOuterView->needLayout();
                 }
             }
         }
@@ -400,7 +395,7 @@ private:
 
 
 	P<UiProvider>	_pUiProvider;
-	Window*			_pOuterWindowWeak;
+	WeakP<Window>   _outerWindowWeak;
 
 	// Windows::ApplicationModel::Core::CoreApplicationView^ _pCoreAppView;
 

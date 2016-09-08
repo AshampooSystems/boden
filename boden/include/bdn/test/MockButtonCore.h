@@ -63,9 +63,13 @@ public:
 	
 	void generateClick()
 	{
-		ClickEvent evt(getOuterViewWeak());
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+		    ClickEvent evt(pView);
 
-		cast<Button>(getOuterViewWeak())->onClick().notify(evt);
+		    cast<Button>(pView)->onClick().notify(evt);
+        }
 	}
 
 protected:    

@@ -25,9 +25,11 @@ View::View()
 
 View::~View()
 {
-	// We have to manually deinit the core here (if we have one) to ensure that it is not deleted
-	// from a thread other than the main thread.
-	_deinitCore();
+	// We have to be careful here to ensure that the last reference to the core object is not deleted
+    // from some other thread (this destructor might be called from another thread).
+
+    // So we deinit the core now
+    _deinitCore();
 }
 
 void View::needSizingInfoUpdate()
@@ -89,7 +91,7 @@ void View::_setParentView(View* pParentView)
 {
 	MutexLock lock( getHierarchyAndCoreMutex() );
 
-	bool mustReinitCore = true;
+	bool callReinitCoreHere = true;
 
 	// note that we do not have special handling for the case when the "new" parent view
 	// is the same as the old parent view. That case can happen if the order position
@@ -121,14 +123,14 @@ void View::_setParentView(View* pParentView)
 			// directly call this here. We treat this case differently
 			// (rather than just always calling callFromMainThread) because
 			// we need to handle the locking differently when we are already in the main thread.
-			if(! _pCore->tryChangeParentView(_pParentViewWeak) )
-				mustReinitCore = true;
+			if(_pCore->tryChangeParentView(_pParentViewWeak) )
+				callReinitCoreHere = false;
 		}
 		else
 		{
 			// schedule the update to happen in the main thread.
 			// Do not reinit the core from THIS thread.
-			mustReinitCore = false;
+			callReinitCoreHere = false;
 
 			P<IViewCore>	pCore = _pCore;
 			P<View>			pThis = this;
@@ -147,7 +149,7 @@ void View::_setParentView(View* pParentView)
 		}
 	}
 
-	if(mustReinitCore)
+	if(callReinitCoreHere)
 		reinitCore();
 
 	// note that there is no need to update the UI provider of the child views.
@@ -159,7 +161,7 @@ void View::_setParentView(View* pParentView)
 	
 void View::reinitCore()
 {
-	MutexLock		lock( getHierarchyAndCoreMutex() );
+    MutexLock		lock( getHierarchyAndCoreMutex() );
 
 	_deinitCore();
 
@@ -175,30 +177,41 @@ void View::reinitCore()
 
 void View::_deinitCore()
 {
-	// we must not release the core from another thread. So we do that from the
-	// main thread.
-
-	MutexLock		lock( getHierarchyAndCoreMutex() );
+    MutexLock		lock( getHierarchyAndCoreMutex() );
 		
-	P<IViewCore>	pOldCore = _pCore;
-
-    std::list< P<View> > childViewsCopy;
+	std::list< P<View> > childViewsCopy;
 	getChildViews( childViewsCopy );
 
-    // tell the old core that it is about to be released.
-    if(_pCore!=nullptr)
-        _pCore->dispose();
+    P<IViewCore>	pCoreToReleaseFromMainThread;
+    
+    if(_pCore!=nullptr && !Thread::isCurrentMain())
+    {
+        // we cannot release our reference to the old core from here.
+        // Cores must ONLY be deleted from the main thread.
+        // So we schedule it to be released later.
+        pCoreToReleaseFromMainThread = _pCore;
 
+        // note that it is not harmful for the old core to still exist
+        // a few moments longer. When a new core is to be created then
+        // that new core is significantly different (other UI provider or
+        // other parent), so it will not "overlap" with the old core.
+        // And if the core is deinitialized because this object is about
+        // to be deleted then that is not harmful either because the
+        // Cores use WeakP to access the outer view. So it will safely
+        // detect if this outer view object is already gone.
+    }
+        
     _pCore = nullptr;
-	
+    	
 	// also release the core of all child views
 	for( auto pChildView: childViewsCopy )
 		pChildView->_deinitCore();
 
-    // now schedule the core reference to be released from the main thread.
-	// note that we do nothing in the scheduled function. We only use this to keep the core alive
-	// and cause its final release to be called from the main thread.
-	callFromMainThread( [pOldCore](){} );
+    
+    // If we need to release the old core from the main thread then we schedule
+    // that here now.
+    if(pCoreToReleaseFromMainThread!=nullptr)
+	    asyncCallFromMainThread( [pCoreToReleaseFromMainThread](){} );
 }
 
 

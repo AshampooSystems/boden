@@ -36,12 +36,6 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-    void dispose() override
-    {
-        _pTextBlock = nullptr;
-
-        ChildViewCore::dispose();
-    }
 
 	void setPadding(const Nullable<UiMargin>& pad) override
 	{
@@ -91,7 +85,7 @@ protected:
 		{
 			_doSizingInfoUpdateOnNextLayout = false;
 
-            View* pOuterView = getOuterView();
+            P<View> pOuterView = getOuterViewIfStillAttached();
             if(pOuterView!=nullptr)
 			    pOuterView->needSizingInfoUpdate();
 		}

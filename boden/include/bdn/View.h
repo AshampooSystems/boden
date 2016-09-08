@@ -505,7 +505,7 @@ protected:
 			// there was an in-progress notifications and it added a new reference.
 
 			// So we abort the deletion.
-			P<IBase> pNewRef = cancelDeleteThisAndReturnNewReference();
+			P<IBase> pNewRef = reviveDuringDeleteThis();
 
 			// Immediately release the new reference. If the pending call has finished
 			// already then this will re-trigger our deletion. Otherwise the deletion will
