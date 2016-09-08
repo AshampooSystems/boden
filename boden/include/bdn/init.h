@@ -28,6 +28,7 @@
 
 #include <bdn/IBase.h>
 #include <bdn/P.h>
+#include <bdn/WeakP.h>
 #include <bdn/Base.h>
 
 #include <bdn/newObj.h>

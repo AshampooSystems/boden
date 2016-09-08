@@ -2,6 +2,7 @@
 #define BDN_Base_H_
 
 #include <bdn/IBase.h>
+#include <bdn/IWeakReferencable.h>
 
 #if !BDN_PLATFORM_DOTNET
 #include <atomic>
@@ -13,7 +14,7 @@ namespace bdn
 /** Base class for most other classes. Provides an implementation
 	for IBase.
 	*/
-class Base : BDN_IMPLEMENTS IBase
+class Base : BDN_IMPLEMENTS IBase, BDN_IMPLEMENTS IWeakReferencable
 {
 public:
 	Base()
@@ -29,10 +30,7 @@ public:
 		_refCount = 1;
 	}
 
-	virtual ~Base()
-	{
-	}
-
+	virtual ~Base();
 
 	void addRef() const override
 	{
@@ -54,14 +52,7 @@ public:
 		{
 			// the reference count has reached 0.
 
-			// Set the refcount to a very small number. This is for situations where there are
-			// addRef/releaseRef calls in the object's destructor. If we don't do this then
-			// those calls could increase the ref count above 0 and then back to 0. That would
-			// cause the object to be deleted a second time when it reach 0
-			// again (causing a crash).
-			_refCount -= _deleteThisRefCountDelta;
-
-			const_cast<Base*>(this)->deleteThis();
+			const_cast<Base*>(this)->refCountReachedZero();
 		}
 
 	}
@@ -123,6 +114,9 @@ public:
 		return *this;
 	}
 
+    
+    P<IWeakReferenceState> getWeakReferenceState() override;
+
 protected:
 
 	enum
@@ -139,28 +133,40 @@ protected:
 		return ::operator new(size);
 	}
 
-	
-	/** Called when the object wants to delete itself (when the reference count
-		reaches 0). This can be overloaded to prevent the deletion from happening.
 
-		deleteThis can "revive" the object by calling #cancelDeleteThisAndReturnNewReference.
+    /** Called when our reference count reaches zero. This initiates the destruction of the
+        object and will eventually call deleteThis()*/
+    void refCountReachedZero();
+    
+
+
+    /** Called when the object wants to delete itself (when the reference count
+		reached 0). This can be overloaded to do custom cleanup or prevent normal
+        deletion with the delete operator.
+
+        Note that when deleteThis is called at a point in time when all ex�sting weak pointers
+        (see WeakP) to the object have already been invalidated / set to null. So the object is
+        actually already considered "dead" at this point.
+
 		This aborts the deletion process and returns a pointer with a new reference to the
-		object.
+		object. But since weak pointers were already invalidated, they will stay null and
+        can NOT be used to access the revived object.
 
-		Possible use cases are when the object is added to a 'recycle list' of free objects
+		Possible use cases for reviving are when the object is added to a 'recycle list' of free objects
 		to be used again later.		
 		*/
-	virtual void deleteThis()
-	{
-		delete this;
-	}
+    virtual void deleteThis()
+    {
+        delete this;
+    }
+	
+        that the object is not actually deleted and a new strong reference to the object is returned.
+        The caller must store this returned pointer/reference, otherwise the object is deleted again
+        immediately when the returned pointer object is destroyed.
 
-
-	/** This can be called from deleteThis to cancel the deletion. A new reference is added
-		and a pointer with that reference is returned. The caller must store this pointer/reference,
-		otherwise the object is deleted again immediately when the returned pointer object is destroyed.
+        Note that if weak pointers to the object existed then they have already been invalidated before
+        deleteThis was called. So even if the object is revived then the weak pointers will still be null.
 		*/
-	P<IBase> cancelDeleteThisAndReturnNewReference()
 	{
 		_refCount += _deleteThisRefCountDelta + 1;
 
@@ -169,11 +175,17 @@ protected:
 		return pRef;
 	}
 
+private:
+
 #if BDN_PLATFORM_DOTNET
 	mutable int _refCount;
 #else
 	mutable volatile std::atomic<int> _refCount;
 #endif
+
+    struct WeakReferenceState_;
+
+    std::atomic<WeakReferenceState_*> _weakReferenceState;
 };
     
     
@@ -181,5 +193,4 @@ protected:
 
 
 #endif
-
 

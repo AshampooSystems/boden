@@ -43,8 +43,7 @@ public:
 		releaseRef implementations MUST be thread-safe.
 		*/
 	virtual void releaseRef() const=0;
-
-
+      
 
 };
     
