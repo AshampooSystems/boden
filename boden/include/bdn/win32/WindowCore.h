@@ -18,6 +18,7 @@ class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
 public:
 	WindowCore(Window* pWindow);			
 
+    ~WindowCore();
 	
 	void	setTitle(const String& title) override;
 

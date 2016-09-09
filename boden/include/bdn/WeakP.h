@@ -95,20 +95,12 @@ public:
 	
 	template<class F>
 	inline WeakP(const WeakP<F>& p)
-		: _pState( p._pState )
+		: _pState( p._getWeakReferenceState() )
 	{
         // make sure that F is actually a compatible type
         T* dummy = (F*)nullptr;
 	}
-
-	template<class F>
-	inline WeakP(WeakP<F>&& p)
-		: _pState( std::move(p._pState) )
-	{
-        // make sure that F is actually a compatible type
-        T* dummy = (F*)nullptr;
-	}
-
+    
     template<class F>
 	inline WeakP(const P<F>& p)
 		: WeakP( p.getPtr() )
@@ -153,7 +145,7 @@ public:
 	template<class F>
 	WeakP& operator=(const WeakP<F>& o)	
 	{
-        _pState = o._pState;
+        _pState = o._getWeakReferenceState();
 
         // make sure that F is actually a compatible type
         T* dummy = (F*)nullptr;
@@ -161,16 +153,6 @@ public:
         return *this;
 	}
 
-	template<class F>
-	WeakP& operator=(WeakP<F>&& o)
-	{
-        _pState = std::move(o._pState);
-
-        // make sure that F is actually a compatible type
-        T* dummy = (F*)nullptr;
-
-        return *this;
-	}
 
     template<class F>
 	WeakP& operator=(const P<F>& o)		
@@ -180,7 +162,7 @@ public:
 
     
 
-	P<T> toStrong()
+	P<T> toStrong() const
     {
         if(_pState==nullptr)
         {
@@ -192,6 +174,14 @@ public:
         {
             return cast<T>( _pState->newStrongReference() );
         }
+    }
+
+
+
+    /** For internal use only - do not call.*/
+    P<IWeakReferenceState> _getWeakReferenceState() const
+    {
+        return _pState;
     }
     
 private:    

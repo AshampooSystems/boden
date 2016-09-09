@@ -91,6 +91,8 @@ public:
 
 	~WindowCore()
 	{
+        BDN_DESTRUCT_BEGIN;
+
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
         if(_pEventForwarder!=nullptr)
@@ -118,6 +120,8 @@ public:
         _pWindowPanelParent = nullptr;
 
         BDN_WINUWP_TO_STDEXC_END;
+
+        BDN_DESTRUCT_END(bdn::winuwp::WindowCore);
 
     }
 

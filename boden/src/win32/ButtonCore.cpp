@@ -26,7 +26,7 @@ Size ButtonCore::calcPreferredSize() const
 {
     String label;
 
-    P<Button> pButton = cast<Button>( _outerViewWeak.toStrong() );
+    P<const Button> pButton = cast<const Button>( getOuterViewIfStillAttached() );
     if(pButton!=nullptr)
 	    label = pButton->label();
 

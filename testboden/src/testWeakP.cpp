@@ -305,14 +305,14 @@ TEST_CASE("WeakP")
                 Thread::exec(
                     [p]
                     {
-                        WeakP<Helper> w(&p);
+                        WeakP<Helper> w(p);
 
                         w.toStrong();
                     }) );
         }
 
         // wait for the threads to finish
-        for( auto f: futureList)
+        for( auto& f: futureList)
             f.get();
 
         p->verifyCounters(100, 100);
@@ -341,7 +341,7 @@ TEST_CASE("WeakP")
         {
             futureList.push_back(
                 Thread::exec(
-                    [w, &successCounter]
+                    [w, &successCounter, i]
                     {
                         WeakP<Helper> w2(w);
 
@@ -361,7 +361,7 @@ TEST_CASE("WeakP")
         REQUIRE( deleted );
 
         // then wait for the threads to finish
-        for( auto f: futureList)
+        for( auto& f: futureList)
             f.get();
         
         // now at least one thread should not have been successful in getting the object

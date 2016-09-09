@@ -101,6 +101,17 @@ public:
 		return _uiScaleFactor;
 	}
 
+
+    P<View> getOuterViewIfStillAttached()
+    {
+        return _outerViewWeak.toStrong();
+    }
+
+    P<View> getOuterViewIfStillAttached() const
+    {
+        return _outerViewWeak.toStrong();
+    }
+
 protected:
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;

@@ -14,10 +14,11 @@ namespace bdn
 /** Base class for most other classes. Provides an implementation
 	for IBase.
 	*/
-class Base : BDN_IMPLEMENTS IBase, BDN_IMPLEMENTS IWeakReferencable
+class Base : BDN_IMPLEMENTS IWeakReferencable
 {
 public:
 	Base()
+        : _weakReferenceState(nullptr)
 	{
 		_refCount = 1;
 	}
@@ -109,8 +110,8 @@ public:
 		the internal reference counter is not copied.*/
 	Base& operator=(const Base& o)
 	{
-		// do nothing. This operator only exists to ensure that the reference count is not
-		// copied.
+		// do nothing. This operator only exists to ensure that the reference count and
+        // weak reference state is not copied.
 		return *this;
 	}
 
