@@ -343,7 +343,7 @@ TEST_CASE("WeakP")
 
         std::list< std::future<void> > futureList;
 
-        std::atomic<int> successCounter;
+        std::atomic<int> successCounter(0);
         
         WeakP<WeakPHelper> w(p);
 
