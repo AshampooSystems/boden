@@ -29,20 +29,38 @@ public:
         ::SelectObject( _handle, font.getHandle() );
     }
 
+
+    /** Returns the size of the specified text.
+    
+        This function handles linebreaks correctly (i.e. it returns the size
+        of multiple lines of text if the string contains linebreaks)
+    */
     Size getTextSize(const String& text)
     {
-        SIZE textSize = {0};
+        // GetTextExtentPoint32W ignores linebreak and also does not
+        // provide any way to calculate the height of multiple lines of text. So we use
+        // DrawText instead, which also has a size calculation function.
 
-        const std::wstring& textWide = text.asWide();
+        const std::wstring& wideText = text.asWide();
 
-    	if(!::GetTextExtentPoint32W( _handle, textWide.c_str(), textWide.length(), &textSize))
+        RECT rect{0, 0, 0, 0};
+
+        // DrawText uses the input width of rect as a measure for the available width
+        // (so that it can do line-breaking).
+        // Since we want unlimited width, we set it to a very large size
+        rect.right = 0x7fffffff;
+
+        int result = ::DrawText(_handle, wideText.c_str(), wideText.length(), &rect, DT_CALCRECT);
+        if(result==0)
         {
-            BDN_WIN32_throwLastError( ErrorFields().add("func", "GetTextExtentPoint32W")
-                                                   .add("action", "DeviceContext::getTextSize") );
+            BDN_WIN32_throwLastError( ErrorFields().add("func", "DrawText")
+                                                    .add("action", "DeviceContext::getTextSize")
+                                                    .add("text", text) );
         }
 
-        return Size(textSize.cx, textSize.cy);
+        return Size( rect.right, rect.bottom);
     }
+
 
     
     /** Returns the win32 HDC handle of the device context.*/

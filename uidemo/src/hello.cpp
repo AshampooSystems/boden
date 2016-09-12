@@ -45,7 +45,7 @@ public:
         else if (sel==1)
             _morphingText = "This is a single-line, medium sized text. Lorem ipsum.";
         else
-            _morphingText = "This is a long text that spans multiple lines and also has some free lines.\nLorem ipsum dolor sit amet, consectetuer adipiscing elit.\n\nAenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.";
+            _morphingText = "This is a long text that spans multiple lines and also has some free lines.\nLorem ipsum dolor sit amet, consectetuer adipiscing elit.\nAenean commodo ligula eget dolor.\n\nAenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.";
     }
     
 protected:

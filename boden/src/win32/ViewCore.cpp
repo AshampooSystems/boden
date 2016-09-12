@@ -200,6 +200,10 @@ void ViewCore::handleMessage(MessageContext& context, HWND windowHandle, UINT me
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
 		    pView->needLayout();
+
+        // we invalidate the window contents whenever the size changes. Otherwise
+        // we have found that some controls (e.g. static text) are only partially updated (seen on Windows 10).
+        ::InvalidateRect(windowHandle, NULL, NULL);
 	}
 	
 	Win32Window::handleMessage(context, windowHandle, message, wParam, lParam);

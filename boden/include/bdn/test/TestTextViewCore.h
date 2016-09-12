@@ -99,6 +99,19 @@ protected:
             _pTextView->text() = "";    
             REQUIRE( _pTextView->calcPreferredSize() == emptyTextPreferredSize );
         }
+
+        SECTION("CRLF same as LF")
+        {
+            _pTextView->text() = "hello world\nbla";
+
+            Size sizeLF = _pTextView->calcPreferredSize();                   
+
+            _pTextView->text() = "hello world\r\nbla";
+
+            Size sizeCRLF = _pTextView->calcPreferredSize();                   
+
+            REQUIRE( sizeLF == sizeCRLF);
+        }
     }
 
 
