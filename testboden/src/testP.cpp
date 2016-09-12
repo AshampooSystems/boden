@@ -3,10 +3,10 @@
 
 using namespace bdn;
 
-class Helper : public Base
+class TestPHelper : public Base
 {
 public:
-	Helper()
+	TestPHelper()
 	{
 	}
 
@@ -41,19 +41,19 @@ protected:
 };
 
 
-class SubHelper : public Helper
+class SubTestPHelper : public TestPHelper
 {
 
 };
 
 TEST_CASE("P")
 {
-	Helper helper;
+	TestPHelper helper;
 	
 	SECTION("constructDestruct")
 	{
 		{
-			P<Helper> p(&helper);
+			P<TestPHelper> p(&helper);
 
 			helper.verifyCounters(1, 0);
 		}
@@ -64,7 +64,7 @@ TEST_CASE("P")
 	SECTION("constructDetach")
 	{
 		{
-			P<Helper> p(&helper);
+			P<TestPHelper> p(&helper);
 
 			helper.verifyCounters(1, 0);
 
@@ -80,7 +80,7 @@ TEST_CASE("P")
 	SECTION("constructAssignNull")
 	{
 		{
-			P<Helper> p(&helper);
+			P<TestPHelper> p(&helper);
 
 			helper.verifyCounters(1, 0);
 
@@ -99,7 +99,7 @@ TEST_CASE("P")
 
 	SECTION("assignNullWhileNull")
 	{
-		P<Helper> p;
+		P<TestPHelper> p;
 
 		REQUIRE( p==nullptr );
 
@@ -111,7 +111,7 @@ TEST_CASE("P")
 	SECTION("assignDestruct")
 	{
 		{
-			P<Helper> p;
+			P<TestPHelper> p;
 
 			REQUIRE( p==nullptr );
 			
@@ -128,7 +128,7 @@ TEST_CASE("P")
 	SECTION("constructAssignSelfDestruct")
 	{
 		{
-			P<Helper> p(&helper);
+			P<TestPHelper> p(&helper);
 
 			helper.verifyCounters(1, 0);
 			
@@ -147,7 +147,7 @@ TEST_CASE("P")
 
 			helper.verifyCounters(1, 0);
 
-			P<Helper> p;
+			P<TestPHelper> p;
 			p.attachPtr(&helper);
 
 			helper.verifyCounters(1, 0);
@@ -159,7 +159,7 @@ TEST_CASE("P")
 	SECTION("attachDetach")
 	{
 		{
-			P<Helper> p;
+			P<TestPHelper> p;
 
 			p.attachPtr(&helper);
 
@@ -167,7 +167,7 @@ TEST_CASE("P")
 
 			helper.verifyCounters(0, 0);
 
-			Helper* pRet = p.detachPtr();
+			TestPHelper* pRet = p.detachPtr();
 			REQUIRE( pRet==&helper );
 
 			REQUIRE( p==nullptr );
@@ -179,9 +179,9 @@ TEST_CASE("P")
 	SECTION("detachWhileNull")
 	{
 		{
-			P<Helper> p;
+			P<TestPHelper> p;
 
-			Helper* pRet = p.detachPtr();
+			TestPHelper* pRet = p.detachPtr();
 			REQUIRE( pRet==nullptr );
 		}
 
@@ -191,10 +191,10 @@ TEST_CASE("P")
 
 	SECTION("constructAssignOtherDestruct")
 	{
-		Helper helper2;
+		TestPHelper helper2;
 
 		{
-			P<Helper> p(&helper);
+			P<TestPHelper> p(&helper);
 
 			helper.verifyCounters(1, 0);
 
@@ -210,11 +210,11 @@ TEST_CASE("P")
 
 	SECTION("constructAssignOtherPDestruct")
 	{
-		Helper helper2;
+		TestPHelper helper2;
 
 		{
-			P<Helper> p(&helper);
-			P<Helper> p2(&helper2);
+			P<TestPHelper> p(&helper);
+			P<TestPHelper> p2(&helper2);
 
 			helper.verifyCounters(1, 0);
 			helper2.verifyCounters(1, 0);
@@ -231,7 +231,7 @@ TEST_CASE("P")
 
 	SECTION("compareSelf")
 	{
-		P<Helper> p(&helper);
+		P<TestPHelper> p(&helper);
 
 		REQUIRE( p==p );
 		REQUIRE( !(p!=p) );
@@ -241,33 +241,33 @@ TEST_CASE("P")
 
 	SECTION("compareOther")
 	{
-		Helper helper2;
+		TestPHelper helper2;
 
-		P<Helper> p(&helper);
-		P<Helper> p2(&helper2);
+		P<TestPHelper> p(&helper);
+		P<TestPHelper> p2(&helper2);
 
 		REQUIRE( p!=p2 );
 	}
 
 	SECTION("compareOtherSameObject")
 	{
-		P<Helper> p(&helper);
-		P<Helper> p2(&helper);
+		P<TestPHelper> p(&helper);
+		P<TestPHelper> p2(&helper);
 
 		REQUIRE( p==p2 );
 	}
 
 	SECTION("compareOtherNull")
 	{
-		P<Helper> p(&helper);
-		P<Helper> p2;
+		P<TestPHelper> p(&helper);
+		P<TestPHelper> p2;
 
 		REQUIRE( p!=p2 );
 	}
 
 	SECTION("detachCompareOtherNull")
 	{
-		P<Helper> p(&helper);
+		P<TestPHelper> p(&helper);
 
 		p.detachPtr();
 
@@ -277,25 +277,25 @@ TEST_CASE("P")
 
 	SECTION("objectMemberAccess")
 	{
-		P<Helper> p(&helper);
+		P<TestPHelper> p(&helper);
 
 		REQUIRE( p->dummy()==42 );
 	}
 
 	SECTION("dereference")
 	{
-		P<Helper> p(&helper);
+		P<TestPHelper> p(&helper);
 
-		Helper& h = *p;
+		TestPHelper& h = *p;
 
 		REQUIRE(&h==&helper);
 	}
 
 	SECTION("getPtr")
 	{
-		P<Helper> p(&helper);
+		P<TestPHelper> p(&helper);
 
-		Helper* pH = p.getPtr();
+		TestPHelper* pH = p.getPtr();
 
 		REQUIRE(pH==&helper);
 	}
@@ -303,8 +303,8 @@ TEST_CASE("P")
 
 	SECTION("moveConstructor")
 	{
-		P<Helper> p(&helper);
-		P<Helper> p2( std::move(p) );
+		P<TestPHelper> p(&helper);
+		P<TestPHelper> p2( std::move(p) );
 
 		REQUIRE( p.getPtr()==nullptr );
 		REQUIRE( p2.getPtr()==&helper );
@@ -314,8 +314,8 @@ TEST_CASE("P")
 
 	SECTION("moveConstructorNull")
 	{
-		P<Helper> p;
-		P<Helper> p2( std::move(p) );
+		P<TestPHelper> p;
+		P<TestPHelper> p2( std::move(p) );
 
 		REQUIRE( p.getPtr()==nullptr );
 		REQUIRE( p2.getPtr()==nullptr );
@@ -323,21 +323,21 @@ TEST_CASE("P")
 
 	SECTION("moveConstructorFromSubClass")
 	{
-		SubHelper subHelper;
+		SubTestPHelper subHelper;
 
-		P<SubHelper> p(&subHelper);
-		P<Helper> p2( std::move(p) );
+		P<SubTestPHelper> p(&subHelper);
+		P<TestPHelper> p2( std::move(p) );
 
 		REQUIRE( p.getPtr()==nullptr );
-		REQUIRE( p2.getPtr()==(Helper*)&subHelper );
+		REQUIRE( p2.getPtr()==(TestPHelper*)&subHelper );
 
 		REQUIRE( subHelper.getRefCount()==2 );
 	}
 
 	SECTION("moveAssignment")
 	{
-		P<Helper> p(&helper);
-		P<Helper> p2;
+		P<TestPHelper> p(&helper);
+		P<TestPHelper> p2;
 
 		SECTION("assign")		
 			p2.assign( std::move(p) );
@@ -353,8 +353,8 @@ TEST_CASE("P")
 
 	SECTION("moveAssignmentNull")
 	{
-		P<Helper> p;
-		P<Helper> p2;
+		P<TestPHelper> p;
+		P<TestPHelper> p2;
 
 		SECTION("assign")		
 			p2.assign( std::move(p) );
@@ -368,11 +368,11 @@ TEST_CASE("P")
 
 	SECTION("moveAssignmentFromSubClass")
 	{
-		SubHelper subHelper;
+		SubTestPHelper subHelper;
 
-		P<SubHelper> p(&subHelper);
+		P<SubTestPHelper> p(&subHelper);
 
-		P<Helper>	 p2;
+		P<TestPHelper>	 p2;
 
 		SECTION("assign")		
 			p2.assign( std::move(p) );
@@ -381,7 +381,7 @@ TEST_CASE("P")
 			p2 = std::move(p);
 
 		REQUIRE( p.getPtr()==nullptr );
-		REQUIRE( p2.getPtr()==(Helper*)&subHelper );
+		REQUIRE( p2.getPtr()==(TestPHelper*)&subHelper );
 
 		REQUIRE( subHelper.getRefCount()==2 );
 	}

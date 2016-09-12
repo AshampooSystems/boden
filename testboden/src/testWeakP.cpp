@@ -3,15 +3,15 @@
 
 using namespace bdn;
 
-class Helper : public Base
+class WeakPHelper : public Base
 {
 public:
-	Helper(bool* pDeleted = nullptr)
+	WeakPHelper(bool* pDeleted = nullptr)
 	{
         _pDeleted = pDeleted;
 	}
 
-    ~Helper()
+    ~WeakPHelper()
     {
         if(_pDeleted!=nullptr)
             *_pDeleted = true;
@@ -38,18 +38,18 @@ public:
 	}
 
 
-	mutable int		_addCounter = 0;
-	mutable int		_releaseCounter = 0;
+	mutable std::atomic<int>		_addCounter = 0;
+	mutable std::atomic<int>		_releaseCounter = 0;
 
     bool* _pDeleted = nullptr;
 };
 
 
-class SubHelper : public Helper
+class SubWeakPHelper : public WeakPHelper
 {
 public:
-    SubHelper(bool* pDeleted = nullptr)
-        : Helper(pDeleted)
+    SubWeakPHelper(bool* pDeleted = nullptr)
+        : WeakPHelper(pDeleted)
 	{
 	}
 
@@ -57,16 +57,17 @@ public:
 
 
 template<class ArgType>
-void testConstructToStrongDestruct(Helper& helper, ArgType helperArg)
+void testConstructToStrongDestruct(WeakPHelper& helper, ArgType helperArg)
 {   
     // clear the counters
     helper._addCounter = 0;
     helper._releaseCounter = 0;
 
+
     SECTION("constructDestruct")
     {
         {
-            WeakP<Helper> w(helperArg);
+            WeakP<WeakPHelper> w(helperArg);
 
             // should not have added a reference
             helper.verifyCounters(0, 0);
@@ -79,34 +80,34 @@ void testConstructToStrongDestruct(Helper& helper, ArgType helperArg)
     SECTION("constructToStrongDestruct")
     {
         {
-            WeakP<Helper> w(helperArg);
+            WeakP<WeakPHelper> w(helperArg);
 
             // should not have added a reference
             helper.verifyCounters(0, 0);
 
-            P<Helper> p = w.toStrong();
+            P<WeakPHelper> p = w.toStrong();
             REQUIRE( p!=nullptr );
             
-            // The strong pointer should have added a ref
-            helper.verifyCounters(1, 0);
+            // The strong pointer should have added a ref twice and released one
+            helper.verifyCounters(2, 1);
         }
         
-        helper.verifyCounters(1, 1);
+        helper.verifyCounters(2, 2);
     }
 }
 
 template<class ArgType>
-void testAssignWithPreCreatedWeakP(WeakP<Helper>& w, Helper& helper, ArgType helperArg)
+void testAssignWithPreCreatedWeakP(WeakP<WeakPHelper>& w, WeakPHelper& helper, ArgType helperArg)
 {   
     w = helperArg;
 
-    P<Helper> p = w.toStrong();
+    P<WeakPHelper> p = w.toStrong();
     REQUIRE( p.getPtr() == &helper );
 
 }
 
 template<class ArgType>
-void testAssign(Helper& helper, ArgType helperArg)
+void testAssign(WeakPHelper& helper, ArgType helperArg)
 {   
     // clear the counters
     helper._addCounter = 0;
@@ -114,19 +115,20 @@ void testAssign(Helper& helper, ArgType helperArg)
 
     SECTION("withPrevValue")
     {
-        Helper helper2;
-        WeakP<Helper> w(&helper2);
+        WeakPHelper helper2;
+        WeakP<WeakPHelper> w(&helper2);
 
         testAssignWithPreCreatedWeakP(w, helper, helperArg);
     }
 
     SECTION("withoutPrevValue")
     {
-        WeakP<Helper> w;
+        WeakP<WeakPHelper> w;
 
         testAssignWithPreCreatedWeakP(w, helper, helperArg);
     }
 }
+
 
 TEST_CASE("WeakP")
 {
@@ -134,44 +136,45 @@ TEST_CASE("WeakP")
 	{
         SECTION("cpointer")
         {
-            Helper helper;
+            WeakPHelper helper;
+
             testConstructToStrongDestruct(helper, &helper);
         }
 
         SECTION("subclass cpointer")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
             testConstructToStrongDestruct(helper, &helper);
         }
 
         SECTION("P")
         {
-            Helper helper;
+            WeakPHelper helper;
 
-            testConstructToStrongDestruct(helper,  P<Helper>(&helper) );
+            testConstructToStrongDestruct(helper,  P<WeakPHelper>(&helper) );
         }
 
         SECTION("subclass P")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
 
-            testConstructToStrongDestruct(helper,  P<SubHelper>(&helper) );
+            testConstructToStrongDestruct(helper,  P<SubWeakPHelper>(&helper) );
         }
 
         SECTION("WeakP")
         {
-            Helper helper;
+            WeakPHelper helper;
 
-            WeakP<Helper> w(&helper);
+            WeakP<WeakPHelper> w(&helper);
 
             testConstructToStrongDestruct(helper,  w );
         }
 
         SECTION("subclass WeakP")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
 
-            WeakP<SubHelper> w(&helper);
+            WeakP<SubWeakPHelper> w(&helper);
 
             testConstructToStrongDestruct(helper,  w );
         }
@@ -181,44 +184,44 @@ TEST_CASE("WeakP")
 	{
         SECTION("cpointer")
         {
-            Helper helper;
+            WeakPHelper helper;
             testAssign(helper, &helper);
         }
 
         SECTION("subclass cpointer")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
             testAssign(helper, &helper);
         }
 
         SECTION("P")
         {
-            Helper helper;
+            WeakPHelper helper;
 
-            testAssign(helper,  P<Helper>(&helper) );
+            testAssign(helper,  P<WeakPHelper>(&helper) );
         }
 
         SECTION("subclass P")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
 
-            testAssign(helper,  P<SubHelper>(&helper) );
+            testAssign(helper,  P<SubWeakPHelper>(&helper) );
         }
 
         SECTION("WeakP")
         {
-            Helper helper;
+            WeakPHelper helper;
 
-            WeakP<Helper> w(&helper);
+            WeakP<WeakPHelper> w(&helper);
 
             testAssign(helper,  w );
         }
 
         SECTION("subclass WeakP")
         {
-            SubHelper helper;
+            SubWeakPHelper helper;
 
-            WeakP<SubHelper> w(&helper);
+            WeakP<SubWeakPHelper> w(&helper);
 
             testAssign(helper,  w );
         }
@@ -228,57 +231,57 @@ TEST_CASE("WeakP")
     {
         SECTION("defaultInit")
         {
-            WeakP<Helper> w;
+            WeakP<WeakPHelper> w;
 
             REQUIRE( w.toStrong() == nullptr );
         }
 
         SECTION("nullInit")
         {
-            WeakP<Helper> w(nullptr);
+            WeakP<WeakPHelper> w(nullptr);
 
             REQUIRE( w.toStrong() == nullptr );
         }
 
         SECTION("nullPointerInit")
         {
-            P<Helper> p;
-            WeakP<Helper> w(p);
+            P<WeakPHelper> p;
+            WeakP<WeakPHelper> w(p);
 
             REQUIRE( w.toStrong() == nullptr );
         }
 
         SECTION("objectOK")
         {
-            Helper helper;
+            WeakPHelper helper;
 
-            P<Helper> p;
+            P<WeakPHelper> p;
 
 		    {
-                WeakP<Helper> w(&helper);
+                WeakP<WeakPHelper> w(&helper);
 
                 p = w.toStrong();           
                 REQUIRE( p!=nullptr );
 
-                // should have added a reference
-                helper.verifyCounters(1, 0);
+                // should have added two references and released one
+                helper.verifyCounters(2, 1);
             }
 
             // references should still be the same
-            helper.verifyCounters(1, 0);
+            helper.verifyCounters(2, 1);
 
             p = nullptr;
 
             // now the reference should have been deleted
-            helper.verifyCounters(1, 1);
+            helper.verifyCounters(2, 2);
         }
 
         SECTION("objectGone")
         {
             bool deleted = false;
-            P<Helper> p = newObj<Helper>(&deleted);
+            P<WeakPHelper> p = newObj<WeakPHelper>(&deleted);
 
-            WeakP<Helper> w(p);
+            WeakP<WeakPHelper> w(p);
 
             // this will delete the object
             p = nullptr;
@@ -294,18 +297,25 @@ TEST_CASE("WeakP")
 
     SECTION("manyThreadCreateWeakRefs")
     {
-        bool        deleted = false;
-        P<Helper>   p = newObj<Helper>(&deleted);
+        bool            deleted = false;
+        P<WeakPHelper>  p = newObj<WeakPHelper>(&deleted);
+        
+        // use a c pointer to pass to the lambda, so that no addrefs and releases are caused
+        // by the ,an
+        WeakPHelper*    pCPointer = p;  
 
         std::list< std::future<void> > futureList;
+
+        p->_addCounter = 0;
+        p->_releaseCounter = 0;
 
         for(int i=0; i<100; i++)
         {
             futureList.push_back(
                 Thread::exec(
-                    [p]
+                    [pCPointer]
                     {
-                        WeakP<Helper> w(p);
+                        WeakP<WeakPHelper> w(pCPointer);
 
                         w.toStrong();
                     }) );
@@ -315,7 +325,7 @@ TEST_CASE("WeakP")
         for( auto& f: futureList)
             f.get();
 
-        p->verifyCounters(100, 100);
+        p->verifyCounters(200, 200);
 
         REQUIRE( p->getRefCount() == 1);
 
@@ -329,13 +339,13 @@ TEST_CASE("WeakP")
     SECTION("manyThreadCreateWeakRefsWhileObjectIsDeleted")
     {
         bool        deleted = false;
-        P<Helper>   p = newObj<Helper>(&deleted);
+        P<WeakPHelper>   p = newObj<WeakPHelper>(&deleted);
 
         std::list< std::future<void> > futureList;
 
         std::atomic<int> successCounter;
         
-        WeakP<Helper> w(p);
+        WeakP<WeakPHelper> w(p);
 
         for(int i=0; i<100; i++)
         {
@@ -343,7 +353,7 @@ TEST_CASE("WeakP")
                 Thread::exec(
                     [w, &successCounter, i]
                     {
-                        WeakP<Helper> w2(w);
+                        WeakP<WeakPHelper> w2(w);
 
                         if(i==99)
                             Thread::sleepSeconds(1);

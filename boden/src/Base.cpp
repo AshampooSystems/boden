@@ -152,7 +152,7 @@ P<IWeakReferenceState> Base::getWeakReferenceState()
         P<WeakReferenceState_> pNewData = newObj<WeakReferenceState_>(this);
 
         WeakReferenceState_* pExpected = nullptr;
-
+        
         if(_weakReferenceState.compare_exchange_strong(pExpected, pNewData.getPtr() ))
         {
             // successfully stored the pointer. Note that _weakReferenceState does not

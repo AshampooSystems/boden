@@ -11,6 +11,7 @@
 namespace bdn
 {
 
+
 /** Base class for most other classes. Provides an implementation
 	for IBase.
 	*/
@@ -24,6 +25,7 @@ public:
 	}
 
 	Base(const Base& o)
+        : _weakReferenceState(nullptr)
 	{
 		// copy nothing. This constructor only exists
 		// to ensure that the reference count is not
