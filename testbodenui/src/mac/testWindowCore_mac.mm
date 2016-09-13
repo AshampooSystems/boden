@@ -99,6 +99,8 @@ protected:
     
     void clearAllReferencesToCore() override
     {
+        TestWindowCore::clearAllReferencesToCore();
+        
         _pMacWindowCore = nullptr;
         _pNSWindow = nullptr;
     }

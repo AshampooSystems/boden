@@ -33,6 +33,17 @@ public:
     }
     
     
+    P<Window> getOuterWindowIfStillAttached()
+    {
+        return _pOuterWindowWeak.toStrong();
+    }
+    
+    P<const Window> getOuterWindowIfStillAttached() const
+    {
+        return _pOuterWindowWeak.toStrong();
+    }
+
+    
     void setTitle(const String& title) override
     {
         [_nsWindow setTitle: stringToMacString(title)];
@@ -184,7 +195,7 @@ public:
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
 
-        P<View> pOuter = getOuterViewIfStillAttached();
+        P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)
         {     
             pOuter->bounds() = _currActualWindowBounds;        
@@ -196,7 +207,7 @@ public:
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
 
-        P<View> pOuter = getOuterViewIfStillAttached();
+        P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)        
             pOuter->bounds() = _currActualWindowBounds;
     }

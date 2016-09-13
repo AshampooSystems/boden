@@ -41,8 +41,8 @@ inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlippi
 	return Rect(
 			std::lround(rect.origin.x),
             std::lround(y),
-			std::lround(rect.size.width),
-            std::lround(rect.size.height) );
+			std::ceil(rect.size.width),
+            std::ceil(rect.size.height) );
 }
 
 
@@ -82,8 +82,8 @@ inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlippi
 
 inline Size macSizeToSize(const NSSize& macSize)
 {
-	return Size( macSize.width,
-				 macSize.height );
+	return Size( std::ceil(macSize.width),
+				 std::ceil(macSize.height) );
 }
 
 

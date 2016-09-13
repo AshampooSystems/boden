@@ -70,7 +70,7 @@ public:
         
         // add the padding
         Nullable<UiMargin> pad;
-        P<View> pView = getOuterViewIfStillAttached();
+        P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
             pad = pView->padding();
         

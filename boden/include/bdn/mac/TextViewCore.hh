@@ -52,6 +52,9 @@ private:
         view.selectable = false;
         view.richText = false;
         
+        // do not draw the background by default
+        view.drawsBackground = NO;
+        
         return view;
     }
     
@@ -124,14 +127,31 @@ public:
     
     Size calcPreferredSize() const override
     {
-        NSRect containerRect = [ _nsTextView.layoutManager usedRectForTextContainer:_nsTextView.textContainer ];
+        NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
+        NSTextContainer*    textContainer = [[NSTextContainer alloc]
+                                           initWithContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
+        NSLayoutManager*    layoutManager = [[NSLayoutManager alloc] init];
         
-        Size size = macSizeToSize( containerRect.size );
+        [layoutManager addTextContainer:textContainer];
+        [textStorage addLayoutManager:layoutManager];
+        
+        [textStorage addAttribute:NSFontAttributeName value:_nsTextView.font
+                            range:NSMakeRange(0, [textStorage length])];
+        [textContainer setLineFragmentPadding:0];
+        
+        // force immediate layout
+        (void) [layoutManager glyphRangeForTextContainer:textContainer];
+        
+        NSSize macSize = [layoutManager
+                usedRectForTextContainer:textContainer].size;
+
+        Size size = macSizeToSize( macSize );
+        
         if(size.width<0)
             size.width = 0;
         if(size.height<0)
             size.height = 0;
- 
+
         Size insetSize = macSizeToSize( _nsTextView.textContainerInset );
         if(insetSize.width<0)
             insetSize.width = 0;
@@ -141,6 +161,13 @@ public:
         // add the inset size twice (once for top/left and once for bottom/right)
         size += insetSize;
         size += insetSize;
+        
+        NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
+                                                        inTextContainer:_nsTextView.textContainer ];
+        
+        // add margins
+        size.width += std::ceil(boundingRect.origin.x) * 2;
+        size.height += std::ceil(boundingRect.origin.y) * 2;
         
         return size;
     }

@@ -99,6 +99,7 @@ public:
 	{
         // make sure that F is actually a compatible type
         T* dummy = (F*)nullptr;
+        (void)dummy;    // prevent unused warning
 	}
     
     template<class F>
@@ -107,6 +108,7 @@ public:
 	{
         // make sure that F is actually a compatible type
         T* dummy = (F*)nullptr;
+        (void)dummy;    // prevent unused warning
 	}
 
 
@@ -149,6 +151,7 @@ public:
 
         // make sure that F is actually a compatible type
         T* dummy = (F*)nullptr;
+        (void)dummy;    // prevent unused warning
 
         return *this;
 	}

@@ -32,6 +32,7 @@ protected:
         REQUIRE( _pNSView!=nullptr );
     }
     
+            
     IUiProvider& getUiProvider() override
     {
         return bdn::mac::UiProvider::get();

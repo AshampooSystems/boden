@@ -7,6 +7,8 @@ class WeakPHelper : public Base
 {
 public:
 	WeakPHelper(bool* pDeleted = nullptr)
+    : _addCounter(0)
+    , _releaseCounter(0)
 	{
         _pDeleted = pDeleted;
 	}
@@ -38,8 +40,8 @@ public:
 	}
 
 
-	mutable std::atomic<int>		_addCounter = 0;
-	mutable std::atomic<int>		_releaseCounter = 0;
+	mutable std::atomic<int>		_addCounter;
+	mutable std::atomic<int>		_releaseCounter;
 
     bool* _pDeleted = nullptr;
 };
