@@ -19,6 +19,8 @@ private:
     {
         UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         
+        label.numberOfLines = 0;
+        
         return label;
 
     }

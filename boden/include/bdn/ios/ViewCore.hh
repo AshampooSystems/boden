@@ -30,6 +30,11 @@ public:
     }
     
     
+    ~ViewCore()
+    {
+        _view = nil;        
+    }
+    
     P<const View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
@@ -125,7 +130,7 @@ protected:
         Margin padding;
         
         Nullable<UiMargin> pad;
-        P<View> pView = getOuterViewIfStillAttached();
+        P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
             pad = pView->padding();
 

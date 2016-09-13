@@ -46,6 +46,8 @@ protected:
     {
         TestIosViewCoreMixin<TestWindowCore>::clearAllReferencesToCore();
         
+        _pIosViewCore = nullptr;
+        _pUIView = nullptr;
         _pUIWindow = nullptr;
     }
     
@@ -73,16 +75,8 @@ protected:
     {
         __weak UIWindow* pUIWindow = cast<DestructVerificationInfo>( pVerificationInfo )->pUIWindow;
         
-        // apparently UIWindows in iOS are not destroyed immediately when we release
-        // our last reference. They are garbage collected at some point. There are reports
-        // that this happens, for example, when there is user input like a tap on the screen.
-        // So for us it means that we cannot easily verify the window's destruction.
-        // So we have to essentially disable this test.
-        
-        // XXX test disabled. See above for explanation.
-        
         // window should have been destroyed.
-        // REQUIRE( pUIWindow == nullptr );
+        REQUIRE( pUIWindow == nullptr );
     }
     
     UIWindow*                _pUIWindow;
