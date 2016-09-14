@@ -25,7 +25,7 @@ public:
     
     void setText(const String& text) override
     {
-        _domObject.set("textContent", text.asUtf8());
+        _domObject.set("innerHTML", textToHtmlContent(text).asUtf8());
     }    
 };
 

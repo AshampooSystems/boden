@@ -19,6 +19,14 @@ protected:
         bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >::initCore();
     }
 
+    void clearAllReferencesToCore() override
+    {
+        bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
+
+        _pWebCore = nullptr;
+        _domObject = emscripten::val::undefined();
+    }
+
     bool canManuallyChangeBounds() const override
     {
         return false;

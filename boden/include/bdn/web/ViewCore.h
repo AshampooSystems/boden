@@ -9,6 +9,8 @@
 #include <emscripten/val.h>
 #include <emscripten/html5.h>
 
+#include <iomanip>
+
 
 namespace bdn
 {
@@ -164,7 +166,36 @@ public:
         return true;
     }
     
+
+    /** Replaces special characters with the corresponding HTML entities
+        (e.g. < becomes &lt;)*/
+    static String htmlEscape(const String& text)
+    {
+        String escaped = text;
+        escaped.findReplace("&", "&amp;");
+        escaped.findReplace("\'", "&apos;");
+        escaped.findReplace("\"", "&quot;");
+        escaped.findReplace(">", "&gt;");
+        escaped.findReplace("<", "&lt;");
+
+        return escaped;
+    }
     
+
+    /** Converts a string to html format. Special characters
+        are escaped like with htmlEscape.
+        Additionally, linebreaks are translated to <br> tags.*/
+    static String textToHtmlContent(const String& text)
+    {
+        String html = htmlEscape(text);
+
+        // replace line breaks with <br> tags
+        html.findReplace("\r\n", "<br>");
+        html.findReplace("\n", "<br>");
+
+        return html;
+    }
+
     
 protected:
 
@@ -185,13 +216,45 @@ protected:
         styleObj.set("width", (forWidth==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forWidth).asUtf8() );        
         styleObj.set("height", (forHeight==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forHeight).asUtf8() );
 
-        int width = _domObject["offsetWidth"].as<int>();
-        int height = _domObject["offsetHeight"].as<int>();
+        // also, our parent's size will normally influence how our content is wrapped.
+        // For example, for elements containing text this text will be auto-wrapped according to the parent's width
+        // (since that constitutes the maximum width for this element, as far as the browser knows).
+        // To avoid this influence of the parent we disable wrapping during measuring.
+        emscripten::val oldWhitespaceStyle = styleObj["white-space"];
+        if(forWidth==-1)
+            styleObj.set("white-space", "nowrap");
+
+        // we could access the offsetWidth or scrollWidth properties of the object here.
+        // However, these have the downside that they are always integers, even though browsers
+        // internally use floating point numbers to calculate their box model.
+        // And even worse: the integers are rounded down. So if you create a control with 
+        // the integer width you can get additional word wraps in the text content and other
+        // bad effects.
+        // To avoid that we call the getBoundingClientRect function. It returns the rect with
+        // floating point values, allowing us to round UP when we convert to integers.
+
+        emscripten::val rectObj = _domObject.call<emscripten::val>("getBoundingClientRect");
+
+        double width = rectObj["width"].as<double>();
+        double height = rectObj["height"].as<double>();
+
+/*
+        double width = _domObject["offsetWidth"].as<double>();
+        double height = _domObject["offsetHeight"].as<double>();
+*/
 
         styleObj.set("width", oldWidthStyle);
         styleObj.set("height", oldHeightStyle);
 
-        return Size(width, height);
+        if(forWidth==-1)
+        {
+            if(oldWhitespaceStyle.isUndefined())
+                styleObj.set("white-space", "initial" );
+            else
+                styleObj.set("white-space", oldWhitespaceStyle );
+        }
+
+        return Size( std::ceil(width), std::ceil(height) );
     }
 
     void _addToParent(View* pParent)
