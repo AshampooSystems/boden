@@ -51,7 +51,11 @@ public:
 
     void setText(const String& text) override
     {
-        _pJTextView->setText( text );
+        // Android treats carriage return like a space. So we filter those out.
+        String textToSet = text;
+        textToSet.findReplace("\r", "");
+
+        _pJTextView->setText( textToSet );
 
         // we must re-layout the button - otherwise its preferred size is not updated.
         _pJTextView->requestLayout();

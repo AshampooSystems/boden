@@ -211,7 +211,23 @@ void View::_deinitCore()
     // If we need to release the old core from the main thread then we schedule
     // that here now.
     if(pCoreToReleaseFromMainThread!=nullptr)
-	    asyncCallFromMainThread( [pCoreToReleaseFromMainThread](){} );
+	{
+		// schedule the core to be released from the main thread.
+		// IMPORTANT: there is a possible race condition here: if the main thread
+		// executes the lambda before this function here finishes, then WE have the
+		// last reference and will destruct the object from this thread.
+		// To avoid that we have to ensure that our reference is released before
+		// the mainthread call is scheduled.
+
+		IViewCore* pCore = pCoreToReleaseFromMainThread.detachPtr();
+
+		asyncCallFromMainThread(
+				[pCore]()
+				{
+					pCore->releaseRef();
+				}
+		);
+	}
 }
 
 

@@ -92,7 +92,7 @@ protected:
             // should have roughly twice the height as before. Note that the exact height
             // can vary because the line spacing can be different.
 
-            REQUIRE( prefSize.height >= prefSizeBefore.height*2 );
+            REQUIRE( prefSize.height >= prefSizeBefore.height*1.8 );
             REQUIRE( prefSize.height < prefSizeBefore.height*3 );
 
             // when we go back to empty text then we should get the original size
