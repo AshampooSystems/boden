@@ -28,6 +28,23 @@ protected:
         _pTextView = cast<TextView>( pView );
     }
 
+
+	/** Returns true if the text view implementation will never return a preferred width
+		that exceeds the available width, even if the text cannot be wrapped to make it
+		smaller than the available width.
+
+		Note that the preferred behaviour is for the text view to report a bigger preferred
+		size if the text cannot be wrapped to fit the available width.
+		I.e. the preferred behaviour is the one that corresponds to
+		clipsPreferredWidthToAvailableWidth returning false.
+
+		The default implementation returns false.
+		*/
+	virtual bool clipsPreferredWidthToAvailableWidth() const
+	{
+		return false;
+	}
+
     void runInitTests() override
     {
         TestViewCore::runInitTests();
@@ -129,14 +146,23 @@ protected:
 			REQUIRE( _pTextView->calcPreferredSize( wrappedAtFirstPositionSize.width, availableHeight ).width == wrappedAtFirstPositionSize.width );
 		}
 
-		SECTION("preferred size with exceeds super small available width")
+		SECTION("availableWidth below single word width")
 		{
 			_pTextView->text() = "hello";
 
-			Size preferredSize = _pTextView->calcPreferredSize(-1, availableHeight);
+			Size unrestrictedSize = _pTextView->calcPreferredSize(-1, availableHeight);
 
-			// specifying an available width that is smaller than the word has no effect
-			REQUIRE( _pTextView->calcPreferredSize(preferredSize.width-1, availableHeight) == preferredSize);
+			// specifying an available width that is smaller than the word should not reduce the
+			// preferred size.
+			if(clipsPreferredWidthToAvailableWidth())
+			{
+				// this implementation will restrict the preferred width to the available width.
+				// This is not optimal behaviour, but with some implementations it cannot be avoided.
+				// so we accept it.
+				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == Size(unrestrictedSize.width-1, unrestrictedSize.height) );
+			}
+			else
+				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == unrestrictedSize);
 		}
 	}
 

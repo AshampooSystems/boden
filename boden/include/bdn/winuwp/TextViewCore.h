@@ -16,7 +16,12 @@ private:
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		return ref new ::Windows::UI::Xaml::Controls::TextBlock();		
+		::Windows::UI::Xaml::Controls::TextBlock^ pTextBlock = ref new ::Windows::UI::Xaml::Controls::TextBlock();		
+
+		pTextBlock->TextWrapping = ::Windows::UI::Xaml::TextWrapping::WrapWholeWords;
+		pTextBlock->TextTrimming = ::Windows::UI::Xaml::TextTrimming::None;
+
+		return pTextBlock;
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -75,9 +80,17 @@ public:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
-
+	
 
 protected:
+
+
+	bool canAdjustWidthToAvailableSpace() const override
+	{
+		// text views can adjust the text wrapping to reduce their width.
+		return true;
+	}
+	
 
 	void _layoutUpdated() override
 	{

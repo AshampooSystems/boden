@@ -181,8 +181,18 @@ public:
 	{
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		double availableWidthFloat;
-		double availableHeightFloat;
+		// Unfortunately most views will clip the size returned by Measure to never
+		// exceed the specified max width or height (even though Measure is actually
+		// documented to return a bigger size if the view cannot be made small enough
+		// to fit). So to avoid this unwanted clipping we only pass the available
+		// size along to the control if the control can actually use it to adapt its size.
+		if(!canAdjustWidthToAvailableSpace())
+			availableWidth = -1;	// ignore availableWidth parameter
+		if(!canAdjustHeightToAvailableSpace())
+			availableHeight = -1;	// ignore availableHeight parameter
+
+		float availableWidthFloat;
+		float availableHeightFloat;
 
 		if(availableWidth==-1)
 			availableWidthFloat = std::numeric_limits<float>::infinity();
@@ -257,6 +267,32 @@ public:
 	}
 
 protected:
+
+	/** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustWidthToAvailableSpace() const
+	{
+		return false;
+	}
+
+	/** Returns true if the view can adjust its height to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableHeight parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustHeightToAvailableSpace() const
+	{
+		return false;
+	}
 	
 	ViewCoreEventForwarder^ getViewCoreEventForwarder()
 	{
