@@ -172,22 +172,31 @@ public:
     
 
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
-    }
+		int widthSpec;
+        int heightSpec;
+
+        if(availableWidth<0)
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+        else
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth, JView::MeasureSpec::atMost);
+
+        if(availableHeight<0)
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+        else
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight, JView::MeasureSpec::atMost);
+
+        _pJView->measure( widthSpec, heightSpec );
+
+        int width = _pJView->getMeasuredWidth();
+        int height = _pJView->getMeasuredHeight();
+
+        // XXX
+        logInfo("Preferred size ("+std::to_string(forWidth)+","+std::to_string(forHeight)+") of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
+        return Size(width, height);
+	}
     
     
     bool tryChangeParentView(View* pNewParent) override
@@ -251,32 +260,6 @@ public:
 
 
 private:
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        int widthSpec;
-        int heightSpec;
-
-        if(forWidth<0)
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
-        else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(forWidth, JView::MeasureSpec::atMost);
-
-        if(forHeight<0)
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
-        else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(forHeight, JView::MeasureSpec::atMost);
-
-        _pJView->measure( widthSpec, heightSpec );
-
-        int width = _pJView->getMeasuredWidth();
-        int height = _pJView->getMeasuredHeight();
-
-        // XXX
-        logInfo("Preferred size ("+std::to_string(forWidth)+","+std::to_string(forHeight)+") of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+")");
-
-        return Size(width, height);
-    }
-
     void _addToParent(View* pParent)
     {
         if(pParent!=nullptr)

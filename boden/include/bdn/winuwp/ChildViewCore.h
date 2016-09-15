@@ -177,25 +177,67 @@ public:
 
 
 	
-	Size calcPreferredSize() const
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
 	{
-		return _calcPreferredSize( std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity() );
-	}
+		BDN_WINUWP_TO_STDEXC_BEGIN;
 
-	int calcPreferredHeightForWidth(int width) const
-	{
-		return _calcPreferredSize(
-			intToUwpDimension(width, UiProvider::get().getUiScaleFactor() ),
-			std::numeric_limits<float>::infinity() )
-			.height;
-	}
+		double availableWidthFloat;
+		double availableHeightFloat;
 
-	int calcPreferredWidthForHeight(int height) const
-	{
-		return _calcPreferredSize(
-			std::numeric_limits<float>::infinity(),
-			intToUwpDimension(height, UiProvider::get().getUiScaleFactor() ) )
-			.width;
+		if(availableWidth==-1)
+			availableWidthFloat = std::numeric_limits<float>::infinity();
+		else
+			availableWidthFloat = intToUwpDimension(availableWidth, UiProvider::get().getUiScaleFactor() );
+
+		if(availableHeight==-1)
+			availableHeightFloat = std::numeric_limits<float>::infinity();
+		else
+			availableHeightFloat = intToUwpDimension(availableHeight, UiProvider::get().getUiScaleFactor() );
+
+		// tell the element that it has a huge available size.
+		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
+		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
+
+        try
+        {
+		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+		    {
+			    // invisible elements all report a zero size. So we must make the element temporarily visible
+			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
+		    }
+
+		    if(availableWidthFloat<0)
+			    availableWidthFloat = 0;
+		    if(availableHeightFloat<0)
+			    availableHeightFloat = 0;
+
+		    // the Width and Height properties indicate to the layout process how big we want to be.
+		    // If they are set then they are incorporated into the DesiredSize measurements.
+		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
+		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+
+		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidthFloat, availableHeightFloat ) );
+
+		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
+		
+		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
+
+		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
+
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+			    _pFrameworkElement->Visibility = oldVisibility;
+
+            return size;
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this and return zero size
+            return Size();
+        }
+        
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 
@@ -258,56 +300,6 @@ private:
 		cast<IViewCoreParent>( pParentCore )->addChildUiElement( _pFrameworkElement );
 	}
 
-
-	Size _calcPreferredSize(float availableWidth, float availableHeight) const
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		// tell the element that it has a huge available size.
-		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
-		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
-
-        try
-        {
-		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
-		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-		    {
-			    // invisible elements all report a zero size. So we must make the element temporarily visible
-			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
-		    }
-
-		    if(availableWidth<0)
-			    availableWidth = 0;
-		    if(availableHeight<0)
-			    availableHeight = 0;
-
-		    // the Width and Height properties indicate to the layout process how big we want to be.
-		    // If they are set then they are incorporated into the DesiredSize measurements.
-		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
-		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
-
-		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidth, availableHeight ) );
-
-		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
-		
-		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
-
-		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
-
-		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-			    _pFrameworkElement->Visibility = oldVisibility;
-
-            return size;
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this and return zero size
-            return Size();
-        }
-        
-        BDN_WINUWP_TO_STDEXC_END;
-	}
 
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;

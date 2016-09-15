@@ -64,7 +64,7 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
         
@@ -106,22 +106,6 @@ public:
         
         return size;
     }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        // there is apparently no way to get the preferred size for a certain width.
-        return calcPreferredSize().height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        // there is apparently no way to get the preferred size for a certain width.
-        return calcPreferredSize().width;
-        
-    }
-    
     
     bool tryChangeParentView(View* pNewParent) override
     {

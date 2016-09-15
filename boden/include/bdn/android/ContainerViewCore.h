@@ -37,25 +37,11 @@ public:
 	{
 	}
 
-	Size calcPreferredSize() const override
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
 	{
 		// this core function should never have been called.
 		// The outer window is responsible for everything layout-related.
 		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
-	}
-
-	int calcPreferredHeightForWidth(int width) const override
-	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredHeightForWidth must be overloaded in derived class.");
-	}
-
-	int calcPreferredWidthForHeight(int height) const override
-	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredWidthForHeight must be overloaded in derived class.");
 	}
 
 

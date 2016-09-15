@@ -164,9 +164,7 @@ public:
 	}
 
 
-	Size	calcPreferredSize() const override;
-	int		calcPreferredHeightForWidth(int width) const override;
-	int		calcPreferredWidthForHeight(int height) const override;
+	Size	calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override;
 
 	
 

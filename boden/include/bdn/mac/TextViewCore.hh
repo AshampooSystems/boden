@@ -125,7 +125,7 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
         NSTextContainer*    textContainer = [[NSTextContainer alloc]

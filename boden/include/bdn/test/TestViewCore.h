@@ -205,7 +205,7 @@ protected:
                     REQUIRE( prefSize.height>=0 );
                 }
                 
-                SECTION("calcPreferredHeightForWidth plausible")	
+                SECTION("calcPreferredSize restrictedWidth plausible")	
                 {
                     // this is difficult to test, since it depends heavily on what kind of view
                     // we actually work with. Also, it is perfectly normal for different core implementations
@@ -217,24 +217,24 @@ protected:
                     SECTION("unconditionalWidth")
                     {
                         // When we specify exactly the unconditional preferred width then we should get exactly the unconditional preferred height
-                        REQUIRE( _pCore->calcPreferredHeightForWidth(prefSize.width) == prefSize.height );
+                        REQUIRE( _pCore->calcPreferredSize(prefSize.width).height == prefSize.height );
                     }
 
                     SECTION("zero")
                     {
-                        REQUIRE( _pCore->calcPreferredHeightForWidth(0) >= prefSize.height );
+                        REQUIRE( _pCore->calcPreferredSize(0).height >= prefSize.height );
                     }
                 }
 
-                SECTION("calcPreferredWidthForHeight plausible")	
+                SECTION("calcPreferredSize restrictedHeight plausible")	
                 {
                     Size prefSize = _pCore->calcPreferredSize();
 
                     SECTION("unconditionalHeight")
-                        REQUIRE( _pCore->calcPreferredWidthForHeight(prefSize.height) == prefSize.width );
+                        REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height).width == prefSize.width );
         
                     SECTION("zero")
-                        REQUIRE( _pCore->calcPreferredWidthForHeight(0) >= prefSize.width );
+                        REQUIRE( _pCore->calcPreferredSize(-1, 0).width >= prefSize.width );
                 }
             }
         }
@@ -346,7 +346,9 @@ protected:
             {
                 if(canManuallyChangeBounds())
                 {
-                    _pView->bounds() = Rect(110, 220, 880, 990);
+					// note: don't get too big here. If we exceed the screen size then
+					// the window size be clipped by the OS.
+                    _pView->bounds() = Rect(110, 220, 550, 330);
 
                     // it may take a layout cycle until the bounds have updated
                     P<TestViewCore> pThis = this;

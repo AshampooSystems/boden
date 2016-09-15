@@ -141,21 +141,61 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+		emscripten::val styleObj = _domObject["style"];
+
+        // If we would simply look at the width/height property here, we would only
+        // get the size we have last set ourselves.
+        // To get the preferred size, we have to update the style to clear the previous
+        // size assignment. Then the element will report its preferred size.
+        // And then we restore the old style.
+
+        emscripten::val oldWidthStyle = styleObj["width"];
+        emscripten::val oldHeightStyle = styleObj["height"];
+
+        styleObj.set("width", (availableWidth==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(availableWidth).asUtf8() );        
+        styleObj.set("height", (availableHeight==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(availableHeight).asUtf8() );
+
+        // also, our parent's size will normally influence how our content is wrapped.
+        // For example, for elements containing text this text will be auto-wrapped according to the parent's width
+        // (since that constitutes the maximum width for this element, as far as the browser knows).
+        // To avoid this influence of the parent we disable wrapping during measuring.
+        emscripten::val oldWhitespaceStyle = styleObj["white-space"];
+        if(availableWidth==-1)
+            styleObj.set("white-space", "nowrap");
+
+        // we could access the offsetWidth or scrollWidth properties of the object here.
+        // However, these have the downside that they are always integers, even though browsers
+        // internally use floating point numbers to calculate their box model.
+        // And even worse: the integers are rounded down. So if you create a control with 
+        // the integer width you can get additional word wraps in the text content and other
+        // bad effects.
+        // To avoid that we call the getBoundingClientRect function. It returns the rect with
+        // floating point values, allowing us to round UP when we convert to integers.
+
+        emscripten::val rectObj = _domObject.call<emscripten::val>("getBoundingClientRect");
+
+        double width = rectObj["width"].as<double>();
+        double height = rectObj["height"].as<double>();
+
+/*
+        double width = _domObject["offsetWidth"].as<double>();
+        double height = _domObject["offsetHeight"].as<double>();
+*/
+
+        styleObj.set("width", oldWidthStyle);
+        styleObj.set("height", oldHeightStyle);
+
+        if(availableWidth==-1)
+        {
+            if(oldWhitespaceStyle.isUndefined())
+                styleObj.set("white-space", "initial" );
+            else
+                styleObj.set("white-space", oldWhitespaceStyle );
+        }
+
+        return Size( std::ceil(width), std::ceil(height) );
     }
     
     
@@ -200,62 +240,6 @@ public:
 protected:
 
     
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        emscripten::val styleObj = _domObject["style"];
-
-        // If we would simply look at the width/height property here, we would only
-        // get the size we have last set ourselves.
-        // To get the preferred size, we have to update the style to clear the previous
-        // size assignment. Then the element will report its preferred size.
-        // And then we restore the old style.
-
-        emscripten::val oldWidthStyle = styleObj["width"];
-        emscripten::val oldHeightStyle = styleObj["height"];
-
-        styleObj.set("width", (forWidth==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forWidth).asUtf8() );        
-        styleObj.set("height", (forHeight==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forHeight).asUtf8() );
-
-        // also, our parent's size will normally influence how our content is wrapped.
-        // For example, for elements containing text this text will be auto-wrapped according to the parent's width
-        // (since that constitutes the maximum width for this element, as far as the browser knows).
-        // To avoid this influence of the parent we disable wrapping during measuring.
-        emscripten::val oldWhitespaceStyle = styleObj["white-space"];
-        if(forWidth==-1)
-            styleObj.set("white-space", "nowrap");
-
-        // we could access the offsetWidth or scrollWidth properties of the object here.
-        // However, these have the downside that they are always integers, even though browsers
-        // internally use floating point numbers to calculate their box model.
-        // And even worse: the integers are rounded down. So if you create a control with 
-        // the integer width you can get additional word wraps in the text content and other
-        // bad effects.
-        // To avoid that we call the getBoundingClientRect function. It returns the rect with
-        // floating point values, allowing us to round UP when we convert to integers.
-
-        emscripten::val rectObj = _domObject.call<emscripten::val>("getBoundingClientRect");
-
-        double width = rectObj["width"].as<double>();
-        double height = rectObj["height"].as<double>();
-
-/*
-        double width = _domObject["offsetWidth"].as<double>();
-        double height = _domObject["offsetHeight"].as<double>();
-*/
-
-        styleObj.set("width", oldWidthStyle);
-        styleObj.set("height", oldHeightStyle);
-
-        if(forWidth==-1)
-        {
-            if(oldWhitespaceStyle.isUndefined())
-                styleObj.set("white-space", "initial" );
-            else
-                styleObj.set("white-space", oldWhitespaceStyle );
-        }
-
-        return Size( std::ceil(width), std::ceil(height) );
-    }
 
     void _addToParent(View* pParent)
     {

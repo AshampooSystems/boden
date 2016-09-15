@@ -295,44 +295,19 @@ void View::_initCore()
 
 
 
-Size View::calcPreferredSize() const
+Size View::calcPreferredSize(int availableWidth, int availableHeight) const
 {
 	verifyInMainThread("View::calcPreferredSize");
 
 	P<IViewCore> pCore = getViewCore();
 
 	if(pCore!=nullptr)
-		return pCore->calcPreferredSize();
+		return pCore->calcPreferredSize(availableWidth, availableHeight);
 	else
 		return Size(0, 0);
 }
 
 	
-int View::calcPreferredHeightForWidth(int width) const
-{
-	verifyInMainThread("View::calcPreferredHeightForWidth");
-
-	P<IViewCore> pCore = getViewCore();
-
-	if(pCore!=nullptr)
-		return pCore->calcPreferredHeightForWidth(width);
-	else
-		return 0;
-}
-
-
-int View::calcPreferredWidthForHeight(int height) const
-{
-	verifyInMainThread("View::calcPreferredWidthForHeight");
-
-	P<IViewCore> pCore = getViewCore();
-
-	if(pCore!=nullptr)
-		return pCore->calcPreferredWidthForHeight(height);
-	else
-		return 0;
-}
-
 
 }
 

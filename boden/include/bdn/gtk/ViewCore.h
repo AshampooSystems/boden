@@ -79,21 +79,74 @@ public:
 
 	
 
-	Size calcPreferredSize() const override
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
+		GtkRequisition minSize;
+        GtkRequisition naturalSize;
+        
+        // we must clear our "size request". Otherwise the current size will be
+        // the basis for the preferred size.
+        gint oldWidth;
+        gint oldHeight;
+        gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
+        
+        // invisible widgets do not take up any size in the layout.
+        // So if it is 
+        gboolean oldVisible = gtk_widget_get_visible(_pWidget);
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, TRUE);
+            
+                             
+        gtk_widget_set_size_request( _pWidget, 0, 0);
+        
+        if(availableWidth!=-1)
+        {
+            gint minHeight=0;
+            gint naturalHeight=0;
+            
+            int forGtkWidth = availableWidth / getGtkScaleFactor();
+            
+            if(forGtkWidth<0)
+                forGtkWidth = 0;
+            
+            gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
+            
+            naturalSize.width = forGtkWidth;
+            naturalSize.height = naturalHeight;
+        }
+        else if(availableHeight!=-1)
+        {
+            gint minWidth=0;
+            gint naturalWidth=0;
+            
+            int forGtkHeight = availableHeight / getGtkScaleFactor();
+            
+            if(forGtkHeight<0)
+                forGtkHeight = 0;
+                        
+            gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
+            
+            naturalSize.width = naturalWidth;
+            naturalSize.height = forGtkHeight;
+        }
+        else        
+            gtk_widget_get_preferred_size (_pWidget, &minSize, &naturalSize );
+            
+            
+        // restore the old visibility
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, oldVisible);
+        
+        // restore the old size
+        gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
+        
+        Size size = gtkSizeToSize(naturalSize, getGtkScaleFactor() );
+        
 
-	
-	int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-
-	
-	int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+        Margin padding = _getPaddingPixels();
+        size += padding;
+        
+        return size;
     }
 	
  
@@ -160,75 +213,6 @@ private:
             return uiMarginToPixelMargin( pad.get() );
     }
 
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        GtkRequisition minSize;
-        GtkRequisition naturalSize;
-        
-        // we must clear our "size request". Otherwise the current size will be
-        // the basis for the preferred size.
-        gint oldWidth;
-        gint oldHeight;
-        gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
-        
-        // invisible widgets do not take up any size in the layout.
-        // So if it is 
-        gboolean oldVisible = gtk_widget_get_visible(_pWidget);
-        if(oldVisible==FALSE)
-            gtk_widget_set_visible(_pWidget, TRUE);
-            
-                             
-        gtk_widget_set_size_request( _pWidget, 0, 0);
-        
-        if(forWidth!=-1)
-        {
-            gint minHeight=0;
-            gint naturalHeight=0;
-            
-            int forGtkWidth = forWidth / getGtkScaleFactor();
-            
-            if(forGtkWidth<0)
-                forGtkWidth = 0;
-            
-            gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
-            
-            naturalSize.width = forGtkWidth;
-            naturalSize.height = naturalHeight;
-        }
-        else if(forHeight!=-1)
-        {
-            gint minWidth=0;
-            gint naturalWidth=0;
-            
-            int forGtkHeight = forHeight / getGtkScaleFactor();
-            
-            if(forGtkHeight<0)
-                forGtkHeight = 0;
-                        
-            gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
-            
-            naturalSize.width = naturalWidth;
-            naturalSize.height = forGtkHeight;
-        }
-        else        
-            gtk_widget_get_preferred_size (_pWidget, &minSize, &naturalSize );
-            
-            
-        // restore the old visibility
-        if(oldVisible==FALSE)
-            gtk_widget_set_visible(_pWidget, oldVisible);
-        
-        // restore the old size
-        gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
-        
-        Size size = gtkSizeToSize(naturalSize, getGtkScaleFactor() );
-        
-
-        Margin padding = _getPaddingPixels();
-        size += padding;
-        
-        return size;
-    }
     
 
     void _addToParent()

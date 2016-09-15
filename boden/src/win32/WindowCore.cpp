@@ -163,25 +163,13 @@ Size WindowCore::calcMinimumSize() const
 	return minSize;
 }
 
-Size WindowCore::calcPreferredSize() const
+Size WindowCore::calcPreferredSize(int availableWidth, int availableHeight) const
 {
 	// the implementation for this must be provided by the outer Window object.
 	throw NotImplementedError("WindowCore::calcPreferredSize");	
 }
 
 	
-int WindowCore::calcPreferredHeightForWidth(int width) const
-{
-	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredHeightForWidth");	
-}
-
-
-int WindowCore::calcPreferredWidthForHeight(int height) const
-{
-	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-}
 	
 
 Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)

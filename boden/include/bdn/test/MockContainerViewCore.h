@@ -28,28 +28,12 @@ public:
 	}
     
 	
-    Size calcPreferredSize() const
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
     {
 	    // this core function should never have been called.
 	    // The outer window is responsible for everything layout-related.
 	    programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
         return Size();
-    }
-
-    int calcPreferredHeightForWidth(int width) const
-    {
-	    // this core function should never have been called.
-	    // The outer window is responsible for everything layout-related.
-	    programmingError("ContainerView::calcPreferredHeightForWidth must be overloaded in derived class.");
-        return 0;
-    }
-
-    int calcPreferredWidthForHeight(int height) const
-    {
-	    // this core function should never have been called.
-	    // The outer window is responsible for everything layout-related.
-	    programmingError("ContainerView::calcPreferredWidthForHeight must be overloaded in derived class.");
-        return 0;
     }
 
 

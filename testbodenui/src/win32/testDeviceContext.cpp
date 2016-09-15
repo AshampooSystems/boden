@@ -71,7 +71,23 @@ TEST_CASE("win32.DeviceContext")
                 testMultipleLines(deviceContext, "\r\n");
         }
 
-        
+		SECTION("with wrapWidth")
+		{
+			SECTION("oneWord")
+			{
+				Size unwrappedSize = deviceContext.getTextSize("hello");
+				
+				// wrap width = 1 should be the same as unwrapped for a single word
+				REQUIRE( deviceContext.getTextSize("hello", 1) == unwrappedSize);
+			}
+
+			SECTION("twoWords")
+			{
+				Size manualWrappedSize = deviceContext.getTextSize("hello\nhello");
+
+				REQUIRE( deviceContext.getTextSize("hello hello", manualWrappedSize.width) == manualWrappedSize );
+			}
+		}        
     }
 }
 

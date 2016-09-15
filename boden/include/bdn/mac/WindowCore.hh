@@ -156,26 +156,13 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+        throw NotImplementedError("WindowCore::calcPreferredSize");
     }
     
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
+       
     
     
     bool tryChangeParentView(View* pNewParent) override

@@ -83,21 +83,22 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+		CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        
+        Size size = iosSizeToSize(iosSize);
+        
+        Margin padding = getPaddingPixels();
+        
+        size += padding;
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
+        return size;
     }
     
     
@@ -142,23 +143,6 @@ protected:
         return padding;
     }
     
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-        
-        Size size = iosSizeToSize(iosSize);
-        
-        Margin padding = getPaddingPixels();
-        
-        size += padding;
-        
-        if(size.width<0)
-            size.width = 0;
-        if(size.height<0)
-            size.height = 0;
-        
-        return size;
-    }
 
     
     

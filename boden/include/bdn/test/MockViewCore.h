@@ -182,22 +182,6 @@ public:
 	}
 
 
-	
-	int calcPreferredHeightForWidth(int width) const override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return calcPreferredSize().height;
-	}
-
-
-	int calcPreferredWidthForHeight(int height) const override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return calcPreferredSize().width;
-	}
-	
 
 
 	bool tryChangeParentView(View* pNewParent) override

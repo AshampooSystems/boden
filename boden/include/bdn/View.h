@@ -359,55 +359,33 @@ public:
 
 
 	
-
 	/** Asks the view to calculate its preferred size, based on it current content
 		and properties.
+
+		availableWidth and availableHeight are used to indicate the maximum amount of available
+		space for the view.
+
+		If they are both -1 then that means that the available space should be considered to be unlimited.
+		I.e. the function should return the view's optimal size.
+
+		When one of the availableXYZ parameters is not -1 then it means that the available space is limited
+		in that dimension. The function should return the preferred size of the view within those constraints,
+		trying to not exceed the limited size component.
+		
+		For example, many views displaying text can handle a limited available width by wrapping the text into
+		multiple lines (and thus increasing their height).
+
+		If the view cannot reduce its size to fit into the available space then it is valid for the function
+		to return a size that exceeds the available space. However, the layout manager is free to
+		size the view to something smaller than the returned preferred size.
 
 		Custom view implementations should override this and provide an implementation
 		suitable for their content and/or child views.
 
 		IMPORTANT: This function must only called be called from the main thread.
 		*/	
-	virtual Size calcPreferredSize() const;
+	virtual Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const;
 
-	
-	/** Asks the view to calculate its preferred height for the case that the view had
-		the specified width.
-
-		This function is called in cases when there is not enough space to size the view
-		according to its unconstrained preferred size (see #calcPreferredSize()).
-		The view should pretend that it has the specified width and return its preferred
-		height for that case.
-
-		Note that the \c width parameter can also be BIGGER than the unconstrained preferred width
-		returned by calcPreferredSize().
-
-		Custom view implementations should override this and provide an implementation
-		suitable for their content and/or child views.
-		
-		IMPORTANT: This function must only be called from the main thread.
-		*/	
-	virtual int calcPreferredHeightForWidth(int width) const;
-
-
-	/** Asks the view to calculate its preferred width for the case that the view had
-		the specified height.
-
-		This function is called in cases when there is not enough space to size the view
-		according to its unconstrained preferred size (see #calcPreferredSize()).
-		The view should pretend that it has the specified height and return its preferred
-		width for that case.
-
-		Note that the \c height parameter can also be BIGGER than the unconstrained preferred height
-		returned by calcPreferredSize().
-
-		Custom view implementations should override this and provide an implementation
-		suitable for their content and/or child views.
-		
-		IMPORTANT: This function must only be called from the main thread.
-		*/	
-	virtual int calcPreferredWidthForHeight(int height) const;
-	
 
 protected:
 
