@@ -85,7 +85,13 @@ public:
     
     Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-		CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        CGSize constraintSize = UILayoutFittingCompressedSize;
+        if(availableWidth!=-1)
+            constraintSize.width = availableWidth;
+        if(availableHeight!=-1)
+            constraintSize.height = availableHeight;
+        
+		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
         
         Size size = iosSizeToSize(iosSize);
         

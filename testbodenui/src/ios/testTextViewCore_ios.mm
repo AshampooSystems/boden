@@ -21,6 +21,14 @@ protected:
         REQUIRE( _pUILabel!=nullptr );
     }
 
+    bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
+    {
+        // unfortunately the ios text view will wrap single words into individual characters.
+        // This is not the recommended behaviour for boden, but there is apparently no setting to
+        // change that.
+        return true;
+    }
+
    
     void verifyCoreText() override
     {
