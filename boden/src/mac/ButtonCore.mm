@@ -53,7 +53,10 @@ ButtonCore::ButtonCore(Button* pOuterButton)
 
 void ButtonCore::_updateBezelStyle()
 {
-    Rect bounds = getOuterView()->bounds();
+    Rect bounds;
+	P<View> pView = getOuterViewIfStillAttached();
+    if(pView!=nullptr)
+		 bounds = pView->bounds();
     int height = bounds.height;
     
     // the "normal" button (NSRoundedBezelStyle) has a fixed height.
@@ -78,11 +81,13 @@ void ButtonCore::_updateBezelStyle()
 
 void ButtonCore::generateClick()
 {
-    P<Button> pOuterButton = cast<Button>(getOuterView());
+	P<Button> pOuterButton = cast<Button>( getOuterViewIfStillAttached() );
+    if(pOuterButton!=nullptr)
+	{    
+		bdn::ClickEvent evt(pOuterButton);
     
-    bdn::ClickEvent evt(pOuterButton);
-    
-    pOuterButton->onClick().notify(evt);
+		pOuterButton->onClick().notify(evt);
+	}
 }
 
 

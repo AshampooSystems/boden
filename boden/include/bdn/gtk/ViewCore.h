@@ -18,7 +18,7 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 public:
     ViewCore(View* pOuterView, GtkWidget* pWidget)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         
         _pWidget = pWidget;
         
@@ -27,14 +27,7 @@ public:
         _addToParent();        
     }
     
-    
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
         
-        _pWidget = nullptr;
-    }
-    
 	void setVisible(const bool& visible) override
     {
         gtk_widget_set_visible(_pWidget, visible ? TRUE : FALSE);
@@ -58,12 +51,16 @@ public:
         
         gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );
         
-        P<View> pParentView = getOuterView()->getParentView();
-        if(pParentView!=nullptr)
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
         {
-            P<ViewCore> pParentViewCore = cast<ViewCore>( pParentView->getViewCore() );
+            P<View> pParentView = pView->getParentView();
+            if(pParentView!=nullptr)
+            {
+                P<ViewCore> pParentViewCore = cast<ViewCore>( pParentView->getViewCore() );
             
-            pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
+                pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
+            }
         }
     }
 
@@ -82,21 +79,109 @@ public:
 
 	
 
-	Size calcPreferredSize() const override
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
+        GtkRequisition resultSize;
+        
+        // we must clear our "size request". Otherwise the current size will be
+        // the basis for the preferred size.
+        gint oldWidth;
+        gint oldHeight;
+        gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
+        
+        // invisible widgets do not take up any size in the layout.
+        // So if it is 
+        gboolean oldVisible = gtk_widget_get_visible(_pWidget);
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, TRUE);
+            
+                             
+        gtk_widget_set_size_request( _pWidget, 0, 0);
+        
+        // we always need to know the unrestricted size of the widget
+        GtkRequisition unrestrictedMinSize;
+        GtkRequisition unrestrictedNaturalSize;
+        gtk_widget_get_preferred_size (_pWidget, &unrestrictedMinSize, &unrestrictedNaturalSize );
+        
+        if(availableWidth!=-1 && canAdjustWidthToAvailableSpace() )
+        {
+            gint minHeight=0;
+            gint naturalHeight=0;
+            
+            int forGtkWidth = availableWidth / getGtkScaleFactor();
+            
+            if(forGtkWidth<0)
+                forGtkWidth = 0;
+                
+            gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
+            
+            
+            resultSize.height = naturalHeight;            
+            
+            // now we know our height for the case in which the width is exactly availableWidth.
+            // However, availableWidth may actually be wider than what we need. Check that.
+            if(forGtkWidth < unrestrictedNaturalSize.width)
+            {
+                // the unrestricted size exceeds the available size.
+                // Note that it might seem like a good idea to use gtk_widget_get_preferred_width_for_height here
+                // to find out if the widget really does use all the available space in the restricted case.
+                // For example, text views that wrap their text to accomodate for availWidth will usually
+                // not wrap exactly at availWidth, but slightly before that.
+                // However, we cannot use gtk_widget_get_preferred_width_for_height to find out how much
+                // space the view really needs. Since gtk_widget_get_preferred_width_for_height does not
+                // have a paremeter to specify a width limit, the natural width we get will be exactly
+                // the unrestricted width (since the height limit we specify is usually actually bigger than
+                // the unrestricted height).
+                // And the minimum width will be a width for a case in which the control tries to absolutely
+                // minimize its width. For example, text views will wrap text as much as possible and also
+                // try to choose the wrap point so that all lines are roughly the same width. That is not the
+                // same text wrapping that the control used to calculate the naturalHeight for the case with the
+                // restricted width.
+                
+                // So, there is no way to calculate the actual used amount of available space.
+            
+                resultSize.width = forGtkWidth;
+            }
+            else
+                resultSize.width = unrestrictedNaturalSize.width;               
+            
+        }
+        else if(availableHeight!=-1 && canAdjustHeightToAvailableSpace() )
+        {
+            gint minWidth=0;
+            gint naturalWidth=0;
+            
+            int forGtkHeight = availableHeight / getGtkScaleFactor();
+            
+            if(forGtkHeight<0)
+                forGtkHeight = 0;
+                
+            // see availableWidth!=-1 case for an explanation of what we do here.
+            
+            gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
+            
+            
+            resultSize.width = naturalWidth;            
+            resultSize.height = std::min(forGtkHeight, unrestrictedNaturalSize.height);            
+        }
+        else
+            resultSize = unrestrictedNaturalSize;
+            
+            
+        // restore the old visibility
+        if(oldVisible==FALSE)
+            gtk_widget_set_visible(_pWidget, oldVisible);
+        
+        // restore the old size
+        gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
+        
+        Size size = gtkSizeToSize(resultSize, getGtkScaleFactor() );
+        
 
-	
-	int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-
-	
-	int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+        Margin padding = _getPaddingPixels();
+        size += padding;
+        
+        return size;
     }
 	
  
@@ -114,14 +199,14 @@ public:
     }
     
     
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
     virtual void _addChildViewCore(ViewCore* pChildCore)
@@ -147,92 +232,57 @@ protected:
         return Margin();
     }
     
+    
+    /** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustWidthToAvailableSpace() const
+	{
+		return false;
+	}
+
+	/** Returns true if the view can adjust its height to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableHeight parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustHeightToAvailableSpace() const
+	{
+		return false;
+	}
+    
 
 private:
 
     Margin _getPaddingPixels() const
     {
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        P<const View> pView = getOuterViewIfStillAttached();
+        Nullable<UiMargin> pad;
+        if(pView!=nullptr)
+            pad = pView->padding();
+
         if(pad.isNull())
             return getDefaultPaddingPixels();
         else            
             return uiMarginToPixelMargin( pad.get() );
     }
 
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        GtkRequisition minSize;
-        GtkRequisition naturalSize;
-        
-        // we must clear our "size request". Otherwise the current size will be
-        // the basis for the preferred size.
-        gint oldWidth;
-        gint oldHeight;
-        gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
-        
-        // invisible widgets do not take up any size in the layout.
-        // So if it is 
-        gboolean oldVisible = gtk_widget_get_visible(_pWidget);
-        if(oldVisible==FALSE)
-            gtk_widget_set_visible(_pWidget, TRUE);
-            
-                             
-        gtk_widget_set_size_request( _pWidget, 0, 0);
-        
-        if(forWidth!=-1)
-        {
-            gint minHeight=0;
-            gint naturalHeight=0;
-            
-            int forGtkWidth = forWidth / getGtkScaleFactor();
-            
-            if(forGtkWidth<0)
-                forGtkWidth = 0;
-            
-            gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
-            
-            naturalSize.width = forGtkWidth;
-            naturalSize.height = naturalHeight;
-        }
-        else if(forHeight!=-1)
-        {
-            gint minWidth=0;
-            gint naturalWidth=0;
-            
-            int forGtkHeight = forHeight / getGtkScaleFactor();
-            
-            if(forGtkHeight<0)
-                forGtkHeight = 0;
-                        
-            gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
-            
-            naturalSize.width = naturalWidth;
-            naturalSize.height = forGtkHeight;
-        }
-        else        
-            gtk_widget_get_preferred_size (_pWidget, &minSize, &naturalSize );
-            
-            
-        // restore the old visibility
-        if(oldVisible==FALSE)
-            gtk_widget_set_visible(_pWidget, oldVisible);
-        
-        // restore the old size
-        gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
-        
-        Size size = gtkSizeToSize(naturalSize, getGtkScaleFactor() );
-        
-
-        Margin padding = _getPaddingPixels();
-        size += padding;
-        
-        return size;
-    }
     
 
     void _addToParent()
     {
-        P<View> pParent = getOuterView()->getParentView();
+        P<View> pView = getOuterViewIfStillAttached();
+        P<View> pParent;
+        if(pView!=nullptr)
+            pParent = pView->getParentView();
         if(pParent==nullptr)
         {
             // nothing to do. We are a top level window.            
@@ -253,7 +303,7 @@ private:
 
 
     GtkWidget*  _pWidget;
-    View*       _pOuterViewWeak;
+    WeakP<View> _outerViewWeak;
 };
 
 

@@ -23,7 +23,7 @@ public:
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		_pOuterViewWeak = pView;
+		_outerViewWeak = pView;
 
 		_visible = pView->visible();
 		_padding = pView->padding();
@@ -31,16 +31,18 @@ public:
 		_pParentViewWeak = pView->getParentView();
 	}
 
-
-    void dispose() override
+    ~MockViewCore()
     {
-        _pOuterViewWeak = nullptr;
+        // core objects must only be released from the main thread.
+        BDN_REQUIRE_IN_MAIN_THREAD();
     }
 
+    
+
     /** Returns the outer view object that this core is embedded in.*/
-    View* getOuterViewWeak()
+    P<View> getOuterViewIfStillAttached()
 	{
-        return _pOuterViewWeak;	    
+        return _outerViewWeak.toStrong();	    
 	}
 
 
@@ -180,22 +182,6 @@ public:
 	}
 
 
-	
-	int calcPreferredHeightForWidth(int width) const override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return calcPreferredSize().height;
-	}
-
-
-	int calcPreferredWidthForHeight(int height) const override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return calcPreferredSize().width;
-	}
-	
 
 
 	bool tryChangeParentView(View* pNewParent) override
@@ -221,7 +207,7 @@ protected:
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;
     
-	View*		_pOuterViewWeak = nullptr;
+	WeakP<View>	 _outerViewWeak = nullptr;
 
 };
 

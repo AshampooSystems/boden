@@ -21,6 +21,14 @@ protected:
         REQUIRE( _pNSTextView!=nullptr );
     }
 
+
+    bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
+    {
+        // unfortunately the mac text view will wrap single words into individual characters.
+        // This is not the recommended behaviour for boden, but there is apparently no setting to
+        // change that.
+        return true;
+    }
    
     
     void runPostInitTests() override

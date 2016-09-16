@@ -69,7 +69,7 @@ void Window::autoSize()
 		width = screenArea.width;
 
 		// and then adapt the height accordingly (height might increase if we reduce the width).
-		height = calcPreferredHeightForWidth(width);	
+		height = calcPreferredSize(width).height;	
 
 		// if the height we calculated is bigger than the max height then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
@@ -83,7 +83,7 @@ void Window::autoSize()
 		height = screenArea.height;
 
 		// and then adapt the width accordingly.
-		width = calcPreferredWidthForHeight(height);	
+		width = calcPreferredSize(-1, height).width;	
 
 		// if the width we calculated is bigger than the max width then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
@@ -118,108 +118,63 @@ void Window::center()
 	bounds() = myBounds;
 }
 
-Size Window::calcPreferredSize() const
+Size Window::calcPreferredSize(int availableWidth, int availableHeight) const
 {
 	// lock the mutex so that our child hierarchy or core does not change during measuring
 	MutexLock lock( getHierarchyAndCoreMutex() );
-
-	Size preferredSize;
-
+	
 	P<IWindowCore> pCore = cast<IWindowCore>( getViewCore() );
 
-	if(pCore!=nullptr)
-	{
-		P<const View> pContentView = getContentView();
-
-		if(pContentView!=nullptr)
-		{
-			Margin contentMargin = pContentView->uiMarginToPixelMargin( pContentView->margin() );
-			
-			SizingInfo contentSizingInfo = pContentView->sizingInfo();
-
-			preferredSize = contentSizingInfo.preferredSize + contentMargin;
-		}
-        
-        Margin myPadding = getPixelPadding();
-
-		preferredSize += myPadding;
-
-		// calculate window sizes from client sizes
-		preferredSize = pCore->calcWindowSizeFromContentAreaSize( preferredSize );
-
-		Size minSize = pCore->calcMinimumSize();
-		preferredSize.width = std::max( minSize.width, preferredSize.width );
-		preferredSize.height = std::max( minSize.height, preferredSize.height );
-	}
-
-	return preferredSize;
-}
-
-int Window::calcPreferredWidthForHeight(int height) const
-{
-	P<IWindowCore>	pCore = cast<IWindowCore>(getViewCore());
-	
 	if(pCore==nullptr)
 	{
 		// cannot calculate anything without a core.
-		return 0;
+		return Size(0,0);
 	}
-	
-	// we do not yet know our width. So we use a very large width for the purpose of the calculation.
-	int contentAreaHeight = pCore->calcContentAreaSizeFromWindowSize( Size(10000, height) ).height;
-	
-    Margin myPadding = getPixelPadding();
-    
+
 	Margin contentMargin;
 	P<const View>	pContentView = getContentView();
 	if(pContentView!=nullptr)
 		contentMargin = pContentView->uiMarginToPixelMargin( _pContentView->margin() );
 
-	int contentHeight = contentAreaHeight - (myPadding.top + myPadding.bottom + contentMargin.top + contentMargin.bottom);
+	Margin myPadding = getPixelPadding();
 
-	int	contentWidth=0;	
-	if(pContentView!=nullptr)
-		contentWidth = pContentView->calcPreferredWidthForHeight(contentHeight);
-
-	int contentAreaWidth = contentWidth + myPadding.left + myPadding.right + contentMargin.left + contentMargin.right;
-
-	Size windowSize = pCore->calcWindowSizeFromContentAreaSize( Size(contentAreaWidth, contentAreaHeight) );
-
-	return windowSize.width;
-}
-
-
-int Window::calcPreferredHeightForWidth(int width) const
-{
-	P<IWindowCore>	pCore = cast<IWindowCore>(getViewCore());
-	
-	if(pCore==nullptr)
+	Size availableContentAreaSize(-1, -1);	
+	if(availableWidth!=-1 || availableHeight!=-1)
 	{
-		// cannot calculate anything without a core.
-		return 0;
+		// subtract size of window border, titlebar, etc.
+		availableContentAreaSize = pCore->calcContentAreaSizeFromWindowSize(
+			Size(availableWidth==-1 ? 10000 : availableWidth,
+				 availableHeight==-1 ? 10000 : availableHeight) );
+
+		// subtract window padding
+		availableContentAreaSize-=myPadding;
+		// subtract margin of content view
+		availableContentAreaSize-=contentMargin;
+
+		if(availableContentAreaSize.width<0)
+			availableContentAreaSize.width = 0;
+		if(availableContentAreaSize.height<0)
+			availableContentAreaSize.height = 0;
+
+		if(availableWidth==-1)
+			availableContentAreaSize.width = -1;
+		if(availableHeight==-1)
+			availableContentAreaSize.height = -1;
 	}
+		
+	Size contentSize;
+	if(pContentView!=nullptr)
+		contentSize = pContentView->calcPreferredSize( availableContentAreaSize.width, availableContentAreaSize.height );
 
-	// we do not yet know our height. So we use a very large height for the purpose of the calculation.
-	int contentAreaWidth = pCore->calcContentAreaSizeFromWindowSize( Size(width, 10000) ).width;
+	Size contentAreaSize = contentSize + myPadding + contentMargin;
 	
-    Margin myPadding = getPixelPadding();
+	Size preferredSize = pCore->calcWindowSizeFromContentAreaSize( contentAreaSize );
 
-	Margin contentMargin;
-	P<const View>	pContentView = getContentView();
-	if(pContentView!=nullptr)
-		contentMargin = pContentView->uiMarginToPixelMargin( pContentView->margin() );
+	Size minSize = pCore->calcMinimumSize();
+	preferredSize.width = std::max( minSize.width, preferredSize.width );
+	preferredSize.height = std::max( minSize.height, preferredSize.height );
 
-	int contentWidth = contentAreaWidth - (myPadding.left + myPadding.right + contentMargin.left + contentMargin.right);
-
-	int	contentHeight=0;	
-	if(pContentView!=nullptr)
-		contentHeight = pContentView->calcPreferredHeightForWidth(contentWidth);
-
-	int contentAreaHeight = contentHeight + myPadding.top + myPadding.bottom + contentMargin.top + contentMargin.bottom;
-
-	Size windowSize = pCore->calcWindowSizeFromContentAreaSize( Size(contentAreaWidth, contentAreaHeight) );
-
-	return windowSize.height;
+	return preferredSize;
 }
 
 void Window::layout()

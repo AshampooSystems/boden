@@ -29,20 +29,53 @@ public:
         ::SelectObject( _handle, font.getHandle() );
     }
 
-    Size getTextSize(const String& text)
+
+    /** Returns the size of the specified text.
+    
+        This function handles linebreaks correctly (i.e. it returns the size
+        of multiple lines of text if the string contains linebreaks)
+
+		If wrapWidth is not -1 then the text size is calculated for the case
+		in which the text wraps at the specified width (in pixels).
+		The wrapping occurs on word boundaries. If a word is wider than wrapWidth
+		then the returned text size can be bigger than wrapWidth.
+    */
+    Size getTextSize(const String& text, int wrapWidth=-1)
     {
-        SIZE textSize = {0};
+        // GetTextExtentPoint32W ignores linebreak and also does not
+        // provide any way to calculate the height of multiple lines of text. So we use
+        // DrawText instead, which also has a size calculation function.
 
-        const std::wstring& textWide = text.asWide();
+        const std::wstring& wideText = text.asWide();
 
-    	if(!::GetTextExtentPoint32W( _handle, textWide.c_str(), textWide.length(), &textSize))
+        RECT rect{0, 0, 0, 0};
+
+		UINT flags = DT_CALCRECT;
+
+		if(wrapWidth>=0)
+		{
+			rect.right = wrapWidth;
+			flags |= DT_WORDBREAK;
+		}
+		else
+		{
+			// DrawText uses the input width of rect as a measure for the available width
+			// (so that it can do line-breaking).
+			// Since we want unlimited width, we set it to a very large size
+			rect.right = 0x7fffffff;
+		}
+
+        int result = ::DrawText(_handle, wideText.c_str(), wideText.length(), &rect, flags);
+        if(result==0)
         {
-            BDN_WIN32_throwLastError( ErrorFields().add("func", "GetTextExtentPoint32W")
-                                                   .add("action", "DeviceContext::getTextSize") );
+            BDN_WIN32_throwLastError( ErrorFields().add("func", "DrawText")
+                                                    .add("action", "DeviceContext::getTextSize")
+                                                    .add("text", text) );
         }
 
-        return Size(textSize.cx, textSize.cy);
+        return Size( rect.right, rect.bottom);
     }
+
 
     
     /** Returns the win32 HDC handle of the device context.*/

@@ -16,10 +16,20 @@ namespace gtk
 
 class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
 {
+private:
+    static GtkWidget* createLabel( TextView* pOuter )
+    {
+        GtkWidget* pLabel = gtk_label_new( pOuter->text().get().asUtf8Ptr() );
+        
+        gtk_label_set_line_wrap( GTK_LABEL(pLabel), TRUE );        
+        
+        return pLabel;
+    }
+    
 public:
     TextViewCore(View* pOuter)
     : ViewCore( pOuter,
-                gtk_label_new( cast<TextView>(pOuter)->text().get().asUtf8Ptr() ) )
+                createLabel( cast<TextView>(pOuter) ) )
     {
     }
     
@@ -34,6 +44,12 @@ public:
         gtk_label_set_text( GTK_LABEL( getGtkWidget() ), text.asUtf8Ptr() );
     }
         
+        
+protected:
+    bool canAdjustWidthToAvailableSpace() const override
+    {
+        return true;
+    }
 
 };
 

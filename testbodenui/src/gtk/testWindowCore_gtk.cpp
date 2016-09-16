@@ -46,6 +46,15 @@ protected:
     }
     
     
+    void clearAllReferencesToCore() override
+    {
+        bdn::test::TestGtkViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
+        
+        _pGtkCore = nullptr;
+        _pGtkWidget = nullptr;
+    }
+    
+    
     struct DestructVerificationInfo : public Base
     {
         DestructVerificationInfo(GtkWindow* pWindow)

@@ -23,6 +23,11 @@ protected:
         REQUIRE( _pWinButton!=nullptr );
     }
 
+    UiMargin getExpectedDefaultPadding() override
+    {
+        return UiMargin(UiLength::sem, 0.4, 1);
+    }
+
     void verifyCorePadding() override
     {
         verifyIsExpectedWinPadding( _pWinButton->Padding );

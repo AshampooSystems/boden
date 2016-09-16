@@ -22,12 +22,6 @@ public:
     
     ~ButtonCore();
     
-    void dispose() override
-    {
-        ViewCore::dispose();
-        
-        _button = nil;
-    }
     
     UIButton* getUIButton()
     {

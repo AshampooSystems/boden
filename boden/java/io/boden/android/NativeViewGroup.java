@@ -103,7 +103,6 @@ public class NativeViewGroup extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom)
     {
-        // XXX
         final int childCount = getChildCount();
 
         if(childCount==0)

@@ -72,13 +72,6 @@ public:
 	}
 
 
-    void dispose() override
-    {
-        _pButton = nullptr;
-
-        ChildViewCore::dispose();
-    }
-
     void setPadding(const Nullable<UiMargin>& pad) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -138,7 +131,7 @@ protected:
 
 	void _clicked()
 	{
-        View* pOuterView = getOuterView();
+        P<View> pOuterView = getOuterViewIfStillAttached();
         if(pOuterView!=nullptr)
         {
 		    ClickEvent evt(pOuterView);
@@ -152,7 +145,7 @@ protected:
 		{
 			_doSizingInfoUpdateOnNextLayout = false;
 
-            View* pOuterView = getOuterView();
+            P<View> pOuterView = getOuterViewIfStillAttached();
             if(pOuterView!=nullptr)
 			    pOuterView->needSizingInfoUpdate();
 		}

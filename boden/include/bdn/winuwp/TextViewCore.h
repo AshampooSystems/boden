@@ -16,7 +16,12 @@ private:
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		return ref new ::Windows::UI::Xaml::Controls::TextBlock();		
+		::Windows::UI::Xaml::Controls::TextBlock^ pTextBlock = ref new ::Windows::UI::Xaml::Controls::TextBlock();		
+
+		pTextBlock->TextWrapping = ::Windows::UI::Xaml::TextWrapping::WrapWholeWords;
+		pTextBlock->TextTrimming = ::Windows::UI::Xaml::TextTrimming::None;
+
+		return pTextBlock;
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -36,12 +41,6 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-    void dispose() override
-    {
-        _pTextBlock = nullptr;
-
-        ChildViewCore::dispose();
-    }
 
 	void setPadding(const Nullable<UiMargin>& pad) override
 	{
@@ -49,15 +48,7 @@ public:
 
 		// Apply the padding to the control, so that the content is positioned accordingly.
         UiMargin uiPadding;
-        if(pad.isNull())
-        {
-            // we should use a default padding that looks good.
-            // Xaml uses zero padding as the default, so we cannot use their
-            // default value. So we choose our own default that matches the
-            // normal aesthetic of Windows apps.
-            uiPadding = UiMargin(UiLength::sem, 0.4, 1);
-        }
-        else
+        if(!pad.isNull())
             uiPadding = pad;
 
 		Margin padding = UiProvider::get().uiMarginToPixelMargin(uiPadding);
@@ -89,9 +80,17 @@ public:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
-
+	
 
 protected:
+
+
+	bool canAdjustWidthToAvailableSpace() const override
+	{
+		// text views can adjust the text wrapping to reduce their width.
+		return true;
+	}
+	
 
 	void _layoutUpdated() override
 	{
@@ -99,7 +98,7 @@ protected:
 		{
 			_doSizingInfoUpdateOnNextLayout = false;
 
-            View* pOuterView = getOuterView();
+            P<View> pOuterView = getOuterViewIfStillAttached();
             if(pOuterView!=nullptr)
 			    pOuterView->needSizingInfoUpdate();
 		}

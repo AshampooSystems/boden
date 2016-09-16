@@ -33,7 +33,16 @@ public:
     }
     
     
-    void dispose() override;
+    P<Window> getOuterWindowIfStillAttached()
+    {
+        return _pOuterWindowWeak.toStrong();
+    }
+    
+    P<const Window> getOuterWindowIfStillAttached() const
+    {
+        return _pOuterWindowWeak.toStrong();
+    }
+
     
     void setTitle(const String& title) override
     {
@@ -147,26 +156,13 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+        throw NotImplementedError("WindowCore::calcPreferredSize");
     }
     
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
+       
     
     
     bool tryChangeParentView(View* pNewParent) override
@@ -185,15 +181,22 @@ public:
     void _resized()
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
-        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
-        
-        _pOuterWindowWeak->needLayout();
+
+        P<Window> pOuter = getOuterWindowIfStillAttached();
+        if(pOuter!=nullptr)
+        {     
+            pOuter->bounds() = _currActualWindowBounds;        
+            pOuter->needLayout();
+        }
     }
     
     void _moved()
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
-        _pOuterWindowWeak->bounds() = _currActualWindowBounds;
+
+        P<Window> pOuter = getOuterWindowIfStillAttached();
+        if(pOuter!=nullptr)        
+            pOuter->bounds() = _currActualWindowBounds;
     }
     
 private:
@@ -209,13 +212,13 @@ private:
     }
     
     
-    Window*     _pOuterWindowWeak;
-    NSWindow*   _nsWindow;
-    NSView*     _nsContentParent;
+    WeakP<Window>   _pOuterWindowWeak;
+    NSWindow*       _nsWindow;
+    NSView*         _nsContentParent;
     
-    NSObject*   _ourDelegate;
+    NSObject*       _ourDelegate;
     
-    Rect        _currActualWindowBounds;
+    Rect            _currActualWindowBounds;
 };
 
 

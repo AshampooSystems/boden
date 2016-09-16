@@ -29,10 +29,8 @@ WindowCore::WindowCore(Window* pWindow)
 }
 
 
-void WindowCore::dispose()
+WindowCore::~WindowCore()
 {
-    ViewCore::dispose();
-
     Win32Window::destroy();
 }
 
@@ -72,7 +70,9 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
 	{
 		Rect newRect(pSuggestedNewRect->left, pSuggestedNewRect->top, pSuggestedNewRect->right-pSuggestedNewRect->left, pSuggestedNewRect->bottom-pSuggestedNewRect->top);
 
-		_pOuterViewWeak->bounds() = newRect;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+		    pView->bounds() = newRect;
 	}
 }
 
@@ -163,25 +163,13 @@ Size WindowCore::calcMinimumSize() const
 	return minSize;
 }
 
-Size WindowCore::calcPreferredSize() const
+Size WindowCore::calcPreferredSize(int availableWidth, int availableHeight) const
 {
 	// the implementation for this must be provided by the outer Window object.
 	throw NotImplementedError("WindowCore::calcPreferredSize");	
 }
 
 	
-int WindowCore::calcPreferredHeightForWidth(int width) const
-{
-	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredHeightForWidth");	
-}
-
-
-int WindowCore::calcPreferredWidthForHeight(int height) const
-{
-	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-}
 	
 
 Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)

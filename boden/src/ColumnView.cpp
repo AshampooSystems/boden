@@ -7,53 +7,49 @@
 namespace bdn
 {
 
-Size ColumnView::calcPreferredSize() const
+Size ColumnView::calcPreferredSize(int availableWidth, int availableHeight) const
 {
-	Size preferredSize;
-
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
-	for(const P<View>& pChildView: childViews)
+
+	if(availableWidth!=-1)
 	{
-		SizingInfo	sizingInfo = pChildView->sizingInfo();
-		
-		Size		childPreferredSize = sizingInfo.preferredSize;
+		std::list<Rect> childBounds;
 
-		childPreferredSize += pChildView->uiMarginToPixelMargin( pChildView->margin() );
-
-		preferredSize.height += childPreferredSize.height;
-		preferredSize.width = std::max( preferredSize.width, childPreferredSize.width);
+		int contentEndY = calcChildBoundsForWidth(availableWidth, childViews, childBounds );
+	
+		return Size(availableWidth, contentEndY);
 	}
+	else if(availableHeight!=-1)
+	{
+		// Todo: Need to implement this properly. See issue #1
+		return calcPreferredSize(-1, -1);
+	}
+	else
+	{
+		Size preferredSize;
+	
+		for(const P<View>& pChildView: childViews)
+		{
+			SizingInfo	sizingInfo = pChildView->sizingInfo();
+		
+			Size		childPreferredSize = sizingInfo.preferredSize;
 
-	// add our own padding
-    Nullable<UiMargin> pad = padding();
-    // If padding is null then we use zero padding (i.e. add nothing)
-    if(!pad.isNull())
-        preferredSize += uiMarginToPixelMargin( pad );
+			childPreferredSize += pChildView->uiMarginToPixelMargin( pChildView->margin() );
 
-	return preferredSize;
+			preferredSize.height += childPreferredSize.height;
+			preferredSize.width = std::max( preferredSize.width, childPreferredSize.width);
+		}
+
+		// add our own padding
+		Nullable<UiMargin> pad = padding();
+		// If padding is null then we use zero padding (i.e. add nothing)
+		if(!pad.isNull())
+			preferredSize += uiMarginToPixelMargin( pad );
+
+		return preferredSize;
+	}
 }
-
-int ColumnView::calcPreferredHeightForWidth(int width) const
-{
-	std::list< P<View> > childViews;
-	getChildViews(childViews);
-
-	std::list<Rect> childBounds;
-
-	int contentEndY = calcChildBoundsForWidth(width, childViews, childBounds );
-
-	return contentEndY;
-}
-
-
-int ColumnView::calcPreferredWidthForHeight(int height) const
-{
-	// Todo: Need to implement this properly. See issue #1
-	return calcPreferredSize().width;
-}
-
-
 
 int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const
 {
@@ -107,7 +103,7 @@ int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& c
 		if(childWidth < childPreferredSize.width)
 		{
 			// the child width is less than the child wanted. So we must get an up-to-date height for the new width.
-			childHeight = pChildView->calcPreferredHeightForWidth(childWidth);
+			childHeight = pChildView->calcPreferredSize(childWidth).height;
 		}
 		else
 			childHeight = childPreferredSize.height;

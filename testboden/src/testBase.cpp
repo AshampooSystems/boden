@@ -65,7 +65,7 @@ TEST_CASE("Base")
 			{
 				(*_pDeleteThisCounter)++;
 
-				cancelDeleteThisAndReturnNewReference().detachPtr();
+				reviveDuringDeleteThis().detachPtr();
 			}
 
 			int* _pDeleteThisCounter;

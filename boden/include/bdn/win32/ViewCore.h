@@ -26,9 +26,7 @@ public:
 				int height=0 );
 
     ~ViewCore();
-	
-    void dispose() override;
-	
+		
 	void setVisible(const bool& visible) override;
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
@@ -103,6 +101,17 @@ public:
 		return _uiScaleFactor;
 	}
 
+
+    P<View> getOuterViewIfStillAttached()
+    {
+        return _outerViewWeak.toStrong();
+    }
+
+    P<View> getOuterViewIfStillAttached() const
+    {
+        return _outerViewWeak.toStrong();
+    }
+
 protected:
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
@@ -124,7 +133,7 @@ protected:
 	virtual P<ViewCore> findChildCoreForMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 
-	View* _pOuterViewWeak;	// weak by design
+	WeakP<View> _outerViewWeak;	// weak by design
 
 	/** See setUiScaleFactor() */
 	double _uiScaleFactor;

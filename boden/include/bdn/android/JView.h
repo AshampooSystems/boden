@@ -248,6 +248,13 @@ public:
     }
 
 
+    void invalidate()
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "invalidate");
+    }
+
     int getSuggestedMinimumWidth()
     {
         static bdn::java::MethodId methodId;

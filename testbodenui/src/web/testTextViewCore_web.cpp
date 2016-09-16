@@ -21,6 +21,22 @@ protected:
         
         REQUIRE( text == expectedText );
     }
+
+    bool clipsPreferredWidthToAvailableWidth() const override
+    {
+    	// we will never get a size that exceeds availableWidth from a HTML element
+    	// because the availableWidth is implemented as a max size constraint.
+    	return true;
+    }
+
+    bool usesAllAvailableWidthWhenWrapped() const override
+	{
+		// unfortunately html elements will use up all available space when their
+		// size would otherwise exceed it (even if they did text wrapping to accomodate
+		// the smaller width)
+		return true;
+	}
+
 };
 
 TEST_CASE("web.TextViewCore")

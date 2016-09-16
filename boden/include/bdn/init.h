@@ -26,6 +26,7 @@
 
 
 
+
 #include <bdn/IBase.h>
 #include <bdn/P.h>
 #include <bdn/Base.h>
@@ -50,5 +51,9 @@
 #include <bdn/cast.h>
 
 #include <bdn/safeStatic.h>
+
+#include <bdn/destruct.h>
+
+#include <bdn/WeakP.h>
 
 #endif

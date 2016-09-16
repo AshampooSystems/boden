@@ -52,6 +52,9 @@ private:
         view.selectable = false;
         view.richText = false;
         
+        // do not draw the background by default
+        view.drawsBackground = NO;
+        
         return view;
     }
     
@@ -64,15 +67,7 @@ public:
         
         setText( pOuterTextView->text() );
     }
-    
-    void dispose() override
-    {
-        ChildViewCore::dispose();
         
-        _nsTextView = nil;
-    }
-
-    
     void setText(const String& text) override
     {
         NSString* macText = stringToMacString(text);
@@ -130,16 +125,20 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        NSRect containerRect = [ _nsTextView.layoutManager usedRectForTextContainer:_nsTextView.textContainer ];
+        NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
+        NSTextContainer*    textContainer = [[NSTextContainer alloc]
+                                           initWithContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
+        NSLayoutManager*    layoutManager = [[NSLayoutManager alloc] init];
         
-        Size size = macSizeToSize( containerRect.size );
-        if(size.width<0)
-            size.width = 0;
-        if(size.height<0)
-            size.height = 0;
- 
+        [layoutManager addTextContainer:textContainer];
+        [textStorage addLayoutManager:layoutManager];
+        
+        [textStorage addAttribute:NSFontAttributeName value:_nsTextView.font
+                            range:NSMakeRange(0, [textStorage length])];
+        [textContainer setLineFragmentPadding:0];        
+        
         Size insetSize = macSizeToSize( _nsTextView.textContainerInset );
         if(insetSize.width<0)
             insetSize.width = 0;
@@ -147,8 +146,35 @@ public:
             insetSize.height = 0;
         
         // add the inset size twice (once for top/left and once for bottom/right)
-        size += insetSize;
-        size += insetSize;
+        Size additionalSpace = insetSize + insetSize;
+        
+        // add margins
+        NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
+                                                                   inTextContainer:_nsTextView.textContainer ];
+
+        additionalSpace.width += std::ceil(boundingRect.origin.x) * 2;
+        additionalSpace.height += std::ceil(boundingRect.origin.y) * 2;
+        
+        
+        // note that we ignore availableHeight. There is nothing the implementation
+        // can do to shrink in height anyway.
+        if(availableWidth!=-1)
+            textContainer.size = NSMakeSize( availableWidth - additionalSpace.width, textContainer.size.height);
+        
+        // force immediate layout
+        (void) [layoutManager glyphRangeForTextContainer:textContainer];
+        
+        NSSize macSize = [layoutManager
+                usedRectForTextContainer:textContainer].size;
+
+        Size size = macSizeToSize( macSize );
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
+        size += additionalSpace;
         
         return size;
     }

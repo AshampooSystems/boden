@@ -9,6 +9,8 @@
 #include <emscripten/val.h>
 #include <emscripten/html5.h>
 
+#include <iomanip>
+
 
 namespace bdn
 {
@@ -19,11 +21,11 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
     ViewCore(   View* pOuterView,
-                const String& elementName,                
-                const std::map<String,String>& attribMap = std::map<String,String>() )
+                const String& elementName,            
+                const std::map<String,String>& styleMap = std::map<String,String>() )
     : _domObject( emscripten::val::null() )
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
 
         _elementId = "bdn_view_"+std::to_string(IdGen::newID());
 
@@ -31,11 +33,12 @@ public:
         
         _domObject = docVal.call<emscripten::val>("createElement", elementName.asUtf8() );
 
-        for(auto attribPair: attribMap)
-            _domObject.set(attribPair.first.asUtf8(), attribPair.second.asUtf8());
-
         // we always use absolute positioning. Set this here.
-        _domObject["style"].set("position", "absolute");
+        emscripten::val styleObj = _domObject["style"];
+        styleObj.set("position", "absolute");
+
+        for(auto stylePair: styleMap)
+            styleObj.set(stylePair.first.asUtf8(), stylePair.second.asUtf8());        
         
         _domObject.set("id", _elementId.asUtf8() );
 
@@ -45,10 +48,6 @@ public:
         _addToParent( pOuterView->getParentView() );        
     }
 
-    ~ViewCore()
-    {
-        dispose();
-    }
     
 
     /** Returns the DOM object that corresponds to this view.*/
@@ -57,14 +56,6 @@ public:
         return _domObject;
     }
     
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-
-        _domObject = emscripten::val::null();        
-
-    }
-
     /** Returns the id of the DOM element that corresponds to the view.*/
     String getHtmlElementId() const
     {
@@ -72,14 +63,14 @@ public:
     }
 
 
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
 
@@ -151,21 +142,86 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+		emscripten::val styleObj = _domObject["style"];
+
+        // If we would simply look at the width/height property here, we would only
+        // get the size we have last set ourselves.
+        // To get the preferred size, we have to update the style to clear the previous
+        // size assignment. Then the element will report its preferred size.
+        // And then we restore the old style.
+
+        emscripten::val oldWidthStyle = styleObj["width"];
+        emscripten::val oldHeightStyle = styleObj["height"];
+        emscripten::val oldWhitespaceStyle = emscripten::val::undefined();
+        bool restoreWhitespaceStyle = false;
+
+        styleObj.set("width", std::string("auto") );
+        styleObj.set("height", std::string("auto") );
+
+        if(availableWidth!=-1)
+            styleObj.set("max-width", UiProvider::pixelsToHtmlString(availableWidth).asUtf8() );
+        else
+        {
+            // our parent's size will influence how our content is wrapped if our size is set to "auto".
+            // For example, for elements containing text this text will be auto-wrapped according to the parent's width
+            // (since that constitutes the maximum width for this element, as far as the browser knows).
+            // To avoid this influence of the parent we disable wrapping during measuring.
+            oldWhitespaceStyle = styleObj["white-space"];
+
+            std::string newWhitespace = "nowrap";
+            if( ! oldWhitespaceStyle.isUndefined() )
+            {
+                String oldWhitespace = oldWhitespaceStyle.as<std::string>();
+
+                if( oldWhitespace.contains("pre") )
+                    newWhitespace = "pre";
+            }
+
+            styleObj.set("white-space", newWhitespace);
+
+            restoreWhitespaceStyle = true;
+        }
+
+        // none of the html controls can reduce their height. So we ignore the
+        // availableHeight parameter completely.
+
+        // we could access the offsetWidth or scrollWidth properties of the object here.
+        // However, these have the downside that they are always integers, even though browsers
+        // internally use floating point numbers to calculate their box model.
+        // And even worse: the integers are rounded down. So if you create a control with 
+        // the integer width you can get additional word wraps in the text content and other
+        // bad effects.
+        // To avoid that we call the getBoundingClientRect function. It returns the rect with
+        // floating point values, allowing us to round UP when we convert to integers.
+
+        emscripten::val rectObj = _domObject.call<emscripten::val>("getBoundingClientRect");
+
+        double width = rectObj["width"].as<double>();
+        double height = rectObj["height"].as<double>();
+
+/*
+        double width = _domObject["offsetWidth"].as<double>();
+        double height = _domObject["offsetHeight"].as<double>();
+*/
+
+        styleObj.set("width", oldWidthStyle);
+        styleObj.set("height", oldHeightStyle);
+
+        if(availableWidth!=-1)
+            styleObj.set("max-width", "initial");
+
+        if(restoreWhitespaceStyle)
+        {
+            if(oldWhitespaceStyle.isUndefined())
+                styleObj.set("white-space", "initial");
+            else
+                styleObj.set("white-space", oldWhitespaceStyle);
+        }
+
+
+        return Size( std::ceil(width), std::ceil(height) );
     }
     
     
@@ -176,35 +232,40 @@ public:
         return true;
     }
     
+
+    /** Replaces special characters with the corresponding HTML entities
+        (e.g. < becomes &lt;)*/
+    static String htmlEscape(const String& text)
+    {
+        String escaped = text;
+        escaped.findReplace("&", "&amp;");
+        escaped.findReplace("\'", "&apos;");
+        escaped.findReplace("\"", "&quot;");
+        escaped.findReplace(">", "&gt;");
+        escaped.findReplace("<", "&lt;");
+
+        return escaped;
+    }
     
+
+    /** Converts a string to html format. Special characters
+        are escaped like with htmlEscape.
+        Additionally, linebreaks are translated to <br> tags.*/
+    static String textToHtmlContent(const String& text)
+    {
+        String html = htmlEscape(text);
+
+        // replace line breaks with <br> tags
+        html.findReplace("\r\n", "<br>");
+        html.findReplace("\n", "<br>");
+
+        return html;
+    }
+
     
 protected:
 
     
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        emscripten::val styleObj = _domObject["style"];
-
-        // If we would simply look at the width/height property here, we would only
-        // get the size we have last set ourselves.
-        // To get the preferred size, we have to update the style to clear the previous
-        // size assignment. Then the element will report its preferred size.
-        // And then we restore the old style.
-
-        emscripten::val oldWidthStyle = styleObj["width"];
-        emscripten::val oldHeightStyle = styleObj["height"];
-
-        styleObj.set("width", (forWidth==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forWidth).asUtf8() );        
-        styleObj.set("height", (forHeight==-1) ? std::string("auto") : UiProvider::pixelsToHtmlString(forHeight).asUtf8() );
-
-        int width = _domObject["offsetWidth"].as<int>();
-        int height = _domObject["offsetHeight"].as<int>();
-
-        styleObj.set("width", oldWidthStyle);
-        styleObj.set("height", oldHeightStyle);
-
-        return Size(width, height);
-    }
 
     void _addToParent(View* pParent)
     {
@@ -224,7 +285,7 @@ protected:
 
 
 
-    View*               _pOuterViewWeak;
+    WeakP<View>         _outerViewWeak;
     String              _elementId;
     Rect                _currBounds;
     

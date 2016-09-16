@@ -75,7 +75,7 @@ public:
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		_pOuterViewWeak = pOuterView;
+		_outerViewWeak = pOuterView;
 		_pFrameworkElement = pFrameworkElement;
 
 		_pEventForwarder = pEventForwarder;
@@ -89,7 +89,7 @@ public:
 
 		setVisible( pOuterView->visible() );
 				
-		_addToParent( _pOuterViewWeak->getParentView() );
+		_addToParent( pOuterView->getParentView() );
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -99,11 +99,6 @@ public:
 		_pEventForwarder->dispose();
 	}
 
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-    }
-	
 	void setVisible(const bool& visible) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -182,25 +177,77 @@ public:
 
 
 	
-	Size calcPreferredSize() const
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
 	{
-		return _calcPreferredSize( std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity() );
-	}
+		BDN_WINUWP_TO_STDEXC_BEGIN;
 
-	int calcPreferredHeightForWidth(int width) const
-	{
-		return _calcPreferredSize(
-			intToUwpDimension(width, UiProvider::get().getUiScaleFactor() ),
-			std::numeric_limits<float>::infinity() )
-			.height;
-	}
+		// Unfortunately most views will clip the size returned by Measure to never
+		// exceed the specified max width or height (even though Measure is actually
+		// documented to return a bigger size if the view cannot be made small enough
+		// to fit). So to avoid this unwanted clipping we only pass the available
+		// size along to the control if the control can actually use it to adapt its size.
+		if(!canAdjustWidthToAvailableSpace())
+			availableWidth = -1;	// ignore availableWidth parameter
+		if(!canAdjustHeightToAvailableSpace())
+			availableHeight = -1;	// ignore availableHeight parameter
 
-	int calcPreferredWidthForHeight(int height) const
-	{
-		return _calcPreferredSize(
-			std::numeric_limits<float>::infinity(),
-			intToUwpDimension(height, UiProvider::get().getUiScaleFactor() ) )
-			.width;
+		float availableWidthFloat;
+		float availableHeightFloat;
+
+		if(availableWidth==-1)
+			availableWidthFloat = std::numeric_limits<float>::infinity();
+		else
+			availableWidthFloat = intToUwpDimension(availableWidth, UiProvider::get().getUiScaleFactor() );
+
+		if(availableHeight==-1)
+			availableHeightFloat = std::numeric_limits<float>::infinity();
+		else
+			availableHeightFloat = intToUwpDimension(availableHeight, UiProvider::get().getUiScaleFactor() );
+
+		// tell the element that it has a huge available size.
+		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
+		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
+
+        try
+        {
+		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+		    {
+			    // invisible elements all report a zero size. So we must make the element temporarily visible
+			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
+		    }
+
+		    if(availableWidthFloat<0)
+			    availableWidthFloat = 0;
+		    if(availableHeightFloat<0)
+			    availableHeightFloat = 0;
+
+		    // the Width and Height properties indicate to the layout process how big we want to be.
+		    // If they are set then they are incorporated into the DesiredSize measurements.
+		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
+		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+
+		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidthFloat, availableHeightFloat ) );
+
+		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
+		
+		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
+
+		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
+
+		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
+			    _pFrameworkElement->Visibility = oldVisibility;
+
+            return size;
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this and return zero size
+            return Size();
+        }
+        
+        BDN_WINUWP_TO_STDEXC_END;
 	}
 
 
@@ -214,12 +261,38 @@ public:
 	/** Returns a pointer to the outer view object that is associated with this core.
         Can return null if the core has been disposed (i.e. if it is not connected
         to an outer view anymore).*/
-	View* getOuterView()
+	P<View> getOuterViewIfStillAttached()
 	{
-		return _pOuterViewWeak;
+		return _outerViewWeak.toStrong();
 	}
 
 protected:
+
+	/** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustWidthToAvailableSpace() const
+	{
+		return false;
+	}
+
+	/** Returns true if the view can adjust its height to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableHeight parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustHeightToAvailableSpace() const
+	{
+		return false;
+	}
 	
 	ViewCoreEventForwarder^ getViewCoreEventForwarder()
 	{
@@ -235,8 +308,9 @@ protected:
 	{
 		// Xaml has done a layout cycle. At this point all the controls should know their
 		// desired sizes. So this is when we schedule our layout updated
-        if(_pOuterViewWeak!=nullptr)
-		    _pOuterViewWeak->needLayout();
+        P<View> pView = _outerViewWeak.toStrong();
+        if(pView!=nullptr)
+		    pView->needLayout();
 	}
 
     
@@ -263,60 +337,10 @@ private:
 	}
 
 
-	Size _calcPreferredSize(float availableWidth, float availableHeight) const
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		// tell the element that it has a huge available size.
-		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
-		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
-
-        try
-        {
-		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
-		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-		    {
-			    // invisible elements all report a zero size. So we must make the element temporarily visible
-			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
-		    }
-
-		    if(availableWidth<0)
-			    availableWidth = 0;
-		    if(availableHeight<0)
-			    availableHeight = 0;
-
-		    // the Width and Height properties indicate to the layout process how big we want to be.
-		    // If they are set then they are incorporated into the DesiredSize measurements.
-		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
-		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
-
-		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidth, availableHeight ) );
-
-		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
-		
-		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
-
-		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
-
-		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
-			    _pFrameworkElement->Visibility = oldVisibility;
-
-            return size;
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this and return zero size
-            return Size();
-        }
-        
-        BDN_WINUWP_TO_STDEXC_END;
-	}
-
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
-	View*					_pOuterViewWeak;	// weak by design	
+	WeakP<View> 			_outerViewWeak;	// weak by design
 
 	ViewCoreEventForwarder^ _pEventForwarder;
 };

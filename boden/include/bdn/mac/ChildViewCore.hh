@@ -20,7 +20,7 @@ class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IPar
 public:
     ChildViewCore(View* pOuterView, NSView* nsView)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         
         _nsView = nsView;
         
@@ -29,13 +29,7 @@ public:
         setVisible( pOuterView->visible() );
         setPadding( pOuterView->padding() );
     }
-    
-    void dispose() override
-    {
-        _pOuterViewWeak = nullptr;
-        _nsView = nil;
-    }
-    
+        
     void setVisible(const bool& visible) override
     {
         _nsView.hidden = !visible;
@@ -70,12 +64,15 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
         
         // add the padding
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        Nullable<UiMargin> pad;
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pad = pView->padding();
         
         Margin additionalPadding;
         if(pad.isNull())
@@ -110,22 +107,6 @@ public:
         return size;
     }
     
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        // there is apparently no way to get the preferred size for a certain width.
-        return calcPreferredSize().height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        // there is apparently no way to get the preferred size for a certain width.
-        return calcPreferredSize().width;
-        
-    }
-    
-    
     bool tryChangeParentView(View* pNewParent) override
     {
         _addToParent(pNewParent);
@@ -135,14 +116,14 @@ public:
     
     
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
 
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-      return _pOuterViewWeak;
+      return _outerViewWeak.toStrong();
     }
 
     
@@ -192,8 +173,8 @@ private:
          cast<IParentViewCore>( pParentCore )->addChildNsView( _nsView );
     }
     
-    View*       _pOuterViewWeak;
-    NSView*     _nsView;
+    WeakP<View>       _outerViewWeak;
+    NSView*           _nsView;
 };
 
 

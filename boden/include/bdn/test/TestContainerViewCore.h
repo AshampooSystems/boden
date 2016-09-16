@@ -48,8 +48,8 @@ protected:
             // is used.
 
             REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize() );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredWidthForHeight(100) );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredHeightForWidth(100) );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(100, -1) );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(-1, 100) );
         }
     }
 

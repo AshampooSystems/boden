@@ -22,6 +22,13 @@ protected:
         REQUIRE( _pWinTextBlock!=nullptr );
     }
 
+	bool clipsPreferredWidthToAvailableWidth() const override
+	{
+		// unfortunately the winuwp implementation will always clip the preferred width
+		// to the available width, even if the text cannot be wrapped to fit in there.
+		return true;
+	}
+
     void verifyCorePadding() override
     {
         verifyIsExpectedWinPadding( _pWinTextBlock->Padding );

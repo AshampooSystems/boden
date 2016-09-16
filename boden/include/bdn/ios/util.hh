@@ -15,8 +15,8 @@ inline Rect iosRectToRect(const CGRect& rect)
 	return Rect(
 			(int)std::lround(rect.origin.x),
             (int)std::lround(rect.origin.y),
-			(int)std::lround(rect.size.width),
-            (int)std::lround(rect.size.height) );
+			(int)std::ceil(rect.size.width),
+            (int)std::ceil(rect.size.height) );
 }
 
 
@@ -37,8 +37,8 @@ inline CGRect rectToIosRect(const Rect& rect)
 
 inline Size iosSizeToSize(const CGSize& iosSize)
 {
-	return Size( iosSize.width,
-				 iosSize.height );
+	return Size( std::ceil(iosSize.width),
+				 std::ceil(iosSize.height) );
 }
 
 inline CGSize sizeToIosSize(const Size& size)

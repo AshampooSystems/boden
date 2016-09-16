@@ -11,34 +11,69 @@ namespace bdn
 {
 
 
-void logError(std::exception& e, const String& additionalInfo)
+void logError(const std::exception& e, const String& additionalInfo) noexcept
 {
-	logError( additionalInfo + " ("+String(e.what())+")" );
+    try
+    {
+	    logError( additionalInfo + " ("+String(e.what())+")" );
+    }
+    catch(...)
+    {
+        // ignore
+    }
 }
 
 
 #if BDN_PLATFORM_ANDROID
 
-void logError(const String& message)
+void logError(const String& message) noexcept
 {
-    __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+    try
+    {
+        __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+    }
+    catch(...)
+    {
+        // ignore
+    }
 }
 
-void logInfo(const String& message)
+void logInfo(const String& message) noexcept
 {
-	__android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+    try
+    {
+	    __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+    }
+    catch(...)
+    {
+        // ignore
+    }
 }
 
 #else
 
-void logError(const String& message)
+void logError(const String& message) noexcept
 {
-	std::cerr << ("ERROR: "+message) << std::endl;
+    try
+    {
+	    std::cerr << ("ERROR: "+message) << std::endl;
+    }
+    catch(...)
+    {
+        // ignore
+    }
 }
 
-void logInfo(const String& message)
+void logInfo(const String& message) noexcept
 {
-	std::cerr << message << std::endl;
+    try
+    {
+	    std::cerr << message << std::endl;
+    }
+    catch(...)
+    {
+        // ignore
+    }
 }
 
 

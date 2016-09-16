@@ -24,6 +24,17 @@ protected:
         // the title is ignored on android. So nothing to test here
     }
 
+
+    /** Removes all references to the core object.*/
+    void clearAllReferencesToCore() override
+    {
+        bdn::test::TestAndroidViewCoreMixin< bdn::test::TestWindowCore>::clearAllReferencesToCore();
+
+        _pAndroidViewCore = nullptr;
+        _jView = bdn::android::JView();
+    }
+
+
     struct DestructVerificationInfo : public Base
     {
         DestructVerificationInfo(bdn::android::JView jView)

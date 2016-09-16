@@ -32,13 +32,6 @@ public:
     
     ~WindowCore()
     {
-        dispose();
-    }
-    
-    void dispose() override
-    {
-        ViewCore::dispose();
-        
         // there are always references to a visible window. So we have to make
         // sure that the window is hidden before we release our own reference.
         if(_window!=nil)
@@ -60,7 +53,9 @@ public:
     void setBounds(const Rect& bounds) override
     {
         // we do not modify our frame. Just reset the bounds property back to the current bounds.
-        getOuterView()->bounds() = iosRectToRect(_window.frame);
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pView->bounds() = iosRectToRect(_window.frame);
     }
     
     
@@ -73,7 +68,11 @@ public:
     Rect getContentArea() override
     {
         // Same size as bounds. There is no border or title bar on ios.
-        return Rect( Point(0,0), getOuterView()->bounds().get().getSize() );
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            return Rect( Point(0,0), pView->bounds().get().getSize() );
+        else
+            return Rect();
     }
     
     
@@ -109,26 +108,11 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
         // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
+        throw NotImplementedError("WindowCore::calcPreferredSize");
     }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredWidthForHeight");
-    }
-    
     
     
     bool tryChangeParentView(View* pNewParent) override

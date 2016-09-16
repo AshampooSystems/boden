@@ -56,7 +56,7 @@ public:
         rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
     }
 
-    void dispose() override
+    ~WindowCore()
     {
         JView* pView = &getJView();
         if(pView!=nullptr)
@@ -66,8 +66,6 @@ public:
             if (!parent.isNull_())
                 parent.removeView(*pView);
         }
-
-        ViewCore::dispose();
     }
 
 
@@ -82,7 +80,11 @@ public:
         // any changes we get from the outside world.
 
         if(bounds!=_currentBounds)
-            getOuterView()->bounds() = _currentBounds;
+        {
+            P<View> pView = getOuterViewIfStillAttached();
+            if(pView!=nullptr)
+                pView->bounds() = _currentBounds;
+        }
     }
 
     void setVisible(const bool& visible) override
@@ -136,8 +138,7 @@ public:
             int width = rootView.getWidth();
             int height = rootView.getHeight();
 
-            // XXX
-            logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
+            // logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
 
             return Rect(0, 0, width, height );
         }
@@ -208,8 +209,7 @@ protected:
      *  */
     virtual void rootViewSizeChanged(int width, int height)
     {
-        // XXX
-        logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
+        //logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
 
         // set our container view to the same size as the root.
         // Note that this is necessary because the root view does not have a bdn::View associated with it.
@@ -220,10 +220,13 @@ protected:
 
         _currentBounds = Rect(0, 0, width, height);
 
-        P<View> pView = getOuterView();
-        pView->bounds() = _currentBounds;
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            pView->bounds() = _currentBounds;
 
-        pView->needLayout();
+            pView->needLayout();
+        }
     }
 
     /** Called when the configuration changed for this window core.

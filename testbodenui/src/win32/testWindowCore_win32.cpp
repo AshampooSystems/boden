@@ -27,6 +27,14 @@ protected:
         
         REQUIRE( title == expectedTitle );
     }
+
+    void clearAllReferencesToCore() override
+    {
+        TestWin32ViewCoreMixin<TestWindowCore>::clearAllReferencesToCore();
+
+        _pWin32Core = nullptr;
+    }
+    
     
     struct DestructVerificationInfo : public Base
     {

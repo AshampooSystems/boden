@@ -22,9 +22,13 @@ void ButtonCore::setLabel(const String& label)
 	setWindowText(getHwnd(), label);
 }
 
-Size ButtonCore::calcPreferredSize() const
+Size ButtonCore::calcPreferredSize(int availableWidth, int availableHeight) const
 {
-	String label = cast<Button>(_pOuterViewWeak)->label();
+    String label;
+
+    P<const Button> pButton = cast<const Button>( getOuterViewIfStillAttached() );
+    if(pButton!=nullptr)
+	    label = pButton->label();
 
     Size prefSize;
 
@@ -36,7 +40,9 @@ Size ButtonCore::calcPreferredSize() const
         prefSize = dc.getTextSize( label );
     }
     
-	Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+	Nullable<UiMargin>  pad;
+    if(pButton!=nullptr)
+        pad = pButton->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {
@@ -59,20 +65,6 @@ Size ButtonCore::calcPreferredSize() const
 
 	return prefSize;
 }
-
-int ButtonCore::calcPreferredHeightForWidth(int width) const
-{
-	// we do not adapt our height to the width. So the same as the unconditional one.
-	return calcPreferredSize().height;	
-}
-
-int ButtonCore::calcPreferredWidthForHeight(int height) const
-{
-	// we do not adapt our height to the width. So the same as the unconditional one.
-	return calcPreferredSize().width;	
-}
-
-
 
 void ButtonCore::handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {

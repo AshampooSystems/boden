@@ -429,6 +429,50 @@ inline void testView()
 
 			    );		
 	    }
+
+#if BDN_HAVE_THREADS
+        SECTION("core deinit called from main thread")
+        {
+            struct Data : public Base
+            {
+                P<ViewType> pView;
+                P< ViewTestPreparer<ViewType> > pPreparer2;
+            };
+
+            P<Data> pData = newObj<Data>();
+
+            pData->pPreparer2 = newObj< ViewTestPreparer<ViewType> >();
+
+            pData->pView = pData->pPreparer2->createView();
+
+            // the view should have a core
+            REQUIRE( pData->pView->getViewCore()!=nullptr );
+
+            CONTINUE_SECTION_IN_THREAD( pData )
+            {
+                // release the view and the preparer here.
+                // That will cause the corresponding core to be deleted.
+                // And the mock core object will verify that that happened
+                // in the main thread.
+                pData->pPreparer2 = nullptr;
+                pData->pView = nullptr;
+            };
+        }
+
+        SECTION("core initialized from main thread")
+        {
+            CONTINUE_SECTION_IN_THREAD()
+            {
+                P< ViewTestPreparer<ViewType> > pPreparer2 = newObj< ViewTestPreparer<ViewType> >();
+
+                // create the view. The core creation should be moved to the main thread
+                // automatically. The mock core constructor will verify this, so we will get
+                // a failed REQUIRE here if the view calls the constructor from the main thread.
+                P<ViewType> pView = pPreparer2->createView();
+            };
+
+        }
+#endif
     };
 }
 

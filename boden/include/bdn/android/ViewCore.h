@@ -35,7 +35,7 @@ public:
     ViewCore(View* pOuterView, JView* pJView, bool initBounds=true )
     {
         _pJView = pJView;
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
 
         _uiScaleFactor = 1;
 
@@ -64,11 +64,6 @@ public:
 
     ~ViewCore()
     {
-        dispose();
-    }
-
-    void dispose() override
-    {
         if(_pJView!=nullptr)
         {
             // remove the the reference to ourselves from the java-side view object.
@@ -94,14 +89,16 @@ public:
     }
 
 
-    const View* getOuterView() const
+    /** Returns a pointer to the outer View object, if this core is still attached to it
+        or null otherwise.*/
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
 
@@ -143,6 +140,8 @@ public:
 
     void setBounds(const Rect& bounds) override
     {
+        //logInfo("Settings size to "+std::to_string(bounds.width)+"x"+std::to_string(bounds.height));
+
         bdn::java::JObject parent( _pJView->getParent() );
 
         if(parent.isNull_())
@@ -175,22 +174,30 @@ public:
     
 
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
-    }
+		int widthSpec;
+        int heightSpec;
+
+        if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+        else
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth, JView::MeasureSpec::atMost);
+
+        if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+        else
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight, JView::MeasureSpec::atMost);
+
+        _pJView->measure( widthSpec, heightSpec );
+
+        int width = _pJView->getMeasuredWidth();
+        int height = _pJView->getMeasuredHeight();
+
+        //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
+
+        return Size(width, height);
+	}
     
     
     bool tryChangeParentView(View* pNewParent) override
@@ -237,8 +244,10 @@ public:
         {
             _uiScaleFactor = scaleFactor;
 
+            P<View> pView = getOuterViewIfStillAttached();
             std::list<P<View> > childList;
-            getOuterView()->getChildViews(childList);
+            if(pView!=nullptr)
+                pView->getChildViews(childList);
 
             for (P<View> &pChild: childList) {
                 P<ViewCore> pChildCore = cast<ViewCore>(pChild->getViewCore());
@@ -250,34 +259,35 @@ public:
     }
 
 
+protected:
+    /** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
 
-private:
-    Size _calcPreferredSize(int forWidth, int forHeight) const
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+    virtual bool canAdjustWidthToAvailableSpace() const
     {
-        int widthSpec;
-        int heightSpec;
-
-        if(forWidth<0)
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
-        else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(forWidth, JView::MeasureSpec::atMost);
-
-        if(forHeight<0)
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
-        else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(forHeight, JView::MeasureSpec::atMost);
-
-        _pJView->measure( widthSpec, heightSpec );
-
-        int width = _pJView->getMeasuredWidth();
-        int height = _pJView->getMeasuredHeight();
-
-        // XXX
-        logInfo("Preferred size ("+std::to_string(forWidth)+","+std::to_string(forHeight)+") of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+")");
-
-        return Size(width, height);
+        return false;
     }
 
+    /** Returns true if the view can adjust its height to fit into
+        a certain size of available space.
+
+        If this returns false then calcPreferredSize will ignore the
+        availableHeight parameter.
+
+        The default implementation returns false.
+    */
+    virtual bool canAdjustHeightToAvailableSpace() const
+    {
+        return false;
+    }
+
+
+private:
     void _addToParent(View* pParent)
     {
         if(pParent!=nullptr)
@@ -294,7 +304,7 @@ private:
         }
     }
 
-    View*           _pOuterViewWeak;
+    WeakP<View>     _outerViewWeak;
 
 private:
     P<JView>        _pJView;

@@ -18,15 +18,18 @@ public:
 
 	void generateClick()
 	{
-		ClickEvent evt( _pOuterViewWeak );
+        P<View> pView = getOuterViewIfStillAttached();
 
-		cast<Button>(_pOuterViewWeak)->onClick().notify(evt);
+        if(pView!=nullptr)
+        {
+		    ClickEvent evt( pView );
+
+		    cast<Button>(pView)->onClick().notify(evt);
+        }
 	}
 
 
-	Size calcPreferredSize() const;
-	int calcPreferredHeightForWidth(int width) const;
-	int calcPreferredWidthForHeight(int height) const;	
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const;
 
 protected:		
 	void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;

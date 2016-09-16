@@ -15,9 +15,7 @@ class ContainerViewCore : public ViewCore
 public:
 	ContainerViewCore(ContainerView* pOuter);
 	
-	Size calcPreferredSize() const;
-	int calcPreferredHeightForWidth(int width) const;
-	int calcPreferredWidthForHeight(int height) const;
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const;
 
 protected:
 	class ContainerViewCoreClass : public Win32WindowClass

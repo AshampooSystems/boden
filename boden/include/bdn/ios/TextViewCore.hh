@@ -19,6 +19,8 @@ private:
     {
         UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         
+        label.numberOfLines = 0;
+        
         return label;
 
     }
@@ -32,12 +34,6 @@ public:
         setText( pOuterTextView->text() );
     }
     
-    void dispose() override
-    {
-        ViewCore::dispose();
-        
-        _uiLabel = nil;
-    }
     
     UILabel* getUILabel()
     {

@@ -75,6 +75,7 @@ public:
 		}
 	}
 
+
 	/** Detaches the delegate object. The delegate object will not be accessed anymore
 		by the property after dispose() returns.
 

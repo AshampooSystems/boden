@@ -22,9 +22,15 @@ void TextViewCore::setText(const String& text)
 	setWindowText(getHwnd(), text);
 }
 
-Size TextViewCore::calcPreferredSize() const
+Size TextViewCore::calcPreferredSize(int availableWidth, int availableHeight) const
 {
-	String text = cast<TextView>(_pOuterViewWeak)->text();
+	// note that we ignore availableHeight because there is no way for us to reduce
+	// the height of the text. We can only limit the width (by wrapping lines)
+
+    P<TextView> pTextView = cast<TextView>( getOuterViewIfStillAttached() );
+	String text;
+    if(pTextView!=nullptr)
+        text = pTextView->text();
 
     Size prefSize;
 
@@ -33,10 +39,12 @@ Size TextViewCore::calcPreferredSize() const
 
         if(_pFont!=nullptr)
 		    dc.setFont( *_pFont );
-        prefSize = dc.getTextSize( text );
+        prefSize = dc.getTextSize( text, availableWidth );
     }
 
-    Nullable<UiMargin>  pad = _pOuterViewWeak->padding();
+    Nullable<UiMargin>  pad;
+    if(pTextView!=nullptr)
+        pad = pTextView->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {
@@ -49,18 +57,6 @@ Size TextViewCore::calcPreferredSize() const
 	prefSize += uiMarginToPixelMargin( uiPadding );	
     
 	return prefSize;
-}
-
-int TextViewCore::calcPreferredHeightForWidth(int width) const
-{
-	// we do not adapt our height to the width at the moment. So the same as the unconditional one.
-	return calcPreferredSize().height;	
-}
-
-int TextViewCore::calcPreferredWidthForHeight(int height) const
-{
-	// we do not adapt our height to the width. So the same as the unconditional one.
-	return calcPreferredSize().width;	
 }
 
 

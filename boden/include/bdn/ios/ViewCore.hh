@@ -20,7 +20,7 @@ class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 public:
     ViewCore(View* pOuterView, UIView* view)
     {
-        _pOuterViewWeak = pOuterView;
+        _outerViewWeak = pOuterView;
         _view = view;
         
         _addToParent( pOuterView->getParentView() );
@@ -29,20 +29,20 @@ public:
         setPadding( pOuterView->padding() );
     }
     
-    void dispose() override
+    
+    ~ViewCore()
     {
-        _pOuterViewWeak = nullptr;
-        _view = nil;
+        _view = nil;        
     }
     
-    const View* getOuterView() const
+    P<const View> getOuterViewIfStillAttached() const
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
-    View* getOuterView()
+    P<View> getOuterViewIfStillAttached()
     {
-        return _pOuterViewWeak;
+        return _outerViewWeak.toStrong();
     }
     
     UIView* getUIView() const
@@ -83,21 +83,33 @@ public:
     
     
     
-    Size calcPreferredSize() const override
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-        return _calcPreferredSize(-1, -1);
-    }
-    
-    
-    int calcPreferredHeightForWidth(int width) const override
-    {
-        return _calcPreferredSize(width, -1).height;
-    }
-    
-    
-    int calcPreferredWidthForHeight(int height) const override
-    {
-        return _calcPreferredSize(-1, height).width;
+        CGSize constraintSize = UILayoutFittingCompressedSize;
+        if(availableWidth!=-1)
+            constraintSize.width = availableWidth;
+        if(availableHeight!=-1)
+            constraintSize.height = availableHeight;
+        
+		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
+        
+        Size size = iosSizeToSize(iosSize);
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
+        Margin padding = getPaddingPixels();
+        
+        size += padding;
+        
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
+        return size;
     }
     
     
@@ -128,7 +140,12 @@ protected:
     {
         // add the padding
         Margin padding;
-        Nullable<UiMargin> pad = getOuterView()->padding();
+        
+        Nullable<UiMargin> pad;
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pad = pView->padding();
+
         if(pad.isNull())
             padding = getDefaultPaddingPixels();
         else
@@ -137,23 +154,6 @@ protected:
         return padding;
     }
     
-    Size _calcPreferredSize(int forWidth, int forHeight) const
-    {
-        CGSize iosSize = [_view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-        
-        Size size = iosSizeToSize(iosSize);
-        
-        Margin padding = getPaddingPixels();
-        
-        size += padding;
-        
-        if(size.width<0)
-            size.width = 0;
-        if(size.height<0)
-            size.height = 0;
-        
-        return size;
-    }
 
     
     
@@ -178,7 +178,7 @@ private:
     }
 
 
-    View*   _pOuterViewWeak;
+    WeakP<View>   _outerViewWeak;
     
     UIView* _view;
 };

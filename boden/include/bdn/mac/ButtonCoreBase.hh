@@ -20,14 +20,7 @@ public:
     {
         _nsButton = nsButton;
     }
-    
-    void dispose() override
-    {
-        ChildViewCore::dispose();
         
-        _nsButton = nil;
-    }
-    
     void setLabel(const String& label)
     {
         NSString* macLabel = stringToMacString(label);

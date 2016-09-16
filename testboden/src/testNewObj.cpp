@@ -14,15 +14,15 @@ TEST_CASE("newObj")
 
 	SECTION("instantDelete")
 	{
-		class Helper : public Base
+		class InstantDeleteHelper : public Base
 		{
 		public:
-			Helper(bool* pDeleted)
+			InstantDeleteHelper(bool* pDeleted)
 			{
 				_pDeleted = pDeleted;
 			}
 
-			~Helper()
+			~InstantDeleteHelper()
 			{
 				*_pDeleted = true;
 			}
@@ -33,7 +33,7 @@ TEST_CASE("newObj")
 
 		bool deleted = false;
 
-		newObj<Helper>(&deleted);
+		newObj<InstantDeleteHelper>(&deleted);
 
 		REQUIRE(deleted);
 	}

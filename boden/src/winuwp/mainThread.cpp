@@ -77,6 +77,15 @@ void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
                     [pCallData]()
                     {
                         pCallData->pCallable->call();
+                        
+                        // we MUST set the callable to null here, so that we can be sure that
+                        // it is released from the main thread.
+                        // Since the timer handler is called from another thread and the handler holds
+                        // a reference to pCallData, the pCallData object will be released from the worker
+                        // thread. So if pCallable is not nulled here, it will also get released from that thread.
+                        // And that might cause strange problems, especially if the callable references
+                        // UI objects.
+                        pCallData->pCallable = nullptr;
                     } );
 
                 BDN_WINUWP_TO_PLATFORMEXC_END

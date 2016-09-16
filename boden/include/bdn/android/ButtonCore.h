@@ -44,12 +44,6 @@ public:
         setLabel( pOuterButton->label() );
     }
 
-    void dispose() override
-    {
-        ViewCore::dispose();
-
-        _pJButton = nullptr;
-    }
 
     JButton& getJButton()
     {
@@ -67,9 +61,13 @@ public:
 
     void clicked() override
     {
-        ClickEvent evt( getOuterView() );
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            ClickEvent evt( pView );
             
-        cast<Button>(getOuterView())->onClick().notify(evt);
+            cast<Button>(pView)->onClick().notify(evt);
+        }
     }
 
 private:

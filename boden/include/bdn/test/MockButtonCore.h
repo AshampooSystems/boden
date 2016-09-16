@@ -48,7 +48,7 @@ public:
 
 
 	
-	Size calcPreferredSize() const override
+	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -63,9 +63,13 @@ public:
 	
 	void generateClick()
 	{
-		ClickEvent evt(getOuterViewWeak());
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+		    ClickEvent evt(pView);
 
-		cast<Button>(getOuterViewWeak())->onClick().notify(evt);
+		    cast<Button>(pView)->onClick().notify(evt);
+        }
 	}
 
 protected:    
