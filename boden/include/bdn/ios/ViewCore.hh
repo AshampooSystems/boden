@@ -95,6 +95,11 @@ public:
         
         Size size = iosSizeToSize(iosSize);
         
+        if(size.width<0)
+            size.width = 0;
+        if(size.height<0)
+            size.height = 0;
+        
         Margin padding = getPaddingPixels();
         
         size += padding;

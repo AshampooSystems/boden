@@ -30,7 +30,14 @@ private:
 
         JContext context = pParentCore->getJView().getContext();
 
-        return newObj<JTextView>(context);
+        P<JTextView> pTextView = newObj<JTextView>(context);
+
+        pTextView->setHorizontallyScrolling(false);
+        pTextView->setSingleLine(false);
+        pTextView->setMaxLines(100);
+        pTextView->setBreakStrategy( JTextView::BreakStrategy::simple );
+
+        return pTextView;
     }
 
 public:
@@ -61,8 +68,62 @@ public:
         _pJTextView->requestLayout();
     }
 
+    void setBounds(const Rect& bounds) override
+    {
+        ViewCore::setBounds(bounds);
+
+        // for some reason the TextView does not wrap its text, unless we explicitly set the
+        // width with setMaxWidth (even if the widget's size is actually smaller than the text).
+        // This seems to be a bug in android.
+        _pJTextView->setMaxWidth( bounds.width );
+        _currWidth = bounds.width;
+    }
+
+    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    {
+        // we must unset the fixed width we set in the last setBounds call, otherwise it will influence
+        // the size we measure here.
+
+        if(_currWidth!=0x7fffffff && _pJTextView!=nullptr)
+            _pJTextView->setMaxWidth(0x7fffffff);
+
+        Size resultSize;
+
+        try
+        {
+            resultSize = ViewCore::calcPreferredSize(availableWidth, availableHeight);
+        }
+        catch(...)
+        {
+            try
+            {
+                if(_currWidth!=0x7fffffff && _pJTextView!=nullptr)
+                    _pJTextView->setMaxWidth(_currWidth);
+            }
+            catch(...)
+            {
+                // ignore.
+            }
+
+            throw;
+        }
+
+        if(_currWidth!=0x7fffffff && _pJTextView!=nullptr)
+            _pJTextView->setMaxWidth(_currWidth);
+
+        return resultSize;
+    }
+
+protected:
+    bool canAdjustWidthToAvailableSpace() const override
+    {
+        return true;
+    }
+
 private:
     P<JTextView> _pJTextView;
+
+    int          _currWidth=0x7fffffff;
 };
 
 

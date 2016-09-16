@@ -140,6 +140,8 @@ public:
 
     void setBounds(const Rect& bounds) override
     {
+        //logInfo("Settings size to "+std::to_string(bounds.width)+"x"+std::to_string(bounds.height));
+
         bdn::java::JObject parent( _pJView->getParent() );
 
         if(parent.isNull_())
@@ -177,12 +179,12 @@ public:
 		int widthSpec;
         int heightSpec;
 
-        if(availableWidth<0)
+        if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
             widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
             widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth, JView::MeasureSpec::atMost);
 
-        if(availableHeight<0)
+        if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
             heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
             heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight, JView::MeasureSpec::atMost);
@@ -192,8 +194,7 @@ public:
         int width = _pJView->getMeasuredWidth();
         int height = _pJView->getMeasuredHeight();
 
-        // XXX
-        logInfo("Preferred size ("+std::to_string(forWidth)+","+std::to_string(forHeight)+") of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+")");
+        //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
 
         return Size(width, height);
 	}
@@ -257,6 +258,33 @@ public:
         }
     }
 
+
+protected:
+    /** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+    virtual bool canAdjustWidthToAvailableSpace() const
+    {
+        return false;
+    }
+
+    /** Returns true if the view can adjust its height to fit into
+        a certain size of available space.
+
+        If this returns false then calcPreferredSize will ignore the
+        availableHeight parameter.
+
+        The default implementation returns false.
+    */
+    virtual bool canAdjustHeightToAvailableSpace() const
+    {
+        return false;
+    }
 
 
 private:

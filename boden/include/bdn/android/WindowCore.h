@@ -138,8 +138,7 @@ public:
             int width = rootView.getWidth();
             int height = rootView.getHeight();
 
-            // XXX
-            logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
+            // logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
 
             return Rect(0, 0, width, height );
         }
@@ -210,8 +209,7 @@ protected:
      *  */
     virtual void rootViewSizeChanged(int width, int height)
     {
-        // XXX
-        logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
+        //logInfo("rootViewSizeChanged("+std::to_string(width)+"x"+std::to_string(height));
 
         // set our container view to the same size as the root.
         // Note that this is necessary because the root view does not have a bdn::View associated with it.

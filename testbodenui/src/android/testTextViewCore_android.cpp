@@ -20,6 +20,20 @@ protected:
         _jTextView = bdn::android::JTextView( _jView.getRef_() );
     }
 
+    bool usesAllAvailableWidthWhenWrapped() const override
+    {
+        // unfortunately the android textview will use up all available width
+        // when it reaches it (even if the wrapped text ends up being slightly less
+        // wide).
+        return true;
+    }
+
+    bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
+    {
+        // text views will wrap individual characters if a word does not fit.
+        return true;
+    }
+
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();

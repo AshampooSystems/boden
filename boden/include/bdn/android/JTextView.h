@@ -80,6 +80,67 @@ public:
     }
 
 
+    enum class BreakStrategy
+    {
+        /** Value for break strategy indicating simple line breaking. Automatic hyphens are not added
+         *  (though soft hyphens are respected), and modifying text generally doesn't affect the layout
+         *  before it (which yields a more consistent user experience when editing), but layout may not
+         *  be the highest quality.*/
+        simple = 0,
+
+        /** Value for break strategy indicating high quality line breaking, including automatic
+         *  hyphenation and doing whole-paragraph optimization of line breaks.*/
+        highQuality = 1,
+
+        /** Value for break strategy indicating balanced line breaking. The breaks are chosen
+         *  to make all lines as close to the same length as possible, including automatic hyphenation.*/
+        balanced = 2
+    };
+
+    /** Sets the break strategy for breaking paragraphs into lines.
+     *  The default value for TextView is BREAK_STRATEGY_HIGH_QUALITY,
+     *  and the default value for EditText is BREAK_STRATEGY_SIMPLE, the latter
+     *  to avoid the text "dancing" when being edited.*/
+    void setBreakStrategy(BreakStrategy strategy)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setBreakStrategy", (int)strategy);
+    }
+
+
+
+    /** Sets whether the text should be allowed to be wider than the View is. If false, it will
+     *  be wrapped to the width of the View.*/
+    void setHorizontallyScrolling(bool scroll)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setHorizontallyScrolling", scroll);
+    }
+
+
+
+    /** Makes the TextView at most this many lines tall. Setting this value overrides any other (maximum) height setting. */
+    void setMaxLines(int lines)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setMaxLines", lines);
+    }
+
+
+    /** Makes the TextView exactly this many pixels wide. You could do the same thing by specifying this number in the LayoutParams. */
+    void setWidth(int pixels)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setWidth", pixels);
+    }
+
+
+
+
     /** Makes the TextView at most this many pixels wide */
     void setMaxWidth(int maxPixels)
     {
@@ -97,14 +158,6 @@ public:
         invoke_<void>(getStaticClass_(), methodId, "setMaxHeight", maxPixels);
     }
 
-
-    /** Makes the TextView exactly this many pixels wide. You could do the same thing by specifying this number in the LayoutParams. */
-    void setWidth(int pixels)
-    {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "setWidth", pixels);
-    }
 
 
     /** Returns the JClass object for this class.s
