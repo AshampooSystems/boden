@@ -137,7 +137,29 @@ public:
         
         [textStorage addAttribute:NSFontAttributeName value:_nsTextView.font
                             range:NSMakeRange(0, [textStorage length])];
-        [textContainer setLineFragmentPadding:0];
+        [textContainer setLineFragmentPadding:0];        
+        
+        Size insetSize = macSizeToSize( _nsTextView.textContainerInset );
+        if(insetSize.width<0)
+            insetSize.width = 0;
+        if(insetSize.height<0)
+            insetSize.height = 0;
+        
+        // add the inset size twice (once for top/left and once for bottom/right)
+        Size additionalSpace = insetSize + insetSize;
+        
+        // add margins
+        NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
+                                                                   inTextContainer:_nsTextView.textContainer ];
+
+        additionalSpace.width += std::ceil(boundingRect.origin.x) * 2;
+        additionalSpace.height += std::ceil(boundingRect.origin.y) * 2;
+        
+        
+        // note that we ignore availableHeight. There is nothing the implementation
+        // can do to shrink in height anyway.
+        if(availableWidth!=-1)
+            textContainer.size = NSMakeSize( availableWidth - additionalSpace.width, textContainer.size.height);
         
         // force immediate layout
         (void) [layoutManager glyphRangeForTextContainer:textContainer];
@@ -151,23 +173,8 @@ public:
             size.width = 0;
         if(size.height<0)
             size.height = 0;
-
-        Size insetSize = macSizeToSize( _nsTextView.textContainerInset );
-        if(insetSize.width<0)
-            insetSize.width = 0;
-        if(insetSize.height<0)
-            insetSize.height = 0;
         
-        // add the inset size twice (once for top/left and once for bottom/right)
-        size += insetSize;
-        size += insetSize;
-        
-        NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
-                                                        inTextContainer:_nsTextView.textContainer ];
-        
-        // add margins
-        size.width += std::ceil(boundingRect.origin.x) * 2;
-        size.height += std::ceil(boundingRect.origin.y) * 2;
+        size += additionalSpace;
         
         return size;
     }

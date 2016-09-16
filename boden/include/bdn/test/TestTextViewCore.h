@@ -44,6 +44,18 @@ protected:
 	{
 		return false;
 	}
+    
+    
+    /** Returns true if the text view implementation will wrap at character boundaries
+        if a single word does not fit in the available space.
+        The preferred behaviour is to NOT wrap at character boundaries and instead clip the word.
+        
+        The default implementation returns false.
+        */
+    virtual bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const
+    {
+        return false;
+    }
 
     void runInitTests() override
     {
@@ -139,11 +151,13 @@ protected:
 			REQUIRE( fullSize.width > wrappedAtSecondPositionSize.width );
 			REQUIRE( fullSize.height < wrappedAtSecondPositionSize.height );
 			
-			REQUIRE( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width+1, availableHeight ) == wrappedAtSecondPositionSize );
-			REQUIRE( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width, availableHeight ) == wrappedAtSecondPositionSize );
-			REQUIRE( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ) == wrappedAtFirstPositionSize );
+            // note that there might be some rounding errors with the width. So we accept 1 pixel difference
+			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width+1, availableHeight ), wrappedAtSecondPositionSize, Size(1,0) );
+            
+			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width, availableHeight ), wrappedAtSecondPositionSize, Size(1,0) );
+			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ), wrappedAtFirstPositionSize, Size(1,0) );
 
-			REQUIRE( _pTextView->calcPreferredSize( wrappedAtFirstPositionSize.width, availableHeight ).width == wrappedAtFirstPositionSize.width );
+			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtFirstPositionSize.width, availableHeight ).width, wrappedAtFirstPositionSize.width, 1 );
 		}
 
 		SECTION("availableWidth below single word width")
@@ -161,7 +175,18 @@ protected:
 				// so we accept it.
 				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == Size(unrestrictedSize.width-1, unrestrictedSize.height) );
 			}
-			else
+			else if(wrapsAtCharacterBoundariesIfWordDoesNotFit())
+            {
+                // the implementation will wrap at character boundaries.
+                Size size = _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight);
+                
+                // width should be <= the specified width
+                REQUIRE( size.width <= unrestrictedSize.width-1 );
+                
+                // should have gotten higher since wrapping occurred
+                REQUIRE( size.height > unrestrictedSize.height);
+            }
+            else
 				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == unrestrictedSize);
 		}
 	}
