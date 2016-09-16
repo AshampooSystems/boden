@@ -57,6 +57,23 @@ protected:
         return false;
     }
 
+
+    /** Returns true if the text view implementation uses all the available width
+    	when the text is wrapped (i.e. if the availableWidth is smaller than the text view's
+    	unconstrained width).
+
+    	The preferred behaviour would be for the text view to use the width that is actually needed
+    	for the wrapped	text (which usually ends up being slightly smaller than availableWidth).
+    	But some implementations cannot do that and will always return exactly availableWidth if
+    	the availableWidth is smaller than the unconstrained width.
+
+		The default implementation returns false.
+		*/
+	virtual bool usesAllAvailableWidthWhenWrapped() const
+	{
+		return false;
+	}
+
     void runInitTests() override
     {
         TestViewCore::runInitTests();
@@ -134,7 +151,25 @@ protected:
 			REQUIRE( sizeLF == sizeCRLF);
 		}
 
-		SECTION("smaller width causes word wrap")
+		SECTION("availableWidth has no effect if bigger than unconstrained width")
+		{
+			_pTextView->text() = "hello world";
+
+			Size unconstrainedSize = _pTextView->calcPreferredSize(-1, availableHeight);
+
+			REQUIRE( _pTextView->calcPreferredSize(unconstrainedSize.width+10, availableHeight) == unconstrainedSize );
+		}
+
+		SECTION("availableWidth has no effect if equal to unconstrained width")
+		{
+			_pTextView->text() = "hello world";
+
+			Size unconstrainedSize = _pTextView->calcPreferredSize(-1, availableHeight);
+
+			REQUIRE( _pTextView->calcPreferredSize(unconstrainedSize.width, availableHeight) == unconstrainedSize );
+		}		
+
+		SECTION("smaller availableWidth causes word wrap")
 		{
 			_pTextView->text() = "hellohello worldworld\nblabb";
 
@@ -155,7 +190,16 @@ protected:
 			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width+1, availableHeight ), wrappedAtSecondPositionSize, Size(1,0) );
             
 			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width, availableHeight ), wrappedAtSecondPositionSize, Size(1,0) );
-			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ), wrappedAtFirstPositionSize, Size(1,0) );
+
+			if(usesAllAvailableWidthWhenWrapped())
+			{
+				// the implementation will return exactly the available width when text is wrapped.
+				REQUIRE( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ) == Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height) );
+			}
+			else
+			{
+				REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ), wrappedAtFirstPositionSize, Size(1,0) );
+			}
 
 			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtFirstPositionSize.width, availableHeight ).width, wrappedAtFirstPositionSize.width, 1 );
 		}

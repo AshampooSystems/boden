@@ -19,8 +19,7 @@ class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
 public:
     ButtonCore( Button* pOuterButton )
     : ViewCore( pOuterButton,
-                "button",
-                std::map<String,String>()  )
+                "button"  )
     {
         setLabel( pOuterButton->label() );        
 
