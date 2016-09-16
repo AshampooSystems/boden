@@ -21,6 +21,22 @@ protected:
         
         REQUIRE( text == expectedText );
     }
+    
+    bool usesAllAvailableWidthWhenWrapped() const override
+    {
+        // unfortunately we use all available space when wrapping occurs.
+        // This has to do with how GTK calculates restricted height and widths.
+        // See gtk::ViewCore::calcPreferredSize to find out why this is.
+        return true;
+    }
+    
+    
+    bool clipsPreferredWidthToAvailableWidth() const override
+    {
+        // we cannot return a preferred size bigger than the available size.
+        // See gtk::ViewCore::calcPreferredSize to find out why this is.
+        return true;
+    }
 };
 
 TEST_CASE("gtk.TextViewCore")

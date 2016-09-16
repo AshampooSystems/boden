@@ -81,8 +81,7 @@ public:
 
 	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
     {
-		GtkRequisition minSize;
-        GtkRequisition naturalSize;
+        GtkRequisition resultSize;
         
         // we must clear our "size request". Otherwise the current size will be
         // the basis for the preferred size.
@@ -99,7 +98,12 @@ public:
                              
         gtk_widget_set_size_request( _pWidget, 0, 0);
         
-        if(availableWidth!=-1)
+        // we always need to know the unrestricted size of the widget
+        GtkRequisition unrestrictedMinSize;
+        GtkRequisition unrestrictedNaturalSize;
+        gtk_widget_get_preferred_size (_pWidget, &unrestrictedMinSize, &unrestrictedNaturalSize );
+        
+        if(availableWidth!=-1 && canAdjustWidthToAvailableSpace() )
         {
             gint minHeight=0;
             gint naturalHeight=0;
@@ -108,13 +112,41 @@ public:
             
             if(forGtkWidth<0)
                 forGtkWidth = 0;
-            
+                
             gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
             
-            naturalSize.width = forGtkWidth;
-            naturalSize.height = naturalHeight;
+            
+            resultSize.height = naturalHeight;            
+            
+            // now we know our height for the case in which the width is exactly availableWidth.
+            // However, availableWidth may actually be wider than what we need. Check that.
+            if(forGtkWidth < unrestrictedNaturalSize.width)
+            {
+                // the unrestricted size exceeds the available size.
+                // Note that it might seem like a good idea to use gtk_widget_get_preferred_width_for_height here
+                // to find out if the widget really does use all the available space in the restricted case.
+                // For example, text views that wrap their text to accomodate for availWidth will usually
+                // not wrap exactly at availWidth, but slightly before that.
+                // However, we cannot use gtk_widget_get_preferred_width_for_height to find out how much
+                // space the view really needs. Since gtk_widget_get_preferred_width_for_height does not
+                // have a paremeter to specify a width limit, the natural width we get will be exactly
+                // the unrestricted width (since the height limit we specify is usually actually bigger than
+                // the unrestricted height).
+                // And the minimum width will be a width for a case in which the control tries to absolutely
+                // minimize its width. For example, text views will wrap text as much as possible and also
+                // try to choose the wrap point so that all lines are roughly the same width. That is not the
+                // same text wrapping that the control used to calculate the naturalHeight for the case with the
+                // restricted width.
+                
+                // So, there is no way to calculate the actual used amount of available space.
+            
+                resultSize.width = forGtkWidth;
+            }
+            else
+                resultSize.width = unrestrictedNaturalSize.width;               
+            
         }
-        else if(availableHeight!=-1)
+        else if(availableHeight!=-1 && canAdjustHeightToAvailableSpace() )
         {
             gint minWidth=0;
             gint naturalWidth=0;
@@ -123,14 +155,17 @@ public:
             
             if(forGtkHeight<0)
                 forGtkHeight = 0;
-                        
+                
+            // see availableWidth!=-1 case for an explanation of what we do here.
+            
             gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
             
-            naturalSize.width = naturalWidth;
-            naturalSize.height = forGtkHeight;
+            
+            resultSize.width = naturalWidth;            
+            resultSize.height = std::min(forGtkHeight, unrestrictedNaturalSize.height);            
         }
-        else        
-            gtk_widget_get_preferred_size (_pWidget, &minSize, &naturalSize );
+        else
+            resultSize = unrestrictedNaturalSize;
             
             
         // restore the old visibility
@@ -140,7 +175,7 @@ public:
         // restore the old size
         gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
         
-        Size size = gtkSizeToSize(naturalSize, getGtkScaleFactor() );
+        Size size = gtkSizeToSize(resultSize, getGtkScaleFactor() );
         
 
         Margin padding = _getPaddingPixels();
@@ -197,12 +232,39 @@ protected:
         return Margin();
     }
     
+    
+    /** Returns true if the view can adjust its width to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableWidth parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustWidthToAvailableSpace() const
+	{
+		return false;
+	}
+
+	/** Returns true if the view can adjust its height to fit into
+		a certain size of available space.
+
+		If this returns false then calcPreferredSize will ignore the
+		availableHeight parameter.
+
+		The default implementation returns false.
+	*/
+	virtual bool canAdjustHeightToAvailableSpace() const
+	{
+		return false;
+	}
+    
 
 private:
 
     Margin _getPaddingPixels() const
     {
-        P<View> pView = getOuterViewIfStillAttached();
+        P<const View> pView = getOuterViewIfStillAttached();
         Nullable<UiMargin> pad;
         if(pView!=nullptr)
             pad = pView->padding();
