@@ -81,9 +81,9 @@ public:
 		if(uiLength.unit==UiLength::sem)
 			return std::lround( uiLength.value * _semSizeAtScaleFactor1 * scaleFactor );
 
-		else if(uiLength.unit==UiLength::pixel96)
+		else if(uiLength.unit==UiLength::dip)
 		{
-			// See UiLength documentation for more information about the pixel96 unit
+			// See UiLength documentation for more information about the dip unit
 			// and why this is correct.
 			return std::lround( uiLength.value * scaleFactor );
 		}

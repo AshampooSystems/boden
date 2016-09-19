@@ -43,7 +43,7 @@ public:
         if(uiLength.unit==UiLength::sem)
             return std::lround( uiLength.value * _semPixels );
 
-        else if(uiLength.unit==UiLength::pixel96)
+        else if(uiLength.unit==UiLength::dip)
         {
             // we assume that the browser uses device independent pixels.
             // So, no need for any scaling.

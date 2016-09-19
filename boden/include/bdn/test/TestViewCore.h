@@ -147,7 +147,7 @@ protected:
         SECTION("uiLengthToPixels")
         {
             REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::realPixel, 0) ) == 0 );
-            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::dip, 0) ) == 0 );
             REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::sem, 0) ) == 0 );
 
             REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::realPixel, 17) ) == 17 );
@@ -156,9 +156,9 @@ protected:
             REQUIRE( semSize>0 );
             REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToPixels( UiLength(UiLength::sem, 3) ), semSize*3, 3);
 
-            int pixel96Size = _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 1) );
-            REQUIRE( pixel96Size>0 );
-            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 3) ), pixel96Size*3, 3);
+            int dipSize = _pCore->uiLengthToPixels( UiLength(UiLength::dip, 1) );
+            REQUIRE( dipSize>0 );
+            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToPixels( UiLength(UiLength::dip, 3) ), dipSize*3, 3);
         }
 
         SECTION("uiMarginToPixelMargin")
@@ -177,15 +177,15 @@ protected:
                 REQUIRE_ALMOST_EQUAL( m.left, 40*semSize, 40);
             }
 
-            SECTION("pixel96")
+            SECTION("dip")
             {
-                int pixel96Size = _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 1) );
+                int dipSize = _pCore->uiLengthToPixels( UiLength(UiLength::dip, 1) );
 
-                Margin m = _pCore->uiMarginToPixelMargin( UiMargin(UiLength::pixel96, 10, 20, 30, 40) );
-                REQUIRE_ALMOST_EQUAL( m.top, 10*pixel96Size, 10);
-                REQUIRE_ALMOST_EQUAL( m.right, 20*pixel96Size, 20);
-                REQUIRE_ALMOST_EQUAL( m.bottom, 30*pixel96Size, 30);
-                REQUIRE_ALMOST_EQUAL( m.left, 40*pixel96Size, 40);
+                Margin m = _pCore->uiMarginToPixelMargin( UiMargin(UiLength::dip, 10, 20, 30, 40) );
+                REQUIRE_ALMOST_EQUAL( m.top, 10*dipSize, 10);
+                REQUIRE_ALMOST_EQUAL( m.right, 20*dipSize, 20);
+                REQUIRE_ALMOST_EQUAL( m.bottom, 30*dipSize, 30);
+                REQUIRE_ALMOST_EQUAL( m.left, 40*dipSize, 40);
             }
         }
 
@@ -276,14 +276,14 @@ protected:
         {
             SECTION("custom")
             {
-                _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
                 verifyCorePadding();
             }
 
             SECTION("default after custom")
             {
                 // set a non-default padding, then go back to default padding.
-                _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
                 _pView->padding() = nullptr;
 
                 verifyCorePadding();

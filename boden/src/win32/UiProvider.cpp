@@ -158,7 +158,7 @@ int UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
 	if(uiLength.unit==UiLength::sem)
 		return std::lround( uiLength.value * getSemSizeForUiScaleFactor(uiScaleFactor) );
 
-	else if(uiLength.unit==UiLength::pixel96)
+	else if(uiLength.unit==UiLength::dip)
 	{
 		// See UiLength documentation for more information about the pixel96 unit
 		// and why this is correct.

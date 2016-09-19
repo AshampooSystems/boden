@@ -155,9 +155,9 @@ public:
 			// one sem = 20 mock pixels
 			return static_cast<int>( std::lround( uiLength.value*20 ) );
 		}
-		else if(uiLength.unit==UiLength::Unit::pixel96)
+		else if(uiLength.unit==UiLength::Unit::dip)
 		{
-			// one pixel 96 = 3 mock pixels
+			// one DIP = 3 mock pixels
 			return static_cast<int>( std::lround( uiLength.value*3 ) );
 		}
 		else if(uiLength.unit==UiLength::Unit::realPixel)

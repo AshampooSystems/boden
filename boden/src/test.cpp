@@ -5813,7 +5813,7 @@ std::string toString( const UiLength& length)
         break;
     case UiLength::realPixel: unit = "realPixel";
         break;
-    case UiLength::pixel96: unit = "pixel96";
+    case UiLength::dip: unit = "dip";
         break;
     default:    unit = "unit"+std::to_string((int)length.unit);
         break;

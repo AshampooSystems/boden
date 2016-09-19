@@ -30,11 +30,11 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 		buttonMargin = Margin(20, 40, 60, 80 );
 	}
 
-	SECTION("pixel96Margin")
+	SECTION("dipMargin")
 	{
-		pButton->margin() = UiMargin(UiLength::Unit::pixel96, 1, 2, 3, 4);
+		pButton->margin() = UiMargin(UiLength::Unit::dip, 1, 2, 3, 4);
 
-		// 1 pixel96 = 3 pixels in our mock ui
+		// 1 dip = 3 pixels in our mock ui
 		buttonMargin = Margin(3, 6, 9, 12 );
 	}
 

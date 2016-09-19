@@ -18,7 +18,7 @@ int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
         return (int)std::lround( uiLength.value * UiProvider::get().getSemPixelsForViewCore(
                 *const_cast<ViewCore *>(this)) );
 
-    else if(uiLength.unit==UiLength::pixel96)
+    else if(uiLength.unit==UiLength::dip)
         return (int)std::lround( uiLength.value * getUiScaleFactor() );
 
     else if(uiLength.unit==UiLength::realPixel)
