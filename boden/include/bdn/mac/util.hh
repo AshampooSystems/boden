@@ -22,6 +22,8 @@ namespace mac
     */
 inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlipping)
 {
+    XXX
+
     double y = rect.origin.y;
     
     if(coordinateSpaceHeightForFlipping!=-1)
@@ -62,6 +64,8 @@ inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlippi
     */
 inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlipping)
 {
+    XXX
+
     NSRect macRect;
     
     macRect.origin.x = rect.x;
@@ -82,6 +86,7 @@ inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlippi
 
 inline Size macSizeToSize(const NSSize& macSize)
 {
+    XXX
 	return Size( std::ceil(macSize.width),
 				 std::ceil(macSize.height) );
 }
@@ -89,6 +94,8 @@ inline Size macSizeToSize(const NSSize& macSize)
 
 inline NSSize sizeToMacSize(const Size& size)
 {
+    XXX
+
     NSSize macSize;
     macSize.width = size.width;
     macSize.height = size.height;

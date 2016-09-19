@@ -24,6 +24,8 @@ public:
     
     int				uiLengthToPixels(const UiLength& uiLength) const
     {
+        XXX
+
         if(uiLength.unit==UiLength::sem)
             return (int)std::lround( uiLength.value * _semPixels );
         
@@ -41,7 +43,7 @@ public:
             throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
     }
     
-    
+    XXX
     Margin			uiMarginToPixelMargin(const UiMargin& margin) const
     {
         return Margin(

@@ -149,15 +149,15 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-
-	int uiLengthToPixels(const UiLength& uiLength) const override
+    XXX
+	double uiLengthToDips(const UiLength& uiLength) const override
 	{
 		return UiProvider::get().uiLengthToPixels(uiLength);
 	}
-
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    XXX
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
 	{
-		return UiProvider::get().uiMarginToPixelMargin(margin);
+		return UiProvider::get().uiMarginToDipMargin(margin);
 	}
 
 
@@ -177,7 +177,7 @@ public:
 
 
 	
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
 	{
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -238,6 +238,9 @@ public:
 
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;
+
+
+            XXX scale factor?
 
             return size;
         }

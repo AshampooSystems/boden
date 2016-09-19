@@ -30,7 +30,7 @@ public:
     }
 
 
-    /** Returns the size of the specified text.
+    /** Returns the size of the specified text in DIP units (see UiLength::Unit::dip).
     
         This function handles linebreaks correctly (i.e. it returns the size
         of multiple lines of text if the string contains linebreaks)
@@ -40,7 +40,7 @@ public:
 		The wrapping occurs on word boundaries. If a word is wider than wrapWidth
 		then the returned text size can be bigger than wrapWidth.
     */
-    Size getTextSize(const String& text, int wrapWidth=-1)
+    Size getTextSize(const String& text, double wrapWidth=-1)
     {
         // GetTextExtentPoint32W ignores linebreak and also does not
         // provide any way to calculate the height of multiple lines of text. So we use
@@ -52,9 +52,19 @@ public:
 
 		UINT flags = DT_CALCRECT;
 
+        // convert to device independent pixels
+        int     dpi = ::GetDeviceCaps( _handle, LOGPIXELSX);
+        double  scaleFactor = dpi / 96.0;
+        
+
 		if(wrapWidth>=0)
 		{
-			rect.right = wrapWidth;
+            // we round DOWN to the nearest pixel here. It is to be expected that the wrapped
+            // width might be less than the specified wrap width (because wrapping always only
+            // occurs on word or character boundaries). However, the wrap width should only
+            // be exceeded if there is a word that is too wide to fit. We should not
+            // exceed because of rounding.
+			rect.right = (long)std::floor(wrapWidth * scaleFactor);
 			flags |= DT_WORDBREAK;
 		}
 		else
@@ -73,7 +83,7 @@ public:
                                                     .add("text", text) );
         }
 
-        return Size( rect.right, rect.bottom);
+        return Size( rect.right / scaleFactor, rect.bottom / scaleFactor);
     }
 
 

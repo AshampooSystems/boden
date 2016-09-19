@@ -49,13 +49,13 @@ public:
         _nsView.frame = rectToMacRect(bounds, -1);
     }
     
-    
+    XXX
     int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixels(uiLength);
     }
     
-    
+    XXX
     Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMargin(margin);
@@ -64,9 +64,11 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
+
+        XXX scale factor
         
         // add the padding
         Nullable<UiMargin> pad;

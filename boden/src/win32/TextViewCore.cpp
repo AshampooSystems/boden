@@ -22,7 +22,7 @@ void TextViewCore::setText(const String& text)
 	setWindowText(getHwnd(), text);
 }
 
-Size TextViewCore::calcPreferredSize(int availableWidth, int availableHeight) const
+Size TextViewCore::calcPreferredSize(double availableWidth, double availableHeight) const
 {
 	// note that we ignore availableHeight because there is no way for us to reduce
 	// the height of the text. We can only limit the width (by wrapping lines)
@@ -54,7 +54,7 @@ Size TextViewCore::calcPreferredSize(int availableWidth, int availableHeight) co
     else
         uiPadding = pad;
 
-	prefSize += uiMarginToPixelMargin( uiPadding );	
+	prefSize += uiMarginToDipMargin( uiPadding );	
     
 	return prefSize;
 }

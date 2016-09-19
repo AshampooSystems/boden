@@ -32,7 +32,7 @@ public:
 
 	Size calcMinimumSize() const;
 
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const;
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
 	
 protected:
 	class WindowCoreClass : public Win32WindowClass

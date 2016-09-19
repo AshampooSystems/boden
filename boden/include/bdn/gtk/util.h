@@ -10,6 +10,7 @@ namespace gtk
 
 inline int gtkDimensionToPixels(int dim, double scaleFactor)
 {
+    XXX
     return std::lround(dim*scaleFactor);
 }
 
@@ -24,6 +25,7 @@ inline int pixelsToGtkDimension(int pixels, double scaleFactor)
 
 inline Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
 {
+    XXX
 	return Rect(
 			std::lround(rect.x * scaleFactor),
 			std::lround(rect.x * scaleFactor),
@@ -33,6 +35,7 @@ inline Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
 
 inline GdkRectangle rectToGtkRect(const Rect& rect, double scaleFactor)
 {
+    XXX
     GdkRectangle result;
     
     result.x = std::lround( rect.x / scaleFactor);

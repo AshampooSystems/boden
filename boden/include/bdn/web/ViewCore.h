@@ -127,13 +127,13 @@ public:
         styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
     }
     
-    
+    XXX
     int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixels(uiLength);
     }
     
-    
+    XXX
     Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMargin(margin);
@@ -142,7 +142,7 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
 		emscripten::val styleObj = _domObject["style"];
 
@@ -220,6 +220,7 @@ public:
                 styleObj.set("white-space", oldWhitespaceStyle);
         }
 
+        XXX scale factor?
 
         return Size( std::ceil(width), std::ceil(height) );
     }

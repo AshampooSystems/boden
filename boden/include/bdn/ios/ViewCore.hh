@@ -68,13 +68,13 @@ public:
         _view.frame = rectToIosRect(bounds);
     }
     
-    
+    XXX
     int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixels(uiLength);
     }
     
-    
+    XXX4
     Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMargin(margin);
@@ -83,7 +83,7 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         CGSize constraintSize = UILayoutFittingCompressedSize;
         if(availableWidth!=-1)
@@ -93,6 +93,7 @@ public:
         
 		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
         
+        XXX scale factor
         Size size = iosSizeToSize(iosSize);
         
         if(size.width<0)
@@ -100,7 +101,7 @@ public:
         if(size.height<0)
             size.height = 0;
         
-        Margin padding = getPaddingPixels();
+        Margin padding = getPaddingDips();
         
         size += padding;
         

@@ -112,7 +112,7 @@ public:
 
 	Size _getTextSize(const String& s) const
 	{
-		// our fake font has a size of 10x20 for each character.
+		// our fake font has a size of 10x20 DIPs for each character.
 		return Size( static_cast<int>( s.getLength()*10 ), 20);
 	}
 
@@ -143,25 +143,25 @@ public:
 		_boundsChangeCount++;
 	}
 
-        
-    
-	
-	int uiLengthToPixels(const UiLength& uiLength) const override
+       
+	double uiLengthToDips(const UiLength& uiLength) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		if(uiLength.unit==UiLength::Unit::sem)
 		{
-			// one sem = 20 mock pixels
-			return static_cast<int>( std::lround( uiLength.value*20 ) );
+			// one sem = 20 mock DIPs;
+			return uiLength.value*20;
 		}
 		else if(uiLength.unit==UiLength::Unit::dip)
 		{
-			// one DIP = 3 mock pixels
-			return static_cast<int>( std::lround( uiLength.value*3 ) );
+			return uiLength.value;
 		}
 		else if(uiLength.unit==UiLength::Unit::realPixel)
-			return static_cast<int>( std::lround( uiLength.value ) );
+        {
+            // 1 DIP = 3 mock pixels
+            return uiLength.value / 3;
+        }
 		else
 		{
 			// invalid parameter passed to this function
@@ -171,14 +171,14 @@ public:
 	}
 	
 
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		return Margin( uiLengthToPixels(margin.top),
-						uiLengthToPixels(margin.right),
-						uiLengthToPixels(margin.bottom),
-						uiLengthToPixels(margin.left) );
+		return Margin( uiLengthToDips(margin.top),
+						uiLengthToDips(margin.right),
+						uiLengthToDips(margin.bottom),
+						uiLengthToDips(margin.left) );
 	}
 
 

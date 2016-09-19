@@ -7,7 +7,7 @@
 namespace bdn
 {
 
-Size ColumnView::calcPreferredSize(int availableWidth, int availableHeight) const
+Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight) const
 {
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
@@ -16,7 +16,7 @@ Size ColumnView::calcPreferredSize(int availableWidth, int availableHeight) cons
 	{
 		std::list<Rect> childBounds;
 
-		int contentEndY = calcChildBoundsForWidth(availableWidth, childViews, childBounds );
+		double contentEndY = calcChildBoundsForWidth(availableWidth, childViews, childBounds );
 	
 		return Size(availableWidth, contentEndY);
 	}
@@ -35,7 +35,7 @@ Size ColumnView::calcPreferredSize(int availableWidth, int availableHeight) cons
 		
 			Size		childPreferredSize = sizingInfo.preferredSize;
 
-			childPreferredSize += pChildView->uiMarginToPixelMargin( pChildView->margin() );
+			childPreferredSize += pChildView->uiMarginToDipMargin( pChildView->margin() );
 
 			preferredSize.height += childPreferredSize.height;
 			preferredSize.width = std::max( preferredSize.width, childPreferredSize.width);
@@ -45,38 +45,38 @@ Size ColumnView::calcPreferredSize(int availableWidth, int availableHeight) cons
 		Nullable<UiMargin> pad = padding();
 		// If padding is null then we use zero padding (i.e. add nothing)
 		if(!pad.isNull())
-			preferredSize += uiMarginToPixelMargin( pad );
+			preferredSize += uiMarginToDipMargin( pad );
 
 		return preferredSize;
 	}
 }
 
-int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const
+double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const
 {
 	Margin myPadding;
     
     Nullable<UiMargin> pad = padding();
     // If padding is null then we use zero padding
     if(!pad.isNull())
-        myPadding = uiMarginToPixelMargin( pad );
+        myPadding = uiMarginToDipMargin( pad );
 
-	int contentWidth = width - (myPadding.left + myPadding.right);
+	double contentWidth = width - (myPadding.left + myPadding.right);
 
-	int currY = myPadding.top;
+	double currY = myPadding.top;
 
 	for(const P<View>& pChildView: childViews)
 	{
 		SizingInfo	childSizingInfo = pChildView->sizingInfo();
 		Size		childPreferredSize = childSizingInfo.preferredSize;
 
-		Margin	childMargin = pChildView->uiMarginToPixelMargin( pChildView->margin() );
+		Margin	childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
 
-		int maxChildWidth = contentWidth - childMargin.left - childMargin.right;
+		double maxChildWidth = contentWidth - childMargin.left - childMargin.right;
 
 		HorizontalAlignment horzAlign = pChildView->horizontalAlignment();
 
-		int childWidth;
-		int childX;
+		double childWidth;
+		double childX;
 		if(childPreferredSize.width >= maxChildWidth
 			|| horzAlign == HorizontalAlignment::expand)
 		{
@@ -95,10 +95,10 @@ int ColumnView::calcChildBoundsForWidth(int width, const std::list< P<View> >& c
 			else
 				alignFactor = 0;
 			
-			childX = myPadding.left + childMargin.left + (int)std::lround( (maxChildWidth-childWidth)*alignFactor );
+			childX = myPadding.left + childMargin.left + (maxChildWidth-childWidth)*alignFactor;
 		}
 
-		int childHeight;
+		double childHeight;
 
 		if(childWidth < childPreferredSize.width)
 		{
@@ -129,7 +129,7 @@ void ColumnView::layout()
 
 	std::list< Rect >	 childBounds;
 	
-	int contentEndY = calcChildBoundsForWidth( myBounds.width, childViews, childBounds);
+	double contentEndY = calcChildBoundsForWidth( myBounds.width, childViews, childBounds);
 
 	if( contentEndY > myBounds.height )
 	{

@@ -54,6 +54,8 @@ public:
 
 	Rect			getScreenWorkArea() const
 	{
+        XXX
+
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		Windows::Foundation::Rect bounds =  Windows::UI::ViewManagement::ApplicationView::GetForCurrentView()->VisibleBounds;
@@ -67,9 +69,11 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-
+    XXX
 	int				uiLengthToPixels(const UiLength& uiLength) const
 	{
+        XXX
+
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		if(uiLength.unit==UiLength::sem)
@@ -91,7 +95,7 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-
+    XXX
 	Margin			uiMarginToPixelMargin(const UiMargin& margin) const
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;

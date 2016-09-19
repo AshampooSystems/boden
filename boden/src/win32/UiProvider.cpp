@@ -62,11 +62,13 @@ UiProvider::UiProvider()
 
 	_defaultUiFontInfo.lfHeight = std::lround(_defaultUiFontSizeAtScaleFactor1);
 
+    // create the font for scale factor 1
 	_pDefaultUiFont = newObj<Font>(_defaultUiFontInfo);
 
-	double fontSize = _pDefaultUiFont->getSizePixels();
-	
-	_semSizeAtScaleFactor1 = fontSize;	
+    double fontSize = _pDefaultUiFont->getSizePixels();
+
+    // scale factor 1 = DIP	
+	_semSizeDips = fontSize;	
 
 	// add the font to our map
 	FontSpec spec;
@@ -147,39 +149,36 @@ double UiProvider::getUiScaleFactorForMonitor(HMONITOR monitorHandle)
 }
 
 
-
-double UiProvider::getSemSizeForUiScaleFactor(double uiScaleFactor)
-{
-	return _semSizeAtScaleFactor1 * uiScaleFactor;
-}
-
-int UiProvider::uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor)
+double UiProvider::uiLengthToDips(const UiLength& uiLength, double uiScaleFactor)
 {
 	if(uiLength.unit==UiLength::sem)
-		return std::lround( uiLength.value * getSemSizeForUiScaleFactor(uiScaleFactor) );
+		return uiLength.value * _semSizeDips;
 
 	else if(uiLength.unit==UiLength::dip)
 	{
-		// See UiLength documentation for more information about the pixel96 unit
-		// and why this is correct.
-		return std::lround( uiLength.value * uiScaleFactor );
-	}
-
+        return uiLength.value;
+    }
+   
 	else if(uiLength.unit==UiLength::realPixel)
-		return std::lround( uiLength.value );
+    {   
+        // convert from real pixels to DIPs by dividing by the scale factor
+
+		return uiLength.value / uiScaleFactor;
+    }
 
 	else
 		throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 }
 
-Margin UiProvider::uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor)
+Margin UiProvider::uiMarginToDipMargin(const UiMargin& margin, double uiScaleFactor)
 {
 	return Margin(
-		uiLengthToPixels(margin.top, uiScaleFactor),
-		uiLengthToPixels(margin.right, uiScaleFactor),
-		uiLengthToPixels(margin.bottom, uiScaleFactor),
-		uiLengthToPixels(margin.left, uiScaleFactor) );	
+		uiLengthToDips(margin.top, uiScaleFactor),
+		uiLengthToDips(margin.right, uiScaleFactor),
+		uiLengthToDips(margin.bottom, uiScaleFactor),
+		uiLengthToDips(margin.left, uiScaleFactor) );	
 }
 
 }
 }
+

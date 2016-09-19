@@ -37,9 +37,11 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
 
-
+    XXX
     int             uiLengthToPixels(const UiLength& uiLength) const
     {
+        XXX
+
         if(uiLength.unit==UiLength::sem)
             return std::lround( uiLength.value * _semPixels );
 
@@ -69,6 +71,7 @@ public:
         return std::to_string(pixels)+"px";
     }
 
+    XXX
     Margin          uiMarginToPixelMargin(const UiMargin& margin) const
     {
         return Margin(

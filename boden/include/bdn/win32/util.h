@@ -13,9 +13,26 @@ namespace win32
 {
 	
 
-inline Rect win32RectToRect(const RECT& rect)
+inline RECT rectToWin32Rect(const Rect& rect, double scaleFactor)
 {
-	return Rect( rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+    RECT winRect{   (long)std::lround(rect.x * scaleFactor),
+                    (long)std::lround(rect.y * scaleFactor),
+                    0,
+                    0 };
+
+    winRect.right = winRect.left + (long)std::ceil(rect.width * scaleFactor);
+    winRect.bottom = winRect.top + (long)std::ceil(rect.height * scaleFactor);
+
+    return winRect;
+}
+
+
+inline Rect win32RectToRect(const RECT& rect, double scaleFactor)
+{
+	return Rect( rect.left / scaleFactor,
+                 rect.top / scaleFactor,
+                 (rect.right-rect.left) / scaleFactor,
+                 (rect.bottom-rect.top) / scaleFactor );
 }
 
 

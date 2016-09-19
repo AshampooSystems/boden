@@ -76,36 +76,41 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
     
     
+    XXX
     int uiLengthToPixels(const UiLength& uiLength, double scaleFactor) const
 	{
 		if(uiLength.unit==UiLength::sem)
-			return std::lround( uiLength.value * _semSizeAtScaleFactor1 * scaleFactor );
+            XXX scale factor?
+			return uiLength.value * _semSizeAtScaleFactor1 * scaleFactor;
 
 		else if(uiLength.unit==UiLength::dip)
 		{
 			// See UiLength documentation for more information about the dip unit
 			// and why this is correct.
-			return std::lround( uiLength.value * scaleFactor );
+            XXX
+			return uiLength.value * scaleFactor;
 		}
 
 		else if(uiLength.unit==UiLength::realPixel)
+            XXX
 			return std::lround( uiLength.value );
 
 		else
 			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 	}
     
-    
+    XXX
     int uiLengthToPixelsForWidget(GtkWidget* pWidget, const UiLength& uiLength) const
 	{
 		if(uiLength.unit==UiLength::realPixel)
+            XXX
 			return std::lround( uiLength.value );
             
         else
             return uiLengthToPixels(uiLength, gtk_widget_get_scale_factor(pWidget) );
 	}
 	
-
+    XXX
 	Margin uiMarginToPixelMarginForWidget(GtkWidget* pWidget, const UiMargin& margin) const
 	{
         double scaleFactor = gtk_widget_get_scale_factor(pWidget);

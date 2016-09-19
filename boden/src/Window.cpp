@@ -59,8 +59,8 @@ void Window::autoSize()
 
 	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
 	
-	int width = mySizingInfo.preferredSize.width;
-	int height = mySizingInfo.preferredSize.height;
+	double width = mySizingInfo.preferredSize.width;
+	double height = mySizingInfo.preferredSize.height;
 
 	if(width > screenArea.width)
 	{
@@ -118,7 +118,7 @@ void Window::center()
 	bounds() = myBounds;
 }
 
-Size Window::calcPreferredSize(int availableWidth, int availableHeight) const
+Size Window::calcPreferredSize(double availableWidth, double availableHeight) const
 {
 	// lock the mutex so that our child hierarchy or core does not change during measuring
 	MutexLock lock( getHierarchyAndCoreMutex() );
@@ -134,9 +134,9 @@ Size Window::calcPreferredSize(int availableWidth, int availableHeight) const
 	Margin contentMargin;
 	P<const View>	pContentView = getContentView();
 	if(pContentView!=nullptr)
-		contentMargin = pContentView->uiMarginToPixelMargin( _pContentView->margin() );
+		contentMargin = pContentView->uiMarginToDipMargin( _pContentView->margin() );
 
-	Margin myPadding = getPixelPadding();
+	Margin myPadding = getDipPadding();
 
 	Size availableContentAreaSize(-1, -1);	
 	if(availableWidth!=-1 || availableHeight!=-1)
@@ -193,10 +193,10 @@ void Window::layout()
 	Rect contentBounds = pCore->getContentArea();
     			
 	// subtract our padding
-	contentBounds -= getPixelPadding();
+	contentBounds -= getDipPadding();
 
 	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToPixelMargin( pContentView->margin() );    
+	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );    
     
     
 	pContentView->bounds() = contentBounds;
@@ -207,7 +207,7 @@ void Window::layout()
 }
 
 
-Margin Window::getPixelPadding() const
+Margin Window::getDipPadding() const
 {
     Margin myPadding;
     
@@ -217,7 +217,7 @@ Margin Window::getPixelPadding() const
         // default padding is zero
         Nullable<UiMargin> pad = padding();
         if(!pad.isNull())
-            myPadding = getViewCore()->uiMarginToPixelMargin( pad );
+            myPadding = getViewCore()->uiMarginToDipMargin( pad );
     }
         
     return myPadding;

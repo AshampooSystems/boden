@@ -57,16 +57,17 @@ public:
 	double getSemSizeForUiScaleFactor(double uiScaleFactor);
 
 
-	/** Converts the specified Ui length to pixels.
+	/** Converts the specified Ui length to DIPs (device independent pixels - see UiLength::Unit::dip).
 		uiScaleFactor is a value that depends on the screen that the top level window is on.
 		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	int uiLengthToPixels(const UiLength& uiLength, double uiScaleFactor);
+	double uiLengthToDips(const UiLength& uiLength, double uiScaleFactor);
 	
 
-	/** Converts a UiMargin object to a pixel-based margin object.
+	/** Converts a UiMargin object to a DIP-based margin object. DIPs are device independent pixels
+        (see UiLength::Unit::dip).
 		uiScaleFactor is a value that depends on the screen that the top level window is on.
 		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	Margin uiMarginToPixelMargin(const UiMargin& margin, double uiScaleFactor);
+	Margin uiMarginToDipMargin(const UiMargin& margin, double uiScaleFactor);
 
 
 
@@ -95,7 +96,7 @@ protected:
 	P<Font>						_pDefaultUiFont;
 
 	double						_defaultUiFontSizeAtScaleFactor1;
-	double						_semSizeAtScaleFactor1;
+	double						_semSizeDips;
 
 	std::map< FontSpec, P<Font> > _fontMap;	
 };

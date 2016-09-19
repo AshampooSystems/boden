@@ -79,12 +79,12 @@ public:
         _currWidth = bounds.width;
     }
 
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         // we must unset the fixed width we set in the last setBounds call, otherwise it will influence
         // the size we measure here.
 
-        if(_currWidth!=0x7fffffff && _pJTextView!=nullptr)
+        if(!std::is_nan(_currWidth) && _pJTextView!=nullptr)
             _pJTextView->setMaxWidth(0x7fffffff);
 
         Size resultSize;
@@ -108,7 +108,7 @@ public:
             throw;
         }
 
-        if(_currWidth!=0x7fffffff && _pJTextView!=nullptr)
+        if(!std::is_nan(_currWidth) && _pJTextView!=nullptr)
             _pJTextView->setMaxWidth(_currWidth);
 
         return resultSize;
@@ -123,7 +123,7 @@ protected:
 private:
     P<JTextView> _pJTextView;
 
-    int          _currWidth=0x7fffffff;
+    double       _currWidth =  std::numeric_limits<double>.quiet_NaN;
 };
 
 

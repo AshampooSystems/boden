@@ -160,21 +160,21 @@ public:
 
 
 
-    int uiLengthToPixels(const UiLength& uiLength) const override;
+    double uiLengthToDips(const UiLength& uiLength) const override;
     
     
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
         return Margin(
-                uiLengthToPixels(margin.top),
-                uiLengthToPixels(margin.right),
-                uiLengthToPixels(margin.bottom),
-                uiLengthToPixels(margin.left) );
+                uiLengthToDips(margin.top),
+                uiLengthToDips(margin.right),
+                uiLengthToDips(margin.bottom),
+                uiLengthToDips(margin.left) );
     }
     
 
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
 		int widthSpec;
         int heightSpec;
@@ -195,6 +195,8 @@ public:
         int height = _pJView->getMeasuredHeight();
 
         //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
+
+        XXX scale factor?
 
         return Size(width, height);
 	}

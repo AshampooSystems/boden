@@ -17,16 +17,16 @@ namespace bdn
 struct Rect
 {
 public:
-	int x = 0;
-	int y = 0;
-	int width = 0;
-	int height = 0;
+	double x = 0;
+	double y = 0;
+	double width = 0;
+	double height = 0;
 
 	Rect()
 	{		
 	}
 
-	Rect(int x, int y, int width, int height)
+	Rect(double x, double y, double width, double height)
 		: x(x)
 		, y(y)
 		, width(width)

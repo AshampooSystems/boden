@@ -12,6 +12,8 @@ namespace winuwp
 
 inline int uwpDimensionToInt(float val, double scaleFactor)
 {
+    XXX
+
 	if(std::isnan(val) || val==std::numeric_limits<float>::infinity() )
 		return std::numeric_limits<int>::max();
 	else
@@ -20,6 +22,9 @@ inline int uwpDimensionToInt(float val, double scaleFactor)
 
 inline float intToUwpDimension(int val, double scaleFactor)
 {
+
+    XXX
+
 	if(val==std::numeric_limits<int>::max() )
 		return std::numeric_limits<float>::infinity();
 	
@@ -32,6 +37,8 @@ inline float intToUwpDimension(int val, double scaleFactor)
 
 inline Rect uwpRectToRect(const ::Windows::Foundation::Rect& rect, double scaleFactor)
 {
+    XXX
+
 	return Rect(
 			std::lround(rect.X * scaleFactor),
 			std::lround(rect.Y * scaleFactor),
@@ -41,6 +48,8 @@ inline Rect uwpRectToRect(const ::Windows::Foundation::Rect& rect, double scaleF
 
 inline ::Windows::Foundation::Rect rectToUwpRect(const Rect& rect, double scaleFactor)
 {
+    XXX
+
 	return ::Windows::Foundation::Rect(
 		static_cast<float>(rect.x / scaleFactor),
 		static_cast<float>(rect.y / scaleFactor),
@@ -51,6 +60,8 @@ inline ::Windows::Foundation::Rect rectToUwpRect(const Rect& rect, double scaleF
 
 inline Size uwpSizeToSize(const ::Windows::Foundation::Size& size, double scaleFactor)
 {
+    XXX
+
 	return Size( uwpDimensionToInt(size.Width, scaleFactor),
 				 uwpDimensionToInt(size.Height, scaleFactor) );
 }

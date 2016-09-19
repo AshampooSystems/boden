@@ -26,7 +26,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 	{
 		pButton->margin() = UiMargin(UiLength::Unit::sem, 1, 2, 3, 4);
 
-		// 1 sem = 20 pixels in our mock ui
+		// 1 sem = 20 DIPs in our mock ui
 		buttonMargin = Margin(20, 40, 60, 80 );
 	}
 
@@ -34,15 +34,15 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 	{
 		pButton->margin() = UiMargin(UiLength::Unit::dip, 1, 2, 3, 4);
 
-		// 1 dip = 3 pixels in our mock ui
-		buttonMargin = Margin(3, 6, 9, 12 );
+		buttonMargin = Margin(1, 2, 3, 4 );
 	}
 
 	SECTION("realPixelMargin")
 	{
 		pButton->margin() = UiMargin(UiLength::Unit::realPixel, 1, 2, 3, 4);
 
-		buttonMargin = Margin(1, 2, 3, 4 );
+        // 1 real pixel = 1/3 dip in our mock ui
+		buttonMargin = Margin(1/3.0, 2/3.0, 3/3.0, 4/3.0 );		
 	}
 
 	pWindow->setContentView( pButton );

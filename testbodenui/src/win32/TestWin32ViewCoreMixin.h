@@ -66,7 +66,7 @@ protected:
             winRect.bottom -= diffY;
         }
 
-        return bdn::win32::win32RectToRect(winRect);
+        return bdn::win32::win32RectToRect(winRect, _pWin32Core->getUiScaleFactor() );
     }
 
     void verifyInitialDummyCoreBounds() override

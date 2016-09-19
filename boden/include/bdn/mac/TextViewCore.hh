@@ -125,7 +125,7 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
         NSTextContainer*    textContainer = [[NSTextContainer alloc]
@@ -152,6 +152,7 @@ public:
         NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
                                                                    inTextContainer:_nsTextView.textContainer ];
 
+        XXX
         additionalSpace.width += std::ceil(boundingRect.origin.x) * 2;
         additionalSpace.height += std::ceil(boundingRect.origin.y) * 2;
         

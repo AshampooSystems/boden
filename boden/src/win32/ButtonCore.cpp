@@ -22,7 +22,7 @@ void ButtonCore::setLabel(const String& label)
 	setWindowText(getHwnd(), label);
 }
 
-Size ButtonCore::calcPreferredSize(int availableWidth, int availableHeight) const
+Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight) const
 {
     String label;
 
@@ -37,7 +37,7 @@ Size ButtonCore::calcPreferredSize(int availableWidth, int availableHeight) cons
 
         if(_pFont!=nullptr)
 		    dc.setFont( *_pFont );
-        prefSize = dc.getTextSize( label );
+        prefSize = dc.getTextSize( label );        
     }
     
 	Nullable<UiMargin>  pad;
@@ -52,16 +52,17 @@ Size ButtonCore::calcPreferredSize(int availableWidth, int availableHeight) cons
     }
     else
         uiPadding = pad;
+    
+	prefSize += uiMarginToDipMargin( uiPadding );	
 
-	prefSize += uiMarginToPixelMargin( uiPadding );	
-
-	// size for the 3D border around the button
-	prefSize.width += ((int)std::ceil( ::GetSystemMetrics(SM_CXEDGE) * _uiScaleFactor )) * 2;
-	prefSize.height += ((int)std::ceil( ::GetSystemMetrics(SM_CYEDGE) * _uiScaleFactor )) * 2;
+	// size for the 3D border around the button. Note that prefSize is in DIPs,
+    // so it is ok to add the values unscaled.
+	prefSize.width += ::GetSystemMetrics(SM_CXEDGE) * 2;
+	prefSize.height += ::GetSystemMetrics(SM_CYEDGE) * 2;
 
 	// size for the focus rect and one pixel of free space next to it
-	prefSize.width += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
-	prefSize.height += ((int)std::ceil(2 * _uiScaleFactor)) * 2;
+	prefSize.width += 2 * 2;
+	prefSize.height += 2 * 2;
 
 	return prefSize;
 }

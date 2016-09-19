@@ -2,6 +2,7 @@
 #include <bdn/win32/ViewCore.h>
 
 #include <bdn/win32/UiProvider.h>
+#include <bdn/win32/util.h>
 
 namespace bdn
 {
@@ -101,7 +102,9 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 
 void ViewCore::setBounds(const Rect& bounds)
 {
-	::SetWindowPos( getHwnd(), NULL, (int)bounds.x, (int)bounds.y, (int)bounds.width, (int)bounds.height, SWP_NOACTIVATE | SWP_NOZORDER);
+    RECT winRect = rectToWin32Rect(bounds, _uiScaleFactor);
+
+	::SetWindowPos( getHwnd(), NULL, winRect.left, winRect.top, winRect.right-winRect.left, winRect.bottom-winRect.top, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void ViewCore::setHorizontalAlignment(const View::HorizontalAlignment& align)
@@ -224,14 +227,14 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 }
 
 
-int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
+double ViewCore::uiLengthToDips(const UiLength& uiLength) const
 {
-	return UiProvider::get().uiLengthToPixels( uiLength, _uiScaleFactor );
+	return UiProvider::get().uiLengthToDips( uiLength, _uiScaleFactor );
 }
 
-Margin ViewCore::uiMarginToPixelMargin(const UiMargin& margin) const
+Margin ViewCore::uiMarginToDipMargin(const UiMargin& margin) const
 {
-	return UiProvider::get().uiMarginToPixelMargin( margin, _uiScaleFactor );
+	return UiProvider::get().uiMarginToDipMargin( margin, _uiScaleFactor );
 }
 
 

@@ -12,6 +12,7 @@ namespace ios
     */
 inline Rect iosRectToRect(const CGRect& rect)
 {
+    XXX
 	return Rect(
 			(int)std::lround(rect.origin.x),
             (int)std::lround(rect.origin.y),
@@ -24,6 +25,7 @@ inline Rect iosRectToRect(const CGRect& rect)
 /** Converts a bdn::Rect to an iOS rect. */
 inline CGRect rectToIosRect(const Rect& rect)
 {
+    XXX
     CGRect iosRect;
     
     iosRect.origin.x = rect.x;
@@ -37,12 +39,14 @@ inline CGRect rectToIosRect(const Rect& rect)
 
 inline Size iosSizeToSize(const CGSize& iosSize)
 {
+    XXX
 	return Size( std::ceil(iosSize.width),
 				 std::ceil(iosSize.height) );
 }
 
 inline CGSize sizeToIosSize(const Size& size)
 {
+    XXX
     CGSize iosSize;
     
     iosSize.width = size.width;

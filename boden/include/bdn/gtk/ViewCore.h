@@ -65,13 +65,13 @@ public:
     }
 
 
-	
+	XXX
 	int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixelsForWidget( getGtkWidget(), uiLength);
     }
 	
-
+    XXX
 	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMarginForWidget( getGtkWidget(), margin);
@@ -79,7 +79,7 @@ public:
 
 	
 
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         GtkRequisition resultSize;
         
@@ -178,7 +178,7 @@ public:
         Size size = gtkSizeToSize(resultSize, getGtkScaleFactor() );
         
 
-        Margin padding = _getPaddingPixels();
+        Margin padding = _getPaddingDips();
         size += padding;
         
         return size;

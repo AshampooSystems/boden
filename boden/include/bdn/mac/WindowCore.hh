@@ -140,14 +140,14 @@ public:
     }
     
     
-    
+    XXX
     int uiLengthToPixels(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToPixels(uiLength);
     }
     
     
-    
+    XXX
     Margin uiMarginToPixelMargin(const UiMargin& margin) const override
     {
         return UiProvider::get().uiMarginToPixelMargin(margin);
@@ -156,7 +156,7 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         // the implementation for this must be provided by the outer Window object.
         throw NotImplementedError("WindowCore::calcPreferredSize");
