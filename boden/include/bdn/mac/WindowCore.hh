@@ -81,8 +81,8 @@ public:
         
         Size resultSize = macRectToRect(macContentRect, -1).getSize();
         
-        resultSize.width = std::max(resultSize.width, 0);
-        resultSize.height = std::max(resultSize.height, 0);
+        resultSize.width = std::max(resultSize.width, 0.0);
+        resultSize.height = std::max(resultSize.height, 0.0);
         
         return resultSize;
     }
@@ -140,17 +140,15 @@ public:
     }
     
     
-    XXX
-    int uiLengthToPixels(const UiLength& uiLength) const override
+    double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixels(uiLength);
+        return UiProvider::get().uiLengthToDips(uiLength);
     }
     
     
-    XXX
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
+        return UiProvider::get().uiMarginToDipMargin(margin);
     }
     
     

@@ -85,15 +85,6 @@ namespace bdn
 	So this unit is actually similar to the sem unit on most systems (i.e. there is a often constant conversion factor between sem and
 	DIPs).
 
-
-	The "real pixel" unit (UiLength::realPixel)
-	--------------------------------------------
-
-	This unit is simply the size of an actual real screen pixel. It varies greatly between devices and
-	screens and should usually be avoided.
-	It is only useful when dealing with values for a concrete screen on a concrete system. For example, it could
-	be used at runtime to compare sizes of two UI elements if they are on the same screen.
-
 	*/
 class UiLength : public Base
 {
@@ -117,17 +108,7 @@ public:
 
 			See the UiLength class documentation for more information.
 			*/
-		sem,
-
-
-		/** An actual pixel on the screen. The actual size of such a pixel depends on the screen's pixel
-			resolution.
-			Using this for specifing the sizes or spacing of UI elements is highly discouraged, as these
-			values depend heavily on the device that the UI element is displayed on.
-			*/
-		realPixel
-		
-	};
+		sem,	};
 
 
 	UiLength()

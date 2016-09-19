@@ -73,7 +73,7 @@ protected:
         // the button automatically includes some padding in the fitting size.
         // This is rougly this:
         
-        return uiMarginToPixelMargin( UiMargin(UiLength::sem, 0.5, 1) );
+        return uiMarginToDipMargin( UiMargin(UiLength::sem, 0.5, 1) );
     }
     
 private:

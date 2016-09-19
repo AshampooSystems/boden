@@ -157,11 +157,6 @@ public:
 		{
 			return uiLength.value;
 		}
-		else if(uiLength.unit==UiLength::Unit::realPixel)
-        {
-            // 1 DIP = 3 mock pixels
-            return uiLength.value / 3;
-        }
 		else
 		{
 			// invalid parameter passed to this function

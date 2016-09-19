@@ -37,14 +37,6 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 		buttonMargin = Margin(1, 2, 3, 4 );
 	}
 
-	SECTION("realPixelMargin")
-	{
-		pButton->margin() = UiMargin(UiLength::Unit::realPixel, 1, 2, 3, 4);
-
-        // 1 real pixel = 1/3 dip in our mock ui
-		buttonMargin = Margin(1/3.0, 2/3.0, 3/3.0, 4/3.0 );		
-	}
-
 	pWindow->setContentView( pButton );
 
 	P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>( pButton->getViewCore() );

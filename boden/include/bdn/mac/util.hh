@@ -22,7 +22,8 @@ namespace mac
     */
 inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlipping)
 {
-    XXX
+    // the mac uses DIPs, just like us. So no conversion necessary, except possibly for
+    // coordinate flipping
 
     double y = rect.origin.y;
     
@@ -41,10 +42,10 @@ inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlippi
     }
 
 	return Rect(
-			std::lround(rect.origin.x),
-            std::lround(y),
-			std::ceil(rect.size.width),
-            std::ceil(rect.size.height) );
+			rect.origin.x,
+            y,
+			rect.size.width,
+            rect.size.height );
 }
 
 
@@ -64,7 +65,9 @@ inline Rect macRectToRect(const NSRect& rect, int coordinateSpaceHeightForFlippi
     */
 inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlipping)
 {
-    XXX
+    // the mac uses DIPs, just like us. So no conversion necessary, except possibly for
+    // coordinate flipping
+
 
     NSRect macRect;
     
@@ -86,15 +89,15 @@ inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlippi
 
 inline Size macSizeToSize(const NSSize& macSize)
 {
-    XXX
-	return Size( std::ceil(macSize.width),
-				 std::ceil(macSize.height) );
+    // the mac uses DIPs, just like us. So no conversion necessary.
+
+	return Size( macSize.width, macSize.height );
 }
 
 
 inline NSSize sizeToMacSize(const Size& size)
 {
-    XXX
+    // the mac uses DIPs, just like us. So no conversion necessary.
 
     NSSize macSize;
     macSize.width = size.width;

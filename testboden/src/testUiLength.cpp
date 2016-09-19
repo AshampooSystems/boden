@@ -32,7 +32,6 @@ TEST_CASE("UiLength")
 		checkEquality( UiLength(), UiLength(), true );
 		checkEquality( a, UiLength(), false );
 		checkEquality( a, UiLength(UiLength::Unit::dip, 12.3456), true );
-		checkEquality( a, UiLength(UiLength::Unit::realPixel, 12.3456), false );
 		checkEquality( a, UiLength(UiLength::Unit::dip, 17), false );
 	}
 

@@ -21,12 +21,12 @@ TEST_CASE("UiMargin")
 	SECTION("constructAllIndividuallyUiLength")
 	{
 		UiMargin a( UiLength(UiLength::Unit::dip, 1.1),
-					UiLength(UiLength::Unit::realPixel, 2.2),
+					UiLength(UiLength::Unit::sem, 2.2),
 					UiLength(UiLength::Unit::sem, 3.3),
 					UiLength(UiLength::Unit::dip, 4.4) );
 			
 		REQUIRE( a.top == UiLength(UiLength::Unit::dip, 1.1));
-		REQUIRE( a.right == UiLength(UiLength::Unit::realPixel, 2.2));
+		REQUIRE( a.right == UiLength(UiLength::Unit::sem, 2.2));
 		REQUIRE( a.bottom == UiLength(UiLength::Unit::sem, 3.3));
 		REQUIRE( a.left == UiLength(UiLength::Unit::dip, 4.4));
 	}

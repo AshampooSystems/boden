@@ -146,7 +146,6 @@ protected:
     {        
         SECTION("uiLengthToDips")
         {
-            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::realPixel, 0) ) == 0 );
             REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 0) ) == 0 );
             REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::sem, 0) ) == 0 );
 
@@ -155,15 +154,11 @@ protected:
             double semSize = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
             REQUIRE( semSize>0 );
             REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::sem, 3) ), semSize*3, 3);
-
-            double pixelSize = _pCore->uiLengthToDips( UiLength(UiLength::realPixel, 1) );
-            REQUIRE( pixelSize>0 );
-            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::realPixel, 3) ), pixelSize*3, 3);
         }
 
         SECTION("uiMarginToDipMargin")
         {
-            SECTION("realPixel")
+            SECTION("dip")
             {
                 REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(UiLength::dip, 10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
             }
@@ -177,17 +172,6 @@ protected:
                 REQUIRE_ALMOST_EQUAL( m.right, 20*semDips, 20);
                 REQUIRE_ALMOST_EQUAL( m.bottom, 30*semDips, 30);
                 REQUIRE_ALMOST_EQUAL( m.left, 40*semDips, 40);
-            }
-
-            SECTION("realPixel")
-            {
-                double realPixelDips = _pCore->uiLengthToDips( UiLength(UiLength::realPixel, 1) );
-
-                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::realPixel, 10, 20, 30, 40) );
-                REQUIRE_ALMOST_EQUAL( m.top, 10*realPixelDips, 10);
-                REQUIRE_ALMOST_EQUAL( m.right, 20*realPixelDips, 20);
-                REQUIRE_ALMOST_EQUAL( m.bottom, 30*realPixelDips, 30);
-                REQUIRE_ALMOST_EQUAL( m.left, 40*realPixelDips, 40);
             }
         }
 

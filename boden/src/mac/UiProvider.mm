@@ -41,7 +41,8 @@ UiProvider::UiProvider()
     
     NSSize fontSize = attrString.size;
     
-    _semPixels = fontSize.height;
+    // mac uses DIPs natively. So no conversion necessary
+    _semDips = fontSize.height;
     
 }
 
