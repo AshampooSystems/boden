@@ -68,16 +68,16 @@ public:
         _view.frame = rectToIosRect(bounds);
     }
     
-    XXX
-    int uiLengthToPixels(const UiLength& uiLength) const override
+
+    double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixels(uiLength);
+        return UiProvider::get().uiLengthToDips(uiLength);
     }
     
-    XXX4
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
+        return UiProvider::get().uiMarginToDipMargin(margin);
     }
     
     
@@ -93,7 +93,6 @@ public:
         
 		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
         
-        XXX scale factor
         Size size = iosSizeToSize(iosSize);
         
         if(size.width<0)
@@ -132,12 +131,12 @@ protected:
 
     /** Returns the default padding for the control.
         The default implementation returns zero-padding.*/
-    virtual Margin getDefaultPaddingPixels() const
+    virtual Margin getDefaultPaddingDips() const
     {
         return Margin();
     }
 
-    Margin getPaddingPixels() const
+    Margin getPaddingDips() const
     {
         // add the padding
         Margin padding;
@@ -148,9 +147,9 @@ protected:
             pad = pView->padding();
 
         if(pad.isNull())
-            padding = getDefaultPaddingPixels();
+            padding = getDefaultPaddingDips();
         else
-            padding = uiMarginToPixelMargin(pad.get());
+            padding = uiMarginToDipMargin(pad.get());
         
         return padding;
     }

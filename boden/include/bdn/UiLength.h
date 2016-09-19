@@ -69,18 +69,18 @@ namespace bdn
 	Another solution to the problems is to define the unit as the size of a "legacy pixel" from the times when one could reasonably
 	assume that a pixel would have a certain size. This is often called a "device independent pixel", or DIP in short.
 
-	An oversimplified definition for this unit would be "the perceived size a pixel would have on a 96 DPI desktop monitor".
-	
-	Old displays on the Windows operating system often had a pixel density of 96 DPI (also sometimes referred to as 96 PPI). The
-	idea is to use that as a unit, because it allows old pixel-based measurements to be used on newer high resolution system
-	without requiring any conversion.
+	An oversimplified definition for this unit would be "the perceived size a pixel would have on an old desktop monitor",
+    around the years 2000-2005. Common resolutions during that time were about 1600x1200 pixels.
+ 
+    The idea behind the new DIP unit is to use this rough legacy size as the basic unit for UI elements.
+    That way old pixel-based measurements can be transferred to high-resolution environments without requiring any conversion.
 
-	The term "device independent pixel" is actually an incorrect name, because these units have nothing to do with the actual
-    pixels of the display. Visual resolution is usually much higer than 1 DIP.    
+	Note that DIPs / "device independent pixels" do not refer to actual physical pixels. The physical pixels are usually
+    much smaller than 1 DIP.
     
     The unit depends on many variables, like the expected viewing distance of the device and even user preferences. On Windows
     the size of this unit depends only on the UI scaling factor for the screen, which in turn depends on the screen's hardware DPI,
-    the resolution, the expected viewing distance and user preferences.
+    the resolution, the expected viewing distance and also user preferences.
 
 	So this unit is actually similar to the sem unit on most systems (i.e. there is a often constant conversion factor between sem and
 	DIPs).
