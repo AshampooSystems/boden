@@ -37,19 +37,20 @@ public:
         _pJView = pJView;
         _outerViewWeak = pOuterView;
 
-        _uiScaleFactor = 1;
+        _uiScaleFactor = 1; // will be updated in _addToParent
 
         // set a weak pointer to ourselves as the tag object of the java view
         _pJView->setTag( bdn::java::NativeWeakPointer(this) );
 
-        _defaultPadding = Margin( _pJView->getPaddingTop(),
-                                  _pJView->getPaddingRight(),
-                                  _pJView->getPaddingBottom(),
-                                  _pJView->getPaddingLeft() );
-
         setVisible( pOuterView->visible() );
 
         _addToParent( pOuterView->getParentView() );
+
+
+        _defaultPadding = Margin( _pJView->getPaddingTop() / _uiScaleFactor,
+                                  _pJView->getPaddingRight() / _uiScaleFactor,
+                                  _pJView->getPaddingBottom() / _uiScaleFactor,
+                                  _pJView->getPaddingLeft() / _uiScaleFactor );
 
         setPadding( pOuterView->padding() );
 
@@ -122,10 +123,12 @@ public:
         if(padding.isNull())
             pixelPadding = _defaultPadding;
         else
-            pixelPadding = uiMarginToPixelMargin(padding);
+            pixelPadding = uiMarginToDipMargin(padding);
 
-        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right,
-                                pixelPadding.bottom);
+        _pJView->setPadding(pixelPadding.left * _uiScaleFactor,
+                            pixelPadding.top * _uiScaleFactor,
+                            pixelPadding.right * _uiScaleFactor,
+                            pixelPadding.bottom * _uiScaleFactor);
     }
 
 
@@ -154,7 +157,7 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
+            parentView.setChildBounds( getJView(), bounds.x * _uiScaleFactor, bounds.y * _uiScaleFactor, bounds.width * _uiScaleFactor, bounds.height * _uiScaleFactor );
         }
     }
 
@@ -196,9 +199,8 @@ public:
 
         //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
 
-        XXX scale factor?
-
-        return Size(width, height);
+        // android uses physical pixels. So we must convert to DIPs.
+        return Size(width / _uiScaleFactor, height / _uiScaleFactor);
 	}
     
     

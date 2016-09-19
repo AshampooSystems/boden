@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+#include <sstream>
+
 namespace bdn
 {
 namespace web
@@ -26,7 +28,9 @@ public:
         emscripten::val styleObj = divVal["style"];
         styleObj.set("height", "1em");
 
-        _semPixels = divVal["offsetHeight"].template as<int>();
+        // the browser also works with DIPs. So no conversion necessary
+
+        _semDips = divVal["offsetHeight"].template as<double>();
 
         docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("removeChild", divVal);
     }   
@@ -37,23 +41,17 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
 
-    XXX
-    int             uiLengthToPixels(const UiLength& uiLength) const
+    double uiLengthToDips(const UiLength& uiLength) const
     {
-        XXX
-
         if(uiLength.unit==UiLength::sem)
-            return std::lround( uiLength.value * _semPixels );
+            return uiLength.value * _semDips;
 
         else if(uiLength.unit==UiLength::dip)
         {
             // we assume that the browser uses device independent pixels.
             // So, no need for any scaling.
-            return std::lround( uiLength.value );
+            return uiLength.value;
         }
-
-        else if(uiLength.unit==UiLength::realPixel)
-            return std::lround( uiLength.value );
 
         else
             throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
@@ -61,24 +59,29 @@ public:
     
     String uiLengthToHtmlString(const UiLength& length)
     {
-        int pixels = uiLengthToPixels(length);
+        double dips = uiLengthToDips(length);
 
-        return pixelsToHtmlString(pixels);
+        return dipsToHtmlString(dips);
     }
 
-    static String pixelsToHtmlString(int pixels)
+    static String dipsToHtmlString(double dips)
     {
-        return std::to_string(pixels)+"px";
+    	std::stringstream s;
+
+    	// we need english string formatting.
+    	s.imbue( std::locale::classic() );
+    	s << dips << "px";
+
+    	return s.str();
     }
 
-    XXX
-    Margin          uiMarginToPixelMargin(const UiMargin& margin) const
+    Margin          uiMarginToDipMargin(const UiMargin& margin) const
     {
         return Margin(
-            uiLengthToPixels(margin.top),
-            uiLengthToPixels(margin.right),
-            uiLengthToPixels(margin.bottom),
-            uiLengthToPixels(margin.left) );
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
 
 
@@ -87,7 +90,7 @@ public:
 
 
 private:
-    double _semPixels;
+    double _semDips;
 
 };
 

@@ -12,19 +12,13 @@ namespace android
 {
 
 
-int ViewCore::uiLengthToPixels(const UiLength& uiLength) const
+double ViewCore::uiLengthToDips(const UiLength& uiLength) const
 {
-    XXX
-
     if(uiLength.unit==UiLength::sem)
-        return (int)std::lround( uiLength.value * UiProvider::get().getSemPixelsForViewCore(
-                *const_cast<ViewCore *>(this)) );
+        return uiLength.value * UiProvider::get().getSemDips(*const_cast<ViewCore*>(this));
 
     else if(uiLength.unit==UiLength::dip)
-        return (int)std::lround( uiLength.value * getUiScaleFactor() );
-
-    else if(uiLength.unit==UiLength::realPixel)
-        return (int)std::lround( uiLength.value );
+        return uiLength.value;
 
     else
         throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );

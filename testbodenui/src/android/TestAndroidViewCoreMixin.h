@@ -47,7 +47,9 @@ protected:
     
     Rect getViewRect()
     {
-        return Rect( _jView.getLeft(), _jView.getTop(), _jView.getWidth(), _jView.getHeight() );
+        double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+
+        return Rect( _jView.getLeft()/scaleFactor, _jView.getTop()/scaleFactor, _jView.getWidth()/scaleFactor, _jView.getHeight()/scaleFactor );
     }
     
     void verifyInitialDummyCoreBounds() override
@@ -84,12 +86,14 @@ protected:
             return;
         }
 
-        expectedPadding = BaseClass::_pView->uiMarginToPixelMargin( pad.get() );
+        double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-        REQUIRE( top==expectedPadding.top );
-        REQUIRE( right==expectedPadding.right );
-        REQUIRE( bottom==expectedPadding.bottom );
-        REQUIRE( left==expectedPadding.left );
+        expectedPadding = BaseClass::_pView->uiMarginToDipMargin( pad.get() );
+
+        REQUIRE( top/scaleFactor == expectedPadding.top );
+        REQUIRE( right/scaleFactor ==expectedPadding.right );
+        REQUIRE( bottom/scaleFactor ==expectedPadding.bottom );
+        REQUIRE( left/scaleFactor ==expectedPadding.left );
     }
     
     

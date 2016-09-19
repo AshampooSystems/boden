@@ -120,23 +120,22 @@ public:
     {
         emscripten::val styleObj = _domObject["style"];
 
-        styleObj.set("width", UiProvider::pixelsToHtmlString(bounds.width).asUtf8() );
-        styleObj.set("height", UiProvider::pixelsToHtmlString(bounds.height).asUtf8() );
+        styleObj.set("width", UiProvider::dipsToHtmlString(bounds.width).asUtf8() );
+        styleObj.set("height", UiProvider::dipsToHtmlString(bounds.height).asUtf8() );
 
-        styleObj.set("left", UiProvider::pixelsToHtmlString(bounds.x).asUtf8() );
-        styleObj.set("top", UiProvider::pixelsToHtmlString(bounds.y).asUtf8() );        
+        styleObj.set("left", UiProvider::dipsToHtmlString(bounds.x).asUtf8() );
+        styleObj.set("top", UiProvider::dipsToHtmlString(bounds.y).asUtf8() );        
     }
     
-    XXX
-    int uiLengthToPixels(const UiLength& uiLength) const override
+
+    double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixels(uiLength);
+        return UiProvider::get().uiLengthToDips(uiLength);
     }
     
-    XXX
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
+        return UiProvider::get().uiMarginToDipMargin(margin);
     }
     
     
@@ -161,7 +160,7 @@ public:
         styleObj.set("height", std::string("auto") );
 
         if(availableWidth!=-1)
-            styleObj.set("max-width", UiProvider::pixelsToHtmlString(availableWidth).asUtf8() );
+            styleObj.set("max-width", UiProvider::dipsToHtmlString(availableWidth).asUtf8() );
         else
         {
             // our parent's size will influence how our content is wrapped if our size is set to "auto".
@@ -220,9 +219,10 @@ public:
                 styleObj.set("white-space", oldWhitespaceStyle);
         }
 
-        XXX scale factor?
+        // no scaling necessary. Web browsers already use DIPs.
 
-        return Size( std::ceil(width), std::ceil(height) );
+
+        return Size( width, height );
     }
     
     

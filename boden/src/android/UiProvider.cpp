@@ -29,9 +29,9 @@ namespace android
 BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 
-double UiProvider::getSemPixelsForViewCore(ViewCore &viewCore)
+double UiProvider::getSemDips(ViewCore &viewCore)
 {
-    if (_semPixelsAtScaleFactor1 == -1)
+    if (_semDips == -1)
     {
         // sem size is not yet initialized.
 
@@ -40,12 +40,11 @@ double UiProvider::getSemPixelsForViewCore(ViewCore &viewCore)
 
         double textSize = paint.getTextSize();
 
-        double uiScaleFactor = viewCore.getUiScaleFactor();
-
-        _semPixelsAtScaleFactor1 = textSize / uiScaleFactor;
+        // getTextSize returns the size in real pixels.
+        _semDips = textSize / viewCore.getUiScaleFactor();
     }
 
-    return _semPixelsAtScaleFactor1 * viewCore.getUiScaleFactor();
+    return _semDips;
 }
 
 
