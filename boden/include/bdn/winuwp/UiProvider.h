@@ -4,6 +4,7 @@
 #include <bdn/IUiProvider.h>
 
 #include <bdn/winuwp/platformError.h>
+#include <bdn/winuwp/util.h>
 
 namespace bdn
 {
@@ -16,6 +17,9 @@ public:
 	UiProvider()
 	{		
         BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        // XXX Todo: need to properly determine base font size.
+		_semDips = 15;
 
 		Windows::UI::ViewManagement::ApplicationView^ pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 
@@ -54,40 +58,31 @@ public:
 
 	Rect			getScreenWorkArea() const
 	{
-        XXX
-
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		Windows::Foundation::Rect bounds =  Windows::UI::ViewManagement::ApplicationView::GetForCurrentView()->VisibleBounds;
 		
-		return Rect(
-			std::lround( bounds.X * _uiScaleFactor ),
-			std::lround( bounds.Y * _uiScaleFactor ),
-			std::lround( bounds.Width * _uiScaleFactor ),
-			std::lround( bounds.Height * _uiScaleFactor ) );		
+		return uwpRectToRect(bounds);
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-    XXX
-	int				uiLengthToPixels(const UiLength& uiLength) const
+	double	uiLengthToDips(const UiLength& uiLength) const
 	{
-        XXX
-
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		if(uiLength.unit==UiLength::sem)
-			return std::lround( uiLength.value * _semPixels );
+			return uiLength.value * _semDips;
 
 		else if(uiLength.unit==UiLength::dip)
-		{
+            return uiLength.value;
+		
+        else if(uiLength.unit==UiLength::realPixel)
+        {
 			// See UiLength documentation for more information about the dip unit
 			// and why this is correct.
-			return std::lround( uiLength.value * _uiScaleFactor );
+			return uiLength.value / _uiScaleFactor;
 		}
-
-		else if(uiLength.unit==UiLength::realPixel)
-			return std::lround( uiLength.value );
 
 		else
 			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
@@ -95,16 +90,16 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-    XXX
-	Margin			uiMarginToPixelMargin(const UiMargin& margin) const
+
+	Margin			uiMarginToDipMargin(const UiMargin& margin) const
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		return Margin(
-			uiLengthToPixels(margin.top),
-			uiLengthToPixels(margin.right),
-			uiLengthToPixels(margin.bottom),
-			uiLengthToPixels(margin.left) );
+			uiLengthToDips(margin.top),
+			uiLengthToDips(margin.right),
+			uiLengthToDips(margin.bottom),
+			uiLengthToDips(margin.left) );
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -157,15 +152,12 @@ protected:
 
 		_uiScaleFactor = pDisplayInfo->RawPixelsPerViewPixel;		
 		
-		// Todo: need to properly determine base font size.
-		_semPixels = 15 * _uiScaleFactor;
-
-        BDN_WINUWP_TO_STDEXC_END;
+		BDN_WINUWP_TO_STDEXC_END;
 	}
 
 	
 	double _uiScaleFactor = 0;
-	double _semPixels = 0;
+	double _semDips = 0;
 
 	EventForwarder^ _pEventForwarder;
 };

@@ -53,12 +53,10 @@ protected:
 
         Rect bounds = _pView->bounds();
 
-        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL( x, bounds.x/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( y, bounds.y/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( width, bounds.width/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( height, bounds.height/scaleFactor, 1 );
+        REQUIRE_ALMOST_EQUAL( x, bounds.x, 1 );
+        REQUIRE_ALMOST_EQUAL( y, bounds.y, 1 );
+        REQUIRE_ALMOST_EQUAL( width, bounds.width, 1 );
+        REQUIRE_ALMOST_EQUAL( height, bounds.height, 1 );
     }
 
 

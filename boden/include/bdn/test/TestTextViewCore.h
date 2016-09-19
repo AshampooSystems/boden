@@ -217,7 +217,9 @@ protected:
 				// this implementation will restrict the preferred width to the available width.
 				// This is not optimal behaviour, but with some implementations it cannot be avoided.
 				// so we accept it.
-				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == Size(unrestrictedSize.width-1, unrestrictedSize.height) );
+				REQUIRE_ALMOST_EQUAL(   _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight),
+                                        Size(unrestrictedSize.width-1, unrestrictedSize.height),
+                                        Size(1, 1) );   // the implementation might round to the nearest real pixel (which we assume is < 1 DIP)
 			}
 			else if(wrapsAtCharacterBoundariesIfWordDoesNotFit())
             {

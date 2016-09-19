@@ -203,16 +203,15 @@ public:
 		_scheduleUpdateOuterBoundsProperty();
 	}
 
-
-	XXX
-	int uiLengthToPixels(const UiLength& uiLength) const override
+    
+    double uiLengthToDips(const UiLength& uiLength) const override
 	{
-		return _pUiProvider->uiLengthToPixels(uiLength);
+		return _pUiProvider->uiLengthToDips(uiLength);
 	}
-    XXX
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
 	{
-		return _pUiProvider->uiMarginToPixelMargin(margin);
+		return _pUiProvider->uiMarginToDipMargin(margin);
 	}
 
 
@@ -264,7 +263,7 @@ private:
 
         try
         {
-            bounds = uwpRectToRect( _pXamlWindow->Bounds, UiProvider::get().getUiScaleFactor() );
+            bounds = uwpRectToRect( _pXamlWindow->Bounds );
         }
         catch(::Platform::DisconnectedException^ e)
         {
@@ -273,9 +272,9 @@ private:
             bounds = Rect();
         }
 
-		if(bounds.width == std::numeric_limits<int>::max())
+		if(bounds.width == std::numeric_limits<double>::max())
 			bounds.width = 0;
-		if(bounds.height == std::numeric_limits<int>::max())
+		if(bounds.height == std::numeric_limits<double>::max())
 			bounds.height = 0;
 
         // there is no "moved" event for Xaml windows. As such, we cannot find out when

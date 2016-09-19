@@ -58,14 +58,12 @@ protected:
         else
             expectedPadding = _pView->padding().get();
 
-        Margin expectedPixelPadding = _pView->uiMarginToPixelMargin( expectedPadding );
-
-        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL( pad.Top, expectedPixelPadding.top/scaleFactor, 1);
-        REQUIRE_ALMOST_EQUAL( pad.Right, expectedPixelPadding.right/scaleFactor, 1);
-        REQUIRE_ALMOST_EQUAL( pad.Bottom, expectedPixelPadding.bottom/scaleFactor, 1);
-        REQUIRE_ALMOST_EQUAL( pad.Left, expectedPixelPadding.left/scaleFactor, 1);
+        Margin expectedPixelPadding = _pView->uiMarginToDipMargin( expectedPadding );
+        
+        REQUIRE_ALMOST_EQUAL( pad.Top, expectedPixelPadding.top, 0.0001);
+        REQUIRE_ALMOST_EQUAL( pad.Right, expectedPixelPadding.right, 0.0001);
+        REQUIRE_ALMOST_EQUAL( pad.Bottom, expectedPixelPadding.bottom, 0.0001);
+        REQUIRE_ALMOST_EQUAL( pad.Left, expectedPixelPadding.left, 0.0001);
     }
 
 
@@ -103,13 +101,11 @@ protected:
             height = 0;
 
         Rect bounds = _pView->bounds();
-
-        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL( x, bounds.x/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( y, bounds.y/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( width, bounds.width/scaleFactor, 1 );
-        REQUIRE_ALMOST_EQUAL( height, bounds.height/scaleFactor, 1 );
+        
+        REQUIRE_ALMOST_EQUAL( x, bounds.x, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( y, bounds.y, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( width, bounds.width, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( height, bounds.height, 0.0001 );
     }
 
 
