@@ -197,7 +197,7 @@ protected:
 				// Possibly with a small rounding difference.
 				REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ),
 								      Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height),
-								      Size(0.1, 0.1) );
+								      Size(0.5, 0.5) );
 			}
 			else
 			{

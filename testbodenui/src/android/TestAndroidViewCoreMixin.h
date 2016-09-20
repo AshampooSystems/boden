@@ -63,8 +63,11 @@ protected:
     {        
         Rect rect = getViewRect();
         Rect expectedRect = BaseClass::_pView->bounds();
-        
-        REQUIRE( rect == expectedRect );
+
+        REQUIRE_ALMOST_EQUAL( rect.x, expectedRect.x, 1 );
+        REQUIRE_ALMOST_EQUAL( rect.y, expectedRect.y, 1 );
+        REQUIRE_ALMOST_EQUAL( rect.width, expectedRect.width, 1 );
+        REQUIRE_ALMOST_EQUAL( rect.height, expectedRect.height, 1 );
     }
     
     
@@ -77,7 +80,6 @@ protected:
 
         Nullable<UiMargin> pad = BaseClass::_pView->padding().get();
 
-        Margin expectedPadding;
         if(pad.isNull())
         {
             // the default padding is used. This is simply the padding that is pre-configured
@@ -86,14 +88,14 @@ protected:
             return;
         }
 
+        Margin expectedDipPadding = BaseClass::_pView->uiMarginToDipMargin( pad.get() );
+
         double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-        expectedPadding = BaseClass::_pView->uiMarginToDipMargin( pad.get() );
-
-        REQUIRE( top/scaleFactor == expectedPadding.top );
-        REQUIRE( right/scaleFactor ==expectedPadding.right );
-        REQUIRE( bottom/scaleFactor ==expectedPadding.bottom );
-        REQUIRE( left/scaleFactor ==expectedPadding.left );
+        REQUIRE_ALMOST_EQUAL( top/scaleFactor, expectedDipPadding.top, 1 );
+        REQUIRE_ALMOST_EQUAL( right/scaleFactor, expectedDipPadding.right, 1 );
+        REQUIRE_ALMOST_EQUAL( bottom/scaleFactor, expectedDipPadding.bottom, 1 );
+        REQUIRE_ALMOST_EQUAL( left/scaleFactor, expectedDipPadding.left, 1 );
     }
     
     

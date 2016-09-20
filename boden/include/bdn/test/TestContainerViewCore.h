@@ -55,7 +55,7 @@ protected:
 
     void verifyCorePadding() override
     {
-        // padding is not reflexted by the container view core. It is managed entirely by the outer view.
+        // padding is not reflected by the container view core. It is managed entirely by the outer view.
         // So nothing to check.       
     }
 

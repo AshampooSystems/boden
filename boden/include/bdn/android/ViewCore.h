@@ -47,10 +47,10 @@ public:
         _addToParent( pOuterView->getParentView() );
 
 
-        _defaultPadding = Margin( _pJView->getPaddingTop() / _uiScaleFactor,
-                                  _pJView->getPaddingRight() / _uiScaleFactor,
-                                  _pJView->getPaddingBottom() / _uiScaleFactor,
-                                  _pJView->getPaddingLeft() / _uiScaleFactor );
+        _defaultPixelPadding = Margin( _pJView->getPaddingTop(),
+                                  _pJView->getPaddingRight(),
+                                  _pJView->getPaddingBottom(),
+                                  _pJView->getPaddingLeft() );
 
         setPadding( pOuterView->padding() );
 
@@ -121,14 +121,18 @@ public:
     {
         Margin pixelPadding;
         if(padding.isNull())
-            pixelPadding = _defaultPadding;
+            pixelPadding = _defaultPixelPadding;
         else
-            pixelPadding = uiMarginToDipMargin(padding);
+        {
+            Margin dipPadding = uiMarginToDipMargin(padding);
 
-        _pJView->setPadding(pixelPadding.left * _uiScaleFactor,
-                            pixelPadding.top * _uiScaleFactor,
-                            pixelPadding.right * _uiScaleFactor,
-                            pixelPadding.bottom * _uiScaleFactor);
+            pixelPadding = Margin(dipPadding.top * _uiScaleFactor,
+                                  dipPadding.right * _uiScaleFactor,
+                                  dipPadding.bottom * _uiScaleFactor,
+                                  dipPadding.left * _uiScaleFactor);
+        }
+
+        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
     }
 
 
@@ -185,12 +189,12 @@ public:
         if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
             widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth, JView::MeasureSpec::atMost);
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth*_uiScaleFactor, JView::MeasureSpec::atMost);
 
         if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
             heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight, JView::MeasureSpec::atMost);
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight*_uiScaleFactor, JView::MeasureSpec::atMost);
 
         _pJView->measure( widthSpec, heightSpec );
 
@@ -314,7 +318,7 @@ private:
     P<JView>        _pJView;
     double          _uiScaleFactor;
 
-    Margin          _defaultPadding;
+    Margin          _defaultPixelPadding;
 };
 
 }
