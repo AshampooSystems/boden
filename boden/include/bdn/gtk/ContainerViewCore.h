@@ -24,7 +24,7 @@ public:
 	}
 
 		
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
 	{
 		// this core function should never have been called.
 		// The outer window is responsible for everything layout-related.
@@ -39,7 +39,7 @@ public:
         if(pChildView!=nullptr)
             bounds = pChildView->bounds();
         
-        GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
+        GdkRectangle rect = rectToGtkRect(bounds);
         
         gtk_layout_put( GTK_LAYOUT(getGtkWidget()), pChildCore->getGtkWidget(), rect.x, rect.y);
     }

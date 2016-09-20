@@ -123,7 +123,7 @@ public:
 	}
 
 
-	/** Bounding rectangle of the view (size and position).
+	/** Bounding rectangle of the view (size and position) in DIP unit (see UiLength::Unit::dip).
 	
 		The default bounds for a newly constructed view are always position 0,0, size 0x0.
 		The bounds are usually set automatically by the parent view's layout routine.
@@ -346,26 +346,25 @@ public:
 
 
 
-	/** Converts a UiMargin object to a pixel based margin object.
-		This uses view-specific internal data, so the result can be different
+	/** Converts a UiMargin object to a DIP based margin object.
+        DIP stands for "device independent pixel", a special unit (see UiLength::Unit::dip)
+		
+        This uses view-specific internal data, so the result can be different
 		for different view objects.
 		The result can when called again at a later time with the same view object
 		(if the view's parameters or the operating systems settings have changed).
 
 		IMPORTANT: This function must be called from the main thread.
 		*/
-	Margin uiMarginToPixelMargin( const UiMargin& uiMargin) const;
+	Margin uiMarginToDipMargin( const UiMargin& uiMargin) const;
 
 
 
-	
-	/** Asks the view to calculate its preferred size, based on it current content
-		and properties.
-
+    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+        based on it current content	and properties.
+        
 		availableWidth and availableHeight are used to indicate the maximum amount of available
-		space for the view.
-
-		If they are both -1 then that means that the available space should be considered to be unlimited.
+		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
 		I.e. the function should return the view's optimal size.
 
 		When one of the availableXYZ parameters is not -1 then it means that the available space is limited
@@ -379,12 +378,10 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-		Custom view implementations should override this and provide an implementation
-		suitable for their content and/or child views.
+        IMPORTANT: This function must only called be called from the main thread.
 
-		IMPORTANT: This function must only called be called from the main thread.
-		*/	
-	virtual Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const;
+		*/		
+	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
 
 protected:

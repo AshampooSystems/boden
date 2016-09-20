@@ -164,7 +164,7 @@ public:
 	}
 
 
-	Size	calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override;
+	Size	calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
 
 	
 
@@ -187,7 +187,7 @@ protected:
 	DefaultProperty<String> _title;
 
 private:
-    Margin getPixelPadding() const;
+    Margin getDipPadding() const;
     
 	P<View>					_pContentView;
 };

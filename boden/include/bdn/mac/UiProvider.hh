@@ -22,38 +22,30 @@ public:
     
     
     
-    int				uiLengthToPixels(const UiLength& uiLength) const
+    double  uiLengthToDips(const UiLength& uiLength) const
     {
         if(uiLength.unit==UiLength::sem)
-            return (int)std::lround( uiLength.value * _semPixels );
+            return uiLength.value * _semDips;
         
-        else if(uiLength.unit==UiLength::pixel96)
-        {
-            // See UiLength documentation for more information about the pixel96 unit
-            // and why this is correct.
-            return (int)std::lround( uiLength.value );
-        }
-        
-        else if(uiLength.unit==UiLength::realPixel)
-            return (int)std::lround( uiLength.value );
+        else if(uiLength.unit==UiLength::dip)
+            return uiLength.value;
         
         else
             throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
     }
     
-    
-    Margin			uiMarginToPixelMargin(const UiMargin& margin) const
+    Margin			uiMarginToDipMargin(const UiMargin& margin) const
     {
         return Margin(
-                      uiLengthToPixels(margin.top),
-                      uiLengthToPixels(margin.right),
-                      uiLengthToPixels(margin.bottom),
-                      uiLengthToPixels(margin.left) );
+                      uiLengthToDips(margin.top),
+                      uiLengthToDips(margin.right),
+                      uiLengthToDips(margin.bottom),
+                      uiLengthToDips(margin.left) );
     }
     
     
 private:
-    double _semPixels;
+    double _semDips;
 };
 
 

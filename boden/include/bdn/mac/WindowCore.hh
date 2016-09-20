@@ -81,8 +81,8 @@ public:
         
         Size resultSize = macRectToRect(macContentRect, -1).getSize();
         
-        resultSize.width = std::max(resultSize.width, 0);
-        resultSize.height = std::max(resultSize.height, 0);
+        resultSize.width = std::max(resultSize.width, 0.0);
+        resultSize.height = std::max(resultSize.height, 0.0);
         
         return resultSize;
     }
@@ -140,23 +140,21 @@ public:
     }
     
     
-    
-    int uiLengthToPixels(const UiLength& uiLength) const override
+    double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixels(uiLength);
+        return UiProvider::get().uiLengthToDips(uiLength);
+    }
+    
+    
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
+    {
+        return UiProvider::get().uiMarginToDipMargin(margin);
     }
     
     
     
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
-    {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
-    }
     
-    
-    
-    
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         // the implementation for this must be provided by the outer Window object.
         throw NotImplementedError("WindowCore::calcPreferredSize");

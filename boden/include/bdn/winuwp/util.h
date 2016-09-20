@@ -10,49 +10,48 @@ namespace bdn
 namespace winuwp
 {
 
-inline int uwpDimensionToInt(float val, double scaleFactor)
+inline double uwpDimensionToDouble(float val)
 {
 	if(std::isnan(val) || val==std::numeric_limits<float>::infinity() )
-		return std::numeric_limits<int>::max();
+		return std::numeric_limits<double>::max();
 	else
-		return static_cast<int>( std::ceil(val*scaleFactor) );
+        return val;
 }
 
-inline float intToUwpDimension(int val, double scaleFactor)
+inline float doubleToUwpDimension(double val)
 {
-	if(val==std::numeric_limits<int>::max() )
+	if(val==std::numeric_limits<double>::max() )
 		return std::numeric_limits<float>::infinity();
 	
 	else if(val<0)	// UWP cannot represent negative dimension. It will yield an assertion
 		return 0;
 
 	else
-		return static_cast<float>(val / scaleFactor);
+		return static_cast<float>(val);
 }
 
-inline Rect uwpRectToRect(const ::Windows::Foundation::Rect& rect, double scaleFactor)
+inline Rect uwpRectToRect(const ::Windows::Foundation::Rect& rect)
 {
-	return Rect(
-			std::lround(rect.X * scaleFactor),
-			std::lround(rect.Y * scaleFactor),
-			uwpDimensionToInt(rect.Width, scaleFactor),
-			uwpDimensionToInt(rect.Height, scaleFactor) );
+    // UWP also uses DIPs as their unit. So no conversion necessary
+	return Rect( rect.X, rect.Y, uwpDimensionToDouble(rect.Width), uwpDimensionToDouble(rect.Height) );
 }
 
-inline ::Windows::Foundation::Rect rectToUwpRect(const Rect& rect, double scaleFactor)
+inline ::Windows::Foundation::Rect rectToUwpRect(const Rect& rect)
 {
+    // UWP also uses DIPs as their unit. So no conversion necessary
+
 	return ::Windows::Foundation::Rect(
-		static_cast<float>(rect.x / scaleFactor),
-		static_cast<float>(rect.y / scaleFactor),
-		intToUwpDimension(rect.width, scaleFactor),
-		intToUwpDimension(rect.height, scaleFactor) );
+		static_cast<float>(rect.x),
+		static_cast<float>(rect.y),
+		doubleToUwpDimension(rect.width),
+		doubleToUwpDimension(rect.height) );
 }
 
 
-inline Size uwpSizeToSize(const ::Windows::Foundation::Size& size, double scaleFactor)
+inline Size uwpSizeToSize(const ::Windows::Foundation::Size& size)
 {
-	return Size( uwpDimensionToInt(size.Width, scaleFactor),
-				 uwpDimensionToInt(size.Height, scaleFactor) );
+	return Size( uwpDimensionToDouble(size.Width),
+				 uwpDimensionToDouble(size.Height) );
 }
 
 		

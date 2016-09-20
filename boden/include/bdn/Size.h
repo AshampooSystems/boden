@@ -13,14 +13,14 @@ namespace bdn
 struct Size
 {
 public:
-	int width = 0;
-	int height = 0;
+	double width = 0;
+	double height = 0;
 
 	Size()
 	{		
 	}
 
-	Size(int width, int height)
+	Size(double width, double height)
 		: width(width)
 		, height(height)
 	{		

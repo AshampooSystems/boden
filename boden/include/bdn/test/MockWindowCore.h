@@ -70,8 +70,8 @@ public:
 		BDN_REQUIRE_IN_MAIN_THREAD();
         
         Size contentSize = windowSize - Margin(20, 11, 12, 13);
-        contentSize.width = std::max(contentSize.width, 0);
-        contentSize.height = std::max(contentSize.height, 0);
+        contentSize.width = std::max(contentSize.width, 0.0);
+        contentSize.height = std::max(contentSize.height, 0.0);
         
         return contentSize;
 	}
@@ -92,7 +92,7 @@ public:
 		return Rect(100, 100, 800, 800);
 	}
 	
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 

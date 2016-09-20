@@ -37,8 +37,8 @@ public:
     void setVerticalAlignment(const View::VerticalAlignment& align);
 
 
-	int uiLengthToPixels(const UiLength& uiLength) const override;
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override;
+	double uiLengthToDips(const UiLength& uiLength) const override;
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override;
 
 
 

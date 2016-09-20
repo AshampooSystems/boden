@@ -145,7 +145,7 @@ Rect WindowCore::getContentArea()
 	RECT clientRect;
 	::GetClientRect(getHwnd(), &clientRect);
 
-	return win32RectToRect(clientRect);
+	return win32RectToRect(clientRect, _uiScaleFactor);
 }
 
 
@@ -156,14 +156,13 @@ Size WindowCore::calcMinimumSize() const
 	minSize.width = ::GetSystemMetrics(SM_CXMINTRACK);
 	minSize.height = ::GetSystemMetrics(SM_CYMINTRACK);
 
-	// these minimum sizes must be scaled with the UI scale factor
-	minSize.width = (int)std::ceil( minSize.width * _uiScaleFactor );
-	minSize.height = (int)std::ceil( minSize.height * _uiScaleFactor );
+    // we return the size in DIPs, so it is correct to just use
+    // the raw values (not scaled by UI scale factor).
 
 	return minSize;
 }
 
-Size WindowCore::calcPreferredSize(int availableWidth, int availableHeight) const
+Size WindowCore::calcPreferredSize(double availableWidth, double availableHeight) const
 {
 	// the implementation for this must be provided by the outer Window object.
 	throw NotImplementedError("WindowCore::calcPreferredSize");	
@@ -174,9 +173,13 @@ Size WindowCore::calcPreferredSize(int availableWidth, int availableHeight) cons
 
 Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 {
+    // we need to calculate this in real pixels.
+
+    // round UP to the nearest pixel here. Having a window that is 1 pixel "too large"
+    // is usually preferable to having one in which the content does not fit.
 	RECT rect = {0};
-	rect.right = contentAreaSize.width;
-	rect.bottom = contentAreaSize.height;
+	rect.right = (long)std::ceil( contentAreaSize.width * _uiScaleFactor );
+	rect.bottom = (long)std::ceil( contentAreaSize.height * _uiScaleFactor );
 
 	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
 	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
@@ -190,7 +193,8 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
 	}
 
-	return Size(rect.right-rect.left, rect.bottom-rect.top);
+	return Size( (rect.right-rect.left) / _uiScaleFactor,
+                 (rect.bottom-rect.top) / _uiScaleFactor);
 }
 
 
@@ -234,7 +238,7 @@ Rect WindowCore::getScreenWorkArea() const
 											.add("context", "WindowCore::getScreenWorkArea")  );
 	}
 	
-	return win32RectToRect(monitorInfo.rcWork);
+	return win32RectToRect(monitorInfo.rcWork, _uiScaleFactor);
 }
 
 

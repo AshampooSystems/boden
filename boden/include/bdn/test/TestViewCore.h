@@ -144,48 +144,34 @@ protected:
         */
     virtual void runPostInitTests()
     {        
-        SECTION("uiLengthToPixels")
+        SECTION("uiLengthToDips")
         {
-            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::realPixel, 0) ) == 0 );
-            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 0) ) == 0 );
-            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::sem, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::sem, 0) ) == 0 );
 
-            REQUIRE( _pCore->uiLengthToPixels( UiLength(UiLength::realPixel, 17) ) == 17 );
-
-            int semSize = _pCore->uiLengthToPixels( UiLength(UiLength::sem, 1) );
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 17.34) ) == 17.34 );
+            
+            double semSize = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
             REQUIRE( semSize>0 );
-            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToPixels( UiLength(UiLength::sem, 3) ), semSize*3, 3);
-
-            int pixel96Size = _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 1) );
-            REQUIRE( pixel96Size>0 );
-            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 3) ), pixel96Size*3, 3);
+            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::sem, 3) ), semSize*3, 3);
         }
 
-        SECTION("uiMarginToPixelMargin")
+        SECTION("uiMarginToDipMargin")
         {
-            SECTION("realPixel")
-                REQUIRE( _pCore->uiMarginToPixelMargin( UiMargin(UiLength::realPixel, 10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
+            SECTION("dip")
+            {
+                REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(UiLength::dip, 10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
+            }
 
             SECTION("sem")
             {
-                int semSize = _pCore->uiLengthToPixels( UiLength(UiLength::sem, 1) );
+                double semDips = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
 
-                Margin m = _pCore->uiMarginToPixelMargin( UiMargin(UiLength::sem, 10, 20, 30, 40) );
-                REQUIRE_ALMOST_EQUAL( m.top, 10*semSize, 10);
-                REQUIRE_ALMOST_EQUAL( m.right, 20*semSize, 20);
-                REQUIRE_ALMOST_EQUAL( m.bottom, 30*semSize, 30);
-                REQUIRE_ALMOST_EQUAL( m.left, 40*semSize, 40);
-            }
-
-            SECTION("pixel96")
-            {
-                int pixel96Size = _pCore->uiLengthToPixels( UiLength(UiLength::pixel96, 1) );
-
-                Margin m = _pCore->uiMarginToPixelMargin( UiMargin(UiLength::pixel96, 10, 20, 30, 40) );
-                REQUIRE_ALMOST_EQUAL( m.top, 10*pixel96Size, 10);
-                REQUIRE_ALMOST_EQUAL( m.right, 20*pixel96Size, 20);
-                REQUIRE_ALMOST_EQUAL( m.bottom, 30*pixel96Size, 30);
-                REQUIRE_ALMOST_EQUAL( m.left, 40*pixel96Size, 40);
+                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::sem, 10, 20, 30, 40) );
+                REQUIRE_ALMOST_EQUAL( m.top, 10*semDips, 10);
+                REQUIRE_ALMOST_EQUAL( m.right, 20*semDips, 20);
+                REQUIRE_ALMOST_EQUAL( m.bottom, 30*semDips, 30);
+                REQUIRE_ALMOST_EQUAL( m.left, 40*semDips, 40);
             }
         }
 
@@ -276,14 +262,14 @@ protected:
         {
             SECTION("custom")
             {
-                _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
                 verifyCorePadding();
             }
 
             SECTION("default after custom")
             {
                 // set a non-default padding, then go back to default padding.
-                _pView->padding() = UiMargin( UiLength::pixel96, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
                 _pView->padding() = nullptr;
 
                 verifyCorePadding();
@@ -331,7 +317,7 @@ protected:
                             // the padding should increase the preferred size.
                             Size prefSize = pThis->_pCore->calcPreferredSize();
 
-                            Margin  additionalPaddingPixels = pThis->_pView->uiMarginToPixelMargin(additionalPadding);
+                            Margin  additionalPaddingPixels = pThis->_pView->uiMarginToDipMargin(additionalPadding);
 
                             REQUIRE_ALMOST_EQUAL( prefSize, prefSizeBefore+additionalPaddingPixels, Size(1,1) );
                         };

@@ -194,7 +194,10 @@ protected:
 			if(usesAllAvailableWidthWhenWrapped())
 			{
 				// the implementation will return exactly the available width when text is wrapped.
-				REQUIRE( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ) == Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height) );
+				// Possibly with a small rounding difference.
+				REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( wrappedAtSecondPositionSize.width-1, availableHeight ),
+								      Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height),
+								      Size(0.5, 0.5) );
 			}
 			else
 			{
@@ -217,7 +220,9 @@ protected:
 				// this implementation will restrict the preferred width to the available width.
 				// This is not optimal behaviour, but with some implementations it cannot be avoided.
 				// so we accept it.
-				REQUIRE( _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight) == Size(unrestrictedSize.width-1, unrestrictedSize.height) );
+				REQUIRE_ALMOST_EQUAL(   _pTextView->calcPreferredSize(unrestrictedSize.width-1, availableHeight),
+                                        Size(unrestrictedSize.width-1, unrestrictedSize.height),
+                                        Size(1, 1) );   // the implementation might round to the nearest real pixel (which we assume is < 1 DIP)
 			}
 			else if(wrapsAtCharacterBoundariesIfWordDoesNotFit())
             {

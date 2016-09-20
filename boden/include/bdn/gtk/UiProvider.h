@@ -67,8 +67,8 @@ public:
         }
         
         // the font size is in points, which is "72 DPI". The virtual device coordinates
-        // (=scale factor 1) are assumed to be 96 dpi. So we have to multiple accordingly.
-        _semSizeAtScaleFactor1 = fontSize / 72.0 * 96.0;
+        // (=DIPs) are assumed to be 96 dpi. So we have to multiple accordingly.
+        _semDips = fontSize / 72.0 * 96.0;
     }
     
     String getName() const override;
@@ -76,44 +76,25 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
     
     
-    int uiLengthToPixels(const UiLength& uiLength, double scaleFactor) const
+    double uiLengthToDips(const UiLength& uiLength) const
 	{
 		if(uiLength.unit==UiLength::sem)
-			return std::lround( uiLength.value * _semSizeAtScaleFactor1 * scaleFactor );
+			return uiLength.value * _semDips;
 
-		else if(uiLength.unit==UiLength::pixel96)
-		{
-			// See UiLength documentation for more information about the pixel96 unit
-			// and why this is correct.
-			return std::lround( uiLength.value * scaleFactor );
-		}
-
-		else if(uiLength.unit==UiLength::realPixel)
-			return std::lround( uiLength.value );
+		else if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
 
 		else
-			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
+			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
 	}
     
-    
-    int uiLengthToPixelsForWidget(GtkWidget* pWidget, const UiLength& uiLength) const
+    Margin uiMarginToDipMargin(const UiMargin& margin) const
 	{
-		if(uiLength.unit==UiLength::realPixel)
-			return std::lround( uiLength.value );
-            
-        else
-            return uiLengthToPixels(uiLength, gtk_widget_get_scale_factor(pWidget) );
-	}
-	
-
-	Margin uiMarginToPixelMarginForWidget(GtkWidget* pWidget, const UiMargin& margin) const
-	{
-        double scaleFactor = gtk_widget_get_scale_factor(pWidget);
 		return Margin(
-			uiLengthToPixels(margin.top, scaleFactor),
-			uiLengthToPixels(margin.right, scaleFactor),
-			uiLengthToPixels(margin.bottom, scaleFactor),
-			uiLengthToPixels(margin.left, scaleFactor) );
+			uiLengthToDips(margin.top),
+			uiLengthToDips(margin.right),
+			uiLengthToDips(margin.bottom),
+			uiLengthToDips(margin.left) );
 	}
 
 
@@ -121,7 +102,7 @@ public:
     static UiProvider& get();
     
 private:
-    double _semSizeAtScaleFactor1;
+    double _semDips;
 };
 
 }

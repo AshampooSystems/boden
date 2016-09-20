@@ -37,19 +37,20 @@ public:
         _pJView = pJView;
         _outerViewWeak = pOuterView;
 
-        _uiScaleFactor = 1;
+        _uiScaleFactor = 1; // will be updated in _addToParent
 
         // set a weak pointer to ourselves as the tag object of the java view
         _pJView->setTag( bdn::java::NativeWeakPointer(this) );
 
-        _defaultPadding = Margin( _pJView->getPaddingTop(),
-                                  _pJView->getPaddingRight(),
-                                  _pJView->getPaddingBottom(),
-                                  _pJView->getPaddingLeft() );
-
         setVisible( pOuterView->visible() );
 
         _addToParent( pOuterView->getParentView() );
+
+
+        _defaultPixelPadding = Margin( _pJView->getPaddingTop(),
+                                  _pJView->getPaddingRight(),
+                                  _pJView->getPaddingBottom(),
+                                  _pJView->getPaddingLeft() );
 
         setPadding( pOuterView->padding() );
 
@@ -120,12 +121,18 @@ public:
     {
         Margin pixelPadding;
         if(padding.isNull())
-            pixelPadding = _defaultPadding;
+            pixelPadding = _defaultPixelPadding;
         else
-            pixelPadding = uiMarginToPixelMargin(padding);
+        {
+            Margin dipPadding = uiMarginToDipMargin(padding);
 
-        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right,
-                                pixelPadding.bottom);
+            pixelPadding = Margin(dipPadding.top * _uiScaleFactor,
+                                  dipPadding.right * _uiScaleFactor,
+                                  dipPadding.bottom * _uiScaleFactor,
+                                  dipPadding.left * _uiScaleFactor);
+        }
+
+        _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
     }
 
 
@@ -154,27 +161,27 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildBounds( getJView(), bounds.x, bounds.y, bounds.width, bounds.height );
+            parentView.setChildBounds( getJView(), bounds.x * _uiScaleFactor, bounds.y * _uiScaleFactor, bounds.width * _uiScaleFactor, bounds.height * _uiScaleFactor );
         }
     }
 
 
 
-    int uiLengthToPixels(const UiLength& uiLength) const override;
+    double uiLengthToDips(const UiLength& uiLength) const override;
     
     
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
         return Margin(
-                uiLengthToPixels(margin.top),
-                uiLengthToPixels(margin.right),
-                uiLengthToPixels(margin.bottom),
-                uiLengthToPixels(margin.left) );
+                uiLengthToDips(margin.top),
+                uiLengthToDips(margin.right),
+                uiLengthToDips(margin.bottom),
+                uiLengthToDips(margin.left) );
     }
     
 
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
 		int widthSpec;
         int heightSpec;
@@ -182,12 +189,12 @@ public:
         if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
             widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth, JView::MeasureSpec::atMost);
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth*_uiScaleFactor, JView::MeasureSpec::atMost);
 
         if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
             heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight, JView::MeasureSpec::atMost);
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight*_uiScaleFactor, JView::MeasureSpec::atMost);
 
         _pJView->measure( widthSpec, heightSpec );
 
@@ -196,7 +203,8 @@ public:
 
         //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
 
-        return Size(width, height);
+        // android uses physical pixels. So we must convert to DIPs.
+        return Size(width / _uiScaleFactor, height / _uiScaleFactor);
 	}
     
     
@@ -310,7 +318,7 @@ private:
     P<JView>        _pJView;
     double          _uiScaleFactor;
 
-    Margin          _defaultPadding;
+    Margin          _defaultPixelPadding;
 };
 
 }

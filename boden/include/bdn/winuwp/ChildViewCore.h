@@ -129,17 +129,17 @@ public:
 		// For the position, we have to set the Canvas.left and Canvas.top custom properties
 		// for this child view.
 
-		double uiScaleFactor = UiProvider::get().getUiScaleFactor();
-
         try
         {
-		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, bounds.x / uiScaleFactor );
-		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, bounds.y / uiScaleFactor );
+            // note that UWP also uses DIPs as the fundamental UI unit. So no conversion necessary.
+
+		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, bounds.x );
+		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, bounds.y );
 
 		    // The size is set by manipulating the Width and Height property.
 		
-		    _pFrameworkElement->Width = intToUwpDimension( bounds.width, uiScaleFactor );
-		    _pFrameworkElement->Height = intToUwpDimension( bounds.height, uiScaleFactor );
+		    _pFrameworkElement->Width = doubleToUwpDimension( bounds.width );
+		    _pFrameworkElement->Height = doubleToUwpDimension( bounds.height );
         }
         catch(::Platform::DisconnectedException^ e)
         {
@@ -149,15 +149,14 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-
-	int uiLengthToPixels(const UiLength& uiLength) const override
+	double uiLengthToDips(const UiLength& uiLength) const override
 	{
-		return UiProvider::get().uiLengthToPixels(uiLength);
+		return UiProvider::get().uiLengthToDips(uiLength);
 	}
 
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
 	{
-		return UiProvider::get().uiMarginToPixelMargin(margin);
+		return UiProvider::get().uiMarginToDipMargin(margin);
 	}
 
 
@@ -177,7 +176,7 @@ public:
 
 
 	
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
 	{
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -197,12 +196,12 @@ public:
 		if(availableWidth==-1)
 			availableWidthFloat = std::numeric_limits<float>::infinity();
 		else
-			availableWidthFloat = intToUwpDimension(availableWidth, UiProvider::get().getUiScaleFactor() );
+			availableWidthFloat = doubleToUwpDimension(availableWidth );
 
 		if(availableHeight==-1)
 			availableHeightFloat = std::numeric_limits<float>::infinity();
 		else
-			availableHeightFloat = intToUwpDimension(availableHeight, UiProvider::get().getUiScaleFactor() );
+			availableHeightFloat = doubleToUwpDimension(availableHeight );
 
 		// tell the element that it has a huge available size.
 		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
@@ -232,9 +231,7 @@ public:
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 		
-		    double uiScaleFactor = UiProvider::get().getUiScaleFactor();
-
-		    Size size = uwpSizeToSize(desiredSize, uiScaleFactor);
+		    Size size = uwpSizeToSize(desiredSize);
 
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;

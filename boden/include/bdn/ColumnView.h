@@ -27,15 +27,15 @@ public:
 
 	
 
-	Size	calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override;
+	Size	calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
 
 	
 protected:
 	
-	/** Calculates the positions and sizes of the child views for the case that the ColumnView
+	/** Calculates the positions and sizes (in DIPs - see UILength::Unit::dip) of the child views for the case that the ColumnView
 		has the specified width.
-		Returns the total height of the contents (including the padding). */
-	int calcChildBoundsForWidth(int width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const;
+		Returns the total height of the contents in DIPs (including the padding). */
+	double calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const;
 
 	void	layout() override;
 };

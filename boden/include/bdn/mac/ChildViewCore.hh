@@ -49,22 +49,21 @@ public:
         _nsView.frame = rectToMacRect(bounds, -1);
     }
     
-    
-    int uiLengthToPixels(const UiLength& uiLength) const override
+
+    double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixels(uiLength);
+        return UiProvider::get().uiLengthToDips(uiLength);
+    }
+    
+    Margin uiMarginToDipMargin(const UiMargin& margin) const override
+    {
+        return UiProvider::get().uiMarginToDipMargin(margin);
     }
     
     
-    Margin uiMarginToPixelMargin(const UiMargin& margin) const override
-    {
-        return UiProvider::get().uiMarginToPixelMargin(margin);
-    }
     
     
-    
-    
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
         
@@ -81,7 +80,7 @@ public:
         }
         else
         {
-            additionalPadding = uiMarginToPixelMargin( pad );
+            additionalPadding = uiMarginToDipMargin( pad );
 
             // some controls auto-include a base padding in the fittingSize.
             // We need to subtract that.
@@ -92,10 +91,10 @@ public:
         // padding then we have to use the auto-included padding. Otherwise parts of the content
         // might not be visible (the controls do not reduce the padding when they are
         // smaller than their fitting size - they just clip the content).
-        additionalPadding.top = std::max(additionalPadding.top, 0);
-        additionalPadding.right = std::max(additionalPadding.right, 0);
-        additionalPadding.bottom = std::max(additionalPadding.bottom, 0);
-        additionalPadding.left = std::max(additionalPadding.left, 0);
+        additionalPadding.top = std::max(additionalPadding.top, 0.0);
+        additionalPadding.right = std::max(additionalPadding.right, 0.0);
+        additionalPadding.bottom = std::max(additionalPadding.bottom, 0.0);
+        additionalPadding.left = std::max(additionalPadding.left, 0.0);
         
         size += additionalPadding;
         

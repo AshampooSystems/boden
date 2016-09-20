@@ -16,6 +16,12 @@ namespace bdn
 struct Margin
 {
 public:
+
+    double top = 0;
+	double right = 0;	
+	double bottom = 0;	
+	double left = 0;
+
 	Margin()
 		: top(0)
 		, right(0)
@@ -24,7 +30,7 @@ public:
 	{		
 	}
 
-	explicit Margin(int all)
+	explicit Margin(double all)
 	{
 		top = all;
 		right = all;
@@ -32,7 +38,7 @@ public:
 		left = all;		
 	}
 
-	Margin(int topBottom, int leftRight)
+	Margin(double topBottom, double leftRight)
 	{
 		top = topBottom;
 		right = leftRight;
@@ -40,7 +46,7 @@ public:
 		left = leftRight;		
 	}
 
-	Margin(int top, int right, int bottom, int left)
+	Margin(double top, double right, double bottom, double left)
 	{
 		this->top = top;
 		this->right = right;
@@ -83,10 +89,7 @@ public:
     }
         
 
-	int top = 0;
-	int right = 0;	
-	int bottom = 0;	
-	int left = 0;
+	
 };
 
 

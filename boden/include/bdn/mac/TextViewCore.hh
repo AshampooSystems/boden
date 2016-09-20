@@ -89,12 +89,12 @@ public:
         // to move the text container from its middle position to one side
         // or the other.
         
-        Margin pixelPadding;
+        Margin dipPadding;
         if(!padding.isNull())
-            pixelPadding = uiMarginToPixelMargin(padding.get());
+            dipPadding = uiMarginToDipMargin(padding.get());
         
-        int paddingWidth = pixelPadding.left + pixelPadding.right;
-        int paddingHeight = pixelPadding.top + pixelPadding.bottom;
+        int paddingWidth = dipPadding.left + dipPadding.right;
+        int paddingHeight = dipPadding.top + dipPadding.bottom;
         
         // by default the text container
         NSSize inset;
@@ -102,8 +102,8 @@ public:
         inset.height = paddingHeight/2;
         
         NSSize displacement;
-        displacement.width = pixelPadding.left - inset.width;
-        displacement.height = pixelPadding.top - inset.height;
+        displacement.width = dipPadding.left - inset.width;
+        displacement.height = dipPadding.top - inset.height;
         
         
         _nsTextView.textContainerInset = inset;
@@ -125,7 +125,7 @@ public:
     
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
         NSTextContainer*    textContainer = [[NSTextContainer alloc]
@@ -149,11 +149,13 @@ public:
         Size additionalSpace = insetSize + insetSize;
         
         // add margins
-        NSRect boundingRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
+        NSRect boundingMacRect = [_nsTextView.layoutManager boundingRectForGlyphRange:NSMakeRange(0, [textStorage length])
                                                                    inTextContainer:_nsTextView.textContainer ];
+        
+        Rect boundingRect = macRectToRect( boundingMacRect, -1 );
 
-        additionalSpace.width += std::ceil(boundingRect.origin.x) * 2;
-        additionalSpace.height += std::ceil(boundingRect.origin.y) * 2;
+        additionalSpace.width += boundingRect.x * 2;
+        additionalSpace.height += boundingRect.y * 2;
         
         
         // note that we ignore availableHeight. There is nothing the implementation

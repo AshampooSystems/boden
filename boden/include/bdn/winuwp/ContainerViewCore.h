@@ -51,7 +51,7 @@ public:
 
 
 		
-	Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const
+	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
 	{
 		// this core function should never have been called.
 		// The outer window is responsible for everything layout-related.

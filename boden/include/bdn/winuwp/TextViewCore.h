@@ -51,17 +51,17 @@ public:
         if(!pad.isNull())
             uiPadding = pad;
 
-		Margin padding = UiProvider::get().uiMarginToPixelMargin(uiPadding);
+		Margin padding = UiProvider::get().uiMarginToDipMargin(uiPadding);
 
 		_doSizingInfoUpdateOnNextLayout = true;		
 
-		double uiScaleFactor = UiProvider::get().getUiScaleFactor();
+		// UWP also uses DIPs => no conversion necessary
 
 		_pTextBlock->Padding = ::Windows::UI::Xaml::Thickness(
-			padding.left/uiScaleFactor,
-			padding.top/uiScaleFactor,
-			padding.right/uiScaleFactor,
-			padding.bottom/uiScaleFactor );
+			padding.left,
+			padding.top,
+			padding.right,
+			padding.bottom );
         
         BDN_WINUWP_TO_STDEXC_END;
 	}

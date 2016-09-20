@@ -7,7 +7,7 @@ namespace bdn
 	
 /** Represents a length or distance to use sizing and spacing user interface elements.
 
-	The recommended unit is UiLength::Unit::sem.
+	The recommended units are UILength::Unit::dip or UiLength::Unit::sem.
 
 	Background information
 	----------------------
@@ -63,40 +63,27 @@ namespace bdn
 	Note that 1 sem is actually a rather large size, compared to a pixel. It is the height of the font. So some distances will actually
 	be specified as fraction. For example, the space between two elements might be 1.5 sem or something similar.
 
-	The "96 DPI pixel" unit (UiLength::pixel96)
+	The "device independent pixel" unit (UiLength::dip)
 	-------------------------------------------
 
 	Another solution to the problems is to define the unit as the size of a "legacy pixel" from the times when one could reasonably
-	assume that a pixel would have a certain size.
+	assume that a pixel would have a certain size. This is often called a "device independent pixel", or DIP in short.
 
-	An oversimplified definition for this unit would be "the perceived size a pixel would have on a 96 DPI desktop monitor".
-	
-	Old displays on the Windows operating system often had a pixel density of 96 DPI (also sometimes referred to as 96 PPI). The
-	idea is to use that as a unit, because it allows old pixel-based measurements to be used on newer high resolution system
-	without requiring any conversion.
+	An oversimplified definition for this unit would be "the perceived size a pixel would have on an old desktop monitor",
+    around the years 2000-2005. Common resolutions during that time were about 1600x1200 pixels.
+ 
+    The idea behind the new DIP unit is to use this rough legacy size as the basic unit for UI elements.
+    That way old pixel-based measurements can be transferred to high-resolution environments without requiring any conversion.
 
-	The term "96 DPI pixel" is actually an incorrect name, because the unit size does not only depend on the pixel
-	density of the screen. On most systems that use something like this, it also takes into account other variables,
-	like the expected viewing distance of the device and even user preferences. On Windows the size of this unit
-	depends only on the UI scaling factor for the screen, which in turn depends on the screen's hardware DPI, the resolution,
-	the expected viewing distance and user preferences.
+	Note that DIPs / "device independent pixels" do not refer to actual physical pixels. The physical pixels are usually
+    much smaller than 1 DIP.
+    
+    The unit depends on many variables, like the expected viewing distance of the device and even user preferences. On Windows
+    the size of this unit depends only on the UI scaling factor for the screen, which in turn depends on the screen's hardware DPI,
+    the resolution, the expected viewing distance and also user preferences.
 
-	So this unit is actually similar to the sem unit on most systems (i.e. there is a constant conversion factor between sem and
-	"96 DPI pixels").
-
-	Nevertheless, using sem is still preferred, because defining a unit based on the size perceived on some old legacy hardware is not
-	a useful definition.	
-
-	The unit constant for the "96 DPI pixel" is UiLength::pixel96.
-
-
-	The "real pixel" unit (UiLength::realPixel)
-	--------------------------------------------
-
-	This unit is simply the size of an actual real screen pixel. It varies greatly between devices and
-	screens and should usually be avoided.
-	It is only useful when dealing with values for a concrete screen on a concrete system. For example, it could
-	be used at runtime to compare sizes of two UI elements if they are on the same screen.
+	So this unit is actually similar to the sem unit on most systems (i.e. there is a often constant conversion factor between sem and
+	DIPs).
 
 	*/
 class UiLength : public Base
@@ -104,7 +91,16 @@ class UiLength : public Base
 public:
 	enum Unit
 	{
-		/** 1 sem equals the height of the screen's default UI font.
+        /** A "device independent pixel". This unit corresponds roughly to the perceived size of a pixel on
+            an legacy 96 dpi desktop monitor.
+			
+			Note that this unit actually takes other factors into account as well (expected viewing distance of the device,
+			user preferences, etc.). See the UiLength class documentation for more information.
+			*/
+		dip,
+
+
+        /** 1 sem equals the height of the screen's default UI font.
 		
 			This is the recommended unit for UI sizing and spacing. It is designed to create UIs
 			that scale perfectly under all conditions and produce the optimal result for the
@@ -112,30 +108,7 @@ public:
 
 			See the UiLength class documentation for more information.
 			*/
-		sem,
-
-
-		/** An actual pixel on the screen. The actual size of such a pixel depends on the screen's pixel
-			resolution.
-			Using this for specifing the sizes or spacing of UI elements is highly discouraged, as these
-			values depend heavily on the device that the UI element is displayed on.
-			*/
-		realPixel,
-
-
-		/** This unit corresponds roughly to the perceived size of a pixel on an legacy 96 dpi desktop monitor.
-			
-			Note that this unit actually takes other factors into account as well (expected viewing distance of the device,
-			user preferences, etc.). See the UiLength class documentation for more information.
-
-			The unit is comparable to the UiLength::sem unit on most systems. I.e. there is often a constant conversion factor
-			between sem and pixel96.
-
-			However, using sem is still preferred, because defining something on the basis of some old legacy system is
-			not a good future proof definition.
-			*/
-		pixel96
-	};
+		sem,	};
 
 
 	UiLength()

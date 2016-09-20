@@ -218,7 +218,9 @@ protected:
         rootView.setChildBounds( getJView(), 0, 0, width, height);
         rootView.requestLayout();
 
-        _currentBounds = Rect(0, 0, width, height);
+        double scaleFactor = getUiScaleFactor();
+
+        _currentBounds = Rect(0, 0, width / scaleFactor, height / scaleFactor);
 
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)

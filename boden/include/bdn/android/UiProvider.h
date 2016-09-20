@@ -29,7 +29,7 @@ class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 public:
     UiProvider()
     {
-        _semPixelsAtScaleFactor1 = -1;
+        _semDips = -1;
     }   
 
     
@@ -38,14 +38,13 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
 
-    double getSemPixelsForViewCore(ViewCore &viewCore);
-
+    double getSemDips(ViewCore& viewCore);
 
     static UiProvider& get();
 
 
 private:
-    double _semPixelsAtScaleFactor1;
+    double _semDips;
 
 };
 

@@ -41,7 +41,9 @@ UiProvider::UiProvider()
     
     CGSize fontSize = attrString.size;
     
-    _semPixels = fontSize.height;
+    // iOS also uses DIPs, so no conversion necessary
+    
+    _semDips = fontSize.height;
 
 }
 

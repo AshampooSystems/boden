@@ -58,7 +58,7 @@ protected:
         return valueObj.as<std::string>();
     }
 
-    int getValueAsPixelInt(emscripten::val obj, const char* valueName)
+    double getValueAsDipDouble(emscripten::val obj, const char* valueName)
     {
         std::string val = getValueAsString(obj, valueName);
 
@@ -72,11 +72,16 @@ protected:
 
         for(auto c: val)
         {
-            if(!isdigit(c))
+            if(!isdigit(c) && c!='.')
                 return 0;
         }
 
-        return std::stoi(val);
+        std::stringstream s(val);
+
+        double num;
+        s >> num;
+
+        return num;
     }
 
     virtual Rect getViewRect()
@@ -89,10 +94,10 @@ protected:
             return Rect();
         else
         {
-            int width = getValueAsPixelInt(style, "width");
-            int height = getValueAsPixelInt(style, "height");
-            int x = getValueAsPixelInt(style, "left");
-            int y = getValueAsPixelInt(style, "top");
+            double width = getValueAsDipDouble(style, "width");
+            double height = getValueAsDipDouble(style, "height");
+            double x = getValueAsDipDouble(style, "left");
+            double y = getValueAsDipDouble(style, "top");
 
             return Rect(x, y, width, height);
         }
@@ -143,12 +148,18 @@ protected:
 
             std::string padString = pad.as<std::string>();
 
-            Margin expectedPixelPadding = BaseClass::_pView->uiMarginToPixelMargin( expectedPad );
+            Margin expectedDipPadding = BaseClass::_pView->uiMarginToDipMargin( expectedPad );
 
-            String expectedPadString = std::to_string(expectedPixelPadding.top)+"px "
-                                        + std::to_string(expectedPixelPadding.right)+"px "
-                                        + std::to_string(expectedPixelPadding.bottom)+"px "
-                                        + std::to_string(expectedPixelPadding.left)+"px";
+            std::stringstream s;
+
+            s.imbue( std::locale::classic() );
+
+            s << expectedDipPadding.top << "px "
+                << expectedDipPadding.right << "px "
+                << expectedDipPadding.bottom << "px "
+                << expectedDipPadding.left << "px";
+
+            String expectedPadString = s.str();
 
             REQUIRE( padString == expectedPadString );
         }

@@ -48,7 +48,7 @@ public:
     }
     
     
-    Size calcPreferredSize(int availableWidth=-1, int availableHeight=-1) const override
+    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
         // the bezel style influences the fitting size. To get consistent values here we have to
         // ensure that we use the same bezel style each time we calculate the size.
@@ -73,7 +73,7 @@ protected:
         // the button automatically includes some padding in the fitting size.
         // This is rougly this:
         
-        return uiMarginToPixelMargin( UiMargin(UiLength::sem, 0.5, 1) );
+        return uiMarginToDipMargin( UiMargin(UiLength::sem, 0.5, 1) );
     }
     
 private:

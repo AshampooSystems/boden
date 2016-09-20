@@ -50,14 +50,14 @@ void View::verifyInMainThread(const String& methodName) const
 		programmingError(methodName + " must be called from main thread.");
 }
 
-Margin View::uiMarginToPixelMargin( const UiMargin& uiMargin) const
+Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
 {
 	verifyInMainThread("View::uiMarginToPixelMargin");	
 
 	P<IViewCore> pCore = getViewCore();
 
 	if(pCore!=nullptr)
-		return pCore->uiMarginToPixelMargin(uiMargin);
+		return pCore->uiMarginToDipMargin(uiMargin);
 	else
 		return Margin();	
 }
@@ -295,7 +295,7 @@ void View::_initCore()
 
 
 
-Size View::calcPreferredSize(int availableWidth, int availableHeight) const
+Size View::calcPreferredSize(double availableWidth, double availableHeight) const
 {
 	verifyInMainThread("View::calcPreferredSize");
 
