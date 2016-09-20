@@ -8,49 +8,34 @@ namespace bdn
 namespace gtk
 {
 
-inline int gtkDimensionToPixels(int dim, double scaleFactor)
-{
-    XXX
-    return std::lround(dim*scaleFactor);
-}
 
-inline int pixelsToGtkDimension(int pixels, double scaleFactor)
+inline Rect gtkRectToRect(const GdkRectangle& rect )
 {
-    int dim = pixels / scaleFactor;
-    if(dim==0 && pixels>0)
-        dim = 1;
-        
-    return dim;
-}
-
-inline Rect gtkRectToRect(const GdkRectangle& rect, double scaleFactor )
-{
-    XXX
+    // GTK also uses DIPs. So no conversion necessary.
 	return Rect(
-			std::lround(rect.x * scaleFactor),
-			std::lround(rect.x * scaleFactor),
-			gtkDimensionToPixels(rect.width, scaleFactor),
-			gtkDimensionToPixels(rect.height, scaleFactor) );
+			rect.x,
+			rect.y,
+			rect.width,
+			rect.height );
 }
 
-inline GdkRectangle rectToGtkRect(const Rect& rect, double scaleFactor)
+inline GdkRectangle rectToGtkRect(const Rect& rect)
 {
-    XXX
     GdkRectangle result;
     
-    result.x = std::lround( rect.x / scaleFactor);
-    result.y = std::lround( rect.y / scaleFactor);
-    result.width = pixelsToGtkDimension(rect.width, scaleFactor);
-    result.height = pixelsToGtkDimension(rect.height, scaleFactor);
+    result.x = rect.x;
+    result.y = rect.y;
+    result.width = rect.width;
+    result.height = rect.height;
     
     return result;
 }
 
 
-inline Size gtkSizeToSize(const GtkRequisition& size, double scaleFactor)
+inline Size gtkSizeToSize(const GtkRequisition& size)
 {
-    return Size( gtkDimensionToPixels(size.width, scaleFactor),
-                 gtkDimensionToPixels(size.height, scaleFactor) );
+    return Size( size.width,
+                 size.height );
 }
 
 

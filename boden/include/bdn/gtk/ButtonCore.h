@@ -54,6 +54,12 @@ public:
 
 
 protected:
+
+    Margin getDefaultPaddingDips() const override
+    {        
+        return uiMarginToDipMargin( UiMargin(UiLength::sem, 0.12, 0.5) );
+    }
+    
     static void clickedCallback(GtkWidget* pWidget, gpointer pParam)
     {
         ((ButtonCore*)pParam)->generateClick();

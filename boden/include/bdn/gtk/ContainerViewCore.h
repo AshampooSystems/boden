@@ -39,7 +39,7 @@ public:
         if(pChildView!=nullptr)
             bounds = pChildView->bounds();
         
-        GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
+        GdkRectangle rect = rectToGtkRect(bounds);
         
         gtk_layout_put( GTK_LAYOUT(getGtkWidget()), pChildCore->getGtkWidget(), rect.x, rect.y);
     }

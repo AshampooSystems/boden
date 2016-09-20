@@ -42,7 +42,7 @@ public:
 	
 	void setBounds(const Rect& bounds) override
     {
-        GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
+        GtkAllocation alloc = rectToGtkRect(bounds );
         
         if(alloc.width<0)
             alloc.width = 0;
@@ -65,16 +65,15 @@ public:
     }
 
 
-	XXX
-	int uiLengthToPixels(const UiLength& uiLength) const override
+	double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiLengthToPixelsForWidget( getGtkWidget(), uiLength);
+        return UiProvider::get().uiLengthToDips( uiLength);
     }
 	
-    XXX
-	Margin uiMarginToPixelMargin(const UiMargin& margin) const override
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToPixelMarginForWidget( getGtkWidget(), margin);
+        return UiProvider::get().uiMarginToDipMargin( margin);
     }
 
 	
@@ -108,7 +107,8 @@ public:
             gint minHeight=0;
             gint naturalHeight=0;
             
-            int forGtkWidth = availableWidth / getGtkScaleFactor();
+            // GTK also uses DIPs. So no scaling necessary
+            int forGtkWidth = availableWidth;
             
             if(forGtkWidth<0)
                 forGtkWidth = 0;
@@ -151,7 +151,8 @@ public:
             gint minWidth=0;
             gint naturalWidth=0;
             
-            int forGtkHeight = availableHeight / getGtkScaleFactor();
+            // no scaling necessary
+            int forGtkHeight = availableHeight;
             
             if(forGtkHeight<0)
                 forGtkHeight = 0;
@@ -175,7 +176,7 @@ public:
         // restore the old size
         gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
         
-        Size size = gtkSizeToSize(resultSize, getGtkScaleFactor() );
+        Size size = gtkSizeToSize(resultSize);
         
 
         Margin padding = _getPaddingDips();
@@ -227,7 +228,7 @@ public:
     
     
 protected:    
-    virtual Margin getDefaultPaddingPixels() const
+    virtual Margin getDefaultPaddingDips() const
     {
         return Margin();
     }
@@ -262,7 +263,7 @@ protected:
 
 private:
 
-    Margin _getPaddingPixels() const
+    Margin _getPaddingDips() const
     {
         P<const View> pView = getOuterViewIfStillAttached();
         Nullable<UiMargin> pad;
@@ -270,9 +271,9 @@ private:
             pad = pView->padding();
 
         if(pad.isNull())
-            return getDefaultPaddingPixels();
+            return getDefaultPaddingDips();
         else            
-            return uiMarginToPixelMargin( pad.get() );
+            return uiMarginToDipMargin( pad.get() );
     }
 
     

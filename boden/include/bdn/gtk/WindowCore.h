@@ -42,7 +42,7 @@ public:
         
         gtk_widget_get_preferred_size( getGtkWidget(), &gtkMinSize, &gtkNaturalSize );
         
-        _minSize = gtkSizeToSize(gtkMinSize, getGtkScaleFactor() );
+        _minSize = gtkSizeToSize(gtkMinSize );
         
         
         GdkGeometry geo{};
@@ -73,7 +73,7 @@ public:
         // GTK will assume that the requested size is without any window decorations
         // and borders. That is OK, since we ignore these nonclient sizes as well.
         
-        GtkAllocation alloc = rectToGtkRect(bounds, getGtkScaleFactor() );
+        GtkAllocation alloc = rectToGtkRect(bounds );
         
         // the X window system is not always precise when it comes to sizing and positioning.
         // So if the size and/or position did not change then we should not reset it.
@@ -110,7 +110,7 @@ public:
         /*GtkAllocation alloc;
         gtk_widget_get_allocation(_pContentParentWidget, &alloc );
 
-        Rect area = gtkRectToRect(alloc, getGtkScaleFactor() );        */
+        Rect area = gtkRectToRect(alloc );        */
         
         return area;
     }
@@ -158,7 +158,7 @@ public:
         GdkRectangle workArea;
         gdk_screen_get_monitor_workarea( pScreen, monitorNum, &workArea );
         
-        return gtkRectToRect(workArea, getGtkScaleFactor() );        
+        return gtkRectToRect(workArea );        
     }
 	
     GtkWindow* getGtkWindow() const
@@ -176,7 +176,7 @@ public:
         if(pChildView!=nullptr)
             bounds = pChildView->bounds();
         
-        GdkRectangle rect = rectToGtkRect(bounds, getGtkScaleFactor() );
+        GdkRectangle rect = rectToGtkRect(bounds );
         
         gtk_layout_put( GTK_LAYOUT(_pContentParentWidget), pChildCore->getGtkWidget(), rect.x, rect.y);
     }
@@ -210,7 +210,7 @@ protected:
         rect.width = width;
         rect.height = height;
         
-        return gtkRectToRect( rect, getGtkScaleFactor() );
+        return gtkRectToRect( rect );
     }
     
     void _reconfigured()
