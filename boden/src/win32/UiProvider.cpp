@@ -159,13 +159,6 @@ double UiProvider::uiLengthToDips(const UiLength& uiLength, double uiScaleFactor
         return uiLength.value;
     }
    
-	else if(uiLength.unit==UiLength::realPixel)
-    {   
-        // convert from real pixels to DIPs by dividing by the scale factor
-
-		return uiLength.value / uiScaleFactor;
-    }
-
 	else
 		throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 }
