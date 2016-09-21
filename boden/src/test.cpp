@@ -2822,6 +2822,10 @@ public:
 	void testGroupEnded( std::string const& testSpec, Totals const& totals, std::size_t groupIndex, std::size_t groupsCount )
     {
 		m_reporter->testGroupEnded( TestGroupStats( GroupInfo( testSpec, groupIndex, groupsCount ), totals, aborting() ) );
+
+		std::stringstream resultStringStream;
+		ResultStringFormatter::printTotals(resultStringStream, m_totals);
+		_statusText = String( resultStringStream.str() );
 	}
 
 	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
@@ -3382,15 +3386,8 @@ private:
 
 		m_activeTestCase = BDN_NULL;
 		m_testCaseTracker = BDN_NULL;
-        
-        
-        std::stringstream resultStringStream;
-        
-        ResultStringFormatter::printTotals(resultStringStream, m_totals);
-        
-        _statusText = String( resultStringStream.str() );
 
-		_pCurrentTestCaseInfo = nullptr;
+        _pCurrentTestCaseInfo = nullptr;
 
 		_testDoneCallback( deltaTotals );
 
