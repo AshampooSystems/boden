@@ -8045,8 +8045,10 @@ public:
             _pWindow = newObj<Window>();
 			_pWindow->title() = "Running tests...";
             _pWindow->visible() = true;
+
+            _pWindow->padding() = UiMargin( UiLength::sem, 1);
             
-            P<ColumnView> pColumnView = newObj<ColumnView>();
+            P<ColumnView> pColumnView = newObj<ColumnView>();            
             
             P<TextView> pStatusView = newObj<TextView>();
             pColumnView->addChildView( pStatusView );
