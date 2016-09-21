@@ -77,13 +77,6 @@ public:
 		else if(uiLength.unit==UiLength::dip)
             return uiLength.value;
 		
-        else if(uiLength.unit==UiLength::realPixel)
-        {
-			// See UiLength documentation for more information about the dip unit
-			// and why this is correct.
-			return uiLength.value / _uiScaleFactor;
-		}
-
 		else
 			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
 
