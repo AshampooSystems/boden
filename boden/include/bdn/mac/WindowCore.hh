@@ -123,21 +123,41 @@ public:
         // the outer window handles padding during layout. So nothing to do here.
     }
     
-    XXX
-    void setBounds(const Rect& bounds) override
+
+    void setPosition(const Point& position) override
     {
-        if(bounds!=_currActualWindowBounds)
+        if(position!=_currActualWindowBounds.getPosition())
         {
             NSScreen* screen = _getNsScreen();
             
+            Rect newBounds( position, _currActualWindowBounds.getSize() );
+            
             // the screen's coordinate system is inverted. So we need to
             // flip the coordinates.
-            NSRect nsBounds = rectToMacRect(bounds, screen.frame.size.height);
+            NSRect nsBounds = rectToMacRect(newBounds, screen.frame.size.height);
         
             [_nsWindow setFrame:nsBounds display: FALSE];
-            _currActualWindowBounds = bounds;
+            _currActualWindowBounds = newBounds;
         }
     }
+    
+    void setSize(const Size& size) override
+    {
+        if(size!=_currActualWindowBounds.getSize())
+        {
+            NSScreen* screen = _getNsScreen();
+            
+            Rect newBounds( _currActualWindowBounds.getPosition(), size );
+            
+            // the screen's coordinate system is inverted. So we need to
+            // flip the coordinates.
+            NSRect nsBounds = rectToMacRect(newBounds, screen.frame.size.height);
+            
+            [_nsWindow setFrame:nsBounds display: FALSE];
+            _currActualWindowBounds = newBounds;
+        }
+    }
+
     
     
     double uiLengthToDips(const UiLength& uiLength) const override
@@ -183,7 +203,7 @@ public:
         P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)
         {     
-            pOuter->bounds() = _currActualWindowBounds;        
+            pOuter->size() = _currActualWindowBounds.getSize();
             pOuter->needLayout();
         }
     }
@@ -194,7 +214,7 @@ public:
 
         P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)        
-            pOuter->bounds() = _currActualWindowBounds;
+            pOuter->position() = _currActualWindowBounds.getPosition();
     }
     
 private:

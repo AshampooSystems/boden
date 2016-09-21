@@ -32,10 +32,11 @@ public:
     {
         ButtonCoreBase::setLabel(label);
     }
-    XXX
-    void setBounds(const Rect& bounds) override
+
+
+    void setSize(const Size& size) override
     {
-        ChildViewCore::setBounds(bounds);
+        ChildViewCore::setSize(size);
         _updateBezelStyle();
     }
 

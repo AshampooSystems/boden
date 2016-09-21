@@ -67,7 +67,7 @@ WindowCore::WindowCore(View* pOuter)
     
     // the screen's coordinate system is inverted (origin is bottom left).
     // So we need to pass the screen height so that it will be converted properly.
-    NSRect rect = rectToMacRect( pOuter->bounds(), screen.frame.size.height );
+    NSRect rect = rectToMacRect( Rect( pOuter->position(), pOuter->size() ), screen.frame.size.height );
     
     _nsWindow  = [[NSWindow alloc] initWithContentRect:rect
                                              styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask

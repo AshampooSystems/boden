@@ -90,7 +90,7 @@ protected:
         bdn::Rect rect = getFrameRect();
         bdn::Size expectedSize = _pView->size();
         
-        REQUIRE( rect,getSize() == expectedSize );
+        REQUIRE( rect.getSize() == expectedSize );
     }
 
     

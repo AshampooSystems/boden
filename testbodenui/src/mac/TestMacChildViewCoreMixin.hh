@@ -80,7 +80,7 @@ protected:
         REQUIRE( position == expectedPosition );
     }
 
-    void verifyCorePosition() override
+    void verifyCoreSize() override
     {        
         Size size = getFrameRect().getSize();
         Size expectedSize = BaseClass::_pView->size();
