@@ -123,7 +123,7 @@ public:
         // the outer window handles padding during layout. So nothing to do here.
     }
     
-
+    XXX
     void setBounds(const Rect& bounds) override
     {
         if(bounds!=_currActualWindowBounds)

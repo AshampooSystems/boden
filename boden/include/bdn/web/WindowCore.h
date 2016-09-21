@@ -41,6 +41,7 @@ public:
     }
 
 
+    XXX
     void setBounds(const Rect& bounds) override
     {
         // we cannot modify the size or position of the window.

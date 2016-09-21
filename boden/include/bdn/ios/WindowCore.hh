@@ -49,7 +49,7 @@ public:
         return _window;
     }
     
-    
+    XXX
     void setBounds(const Rect& bounds) override
     {
         // we do not modify our frame. Just reset the bounds property back to the current bounds.

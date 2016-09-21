@@ -62,7 +62,7 @@ public:
     {
     }
     
-    
+    XXX
     void setBounds(const Rect& bounds) override
     {
         _view.frame = rectToIosRect(bounds);

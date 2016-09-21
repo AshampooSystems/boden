@@ -41,7 +41,7 @@ public:
         // if the corresponding Cocoa view class supports setting a padding.
     }
     
-
+    XXX
     void setBounds(const Rect& bounds) override
     {
         // our parent view's coordinate system is usually "normal" i.e. with

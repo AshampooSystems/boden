@@ -26,8 +26,11 @@ public:
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
-	/** Sets the view core's bounding rectangle. See View::bounds() */
-	virtual void setBounds(const Rect& bounds)=0;
+	/** Sets the view core's position. See View::position() */
+	virtual void setPosition(const Point& position)=0;
+
+    /** Sets the view core's size. See View::size() */
+	virtual void setSize(const Size& size)=0;
     
 	
 	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).*/

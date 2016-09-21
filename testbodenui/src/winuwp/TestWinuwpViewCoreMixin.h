@@ -67,10 +67,21 @@ protected:
     }
 
 
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
     {        
         double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
         double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
+
+        // the bounds should NEVER be initialized upon construction.
+        // Instead they must be updated by a layout cycle after construction.
+        // So at this point in time the bounds should be zero
+            
+        REQUIRE( x == 0 );
+        REQUIRE( y == 0 );
+    }
+
+    void verifyInitialDummyCoreSize() override
+    {        
         double width = _pWinFrameworkElement->Width;
         if(std::isnan(width))
             width = 0;
@@ -83,16 +94,24 @@ protected:
         // Instead they must be updated by a layout cycle after construction.
         // So at this point in time the bounds should be zero
             
-        REQUIRE( x == 0 );
-        REQUIRE( y == 0 );
         REQUIRE( width == 0 );
         REQUIRE( height == 0 );
     }
 
-    void verifyCoreBounds() override
+    void verifyCorePosition() override
     {        
         double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
         double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
+        
+        Point pos = _pView->position();
+        
+        REQUIRE_ALMOST_EQUAL( x, pos.x, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( y, pos.y, 0.0001 );
+    }
+
+
+    void verifyCoreSize() override
+    {        
         double width = _pWinFrameworkElement->Width;
         if(std::isnan(width))
             width = 0;
@@ -100,12 +119,10 @@ protected:
         if(std::isnan(height))
             height = 0;
 
-        Rect bounds = _pView->bounds();
+        Size size = _pView->size();
         
-        REQUIRE_ALMOST_EQUAL( x, bounds.x, 0.0001 );
-        REQUIRE_ALMOST_EQUAL( y, bounds.y, 0.0001 );
-        REQUIRE_ALMOST_EQUAL( width, bounds.width, 0.0001 );
-        REQUIRE_ALMOST_EQUAL( height, bounds.height, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( width, size.width, 0.0001 );
+        REQUIRE_ALMOST_EQUAL( height, size.height, 0.0001 );
     }
 
 

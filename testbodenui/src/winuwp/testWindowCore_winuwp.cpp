@@ -16,7 +16,12 @@ class TestWinuwpWindowCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::tes
 {
 protected:
 
-    bool canManuallyChangeBounds() const override
+    bool canManuallyChangePosition() const override
+    {
+        return false;
+    }
+
+    bool canManuallyChangeSize() const override
     {
         return false;
     }
@@ -39,28 +44,7 @@ protected:
         // the title is not reflected by the core UI element. So, nothing to test here.
     }
 
-
-    void verifyCoreBounds() override
-    {   
-        double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
-        double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
-        double width = _pWinFrameworkElement->Width;
-        if(std::isnan(width))
-            width = 0;
-        double height = _pWinFrameworkElement->Height;
-        if(std::isnan(height))
-            height = 0;
-
-        Rect bounds = _pView->bounds();
-
-        REQUIRE_ALMOST_EQUAL( x, bounds.x, 1 );
-        REQUIRE_ALMOST_EQUAL( y, bounds.y, 1 );
-        REQUIRE_ALMOST_EQUAL( width, bounds.width, 1 );
-        REQUIRE_ALMOST_EQUAL( height, bounds.height, 1 );
-    }
-
-
-
+    
     struct DestructVerificationInfo : public Base
     {
         DestructVerificationInfo(::Windows::UI::Xaml::FrameworkElement^ pEl)

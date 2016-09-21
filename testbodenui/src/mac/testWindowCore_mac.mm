@@ -62,21 +62,37 @@ protected:
         return bdn::mac::macRectToRect( _pNSWindow.frame, _pNSWindow.screen.frame.size.height);
     }
     
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
     {
         bdn::Rect rect = getFrameRect();
         
-        REQUIRE( rect == bdn::Rect() );
+        REQUIRE( rect.getPosition() == bdn::Point() );
     }
-    
-    void verifyCoreBounds() override
+
+	void verifyInitialDummyCoreSize() override
     {
         bdn::Rect rect = getFrameRect();
-        bdn::Rect expectedRect = _pView->bounds();
         
-        REQUIRE( rect == expectedRect );
+        REQUIRE( rect.getSize() == bdn::Size() );
     }
     
+   
+	void verifyCorePosition() override
+    {
+        bdn::Rect	rect = getFrameRect();
+        bdn::Point	expectedPosition = _pView->position();
+        
+        REQUIRE( rect.getPosition() == expectedPosition );
+    }
+    
+	 void verifyCoreSize() override
+    {
+        bdn::Rect rect = getFrameRect();
+        bdn::Size expectedSize = _pView->size();
+        
+        REQUIRE( rect,getSize() == expectedSize );
+    }
+
     
     void verifyCorePadding() override
     {

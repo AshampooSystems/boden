@@ -74,16 +74,28 @@ public:
         // the title is not shown by android.
     }
 
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& position) override
+    {
+        // we cannot move ourselves
+
+        if(position!=_currentBounds.getPosition())
+        {
+            P<View> pView = getOuterViewIfStillAttached();
+            if(pView!=nullptr)
+                pView->position() = _currentBounds.getPosition();
+        }
+    }
+
+    void setSize(const Size& size) override
     {
         // we are always exactly the size of the root view. So we undo
         // any changes we get from the outside world.
 
-        if(bounds!=_currentBounds)
+        if(size!=_currentBounds.getSize())
         {
             P<View> pView = getOuterViewIfStillAttached();
             if(pView!=nullptr)
-                pView->bounds() = _currentBounds;
+                pView->size() = _currentBounds.getSize();
         }
     }
 

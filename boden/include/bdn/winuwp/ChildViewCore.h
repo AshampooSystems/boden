@@ -115,7 +115,7 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-	void setBounds(const Rect& bounds) override
+	void setPosition(const Point& position) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -126,20 +126,32 @@ public:
 		// We have structured our views in such a way that all child views have a Canvas
 		// container, so that is not a problem.
 
-		// For the position, we have to set the Canvas.left and Canvas.top custom properties
+		// So we have to set the Canvas.left and Canvas.top custom properties
 		// for this child view.
 
         try
         {
             // note that UWP also uses DIPs as the fundamental UI unit. So no conversion necessary.
+		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, position.x );
+		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, position.y );
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
 
-		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, bounds.x );
-		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, bounds.y );
+        BDN_WINUWP_TO_STDEXC_END;
+	}
 
-		    // The size is set by manipulating the Width and Height property.
-		
-		    _pFrameworkElement->Width = doubleToUwpDimension( bounds.width );
-		    _pFrameworkElement->Height = doubleToUwpDimension( bounds.height );
+    void setSize(const Size& size) override
+	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+        
+        try
+        {
+            // The size is set by manipulating the Width and Height property.		
+		    _pFrameworkElement->Width = doubleToUwpDimension( size.width );
+		    _pFrameworkElement->Height = doubleToUwpDimension( size.height );
         }
         catch(::Platform::DisconnectedException^ e)
         {

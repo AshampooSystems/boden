@@ -123,31 +123,53 @@ public:
 	}
 
 
-	/** Bounding rectangle of the view (size and position) in DIP unit (see UiLength::Unit::dip).
+	/** The position of the view inside its parent coordinate system in DIP units (see UiLength::Unit::dip).
 	
-		The default bounds for a newly constructed view are always position 0,0, size 0x0.
-		The bounds are usually set automatically by the parent view's layout routine.
+		The default position for a newly constructed view is always position 0,0.
+        The position is usually modified automatically by the parent view's layout routine.
 
         IMPORTANT:
 
-        The bounds of top level #Window objects are restricted on some platforms. Sometimes
-        it is not possible to change the Window bounds at all (in that case the bounds property
+        The position of top level #Window objects is restricted on some platforms. Sometimes
+        it is not possible to change the Window position at all (in that case the position property
         will automatically revert back to the previous value whenever it is changed).
 
         On some platforms top level windows may also report a zero position at all times, even though
         the window is not at the top left corner of the screen.
-        
-
 	*/
-	virtual Property<Rect>& bounds()
+	virtual Property<Point>& position()
 	{
-		return _bounds;
+		return _position;
 	}
 
-	virtual const ReadProperty<Rect>& bounds() const
+	virtual const ReadProperty<Point>& position() const
 	{
-		return _bounds;
+		return _position;
 	}
+
+
+
+    /** The size of the view DIP units (see UiLength::Unit::dip).
+	
+		The default size for a newly constructed view is always 0x0.
+		The size is usually modified automatically by the parent view's layout routine.
+
+        IMPORTANT:
+
+        The size of top level #Window objects is restricted on some platforms. Sometimes
+        it is not possible to change the Window size at all (in that case the size property
+        will automatically revert back to the previous value whenever it is changed).        
+	*/
+	virtual Property<Size>& size()
+	{
+		return _size;
+	}
+
+	virtual const ReadProperty<Size>& size() const
+	{
+		return _size;
+	}
+
 
 	
 
@@ -654,7 +676,8 @@ protected:
 	DefaultProperty<bool>                   _visible;
 	DefaultProperty<UiMargin>               _margin;
 	DefaultProperty< Nullable<UiMargin> >	_padding;
-	DefaultProperty<Rect>                   _bounds;
+	DefaultProperty<Point>                  _position;
+    DefaultProperty<Size>                   _size;
 
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;

@@ -111,7 +111,7 @@ public:
         
         [_nsTextView invalidateTextContainerOrigin];
     }
-    
+    XXX
     void setBounds(const Rect& bounds) override
     {
         // by default the text view will automatically adjust its height

@@ -40,6 +40,7 @@ public:
     }
 
 	
+    XXX
 	void setBounds(const Rect& bounds) override
     {
         GtkAllocation alloc = rectToGtkRect(bounds );

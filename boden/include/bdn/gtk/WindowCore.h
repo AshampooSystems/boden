@@ -67,7 +67,7 @@ public:
         gtk_window_set_title( getGtkWindow(), title.asUtf8Ptr() );
     }
 
-
+    XXX
     void setBounds(const Rect& bounds) override
     {   
         // GTK will assume that the requested size is without any window decorations

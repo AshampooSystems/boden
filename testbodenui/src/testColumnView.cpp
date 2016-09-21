@@ -52,8 +52,8 @@ void testChildAlignment(
                 // but layout should have happened
                 REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
 
-                Rect bounds = pButton->bounds();
-                Rect containerBounds = pColumnView->bounds();
+                Rect bounds = Rect( pButton->position(), pButton->size() );
+                Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
 
                 // sanity check: the button should be smaller than the columnview
                 // unless the alignment is "expand"
@@ -94,8 +94,8 @@ void testChildAlignment(
                 REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
 
                 // vertical alignment should have NO effect in a column view.
-                Rect bounds = pButton->bounds();
-                Rect containerBounds = pColumnView->bounds();
+                Rect bounds = Rect( pButton->position(), pButton->size() );
+                Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
 
                 REQUIRE( bounds.y==0 );
                 REQUIRE( bounds.height < containerBounds.height );
@@ -121,7 +121,8 @@ TEST_CASE("ColumnView")
 
         P<Button> pButton = newObj<Button>();
 
-        pButton->bounds() = Rect(10, 10, 10, 10);
+        pButton->position() = Point(10, 10);
+        pButton->size() = Size(10, 10);
 
         SECTION("addChildView")
         {
@@ -223,8 +224,8 @@ TEST_CASE("ColumnView")
 
             CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
             {
-                Rect bounds = pButton->bounds();
-                Rect bounds2 = pButton2->bounds();
+                Rect bounds = Rect( pButton->position(), pButton->size());
+                Rect bounds2 = Rect( pButton2->position(), pButton2->size());
 
                 SECTION("properly arranged")
                 {

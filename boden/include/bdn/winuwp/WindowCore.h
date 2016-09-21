@@ -77,12 +77,15 @@ public:
         _pWindowPanel = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
 		_pWindowPanel->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
         _pWindowPanelParent->Children->Append(_pWindowPanel);
+
+        // make sure that we are initialized with the current size
+        _windowPanelParentLayoutUpdated();
         
         _pWindowPanelParent->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
 				    ( _pEventForwarder, &EventForwarder::windowPanelParentLayoutUpdated );
 
-        // update the bounds property of the outer window to reflect the current bounds
-		_scheduleUpdateOuterBoundsProperty();				
+        // update the position and size property of the outer window to reflect the current bounds
+		_scheduleUpdateOuterPositionAndSizeProperty();				
 
         setVisible( pOuterWindow->visible() );
 
@@ -196,11 +199,18 @@ public:
 	}
 
 	
-	void setBounds(const Rect& bounds) override
+	void setPosition(const Point& pos) override
 	{
 		// we cannot control our rect. The OS has the only control over it.
 		// So, just reset the bounds property back to what it really is.
-		_scheduleUpdateOuterBoundsProperty();
+		_scheduleUpdateOuterPositionAndSizeProperty();
+	}
+
+    void setSize(const Size& size) override
+	{
+		// we cannot control our rect. The OS has the only control over it.
+		// So, just reset the bounds property back to what it really is.
+		_scheduleUpdateOuterPositionAndSizeProperty();
 	}
 
     
@@ -298,19 +308,30 @@ private:
 		return Size(0, 0);
 	}
 
-	void _scheduleUpdateOuterBoundsProperty()
+	void _scheduleUpdateOuterPositionAndSizeProperty()
 	{
+        if(_outerPositionAndSizeUpdateScheduled)
+            return;
+
+        _outerPositionAndSizeUpdateScheduled = true;
+
 		// keep ourselves alive during this
-		P<WindowCore> pThis = this;
+		P<WindowCore> pThis = this;        
 
 		// we do this asynchronously to ensure that there can be no strange
 		// interactions with in-progress operations
 		asyncCallFromMainThread(
-			[pThis]()
-			{
+			[pThis]()			
+            {
+                pThis->_outerPositionAndSizeUpdateScheduled = false;
+
                 P<View> pView = pThis->_outerWindowWeak.toStrong();
 				if(pView!=nullptr)
-					pView->bounds() = pThis->_getBounds();
+                {
+                    Rect bounds = pThis->_getBounds();
+                    pView->position() = bounds.getPosition();
+                    pView->size() = bounds.getSize();
+                }
 			});		
 	}
 
@@ -358,7 +379,7 @@ private:
 
                 double width = bounds.Width;
                 double height = bounds.Height;
-
+                
                 // Update our window panel to the same size as the outer window.
                 if(_pWindowPanel->Width != width
                     || _pWindowPanel->Height != height)
@@ -366,8 +387,8 @@ private:
                     _pWindowPanel->Width = width;
                     _pWindowPanel->Height = height;
 
-                    // Update the bounds of the outer window object        
-			        pOuterView->bounds() = _getBounds();
+                    // Update the size of the outer window object        
+			        pOuterView->size() = _getBounds().getSize();
 
                     // and the size and position of our content panel
 		            pOuterView->needLayout();
@@ -397,6 +418,8 @@ private:
     ::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanel;
         
 	EventForwarder^ _pEventForwarder;
+
+    bool _outerPositionAndSizeUpdateScheduled = false;
 };
 
 

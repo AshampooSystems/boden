@@ -69,9 +69,9 @@ public:
         _pJTextView->requestLayout();
     }
 
-    void setBounds(const Rect& bounds) override
+    void setSize(const Size& size) override
     {
-        ViewCore::setBounds(bounds);
+        ViewCore::setSize(size);
 
         // for some reason the TextView does not wrap its text, unless we explicitly set the
         // width with setMaxWidth (even if the widget's size is actually smaller than the text).
@@ -84,7 +84,7 @@ public:
 
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
     {
-        // we must unset the fixed width we set in the last setBounds call, otherwise it will influence
+        // we must unset the fixed width we set in the last setSize call, otherwise it will influence
         // the size we measure here.
 
         if(_currWidthPixels!=0x7fffffff && _pJTextView!=nullptr)

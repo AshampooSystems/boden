@@ -27,7 +27,12 @@ protected:
         _domObject = emscripten::val::undefined();
     }
 
-    bool canManuallyChangeBounds() const override
+    bool canManuallyChangePosition() const override
+    {
+        return false;
+    }
+
+    bool canManuallyChangeSize() const override
     {
         return false;
     }

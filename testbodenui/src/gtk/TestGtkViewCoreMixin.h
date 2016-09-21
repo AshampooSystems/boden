@@ -74,19 +74,28 @@ protected:
     }
 
 
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
     {        
-        REQUIRE( getWidgetSize() == Size() );
         if( GTK_IS_WINDOW(_pGtkWidget) ) 
             REQUIRE( getWindowPosition() == Point() );
     }
 
-    void verifyCoreBounds() override
+    void verifyInitialDummyCoreSize() override
     {        
-        REQUIRE( getWidgetSize() == BaseClass::_pView->bounds().get().getSize() );
-        
+        REQUIRE( getWidgetSize() == Size() );
+    }
+
+
+    void verifyCorePosition() override
+    {        
         if(GTK_IS_WINDOW(_pGtkWidget))
-            REQUIRE( getWindowPosition() == BaseClass::_pView->bounds().get().getPosition() );        
+            REQUIRE( getWindowPosition() == BaseClass::_pView->position().get() );        
+    }
+
+
+    void verifyCoreSize() override
+    {        
+        REQUIRE( getWidgetSize() == BaseClass::_pView->bounds().get().getSize() );        
     }
 
 

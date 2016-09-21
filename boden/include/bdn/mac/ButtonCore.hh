@@ -32,7 +32,7 @@ public:
     {
         ButtonCoreBase::setLabel(label);
     }
-    
+    XXX
     void setBounds(const Rect& bounds) override
     {
         ChildViewCore::setBounds(bounds);
