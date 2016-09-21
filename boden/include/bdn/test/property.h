@@ -59,7 +59,7 @@ public:
 		return _onChange;
 	}
     
-    void bind(ReadProperty<ValType>& sourceProperty) override
+    void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
         sourceProperty.onChange().template subscribeMember<TestProperty_>(_pBindSourceSubscription, this, &TestProperty_::set);
         

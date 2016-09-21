@@ -70,7 +70,25 @@ public:
         // Same size as bounds. There is no border or title bar on ios.
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            return Rect( Point(0,0), pView->bounds().get().getSize() );
+        {
+            // the status bar (with network indicator, battery indicator, etc) is in the
+            // same coordinate space as our window. We do need the window itself to extend that far,
+            // otherwise the bar will simply have a black background and the text will not be visible.
+            // But we do not want our content view to overlap with the bar. So we adjust the content
+            // area accordingly.
+            
+            Rect area( Point(0,0), pView->bounds().get().getSize() );
+            
+            double topBarHeight = _window.rootViewController.topLayoutGuide.length;
+            double bottomBarHeight = _window.rootViewController.bottomLayoutGuide.length;
+            
+            area.y += topBarHeight;
+            area.height -= topBarHeight+bottomBarHeight;
+            if(area.height<0)
+                area.height = 0;
+            
+            return area;
+        }
         else
             return Rect();
     }
@@ -121,7 +139,7 @@ public:
         return false;
     }
     
-            
+    
 private:
     UIScreen* _getUIScreen() const
     {

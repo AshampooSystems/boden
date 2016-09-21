@@ -3,6 +3,7 @@
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
+#include <bdn/android/JRStyle.h>
 #include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
 
@@ -32,10 +33,10 @@ private:
 
         P<JTextView> pTextView = newObj<JTextView>(context);
 
-        pTextView->setHorizontallyScrolling(false);
-        pTextView->setSingleLine(false);
-        pTextView->setMaxLines(100);
-        pTextView->setBreakStrategy( JTextView::BreakStrategy::simple );
+
+        // the default text size on android is really tiny. Set it to a medium size
+        // so that we get something comparable to other platforms.
+        pTextView->setTextAppearance( JRStyle::TextAppearance_Medium );
 
         return pTextView;
     }

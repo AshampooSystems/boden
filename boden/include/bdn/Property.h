@@ -132,7 +132,7 @@ public:
     
 	/** Binds the property to the value of another property. When the other property
 		changes then this property will be automatically updated to the same value.*/
-    virtual void bind(ReadProperty<ValType>& sourceProperty)=0;
+    virtual void bind(const ReadProperty<ValType>& sourceProperty)=0;
         
     
 

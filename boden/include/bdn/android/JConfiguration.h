@@ -2,7 +2,7 @@
 #define BDN_ANDROID_JConfiguration_H_
 
 #include <bdn/java/JObject.h>
-#include <bdn/java/Field.h>
+#include <bdn/java/ObjectField.h>
 
 namespace bdn
 {
@@ -55,11 +55,11 @@ public:
 
     /** The target screen density being rendered to, corresponding to density
      *  resource qualifier. Set to DENSITY_DPI_UNDEFINED if no density is specified.*/
-    bdn::java::Field<int> densityDpi()
+    bdn::java::ObjectField<int> densityDpi()
     {
-        static bdn::java::FieldId<int> fieldId( getStaticClass_(), "densityDpi");
+        static bdn::java::ObjectField<int>::Id fieldId( getStaticClass_(), "densityDpi");
 
-        return bdn::java::Field<int>( getRef_(), fieldId);
+        return bdn::java::ObjectField<int>( getRef_(), fieldId);
     }
 
 

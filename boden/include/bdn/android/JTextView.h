@@ -160,6 +160,15 @@ public:
 
 
 
+    /** Sets the text appearance from the specified style resource.
+    */
+    void setTextAppearance (int resId)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setTextAppearance", resId);
+    }
+
     /** Returns the JClass object for this class.s
      *
      *  Note that the returned class object is not necessarily unique for the whole
