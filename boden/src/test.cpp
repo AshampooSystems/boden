@@ -39,6 +39,8 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/TestAppWithUiController.h>
 #include <bdn/Window.h>
+#include <bdn/ColumnView.h>
+#include <bdn/TextView.h>
 #include <bdn/mainThread.h>
 #include <bdn/NotImplementedError.h>
 
@@ -2700,6 +2702,93 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
+
+
+class ResultStringFormatter
+{
+public:
+    struct SummaryColumn
+    {
+        SummaryColumn( std::string const& _label, Colour::Code _colour )
+        :   label( _label ),
+        colour( _colour )
+        {}
+        SummaryColumn addRow( std::size_t count ) {
+            std::ostringstream oss;
+            oss << count;
+            std::string row = oss.str();
+            for( std::vector<std::string>::iterator it = rows.begin(); it != rows.end(); ++it ) {
+                while( it->size() < row.size() )
+                    *it = " " + *it;
+                while( it->size() > row.size() )
+                    row = " " + row;
+            }
+            rows.push_back( row );
+            return *this;
+        }
+        
+        std::string label;
+        Colour::Code colour;
+        std::vector<std::string> rows;
+        
+    };
+    
+    
+    static void printTotals( std::ostream& stream, const Totals& totals )
+    {
+        if( totals.testCases.total() == 0 )
+            stream << Colour( Colour::Warning ) << "No tests ran\n";
+        
+        else if( totals.assertions.total() > 0 && totals.assertions.allPassed() )
+        {
+            stream << Colour( Colour::ResultSuccess ) << "All tests passed";
+            stream << " ("
+            << pluralise( totals.assertions.passed, "assertion" ) << " in "
+            << pluralise( totals.tests.passed, "test" ) << " and "
+            << pluralise( totals.testCases.passed, "test case" ) << ")"
+            << "\n";
+        }
+        else
+        {
+            std::vector<SummaryColumn> columns;
+            columns.push_back( SummaryColumn( "", Colour::None )
+                              .addRow( totals.testCases.total() )
+                              .addRow( totals.assertions.total() ) );
+            
+            // we print "failed as expected" as passed. It is a pass-condition, after all.
+            columns.push_back( SummaryColumn( "passed", Colour::Success )
+                              .addRow( totals.testCases.passed + totals.testCases.failedButOk )
+                              .addRow( totals.assertions.passed + totals.assertions.failedButOk ) );
+            columns.push_back( SummaryColumn( "failed", Colour::ResultError )
+                              .addRow( totals.testCases.failed )
+                              .addRow( totals.assertions.failed ) );
+            
+            printSummaryRow( stream, "test cases", columns, 0 );
+            printSummaryRow( stream, "assertions", columns, 1 );
+        }
+    }
+    
+    static void printSummaryRow( std::ostream& stream, std::string const& label, std::vector<SummaryColumn> const& cols, std::size_t row )
+    {
+        for( std::vector<SummaryColumn>::const_iterator it = cols.begin(); it != cols.end(); ++it ) {
+            std::string value = it->rows[row];
+            if( it->label.empty() ) {
+                stream << label << ": ";
+                if( value != "0" )
+                    stream << value;
+                else
+                    stream << Colour( Colour::Warning ) << "- none -";
+            }
+            else if( value != "0" ) {
+                stream  << Colour( Colour::LightGrey ) << " | ";
+                stream  << Colour( it->colour )
+                << value << " " << it->label;
+            }
+        }
+        stream << "\n";
+    }
+};
+
 class RunContext : public IResultCapture, public IRunner {
 
 	RunContext( RunContext const& );
@@ -2751,6 +2840,8 @@ public:
 		m_reporter->testCaseStarting( *_pCurrentTestCaseInfo );
 
 		m_activeTestCase = &testCase;
+        
+        _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
 
         if(m_printLevel>=1)
             std::cout << "Test case: "+getCurrentTestName() << std::endl;
@@ -2761,6 +2852,12 @@ public:
 
 		runTestCase_Continue();
 	}
+    
+    
+    const ReadProperty<String>& statusText() const
+    {
+        return _statusText;
+    }
 
 
 	Ptr<IConfig const> config() const {
@@ -3285,6 +3382,13 @@ private:
 
 		m_activeTestCase = BDN_NULL;
 		m_testCaseTracker = BDN_NULL;
+        
+        
+        std::stringstream resultStringStream;
+        
+        ResultStringFormatter::printTotals(resultStringStream, m_totals);
+        
+        _statusText = String( resultStringStream.str() );
 
 		_pCurrentTestCaseInfo = nullptr;
 
@@ -3593,7 +3697,10 @@ private:
 
 	TestRunInfo m_runInfo;
 	IMutableContext& m_context;
+
 	TestCase const* m_activeTestCase;
+    DefaultProperty<String> _statusText;
+    
 	ITracker* m_testCaseTracker;
 	ITracker* m_currentSectionTracker;
 	AssertionResult m_lastResult;
@@ -3745,6 +3852,14 @@ public:
     ~TestRunner()
     {
         delete _pContext;
+    }
+    
+    
+    /** A text describing the current test status (which test case is being executed, and wether
+        all tests are done.*/
+    const ReadProperty<String>& statusText() const
+    {
+        return _pContext->statusText();
     }
 
 
@@ -7171,6 +7286,9 @@ INTERNAL_BDN_REGISTER_REPORTER( "junit", JunitReporter )
 
 namespace bdn {
 
+
+
+
 struct ConsoleReporter : StreamingReporterBase {
 	ConsoleReporter( ReporterConfig const& _config )
 		:   StreamingReporterBase( _config ),
@@ -7475,82 +7593,11 @@ private:
 			.setInitialIndent( indent ) ) << "\n";
 	}
 
-	struct SummaryColumn {
-
-		SummaryColumn( std::string const& _label, Colour::Code _colour )
-			:   label( _label ),
-			colour( _colour )
-		{}
-		SummaryColumn addRow( std::size_t count ) {
-			std::ostringstream oss;
-			oss << count;
-			std::string row = oss.str();
-			for( std::vector<std::string>::iterator it = rows.begin(); it != rows.end(); ++it ) {
-				while( it->size() < row.size() )
-					*it = " " + *it;
-				while( it->size() > row.size() )
-					row = " " + row;
-			}
-			rows.push_back( row );
-			return *this;
-		}
-
-		std::string label;
-		Colour::Code colour;
-		std::vector<std::string> rows;
-
-	};
-
-	void printTotals( Totals const& totals ) {
-		if( totals.testCases.total() == 0 ) {
-			stream << Colour( Colour::Warning ) << "No tests ran\n";
-		}
-		else if( totals.assertions.total() > 0 && totals.assertions.allPassed() ) {
-			stream << Colour( Colour::ResultSuccess ) << "All tests passed";
-			stream << " ("
-				<< pluralise( totals.assertions.passed, "assertion" ) << " in "
-				<< pluralise( totals.tests.passed, "test" ) << " and "
-				<< pluralise( totals.testCases.passed, "test case" ) << ")"
-				<< "\n";
-		}
-		else {
-
-			std::vector<SummaryColumn> columns;
-			columns.push_back( SummaryColumn( "", Colour::None )
-				.addRow( totals.testCases.total() )
-				.addRow( totals.assertions.total() ) );
-
-            // we print "failed as expected" as passed. It is a pass-condition, after all.
-			columns.push_back( SummaryColumn( "passed", Colour::Success )
-				.addRow( totals.testCases.passed + totals.testCases.failedButOk )
-				.addRow( totals.assertions.passed + totals.assertions.failedButOk ) );
-			columns.push_back( SummaryColumn( "failed", Colour::ResultError )
-				.addRow( totals.testCases.failed )
-				.addRow( totals.assertions.failed ) );
-
-			printSummaryRow( "test cases", columns, 0 );
-			printSummaryRow( "assertions", columns, 1 );
-		}
-	}
-	void printSummaryRow( std::string const& label, std::vector<SummaryColumn> const& cols, std::size_t row ) {
-		for( std::vector<SummaryColumn>::const_iterator it = cols.begin(); it != cols.end(); ++it ) {
-			std::string value = it->rows[row];
-			if( it->label.empty() ) {
-				stream << label << ": ";
-				if( value != "0" )
-					stream << value;
-				else
-					stream << Colour( Colour::Warning ) << "- none -";
-			}
-			else if( value != "0" ) {
-				stream  << Colour( Colour::LightGrey ) << " | ";
-				stream  << Colour( it->colour )
-					<< value << " " << it->label;
-			}
-		}
-		stream << "\n";
-	}
-
+	void printTotals( Totals const& totals )
+    {
+        ResultStringFormatter::printTotals(stream, totals);
+    }
+    
 	static std::size_t makeRatio( std::size_t number, std::size_t total ) {
 		std::size_t ratio = total > 0 ? BDN_CONFIG_CONSOLE_WIDTH * number/ total : 0;
 		return ( ratio == 0 && number > 0 ) ? 1 : ratio;
@@ -8001,6 +8048,13 @@ public:
             _pWindow = newObj<Window>();
 			_pWindow->title() = "Running tests...";
             _pWindow->visible() = true;
+            
+            P<ColumnView> pColumnView = newObj<ColumnView>();
+            
+            P<TextView> pStatusView = newObj<TextView>();
+            pColumnView->addChildView( pStatusView );
+            
+            _pWindow->setContentView( pColumnView );
 
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
@@ -8011,6 +8065,7 @@ public:
             {
                 // invalid commandline arguments. Exit.
 				_pWindow->title() = "Invalid commandline";
+                pStatusView->text() = "Invalid commandline";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
                 return;
             }
@@ -8019,11 +8074,17 @@ public:
             {
                 // only showing help. Just exit.
 				_pWindow->title() = "Done";
+                pStatusView->text() = "Done";
 				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
 				return;
             }
 
             _pTestRunner = new TestRunner( &_pTestSession->config() );
+            
+            pStatusView->text().bind( _pTestRunner->statusText() );
+            
+            _pWindow->requestAutoSize();
+            _pWindow->requestCenter();
         }
         catch( std::exception& ex )
         {
