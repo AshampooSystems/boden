@@ -35,11 +35,11 @@ public:
     {
         P<View> pChildView = pChildCore->getOuterViewIfStillAttached();
 
-        Rect bounds;
+        Point position;
         if(pChildView!=nullptr)
-            bounds = pChildView->bounds();
+            position = pChildView->position();
         
-        GdkRectangle rect = rectToGtkRect(bounds);
+        GdkRectangle rect = rectToGtkRect( Rect(position, Size(1,1)));
         
         gtk_layout_put( GTK_LAYOUT(getGtkWidget()), pChildCore->getGtkWidget(), rect.x, rect.y);
     }

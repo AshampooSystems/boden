@@ -95,7 +95,7 @@ protected:
 
     void verifyCoreSize() override
     {        
-        REQUIRE( getWidgetSize() == BaseClass::_pView->bounds().get().getSize() );        
+        REQUIRE( getWidgetSize() == BaseClass::_pView->size().get() );        
     }
 
 

@@ -18,7 +18,11 @@ protected:
 
     P<View> createView() override
     {
-        return newObj<TextView>();
+        P<TextView> pTextView = newObj<TextView>();
+        
+        pTextView->text() = "hello world";
+        
+        return pTextView;
     }
 
     void setView(View* pView) override
@@ -93,6 +97,8 @@ protected:
 
 		SECTION("wider text causes wider preferred size")
 		{
+            _pTextView->text() = "";
+            
 			Size prefSizeBefore = _pTextView->calcPreferredSize(-1, availableHeight);
 
 			_pTextView->text() = "helloworld";
@@ -114,6 +120,8 @@ protected:
 
 		SECTION("linebreaks cause multiline")
 		{
+            _pTextView->text() = "";
+            
 			Size emptyTextPreferredSize = _pTextView->calcPreferredSize(-1, availableHeight);
 
 			_pTextView->text() = "hello";

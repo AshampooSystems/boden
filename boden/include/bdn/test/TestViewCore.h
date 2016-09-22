@@ -211,6 +211,25 @@ protected:
                     REQUIRE( prefSize.height>=0 );
                 }
                 
+                SECTION("availableSize same as preferredSize")	
+                {
+                    SECTION("no padding")
+                    {
+                        // do nothing
+                    }
+                    
+                    SECTION("with padding")
+                    {
+                        _pView->padding() = UiMargin( UiLength::Unit::dip, 10, 20, 30, 40);
+                    }
+                    
+                    Size prefSize = _pCore->calcPreferredSize();
+                    
+                    Size prefSizeRestricted = _pCore->calcPreferredSize( prefSize.width, prefSize.height);
+                    
+                    REQUIRE( prefSize == prefSizeRestricted);
+                }
+                                
                 SECTION("calcPreferredSize restrictedWidth plausible")	
                 {
                     // this is difficult to test, since it depends heavily on what kind of view

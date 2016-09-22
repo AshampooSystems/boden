@@ -40,18 +40,10 @@ public:
     }
 
 	
-    XXX
-	void setBounds(const Rect& bounds) override
+	void setPosition(const Point& position) override
     {
-        GtkAllocation alloc = rectToGtkRect(bounds );
-        
-        if(alloc.width<0)
-            alloc.width = 0;
-        if(alloc.height<0)
-            alloc.height = 0;
-        
-        gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );
-        
+        GtkAllocation alloc = rectToGtkRect( Rect( position, Size(1,1) ) );
+                
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
@@ -65,6 +57,19 @@ public:
         }
     }
 
+	void setSize(const Size& size) override
+    {
+        GtkAllocation alloc = rectToGtkRect( Rect(Point(), size) );
+        
+        if(alloc.width<0)
+            alloc.width = 0;
+        if(alloc.height<0)
+            alloc.height = 0;
+            
+        //std::cout << typeid(*this).name() << " setSize " << size.width << "x" << size.height << std::endl;
+        
+        gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );        
+    }
 
 	double uiLengthToDips(const UiLength& uiLength) const override
     {
@@ -83,6 +88,8 @@ public:
     {
         GtkRequisition resultSize;
         
+        //std::cout << typeid(*this).name() << " available: " << availableWidth << "x" << availableHeight << std::endl;
+        
         // we must clear our "size request". Otherwise the current size will be
         // the basis for the preferred size.
         gint oldWidth;
@@ -95,6 +102,13 @@ public:
         if(oldVisible==FALSE)
             gtk_widget_set_visible(_pWidget, TRUE);
             
+        // note that we use a padding that was rounded to full integers.
+        // That is important because GTK cannot represent anything else.
+        // And if we used the exact values then we could return a preferred size
+        // that is not integer. And if we would be made that size then we would have
+        // to round down and the result would actually be less than our preferred size.
+        Margin padding = _getPaddingIntegerDips();
+            
                              
         gtk_widget_set_size_request( _pWidget, 0, 0);
         
@@ -105,25 +119,33 @@ public:
         
         if(availableWidth!=-1 && canAdjustWidthToAvailableSpace() )
         {
-            gint minHeight=0;
-            gint naturalHeight=0;
+            availableWidth -= padding.left + padding.right;
             
-            // GTK also uses DIPs. So no scaling necessary
-            int forGtkWidth = availableWidth;
-            
-            if(forGtkWidth<0)
-                forGtkWidth = 0;
-                
-            gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
-            
-            
-            resultSize.height = naturalHeight;            
-            
-            // now we know our height for the case in which the width is exactly availableWidth.
-            // However, availableWidth may actually be wider than what we need. Check that.
-            if(forGtkWidth < unrestrictedNaturalSize.width)
+            if(availableWidth>=unrestrictedNaturalSize.width)
             {
-                // the unrestricted size exceeds the available size.
+                // the unrestructed width  is smaller or equal to the available width.
+                // So we can just use that.
+                resultSize = unrestrictedNaturalSize;                
+            }
+            else
+            {            
+                gint minHeight=0;
+                gint naturalHeight=0;
+            
+                // GTK also uses DIPs. So no scaling necessary
+                int forGtkWidth = (int)std::lround(availableWidth);
+                
+                if(forGtkWidth<0)
+                    forGtkWidth = 0;
+                    
+                gtk_widget_get_preferred_height_for_width( _pWidget, forGtkWidth, &minHeight, &naturalHeight );
+                
+                
+                resultSize.height = naturalHeight;            
+                
+                // now we know our height for the case in which the width is exactly availableWidth.
+                // Note that we also know that availableWidth is smaller than the natural size (see check above).
+                // So we know that the control pretty much uses all the available space here.
                 // Note that it might seem like a good idea to use gtk_widget_get_preferred_width_for_height here
                 // to find out if the widget really does use all the available space in the restricted case.
                 // For example, text views that wrap their text to accomodate for availWidth will usually
@@ -138,34 +160,39 @@ public:
                 // try to choose the wrap point so that all lines are roughly the same width. That is not the
                 // same text wrapping that the control used to calculate the naturalHeight for the case with the
                 // restricted width.
-                
-                // So, there is no way to calculate the actual used amount of available space.
-            
-                resultSize.width = forGtkWidth;
+                resultSize.width = availableWidth;                   
             }
-            else
-                resultSize.width = unrestrictedNaturalSize.width;               
-            
         }
         else if(availableHeight!=-1 && canAdjustHeightToAvailableSpace() )
         {
-            gint minWidth=0;
-            gint naturalWidth=0;
+            availableHeight -= padding.top + padding.bottom;
             
-            // no scaling necessary
-            int forGtkHeight = availableHeight;
-            
-            if(forGtkHeight<0)
-                forGtkHeight = 0;
+            if(availableHeight>=unrestrictedNaturalSize.width)
+            {
+                // the unrestructed height is smaller or equal to the available height.
+                // So we can just use that.
+                resultSize = unrestrictedNaturalSize;                
+            }
+            else
+            {
+                gint minWidth=0;
+                gint naturalWidth=0;
                 
-            // see availableWidth!=-1 case for an explanation of what we do here.
-            
-            gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
-            
-            
-            resultSize.width = naturalWidth;            
-            resultSize.height = std::min(forGtkHeight, unrestrictedNaturalSize.height);            
-        }
+                // no scaling necessary
+                int forGtkHeight = (int)std::lround(availableHeight);
+                
+                if(forGtkHeight<0)
+                    forGtkHeight = 0;
+                    
+                // see availableWidth!=-1 case for an explanation of what we do here.
+                
+                gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
+                
+                
+                resultSize.width = naturalWidth;            
+                resultSize.height = availableHeight;std::min(forGtkHeight, unrestrictedNaturalSize.height);            
+            }
+        }            
         else
             resultSize = unrestrictedNaturalSize;
             
@@ -177,11 +204,11 @@ public:
         // restore the old size
         gtk_widget_set_size_request( _pWidget, oldWidth, oldHeight);        
         
-        Size size = gtkSizeToSize(resultSize);
-        
+        Size size = gtkSizeToSize(resultSize);        
 
-        Margin padding = _getPaddingDips();
         size += padding;
+                
+        //std::cout << typeid(*this).name() << " preferred: " << size.width << "x" << size.height << " padding: " << padding.top << "," << padding.right <<","<< padding.bottom <<","<< padding.left << std::endl;
         
         return size;
     }
@@ -264,17 +291,27 @@ protected:
 
 private:
 
-    Margin _getPaddingDips() const
+    Margin _getPaddingIntegerDips() const
     {
         P<const View> pView = getOuterViewIfStillAttached();
         Nullable<UiMargin> pad;
         if(pView!=nullptr)
             pad = pView->padding();
+            
+        Margin paddingDips;
 
         if(pad.isNull())
-            return getDefaultPaddingDips();
+            paddingDips = getDefaultPaddingDips();
         else            
-            return uiMarginToDipMargin( pad.get() );
+            paddingDips = uiMarginToDipMargin( pad.get() );
+            
+        // round up to full integers, since GTK cannot represent anything else
+        paddingDips.top = std::ceil(paddingDips.top);
+        paddingDips.right = std::ceil(paddingDips.right);
+        paddingDips.bottom = std::ceil(paddingDips.bottom);
+        paddingDips.left = std::ceil(paddingDips.left);
+        
+        return paddingDips;
     }
 
     
