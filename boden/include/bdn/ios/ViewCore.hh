@@ -62,10 +62,23 @@ public:
     {
     }
     
-    XXX
-    void setBounds(const Rect& bounds) override
+
+    void setPosition(const Point& position) override
     {
-        _view.frame = rectToIosRect(bounds);
+        CGRect rect = _view.frame;
+        rect.origin.x = position.x;
+        rect.origin.y = position.y;
+        
+        _view.frame = rect;
+    }
+    
+    void setSize(const Size& size) override
+    {
+        CGRect rect = _view.frame;
+        rect.size.width = size.width;
+        rect.size.height = size.height;
+        
+        _view.frame = rect;
     }
     
 
