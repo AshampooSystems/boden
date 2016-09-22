@@ -210,6 +210,12 @@ public:
 		return true;
 	}
 
+
+    double getPhysicalPixelsPerDip() const override
+    {
+        return 3;
+    }
+
 protected:    
 	bool		_visible = false;
 	int			_visibleChangeCount = 0;

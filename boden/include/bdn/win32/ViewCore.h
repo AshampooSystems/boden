@@ -112,6 +112,12 @@ public:
     {
         return _outerViewWeak.toStrong();
     }
+    
+
+    double getPhysicalPixelsPerDip() const override
+    {
+        return _uiScaleFactor;
+    }
 
 protected:
 

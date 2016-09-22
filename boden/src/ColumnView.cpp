@@ -1,7 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/ColumnView.h>
 
-#include <cmath>
+#include <bdn/RoundDown.h>
+#include <bdn/RoundUp.h>
 
 
 namespace bdn
@@ -12,11 +13,19 @@ Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
 
+    double pixelsPerDip = getPhysicalPixelsPerDip();
+    
 	if(availableWidth!=-1)
 	{
 		std::list<Rect> childBounds;
 
-		double contentEndY = calcChildBoundsForWidth(availableWidth, childViews, childBounds );
+        // round available size DOWN to full pixels
+        availableWidth = RoundDown(pixelsPerDip)(availableWidth);
+
+		double contentEndY = calcChildBoundsForWidth(availableWidth, childViews, childBounds, pixelsPerDip );
+
+        // round height UP to full pixels
+        contentEndY = RoundUp(pixelsPerDip)(contentEndY);
 	
 		return Size(availableWidth, contentEndY);
 	}
@@ -28,6 +37,8 @@ Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight
 	else
 	{
 		Size preferredSize;
+
+        RoundUp upRounder(pixelsPerDip);
 	
 		for(const P<View>& pChildView: childViews)
 		{
@@ -37,6 +48,10 @@ Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight
 
 			childPreferredSize += pChildView->uiMarginToDipMargin( pChildView->margin() );
 
+            // round the child's preferred size UP to pixel boundaries. This is necessary because
+            // we added the margin, which might not be a multiple of the pixel size.
+            childPreferredSize = upRounder(childPreferredSize);            
+
 			preferredSize.height += childPreferredSize.height;
 			preferredSize.width = std::max( preferredSize.width, childPreferredSize.width);
 		}
@@ -45,15 +60,18 @@ Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight
 		Nullable<UiMargin> pad = padding();
 		// If padding is null then we use zero padding (i.e. add nothing)
 		if(!pad.isNull())
-			preferredSize += uiMarginToDipMargin( pad );
-
+			preferredSize += upRounder( uiMarginToDipMargin( pad ) );
+        
 		return preferredSize;
 	}
 }
 
-double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds) const
+double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds, double pixelsPerDip) const
 {
 	Margin myPadding;
+
+    RoundUp     upRounder(pixelsPerDip);
+    RoundDown   downRounder(pixelsPerDip);
     
     Nullable<UiMargin> pad = padding();
     // If padding is null then we use zero padding
@@ -71,7 +89,7 @@ double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View
 
 		Margin	childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
 
-		double maxChildWidth = contentWidth - childMargin.left - childMargin.right;
+		double maxChildWidth = downRounder(contentWidth - childMargin.left - childMargin.right);
 
 		HorizontalAlignment horzAlign = pChildView->horizontalAlignment();
 
@@ -81,6 +99,7 @@ double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View
 			|| horzAlign == HorizontalAlignment::expand)
 		{
 			childWidth = maxChildWidth;
+            
 			childX = myPadding.left + childMargin.left;
 		}
 		else
@@ -98,6 +117,12 @@ double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View
 			childX = myPadding.left + childMargin.left + (maxChildWidth-childWidth)*alignFactor;
 		}
 
+        // we must round the X coordinate DOWN to the next pixel because otherwise the child might not fit
+        // into the container.
+        childX = downRounder(childX);
+
+        childWidth = childWidth;
+        
 		double childHeight;
 
 		if(childWidth < childPreferredSize.width)
@@ -107,17 +132,18 @@ double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View
 		}
 		else
 			childHeight = childPreferredSize.height;
-
-		currY += childMargin.top;
+        
+        // must round Y up, so that the this child cannot overlap with the previous child
+		currY += upRounder(childMargin.top);
 		
 		childBounds.push_back( Rect( childX, currY, childWidth, childHeight ) );
 
-		currY += childHeight+ childMargin.bottom;
+		currY += upRounder(childHeight+ childMargin.bottom);
 	}
 
 	currY += myPadding.bottom;
 
-	return currY;
+    return upRounder(currY);
 }
 
 void ColumnView::layout()

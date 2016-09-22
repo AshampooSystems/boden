@@ -406,6 +406,19 @@ public:
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
 
+    /** Returns the number of physical pixels for each DIP (device independent pixel - see UiLength::Unit::dip).
+        The number does not have to be an integer. For example, the function could return 2.7 if there are
+        2.7 physical pixels for each DIP unit.
+        
+        The returned value should NOT be stored for later use because it can change at runtime
+        (even for the same view object). For example, it can change when the view is moved to a different screen,
+        when a view parent changes, when the user changes his monitor settings, and also at other implementation
+        specific times. So this should be considered a temporary value.
+
+        Returns 1 if the view is not connected to a screen (for example, if it does not have a parent).
+        */
+    virtual double getPhysicalPixelsPerDip() const;
+
 protected:
 
 	/** Verifies that the current thread is the main thread.

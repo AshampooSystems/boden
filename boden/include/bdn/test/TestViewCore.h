@@ -154,7 +154,7 @@ protected:
 
             initCore();
             verifyInitialDummyCoreSize();
-        }
+        }        
     }
 
     /** Runs the tests that verify the core behaviour for operations that happen
@@ -365,6 +365,21 @@ protected:
             }
         }
 
+
+        SECTION("getPhysicalPixelsPerDip")
+        {
+            double pixels = _pCore->getPhysicalPixelsPerDip();
+
+            REQUIRE( pixels>0 );
+
+            // we check if the pixel resolution is in a "plausible" range.
+            // We assume that the test code is run on a machine with at least a somewhat
+            // "normal" resolution.
+            REQUIRE( pixels>=0.25 ); // we assume that the resolution is not too low. Less than 1/4 pixel per DIP would mean VERY large pixels.
+            REQUIRE( pixels<=20); // more than 20 pixels per DIP would mean a resolution that is roughly equivalent to a desktop
+                                    // monitor size screen with a 20.000 x 15.000 pixel resolution.  That does seem excessive!            
+        }
+
         SECTION("position")
         {
             SECTION("manualChange")
@@ -483,6 +498,8 @@ protected:
                 }
             }
         }
+
+        
     }
 
 

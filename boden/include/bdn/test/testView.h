@@ -451,6 +451,33 @@ inline void testView()
 			    );		
 	    }
 
+        SECTION("pixelsPerDip")
+        {
+            // our mock UI uses 3 pixels per dip. That is what the view should return.
+            REQUIRE( pView->getPhysicalPixelsPerDip() == 3 );
+        }
+
+        SECTION("preferredSize roundedToFullPixels")
+        {
+            SECTION("no padding")
+            {
+                // do nothing
+            }
+
+            SECTION("weird padding")
+            {
+                pView->padding() = UiMargin(UiLength::Unit::dip, 0.123456789, 0.23456789, 0.3456789, 0.456789 );
+            }
+
+            Size prefSize = pView->calcPreferredSize(-1, -1);
+
+            double pixelsPerDip = pView->getPhysicalPixelsPerDip();
+
+            // the size should be rounded to physical pixels
+            REQUIRE( prefSize.width*pixelsPerDip == (int)(prefSize.width*pixelsPerDip) );
+            REQUIRE( prefSize.height*pixelsPerDip == (int)(prefSize.height*pixelsPerDip) );
+        }
+
 #if BDN_HAVE_THREADS
         SECTION("core deinit called from main thread")
         {
