@@ -128,9 +128,9 @@ public:
     {
         if(position!=_currActualWindowBounds.getPosition())
         {
-            NSScreen* screen = _getNsScreen();
-            
             Rect newBounds( position, _currActualWindowBounds.getSize() );
+            
+            NSScreen* screen = _getNsScreen();
             
             // the screen's coordinate system is inverted. So we need to
             // flip the coordinates.
@@ -147,14 +147,18 @@ public:
         {
             NSScreen* screen = _getNsScreen();
             
-            Rect newBounds( _currActualWindowBounds.getPosition(), size );
+            _currActualWindowBounds.width = size.width;
+            _currActualWindowBounds.height = size.height;
             
-            // the screen's coordinate system is inverted. So we need to
-            // flip the coordinates.
-            NSRect nsBounds = rectToMacRect(newBounds, screen.frame.size.height);
+            // note that if we only change the size of the window then that
+            // will actually also modify its position, since the coordinate space is flipped
+            // and the window thus grows "upwards".
+            // So we have to update the position as well to ensure that the
+            // Window actually grows downwards and its upper left corner stays at the
+            // same place.
+            NSRect newBounds = rectToMacRect( _currActualWindowBounds, screen.frame.size.height);
             
-            [_nsWindow setFrame:nsBounds display: FALSE];
-            _currActualWindowBounds = newBounds;
+            [_nsWindow setFrame:newBounds display: FALSE];
         }
     }
 

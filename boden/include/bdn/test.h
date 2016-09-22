@@ -1634,7 +1634,7 @@ std::string toString( std::nullptr_t );
     std::string toString( NSObject* const& nsObject );
 #endif
 
-
+std::string toString( const Point& point);
 std::string toString( const Size& size);
 std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);

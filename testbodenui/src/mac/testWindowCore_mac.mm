@@ -59,7 +59,11 @@ protected:
     
     bdn::Rect getFrameRect() const
     {
-        return bdn::mac::macRectToRect( _pNSWindow.frame, _pNSWindow.screen.frame.size.height);
+        NSScreen*   screen = _pNSWindow.screen;
+        if(screen==nil) // happens when window is not visible
+            screen = [NSScreen mainScreen];
+        
+        return bdn::mac::macRectToRect( _pNSWindow.frame, screen.frame.size.height);
     }
     
     void verifyInitialDummyCorePosition() override
