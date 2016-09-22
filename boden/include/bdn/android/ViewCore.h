@@ -56,7 +56,7 @@ public:
 
         if(initBounds)
         {
-            setPosition( pOuterView->position() )
+            setPosition( pOuterView->position() );
             setSize( pOuterView->size() );
         }
 
@@ -162,7 +162,7 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildPosition( getJView(), bounds.x * _uiScaleFactor, bounds.y * _uiScaleFactor );
+            parentView.setChildPosition( getJView(), pos.x * _uiScaleFactor, pos.y * _uiScaleFactor );
         }
     }
 
@@ -182,7 +182,7 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildSize( getJView(), bounds.width * _uiScaleFactor, bounds.height * _uiScaleFactor );
+            parentView.setChildSize( getJView(), size.width * _uiScaleFactor, size.height * _uiScaleFactor );
         }
     }
 

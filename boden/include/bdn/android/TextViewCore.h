@@ -76,7 +76,7 @@ public:
         // for some reason the TextView does not wrap its text, unless we explicitly set the
         // width with setMaxWidth (even if the widget's size is actually smaller than the text).
         // This seems to be a bug in android.
-        int widthPixels = std::floor( bounds.width * getUiScaleFactor() );
+        int widthPixels = (int)std::floor( size.width * getUiScaleFactor() );
 
         _pJTextView->setMaxWidth( widthPixels );
         _currWidthPixels = widthPixels;

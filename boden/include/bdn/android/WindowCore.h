@@ -237,7 +237,7 @@ protected:
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
-            pView->bounds() = _currentBounds;
+            pView->size() = _currentBounds.getSize();
 
             pView->needLayout();
         }
