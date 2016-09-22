@@ -115,16 +115,20 @@ public:
         }
     }
     
-    XXX
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& position) override
     {
         emscripten::val styleObj = _domObject["style"];
 
-        styleObj.set("width", UiProvider::dipsToHtmlString(bounds.width).asUtf8() );
-        styleObj.set("height", UiProvider::dipsToHtmlString(bounds.height).asUtf8() );
+        styleObj.set("left", UiProvider::dipsToHtmlString(position.x, UiProvider::Round::nearest).asUtf8() );
+        styleObj.set("top", UiProvider::dipsToHtmlString(position.y, UiProvider::Round::nearest).asUtf8() );        
+    }
 
-        styleObj.set("left", UiProvider::dipsToHtmlString(bounds.x).asUtf8() );
-        styleObj.set("top", UiProvider::dipsToHtmlString(bounds.y).asUtf8() );        
+    void setSize(const Size& size) override
+    {
+        emscripten::val styleObj = _domObject["style"];
+
+        styleObj.set("width", UiProvider::dipsToHtmlString(size.width, UiProvider::Round::up).asUtf8() );
+        styleObj.set("height", UiProvider::dipsToHtmlString(size.height, UiProvider::Round::up).asUtf8() );
     }
     
 
@@ -160,7 +164,13 @@ public:
         styleObj.set("height", std::string("auto") );
 
         if(availableWidth!=-1)
-            styleObj.set("max-width", UiProvider::dipsToHtmlString(availableWidth).asUtf8() );
+        {
+            // how should we round here?
+            // If we round down then we might cause the content to wrap unnecessarily.
+            // If we round up then we might cause the content to not fit in the final view size.
+            // So we simply round to nearest. That should work in most cases.
+            styleObj.set("max-width", UiProvider::dipsToHtmlString(availableWidth, UiProvider::Round::nearest).asUtf8() );
+        }
         else
         {
             // our parent's size will influence how our content is wrapped if our size is set to "auto".
@@ -288,7 +298,6 @@ protected:
 
     WeakP<View>         _outerViewWeak;
     String              _elementId;
-    Rect                _currBounds;
     
     emscripten::val     _domObject;
 };

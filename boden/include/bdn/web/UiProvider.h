@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include <sstream>
+#include <iomanip>
 
 namespace bdn
 {
@@ -61,16 +62,29 @@ public:
     {
         double dips = uiLengthToDips(length);
 
-        return dipsToHtmlString(dips);
+        return dipsToHtmlString(dips, Round::nearest);
     }
 
-    static String dipsToHtmlString(double dips)
+    enum Round
+    {
+        down,
+        nearest,
+        up
+    };
+
+    static String dipsToHtmlString(double dips, Round round)
     {
     	std::stringstream s;
 
+        double roundedDips = dips;
+        if(round==Round::down)
+            roundedDips = std::floor(roundedDips * 10000)/10000;
+        else if(round==Round::up)
+            roundedDips = std::ceil(roundedDips * 10000)/10000;
+
     	// we need english string formatting.
     	s.imbue( std::locale::classic() );
-    	s << dips << "px";
+    	s << std::fixed << std::setprecision(4) << roundedDips << "px";
 
     	return s.str();
     }
