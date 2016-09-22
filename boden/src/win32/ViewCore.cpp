@@ -100,12 +100,21 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }
 
-void ViewCore::setBounds(const Rect& bounds)
+void ViewCore::setPosition(const Point& pos)
 {
-    RECT winRect = rectToWin32Rect(bounds, _uiScaleFactor);
+    POINT winPoint = pointToWin32Point( pos, _uiScaleFactor);
 
-	::SetWindowPos( getHwnd(), NULL, winRect.left, winRect.top, winRect.right-winRect.left, winRect.bottom-winRect.top, SWP_NOACTIVATE | SWP_NOZORDER);
+	::SetWindowPos( getHwnd(), NULL, winPoint.x, winPoint.y, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
 }
+
+
+void ViewCore::setSize(const Size& size)
+{
+    SIZE winSize = sizeToWin32Size(size, _uiScaleFactor);
+
+	::SetWindowPos( getHwnd(), NULL, 0, 0, winSize.cx, winSize.cy, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+}
+
 
 void ViewCore::setHorizontalAlignment(const View::HorizontalAlignment& align)
 {

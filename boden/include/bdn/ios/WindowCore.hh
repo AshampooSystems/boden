@@ -27,7 +27,9 @@ public:
         _window = (UIWindow*)getUIView();
         
         // set the outer object's bounds to the bounds of the ios window
-        pOuterWindow->bounds() = iosRectToRect(_window.frame);
+        Rect rect = iosRectToRect(_window.frame);
+        pOuterWindow->position() = rect.getPosition();
+        pOuterWindow->size() = rect.getSize();
     }
     
     ~WindowCore()
@@ -49,14 +51,23 @@ public:
         return _window;
     }
     
-    
-    void setBounds(const Rect& bounds) override
+
+    void setPosition(const Point& position) override
     {
         // we do not modify our frame. Just reset the bounds property back to the current bounds.
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            pView->bounds() = iosRectToRect(_window.frame);
+            pView->position() = iosRectToRect(_window.frame).getPosition();
     }
+    
+    void setSize(const Size& size) override
+    {
+        // we do not modify our frame. Just reset the bounds property back to the current bounds.
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pView->size() = iosRectToRect(_window.frame).getSize();
+    }
+
     
     
     void setTitle(const String& title) override
@@ -77,7 +88,7 @@ public:
             // But we do not want our content view to overlap with the bar. So we adjust the content
             // area accordingly.
             
-            Rect area( Point(0,0), pView->bounds().get().getSize() );
+            Rect area( Point(0,0), pView->size().get() );
             
             double topBarHeight = _window.rootViewController.topLayoutGuide.length;
             double bottomBarHeight = _window.rootViewController.bottomLayoutGuide.length;

@@ -53,11 +53,12 @@ ButtonCore::ButtonCore(Button* pOuterButton)
 
 void ButtonCore::_updateBezelStyle()
 {
-    Rect bounds;
+    Size size;
+    
 	P<View> pView = getOuterViewIfStillAttached();
     if(pView!=nullptr)
-		 bounds = pView->bounds();
-    int height = bounds.height;
+		 size = pView->size();
+    int height = size.height;
     
     // the "normal" button (NSRoundedBezelStyle) has a fixed height.
     // If we want a button that is higher then we have to use another bezel style,

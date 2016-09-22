@@ -222,7 +222,8 @@ TEST_CASE("Window", "[ui]")
 
 	    SECTION("autoSize")
 	    {
-            Rect boundsBefore = pWindow->bounds();
+            Point positionBefore = pWindow->position();
+            Size  sizeBefore = pWindow->size();
 
 		    SECTION("mainThread")
 		    {
@@ -245,21 +246,22 @@ TEST_CASE("Window", "[ui]")
 		    // which thread the request is coming from.
 		    // So nothing should have happened yet.
 
-		    REQUIRE( pWindow->bounds() == boundsBefore );
+		    REQUIRE( pWindow->position() == positionBefore );
+            REQUIRE( pWindow->size() == sizeBefore );
 
             CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(
 			    [pWindow]()
 			    {
-				    REQUIRE( pWindow->bounds() == Rect(0,0, 100, 32) );
+				    REQUIRE( pWindow->position() == Point(0, 0) );
+                    REQUIRE( pWindow->size() == Size( 100, 32) );
 			    }
 			    );		
 	    }
 
-
-
 	    SECTION("center")
 	    {
-		    pWindow->bounds() = Rect(0, 0, 200, 200);
+		    pWindow->position() = Point(0, 0);
+            pWindow->size() = Size(200, 200);
 
 		    SECTION("mainThread")
 		    {
@@ -282,15 +284,16 @@ TEST_CASE("Window", "[ui]")
 		    // which thread the request is coming from.
 		    // So nothing should have happened yet.
 
-		    REQUIRE( pWindow->bounds() == Rect(0, 0, 200, 200) );
+		    REQUIRE( pWindow->position() == Point(0, 0) );
+            REQUIRE( pWindow->size() == Size(200, 200) );
 
 		    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow)
 			{
 				// the work area of our mock window is 100,100 800x800
-				REQUIRE( pWindow->bounds() == Rect(	100 + (800-200)/2,
-													100 + (800-200)/2,
-													200,
-													200) );
+				REQUIRE( pWindow->position() == Point(	100 + (800-200)/2,
+													    100 + (800-200)/2 ) );
+
+                REQUIRE( pWindow->size() == Size(200, 200) );
 			};
 	    }		
     };

@@ -13,15 +13,33 @@ namespace win32
 {
 	
 
+inline POINT pointToWin32Point(const Point& point, double scaleFactor)
+{
+    POINT winPoint {(long)std::lround(point.x * scaleFactor),
+                    (long)std::lround(point.y * scaleFactor) };
+
+    return winPoint;
+}
+
+
+inline SIZE sizeToWin32Size(const Size& size, double scaleFactor)
+{
+    SIZE winSize {(long)std::ceil(size.width * scaleFactor),
+                  (long)std::ceil(size.height * scaleFactor) };
+
+    return winSize;
+}
+
 inline RECT rectToWin32Rect(const Rect& rect, double scaleFactor)
 {
-    RECT winRect{   (long)std::lround(rect.x * scaleFactor),
-                    (long)std::lround(rect.y * scaleFactor),
-                    0,
-                    0 };
+    POINT winPos = pointToWin32Point( rect.getPosition(), scaleFactor );
+    SIZE  winSize = sizeToWin32Size( rect.getSize(), scaleFactor );
 
-    winRect.right = winRect.left + (long)std::ceil(rect.width * scaleFactor);
-    winRect.bottom = winRect.top + (long)std::ceil(rect.height * scaleFactor);
+    RECT winRect{
+        winPos.x,
+        winPos.y,
+        winPos.x + winSize.cx,
+        winPos.y+winSize.cy };
 
     return winRect;
 }

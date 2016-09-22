@@ -68,11 +68,14 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
 
 	if(pSuggestedNewRect!=NULL)
 	{
-		Rect newRect(pSuggestedNewRect->left, pSuggestedNewRect->top, pSuggestedNewRect->right-pSuggestedNewRect->left, pSuggestedNewRect->bottom-pSuggestedNewRect->top);
+        Rect newRect = win32RectToRect(*pSuggestedNewRect, getUiScaleFactor() );
 
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-		    pView->bounds() = newRect;
+        {
+		    pView->position() = newRect.getPosition();
+            pView->size() = newRect.getSize();
+        }
 	}
 }
 

@@ -91,16 +91,12 @@ void Window::autoSize()
 			width = screenArea.width;
 	}
 
-	newBounds = bounds();
-	newBounds.width = width;
-	newBounds.height = height;
-
-	bounds() = newBounds;
+	size() = Size(width, height);
 }
 
 void Window::center()
 {
-	Rect myBounds = bounds();
+	Size mySize = size();
 
 	P<IViewCore> pCore = getViewCore();
 
@@ -112,10 +108,10 @@ void Window::center()
 
 	Rect screenWorkArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
 
-	myBounds.x = screenWorkArea.x + (screenWorkArea.width - myBounds.width)/2;
-	myBounds.y = screenWorkArea.y + (screenWorkArea.height - myBounds.height)/2;
+    double x = screenWorkArea.x + (screenWorkArea.width - mySize.width)/2;
+	double y = screenWorkArea.y + (screenWorkArea.height - mySize.height)/2;
 
-	bounds() = myBounds;
+	position() = Point(x, y);
 }
 
 Size Window::calcPreferredSize(double availableWidth, double availableHeight) const
@@ -199,7 +195,8 @@ void Window::layout()
 	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );    
     
     
-	pContentView->bounds() = contentBounds;
+	pContentView->position() = contentBounds.getPosition();
+    pContentView->size() = contentBounds.getSize();
 
 	// note that we do not need to call layout on the content view.
 	// If it needs to update its layout then the bounds change should have caused

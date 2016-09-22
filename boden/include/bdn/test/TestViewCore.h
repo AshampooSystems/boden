@@ -71,13 +71,25 @@ public:
 
 protected:
 
-    /** Returns true if the bounds of the view can be manually changed.
-        Returns false if this is a UI element whose size and position are controlled
+    /** Returns true if the view position can be manually changed.
+        Returns false if this is a UI element whose position is controlled
         by an external entity.
         
         The default implementation returns true
         */
-    virtual bool canManuallyChangeBounds() const
+    virtual bool canManuallyChangePosition() const
+    {
+        return true;
+    }
+
+
+    /** Returns true if the view sizecan be manually changed.
+        Returns false if this is a UI element whose size is controlled
+        by an external entity.
+        
+        The default implementation returns true
+        */
+    virtual bool canManuallyChangeSize() const
     {
         return true;
     }
@@ -128,12 +140,20 @@ protected:
             }
         }
 
-        SECTION("bounds")
+        SECTION("position")
         {
-            _pView->bounds() = Rect(110, 220, 880, 990);
+            _pView->position() = Point(110, 220);
 
             initCore();
-            verifyInitialDummyCoreBounds();
+            verifyInitialDummyCorePosition();
+        }
+
+        SECTION("size")
+        {
+            _pView->size() = Size(880, 990);
+
+            initCore();
+            verifyInitialDummyCoreSize();
         }
     }
 
@@ -191,6 +211,25 @@ protected:
                     REQUIRE( prefSize.height>=0 );
                 }
                 
+                SECTION("availableSize same as preferredSize")	
+                {
+                    SECTION("no padding")
+                    {
+                        // do nothing
+                    }
+                    
+                    SECTION("with padding")
+                    {
+                        _pView->padding() = UiMargin( UiLength::Unit::dip, 10, 20, 30, 40);
+                    }
+                    
+                    Size prefSize = _pCore->calcPreferredSize();
+                    
+                    Size prefSizeRestricted = _pCore->calcPreferredSize( prefSize.width, prefSize.height);
+                    
+                    REQUIRE( prefSize == prefSizeRestricted);
+                }
+                                
                 SECTION("calcPreferredSize restrictedWidth plausible")	
                 {
                     // this is difficult to test, since it depends heavily on what kind of view
@@ -326,27 +365,25 @@ protected:
             }
         }
 
-        SECTION("bounds")
+        SECTION("position")
         {
             SECTION("manualChange")
             {
-                if(canManuallyChangeBounds())
+                if(canManuallyChangePosition())
                 {
-					// note: don't get too big here. If we exceed the screen size then
-					// the window size be clipped by the OS.
-                    _pView->bounds() = Rect(110, 220, 550, 330);
+					_pView->position() = Point(110, 220);
 
                     // it may take a layout cycle until the bounds have updated
                     P<TestViewCore> pThis = this;
                     CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
                     {
-                        pThis->verifyCoreBounds();
+                        pThis->verifyCorePosition();
                     };
                 }
                 else
                 {
-                    // when the control does not have control over its own bounds then there is sometimes
-                    // a delay in the bounds processing.
+                    // when the control does not have control over its own position then there can be
+                    // a delay in the processing.
                     // We must ensure that the control has finished its initial initialization before
                     // we continue. That might take some time in some ports - and a simple
                     // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
@@ -355,23 +392,76 @@ protected:
 
                     CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
                     {
-                        // the control cannot manually change its bounds.
-                        // In that case the core must reset the bounds property back
+                        // the control cannot manually change its position.
+                        // In that case the core must reset the position property back
                         // to what it was originally. This reset may be done in a scheduled async call,
                         // so we must process pending events before we test for it.
-                        Rect origBounds = pThis->_pView->bounds();
-
+                        Point origPosition = pThis->_pView->position();
+                        
                         // sanity check: at this point the core bounds should always match
-                        pThis->verifyCoreBounds();
+                        pThis->verifyCorePosition();
 
-                        pThis->_pView->bounds() = Rect(117, 227, 887, 997);
+                        pThis->_pView->position() = Point(117, 227);
 
                         // again, we must wait until the changes have propagated
-                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origBounds )
+                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origPosition )
                         {
-                            REQUIRE( pThis->_pView->bounds().get() == origBounds );
+                            REQUIRE( pThis->_pView->position().get() == origPosition );
 
-                            pThis->verifyCoreBounds();
+                            pThis->verifyCorePosition();
+                        };
+                    };
+                }
+            }
+        }
+
+
+        SECTION("size")
+        {
+            SECTION("manualChange")
+            {
+                if(canManuallyChangeSize())
+                {
+					// note: don't get too big here. If we exceed the screen size then
+					// the window size be clipped by the OS.
+                    _pView->size() = Size(550, 330);
+
+                    // it may take a layout cycle until the bounds have updated
+                    P<TestViewCore> pThis = this;
+                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+                    {
+                        pThis->verifyCoreSize();
+                    };
+                }
+                else
+                {
+                    // when the control does not have control over its own size then there can be
+                    // a delay in the processing.
+                    // We must ensure that the control has finished its initial initialization before
+                    // we continue. That might take some time in some ports - and a simple
+                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
+                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
+                    P<TestViewCore> pThis = this;
+
+                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
+                    {
+                        // the control cannot manually change its size.
+                        // In that case the core must reset the size property back
+                        // to what it was originally. This reset may be done in a scheduled async call,
+                        // so we must process pending events before we test for it.
+                        Size origSize = pThis->_pView->size();
+
+                        // sanity check: at this point the core size should always match
+                        pThis->verifyCoreSize();
+
+                        pThis->_pView->size() = Size(887, 997);
+
+                        // again, we must wait until the changes have propagated
+                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origSize )
+                        {
+                            REQUIRE( pThis->_pView->size().get() == origSize );
+
+                            pThis->verifyCoreSize();
                         };
                     };
                 }
@@ -383,11 +473,11 @@ protected:
                 {
                     Size prefSizeBefore = _pCore->calcPreferredSize();
 
-                    _pView->bounds() = Rect(100, 200, 300, 400);
+                    _pView->size() = Size(300, 400);
                     
                     REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
 
-                    _pView->bounds() = Rect(1000, 2000, 3000, 4000);
+                    _pView->size() = Size(3000, 4000);
                     
                     REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
                 }
@@ -415,13 +505,21 @@ protected:
     virtual void verifyCorePadding()=0;
 
 
-    /** Verifies that the core's bounds property has the initial dummy value used
+    /** Verifies that the core's position property has the initial dummy value used
         directly after initialization.*/
-    virtual void verifyInitialDummyCoreBounds()=0;
+    virtual void verifyInitialDummyCorePosition()=0;
 
 
-    /** Verifies that the core's bounds property matches that of the outer view.*/
-    virtual void verifyCoreBounds()=0;
+    /** Verifies that the core's size property has the initial dummy value used
+        directly after initialization.*/
+    virtual void verifyInitialDummyCoreSize()=0;
+
+
+    /** Verifies that the core's position property matches that of the outer view.*/
+    virtual void verifyCorePosition()=0;
+
+    /** Verifies that the core's size property matches that of the outer view.*/
+    virtual void verifyCoreSize()=0;
 
 
     /** Returns the UiProvider to use.*/

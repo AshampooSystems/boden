@@ -52,25 +52,40 @@ protected:
         // contentWindow parent that is configured the same way.
         return bdn::mac::macRectToRect( _pNSView.frame, -1);
     }
+
+
     
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
+    {        
+        Rect rect = getFrameRect();
+                
+        REQUIRE( rect.getPosition() == Point() );
+    }
+
+    void verifyInitialDummyCoreSize() override
     {        
         Rect rect = getFrameRect();
         
         // even the dummy rects of newly created controls will sometimes have a valid
         // size from the start.
-        
-        REQUIRE( rect.getPosition() == Point() );
         REQUIRE( rect.height >= 0);
         REQUIRE( rect.width >= 0);
     }
     
-    void verifyCoreBounds() override
+    void verifyCorePosition() override
     {        
-        Rect rect = getFrameRect();
-        Rect expectedRect = BaseClass::_pView->bounds();
+        Point position = getFrameRect().getPosition();
+        Point expectedPosition = BaseClass::_pView->position();
         
-        REQUIRE( rect == expectedRect );
+        REQUIRE( position == expectedPosition );
+    }
+
+    void verifyCoreSize() override
+    {        
+        Size size = getFrameRect().getSize();
+        Size expectedSize = BaseClass::_pView->size();
+        
+        REQUIRE( size == expectedSize );
     }
     
     

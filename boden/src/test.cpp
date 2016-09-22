@@ -5898,6 +5898,10 @@ std::string toString( NSObject* const& nsObject ) {
 }
 #endif
 
+std::string toString( const Point& point)
+{
+    return "("+toString(point.x)+", "+toString(point.y)+")";
+}
 
 std::string toString( const Size& size)
 {

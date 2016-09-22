@@ -384,22 +384,43 @@ inline void testView()
 				    );
 		    }
 
-		    SECTION("bounds")
+		    SECTION("position")
 		    {
-			    Rect b(1, 2, 3, 4);
+			    Point p(1, 2);
 
-                int boundsChangeCountBefore = pCore->getBoundsChangeCount();
+                int positionChangeCountBefore = pCore->getPositionChangeCount();
 
 			    testViewOp<ViewType>( 
 				    pView,
-				    [pView, b, pWindow]()
+				    [pView, p, pWindow]()
 				    {
-					    pView->bounds() = b;
+					    pView->position() = p;
 				    },
-				    [pCore, b, pView, pWindow, boundsChangeCountBefore]()
+				    [pCore, p, pView, pWindow, positionChangeCountBefore]()
 				    {
-					    BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
-					    BDN_REQUIRE( pCore->getBounds() == b);
+					    BDN_REQUIRE( pCore->getPositionChangeCount()==positionChangeCountBefore+1 );
+					    BDN_REQUIRE( pCore->getPosition() == p);
+				    },
+				    0	// should NOT have caused a sizing info update
+				    );
+		    }
+
+            SECTION("size")
+		    {
+			    Size s(3, 4);
+
+                int sizeChangeCountBefore = pCore->getSizeChangeCount();
+
+			    testViewOp<ViewType>( 
+				    pView,
+				    [pView, s, pWindow]()
+				    {
+					    pView->size() = s;
+				    },
+				    [pCore, s, pView, pWindow, sizeChangeCountBefore]()
+				    {
+					    BDN_REQUIRE( pCore->getSizeChangeCount()==sizeChangeCountBefore+1 );
+					    BDN_REQUIRE( pCore->getSize() == s);
 				    },
 				    0	// should NOT have caused a sizing info update
 				    );

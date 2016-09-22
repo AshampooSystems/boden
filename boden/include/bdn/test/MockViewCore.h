@@ -27,7 +27,8 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
-		_bounds = pView->bounds();
+        _position = pView->position();
+		_size = pView->size();
 		_pParentViewWeak = pView->getParentView();
 	}
 
@@ -73,16 +74,29 @@ public:
 
 
 
-    /** Returns the current view bounds.*/
-    Rect getBounds() const
+    /** Returns the current view position.*/
+    Point getPosition() const
 	{
-	    return _bounds;
+	    return _position;
 	}
 
-    /** Returns the number of times the view's bounds have changed.*/
-    int getBoundsChangeCount() const
+    /** Returns the number of times the view's position has changed.*/
+    int getPositionChangeCount() const
 	{
-	    return _boundsChangeCount;
+	    return _positionChangeCount;
+	}
+
+
+    /** Returns the current view size.*/
+    Size getSize() const
+	{
+	    return _size;
+	}
+
+    /** Returns the number of times the view's size has changed.*/
+    int getSizeChangeCount() const
+	{
+	    return _sizeChangeCount;
 	}
 
 
@@ -134,13 +148,21 @@ public:
 		_paddingChangeCount++;
 	}
 
-	
-	void setBounds(const Rect& bounds) override
+	void setPosition(const Point& position) override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		_bounds = bounds;
-		_boundsChangeCount++;
+		_position = position;
+		_positionChangeCount++;
+	}
+
+
+    void setSize(const Size& size) override
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_size = size;
+		_sizeChangeCount++;
 	}
 
        
@@ -196,8 +218,11 @@ protected:
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
-	Rect		_bounds;
-	int			_boundsChangeCount = 0;
+	Point       _position;
+	int			_positionChangeCount = 0;
+
+    Size        _size;
+	int			_sizeChangeCount = 0;
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;

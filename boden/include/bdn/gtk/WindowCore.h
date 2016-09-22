@@ -67,13 +67,32 @@ public:
         gtk_window_set_title( getGtkWindow(), title.asUtf8Ptr() );
     }
 
-
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& position) override
+    {   
+        GtkAllocation alloc = rectToGtkRect( Rect(position, Size(1,1)) );
+        
+        // the X window system is not always precise when it comes to sizing and positioning.
+        // So if the size and/or position did not change then we should not reset it.
+        // If we were to set the "current" size or position again then we would risk that
+        // the result is slightly different that the actual current size and position.
+        
+        
+        if(position != _currBounds.getPosition() )            
+            gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
+            
+            
+        // it seems that we will not get a configure event when we modify the
+        // size and position ourselves. So we call the handler manually.
+        _reconfigured();
+    }
+    
+    
+    void setSize(const Size& size) override
     {   
         // GTK will assume that the requested size is without any window decorations
         // and borders. That is OK, since we ignore these nonclient sizes as well.
         
-        GtkAllocation alloc = rectToGtkRect(bounds );
+        GtkAllocation alloc = rectToGtkRect(Rect(Point(), size) );
         
         // the X window system is not always precise when it comes to sizing and positioning.
         // So if the size and/or position did not change then we should not reset it.
@@ -81,11 +100,8 @@ public:
         // the result is slightly different that the actual current size and position.
         
                        
-        if(bounds.getSize() != _currBounds.getSize())
+        if(size != _currBounds.getSize())
             gtk_window_resize( getGtkWindow(), alloc.width, alloc.height );
-        
-        if(bounds.getPosition() != _currBounds.getPosition() )            
-            gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
             
             
         // it seems that we will not get a configure event when we modify the
@@ -171,12 +187,12 @@ public:
     
     void _addChildViewCore(ViewCore* pChildCore) override
     {
-        Rect bounds;
+        Point position;
         P<View> pChildView = pChildCore->getOuterViewIfStillAttached();
         if(pChildView!=nullptr)
-            bounds = pChildView->bounds();
+            position = pChildView->position();
         
-        GdkRectangle rect = rectToGtkRect(bounds );
+        GdkRectangle rect = rectToGtkRect( Rect(position, Size(1,1) ) );
         
         gtk_layout_put( GTK_LAYOUT(_pContentParentWidget), pChildCore->getGtkWidget(), rect.x, rect.y);
     }
@@ -225,7 +241,10 @@ protected:
         // from the current ones.
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            pView->bounds() = _currBounds;                
+        {
+            pView->position() = _currBounds.getPosition();
+            pView->size() = _currBounds.getSize();
+        }            
     }
     
     

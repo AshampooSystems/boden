@@ -124,20 +124,44 @@ public:
     }
     
 
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& position) override
     {
-        if(bounds!=_currActualWindowBounds)
+        if(position!=_currActualWindowBounds.getPosition())
         {
+            Rect newBounds( position, _currActualWindowBounds.getSize() );
+            
             NSScreen* screen = _getNsScreen();
             
             // the screen's coordinate system is inverted. So we need to
             // flip the coordinates.
-            NSRect nsBounds = rectToMacRect(bounds, screen.frame.size.height);
+            NSRect nsBounds = rectToMacRect(newBounds, screen.frame.size.height);
         
             [_nsWindow setFrame:nsBounds display: FALSE];
-            _currActualWindowBounds = bounds;
+            _currActualWindowBounds = newBounds;
         }
     }
+    
+    void setSize(const Size& size) override
+    {
+        if(size!=_currActualWindowBounds.getSize())
+        {
+            NSScreen* screen = _getNsScreen();
+            
+            _currActualWindowBounds.width = size.width;
+            _currActualWindowBounds.height = size.height;
+            
+            // note that if we only change the size of the window then that
+            // will actually also modify its position, since the coordinate space is flipped
+            // and the window thus grows "upwards".
+            // So we have to update the position as well to ensure that the
+            // Window actually grows downwards and its upper left corner stays at the
+            // same place.
+            NSRect newBounds = rectToMacRect( _currActualWindowBounds, screen.frame.size.height);
+            
+            [_nsWindow setFrame:newBounds display: FALSE];
+        }
+    }
+
     
     
     double uiLengthToDips(const UiLength& uiLength) const override
@@ -183,7 +207,7 @@ public:
         P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)
         {     
-            pOuter->bounds() = _currActualWindowBounds;        
+            pOuter->size() = _currActualWindowBounds.getSize();
             pOuter->needLayout();
         }
     }
@@ -194,7 +218,7 @@ public:
 
         P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)        
-            pOuter->bounds() = _currActualWindowBounds;
+            pOuter->position() = _currActualWindowBounds.getPosition();
     }
     
 private:

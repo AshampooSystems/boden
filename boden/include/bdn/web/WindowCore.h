@@ -26,7 +26,8 @@ public:
 
         emscripten_set_resize_callback( "#window", static_cast<void*>(this), false, &WindowCore::_resizedCallback);
 
-        updateOuterViewBounds();
+        updateOuterViewPosition();
+        updateOuterViewSize();
     }
 
     ~WindowCore()
@@ -41,11 +42,18 @@ public:
     }
 
 
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& position) override
     {
         // we cannot modify the size or position of the window.
         // So just reset the bounds back to their original value.
-        updateOuterViewBounds();
+        updateOuterViewPosition();
+    }
+
+    void setSize(const Size& size) override
+    {
+        // we cannot modify the size or position of the window.
+        // So just reset the bounds back to their original value.
+        updateOuterViewSize();
     }
 
     void setTitle(const String& title) override
@@ -61,7 +69,7 @@ public:
     {
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            return Rect( Point(0,0), pView->bounds().get().getSize() );
+            return Rect( Point(0,0), pView->size().get() );
         else
             return Rect();
     }
@@ -102,7 +110,14 @@ public:
     }
     
 private:
-    void updateOuterViewBounds()
+    void updateOuterViewPosition()
+    {
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            pView->position() = Point(0,0);
+    }
+
+    void updateOuterViewSize()
     {
         int width = _domObject["offsetWidth"].as<int>();
         int height = _domObject["offsetHeight"].as<int>();
@@ -110,14 +125,14 @@ private:
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
-            pView->bounds() = Rect(0, 0, width, height);
+            pView->size() = Size(width, height);
             pView->needLayout();
         }
     }
 
     bool resized(int eventType, const EmscriptenUiEvent* pEvent)
     {
-        updateOuterViewBounds();
+        updateOuterViewSize();
 
         return false;
     }

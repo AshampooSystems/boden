@@ -85,7 +85,8 @@ protected:
             // make the window a somewhat big size.
             // Note that fullscreen windows may ignore this, but that is ok.
             // We only want to avoid cases where the window is tiny.
-            _pWindow->bounds() = Rect(0, 0, 1000, 1000);
+            _pWindow->position() = Point(0, 0);
+            _pWindow->size() = Size(1000, 1000);
 
             P<TestWindowCore> pThis = this;
 
@@ -93,7 +94,7 @@ protected:
             // the new bounds.
             CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
             {
-                Rect bounds = pThis->_pWindow->bounds();
+                Size size = pThis->_pWindow->size();
 
                 Rect contentArea = pThis->_pWindowCore->getContentArea();
 
@@ -103,8 +104,8 @@ protected:
                 REQUIRE( contentArea.height>0 );
             
                 // the content area must be fully inside the window bounds.
-                REQUIRE( contentArea.x + contentArea.width <= bounds.width);
-                REQUIRE( contentArea.y + contentArea.height <= bounds.height);
+                REQUIRE( contentArea.x + contentArea.width <= size.width);
+                REQUIRE( contentArea.y + contentArea.height <= size.height);
             };
         }
 

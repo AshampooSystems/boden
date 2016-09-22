@@ -111,15 +111,16 @@ public:
         
         [_nsTextView invalidateTextContainerOrigin];
     }
-    
-    void setBounds(const Rect& bounds) override
+
+
+    void setSize(const Size& size) override
     {
         // by default the text view will automatically adjust its height
         // to match the content size. We want it to have exactly the desired size,
         // so we explicitly set a constraint.
-        _nsTextView.minSize = sizeToMacSize( bounds.getSize() );
+        _nsTextView.minSize = sizeToMacSize( size );
     
-        ChildViewCore::setBounds(bounds);
+        ChildViewCore::setSize(size);
     }
 
     

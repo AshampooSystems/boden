@@ -41,12 +41,24 @@ public:
         // if the corresponding Cocoa view class supports setting a padding.
     }
     
-
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& pos) override
     {
         // our parent view's coordinate system is usually "normal" i.e. with
-        // the top left being (0,0). So there is no need to flip the coordinates.        
-        _nsView.frame = rectToMacRect(bounds, -1);
+        // the top left being (0,0). So there is no need to flip the coordinates.
+        Rect rect = macRectToRect( _nsView.frame, -1 );
+        rect.x = pos.x;
+        rect.y = pos.y;
+
+        _nsView.frame = rectToMacRect(rect, -1);
+    }
+    
+    void setSize(const Size& size) override
+    {
+        Rect rect = macRectToRect( _nsView.frame, -1 );
+        rect.width = size.width;
+        rect.height = size.height;
+        
+        _nsView.frame = rectToMacRect(rect, -1);
     }
     
 

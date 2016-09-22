@@ -55,7 +55,10 @@ public:
         setPadding( pOuterView->padding() );
 
         if(initBounds)
-            setBounds( pOuterView->bounds() );
+        {
+            setPosition( pOuterView->position() );
+            setSize( pOuterView->size() );
+        }
 
         // initialize the onClick listener. It will call the view core's
         // virtual clicked() method.
@@ -145,15 +148,13 @@ public:
     }
 
 
-    void setBounds(const Rect& bounds) override
+    void setPosition(const Point& pos) override
     {
-        //logInfo("Settings size to "+std::to_string(bounds.width)+"x"+std::to_string(bounds.height));
-
         bdn::java::JObject parent( _pJView->getParent() );
 
         if(parent.isNull_())
         {
-            // we do not have a parent => we cannot set any bounds.
+            // we do not have a parent => we cannot set any position.
             // Simply do nothing.
         }
         else
@@ -161,7 +162,27 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildBounds( getJView(), bounds.x * _uiScaleFactor, bounds.y * _uiScaleFactor, bounds.width * _uiScaleFactor, bounds.height * _uiScaleFactor );
+            parentView.setChildPosition( getJView(), pos.x * _uiScaleFactor, pos.y * _uiScaleFactor );
+        }
+    }
+
+    void setSize(const Size& size) override
+    {
+        //logInfo("Settings size to "+std::to_string(bounds.width)+"x"+std::to_string(bounds.height));
+
+        bdn::java::JObject parent( _pJView->getParent() );
+
+        if(parent.isNull_())
+        {
+            // we do not have a parent => we cannot set anything.
+            // Simply do nothing.
+        }
+        else
+        {
+            // the parent of all our views is ALWAYS a NativeViewGroup object.
+            JNativeViewGroup parentView( parent.getRef_() );
+
+            parentView.setChildSize( getJView(), size.width * _uiScaleFactor, size.height * _uiScaleFactor );
         }
     }
 

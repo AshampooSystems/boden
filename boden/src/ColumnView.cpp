@@ -122,16 +122,16 @@ double ColumnView::calcChildBoundsForWidth(double width, const std::list< P<View
 
 void ColumnView::layout()
 {
-	Rect myBounds = bounds();
+    Size mySize( size() );
 
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
 
 	std::list< Rect >	 childBounds;
 	
-	double contentEndY = calcChildBoundsForWidth( myBounds.width, childViews, childBounds);
+	double contentEndY = calcChildBoundsForWidth( mySize.width, childViews, childBounds);
 
-	if( contentEndY > myBounds.height )
+	if( contentEndY > mySize.height )
 	{
 		// our content does not fit with the preferred sizes.
 		// Todo: Need to implement this. See Issue #1
@@ -141,7 +141,8 @@ void ColumnView::layout()
 	for(const P<View>& pChildView: childViews)
 	{
 		Rect childBounds = *childBoundsIt;
-		pChildView->bounds() = childBounds;
+		pChildView->position() = childBounds.getPosition();
+        pChildView->size() = childBounds.getSize();
 
 		++childBoundsIt;
 	}

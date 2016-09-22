@@ -103,19 +103,34 @@ protected:
         }
     }
 
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
     {        
         Rect rect = getViewRect();
 
-        REQUIRE( rect == Rect() );
+        REQUIRE( rect.getPosition() == Point() );
     }
 
-    void verifyCoreBounds() override
+    void verifyInitialDummyCoreSize() override
     {        
         Rect rect = getViewRect();
-        Rect expectedRect = BaseClass::_pView->bounds();
 
-        REQUIRE( rect == expectedRect );
+        REQUIRE( rect.getSize() == Size() );
+    }
+
+    void verifyCorePosition() override
+    {        
+        Rect rect = getViewRect();
+        Point expectedPosition = BaseClass::_pView->position();
+
+        REQUIRE( rect.getPosition() == expectedPosition );
+    }
+    
+    void verifyCoreSize() override
+    {        
+        Rect rect = getViewRect();
+        Size expectedSize = BaseClass::_pView->size();
+
+        REQUIRE( rect.getSize() == expectedSize );
     }
 
 

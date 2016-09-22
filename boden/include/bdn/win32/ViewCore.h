@@ -31,7 +31,8 @@ public:
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
 
-	void setBounds(const Rect& bounds) override;
+	void setPosition(const Point& position) override;
+    void setSize(const Size& size) override;
         
     void setHorizontalAlignment(const View::HorizontalAlignment& align);
     void setVerticalAlignment(const View::VerticalAlignment& align);

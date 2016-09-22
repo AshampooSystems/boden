@@ -45,29 +45,51 @@ protected:
             REQUIRE( _jView.getVisibility()==bdn::android::JView::Visibility::invisible );
     }
     
-    Rect getViewRect()
+    Point getViewPosition()
     {
         double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
 
-        return Rect( _jView.getLeft()/scaleFactor, _jView.getTop()/scaleFactor, _jView.getWidth()/scaleFactor, _jView.getHeight()/scaleFactor );
+        return Point( _jView.getLeft()/scaleFactor, _jView.getTop()/scaleFactor );
+    }
+
+
+    Size getViewSize()
+    {
+        double scaleFactor = _pAndroidViewCore->getUiScaleFactor();
+
+        return Size( _jView.getWidth()/scaleFactor, _jView.getHeight()/scaleFactor );
     }
     
-    void verifyInitialDummyCoreBounds() override
+    void verifyInitialDummyCorePosition() override
     {        
-        Rect rect = getViewRect();
+        Point pos = getViewPosition();
 
-        REQUIRE( rect == Rect() );
+        REQUIRE( pos == Point() );
+    }
+
+    void verifyInitialDummyCoreSize() override
+    {        
+        Size size = getViewSize();
+
+        REQUIRE( size == Size() );
     }
     
-    void verifyCoreBounds() override
+    void verifyCorePosition() override
     {        
-        Rect rect = getViewRect();
-        Rect expectedRect = BaseClass::_pView->bounds();
+        Point position = getViewPosition();
+        Point expectedPosition = BaseClass::_pView->position();
 
-        REQUIRE_ALMOST_EQUAL( rect.x, expectedRect.x, 1 );
-        REQUIRE_ALMOST_EQUAL( rect.y, expectedRect.y, 1 );
-        REQUIRE_ALMOST_EQUAL( rect.width, expectedRect.width, 1 );
-        REQUIRE_ALMOST_EQUAL( rect.height, expectedRect.height, 1 );
+        REQUIRE_ALMOST_EQUAL( position.x, expectedPosition.x, 1 );
+        REQUIRE_ALMOST_EQUAL( position.y, expectedPosition.y, 1 );
+    }
+
+    void verifyCoreSize() override
+    {        
+        Size size = getViewSize();
+        Size expectedSize = BaseClass::_pView->size();
+
+        REQUIRE_ALMOST_EQUAL( size.width, expectedSize.width, 1 );
+        REQUIRE_ALMOST_EQUAL( size.height, expectedSize.height, 1 );
     }
     
     
