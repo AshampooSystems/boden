@@ -113,6 +113,71 @@ TEST_CASE("Margin")
         }
     }
 
+    
+    
+    SECTION("comparison operators")
+    {
+        Margin a(10, 20, 30, 40);
+
+        for(int component=0; component<4; component++)
+        {
+            Margin b(a);
+
+            REQUIRE( ! (a<b) );
+            REQUIRE( ! (a>b) );
+            REQUIRE( (a<=b) );
+            REQUIRE( (a>=b) );
+
+            double* pComp;
+            if(component==0)
+                pComp = &b.top;
+            else if(component==1)
+                pComp = &b.right;
+            else if(component==2)
+                pComp = &b.bottom;
+            else
+                pComp = &b.left;
+
+            (*pComp) ++;
+
+            REQUIRE( ! (a<b) );
+            REQUIRE( ! (a>b) );
+            REQUIRE( (a<=b) );
+            REQUIRE( ! (a>=b) );
+
+            (*pComp) -= 2;
+
+            REQUIRE( ! (a<b) );
+            REQUIRE( ! (a>b) );
+            REQUIRE( ! (a<=b) );
+            REQUIRE( (a>=b) );
+        }
+
+        {
+            Margin b(a);
+
+            b -= Margin(1);
+
+            REQUIRE( ! (a<b) );
+            REQUIRE( (a>b) );
+            REQUIRE( ! (a<=b) );
+            REQUIRE( (a>=b) );
+        }
+
+        {
+            Margin b(a);
+
+            b += Margin(1);
+
+            REQUIRE( (a<b) );
+            REQUIRE( ! (a>b) );
+            REQUIRE( (a<=b) );
+            REQUIRE( ! (a>=b) );
+        }
+
+
+    }
+
 }
 
 

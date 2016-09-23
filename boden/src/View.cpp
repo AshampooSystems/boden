@@ -308,14 +308,14 @@ Size View::calcPreferredSize(double availableWidth, double availableHeight) cons
 		return Size(0, 0);
 }
 
-double View::getPhysicalPixelsPerDip() const
+double View::getPhysicalPixelSizeInDips() const
 {
-    verifyInMainThread("View::getPhysicalPixelsPerDip");
+    verifyInMainThread("View::getPhysicalPixelSizeInDips");
 
 	P<IViewCore> pCore = getViewCore();
 
 	if(pCore!=nullptr)
-		return pCore->getPhysicalPixelsPerDip();
+		return pCore->getPhysicalPixelSizeInDips();
 	else
 		return 1.0;
 }

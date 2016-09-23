@@ -384,6 +384,8 @@ public:
 
     /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
         based on it current content	and properties.
+
+        The returned size MUST be rounded to physical pixel boundaries (see getPhysicalPixelSizeInDips() ).
         
 		availableWidth and availableHeight are used to indicate the maximum amount of available
 		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
@@ -406,18 +408,21 @@ public:
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
 
-    /** Returns the number of physical pixels for each DIP (device independent pixel - see UiLength::Unit::dip).
-        The number does not have to be an integer. For example, the function could return 2.7 if there are
-        2.7 physical pixels for each DIP unit.
+    /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).
+        The number is often not an integer. For example, the function could return 0.2 if there are
+        5 physical pixels for each DIP unit.
+
+        If the size of physical pixels cannot be determined by the implementation then it may return a different value
+        chosen by the implementation (for example 1). However, since UI element positions and sizes are aligned
+        by this value, such a replacement value should be chosen wisely.
         
         The returned value should NOT be stored for later use because it can change at runtime
         (even for the same view object). For example, it can change when the view is moved to a different screen,
         when a view parent changes, when the user changes his monitor settings, and also at other implementation
         specific times. So this should be considered a temporary value.
-
-        Returns 1 if the view is not connected to a screen (for example, if it does not have a parent).
         */
-    virtual double getPhysicalPixelsPerDip() const;
+    virtual double getPhysicalPixelSizeInDips() const;
+
 
 protected:
 

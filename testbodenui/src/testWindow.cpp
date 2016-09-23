@@ -295,7 +295,37 @@ TEST_CASE("Window", "[ui]")
 
                 REQUIRE( pWindow->size() == Size(200, 200) );
 			};
-	    }		
+	    }		        
+
+        SECTION("contentView aligned on full pixels")
+        {
+            P<Button> pChild = newObj<Button>();
+            pChild->label() = "hello";
+
+            SECTION("weird child margin")
+                pChild->margin() = UiMargin( UiLength::Unit::dip, 0.12345678 );
+
+            SECTION("weird window padding")
+                pWindow->padding() = UiMargin( UiLength::Unit::dip, 0.12345678 );
+
+            pWindow->setContentView(pChild);
+
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pChild, pWindow)
+            {
+                // the mock views we use have 3 pixels per dip
+                double pixelsPerDip = 3;
+
+                Point pos = pChild->position();               
+                
+                REQUIRE_ALMOST_EQUAL( pos.x*pixelsPerDip, std::round(pos.x*pixelsPerDip), 0.000001 );
+                REQUIRE_ALMOST_EQUAL( pos.y*pixelsPerDip, std::round(pos.y*pixelsPerDip), 0.000001 );
+
+                Size size = pChild->size();               
+                REQUIRE_ALMOST_EQUAL( size.width*pixelsPerDip, std::round(size.width*pixelsPerDip), 0.000001 );
+                REQUIRE_ALMOST_EQUAL( size.height*pixelsPerDip, std::round(size.height*pixelsPerDip), 0.000001 );
+            };
+        }
+
     };
 
     }

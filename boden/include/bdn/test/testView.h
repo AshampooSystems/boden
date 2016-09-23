@@ -454,7 +454,7 @@ inline void testView()
         SECTION("pixelsPerDip")
         {
             // our mock UI uses 3 pixels per dip. That is what the view should return.
-            REQUIRE( pView->getPhysicalPixelsPerDip() == 3 );
+            REQUIRE( pView->getPhysicalPixelSizeInDips() == 1.0/3 );
         }
 
         SECTION("preferredSize roundedToFullPixels")
@@ -471,11 +471,12 @@ inline void testView()
 
             Size prefSize = pView->calcPreferredSize(-1, -1);
 
-            double pixelsPerDip = pView->getPhysicalPixelsPerDip();
-
+            double pixelSizeDips = pView->getPhysicalPixelSizeInDips();
+            
+            
             // the size should be rounded to physical pixels
-            REQUIRE( prefSize.width*pixelsPerDip == (int)(prefSize.width*pixelsPerDip) );
-            REQUIRE( prefSize.height*pixelsPerDip == (int)(prefSize.height*pixelsPerDip) );
+            REQUIRE_ALMOST_EQUAL( prefSize.width/pixelSizeDips, std::round(prefSize.width/pixelSizeDips), 0.000001 );
+            REQUIRE_ALMOST_EQUAL( prefSize.height/pixelSizeDips, std::round(prefSize.height/pixelSizeDips), 0.000001 );
         }
 
 #if BDN_HAVE_THREADS

@@ -34,8 +34,14 @@ protected:
 	
 	/** Calculates the positions and sizes (in DIPs - see UILength::Unit::dip) of the child views for the case that the ColumnView
 		has the specified width.
-		Returns the total height of the contents in DIPs (including the padding). */
-	double calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds, double pixelsPerDip) const;
+
+		Returns the "useful" Size for the container contents (including padding and margins) in DIPs. Note that if the \c width parameter
+        is bigger than the size needed to accomodate the widest child then the returned width will be smaller than the \c width
+        parameter.
+        
+        pixelSizeDips is the size of 1 physical pixel in DIP units. This is usually <=1.
+        */
+	Size calcChildBoundsForWidth(double width, const std::list< P<View> >& childViews, std::list<Rect>& childBounds, double pixelSizeDips) const;
 
 	void	layout() override;
 };

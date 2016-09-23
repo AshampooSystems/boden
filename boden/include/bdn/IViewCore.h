@@ -82,16 +82,20 @@ public:
     
     
 
-    /** Returns the number of physical pixels for each DIP (device independent pixel - see UiLength::Unit::dip).
-        The number does not have to be an integer. For example, the function could return 2.7 if there are
-        2.7 physical pixels for each DIP unit.
+    /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).
+        The number is often not an integer. For example, the function could return 0.2 if there are
+        5 physical pixels for each DIP unit.
+
+        If the size of physical pixels cannot be determined by the implementation then it may return a different value
+        chosen by the implementation (for example 1). However, since UI element positions and sizes are aligned
+        by this value, such a replacement value should be chosen wisely.
         
         The returned value should NOT be stored for later use because it can change at runtime
         (even for the same view object). For example, it can change when the view is moved to a different screen,
         when a view parent changes, when the user changes his monitor settings, and also at other implementation
         specific times. So this should be considered a temporary value.
         */
-    virtual double getPhysicalPixelsPerDip() const=0;
+    virtual double getPhysicalPixelSizeInDips() const=0;
 	
 };
 

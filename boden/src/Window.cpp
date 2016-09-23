@@ -3,6 +3,9 @@
 
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/RoundUp.h>
+#include <bdn/RoundDown.h>
+#include <bdn/RoundNearest.h>
 
 
 namespace bdn
@@ -58,7 +61,7 @@ void Window::autoSize()
 	SizingInfo mySizingInfo = sizingInfo();
 
 	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
-	
+    	
 	double width = mySizingInfo.preferredSize.width;
 	double height = mySizingInfo.preferredSize.height;
 
@@ -111,6 +114,12 @@ void Window::center()
     double x = screenWorkArea.x + (screenWorkArea.width - mySize.width)/2;
 	double y = screenWorkArea.y + (screenWorkArea.height - mySize.height)/2;
 
+    double pixelSizeDips = getPhysicalPixelSizeInDips();
+    RoundNearest rounder(pixelSizeDips);
+
+    x = rounder(x);
+    y = rounder(y);
+
 	position() = Point(x, y);
 }
 
@@ -127,16 +136,26 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 		return Size(0,0);
 	}
 
+    double pixelSizeDips = getPhysicalPixelSizeInDips();
+
+    RoundUp     upRounder( pixelSizeDips );
+    RoundDown   downRounder( pixelSizeDips );
+
 	Margin contentMargin;
 	P<const View>	pContentView = getContentView();
 	if(pContentView!=nullptr)
-		contentMargin = pContentView->uiMarginToDipMargin( _pContentView->margin() );
+		contentMargin = upRounder( pContentView->uiMarginToDipMargin( _pContentView->margin() ) );
 
-	Margin myPadding = getDipPadding();
+	Margin myPadding = upRounder( getDipPadding() );
 
 	Size availableContentAreaSize(-1, -1);	
 	if(availableWidth!=-1 || availableHeight!=-1)
 	{
+        if(availableWidth!=-1)
+            availableWidth = downRounder(availableWidth);
+        if(availableHeight!=-1)
+            availableHeight = downRounder(availableHeight);
+
 		// subtract size of window border, titlebar, etc.
 		availableContentAreaSize = pCore->calcContentAreaSizeFromWindowSize(
 			Size(availableWidth==-1 ? 10000 : availableWidth,
@@ -160,13 +179,13 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 		
 	Size contentSize;
 	if(pContentView!=nullptr)
-		contentSize = pContentView->calcPreferredSize( availableContentAreaSize.width, availableContentAreaSize.height );
+		contentSize = upRounder( pContentView->calcPreferredSize( availableContentAreaSize.width, availableContentAreaSize.height ) );
 
 	Size contentAreaSize = contentSize + myPadding + contentMargin;
 	
 	Size preferredSize = pCore->calcWindowSizeFromContentAreaSize( contentAreaSize );
 
-	Size minSize = pCore->calcMinimumSize();
+	Size minSize = upRounder( pCore->calcMinimumSize() );
 	preferredSize.width = std::max( minSize.width, preferredSize.width );
 	preferredSize.height = std::max( minSize.height, preferredSize.height );
 
@@ -184,15 +203,19 @@ void Window::layout()
 		return;
 	}
 
+    double pixelSizeDips = getPhysicalPixelSizeInDips();
+
+    RoundUp     upRounder( pixelSizeDips );
+
 	// just set our content window to content area (but taking margins and padding into account).
 
 	Rect contentBounds = pCore->getContentArea();
     			
 	// subtract our padding
-	contentBounds -= getDipPadding();
+	contentBounds -= upRounder( getDipPadding() );
 
 	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );    
+	contentBounds -= upRounder( pContentView->uiMarginToDipMargin( pContentView->margin() ) );    
     
     
 	pContentView->position() = contentBounds.getPosition();

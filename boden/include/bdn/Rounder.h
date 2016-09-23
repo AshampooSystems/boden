@@ -25,6 +25,9 @@ namespace bdn
     You can also specify arbitrary numbers like 12.3456.
     Then all output values will be rounded to a multiple of 12.3456.
 
+    The rounding is guaranteed to be stable. I.e. if rounding a previous round result
+    again returns the same value.
+
     The Rounder object also provides a call operator. So instead of calling the round()
     function you can also call the object itself (see example).
     
@@ -59,29 +62,80 @@ namespace bdn
 
     \endcode
 */
-template< typename RoundFunction >
+template< double (*roundFunction)(double) >
 class Rounder : public Base
 {
 public:
     explicit Rounder(double unit)
 	{		
         if(unit==0)
-            throw InvalidArgumentError("Rounder constructor called with zero unit.")
+            throw InvalidArgumentError("Rounder constructor called with zero unit.");
         _unit = unit;
 	}
 
 
-    double operator()(double) const
+    /** Returns the Rounder's unit (see Rounder class documentation).*/
+    double getUnit() const
     {
-        return round(double);
+        return unit;
     }
+
 
 
     /** Rounds a double value.*/
     double round(double val) const
     {
-        return RoundFunction(val*unit) / unit;
+        // we want the rounding to be stable.
+        // I.e. round( round(val) ) == round(val).
+        // That seems to be intuitively true, but in the world of floating
+        // point arithmetic it is not.
+        // The division and multiplication by _unit can introduce a minute 
+        // difference due to the fact that floating point values sometimes cannot
+        // represent the number exactly.
+        // Consider the case where we use the std::ceil rounding function.
+        // If the divide-multiply cycle creates a slight increase in the number
+        // then rounding a rounded result will cause us to go up another unit.
+
+        // So to be stable we have to detect if the input value is already "rounded enough".
+        // We do that by comparing the next and previous representable floating point numbers
+        // to the closes multiple of unit. If one of those is "on the other side" of the round result
+        // then we know that we have the kind of minute deviation described above.
+
+        double valUnits = val/_unit;
+
+        double closestUnitMultiple = std::round(valUnits)*_unit;
+        if(val > closestUnitMultiple)
+        {
+            if( std::nexttoward(val, val-1) < closestUnitMultiple )
+            {
+                // the previous representable number is on the other side of the unit multiple.
+                // => we can consider the input to already be a multiple of the unit.
+                return val;
+            }
+        }
+        else if(val < closestUnitMultiple)
+        {
+            if( std::nexttoward(val, val+1) > closestUnitMultiple )
+            {
+                // the next representable number is on the other side of the the unit multiple..
+                // => we can consider the input to already be a multiple of the unit.
+                return val;
+            }
+        }
+        else
+        {
+            // => already rounded.
+            return val;
+        }
+            
+        return roundFunction(valUnits) * _unit;
     }
+
+    double operator()(double val) const
+    {
+        return round(val);
+    }
+
 
 
     /** Rounds a Size object by rounding its width and height fields.*/
@@ -89,8 +143,14 @@ public:
     {
         return Size(
             round(size.width),
-            round(size.heigh) );
+            round(size.height) );
     }
+
+    Size operator()(const Size& size) const
+    {
+        return round(size);
+    }
+
 
     /** Rounds a Size object by rounding its x and y fields.*/
     Point round(const Point& point) const
@@ -98,6 +158,11 @@ public:
         return Point(
             round(point.x),
             round(point.y) );
+    }
+
+    Point operator()(const Point& point) const
+    {
+        return round(point);
     }
 
     /** Rounds a Rect object by rounding its x, y, width and height fields.*/
@@ -111,6 +176,10 @@ public:
             );
     }
 
+    Rect operator()(const Rect& rect) const
+    {
+        return round(rect);
+    }
 
 
     /** Rounds a Margin object by rounding its top, right, bottom and left fields.*/
@@ -123,6 +192,15 @@ public:
             round(margin.left)
             );
     }
+
+    Margin operator()(const Margin& margin) const
+    {
+        return round(margin);
+    }
+
+
+private:
+    double _unit;
 };
 	
 

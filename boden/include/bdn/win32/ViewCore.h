@@ -114,9 +114,9 @@ public:
     }
     
 
-    double getPhysicalPixelsPerDip() const override
+    double getPhysicalPixelSizeInDips() const override
     {
-        return _uiScaleFactor;
+        return 1.0/_uiScaleFactor;
     }
 
 protected:

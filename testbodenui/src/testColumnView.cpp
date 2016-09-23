@@ -105,6 +105,29 @@ void testChildAlignment(
     };
 }
 
+
+void verifyPixelMultiple(double val)
+{
+    // the mock view we use simulates 3 physical pixels per DIP.
+    double physicalPixels = val * 3;
+
+    // so the value should be reasonably close to an integer value
+    REQUIRE_ALMOST_EQUAL( physicalPixels, std::round(physicalPixels), 0.0000001 );
+}
+
+void verifyPixelMultiple(Size size)
+{
+    verifyPixelMultiple(size.width);
+    verifyPixelMultiple(size.height);
+}
+
+void verifyPixelMultiple(Point point)
+{
+    verifyPixelMultiple(point.x);
+    verifyPixelMultiple(point.y);
+}
+
+
 TEST_CASE("ColumnView")
 {
     // test the generic view properties of Button
@@ -145,7 +168,8 @@ TEST_CASE("ColumnView")
 
                     REQUIRE( preferredSize!=Size(0,0) );
 
-                    REQUIRE( preferredSize == pButton->sizingInfo().get().preferredSize );
+                    REQUIRE( preferredSize == buttonPreferredSize );
+
                 };            
             };
         }
@@ -191,6 +215,65 @@ TEST_CASE("ColumnView")
                                 testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
                         }
                     }
+                }
+                
+                
+                SECTION("aligned on pixel multiples")
+                {
+                    // add a weird margin to the button to bring everything out of pixel alignment
+                    pButton->margin() = UiMargin( UiLength::Unit::dip, 0.1234567 );
+
+                    SECTION("availableWidth = -1")
+                    {
+                        Size preferredSize = pColumnView->calcPreferredSize();
+                        verifyPixelMultiple( preferredSize );
+
+                        verifyPixelMultiple( pButton->position() );
+                        verifyPixelMultiple( pButton->size() );
+                    }
+
+                    SECTION("availableWidth bigger than needed")
+                    {
+                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+
+                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width+1 );
+                
+                        // should be a pixel multiple
+                        verifyPixelMultiple(size);
+
+                        // in fact, should be the same as the unresctricted size
+                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
+
+                        verifyPixelMultiple( pButton->position() );
+                        verifyPixelMultiple( pButton->size() );
+                    }
+
+                    SECTION("availableWidth exactly same as needed")
+                    {
+                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+
+                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width );
+                
+                        // should be a pixel multiple
+                        verifyPixelMultiple(size);
+
+                        // in fact, should be the same as the unresctricted size
+                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
+
+                        verifyPixelMultiple( pButton->position() );
+                        verifyPixelMultiple( pButton->size() );
+                    }
+
+                    SECTION("availableWidth smaller than needed")
+                    {
+                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+                        Size size = pColumnView->calcPreferredSize(unrestrictedSize.width / 2);
+
+                        verifyPixelMultiple(size);
+
+                        verifyPixelMultiple( pButton->position() );
+                        verifyPixelMultiple( pButton->size() );
+                    }        
                 }
             };
         }
@@ -241,6 +324,7 @@ TEST_CASE("ColumnView")
                 }
             };
         }
+
 
 	}	
 }

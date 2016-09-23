@@ -7,9 +7,21 @@
 namespace bdn
 {
 
+/** Rounds to the nearest integer value.
+    Halfway cases (i.e. .5) are rounded away from zero.
+    
+    Behaves the same way as std::round.
+*/
+inline double roundNearest(double value)
+{
+    return std::round(value);
+}
+
 
 /** Rounds numbers and various basic types (like Size, Rect, etc.) to
     arbítrary boundaries using a standard "round to nearest" strategy.
+
+    The rounding works the same way as in std::round.
 
     The Rounder class takes one parameter in its constructor: the unit.
     It specifies the basic unit to round to. All rounded output values will end up being
@@ -21,12 +33,9 @@ namespace bdn
 
     You can also specify arbitrary numbers like 12.3456.
     Then all output values will be rounded to a multiple of 12.3456.
-    
-    The template parameter RoundFunction is used to specify the type of rounding.
-    It must be a function that takes a double argument and rounds it to an integer
-    value with the desired algorithm. Pass std::round to round to the nearest unit,
-    std::ceil to round UP to the next unit and std::floor to round DOWN to the next unit.
 
+    The rounding is guaranteed to be stable. I.e. if rounding a previous round result
+    again returns the same value.    
 
     Example:
 
@@ -47,16 +56,8 @@ namespace bdn
     
     \endcode
 */
-typedef class RoundNearest : public Rounder<std::round>
-{
-public:
-    explicit RoundNearest(double unit)
-        : Rounder(unit)
-	{
-	}
+typedef Rounder<roundNearest> RoundNearest;
 
-};
-	
 
 }
 

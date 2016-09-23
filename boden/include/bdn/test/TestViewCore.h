@@ -365,19 +365,19 @@ protected:
             }
         }
 
-
-        SECTION("getPhysicalPixelsPerDip")
+        SECTION("getPhysicalPixelSizeInDips")
         {
-            double pixels = _pCore->getPhysicalPixelsPerDip();
+            double pixelSizeInDips = _pCore->getPhysicalPixelSizeInDips();
 
-            REQUIRE( pixels>0 );
+            REQUIRE( pixelSizeInDips>0 );
 
             // we check if the pixel resolution is in a "plausible" range.
             // We assume that the test code is run on a machine with at least a somewhat
             // "normal" resolution.
-            REQUIRE( pixels>=0.25 ); // we assume that the resolution is not too low. Less than 1/4 pixel per DIP would mean VERY large pixels.
-            REQUIRE( pixels<=20); // more than 20 pixels per DIP would mean a resolution that is roughly equivalent to a desktop
+            REQUIRE( pixelSizeInDips>=1.0/20 ); // more than 20 pixels per DIP would mean a resolution that is roughly equivalent to a desktop
                                     // monitor size screen with a 20.000 x 15.000 pixel resolution.  That does seem excessive!            
+            REQUIRE( pixelSizeInDips<=4); // we assume that the resolution is not too low. Less than 1/4 pixel per DIP would mean VERY large pixels.
+                                          
         }
 
         SECTION("position")

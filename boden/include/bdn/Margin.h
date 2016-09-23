@@ -109,6 +109,51 @@ inline bool operator!=(const bdn::Margin& a, const bdn::Margin& b)
 	return !operator==(a, b);
 }
 
+
+
+
+/** Returns true if a's fields are each smaller than b's */
+inline bool operator<(const bdn::Margin& a, const bdn::Margin& b)
+{
+	return (a.top<b.top
+			&& a.right<b.right
+            && a.bottom<b.bottom
+            && a.left<b.left
+            );
+}
+
+
+/** Returns true if a's fields are each smaller or equal to b's */
+inline bool operator<=(const bdn::Margin& a, const bdn::Margin& b)
+{
+    return (a.top<=b.top
+			&& a.right<=b.right
+            && a.bottom<=b.bottom
+            && a.left<=b.left
+            );
+}
+
+
+/** Returns true if a's fields are each bigger than b's */
+inline bool operator>(const bdn::Margin& a, const bdn::Margin& b)
+{
+    return (a.top>b.top
+			&& a.right>b.right
+            && a.bottom>b.bottom
+            && a.left>b.left
+            );
+}
+
+/** Returns true if a's fields are each bigger or equal to b's */
+inline bool operator>=(const bdn::Margin& a, const bdn::Margin& b)
+{
+    return (a.top>=b.top
+			&& a.right>=b.right
+            && a.bottom>=b.bottom
+            && a.left>=b.left
+            );
+}
+
 #endif
 
 

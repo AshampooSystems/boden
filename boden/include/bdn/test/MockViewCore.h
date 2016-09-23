@@ -211,9 +211,9 @@ public:
 	}
 
 
-    double getPhysicalPixelsPerDip() const override
+    double getPhysicalPixelSizeInDips() const override
     {
-        return 3;
+        return 1.0/3;
     }
 
 protected:    
