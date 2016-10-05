@@ -10,7 +10,7 @@ Supported platforms include:
 - Windows Win32 (the "old" desktop-style applications)
 - macOS
 - Linux
-- Web (see below for more information on this)
+- Web (client-side without server components - see below for more information on this)
 
 ## Write only once
 
