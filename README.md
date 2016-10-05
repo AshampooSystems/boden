@@ -2,8 +2,15 @@
 
 Boden allows easy development of truly cross-platform applications.
 
-Supported platforms include mobile platforms (iOS, Android), desktop platforms (Windows, Mac, Linux) and even
-web applications (see below for more information).
+Supported platforms include:
+
+- iOS
+- Android
+- Windows Universal (desktop and mobile)
+- Windows Win32 (the "old" ddesktop-style applications)
+- macOS
+- Linux
+- Web (see below for more information on this)
 
 ## Write only once
 
