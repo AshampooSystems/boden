@@ -16,7 +16,7 @@ Supported platforms include:
 
 The mission statement for Boden is to develop the application only once and be able to publish it to ALL platforms.
 
-## Native feel
+## Truly native
 
 Behind the scenes, the Boden libraries use the native API on all platforms. That means that Boden apps look and behave
 just like applications that were developed specifically for a single platform.
