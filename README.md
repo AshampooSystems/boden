@@ -7,7 +7,7 @@ Supported platforms include:
 - iOS
 - Android
 - Windows Universal (desktop and mobile)
-- Windows Win32 (the "old" ddesktop-style applications)
+- Windows Win32 (the "old" desktop-style applications)
 - macOS
 - Linux
 - Web (see below for more information on this)
