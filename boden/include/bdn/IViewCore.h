@@ -12,6 +12,7 @@ namespace bdn
 #include <bdn/Size.h>
 #include <bdn/View.h>
 
+
 namespace bdn
 {
 
@@ -26,10 +27,21 @@ public:
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
-	/** Sets the view core's position. See View::position() */
+	/** Sets the view core's position.
+
+        If the position needs to be adjusted (e.g. rounded to pixel boundaries) then the function
+        should round to the nearest valid value. Also see adjustBoundsRectForDisplay().
+
+        See View::position() */
 	virtual void setPosition(const Point& position)=0;
 
-    /** Sets the view core's size. See View::size() */
+
+    /** Sets the view core's size.
+
+        If the size needs to be adjusted (e.g. rounded to pixel boundaries) then the function
+        should round to the nearest valid value. Also see adjustBoundsRectForDisplay().
+        
+        See View::size() */
 	virtual void setSize(const Size& size)=0;
     
 	
@@ -80,6 +92,25 @@ public:
 		*/
 	virtual bool tryChangeParentView(View* pNewParent)=0;
     
+
+
+
+     
+    /** Adjusts the specified view bounding rectangle (in DIP units) for the physical display that the view is
+        currently on. The rect is understood to specify a potential size and position for this view, so
+        the coordinates refer to the view parent's coordinate space, just like the those used with setPosition() and setSize().
+
+        Most view implementations will round the view position and size to the boundaries of full physical pixels
+        of the particular display that the view is currently on. adjustBoundsRectForDisplay will perform adjustments
+        like these and also give you some control over how any necessary rounding is performed.
+
+        Normally, the setPosition() and setSize() functions will automatically adjust their parameters for the pixel grid of the current display.
+        However, you can use adjustBoundsRectForDisplay to have more control over the rounding process and then pass pre-adjusted values
+        to setSize and setPosition.
+    */
+    virtual Rect adjustBoundsRectForDisplay(const Rect& rect, RoundType positionRoundType, RoundType sizeRoundType ) const=0;
+
+
     
 
     /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).

@@ -112,6 +112,15 @@ public:
     {
         return _outerViewWeak.toStrong();
     }
+
+
+    Size roundSize(const Size& size, RoundType sizeRoundType ) const
+    {
+        // the content area of our parent is always pixel-aligned (even if a non-pixel
+        // padding is used). So we know that the parent's 0,0 is pixel-aligned.
+        // That means that we can use PixelAligner directly to align the rect.
+        return PixelAligner(_uiScaleFactor).alignRect(boundsRect, sizeRoundType);
+    }
     
 
     double getPhysicalPixelSizeInDips() const override

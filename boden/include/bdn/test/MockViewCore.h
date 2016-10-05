@@ -2,6 +2,7 @@
 #define BDN_TEST_MockViewCore_H_
 
 #include <bdn/IViewCore.h>
+#include <bdn/PixelAligner.h>
 
 #include <bdn/test.h>
 
@@ -20,6 +21,7 @@ class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
 	explicit MockViewCore(View* pView)
+        : _pixelAligner(3)  // 3 physical pixels per DIP
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -148,21 +150,27 @@ public:
 		_paddingChangeCount++;
 	}
 
-	void setPosition(const Point& position) override
+	Point adjustAndSetPosition(const Point& position) override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		_position = position;
+        _position = _pixelAligner.align(position);
+
 		_positionChangeCount++;
+
+        return _position;
 	}
 
 
-    void setSize(const Size& size) override
+    Size adjustAndSetSize(const Size& size) override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		_size = size;
+        _size = _pixelAligner.align(size);
+		
 		_sizeChangeCount++;
+
+        return _size;
 	}
 
        
@@ -210,6 +218,14 @@ public:
 		return true;
 	}
 
+     
+    Rect pixelAlignBounds(const Rect& boundsRect, RoundType sizeRoundType ) const
+    {
+        // our mock view has 3 physical pixels per dip
+        return PixelAligner(3).alignRect(boundsRect, sizeRoundType);
+    }
+
+
 
     double getPhysicalPixelSizeInDips() const override
     {
@@ -234,6 +250,8 @@ protected:
 	int			_parentViewChangeCount = 0;
     
 	WeakP<View>	 _outerViewWeak = nullptr;
+
+    PixelAligner _pixelAligner;
 
 };
 

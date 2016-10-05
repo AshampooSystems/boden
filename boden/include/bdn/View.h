@@ -13,7 +13,9 @@ namespace bdn
 #include <bdn/Nullable.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/DefaultProperty.h>
+#include <bdn/PropertyWithFilter.h>
 #include <bdn/mainThread.h>
+#include <bdn/round.h>
 
 namespace bdn
 {
@@ -126,12 +128,28 @@ public:
 	/** The position of the view inside its parent coordinate system in DIP units (see UiLength::Unit::dip).
 	
 		The default position for a newly constructed view is always position 0,0.
-        The position is usually modified automatically by the parent view's layout routine.
+        The position is usually initialized automatically by the parent view's layout routine.
+
+        When a new value is assigned to the position property then the view implementation is allowed to modify it
+        and round it to be optimal for the physical display that the view is currently on. For example, many
+        view implementations will round the position to the nearest physical pixel. The modified/filtered
+        value will be reflected immediately in the property, so the value you read from the position property
+        is always the actual adjusted position. Thus it can be slightly different than the value you
+        assigned to it.
+
+        Changing the position can also trigger the size() property to be re-adjusted (for example, if the view
+        moves to a different display).
+
+        Any rounding to physical pixel boundaries (or other optimizations for the display) is done by rounding
+        to the nearest suitable value.
+        
+        If you need more control over how rounding operations of the coordinates for the physical display are done
+        then you can pre-adjust the position with adjustBoundsRectForDisplay().
 
         IMPORTANT:
 
         The position of top level #Window objects is restricted on some platforms. Sometimes
-        it is not possible to change the Window position at all (in that case the position property
+        it is not possible to change the top level Window position at all (in that case the position property
         will automatically revert back to the previous value whenever it is changed).
 
         On some platforms top level windows may also report a zero position at all times, even though
@@ -152,7 +170,20 @@ public:
     /** The size of the view DIP units (see UiLength::Unit::dip).
 	
 		The default size for a newly constructed view is always 0x0.
-		The size is usually modified automatically by the parent view's layout routine.
+		The size is usually set automatically by the parent view's layout routine.
+
+        When a new value is assigned to the size property then the view implementation is allowed to modify it
+        and round it to be optimal for the physical display that the view is currently on. For example, many
+        view implementations will round the size to the nearest physical pixel. The modified/filtered
+        value will be reflected immediately in the property, so the value you read from the size property
+        is always the actual adjusted sized. Thus it can be slightly different than the value you
+        assigned to it.
+
+        Any rounding to physical pixel boundaries (or other optimizations for the display) is done by rounding
+        to the nearest suitable value.
+
+        If you need more control over how rounding operations of the coordinates for the physical display are done
+        then you can pre-adjust the size with adjustBoundsRectForDisplay().
 
         IMPORTANT:
 
@@ -171,7 +202,32 @@ public:
 	}
 
 
-	
+    /** Indicates how a size is rounded.*/
+    enum RoundSize
+    {
+        /** Round to the closest boundary, shrinking or growing as necessary.*/
+        closest,
+
+        /** Shrink the size to the desired boundary.*/
+        shrink,
+
+        /** Grow the size to the desired boundary.*/
+        grow
+    };
+
+    
+    /** Aligns the specified rectangle, specified in DIP coordinates within the parent's coordinate system,
+        to physical pixel boundaries and returns the result.
+
+        This is useful when assigning size() and position() for this view, to ensure that the rounding operations
+        to physical pixels end up giving the view exactly the desired size and position.
+
+        The position of the rectangle is always rounded to the NEAREST pixel boundary.
+        The size is rounded according to the sizeRoundType parameter.
+    */
+    virtual Rect pixelAlignBounds(const Rect& boundsRect, RoundType sizeRoundType ) const;
+
+
 
 	enum class HorizontalAlignment
 	{			
@@ -408,6 +464,27 @@ public:
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
 
+
+    
+     
+    /** Adjusts the specified rectangle (in DIP units) for the physical display that the view is
+        currently on. The rect is understood to specify a potential size and position for this view, so
+        the coordinates refer to the view parent's coordinate space, just like the those used with position() and size().
+
+        Most view implementations will round the view position and size to the boundaries of full physical pixels
+        of the particular display that the view is currently on. adjustBoundsRectForDisplay will perform adjustments
+        like these and also give you some control over how any necessary rounding is performed.
+
+        Normally, the position() and size() properties will automatically adjust their values for the pixel grid of the current display.
+        However, if you pass in values returned by adjustBoundsRectForDisplay() then the parameters already fit the display and
+        will be stored unchanged. Thus adjustBoundsRectForDisplay can be used as an initial filtering step for new view coordinates,
+        to have greater control over  the rounding to the pixel grid, compared to direct assignment to position() and size().
+    */
+    virtual Rect adjustBoundsRectForDisplay(const Rect& rect, RoundType positionRoundType, RoundType sizeRoundType ) const;
+
+
+
+
     /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).
         The number is often not an integer. For example, the function could return 0.2 if there are
         5 physical pixels for each DIP unit.
@@ -511,7 +588,7 @@ protected:
 
 		// In that case we need to revive the object and keep it alive until the notification has finished.
 
-		// Note that this cannot happen after the property subs have been released. The Notifier object
+		// Note that this cannot phappen after the property subs have been released. The Notifier object
 		// ensures that no more notifications are called after the sub was deleted and that all notifications
 		// that were in progress are done.
 
@@ -694,8 +771,24 @@ protected:
 	DefaultProperty<bool>                   _visible;
 	DefaultProperty<UiMargin>               _margin;
 	DefaultProperty< Nullable<UiMargin> >	_padding;
-	DefaultProperty<Point>                  _position;
-    DefaultProperty<Size>                   _size;
+
+    /** Called when a new position is assigned to the view.
+    
+        Should perform necessary adjustments for the core's display
+        (like rounding to pixel boundaries).
+        */
+    virtual Point filterPosition(const Point& pos);
+
+
+    /** Called when a new size is assigned to the view.
+    
+        Should perform necessary adjustments for the core's display
+        (like rounding to pixel boundaries). 
+        */
+    virtual Size filterSize(const Size& size);
+
+	PropertyWithFilter<Point>               _position;
+    PropertyWithFilter<Size>                _size;
 
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;
