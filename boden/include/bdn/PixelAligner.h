@@ -25,38 +25,14 @@ public:
 	}
 
 
-    /** Rounds the specified size to a full pixel size. The rounding type is indicated by the roundType
-        parameter.
-        
-        The rounding is stable. I.e. passing the rounding result as the input size to stableRoundSize
-        again produces the same result.
-        See stableScaledRoundUp() for more information about this.
-        */
-    Size roundSize(RoundType roundType, const Size& size) const
+    /** Aligns the specified rectangle to pixel boundaries. positionRoundType indicates how the position
+        is rounded, sizeRoundType indicates how the size is rounded.*/
+    Rect alignRect(const Rect& rect, RoundType positionRoundType, RoundType sizeRoundType) const
     {
-        return Size( stableScaledRound(roundType, size.width, _dipsToPixelsFactor),
-                     stableScaledRound(roundType, size.height, _dipsToPixelsFactor) );
-    }
-
-
-    /** Aligns the specified position to a pixel boundary and returns the aligned position.
-    
-        The position is rounded to the boundary according to the roundType parameter.    
-    */
-    Point alignPosition(const Point& pos, RoundType roundType) const
-    {
-        return Point(stableScaledRound(roundType, pos.x, _dipsToPixelsFactor),
-                     stableScaledRound(roundType, pos.y, _dipsToPixelsFactor) );
-    }
-
-
-
-    /** Aligns the specified rectangle to pixel boundaries. The position is always rounded
-        to the nearest pixel. The size is rounded according to the sizeRoundType parameter.*/
-    Rect alignRect(const Rect& rect, RoundType sizeRoundType) const
-    {
-        return Rect( alignPosition( RoundType::nearest, rect.getPosition()),
-                     roundSize( sizeRoundType, rect.getSize() ) );
+        return Rect( stableScaledRound(positionRoundType, rect.x, _dipsToPixelsFactor),
+                     stableScaledRound(positionRoundType, rect.y, _dipsToPixelsFactor),
+                     stableScaledRound(sizeRoundType, rect.width, _dipsToPixelsFactor),
+                     stableScaledRound(sizeRoundType, rect.height, _dipsToPixelsFactor) );
     }
 
 

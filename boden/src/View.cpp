@@ -25,13 +25,23 @@ View::View()
     _position.setFilter(
         [this](const Point& pos) -> Point
         {
-            return filterPosition(pos);
+            P<const IViewCore> pCore = getViewCore();
+
+            if(pCore!=nullptr)
+                return pCore->adjustAndSetPosition(pos);
+            else
+                return pos;
         } );
 
     _size.setFilter(
         [this](const Size& size) -> Size
         {
-            return filterSize(size);
+            P<const IViewCore> pCore = getViewCore();
+
+            if(pCore!=nullptr)
+                return pCore->adjustAndSetSize(size);
+            else
+                return size;
         } );
 
 	initProperty<Point, IViewCore, &IViewCore::setPosition, (int)PropertyInfluence_::none>(_position);
@@ -49,6 +59,39 @@ View::~View()
     // So we deinit the core now
     _deinitCore();
 }
+
+
+Rect View::adjustAndSetBounds(const Rect& requestedBounds)
+{
+    P<IViewCore> pCore = getViewCore();
+
+    Rect adjustedBounds;
+    if(pCore!=nullptr)
+        adjustedBounds = pCore->adjustAndSetBounds(requestedBounds);
+    else
+        adjustedBounds = requestedBounds;
+
+    // update the position and size properties.
+    _position = adjustedBounds.getPosition();
+    _size = adjustedBounds.getSize();
+
+    return adjustedBounds;
+}
+
+
+
+Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+{
+    P<const IViewCore> pCore = getViewCore();
+
+    if(pCore!=nullptr)
+        return pCore->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
+    else
+        return requestedBounds;
+}
+
+
+
 
 Point View::filterPosition(const Point& pos)
 {

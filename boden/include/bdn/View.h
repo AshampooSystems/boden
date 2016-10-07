@@ -126,7 +126,10 @@ public:
 
 
 	/** The position of the view inside its parent coordinate system in DIP units (see UiLength::Unit::dip).
-	
+
+        The position property is read-only. The position of a view can be modified with adjustAndSetBounds,
+        which is usually called automatically during the parent view's layout process.
+
 		The default position for a newly constructed view is always position 0,0.
         The position is usually initialized automatically by the parent view's layout routine.
 
@@ -155,11 +158,6 @@ public:
         On some platforms top level windows may also report a zero position at all times, even though
         the window is not at the top left corner of the screen.
 	*/
-	virtual Property<Point>& position()
-	{
-		return _position;
-	}
-
 	virtual const ReadProperty<Point>& position() const
 	{
 		return _position;
@@ -168,6 +166,9 @@ public:
 
 
     /** The size of the view DIP units (see UiLength::Unit::dip).
+
+        The size property is read-only. The size of a view can be modified with adjustAndSetBounds,
+        which is usually called automatically during the parent view's layout process.
 	
 		The default size for a newly constructed view is always 0x0.
 		The size is usually set automatically by the parent view's layout routine.
@@ -191,41 +192,47 @@ public:
         it is not possible to change the Window size at all (in that case the size property
         will automatically revert back to the previous value whenever it is changed).        
 	*/
-	virtual Property<Size>& size()
-	{
-		return _size;
-	}
-
 	virtual const ReadProperty<Size>& size() const
 	{
 		return _size;
 	}
 
 
-    /** Indicates how a size is rounded.*/
-    enum RoundSize
-    {
-        /** Round to the closest boundary, shrinking or growing as necessary.*/
-        closest,
 
-        /** Shrink the size to the desired boundary.*/
-        shrink,
+    /** Sets the view's position and size, after adjusting the specified values
+        to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
+        and refer to the parent view's coordinate system.
 
-        /** Grow the size to the desired boundary.*/
-        grow
-    };
+        IMPORTANT: This function must only be called from the main thread.
 
-    
-    /** Aligns the specified rectangle, specified in DIP coordinates within the parent's coordinate system,
-        to physical pixel boundaries and returns the result.
+        See adjustBounds() for more information about the adjustments that are made.
+        
+        Note that the adjustments are made with a "nearest valid" policy. I.e. the position and size are set
+        to the closest valid value. This can mean that the view ends up being bigger or smaller than requested.
+        If you need more control over which way the adjustments are made then you should pre-adjust the bounds
+        with adjustBounds().
 
-        This is useful when assigning size() and position() for this view, to ensure that the rounding operations
-        to physical pixels end up giving the view exactly the desired size and position.
+        The function returns the adjusted bounds that are actually used.
+        */
+    virtual Rect adjustAndSetBounds(const Rect& requestedBounds);
 
-        The position of the rectangle is always rounded to the NEAREST pixel boundary.
-        The size is rounded according to the sizeRoundType parameter.
+
+
+    /** Adjusts the specified bounds to values that are compatible with the underlying view implementation
+        and returns the result. The bounds are specified in DIP units and refer to the parent view's coordinate system.
+
+        IMPORTANT: This function must only be called from the main thread.
+
+        Not all positions and sizes are necessarily valid for all view implementations. For example,
+        the backend might need to round the abstract DIP coordinates to the nearest physical pixel boundary.
+
+        The function adjusts the specified bounds according to its implementation constraints and returns the
+        valid values. The positionRoundType and sizeRoundType control in which direction adjustments are made
+        (adjusting up, down or to the nearest valid value).        
     */
-    virtual Rect pixelAlignBounds(const Rect& boundsRect, RoundType sizeRoundType ) const;
+    virtual Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const;
+
+
 
 
 

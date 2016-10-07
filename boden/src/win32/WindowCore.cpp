@@ -72,10 +72,7 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
 
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-        {
-		    pView->position() = newRect.getPosition();
-            pView->size() = newRect.getSize();
-        }
+		    pView->adjustAndSetBounds( newRect );
 	}
 }
 

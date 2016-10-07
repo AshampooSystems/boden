@@ -27,23 +27,44 @@ public:
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
-	/** Sets the view core's position.
 
-        If the position needs to be adjusted (e.g. rounded to pixel boundaries) then the function
-        should round to the nearest valid value. Also see adjustBoundsRectForDisplay().
-
-        See View::position() */
-	virtual void setPosition(const Point& position)=0;
-
-
-    /** Sets the view core's size.
-
-        If the size needs to be adjusted (e.g. rounded to pixel boundaries) then the function
-        should round to the nearest valid value. Also see adjustBoundsRectForDisplay().
-        
-        See View::size() */
-	virtual void setSize(const Size& size)=0;
     
+
+
+    /** Sets the view's position and size, after adjusting the specified values
+        to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
+        and refer to the parent view's coordinate system.
+        
+        See adjustBounds() for more information about the adjustments that are made.
+        
+        Note that the adjustments are made with a "nearest valid" policy. I.e. the position and size are set
+        to the closest valid value. This can mean that the view ends up being bigger or smaller than requested.
+        If you need more control over which way the adjustments are made then you should pre-adjust the bounds
+        with adjustBounds().
+
+        The function returns the adjusted bounds that are actually used.
+        */
+    virtual Rect adjustAndSetBounds(const Rect& requestedBounds)=0;
+
+
+
+    /** Adjusts the specified bounds to values that are compatible with the underlying view implementation
+        and returns the result. The bounds are specified in DIP units and refer to the parent view's coordinate system.
+
+        IMPORTANT: This function must only be called from the main thread.
+
+        Not all positions and sizes are necessarily valid for all view implementations. For example,
+        the backend might need to round the abstract DIP coordinates to the nearest physical pixel boundary.
+
+        The function adjusts the specified bounds according to its implementation constraints and returns the
+        valid values. The positionRoundType and sizeRoundType control in which direction adjustments are made
+        (adjusting up, down or to the nearest valid value).        
+    */
+    virtual Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const=0;
+
+
+
+        
 	
 	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).*/
 	virtual double uiLengthToDips(const UiLength& uiLength) const=0;

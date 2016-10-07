@@ -17,10 +17,28 @@ enum class RoundType
 
     /** Round down, to the next smaller number. Negative values are rounded away from zero.*/
     down
-
 };
 
-/** Returns true if the specified value can be considered to lie on a scaled rounding
+
+
+
+/** Performs a stable, scaled rounding operation to the nearest scaled rounding boundary. Halfway< values are rounded
+    away from zero.
+
+    This function works analogously to stableScaledRoundUp(), except that it rounds to the nearest boundary. See
+    stableScaledRoundUp() for more information.*/
+inline double stableScaledRoundNearest(double value, double scaleFactor)
+{
+    // rounding to the nearest boundary is always stable. So we can simply
+    // round directly.
+    return std::round(value*scaleFactor) / scaleFactor;
+}
+
+
+
+/** User internally - not part of the public API.
+
+    Returns true if the specified value can be considered to lie on a scaled rounding
     boundary for the specified scale factor (see stableScaledRoundUp() ).
 
     Since floating point numbers cannot represent all numbers exactly, there can be
@@ -28,12 +46,12 @@ enum class RoundType
     smaller than the exact one. This function checks if the value parameter is within this
     range of "fuzzyness" near a rounding boundary for the specified scale factor.
     */
-inline bool isOnScaledRoundingBoundary(double value, double scaleFactor)
+inline bool _isOnScaledRoundingBoundary(double value, double scaleFactor)
 {
     double closestBoundary = stableScaledRoundNearest(value, scaleFactor);
     if(value > closestBoundary)
     {
-        if( std::nexttoward(val, value-1) < closestBoundary )
+        if( std::nexttoward(value, value-1) < closestBoundary )
         {
             // the previous representable number is on the other side of the boundary.
             // => we can consider the input to already be on the boundary.
@@ -42,7 +60,7 @@ inline bool isOnScaledRoundingBoundary(double value, double scaleFactor)
     }
     else if(value < closestBoundary)
     {
-        if( std::nexttoward(value, value+1) > closestUnitMultiple )
+        if( std::nexttoward(value, value+1) > closestBoundary )
         {
             // the next representable number is on the other side of the boundary.
             // => we can consider the input to already be on the boundary.
@@ -80,7 +98,7 @@ inline bool isOnScaledRoundingBoundary(double value, double scaleFactor)
 */
 inline double stableScaledRoundUp(double value, double scaleFactor)
 {
-    if(isOnScaledRoundingBoundary(value, scaleFactor))
+    if(_isOnScaledRoundingBoundary(value, scaleFactor))
     {
         // we can consider the number to be "on" the rounding boundary. Do not round again.
         return value;
@@ -97,7 +115,7 @@ inline double stableScaledRoundUp(double value, double scaleFactor)
     stableScaledRoundUp() for more information.*/
 inline double stableScaledRoundDown(double value, double scaleFactor)
 {
-    if(isOnScaledRoundingBoundary(value, scaleFactor))
+    if(_isOnScaledRoundingBoundary(value, scaleFactor))
     {
         // we can consider the number to be "on" the rounding boundary. Do not round again.
         return value;
@@ -106,19 +124,6 @@ inline double stableScaledRoundDown(double value, double scaleFactor)
         return std::floor(value*scaleFactor) / scaleFactor;
 }
 
-
-
-/** Performs a stable, scaled rounding operation to the nearest scaled rounding boundary. Halfway< values are rounded
-    away from zero.
-
-    This function works analogously to stableScaledRoundUp(), except that it rounds to the nearest boundary. See
-    stableScaledRoundUp() for more information.*/
-inline double stableScaledRoundNearest(double value, double scaleFactor)
-{
-    // rounding to the nearest boundary is always stable. So we can simply
-    // round directly.
-    return std::round(value*scaleFactor) / scaleFactor;
-}
 
 
 

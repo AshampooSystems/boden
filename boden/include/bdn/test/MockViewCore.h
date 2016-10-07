@@ -29,8 +29,7 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
-        _position = pView->position();
-		_size = pView->size();
+        _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
 
@@ -76,33 +75,19 @@ public:
 
 
 
-    /** Returns the current view position.*/
-    Point getPosition() const
+    /** Returns the current view bounds.*/
+    Rect getBounds() const
 	{
-	    return _position;
+	    return _bounds;
 	}
 
-    /** Returns the number of times the view's position has changed.*/
-    int getPositionChangeCount() const
+    /** Returns the number of times the view's bounds have changed.*/
+    int getBoundsChangeCount() const
 	{
-	    return _positionChangeCount;
-	}
-
-
-    /** Returns the current view size.*/
-    Size getSize() const
-	{
-	    return _size;
-	}
-
-    /** Returns the number of times the view's size has changed.*/
-    int getSizeChangeCount() const
-	{
-	    return _sizeChangeCount;
+	    return _boundsChangeCount;
 	}
 
 
-    
 
     /** Returns the view's current parent view.
         Note that the MockViewCore does not hold a reference to it, so it
@@ -150,28 +135,22 @@ public:
 		_paddingChangeCount++;
 	}
 
-	Point adjustAndSetPosition(const Point& position) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-        _position = _pixelAligner.align(position);
-
-		_positionChangeCount++;
-
-        return _position;
-	}
 
 
-    Size adjustAndSetSize(const Size& size) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
 
-        _size = _pixelAligner.align(size);
-		
-		_sizeChangeCount++;
+    Rect adjustAndSetBounds(const Rect& requestedBounds)
+    {
+        _bounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
-        return _size;
-	}
+        return _bounds;
+    }
+
+
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+    {
+        // our mock UI has 3 pixels per DIP
+        return PixelAligner(3).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+    }
 
        
 	double uiLengthToDips(const UiLength& uiLength) const override
@@ -240,11 +219,8 @@ protected:
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
-	Point       _position;
-	int			_positionChangeCount = 0;
-
-    Size        _size;
-	int			_sizeChangeCount = 0;
+	Rect        _bounds;
+	int			_boundsChangeCount = 0;
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;

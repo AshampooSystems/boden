@@ -24,8 +24,8 @@ inline POINT pointToWin32Point(const Point& point, double scaleFactor)
 
 inline SIZE sizeToWin32Size(const Size& size, double scaleFactor)
 {
-    SIZE winSize {(long)std::ceil(size.width * scaleFactor),
-                  (long)std::ceil(size.height * scaleFactor) };
+    SIZE winSize {(long)std::lround(size.width * scaleFactor),
+                  (long)std::lround(size.height * scaleFactor) };
 
     return winSize;
 }
