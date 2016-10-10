@@ -29,6 +29,9 @@ enum class RoundType
     stableScaledRoundUp() for more information.*/
 inline double stableScaledRoundNearest(double value, double scaleFactor)
 {
+    if(scaleFactor==0)
+        throw InvalidArgumentError("stableScaledRoundNearest called with zero scaleFactor");
+
     // rounding to the nearest boundary is always stable. So we can simply
     // round directly.
     return std::round(value*scaleFactor) / scaleFactor;
@@ -98,6 +101,9 @@ inline bool _isOnScaledRoundingBoundary(double value, double scaleFactor)
 */
 inline double stableScaledRoundUp(double value, double scaleFactor)
 {
+    if(scaleFactor==0)
+        throw InvalidArgumentError("stableScaledRoundUp called with zero scaleFactor");
+
     if(_isOnScaledRoundingBoundary(value, scaleFactor))
     {
         // we can consider the number to be "on" the rounding boundary. Do not round again.
@@ -115,6 +121,9 @@ inline double stableScaledRoundUp(double value, double scaleFactor)
     stableScaledRoundUp() for more information.*/
 inline double stableScaledRoundDown(double value, double scaleFactor)
 {
+    if(scaleFactor==0)
+        throw InvalidArgumentError("stableScaledRoundDown called with zero scaleFactor");
+
     if(_isOnScaledRoundingBoundary(value, scaleFactor))
     {
         // we can consider the number to be "on" the rounding boundary. Do not round again.

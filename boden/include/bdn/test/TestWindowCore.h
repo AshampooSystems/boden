@@ -85,8 +85,7 @@ protected:
             // make the window a somewhat big size.
             // Note that fullscreen windows may ignore this, but that is ok.
             // We only want to avoid cases where the window is tiny.
-            _pWindow->position() = Point(0, 0);
-            _pWindow->size() = Size(1000, 1000);
+            _pWindow->adjustAndSetBounds( Rect(0, 0, 1000, 1000) );
 
             P<TestWindowCore> pThis = this;
 

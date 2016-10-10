@@ -17,35 +17,8 @@ View::View()
 
 	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
 
-    // we want the position() and size() properties to reflect the actual position and size of the view.
-    // If the values need to be rounded to pixel boundaries (or otherwise adjusted for the display) then
-    // we want those adjusted values to be reflected in the properties.
-    // To achieve that we add a filter to the properties, which pre-adjusts the values. Then the adjusted values
-    // are passed to the core, ensuring that they will be stored unchanged.
-    _position.setFilter(
-        [this](const Point& pos) -> Point
-        {
-            P<const IViewCore> pCore = getViewCore();
-
-            if(pCore!=nullptr)
-                return pCore->adjustAndSetPosition(pos);
-            else
-                return pos;
-        } );
-
-    _size.setFilter(
-        [this](const Size& size) -> Size
-        {
-            P<const IViewCore> pCore = getViewCore();
-
-            if(pCore!=nullptr)
-                return pCore->adjustAndSetSize(size);
-            else
-                return size;
-        } );
-
-	initProperty<Point, IViewCore, &IViewCore::setPosition, (int)PropertyInfluence_::none>(_position);
-    initProperty<Size, IViewCore, &IViewCore::setSize, (int)PropertyInfluence_::childLayout>(_size);
+	initProperty<Point, IViewCore, nullptr, (int)PropertyInfluence_::none>(_position);
+    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::childLayout>(_size);
 
     initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
     initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
@@ -92,26 +65,6 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 
 
-
-Point View::filterPosition(const Point& pos)
-{
-    P<const IViewCore> pCore = getViewCore();
-
-    if(pCore!=nullptr)
-        return pCore->adjustBoundsRectForDisplay( Rect(pos, _size.get()), RoundType::nearest, RoundType::nearest ).getPosition();
-    else
-        return pos;
-}
-
-Size View::filterSize(const Size& size)
-{
-    P<const IViewCore> pCore = getViewCore();
-
-    if(pCore!=nullptr)
-        return pCore->adjustBoundsRectForDisplay( Rect(_position.get(), size), RoundType::nearest, RoundType::nearest ).getSize();
-    else
-        return size;
-}
 
 void View::needSizingInfoUpdate()
 {
@@ -388,28 +341,7 @@ Size View::calcPreferredSize(double availableWidth, double availableHeight) cons
 		return Size(0, 0);
 }
 
-double View::getPhysicalPixelSizeInDips() const
-{
-    verifyInMainThread("View::getPhysicalPixelSizeInDips");
 
-	P<IViewCore> pCore = getViewCore();
-
-	if(pCore!=nullptr)
-		return pCore->getPhysicalPixelSizeInDips();
-	else
-		return 1.0;
-}
-	
-
-Rect View::pixelAlignBounds(const Rect& boundsRect, RoundType sizeRoundType ) const
-{
-    P<IViewCore> pCore = getViewCore();
-
-	if(pCore!=nullptr)
-		return pCore->pixelAlignBounds(boundsRect, sizeRoundType);
-    else
-        return boundsRect;
-}
 
 }
 

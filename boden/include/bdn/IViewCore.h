@@ -95,6 +95,11 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
+        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
+        that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded
+        to full physical pixels yet.
+        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
+
 		*/	
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const=0;
 
@@ -116,39 +121,7 @@ public:
 
 
 
-     
-    /** Adjusts the specified view bounding rectangle (in DIP units) for the physical display that the view is
-        currently on. The rect is understood to specify a potential size and position for this view, so
-        the coordinates refer to the view parent's coordinate space, just like the those used with setPosition() and setSize().
-
-        Most view implementations will round the view position and size to the boundaries of full physical pixels
-        of the particular display that the view is currently on. adjustBoundsRectForDisplay will perform adjustments
-        like these and also give you some control over how any necessary rounding is performed.
-
-        Normally, the setPosition() and setSize() functions will automatically adjust their parameters for the pixel grid of the current display.
-        However, you can use adjustBoundsRectForDisplay to have more control over the rounding process and then pass pre-adjusted values
-        to setSize and setPosition.
-    */
-    virtual Rect adjustBoundsRectForDisplay(const Rect& rect, RoundType positionRoundType, RoundType sizeRoundType ) const=0;
-
-
     
-
-    /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).
-        The number is often not an integer. For example, the function could return 0.2 if there are
-        5 physical pixels for each DIP unit.
-
-        If the size of physical pixels cannot be determined by the implementation then it may return a different value
-        chosen by the implementation (for example 1). However, since UI element positions and sizes are aligned
-        by this value, such a replacement value should be chosen wisely.
-        
-        The returned value should NOT be stored for later use because it can change at runtime
-        (even for the same view object). For example, it can change when the view is moved to a different screen,
-        when a view parent changes, when the user changes his monitor settings, and also at other implementation
-        specific times. So this should be considered a temporary value.
-        */
-    virtual double getPhysicalPixelSizeInDips() const=0;
-	
 };
 
 

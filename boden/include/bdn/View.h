@@ -13,7 +13,6 @@ namespace bdn
 #include <bdn/Nullable.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/DefaultProperty.h>
-#include <bdn/PropertyWithFilter.h>
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
 
@@ -133,29 +132,9 @@ public:
 		The default position for a newly constructed view is always position 0,0.
         The position is usually initialized automatically by the parent view's layout routine.
 
-        When a new value is assigned to the position property then the view implementation is allowed to modify it
-        and round it to be optimal for the physical display that the view is currently on. For example, many
-        view implementations will round the position to the nearest physical pixel. The modified/filtered
-        value will be reflected immediately in the property, so the value you read from the position property
-        is always the actual adjusted position. Thus it can be slightly different than the value you
-        assigned to it.
-
-        Changing the position can also trigger the size() property to be re-adjusted (for example, if the view
-        moves to a different display).
-
-        Any rounding to physical pixel boundaries (or other optimizations for the display) is done by rounding
-        to the nearest suitable value.
-        
-        If you need more control over how rounding operations of the coordinates for the physical display are done
-        then you can pre-adjust the position with adjustBoundsRectForDisplay().
-
         IMPORTANT:
 
-        The position of top level #Window objects is restricted on some platforms. Sometimes
-        it is not possible to change the top level Window position at all (in that case the position property
-        will automatically revert back to the previous value whenever it is changed).
-
-        On some platforms top level windows may also report a zero position at all times, even though
+        On some platforms top level windows (see #Window class) may report a zero position at all times, even though
         the window is not at the top left corner of the screen.
 	*/
 	virtual const ReadProperty<Point>& position() const
@@ -171,26 +150,7 @@ public:
         which is usually called automatically during the parent view's layout process.
 	
 		The default size for a newly constructed view is always 0x0.
-		The size is usually set automatically by the parent view's layout routine.
-
-        When a new value is assigned to the size property then the view implementation is allowed to modify it
-        and round it to be optimal for the physical display that the view is currently on. For example, many
-        view implementations will round the size to the nearest physical pixel. The modified/filtered
-        value will be reflected immediately in the property, so the value you read from the size property
-        is always the actual adjusted sized. Thus it can be slightly different than the value you
-        assigned to it.
-
-        Any rounding to physical pixel boundaries (or other optimizations for the display) is done by rounding
-        to the nearest suitable value.
-
-        If you need more control over how rounding operations of the coordinates for the physical display are done
-        then you can pre-adjust the size with adjustBoundsRectForDisplay().
-
-        IMPORTANT:
-
-        The size of top level #Window objects is restricted on some platforms. Sometimes
-        it is not possible to change the Window size at all (in that case the size property
-        will automatically revert back to the previous value whenever it is changed).        
+		The size is usually set automatically by the parent view's layout routine.        
 	*/
 	virtual const ReadProperty<Size>& size() const
 	{
@@ -213,6 +173,15 @@ public:
         with adjustBounds().
 
         The function returns the adjusted bounds that are actually used.
+
+        IMPORTANT:
+
+        The position and/or size of top level #Window objects are restricted on some platforms. Sometimes
+        it is not possible to change the top level Window bounds at all (in that case the bounds will be
+        "adjusted" to the current bounds value).
+
+        On some platforms top level windows may also report a zero position at all times, even though
+        the window is not at the top left corner of the screen.
         */
     virtual Rect adjustAndSetBounds(const Rect& requestedBounds);
 
@@ -228,7 +197,16 @@ public:
 
         The function adjusts the specified bounds according to its implementation constraints and returns the
         valid values. The positionRoundType and sizeRoundType control in which direction adjustments are made
-        (adjusting up, down or to the nearest valid value).        
+        (adjusting up, down or to the nearest valid value).     
+
+        IMPORTANT:
+
+        The position and/or size of top level #Window objects are restricted on some platforms. Sometimes
+        it is not possible to change the top level Window bounds at all (in that case the bounds will be
+        "adjusted" to the current bounds value).
+
+        On some platforms top level windows may also report a zero position at all times, even though
+        the window is not at the top left corner of the screen.
     */
     virtual Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const;
 
@@ -408,6 +386,14 @@ public:
 
 	struct SizingInfo
 	{
+        /** The preferred size of the view (in DIP units), assuming that unlimited space is available.
+        
+            Note that this size is not yet adjusted to meet the constraints of the physical display
+            that the view is rendered to. For example, it is NOT rounded to full pixel boundaries.
+            As a result, the size might be adjusted when it is assigned to the view with
+            adjustAndSetSize(). You can also call adjustSize() ahead of time to adjust it manually,
+            if you need to.
+            */
 		Size preferredSize;
 
 		bool operator==(const SizingInfo& o) const
@@ -445,10 +431,8 @@ public:
 
 
 
-    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+    /** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
         based on it current content	and properties.
-
-        The returned size MUST be rounded to physical pixel boundaries (see getPhysicalPixelSizeInDips() ).
         
 		availableWidth and availableHeight are used to indicate the maximum amount of available
 		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
@@ -465,47 +449,18 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        IMPORTANT: This function must only called be called from the main thread.
+        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
+        that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded
+        to full physical pixels yet.
+        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
 
+        IMPORTANT: This function must only called be called from the main thread.
 		*/		
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
 
 
     
-     
-    /** Adjusts the specified rectangle (in DIP units) for the physical display that the view is
-        currently on. The rect is understood to specify a potential size and position for this view, so
-        the coordinates refer to the view parent's coordinate space, just like the those used with position() and size().
-
-        Most view implementations will round the view position and size to the boundaries of full physical pixels
-        of the particular display that the view is currently on. adjustBoundsRectForDisplay will perform adjustments
-        like these and also give you some control over how any necessary rounding is performed.
-
-        Normally, the position() and size() properties will automatically adjust their values for the pixel grid of the current display.
-        However, if you pass in values returned by adjustBoundsRectForDisplay() then the parameters already fit the display and
-        will be stored unchanged. Thus adjustBoundsRectForDisplay can be used as an initial filtering step for new view coordinates,
-        to have greater control over  the rounding to the pixel grid, compared to direct assignment to position() and size().
-    */
-    virtual Rect adjustBoundsRectForDisplay(const Rect& rect, RoundType positionRoundType, RoundType sizeRoundType ) const;
-
-
-
-
-    /** Returns the size of a physical pixel in DIP units (DIP = device independent pixel - see UiLength::Unit::dip).
-        The number is often not an integer. For example, the function could return 0.2 if there are
-        5 physical pixels for each DIP unit.
-
-        If the size of physical pixels cannot be determined by the implementation then it may return a different value
-        chosen by the implementation (for example 1). However, since UI element positions and sizes are aligned
-        by this value, such a replacement value should be chosen wisely.
-        
-        The returned value should NOT be stored for later use because it can change at runtime
-        (even for the same view object). For example, it can change when the view is moved to a different screen,
-        when a view parent changes, when the user changes his monitor settings, and also at other implementation
-        specific times. So this should be considered a temporary value.
-        */
-    virtual double getPhysicalPixelSizeInDips() const;
 
 
 protected:
@@ -734,6 +689,9 @@ protected:
 
 
 
+
+
+
 	/** (Re-)initializes the core object of the view. If a core object existed before then
 		the old object is destroyed.
 
@@ -779,23 +737,8 @@ protected:
 	DefaultProperty<UiMargin>               _margin;
 	DefaultProperty< Nullable<UiMargin> >	_padding;
 
-    /** Called when a new position is assigned to the view.
-    
-        Should perform necessary adjustments for the core's display
-        (like rounding to pixel boundaries).
-        */
-    virtual Point filterPosition(const Point& pos);
-
-
-    /** Called when a new size is assigned to the view.
-    
-        Should perform necessary adjustments for the core's display
-        (like rounding to pixel boundaries). 
-        */
-    virtual Size filterSize(const Size& size);
-
-	PropertyWithFilter<Point>               _position;
-    PropertyWithFilter<Size>                _size;
+	DefaultProperty<Point>                  _position;
+    DefaultProperty<Size>                   _size;
 
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;

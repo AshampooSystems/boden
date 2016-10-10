@@ -8,7 +8,7 @@ using namespace bdn;
 
 static void testRound(RoundType roundType, double in, double scaleFactor, double expectedOut)
 {
-    SECTION( "roundType: "+std::to_string(roundType)+", value: "+std::to_string(in)+", scaleFactor: "+std::to_string(scaleFactor) )
+    SECTION( "roundType: "+std::to_string((int)roundType)+", value: "+std::to_string(in)+", scaleFactor: "+std::to_string(scaleFactor) )
     {
         REQUIRE( stableScaledRound(roundType, in, scaleFactor) == expectedOut );
 
@@ -28,7 +28,7 @@ static void testRound(RoundType roundType, double in, double scaleFactor, double
         else if(roundType==RoundType::nearest)
         {
             REQUIRE( stableScaledRoundNearest(in, scaleFactor) == expectedOut );
-            REQUIRE( stableScaledRoundNearest(expectedOut, scaleFactor) == expectedOut );a
+            REQUIRE( stableScaledRoundNearest(expectedOut, scaleFactor) == expectedOut );
         }
         else
         {
@@ -42,13 +42,13 @@ TEST_CASE("stableScaledRound")
 {
     SECTION("factor=0")
     {
-        REQUIRE_THROWS_AS( stableScaledRoundDown(0, 0, 0), InvalidArgumentError);
-        REQUIRE_THROWS_AS( stableScaledRoundUp(0, 0, 0), InvalidArgumentError);
-        REQUIRE_THROWS_AS( stableScaledRoundNearest(0, 0, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRoundDown(1, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRoundUp(1, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRoundNearest(1, 0), InvalidArgumentError);
 
-        REQUIRE_THROWS_AS( stableScaledRound(RoundType::down, 0, 0, 0), InvalidArgumentError);
-        REQUIRE_THROWS_AS( stableScaledRound(RoundType::up, 0, 0, 0), InvalidArgumentError);
-        REQUIRE_THROWS_AS( stableScaledRound(RoundType::nearest, 0, 0, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRound(RoundType::down, 1, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRound(RoundType::up, 1, 0), InvalidArgumentError);
+        REQUIRE_THROWS_AS( stableScaledRound(RoundType::nearest, 1, 0), InvalidArgumentError);
     }
 
     SECTION("factor=1")

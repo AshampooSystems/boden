@@ -41,8 +41,8 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>( pButton->getViewCore() );
 
-	// Sanity check. Verify the fake button size. 10x20 per character, plus 10x8 for border
-	Size buttonSize( 10*10 + 10, 20 + 8);
+	// Sanity check. Verify the fake button size. 9.75 , 19.60 per character, plus 10x8 for border
+	Size buttonSize( 10*9.75 + 10, 19.60 + 8);
 	REQUIRE( pButtonCore->calcPreferredSize() == buttonSize );
 
 	// window border size is 20, 11, 12, 13 in our fake UI
@@ -260,8 +260,7 @@ TEST_CASE("Window", "[ui]")
 
 	    SECTION("center")
 	    {
-		    pWindow->position() = Point(0, 0);
-            pWindow->size() = Size(200, 200);
+		    pWindow->adjustAndSetBounds( Rect(0, 0, 200, 200) );
 
 		    SECTION("mainThread")
 		    {

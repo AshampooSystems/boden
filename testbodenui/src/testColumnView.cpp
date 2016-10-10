@@ -144,8 +144,7 @@ TEST_CASE("ColumnView")
 
         P<Button> pButton = newObj<Button>();
 
-        pButton->position() = Point(10, 10);
-        pButton->size() = Size(10, 10);
+        pButton->adjustAndSetBounds( Rect(10, 10, 10, 10) );
 
         SECTION("addChildView")
         {
@@ -168,7 +167,13 @@ TEST_CASE("ColumnView")
 
                     REQUIRE( preferredSize!=Size(0,0) );
 
-                    REQUIRE( preferredSize == buttonPreferredSize );
+                    // the column view must ensure that the button gets a valid size for our mock display.
+                    // So the button's preferred size must be rounded up to full mock pixels. We have 3 mock
+                    // pixels per DIP, so that is what we should get
+                    Rect buttonBounds( Point(), buttonPreferredSize );
+                    Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+
+                    REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
 
                 };            
             };
@@ -225,8 +230,10 @@ TEST_CASE("ColumnView")
 
                     SECTION("availableWidth = -1")
                     {
-                        Size preferredSize = pColumnView->calcPreferredSize();
-                        verifyPixelMultiple( preferredSize );
+                        // note that the container's preferred size does not have to be a pixel
+                        // multiple.
+
+                        // But the sizes of the child views have to be.
 
                         verifyPixelMultiple( pButton->position() );
                         verifyPixelMultiple( pButton->size() );
@@ -238,10 +245,7 @@ TEST_CASE("ColumnView")
 
                         Size size = pColumnView->calcPreferredSize( unrestrictedSize.width+1 );
                 
-                        // should be a pixel multiple
-                        verifyPixelMultiple(size);
-
-                        // in fact, should be the same as the unresctricted size
+                        // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
 
                         verifyPixelMultiple( pButton->position() );
@@ -254,10 +258,8 @@ TEST_CASE("ColumnView")
 
                         Size size = pColumnView->calcPreferredSize( unrestrictedSize.width );
                 
-                        // should be a pixel multiple
-                        verifyPixelMultiple(size);
 
-                        // in fact, should be the same as the unresctricted size
+                        // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
 
                         verifyPixelMultiple( pButton->position() );
@@ -269,8 +271,9 @@ TEST_CASE("ColumnView")
                         Size unrestrictedSize = pColumnView->calcPreferredSize();
                         Size size = pColumnView->calcPreferredSize(unrestrictedSize.width / 2);
 
-                        verifyPixelMultiple(size);
-
+                        // should still report the unrestricted size since none of the child views can be shrunk
+                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
+                        
                         verifyPixelMultiple( pButton->position() );
                         verifyPixelMultiple( pButton->size() );
                     }        

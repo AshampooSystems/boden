@@ -5,6 +5,7 @@
 #include <bdn/win32/hresultError.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/win32/util.h>
+#include <bdn/PixelAligner.h>
 
 #include <ShellScalingApi.h>
 
@@ -175,11 +176,12 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 {
     // we need to calculate this in real pixels.
 
-    // round UP to the nearest pixel here. Having a window that is 1 pixel "too large"
+    // round the content area size UP to the next pixel here. Having a window that is 1 pixel "too large"
     // is usually preferable to having one in which the content does not fit.
-	RECT rect = {0};
-	rect.right = (long)std::ceil( contentAreaSize.width * _uiScaleFactor );
-	rect.bottom = (long)std::ceil( contentAreaSize.height * _uiScaleFactor );
+    Rect contentArea( Point(), contentAreaSize);
+    contentArea = PixelAligner( _uiScaleFactor ).alignRect( contentArea, RoundType::nearest, RoundType::up);
+
+    RECT rect = rectToWin32Rect(contentArea, _uiScaleFactor );
 
 	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
 	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
@@ -193,8 +195,9 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
 	}
 
-	return Size( (rect.right-rect.left) / _uiScaleFactor,
-                 (rect.bottom-rect.top) / _uiScaleFactor);
+    Rect windowRect = win32RectToRect( rect, _uiScaleFactor );
+
+    return windowRect.getSize();
 }
 
 

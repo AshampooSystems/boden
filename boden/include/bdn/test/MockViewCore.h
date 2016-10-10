@@ -113,8 +113,8 @@ public:
 
 	Size _getTextSize(const String& s) const
 	{
-		// our fake font has a size of 10x20 DIPs for each character.
-		return Size( static_cast<int>( s.getLength()*10 ), 20);
+		// our fake font has a size of 9.75 x 19.60 DIPs for each character.
+		return Size( s.getLength()*9.75, 19.60);
 	}
 
 	void	setVisible(const bool& visible) override
@@ -141,6 +141,8 @@ public:
     Rect adjustAndSetBounds(const Rect& requestedBounds)
     {
         _bounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+
+        _boundsChangeCount++;
 
         return _bounds;
     }
@@ -198,18 +200,6 @@ public:
 	}
 
      
-    Rect pixelAlignBounds(const Rect& boundsRect, RoundType sizeRoundType ) const
-    {
-        // our mock view has 3 physical pixels per dip
-        return PixelAligner(3).alignRect(boundsRect, sizeRoundType);
-    }
-
-
-
-    double getPhysicalPixelSizeInDips() const override
-    {
-        return 1.0/3;
-    }
 
 protected:    
 	bool		_visible = false;

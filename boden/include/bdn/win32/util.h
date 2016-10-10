@@ -13,6 +13,13 @@ namespace win32
 {
 	
 
+/** Converts a point in DIP coordinates to a win32 POINT structure with pixel coordinates.
+    
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+
+    The functions rounds the coordinates to the NEAREST pixel.
+    
+    */
 inline POINT pointToWin32Point(const Point& point, double scaleFactor)
 {
     POINT winPoint {(long)std::lround(point.x * scaleFactor),
@@ -22,6 +29,13 @@ inline POINT pointToWin32Point(const Point& point, double scaleFactor)
 }
 
 
+
+/** Converts a size in DIPs to a win32 SIZE in pixels.
+    
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+
+    The functions rounds the sizes to the NEAREST pixel amount.    
+    */
 inline SIZE sizeToWin32Size(const Size& size, double scaleFactor)
 {
     SIZE winSize {(long)std::lround(size.width * scaleFactor),
@@ -30,6 +44,13 @@ inline SIZE sizeToWin32Size(const Size& size, double scaleFactor)
     return winSize;
 }
 
+
+/** Converts a rect in DIP coordinates to a win32 RECT structure with pixel coordinates.
+    
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+
+    The functions rounds the coordinates to the NEAREST pixel amount.
+    */
 inline RECT rectToWin32Rect(const Rect& rect, double scaleFactor)
 {
     POINT winPos = pointToWin32Point( rect.getPosition(), scaleFactor );
@@ -45,6 +66,10 @@ inline RECT rectToWin32Rect(const Rect& rect, double scaleFactor)
 }
 
 
+/** Converts a win32 RECT structure with pixel coordinates to a Rect with DIP coordinates.
+
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+    */
 inline Rect win32RectToRect(const RECT& rect, double scaleFactor)
 {
 	return Rect( rect.left / scaleFactor,

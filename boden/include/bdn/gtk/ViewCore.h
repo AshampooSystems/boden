@@ -102,13 +102,8 @@ public:
         if(oldVisible==FALSE)
             gtk_widget_set_visible(_pWidget, TRUE);
             
-        // note that we use a padding that was rounded to full integers.
-        // That is important because GTK cannot represent anything else.
-        // And if we used the exact values then we could return a preferred size
-        // that is not integer. And if we would be made that size then we would have
-        // to round down and the result would actually be less than our preferred size.
-        Margin padding = _getPaddingIntegerDips();
-            
+        Margin padding = _getPaddingDips();
+           
                              
         gtk_widget_set_size_request( _pWidget, 0, 0);
         

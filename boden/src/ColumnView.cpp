@@ -1,9 +1,6 @@
 #include <bdn/init.h>
 #include <bdn/ColumnView.h>
 
-#include <bdn/RoundDown.h>
-#include <bdn/RoundUp.h>
-
 
 namespace bdn
 {
@@ -113,7 +110,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
         Rect adjustedChildBounds = pChildView->adjustBounds(
             rawChildBounds,
-            RoundType::nearest,
+            RoundType::nearest,XXX see below
             sizeRoundType );
 
         // if the adjustment has modified the child width then we may need to re-calculate the preferred child height.
@@ -128,7 +125,11 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
                 pChildView->calcPreferredSize( adjustedChildBounds.width ).height;
                 adjustedChildBounds = pChildView->adjustBounds(
                     adjustedChildBounds,
-                    RoundType::nearest,
+                    RoundType::nearest,     XXX nearest is not necessarily correct
+                                            case: small margin between controls is wanted. Should it disappear or be 1 pixel?
+                                            => should be 1 pixel
+                    but what if we have two margins next to each other that are both smaller than 1 pixel? will we get
+                    a two pixel combined distance? => no
                     sizeRoundType );
             }
         }

@@ -26,14 +26,15 @@ public:
 				int height=0 );
 
     ~ViewCore();
+
+
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override;
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override;
 		
 	void setVisible(const bool& visible) override;
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
-
-	void setPosition(const Point& position) override;
-    void setSize(const Size& size) override;
-        
+            
     void setHorizontalAlignment(const View::HorizontalAlignment& align);
     void setVerticalAlignment(const View::VerticalAlignment& align);
 
@@ -113,18 +114,8 @@ public:
         return _outerViewWeak.toStrong();
     }
 
-
     
-
-    Rect adjustAndSetBounds(const Rect& requestedBounds);
-    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType );
-
-
-    double getPhysicalPixelSizeInDips() const override
-    {
-        return 1.0/_uiScaleFactor;
-    }
-
+    
 protected:
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;

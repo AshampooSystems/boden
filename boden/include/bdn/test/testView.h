@@ -384,47 +384,142 @@ inline void testView()
 				    );
 		    }
 
-		    SECTION("position")
+		    SECTION("adjustAndSetBounds")
 		    {
-			    Point p(1, 2);
+                SECTION("no need to adjust")
+                {
+			        Rect bounds(1, 2, 3, 4);
 
-                int positionChangeCountBefore = pCore->getPositionChangeCount();
+                    int boundsChangeCountBefore = pCore->getBoundsChangeCount();
 
-			    testViewOp<ViewType>( 
-				    pView,
-				    [pView, p, pWindow]()
-				    {
-					    pView->position() = p;
-				    },
-				    [pCore, p, pView, pWindow, positionChangeCountBefore]()
-				    {
-					    BDN_REQUIRE( pCore->getPositionChangeCount()==positionChangeCountBefore+1 );
-					    BDN_REQUIRE( pCore->getPosition() == p);
-				    },
-				    0	// should NOT have caused a sizing info update
-				    );
+			        testViewOp<ViewType>( 
+				        pView,
+				        [pView, bounds, pWindow]()
+				        {
+					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);
+                            REQUIRE( adjustedBounds==bounds );
+				        },
+				        [pCore, bounds, pView, pWindow, boundsChangeCountBefore]()
+				        {
+					        BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
+					        BDN_REQUIRE( pCore->getBounds() == bounds );
+
+                            // the view's position and size properties should reflect the new bounds
+					        BDN_REQUIRE( pView->position() == bounds.getPosition() );
+                            BDN_REQUIRE( pView->size() == bounds.getSize() );
+				        },
+				        0	// should NOT have caused a sizing info update
+				        );
+                }
+
+                SECTION("need adjustment")
+                {
+                    Rect bounds(1.3, 2.4, 3.1, 4.9);
+
+                    // the mock view uses 3 pixels per DIP. Coordinates should be rounded to the
+                    // NEAREST value
+                    Rect expectedAdjustedBounds( 1+1.0/3, 2 + 1.0/3, 3, 5 );
+
+                    int boundsChangeCountBefore = pCore->getBoundsChangeCount();
+
+			        testViewOp<ViewType>( 
+				        pView,
+				        [pView, bounds, expectedAdjustedBounds, pWindow]()
+				        {
+					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);                            
+                            REQUIRE( adjustedBounds==expectedAdjustedBounds );
+				        },
+				        [pCore, bounds, expectedAdjustedBounds, pView, pWindow, boundsChangeCountBefore]()
+				        {
+					        BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
+                            BDN_REQUIRE( pCore->getBounds()==expectedAdjustedBounds );
+
+                            // the view's position and size properties should reflect the new, adjusted bounds
+					        BDN_REQUIRE( pView->position() == expectedAdjustedBounds.getPosition() );
+                            BDN_REQUIRE( pView->size() == expectedAdjustedBounds.getSize() );
+				        },
+				        0	// should NOT have caused a sizing info update
+				        );
+
+                }
 		    }
 
-            SECTION("size")
+
+            SECTION("adjustBounds")
 		    {
-			    Size s(3, 4);
+                SECTION("no need to adjust")
+                {
+			        Rect bounds(1, 2, 3, 4);
+                    Rect origBounds = pCore->getBounds();
 
-                int sizeChangeCountBefore = pCore->getSizeChangeCount();
+                    std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
-			    testViewOp<ViewType>( 
-				    pView,
-				    [pView, s, pWindow]()
-				    {
-					    pView->size() = s;
-				    },
-				    [pCore, s, pView, pWindow, sizeChangeCountBefore]()
-				    {
-					    BDN_REQUIRE( pCore->getSizeChangeCount()==sizeChangeCountBefore+1 );
-					    BDN_REQUIRE( pCore->getSize() == s);
-				    },
-				    0	// should NOT have caused a sizing info update
-				    );
-		    }
+                    for(RoundType positionRoundType: roundTypes)
+                    {
+                        for(RoundType sizeRoundType: roundTypes)
+                        {
+                            SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                            {
+                                Rect adjustedBounds = pView->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                                // no adjustments are necessary. So we should always get out the same that we put in
+                                REQUIRE( adjustedBounds==bounds );
+
+                                // view properties should not have changed
+                                REQUIRE( pView->position() == origBounds.getPosition() );
+                                REQUIRE( pView->size() == origBounds.getSize() );
+
+                                // the core bounds should not have been updated
+                                REQUIRE( pCore->getBounds() == origBounds );
+                            }
+                        }
+                    }
+                }
+
+                SECTION("need adjustments")
+                {
+			        Rect bounds(1.3, 2.4, 3.1, 4.9);
+                    Rect origBounds = pCore->getBounds();
+
+                    std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+
+                    for(RoundType positionRoundType: roundTypes)
+                    {
+                        for(RoundType sizeRoundType: roundTypes)
+                        {
+                            SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                            {
+                                Rect adjustedBounds = pView->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                                Point expectedPos;
+                                if(positionRoundType==RoundType::down)
+                                    expectedPos = Point(1, 2 + 1.0/3);
+                                else if(positionRoundType==RoundType::up)
+                                    expectedPos = Point(1 + 1.0/3, 2 + 2.0/3);
+                                else
+                                    expectedPos = Point(1 + 1.0/3, 2 + 1.0/3);
+
+                                Size expectedSize;
+                                if(sizeRoundType==RoundType::down)
+                                    expectedSize = Size(3, 4+2.0/3);
+                                else if(sizeRoundType==RoundType::up)
+                                    expectedSize = Size(3+1.0/3, 5);
+                                else
+                                    expectedSize = Size(3, 5);
+
+                                REQUIRE( adjustedBounds==Rect(expectedPos, expectedSize) );
+
+                                // view properties should not have changed
+                                REQUIRE( pView->position() == origBounds.getPosition() );
+                                REQUIRE( pView->size() == origBounds.getSize() );
+
+                                // the core bounds should not have been updated
+                                REQUIRE( pCore->getBounds() == origBounds );
+                            }
+                        }
+                    }
+                }
+            }
 	    }
 
 
@@ -451,33 +546,6 @@ inline void testView()
 			    );		
 	    }
 
-        SECTION("pixelsPerDip")
-        {
-            // our mock UI uses 3 pixels per dip. That is what the view should return.
-            REQUIRE( pView->getPhysicalPixelSizeInDips() == 1.0/3 );
-        }
-
-        SECTION("preferredSize roundedToFullPixels")
-        {
-            SECTION("no padding")
-            {
-                // do nothing
-            }
-
-            SECTION("weird padding")
-            {
-                pView->padding() = UiMargin(UiLength::Unit::dip, 0.123456789, 0.23456789, 0.3456789, 0.456789 );
-            }
-
-            Size prefSize = pView->calcPreferredSize(-1, -1);
-
-            double pixelSizeDips = pView->getPhysicalPixelSizeInDips();
-            
-            
-            // the size should be rounded to physical pixels
-            REQUIRE_ALMOST_EQUAL( prefSize.width/pixelSizeDips, std::round(prefSize.width/pixelSizeDips), 0.000001 );
-            REQUIRE_ALMOST_EQUAL( prefSize.height/pixelSizeDips, std::round(prefSize.height/pixelSizeDips), 0.000001 );
-        }
 
 #if BDN_HAVE_THREADS
         SECTION("core deinit called from main thread")

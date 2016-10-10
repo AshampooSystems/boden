@@ -140,9 +140,10 @@ protected:
             }
         }
 
+
         SECTION("position")
         {
-            _pView->position() = Point(110, 220);
+            _pView->adjustAndSetBounds( Rect(110, 220, 10,10) );
 
             initCore();
             verifyInitialDummyCorePosition();
@@ -150,7 +151,7 @@ protected:
 
         SECTION("size")
         {
-            _pView->size() = Size(880, 990);
+            _pView->adjustAndSetBounds( Rect(0, 0, 880, 990) );
 
             initCore();
             verifyInitialDummyCoreSize();
@@ -363,143 +364,135 @@ protected:
                     };
                 }
             }
-        }
-
-        SECTION("getPhysicalPixelSizeInDips")
-        {
-            double pixelSizeInDips = _pCore->getPhysicalPixelSizeInDips();
-
-            REQUIRE( pixelSizeInDips>0 );
-
-            // we check if the pixel resolution is in a "plausible" range.
-            // We assume that the test code is run on a machine with at least a somewhat
-            // "normal" resolution.
-            REQUIRE( pixelSizeInDips>=1.0/20 ); // more than 20 pixels per DIP would mean a resolution that is roughly equivalent to a desktop
-                                    // monitor size screen with a 20.000 x 15.000 pixel resolution.  That does seem excessive!            
-            REQUIRE( pixelSizeInDips<=4); // we assume that the resolution is not too low. Less than 1/4 pixel per DIP would mean VERY large pixels.
-                                          
-        }
-
-        SECTION("position")
-        {
-            SECTION("manualChange")
-            {
-                if(canManuallyChangePosition())
-                {
-					_pView->position() = Point(110, 220);
-
-                    // it may take a layout cycle until the bounds have updated
-                    P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
-                    {
-                        pThis->verifyCorePosition();
-                    };
-                }
-                else
-                {
-                    // when the control does not have control over its own position then there can be
-                    // a delay in the processing.
-                    // We must ensure that the control has finished its initial initialization before
-                    // we continue. That might take some time in some ports - and a simple
-                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
-                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
-                    P<TestViewCore> pThis = this;
-
-                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
-                    {
-                        // the control cannot manually change its position.
-                        // In that case the core must reset the position property back
-                        // to what it was originally. This reset may be done in a scheduled async call,
-                        // so we must process pending events before we test for it.
-                        Point origPosition = pThis->_pView->position();
-                        
-                        // sanity check: at this point the core bounds should always match
-                        pThis->verifyCorePosition();
-
-                        pThis->_pView->position() = Point(117, 227);
-
-                        // again, we must wait until the changes have propagated
-                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origPosition )
-                        {
-                            REQUIRE( pThis->_pView->position().get() == origPosition );
-
-                            pThis->verifyCorePosition();
-                        };
-                    };
-                }
-            }
-        }
-
-
-        SECTION("size")
-        {
-            SECTION("manualChange")
-            {
-                if(canManuallyChangeSize())
-                {
-					// note: don't get too big here. If we exceed the screen size then
-					// the window size be clipped by the OS.
-                    _pView->size() = Size(550, 330);
-
-                    // it may take a layout cycle until the bounds have updated
-                    P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
-                    {
-                        pThis->verifyCoreSize();
-                    };
-                }
-                else
-                {
-                    // when the control does not have control over its own size then there can be
-                    // a delay in the processing.
-                    // We must ensure that the control has finished its initial initialization before
-                    // we continue. That might take some time in some ports - and a simple
-                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
-                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
-                    P<TestViewCore> pThis = this;
-
-                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
-                    {
-                        // the control cannot manually change its size.
-                        // In that case the core must reset the size property back
-                        // to what it was originally. This reset may be done in a scheduled async call,
-                        // so we must process pending events before we test for it.
-                        Size origSize = pThis->_pView->size();
-
-                        // sanity check: at this point the core size should always match
-                        pThis->verifyCoreSize();
-
-                        pThis->_pView->size() = Size(887, 997);
-
-                        // again, we must wait until the changes have propagated
-                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origSize )
-                        {
-                            REQUIRE( pThis->_pView->size().get() == origSize );
-
-                            pThis->verifyCoreSize();
-                        };
-                    };
-                }
-            }
-
-            if(coreCanCalculatePreferredSize())
-            {
-                SECTION("noEffectOnPreferredSize")
-                {
-                    Size prefSizeBefore = _pCore->calcPreferredSize();
-
-                    _pView->size() = Size(300, 400);
-                    
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
-
-                    _pView->size() = Size(3000, 4000);
-                    
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
-                }
-            }
-        }
+        }       
 
         
+		SECTION("adjustAndSetBounds")
+		{            
+			Rect    bounds;
+            Point   initialPosition = _pView->position();
+
+            SECTION("no need to adjust")
+            {
+                // pre-adjust bounds so that we know that they are valid
+                bounds = Rect(110, 220, 880, 990);
+                bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
+            }
+            
+            SECTION("need adjustments")
+                bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
+
+            Rect returnedBounds = _pCore->adjustAndSetBounds(bounds);            
+
+            P<TestViewCore> pThis = this;
+            
+            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, bounds, returnedBounds )
+            {
+                // the core size and position should always represent what
+                // is configured in the view.
+                pThis->verifyCorePosition();
+                pThis->verifyCoreSize();
+
+                if(!pThis->canManuallyChangePosition())
+                {
+                    // when the view cannot modify its position then trying to set another position should yield the same resulting position
+                    Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds( Rect( bounds.x*2, bounds.y*2, bounds.width, bounds.height) );            
+                    REQUIRE( returnedBounds2 == returnedBounds );
+
+                    CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis )
+                    {
+                        // the core size and position should always represent what
+                        // is configured in the view.
+                        pThis->verifyCorePosition();
+                        pThis->verifyCoreSize();
+                    };
+                }
+            };
+		}
+
+        if(coreCanCalculatePreferredSize())
+        {
+            SECTION("adjustAndSetBounds no effect on preferred size")
+            {
+                Size prefSizeBefore = _pCore->calcPreferredSize();
+
+                _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
+                    
+                REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+            }
+        }
+
+
+        SECTION("adjustBounds")
+		{
+            SECTION("no need to adjust")
+            {
+			    Rect bounds(110, 220, 880, 990);
+
+                // pre-adjust the bounds
+                bounds = _pCore->adjustBounds( bounds, RoundType::nearest, RoundType::nearest );
+
+                std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+
+                for(RoundType positionRoundType: roundTypes)
+                {
+                    for(RoundType sizeRoundType: roundTypes)
+                    {
+                        SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                        {
+                            Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                            // no adjustments are necessary. So we should always get out the same that we put in
+                            REQUIRE( adjustedBounds==bounds );
+                        }
+                    }
+                }
+            }
+
+            SECTION("need adjustments")
+            {
+			    Rect bounds(110.12345, 220.12345, 880.12345, 990.12345);
+
+                std::list<RoundType> roundTypes
+                {
+                    RoundType::down,
+                    RoundType::nearest,
+                    RoundType::up
+                };
+
+                std::vector<Rect> adjustedBoundsArray;
+
+                for(RoundType positionRoundType: roundTypes)
+                {
+                    for(RoundType sizeRoundType: roundTypes)
+                    {
+                        SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                        {
+                            Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                            adjustedBoundsArray.push_back(adjustedBounds);
+                        }
+                    }
+                }
+
+                // there is not much we can do to "verify" the bounds. However, there are some relationships
+                // of the rounding operations that must be true.
+
+                // down-rounded must be <= nearest <=up
+
+                for(int sizeRoundTypeIndex=0; sizeRoundTypeIndex<3; sizeRoundTypeIndex++)
+                {
+                    REQUIRE( adjustedBoundsArray[sizeRoundTypeIndex*3 + 0].getPosition() <= adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition() );
+                    REQUIRE( adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition() <= adjustedBoundsArray[sizeRoundTypeIndex*3 + 2].getPosition() );
+                }
+
+                for(int positionRoundTypeIndex=0; positionRoundTypeIndex<3; positionRoundTypeIndex++)
+                {
+                    REQUIRE( adjustedBoundsArray[0*3 + positionRoundTypeIndex].getSize() <= adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize() );
+                    REQUIRE( adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize() <= adjustedBoundsArray[2*3 + positionRoundTypeIndex].getSize() );
+                }
+            }
+        }        
     }
 
 

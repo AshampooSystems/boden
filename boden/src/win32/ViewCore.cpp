@@ -107,7 +107,7 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 
 Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
 {
-    RECT winRect = rectToWin32Rect(requestedBounds, _uiScaleFactor)
+    RECT winRect = rectToWin32Rect(requestedBounds, _uiScaleFactor);
 
     ::SetWindowPos(
         getHwnd(),
