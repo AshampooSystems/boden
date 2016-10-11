@@ -113,7 +113,7 @@ Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
         getHwnd(),
         NULL,
         winRect.left,
-        winRect.right,
+        winRect.top,
         winRect.right-winRect.left,
         winRect.bottom-winRect.top,
         SWP_NOACTIVATE | SWP_NOZORDER);

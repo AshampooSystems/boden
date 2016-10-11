@@ -59,12 +59,18 @@ public:
 
 		if(wrapWidth>=0)
 		{
-            // we round DOWN to the nearest pixel here. It is to be expected that the wrapped
+            // we round DOWN to the next pixel here. It is to be expected that the wrapped
             // width might be less than the specified wrap width (because wrapping always only
             // occurs on word or character boundaries). However, the wrap width should only
             // be exceeded if there is a word that is too wide to fit. We should not
             // exceed because of rounding.
 			rect.right = (long)std::floor(wrapWidth * scaleFactor);
+            
+            // special case: Windows will not return a valid size if the target width is zero.
+            // In that case we specify 1 instance.
+            if(rect.right==0)
+                rect.right=1;
+
 			flags |= DT_WORDBREAK;
 		}
 		else

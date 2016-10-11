@@ -12,16 +12,12 @@ Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight
 
     std::list<Rect> childBounds;
 
-    // note that we force left-alignment of the children. That ensures that the "useful size"
-    // returned is the minimum size we need. For example, if the availableWidth is much more than
-    // what we would ever use then we should return the smaller useful size.
-
 	Size usefulSize = calcChildBoundsForWidth(availableWidth, childViews, childBounds, true );
 
 	return usefulSize;
 }
 
-Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forceLeftAlignment) const
+Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const
 {
 	Margin myPadding;
         
@@ -55,17 +51,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
         HorizontalAlignment horzAlign = pChildView->horizontalAlignment();
 
-        double alignFactor;
-		if(horzAlign == HorizontalAlignment::right)
-			alignFactor = 1;
-		else if(horzAlign == HorizontalAlignment::center)
-			alignFactor = 0.5;
-		else
-			alignFactor = 0;
-
-		double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
-
-        double childX = 0;
+        double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
 
         if(availableContentAreaWidth>=0)
         {
@@ -73,28 +59,62 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
                 childWidthWithMargins = availableContentAreaWidth;
         }
 
-        if(!forceLeftAlignment)
+        bool widthExpanded = false;
+
+        // when we measure the preferred size then we ignore the alignment.
+        if(!forMeasuring
+            && availableContentAreaWidth>=0
+            && horzAlign == HorizontalAlignment::expand
+            && childWidthWithMargins<availableContentAreaWidth)
         {
-            if(availableContentAreaWidth>=0 && horzAlign == HorizontalAlignment::expand)
-    			childWidthWithMargins = availableContentAreaWidth;
-           
-            childX = (availableContentAreaWidth-childWidthWithMargins)*alignFactor;
+    		childWidthWithMargins = availableContentAreaWidth;                    
+            widthExpanded = true;
         }
 
-        childX += myPadding.left + childMargin.left;
         double childWidth = childWidthWithMargins - childMargin.left - childMargin.right;
-
-        childWidth = childWidth;
-        
+                
 		double childHeight;
 
-		if(childWidth < childPreferredSize.width)
+		if(childWidth != childPreferredSize.width)
 		{
 			// the child width is less than the child wanted. So we must get an up-to-date height for the new width.
-			childHeight = pChildView->calcPreferredSize(childWidth).height;
+            // Note that we might also get a new width in the process.
+            Size childSize = pChildView->calcPreferredSize(childWidth);
+            
+            childHeight = childSize.height;
+
+            // we usually want to use the width we got from preferred size.
+            // Exception: if we have previously expanded the width because of an alignment
+            // property then we keep the expanded width.
+            if(!widthExpanded)
+            {
+                childWidth = childSize.width;
+                childWidthWithMargins = childWidth + childMargin.left + childMargin.right;
+            }
 		}
 		else
 			childHeight = childPreferredSize.height;
+
+        double childX = 0;
+
+        // when we measure the preferred size then we ignore the alignment. We want to get
+        // the optimal size and the alignment interferes with the child positioning (and sizing
+        // when expand alignment is used) because it adapts to the available size. We don't
+        // want that during measuring
+        if(!forMeasuring)
+        {
+            double alignFactor;
+		    if(horzAlign == HorizontalAlignment::right)
+			    alignFactor = 1;
+		    else if(horzAlign == HorizontalAlignment::center)
+			    alignFactor = 0.5;
+		    else
+			    alignFactor = 0;
+        
+            childX = (availableContentAreaWidth-childWidthWithMargins)*alignFactor;
+        }
+        
+        childX += myPadding.left + childMargin.left;
         
         // must round Y up, so that the this child cannot overlap with the previous child
 		currY += childMargin.top;
@@ -106,11 +126,22 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         // usually we want to enlarge the child's size to the next valid size, so that its contents
         // will definitely fit. However, if the child's width is already at the maximum then we instead
         // want the resulting size to be rounded down.
-        RoundType sizeRoundType  = (availableContentAreaWidth>=0 && childWidthWithMargins>=availableContentAreaWidth) ? RoundType::down : RoundType::up;
+        // Exception: when we are measuring then we want the size that the child actually needs for its content,
+        // so we should always round up in that case.
+        RoundType sizeRoundType  = (availableContentAreaWidth>=0 && childWidthWithMargins>=availableContentAreaWidth && !forMeasuring) ? RoundType::down : RoundType::up;
 
+        // we use RoundType::up for positions to ensure that small margins do not disappear. Instead it is better
+        // to round them up to 1 pixel, so that separate elements are always actually separate.
+        // For example, consider two borderless buttons with flat backgrounds in a single color. The UI designer might arrange
+        // them closely next to each other, but with a small space between them. This space works out as 0.4 pixels on this
+        // particular display. If we were to use RoundType::down or RoundType::nearest then the space would disappear and
+        // it would look to the user as if there was only a single button there. This illustrates that rounding margins
+        // up is the better way to go in most cases.
+        // Rounding margins up is achieved by rounding positions up. Child view sizes are already adjustes to full pixels,
+        // so the only separation between them are margins.
         Rect adjustedChildBounds = pChildView->adjustBounds(
             rawChildBounds,
-            RoundType::nearest,XXX see below
+            RoundType::up,
             sizeRoundType );
 
         // if the adjustment has modified the child width then we may need to re-calculate the preferred child height.
@@ -125,11 +156,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
                 pChildView->calcPreferredSize( adjustedChildBounds.width ).height;
                 adjustedChildBounds = pChildView->adjustBounds(
                     adjustedChildBounds,
-                    RoundType::nearest,     XXX nearest is not necessarily correct
-                                            case: small margin between controls is wanted. Should it disappear or be 1 pixel?
-                                            => should be 1 pixel
-                    but what if we have two margins next to each other that are both smaller than 1 pixel? will we get
-                    a two pixel combined distance? => no
+                    RoundType::up,
                     sizeRoundType );
             }
         }

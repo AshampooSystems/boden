@@ -87,6 +87,14 @@ TEST_CASE("win32.DeviceContext")
 
 				REQUIRE( deviceContext.getTextSize("hello hello", manualWrappedSize.width) == manualWrappedSize );
 			}
+
+            SECTION("zero wrapWidth")
+            {
+                Size unwrappedSize = deviceContext.getTextSize("hello");
+
+                // wrap width = 0 should be the same as unwrapped for a single word
+				REQUIRE( deviceContext.getTextSize("hello", 0) == unwrappedSize);
+            }
 		}        
     }
 }

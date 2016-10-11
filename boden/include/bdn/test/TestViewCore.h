@@ -246,6 +246,11 @@ protected:
                         REQUIRE( _pCore->calcPreferredSize(prefSize.width).height == prefSize.height );
                     }
 
+                    SECTION("unconditionalWidth/2")
+                    {
+                        REQUIRE( _pCore->calcPreferredSize(prefSize.width/2).height >= prefSize.height );
+                    }
+
                     SECTION("zero")
                     {
                         REQUIRE( _pCore->calcPreferredSize(0).height >= prefSize.height );
@@ -258,6 +263,9 @@ protected:
 
                     SECTION("unconditionalHeight")
                         REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height).width == prefSize.width );
+
+                    SECTION("unconditionalHeight/2")
+                        REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height/2).width >= prefSize.width );
         
                     SECTION("zero")
                         REQUIRE( _pCore->calcPreferredSize(-1, 0).width >= prefSize.width );
@@ -382,7 +390,7 @@ protected:
             SECTION("need adjustments")
                 bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
 
-            Rect returnedBounds = _pCore->adjustAndSetBounds(bounds);            
+            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
 
             P<TestViewCore> pThis = this;
             
@@ -466,12 +474,9 @@ protected:
                 {
                     for(RoundType sizeRoundType: roundTypes)
                     {
-                        SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
-                        {
-                            Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+                        Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
-                            adjustedBoundsArray.push_back(adjustedBounds);
-                        }
+                        adjustedBoundsArray.push_back(adjustedBounds);
                     }
                 }
 

@@ -271,7 +271,8 @@ TEST_CASE("ColumnView")
                         Size unrestrictedSize = pColumnView->calcPreferredSize();
                         Size size = pColumnView->calcPreferredSize(unrestrictedSize.width / 2);
 
-                        // should still report the unrestricted size since none of the child views can be shrunk
+                        // should still report almost the unrestricted size since none of the child views can be shrunk.
+                        // However, the sizes will be rounded down to the 
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
                         
                         verifyPixelMultiple( pButton->position() );
@@ -317,13 +318,15 @@ TEST_CASE("ColumnView")
                 {
                     REQUIRE( bounds.x == m.left);
                     REQUIRE( bounds.y == m.top);
-                    REQUIRE( bounds.width == pButton->sizingInfo().get().preferredSize.width );
-                    REQUIRE( bounds.height == pButton->sizingInfo().get().preferredSize.height );
+                    // width and height should have been rounded up to full pixels.
+                    // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
+                    REQUIRE( bounds.width == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.width, 3) );
+                    REQUIRE( bounds.height == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.height,3) );
 
                     REQUIRE( bounds2.x == m2.left );
                     REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
-                    REQUIRE( bounds2.width == pButton2->sizingInfo().get().preferredSize.width );
-                    REQUIRE( bounds2.height == pButton2->sizingInfo().get().preferredSize.height );
+                    REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.width, 3) );
+                    REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.height, 3) );
                 }
             };
         }

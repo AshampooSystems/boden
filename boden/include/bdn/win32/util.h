@@ -60,7 +60,7 @@ inline RECT rectToWin32Rect(const Rect& rect, double scaleFactor)
         winPos.x,
         winPos.y,
         winPos.x + winSize.cx,
-        winPos.y+winSize.cy };
+        winPos.y + winSize.cy };
 
     return winRect;
 }
