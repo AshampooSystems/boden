@@ -199,18 +199,20 @@ public:
 	}
 
 	
-	void setPosition(const Point& pos) override
+	Rect adjustAndSetBounds(const Rect& bounds) override
 	{
-		// we cannot control our rect. The OS has the only control over it.
-		// So, just reset the bounds property back to what it really is.
-		_scheduleUpdateOuterPositionAndSizeProperty();
+		// we cannot influence our bounds. The OS / the user has the only control over it.
+
+        // So we ignore the call and return the current bounds as the "adjusted" value.
+        return _getBounds();
 	}
 
-    void setSize(const Size& size) override
-	{
-		// we cannot control our rect. The OS has the only control over it.
-		// So, just reset the bounds property back to what it really is.
-		_scheduleUpdateOuterPositionAndSizeProperty();
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+    {
+        // we cannot influence our bounds. The OS / the user has the only control over it.
+
+        // So we return the current bounds as the "adjusted" value.
+        return _getBounds();
 	}
 
     

@@ -8,6 +8,8 @@
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/IFrameworkElementOwner.h>
 
+#include <bdn/PixelAligner.h>
+
 #include <cassert>
 
 namespace bdn
@@ -114,9 +116,23 @@ public:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
-	
-	void setPosition(const Point& position) override
-	{
+
+    
+    /** Sets the view's position and size, after adjusting the specified values
+        to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
+        and refer to the parent view's coordinate system.
+        
+        See adjustBounds() for more information about the adjustments that are made.
+        
+        Note that the adjustments are made with a "nearest valid" policy. I.e. the position and size are set
+        to the closest valid value. This can mean that the view ends up being bigger or smaller than requested.
+        If you need more control over which way the adjustments are made then you should pre-adjust the bounds
+        with adjustBounds().
+
+        The function returns the adjusted bounds that are actually used.
+        */
+    Rect adjustAndSetBounds(const Rect& requestedBounds)
+    {        
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		// we can only control the position of a control indirectly. While there is the Arrange
@@ -129,29 +145,18 @@ public:
 		// So we have to set the Canvas.left and Canvas.top custom properties
 		// for this child view.
 
+        // first adjust the bounds
+        Rect adjustedBounds = adjustBounds( requestedBounds, RoundType::nearest, RoundType::nearest);
+
         try
         {
             // note that UWP also uses DIPs as the fundamental UI unit. So no conversion necessary.
-		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, position.x );
-		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, position.y );
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, adjustedBounds.x );
+		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, adjustedBounds.y );
 
-        BDN_WINUWP_TO_STDEXC_END;
-	}
-
-    void setSize(const Size& size) override
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-        
-        try
-        {
             // The size is set by manipulating the Width and Height property.		
-		    _pFrameworkElement->Width = doubleToUwpDimension( size.width );
-		    _pFrameworkElement->Height = doubleToUwpDimension( size.height );
+		    _pFrameworkElement->Width = doubleToUwpDimension( adjustedBounds.width );
+		    _pFrameworkElement->Height = doubleToUwpDimension( adjustedBounds.height );
         }
         catch(::Platform::DisconnectedException^ e)
         {
@@ -159,7 +164,21 @@ public:
         }
 
         BDN_WINUWP_TO_STDEXC_END;
-	}
+    }
+
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+    {
+        // UWP also uses DIPs and floating point values, so it might seem as if no conversion were necessary.
+        // However, UWP also implicitly rounds to full pixels (unless UseLayoutRounding is manually set to false).
+        // We want to make this implicit process explicit and do the proper rounding in our code, with our parameters.
+
+        double scaleFactor = UiProvider::get().getUiScaleFactor();
+
+        // the scale factor indicates how many physical pixels there are per DIP. So we want to round to a multiple of that.
+        Rect adjustedBounds = PixelAligner(scaleFactor).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+
+        return adjustedBounds;
+    }
 
 	double uiLengthToDips(const UiLength& uiLength) const override
 	{
