@@ -45,6 +45,9 @@ Rect View::adjustAndSetBounds(const Rect& requestedBounds)
         adjustedBounds = requestedBounds;
 
     // update the position and size properties.
+    // Note that the property changes will automatically cause our propertyChanged method
+    // to be called, which will schedule any additional operations that should follow
+    // (like re-layout when the size changes, etc.).
     _position = adjustedBounds.getPosition();
     _size = adjustedBounds.getSize();
 

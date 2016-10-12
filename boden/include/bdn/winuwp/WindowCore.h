@@ -317,11 +317,13 @@ private:
 
         _outerPositionAndSizeUpdateScheduled = true;
 
-		// keep ourselves alive during this
-		P<WindowCore> pThis = this;        
-
-		// we do this asynchronously to ensure that there can be no strange
+        // we want to update the View's position and size properties.
+        // we do this asynchronously to ensure that there can be no strange
 		// interactions with in-progress operations
+
+		// keep ourselves alive during this
+		P<WindowCore> pThis = this;
+
 		asyncCallFromMainThread(
 			[pThis]()			
             {
@@ -330,11 +332,13 @@ private:
                 P<View> pView = pThis->_outerWindowWeak.toStrong();
 				if(pView!=nullptr)
                 {
-                    Rect bounds = pThis->_getBounds();
-                    pView->position() = bounds.getPosition();
-                    pView->size() = bounds.getSize();
+                    // call View::adjustAndSetBounds. That will automatically call
+                    // OUR adjustAndSetBounds and then update the view properties
+                    // according to the returned bounds rect.
+
+                    pView->adjustAndSetBounds( pThis->_getBounds() );
                 }
-			});		
+			});
 	}
 
 	ref class EventForwarder : public Platform::Object
@@ -389,11 +393,13 @@ private:
                     _pWindowPanel->Width = width;
                     _pWindowPanel->Height = height;
 
-                    // Update the size of the outer window object        
-			        pOuterView->size() = _getBounds().getSize();
+                    // we need to update the outer view's size property.
+                    // We do that by calling View::adjustAndSetBounds. That will
+                    // call our adjustAndSetBounds, which will do nothing and
+                    // only return the current bounnds. And then the view will store
+                    // that in its properties, which is what we want.
 
-                    // and the size and position of our content panel
-		            pOuterView->needLayout();
+                    pOuterView->adjustAndSetBounds( _getBounds() );
                 }
             }
         }

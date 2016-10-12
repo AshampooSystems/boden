@@ -163,6 +163,8 @@ public:
             // view was already destroyed. Ignore this.
         }
 
+        return adjustedBounds;
+
         BDN_WINUWP_TO_STDEXC_END;
     }
 
