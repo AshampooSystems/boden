@@ -41,27 +41,62 @@ public:
         // if the corresponding Cocoa view class supports setting a padding.
     }
     
-    void setPosition(const Point& pos) override
+    
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
+    {
+        // first adjust the bounds so that they are on pixel boundaries
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+        
+        // our parent view's coordinate system is usually "normal" i.e. with
+        // the top left being (0,0). So there is no need to flip the coordinates.
+        
+        _nsView.frame = rectToMacRect(adjustedBounds, -1);
+        
+        return adjustedBounds;
+    }
+    
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
         // our parent view's coordinate system is usually "normal" i.e. with
         // the top left being (0,0). So there is no need to flip the coordinates.
-        Rect rect = macRectToRect( _nsView.frame, -1 );
-        rect.x = pos.x;
-        rect.y = pos.y;
-
-        _nsView.frame = rectToMacRect(rect, -1);
-    }
-    
-    void setSize(const Size& size) override
-    {
-        Rect rect = macRectToRect( _nsView.frame, -1 );
-        rect.width = size.width;
-        rect.height = size.height;
+        NSRect macRect = rectToMacRect( requestedBounds, -1);
         
-        _nsView.frame = rectToMacRect(rect, -1);
+        NSAlignmentOptions alignOptions =
+            NSAlignRectFlipped;    // coordinate system is "flipped" for mac (normal for us), so we need this flag
+        
+        
+        if(positionRoundType==RoundType::down)
+            alignOptions |= NSAlignMinXInward | NSAlignMinYInward;
+        
+        else if(positionRoundType==RoundType::up)
+            alignOptions |= NSAlignMinXOutward | NSAlignMinYOutward;
+        
+        else
+            alignOptions |= NSAlignMinXNearest | NSAlignMinYNearest;
+        
+        
+        if(sizeRoundType==RoundType::down)
+            alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
+        
+        else if(sizeRoundType==RoundType::up)
+            alignOptions |= NSAlignWidthOutward | NSAlignHeightOutward;
+        
+        else
+            alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
+        
+        
+        NSRect adjustedMacRect =
+            [_nsView backingAlignedRect:macRect
+                                options:alignOptions ];
+        
+        Rect adjustedBounds = macRectToRect( adjustedMacRect, -1);
+        
+        return adjustedBounds;
     }
     
-
+    
     double uiLengthToDips(const UiLength& uiLength) const override
     {
         return UiProvider::get().uiLengthToDips(uiLength);

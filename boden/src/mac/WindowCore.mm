@@ -20,13 +20,13 @@
 - (void)windowDidResize:(NSNotification *)notification
 {
     if(_pWindowCore!=nullptr)
-        _pWindowCore->_resized();
+        _pWindowCore->_movedOrResized();
 }
 
 - (void)windowDidMove:(NSNotification *)notification
 {
     if(_pWindowCore!=nullptr)
-        _pWindowCore->_moved();
+        _pWindowCore->_movedOrResized();
 }
 
 

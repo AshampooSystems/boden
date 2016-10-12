@@ -138,7 +138,7 @@ public:
 
 
 
-    Rect adjustAndSetBounds(const Rect& requestedBounds)
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
         _bounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
 
@@ -148,7 +148,7 @@ public:
     }
 
 
-    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
         // our mock UI has 3 pixels per DIP
         return PixelAligner(3).alignRect(requestedBounds, positionRoundType, sizeRoundType);

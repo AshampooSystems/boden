@@ -34,10 +34,13 @@ public:
     }
 
 
-    void setSize(const Size& size) override
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
-        ChildViewCore::setSize(size);
+        Rect adjustedBounds = ChildViewCore::adjustAndSetBounds(requestedBounds);
+
         _updateBezelStyle();
+        
+        return adjustedBounds;
     }
 
     

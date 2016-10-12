@@ -113,17 +113,18 @@ public:
     }
 
 
-    void setSize(const Size& size) override
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
         // by default the text view will automatically adjust its height
         // to match the content size. We want it to have exactly the desired size,
         // so we explicitly set a constraint.
-        _nsTextView.minSize = sizeToMacSize( size );
-    
-        ChildViewCore::setSize(size);
+        _nsTextView.minSize = sizeToMacSize( requestedBounds.getSize() );
+
+        return ChildViewCore::adjustAndSetBounds(requestedBounds);
     }
 
-    
+  
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override

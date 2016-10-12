@@ -153,7 +153,6 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
                 adjustedChildBounds.height = newHeight;            
                 
                 // we need to readjust the bounds, size the height changed
-                pChildView->calcPreferredSize( adjustedChildBounds.width ).height;
                 adjustedChildBounds = pChildView->adjustBounds(
                     adjustedChildBounds,
                     RoundType::up,
