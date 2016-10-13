@@ -255,7 +255,7 @@ public:
         {
             P<TestCallFromMainThreadOrderingBase> pThis = this;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->scheduleTestContinuationIfNecessary();
             };
@@ -313,7 +313,6 @@ TEST_CASE("callFromMainThread")
 }
 
 
-
 void testAsyncCallFromMainThread(bool throwException)
 {
     StopWatch watch;
@@ -355,18 +354,12 @@ void testAsyncCallFromMainThread(bool throwException)
         // should not have waited
         REQUIRE( watch.getMillis()<1000 );
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
+        CONTINUE_SECTION_WHEN_IDLE(pData)
         {
             // the test continuation will be executed after the async call we scheduled.
-            REQUIRE( pData->callCount==1 );
-
-            // another async call was scheduled by the previous one. Check that in another
-            // test continuation.
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
-            {
-                REQUIRE( pData->callCount==2 );
-                // done.
-            };
+            // another async call was scheduled by the previous one. That should also have been executed
+            // before the test continues.
+            REQUIRE( pData->callCount==2 );
         };
     }
 
@@ -685,7 +678,7 @@ void testWrapAsyncCallFromMainThread(bool throwException)
         // shoudl not have waited.
         REQUIRE( watch.getMillis()<500 );        
         
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pData)
+        CONTINUE_SECTION_WHEN_IDLE(pData)
         {
             Thread::sleepMillis(2000);
 
@@ -788,7 +781,7 @@ public:
         // should not have been called yet
         REQUIRE( !_called );
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+        CONTINUE_SECTION_WHEN_IDLE(pThis)
         {
             pThis->continueTest();
         };
@@ -834,7 +827,7 @@ protected:
 
             P<TestAsyncCallFromMainThreadAfterSeconds> pThis = this;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->continueTest();
             };
@@ -877,5 +870,168 @@ TEST_CASE("asyncCallFromMainThreadAfterSeconds")
     SECTION("exception")
         testAsyncCallFromMainThreadAfterSeconds(true);
 }
+
+
+
+struct TestCallWhenIdleOrder : public Base
+{
+    std::vector<int> callOrder;
+};
+
+
+struct TestDataCallWhenIdle : public Base
+{
+    bool        idleCalled = false;
+
+    bool        keepCreatingEvents = true;
+    int64_t     eventsCreated = 0;
+};
+
+static void callWhenIdleBusyKeeper( P<TestDataCallWhenIdle> pTestData )
+{
+    if(pTestData->keepCreatingEvents)
+    {
+        asyncCallFromMainThread( 
+            [pTestData]()
+            {
+                callWhenIdleBusyKeeper(pTestData);
+            });
+
+        pTestData->eventsCreated++;
+    }
+}
+
+static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThread)
+{
+    SECTION("not called when events pending")
+    {
+        P<TestDataCallWhenIdle> pTestData = newObj<TestDataCallWhenIdle>();
+
+        std::function<void()> scheduleIdleCall = 
+            [pTestData, exception]()
+            {
+                 asyncCallFromMainThreadWhenIdle(
+                    [pTestData, exception]()
+                    {
+                        pTestData->idleCalled = true;
+                        if(exception)
+                            throw InvalidArgumentError("bla");
+                    } );
+            };
+
+        if(fromMainThread)
+        {
+            scheduleIdleCall();
+        }
+        else
+        {
+#if BDN_HAVE_THREADS
+            // post the idle handler from a thread.
+            Thread::exec( scheduleIdleCall ).get();
+#else
+            // cannot test from another thread. Just exit the test.
+            return;
+#endif
+        }
+            
+
+
+        // now we start posting perpetual async events to keep the app busy.
+        // This should prevent the idle handler from being called.
+        asyncCallFromMainThread( 
+            [pTestData]()
+            {
+                callWhenIdleBusyKeeper(pTestData);
+            });
+        pTestData->eventsCreated++;
+
+        // now schedule a test continuation in 2 seconds.
+
+        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        {
+            // during this time a chain of several dummy events should have been created
+            REQUIRE( pTestData->eventsCreated >= 3);
+
+            // and the idle handler should NOT have been called, since the events
+            // were chained (one event posting the next one).
+            REQUIRE( !pTestData->idleCalled );
+
+            // now we stop creating these events and wait another 2 seconds
+            pTestData->keepCreatingEvents = false;
+
+            CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+            {
+                // NOW the idle handler should have been called
+                REQUIRE( pTestData->idleCalled );
+            };
+        };
+    }
+
+    SECTION("idle handler ordering")
+    {
+        P<TestCallWhenIdleOrder> pTestData = newObj<TestCallWhenIdleOrder>();
+
+        // multiple scheduled idle handlers should be executed in order
+        for(int i=0;i<10;i++)
+        {
+            std::function<void()> scheduleIdleCall = 
+                [pTestData, exception, i]()
+                {
+                     asyncCallFromMainThreadWhenIdle(
+                        [pTestData, exception, i]()
+                        {
+                            pTestData->callOrder.push_back(i);
+                            if(exception)
+                                throw InvalidArgumentError("bla");
+                        } );
+                };
+
+            if(fromMainThread)
+                scheduleIdleCall();
+            else
+            {
+#if BDN_HAVE_THREADS
+                // post the idle handler from a thread.
+                Thread::exec( scheduleIdleCall ).get();
+#else
+                // cannot test from another thread. Just exit the test.
+                return;
+#endif
+            }
+        }
+
+
+        // wait a little for the idle handlers to be executed
+        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        {
+            // then verify their order
+            REQUIRE( pTestData->callOrder.size()==10 );
+
+            for(int i=0; i<10; i++)
+            {
+                REQUIRE( pTestData->callOrder[i] == i );
+            }
+        };
+    }
+}
+
+static void testAsyncCallFromMainThreadWhenIdle(bool exception)
+{
+    SECTION("mainThread")
+        testAsyncCallFromMainThreadWhenIdle( exception, true );
+
+    SECTION("otherThread")
+        testAsyncCallFromMainThreadWhenIdle( exception, false );
+}
+
+TEST_CASE("asyncCallFromMainThreadWhenIdle")
+{    
+    SECTION("noException")
+        testAsyncCallFromMainThreadWhenIdle(false);
+
+    SECTION("exception")
+        testAsyncCallFromMainThreadWhenIdle(true);
+}
+
 
 

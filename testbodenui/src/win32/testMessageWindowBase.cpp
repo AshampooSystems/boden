@@ -117,7 +117,7 @@ void testExceptionInHandleMessage()
 	REQUIRE( text=="xyz");
 }
 
-TEST_CASE("MessageWindowBase")
+TEST_CASE("win32.MessageWindowBase")
 {
 	SECTION("setResult")
 	{

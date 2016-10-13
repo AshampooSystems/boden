@@ -19,7 +19,7 @@ struct TestData : public Base
 template<typename FuncType>
 void testContinueSectionWith( FuncType scheduleContinueWith )
 {
-    // we verify that CONTINUE_SECTION_AFTER_PENDING_EVENTS works as expected
+    // we verify that CONTINUE_SECTION_WHEN_IDLE works as expected
 
     P<TestData> pData = newObj<TestData>();
 
@@ -169,7 +169,7 @@ void testContinueSectionWith_expectedFail( void (*scheduleContinueWith)(std::fun
 
 void scheduleContinueAfterPendingEventsWith( std::function<void()> continuationFunc )
 {
-    CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(
+    CONTINUE_SECTION_WHEN_IDLE_WITH(
         [continuationFunc]()
         {
             REQUIRE( Thread::isCurrentMain() );
@@ -177,25 +177,25 @@ void scheduleContinueAfterPendingEventsWith( std::function<void()> continuationF
         } );    
 }
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH")
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH")
 {
     testContinueSectionWith( scheduleContinueAfterPendingEventsWith );
 }
 
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH-expectedFail", "[!shouldfail]")
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH-expectedFail", "[!shouldfail]")
 {
     testContinueSectionWith_expectedFail( scheduleContinueAfterPendingEventsWith );
 }
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH-asyncAfterSectionThatHadAsyncContinuation" )
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE_WITH-asyncAfterSectionThatHadAsyncContinuation" )
 {
 	bool enteredSection = false;
 
     SECTION("initialChild")
     {
 		enteredSection = true;
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( [](){} );
+        CONTINUE_SECTION_WHEN_IDLE_WITH( [](){} );
     }
 
     std::function<void()> continuation =
@@ -215,13 +215,13 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH-asyncAfterSectionThatHadAs
 	{
 		// we should get a programmingerror here. It is not allowed to schedule a 
 		// continuation when one was already scheduled
-		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(continuation) );
+		REQUIRE_THROWS_PROGRAMMING_ERROR( CONTINUE_SECTION_WHEN_IDLE_WITH(continuation) );
 	}
 	else
 	{
 		// if we did not enter the section then it should be fine to schedule the
 		// continuation here.
-		CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(continuation);
+		CONTINUE_SECTION_WHEN_IDLE_WITH(continuation);
 	}
 }
 
@@ -369,15 +369,15 @@ TEST_CASE("ASYNC_SECTION-fail", "[!shouldfail]")
 
 
 
+static bool scheduledEventChainDone = false;
 
-
-TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
+TEST_CASE( "CONTINUE_SECTION_WHEN_IDLE" )
 {
     P<TestData> pData = newObj<TestData>();
 
     SECTION("notCalledImmediately")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             pData->callCount++;            
         };
@@ -389,7 +389,7 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
 
     SECTION("notCalledBeforeExitingInitialFunction")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             pData->callCount++;            
         };
@@ -406,7 +406,7 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
     {
         pCalledBeforeNextSectionData = pData;
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             pData->callCount++;            
         };
@@ -423,7 +423,7 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
 
     SECTION("notCalledMultipleTimes")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             pData->callCount++;            
 
@@ -435,7 +435,7 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
     static int subSectionInContinuationMask=0;
     SECTION("subSectionInContinuation-a")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             subSectionInContinuationMask |= 1;
 
@@ -455,7 +455,7 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
             // add another continuation
             SECTION("b")
             {
-                CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+                CONTINUE_SECTION_WHEN_IDLE(=)
                 {
                     subSectionInContinuationMask |= 8;
 
@@ -477,14 +477,43 @@ TEST_CASE( "CONTINUE_SECTION_AFTER_PENDING_EVENTS" )
     {
         REQUIRE( subSectionInContinuationMask==63 );
     }
+
+    SECTION("called after events that schedule additional events")
+    {
+        // sanity check: static boolean should not yet be set
+        REQUIRE( !scheduledEventChainDone );
+
+        asyncCallFromMainThread(
+            []()
+            {
+                asyncCallFromMainThread(
+                    []()
+                    {
+                        asyncCallFromMainThread(
+                            []()
+                            {
+                                scheduledEventChainDone = true;
+                            } );
+                    } );
+            } );
+
+        // should still not be set
+        REQUIRE( !scheduledEventChainDone );
+
+        CONTINUE_SECTION_WHEN_IDLE()
+        {
+            // now all pending events (and the events they caused) should have been executed
+            REQUIRE( scheduledEventChainDone );
+        };
+    }
 }
 
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-fail", "[!shouldfail]")
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-fail", "[!shouldfail]")
 {
     SECTION("exceptionInContinuation")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
             throw std::runtime_error("dummy error");
         };
@@ -492,7 +521,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-fail", "[!shouldfail]")
 
     SECTION("exceptionAfterContinuationScheduled")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
         };
 
@@ -501,7 +530,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-fail", "[!shouldfail]")
 
     SECTION("failAfterContinuationScheduled")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
         };
         
@@ -509,14 +538,14 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-fail", "[!shouldfail]")
     }
 }
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-asyncAfterSectionThatHadAsyncContinuation" )
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-afterSectionThatHasPendingContinuation" )
 {
 	bool enteredSection = false;
 
     SECTION("initialChild")
     {
 		enteredSection = true;
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
         };
     }
@@ -526,7 +555,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-asyncAfterSectionThatHadAsyncCo
 		// we should get a programmingerror here. It is not allowed to schedule a 
 		// continuation when one was already scheduled
 		REQUIRE_THROWS_PROGRAMMING_ERROR(
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+            CONTINUE_SECTION_WHEN_IDLE(=)
             {
             }; );
 	}
@@ -534,7 +563,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-asyncAfterSectionThatHadAsyncCo
 	{
 		// if we did not enter the section then it should be fine to schedule the
 		// continuation here.
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(=)
+        CONTINUE_SECTION_WHEN_IDLE(=)
         {
         };
 	}
@@ -545,7 +574,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-asyncAfterSectionThatHadAsyncCo
 static bool continueAfterPendingEventsComplicated_Started = false;
 static bool continueAfterPendingEventsComplicated_Sub2Called = false;
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated" )
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-complicated" )
 {
     static bool async1Called=false;
     static bool async2Called=false;
@@ -554,15 +583,15 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated" )
 
     SECTION("a")
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS()
+        CONTINUE_SECTION_WHEN_IDLE()
         {
             SECTION("sub")
             {
-                CONTINUE_SECTION_AFTER_PENDING_EVENTS()
+                CONTINUE_SECTION_WHEN_IDLE()
                 {
                     async1Called = true;
 
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS()
+                    CONTINUE_SECTION_WHEN_IDLE()
                     {
                         async2Called = true;
                     };
@@ -590,7 +619,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated" )
     };
 }
 
-TEST_CASE("CONTINUE_SECTION_AFTER_PENDING_EVENTS-complicated-B" )
+TEST_CASE("CONTINUE_SECTION_WHEN_IDLE-complicated-B" )
 {
     // see comment in previous test case for explanation
 

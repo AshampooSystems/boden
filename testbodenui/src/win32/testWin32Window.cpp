@@ -25,7 +25,7 @@ protected:
     }    
 };
 
-TEST_CASE("Win32Window")
+TEST_CASE("win32.Win32Window")
 {
     SECTION("notifyDestroy called")
     {

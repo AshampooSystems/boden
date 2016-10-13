@@ -176,7 +176,10 @@ protected:
 private:	
 	static LRESULT _callDefaultWindowProc(Win32Window* pThis, HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	bool	_initialized = false;
+    void handleCreation(HWND hwnd);
+    void handleDestruction();
+
+	bool	_creationHandled = false;
 
 	WNDPROC _prevWindowProc = NULL;
 };

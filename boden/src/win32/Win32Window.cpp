@@ -64,7 +64,7 @@ Win32Window::Win32Window(	const String& className,
 							int width,
 							int height )
 {
-	_hwnd = ::CreateWindowEx(
+	HWND hwnd = ::CreateWindowEx(
 		exStyle,
 		className.asWidePtr(),
 		name.asWidePtr(),
@@ -78,28 +78,20 @@ Win32Window::Win32Window(	const String& className,
 		::GetModuleHandle(NULL),
 		this );
 
-	if(_hwnd==NULL)
+	if(hwnd==NULL)
 	{
 		BDN_WIN32_throwLastError( ErrorFields().add("func", "CreateWindowEx")
 											.add("context", "Window::create") );
 	}
 
-	// the window might use a system defined window class. If that is
-	// the case then we must now do some of the stuff that we normally do in our
-	// custom WM_CREATE handler (which was not called, because our windowProc is
-	// not used yet).
-	if(!_initialized)
-	{
-		// our WM_CREATE handler was not called, i.e. our windowProc is not called yet.
-		// That means that we have to subclass the window.
-
-		_GlobalRegistry::get().registerWindow(_hwnd, this);
-
-		::SetWindowLongPtr( _hwnd, GWLP_USERDATA, (LONG_PTR)this );
-		_prevWindowProc = (WNDPROC)::SetWindowLongPtr( _hwnd, GWLP_WNDPROC, (LONG_PTR)&Win32Window::windowProc );
-		
-		_initialized = true;
-	}	
+    // For our "own" window classes our WM_CREATE handler is called, since the correct windowProc
+    // is specified in CreateWindow. If our WM_CREATE handler is called then handleCreation is called from
+    // there.
+    // But if the window class was registered by someone else then our window proc is not yet installed
+    // and our WM_CREATE handler is not yet hooked up. In that case we need to call handleCreation
+    // here, after CreateWindow returned.
+    if(!_creationHandled)
+        handleCreation(hwnd);
 }
 
 Win32Window::~Win32Window()
@@ -111,8 +103,17 @@ void Win32Window::destroy()
 {
 	if(_hwnd!=NULL)
 	{
-		::DestroyWindow(_hwnd);
-		_hwnd = NULL;
+        // DestroyWindow can send multiple notification messages
+        // to different windows. If any of these causes this window to have its destruction
+        // triggered again then that might cause a crash.
+        // We protect against that by first calling our handleDestruction routine (which disconnects
+        // us from the HWND and sets _hwnd to NULL) and then calling DestroyWindow.
+
+        HWND hwndToDestroy = _hwnd;
+
+        handleDestruction();
+
+		::DestroyWindow(hwndToDestroy);
 	}
 }
 
@@ -153,6 +154,45 @@ Win32Window* Win32Window::getObjectFromHwnd(HWND hwnd)
 	return _GlobalRegistry::get().getObjectFromHwnd(hwnd);
 }
 
+void Win32Window::handleCreation(HWND hwnd)
+{
+    
+    // the window might use a system defined window class. If that is
+	// the case then our WM_CREATE handler is  we must now do some of the stuff that we normally do in our
+	// custom WM_CREATE handler (which was not called, because our windowProc is
+	// not used yet).
+    if(!_creationHandled)
+    {
+        _hwnd = hwnd;
+    
+        ::SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( static_cast<Win32Window*>(this) ) );
+		_GlobalRegistry::get().registerWindow(hwnd, this);		
+
+		_creationHandled = true;
+    }
+}
+
+void Win32Window::handleDestruction()
+{
+    // if the hwnd is null then that means that
+    // we have already handled the destruction.
+    if(_hwnd!=NULL)
+    {
+	    notifyDestroy();
+
+	    if(_prevWindowProc!=NULL)
+	    {
+		    // un-subclass the window
+		    ::SetWindowLongPtr(_hwnd, GWLP_WNDPROC, (LONG_PTR)_prevWindowProc );
+	    }
+
+        ::SetWindowLongPtr(_hwnd, GWLP_USERDATA, NULL );
+
+        _GlobalRegistry::get().unregisterWindow(_hwnd);
+
+        _hwnd = NULL;
+    }
+}
 	
 LRESULT CALLBACK Win32Window::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -164,53 +204,45 @@ LRESULT CALLBACK Win32Window::windowProc(HWND hwnd, UINT message, WPARAM wParam,
 
 		pThis = static_cast<Win32Window*>(pInfo->lpCreateParams);
 
-		::SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
-		_GlobalRegistry::get().registerWindow(hwnd, pThis);		
-
-		pThis->_initialized = true;
+        pThis->handleCreation(hwnd);		
 	}
 	else
+    {
 		pThis = reinterpret_cast<Win32Window*>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));	
+    }
 
 	bool    callDefault = true;	
 	LRESULT result = 0;
 
-	if(pThis!=nullptr)
+    if(pThis!=nullptr)
 	{
-		try
-		{
-			result = pThis->windowProcImpl(hwnd, message, wParam, lParam);
+        if(pThis->_hwnd==NULL)
+        {
+            // handleDestruction has already been called. Do not pass to our windowProc.
+            // Just call the default.
+            callDefault = true;
+        }
+        else if(message==WM_DESTROY)
+        {
+            pThis->handleDestruction();
+            callDefault = true;
+        }
+        else
+        {
+		    try
+		    {
+			    result = pThis->windowProcImpl(hwnd, message, wParam, lParam);
 			
-			// windowProc automatically calls the default handler. So nothing more to do here.
-			callDefault = false;
-		}
-		catch(std::exception& e)
-		{
-			logError(e, "Exception thrown by in Win32Window::windowProcImpl. Ignoring.");
+			    // windowProc automatically calls the default handler. So nothing more to do here.
+			    callDefault = false;
+		    }
+		    catch(std::exception& e)
+		    {
+			    logError(e, "Exception thrown by in Win32Window::windowProcImpl. Ignoring.");
 
-			// fall through and call DefWindowProc
-		}
-	}
-	
-	if(message==WM_DESTROY)
-	{
-		if(pThis!=nullptr)
-		{
-			pThis->notifyDestroy();
-
-			if(pThis->_prevWindowProc!=NULL)
-			{
-				// un-subclass the window
-				::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)pThis->_prevWindowProc );
-			}
-		}
-
-		::SetWindowLongPtr(hwnd, GWLP_USERDATA, NULL );
-
-		_GlobalRegistry::get().unregisterWindow(hwnd);
-		
-		if(pThis!=nullptr)
-			pThis->_hwnd = NULL;
+			    // fall through and call DefWindowProc
+		    }
+        }
 	}
 	
 	if(callDefault)

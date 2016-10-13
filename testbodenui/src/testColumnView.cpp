@@ -35,7 +35,7 @@ void testChildAlignment(
         pButton->verticalAlignment() = (vertAlign==View::VerticalAlignment::top) ? View::VerticalAlignment::bottom : View::VerticalAlignment::top;
     }
 
-    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
+    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
     {
         int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
         int layoutCountBefore = pColumnView->getLayoutCount();
@@ -44,7 +44,7 @@ void testChildAlignment(
         {
             pButton->horizontalAlignment() = horzAlign;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, horzAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, sizingInfoBeforeCount, layoutCountBefore)
             {
                 // sizing info should NOT have been updated
                 REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
@@ -85,7 +85,7 @@ void testChildAlignment(
         {
             pButton->verticalAlignment() = vertAlign;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, vertAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, sizingInfoBeforeCount, layoutCountBefore)
             {
                 // sizing info should NOT have been updated
                 REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
@@ -148,14 +148,14 @@ TEST_CASE("ColumnView")
 
         SECTION("addChildView")
         {
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, pCore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
             {
                 int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
                 int layoutCountBefore = pColumnView->getLayoutCount();
 
                 pColumnView->addChildView(pButton);
 
-                CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
                 {
                     // should cause a sizing update and a layout update
                     REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
@@ -185,29 +185,26 @@ TEST_CASE("ColumnView")
 
             pPreparer->getWindow()->requestAutoSize();
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, pColumnView, pButton, pCore)
+            CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pCore)
             {
                 SECTION("child margins")
                 {
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, pColumnView, pButton, pCore)
+                    Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
+                    int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
+                    int layoutCountBefore = pColumnView->getLayoutCount();
+
+                    pButton->margin() = UiMargin(UiLength::dip, 1, 2, 3, 4);
+
+                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
                     {
-                        Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
-                        int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
-                        int layoutCountBefore = pColumnView->getLayoutCount();
+                        // should cause a sizing update for the column view, followed by a layout update
+                        REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
+                        REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
 
-                        pButton->margin() = UiMargin(UiLength::dip, 1, 2, 3, 4);
+                        Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
 
-                        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
-                        {
-                            // should cause a sizing update for the column view, followed by a layout update
-                            REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
-                            REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
-
-                            Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
-
-                            REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
-                        };         
-                    };
+                        REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
+                    };         
                 }
 
                 SECTION("child alignment")
@@ -309,7 +306,7 @@ TEST_CASE("ColumnView")
             pButton->margin() = UiMargin(UiLength::dip, m.top, m.right, m.bottom, m.left );
             pButton2->margin() = UiMargin(UiLength::dip, m2.top, m2.right, m2.bottom, m2.left );
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
+            CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
             {
                 Rect bounds = Rect( pButton->position(), pButton->size());
                 Rect bounds2 = Rect( pButton2->position(), pButton2->size());

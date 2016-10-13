@@ -44,7 +44,7 @@ namespace bdn
 {
 	
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
     SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
     wrapper.pCallable = this;
@@ -57,7 +57,13 @@ void CallFromMainThreadBase_::dispatch()
 }
 
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+	XXX
+}
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
     wrapper.pCallable = this;

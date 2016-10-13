@@ -91,7 +91,7 @@ protected:
 
             // continue async to give the core a chance to correct / override
             // the new bounds.
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 Size size = pThis->_pWindow->size();
 
@@ -171,7 +171,7 @@ protected:
 
             P<TestWindowCore> pThis = this;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->testCoreUiElementDestroyedWhenObjectDestroyed();                
             };

@@ -41,7 +41,7 @@ static gboolean _callFromMainThreadBase_doCall(gpointer data)
 }
 
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
     // inc refcount so that object is kept alive until the call happens.
     addRef();
@@ -53,13 +53,18 @@ void CallFromMainThreadBase_::dispatch()
 }
 
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    XXX
+}
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     int64_t millis = (int64_t)(seconds*1000);
     
     if(millis<1)
     {
-        dispatch();
+        dispatchCall();
         return;
     }
     else

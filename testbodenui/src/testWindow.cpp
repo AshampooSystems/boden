@@ -52,7 +52,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_AFTER_PENDING_EVENTS(getSizeFunc, expectedSize)
+	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize)
 	{
 		Size size = getSizeFunc();
 
@@ -77,7 +77,7 @@ TEST_CASE("Window", "[ui]")
 		REQUIRE( pCore!=nullptr );
 
 		// continue testing after the async init has finished
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pWindow, pCore)
+        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow, pCore)
     {
         // testView already tests the initialization of properties defined in View.
         // So we only have to test the Window-specific things here.
@@ -176,7 +176,7 @@ TEST_CASE("Window", "[ui]")
                 // Since we want the window to be destroyed, we do the remaining test asynchronously
                 // after all pending operations are done.
 
-                CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(
+                CONTINUE_SECTION_WHEN_IDLE_WITH(
                     [pChild]()
                     {                
                         BDN_REQUIRE( pChild->getParentView() == nullptr);	    
@@ -200,7 +200,7 @@ TEST_CASE("Window", "[ui]")
 			    {
 
 				    // sizing info is updated asynchronously. So we need to check async as well.
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow, expectedSize)
+                    CONTINUE_SECTION_WHEN_IDLE(pWindow, expectedSize)
                     {
                         View::SizingInfo sizingInfo = pWindow->sizingInfo();
 
@@ -249,7 +249,7 @@ TEST_CASE("Window", "[ui]")
 		    REQUIRE( pWindow->position() == positionBefore );
             REQUIRE( pWindow->size() == sizeBefore );
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH(
+            CONTINUE_SECTION_WHEN_IDLE_WITH(
 			    [pWindow]()
 			    {
 				    REQUIRE( pWindow->position() == Point(0, 0) );
@@ -286,7 +286,7 @@ TEST_CASE("Window", "[ui]")
 		    REQUIRE( pWindow->position() == Point(0, 0) );
             REQUIRE( pWindow->size() == Size(200, 200) );
 
-		    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pWindow)
+		    CONTINUE_SECTION_WHEN_IDLE(pWindow)
 			{
 				// the work area of our mock window is 100,100 800x800
 				REQUIRE( pWindow->position() == Point(	100 + (800-200)/2,
@@ -309,7 +309,7 @@ TEST_CASE("Window", "[ui]")
 
             pWindow->setContentView(pChild);
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pChild, pWindow)
+            CONTINUE_SECTION_WHEN_IDLE(pChild, pWindow)
             {
                 // the mock views we use have 3 pixels per dip
                 double pixelsPerDip = 3;

@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/win32/GlobalMessageWindow.h>
+#include <bdn/mainThread.h>
 
 #include <bdn/StopWatch.h>
 
@@ -40,9 +41,47 @@ void continueTestPostCall(P<TestCallable> pCallable, P<GlobalMessageWindow> pWin
 {
     if(pCallable->callCount==0)
     {
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS_WITH( [pCallable, pWindow](){ continueTestPostCall(pCallable, pWindow); } );
+        CONTINUE_SECTION_WHEN_IDLE_WITH( [pCallable, pWindow](){ continueTestPostCall(pCallable, pWindow); } );
     }
 }
+
+
+
+
+void testCallOnceWhenIdle(P<GlobalMessageWindow> pWindow)
+{
+	P<TestCallable>			pCallable = newObj<TestCallable>();		
+    P<TestCallable>			pCallable2 = newObj<TestCallable>();		
+		
+	pWindow->callOnceWhenIdle( pCallable );
+    pWindow->callOnceWhenIdle( pCallable2 );
+
+    CONTINUE_SECTION_IN_THREAD(pCallable, pCallable2, pWindow)
+    {
+        callFromMainThread(
+            [pCallable, pCallable2, pWindow]()
+            {
+                // should not have been called yet
+                REQUIRE( pCallable->callCount==0 );
+                REQUIRE( pCallable2->callCount==0 );
+
+                pWindow->notifyIdleBegun();
+
+                // now each should have been called once
+
+                REQUIRE( pCallable->callCount==1 );
+                REQUIRE( pCallable2->callCount==1 );
+
+                // notifying again should have no effect
+
+                pWindow->notifyIdleBegun();
+
+                REQUIRE( pCallable->callCount==1 );
+                REQUIRE( pCallable2->callCount==1 );
+            } ).get();
+    };
+}
+
 
 void testGlobalInstance()
 {
@@ -58,7 +97,7 @@ void testGlobalInstance()
 
 
 
-TEST_CASE("GlobalMessageWindow")
+TEST_CASE("win32.GlobalMessageWindow")
 {
     P<GlobalMessageWindow>	            pWindow = newObj<GlobalMessageWindow>();
 
@@ -76,6 +115,22 @@ TEST_CASE("GlobalMessageWindow")
         }
     }
 
+    SECTION("callOnceWhenIdle")
+    {
+        SECTION("mainThread")
+            testCallOnceWhenIdle(pWindow);
+
+        SECTION("otherThread")
+        {
+            CONTINUE_SECTION_IN_THREAD(pWindow)
+            {
+                testCallOnceWhenIdle(pWindow);
+            };
+        }
+        
+    }
+
 	SECTION("globalInstance")
 		testGlobalInstance();
 }
+

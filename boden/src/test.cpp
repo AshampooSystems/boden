@@ -2948,8 +2948,8 @@ private: // IResultCapture
 
             if( _postponedSectionEvents.empty() )
             {
-                // we got a sectionStarted event directly after the CONTINUE_SECTION_AFTER_PENDING_EVENTS statement.
-                // This should never happen. CONTINUE_SECTION_AFTER_PENDING_EVENTS should be at the end of a section.
+                // we got a sectionStarted event directly after the CONTINUE_SECTION_WHEN_IDLE statement.
+                // This should never happen. CONTINUE_SECTION_WHEN_IDLE should be at the end of a section.
                 // So the first event we get should be that section being ended.
                 // So the test code is invalid.
                 programmingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_AFTER_PENDING_EVENTS or CONTINUE_SECTION_IN_THREAD.");
@@ -3228,7 +3228,7 @@ public:
     void beginScheduleContinuation()
     {
         if(_currentTestWillContinueLater)
-			programmingError("Cannot use CONTINUE_SECTION_AFTER_PENDING_EVENTS or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
+			programmingError("Cannot use CONTINUE_SECTION_WHEN_IDLE or CONTINUE_SECTION_IN_THREAD when such a continuation is already scheduled.");
         
         _currentTestWillContinueLater = true;
 
@@ -3247,17 +3247,17 @@ public:
         _postponedSectionEventsInsertPos = _postponedSectionEvents.begin();
     }
 
-	void continueSectionAfterPendingEvents(std::function<void()> continuationFunc) override
+	void continueSectionWhenIdle(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
 		        		
-        asyncCallFromMainThread(
+        asyncCallFromMainThreadWhenIdle(
             [this, continuationFunc]()
             {
                 doSectionContinuation(continuationFunc);
             } );
 	}
-
+    
     void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();

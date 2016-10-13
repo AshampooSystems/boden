@@ -6,7 +6,7 @@
 namespace bdn
 {	
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
     BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -30,14 +30,25 @@ void CallFromMainThreadBase_::dispatch()
 
 }
 
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    BDN_WINUWP_TO_STDEXC_BEGIN;
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+	P<CallFromMainThreadBase_> pThis = this;
+
+    XXX
+
+    BDN_WINUWP_TO_STDEXC_END;
+
+}
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     BDN_WINUWP_TO_STDEXC_BEGIN;
 
     if(seconds<=0.0000001)
     {
-        dispatch();
+        dispatchCall();
         return;
     }
 

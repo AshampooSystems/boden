@@ -32,7 +32,7 @@ static void CallFromMainThread_callback(void* pArg)
 }
 
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
 	// keep ourselves alive during this
 	addRef();
@@ -41,8 +41,16 @@ void CallFromMainThreadBase_::dispatch()
 }
 
 
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+	// keep ourselves alive during this
+	addRef();
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+    XXX
+}
+
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
 	int64_t millis = (int64_t)(seconds*1000);
 

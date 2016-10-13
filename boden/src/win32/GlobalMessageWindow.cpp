@@ -17,6 +17,11 @@ GlobalMessageWindow::GlobalMessageWindow()
 	: RequireNewAlloc<MessageWindowBase, GlobalMessageWindow>("bdn::GlobalMessageWindow")
 {
 }
+
+GlobalMessageWindow::~GlobalMessageWindow()
+{
+    destroy();
+}
 	
 void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 {
@@ -24,6 +29,45 @@ void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 	::PostMessage( getHwnd(), MessageCall, 0, reinterpret_cast<LPARAM>(pCallable) );
 }
 
+
+
+void GlobalMessageWindow::callOnceWhenIdle( ISimpleCallable* pCallable )
+{
+    {
+        MutexLock lock( _idleMutex );
+    
+        _callOnceWhenIdleList.push_back( pCallable );
+    }       
+
+    // we may currently be in an idle phase. If that is the case then we
+    // need to break it with a dummy message and cause a new idle phase to be begun.
+    ::PostMessage( getHwnd(), WM_NULL, 0, 0);
+}
+
+void GlobalMessageWindow::notifyIdleBegun()
+{
+    std::list< P<ISimpleCallable> > toCallList;
+
+    {
+        MutexLock lock( _idleMutex );
+
+        toCallList = _callOnceWhenIdleList;
+        _callOnceWhenIdleList.clear();
+    }
+
+    for( P<ISimpleCallable>& pCallable: toCallList)
+    {
+        try
+		{
+			pCallable->call();
+		}
+		catch(std::exception& e)
+		{
+			// log and ignore exceptions
+			logError(e, "Exception thrown by ISimpleCallable::call during GlobalMessageWindow::notifyIdleBegun. Ignoring.");
+		}
+    }
+}
 
 void GlobalMessageWindow::handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 {

@@ -7,17 +7,22 @@ namespace bdn
 {
 	
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
 	win32::GlobalMessageWindow::get().postCall(this);
 }
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    win32::GlobalMessageWindow::get().callOnceWhenIdle(this);
+}
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     int64_t millis = (int64_t)(seconds*1000);
 
     if(millis<=0)
-        dispatch();
+        dispatchCall();
     else
     {
         // we cannot use SetTimer, because WM_TIMER message have a low priority.
@@ -31,7 +36,7 @@ void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
             [pThis, millis]()
             {
                 Thread::sleepMillis(millis);
-                pThis->dispatch();            
+                pThis->dispatchCall();            
             } );
     }    
 }

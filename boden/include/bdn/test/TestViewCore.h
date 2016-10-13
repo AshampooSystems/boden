@@ -62,7 +62,7 @@ public:
 
             // ensure that all pending initializations have finished.
             P<TestViewCore> pThis = this;
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->runPostInitTests();
             };
@@ -339,11 +339,8 @@ protected:
                     _pView->padding() = paddingBefore;
                     
                     // wait a little so that sizing info is updated.
-                    // Note that on some platforms CONTINUE_SECTION_AFTER_PENDING_EVENTS is not good enough
-                    // because the sizing updates happen with a low priority.
-                    // So we explicitly wait a little bit.
                     P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_SECONDS(0.5, pThis, paddingBefore )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
 
@@ -360,7 +357,7 @@ protected:
                         pThis->_pView->padding() = increasedPadding;
 
 
-                        CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, prefSizeBefore, additionalPadding )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, prefSizeBefore, additionalPadding )
                         {        
                             // the padding should increase the preferred size.
                             Size prefSize = pThis->_pCore->calcPreferredSize();
@@ -394,7 +391,7 @@ protected:
 
             P<TestViewCore> pThis = this;
             
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, bounds, returnedBounds )
+            CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {
                 // the core size and position should always represent what
                 // is configured in the view.
@@ -407,7 +404,7 @@ protected:
                     Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds( Rect( bounds.x*2, bounds.y*2, bounds.width, bounds.height) );            
                     REQUIRE( returnedBounds2 == returnedBounds );
 
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis )
                     {
                         // the core size and position should always represent what
                         // is configured in the view.
