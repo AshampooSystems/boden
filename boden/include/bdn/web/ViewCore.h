@@ -3,6 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
+#include <bdn/PixelAligner.h>
 
 #include <bdn/web/UiProvider.h>
 
@@ -102,33 +103,67 @@ public:
         }
         else
         {
-            UiMargin pad = padding.get();
+            Margin pad = uiMarginToDipMargin( padding.get() );
             
             String paddingString;
 
-            paddingString = UiProvider::get().uiLengthToHtmlString(pad.top)
-                             + " " + UiProvider::get().uiLengthToHtmlString(pad.right)
-                             + " " + UiProvider::get().uiLengthToHtmlString(pad.bottom)
-                             + " " + UiProvider::get().uiLengthToHtmlString(pad.left);
+            // we specify the padding in full DIPs. That seems like a good idea, because
+            // we do not know how good the browser is an if it will automatically align the
+            // content viewport on physical pixel boundaries if we specify anything weird here.
+
+            paddingString = std::to_string((int)std::ceil(pad.top))+"px"
+                             + " " + std::to_string((int)std::ceil(pad.right))+"px"
+                             + " " + std::to_string((int)std::ceil(pad.bottom))+"px"
+                             + " " + std::to_string((int)std::ceil(pad.left))+"px";
 
             _domObject["style"].set("padding", paddingString.asUtf8());
         }
     }
     
-    void setPosition(const Point& position) override
+    Rect adjustAndSetBounds(const Rect& bounds) override
     {
+    	Rect adjustedBounds = adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
+
         emscripten::val styleObj = _domObject["style"];
 
-        styleObj.set("left", UiProvider::dipsToHtmlString(position.x, UiProvider::Round::nearest).asUtf8() );
-        styleObj.set("top", UiProvider::dipsToHtmlString(position.y, UiProvider::Round::nearest).asUtf8() );        
+        // the adjusted bounds are rounded to full integers. So we can just
+        // use std::to_string to convert them to a string.
+
+
+        styleObj.set("left", std::to_string((int)adjustedBounds.x)+"px" );
+        styleObj.set("top", std::to_string((int)adjustedBounds.y)+"px" );        
+
+        styleObj.set("width", std::to_string((int)adjustedBounds.width)+"px" );
+        styleObj.set("height", std::to_string((int)adjustedBounds.height)+"px" );
+
+        return adjustedBounds;
     }
 
-    void setSize(const Size& size) override
-    {
-        emscripten::val styleObj = _domObject["style"];
 
-        styleObj.set("width", UiProvider::dipsToHtmlString(size.width, UiProvider::Round::up).asUtf8() );
-        styleObj.set("height", UiProvider::dipsToHtmlString(size.height, UiProvider::Round::up).asUtf8() );
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
+    {
+    	// we need to round to physical pixels. Unfortunately there is apparently no reliable mechanism to find
+    	// our the physical pixel resolution at the moment.
+    	// There is a proposed draft for a Window.devicePixelRatio property, but that is currently not supported
+    	// by any browsers.
+    	// There is the -webkit-device-pixel-ratio media property, but that is webkit only and not on the
+    	// standards track.
+    	// There is also a "resolution" property, which apparently specifies the pixel density in
+    	// "DPI". Since the term "DPI" is misused everywhere, it is unclear if we can derive anything
+    	// useful from it. It might be that resolution/96 gives us the number of physical pixels per
+    	// "CSS pixel"/DIP, but that is not clear.
+    	// https://drafts.csswg.org/mediaqueries-3/#resolution
+
+    	// So with all this we simply align our stuff on integer DIP boundaries. It is likely that the browser
+    	// chooses the DIP unit so that it covers an integer number of pixels, otherwise most CSS positioning
+    	// will cause unaligned controls, which the browser will try to avoid.
+
+    	// While doing it this way makes it likely that we actually align on physical pixels, it also means
+    	// that we do not use the full device resolution for arranging our views. This might cause
+    	// animations to make bigger position "jumps" than would be necessary, but currently there is not
+    	// standard compliant way around it.
+
+    	return PixelAligner(1).alignRect( requestedBounds, positionRoundType, sizeRoundType);
     }
     
 
@@ -166,10 +201,13 @@ public:
         if(availableWidth!=-1)
         {
             // how should we round here?
-            // If we round down then we might cause the content to wrap unnecessarily.
             // If we round up then we might cause the content to not fit in the final view size.
-            // So we simply round to nearest. That should work in most cases.
-            styleObj.set("max-width", UiProvider::dipsToHtmlString(availableWidth, UiProvider::Round::nearest).asUtf8() );
+            // If we round down then it might seem that we could cause the content to wrap unnecessarily.
+            // However, since all view sizes and positions are rounded to full dips, the parent layout
+            // will work with the preferred size we give it. And if we round THAT up then we will get the same
+            // value in availableWidth if enough space is available. So that should be ok.
+
+            styleObj.set("max-width", std::to_string((int)std::floor(availableWidth))+"px" );
         }
         else
         {
@@ -230,7 +268,11 @@ public:
         }
 
         // no scaling necessary. Web browsers already use DIPs.
+        // However, we want to report full DIPs only, since we use that as our basic atomic internal unit
+       	// (because we have no way to find out how big the screen's physical pixels actually are).
 
+        width = std::ceil(width);
+        height = std::ceil(height);
 
         return Size( width, height );
     }

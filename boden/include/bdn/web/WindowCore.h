@@ -26,8 +26,15 @@ public:
 
         emscripten_set_resize_callback( "#window", static_cast<void*>(this), false, &WindowCore::_resizedCallback);
 
-        updateOuterViewPosition();
-        updateOuterViewSize();
+        // update the outer view's bounds with the current bounds from this window.
+        // Do this in an async call, because the current callstack is unknown and the
+        // property changes might otherwise have unexpected side effects.
+        P<WindowCore> pThis = this;
+        asyncCallFromMainThread(
+            [pThis]()
+            {
+                pThis->updateOuterViewBounds();                
+            });
     }
 
     ~WindowCore()
@@ -42,19 +49,21 @@ public:
     }
 
 
-    void setPosition(const Point& position) override
+
+    Rect adjustAndSetBounds(const Rect& bounds) override
     {
-        // we cannot modify the size or position of the window.
-        // So just reset the bounds back to their original value.
-        updateOuterViewPosition();
+        // we cannot modify our size and position. Do nothing and return our current bounds.
+        return _getBounds();
     }
 
-    void setSize(const Size& size) override
+
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
     {
-        // we cannot modify the size or position of the window.
-        // So just reset the bounds back to their original value.
-        updateOuterViewSize();
+        // we cannot modify our size and position. Do nothing and return our current bounds.
+        return _getBounds();
     }
+    
+
 
     void setTitle(const String& title) override
     {
@@ -110,29 +119,31 @@ public:
     }
     
 private:
-    void updateOuterViewPosition()
-    {
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            pView->position() = Point(0,0);
-    }
-
-    void updateOuterViewSize()
+    Rect _getBounds() const
     {
         int width = _domObject["offsetWidth"].as<int>();
         int height = _domObject["offsetHeight"].as<int>();
 
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
+        // we do not know the actual position of our window on the screen.
+        // The web browser does not expose that.
+
+        return Rect(0, 0, width, height);
+    }
+
+    void updateOuterViewBounds()
+    {
+        if(!_domObject.isNull() && !_domObject.isUndefined())
         {
-            pView->size() = Size(width, height);
-            pView->needLayout();
+            P<View> pView = getOuterViewIfStillAttached();
+            if(pView!=nullptr)
+                pView->adjustAndSetBounds( _getBounds() );
         }
     }
 
+
     bool resized(int eventType, const EmscriptenUiEvent* pEvent)
     {
-        updateOuterViewSize();
+        updateOuterViewBounds();
 
         return false;
     }
