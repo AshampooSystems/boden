@@ -26,10 +26,22 @@ public:
     {
         _window = (UIWindow*)getUIView();
         
-        // set the outer object's bounds to the bounds of the ios window
-        Rect rect = iosRectToRect(_window.frame);
-        pOuterWindow->position() = rect.getPosition();
-        pOuterWindow->size() = rect.getSize();
+        // schedule the outer object's bounds to the bounds of the ios window.
+        // Keep ourselves alive during this.
+        P<WindowCore> pThis = this;
+        asyncCallFromMainThread(
+            [pThis]()
+            {
+                if(pThis->_window!=nil)
+                {
+                    P<View> pView = pThis->getOuterViewIfStillAttached();
+                    if(pView!=nullptr)
+                    {
+                        Rect bounds = iosRectToRect(pThis->_window.frame);
+                        pView->adjustAndSetBounds(bounds);
+                    }
+                }
+            } );
     }
     
     ~WindowCore()
@@ -51,23 +63,13 @@ public:
         return _window;
     }
     
-
-    void setPosition(const Point& position) override
-    {
-        // we do not modify our frame. Just reset the bounds property back to the current bounds.
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            pView->position() = iosRectToRect(_window.frame).getPosition();
-    }
     
-    void setSize(const Size& size) override
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
-        // we do not modify our frame. Just reset the bounds property back to the current bounds.
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            pView->size() = iosRectToRect(_window.frame).getSize();
+        // we do not modify our frame. Just "adjust" the specified bounds to the current bounds.
+        return iosRectToRect(_window.frame);
     }
-
     
     
     void setTitle(const String& title) override

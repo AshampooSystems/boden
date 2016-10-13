@@ -9,6 +9,8 @@
 #import <bdn/ios/UIProvider.hh>
 #import <bdn/ios/util.hh>
 
+#include <bdn/PixelAligner.h>
+
 
 namespace bdn
 {
@@ -62,23 +64,40 @@ public:
     {
     }
     
-
-    void setPosition(const Point& position) override
+    
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
-        CGRect rect = _view.frame;
-        rect.origin.x = position.x;
-        rect.origin.y = position.y;
+        // first adjust the bounds so that they are on pixel boundaries
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
         
-        _view.frame = rect;
+        _view.frame = rectToIosRect(adjustedBounds);
+        
+        return adjustedBounds;
     }
     
-    void setSize(const Size& size) override
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
-        CGRect rect = _view.frame;
-        rect.size.width = size.width;
-        rect.size.height = size.height;
+        // most example code for ios simply aligns on integer values when pixel alignment
+        // is discussed.
+        // While this DOES actually align on a grid that coincides with some pixel boundaries, the actual
+        // screen resolution can be much higher (and indeed it is for all modern iPhones). iOS uses an
+        // integral scale factor from "points" (=what we call DIPs) to pixels. Aligning to integers aligns
+        // to full points. But there can be 1, 2, 3 or more actual pixels per point.
         
-        _view.frame = rect;
+        // Aligning to full points has the disadvantage that we do not take full advantage of the display
+        // resolution when it comes to positioning things. This can make animations less smooth than they could be.
+        
+        // On macOS there is the function backingAlignedRect which can align to a proper boundary
+        // in a high level way. Apparently such a function does not exist on iOS. So we have to manually
+        // align.
+        
+        UIScreen* screen = [UIScreen mainScreen];
+        
+        double scale = screen.scale;    // 1 for old displays, 2 for retina iphone, 3 for iphone plus, etc.
+        
+        return PixelAligner(scale).alignRect(requestedBounds, positionRoundType, sizeRoundType);
     }
     
 
