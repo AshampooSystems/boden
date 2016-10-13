@@ -63,20 +63,6 @@ public:
         invoke_<void>(getStaticClass_(), methodId, "setSize", width, height);
     }
 
-    void setChildPosition(JView & childView, int x, int y)
-    {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "setChildPosition", childView, x, y);
-    }
-
-    void setChildSize(JView & childView, int width, int height)
-    {
-        static bdn::java::MethodId methodId;
-
-        invoke_<void>(getStaticClass_(), methodId, "setChildSize", childView, width, height);
-    }
-
     void setChildBounds(JView & childView, int x, int y, int width, int height)
     {
         static bdn::java::MethodId methodId;

@@ -53,41 +53,6 @@ public class NativeViewGroup extends ViewGroup
         mHeight = height;
     }
 
-    public void setChildPosition(View child, int x, int y)
-    {
-        // modify the child's layout params
-
-        Log.i("boden", "setChildPosition " + child.toString() + " to " + Integer.toString(x) + "," + Integer.toString(y));
-
-        int width = 0;
-        int height = 0;
-        LayoutParams currParams = (LayoutParams)child.getLayoutParams();
-        if (currParams != null) {
-            width = currParams.width;
-            height = currParams.height;
-        }
-
-        setChildBounds(child, x, y, width, height);
-    }
-
-    public void setChildSize(View child, int width, int height)
-    {
-        // modify the child's layout params
-
-        Log.i("boden", "setChildSize " + child.toString() + " to " + Integer.toString(width) + "x" + Integer.toString(height));
-
-        int x = 0;
-        int y = 0;
-        LayoutParams currParams = (LayoutParams)child.getLayoutParams();
-        if (currParams != null) {
-            x = currParams.x;
-            y = currParams.y;
-        }
-
-        setChildBounds(child, x, y, width, height);
-    }
-
-
     public void setChildBounds(View child, int x, int y, int width, int height)
     {
         // modify the child's layout params
