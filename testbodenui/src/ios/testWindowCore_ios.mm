@@ -41,6 +41,19 @@ protected:
     }
     
     
+    bool canManuallyChangePosition() const override
+    {
+        // we cannot modify the size and position of top level windows.
+        return false;
+    }
+    
+    bool canManuallyChangeSize() const override
+    {
+        // we cannot modify the size and position of top level windows.
+        return false;
+    }
+
+    
     
     void clearAllReferencesToCore() override
     {

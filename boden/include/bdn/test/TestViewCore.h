@@ -470,10 +470,10 @@ protected:
 
                 std::vector<Rect> adjustedBoundsArray;
 
-                for(RoundType positionRoundType: roundTypes)
+                for(RoundType sizeRoundType: roundTypes)
                 {
-                    for(RoundType sizeRoundType: roundTypes)
-                    {
+                    for(RoundType positionRoundType: roundTypes)
+                    {                    
                         Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
 
                         adjustedBoundsArray.push_back(adjustedBounds);
@@ -487,14 +487,40 @@ protected:
 
                 for(int sizeRoundTypeIndex=0; sizeRoundTypeIndex<3; sizeRoundTypeIndex++)
                 {
-                    REQUIRE( adjustedBoundsArray[sizeRoundTypeIndex*3 + 0].getPosition() <= adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition() );
-                    REQUIRE( adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition() <= adjustedBoundsArray[sizeRoundTypeIndex*3 + 2].getPosition() );
+                    Point downRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 0].getPosition();
+                    Point nearestRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition();
+                    Point upRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 2].getPosition();
+                    
+                    REQUIRE( downRoundedPosition <= nearestRoundedPosition );
+                    REQUIRE( nearestRoundedPosition <= upRoundedPosition );
+
+                    // if canManuallyChangePosition returns false then it means that the view
+                    // has no control over its position. That means that adjustBounds will
+                    // always return the view's current position.
+                    if(canManuallyChangePosition())
+                    {
+                        REQUIRE( downRoundedPosition <= bounds.getPosition() );
+                        REQUIRE( upRoundedPosition >= bounds.getPosition() );
+                    }
                 }
 
                 for(int positionRoundTypeIndex=0; positionRoundTypeIndex<3; positionRoundTypeIndex++)
                 {
-                    REQUIRE( adjustedBoundsArray[0*3 + positionRoundTypeIndex].getSize() <= adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize() );
-                    REQUIRE( adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize() <= adjustedBoundsArray[2*3 + positionRoundTypeIndex].getSize() );
+                    Size downRoundedSize = adjustedBoundsArray[0*3 + positionRoundTypeIndex].getSize();
+                    Size nearestRoundedSize = adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize();
+                    Size upRoundedSize = adjustedBoundsArray[2*3 + positionRoundTypeIndex].getSize();
+                    
+                    REQUIRE( downRoundedSize <= nearestRoundedSize );
+                    REQUIRE( nearestRoundedSize <= upRoundedSize );
+                    
+                    // if canManuallyChangeSize returns false then it means that the view
+                    // has no control over its size. That means that adjustBounds will
+                    // always return the view's current size.
+                    if(canManuallyChangeSize())
+                    {
+                        REQUIRE( downRoundedSize <= bounds.getSize() );
+                        REQUIRE( upRoundedSize >= bounds.getSize() );
+                    }
                 }
             }
         }        

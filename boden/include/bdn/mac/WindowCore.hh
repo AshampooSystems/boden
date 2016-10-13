@@ -154,20 +154,20 @@ public:
         
         // the screen's coordinate system is inverted (from our point of view). So we need to
         // flip the coordinates.
-        NSRect macRect = rectToMacRect( requestedBounds, screen.frame.size.height);
+        double screenHeight = screen.frame.size.height;
+        NSRect macRect = rectToMacRect( requestedBounds, screenHeight);
         
         NSAlignmentOptions alignOptions = 0;
         
         // our "position" indicates the top/left position of the window. However, in the
         // flipped screen coordinate system the (0,0) is actually the bottom left cordner
         // of the window.
-        // Since the positionRoundType applies to the (top/left), it actually indicates
-        // the minX, maxY edge, rather than minX,minY
+        // The top/left of the window is minX/maxY.
         if(positionRoundType==RoundType::down)
-            alignOptions |= NSAlignMinXOutward | NSAlignMaxYInward;
+            alignOptions |= NSAlignMinXOutward | NSAlignMaxYOutward;
         
         else if(positionRoundType==RoundType::up)
-            alignOptions |= NSAlignMinXInward | NSAlignMaxYOutward;
+            alignOptions |= NSAlignMinXInward | NSAlignMaxYInward;
         
         else
             alignOptions |= NSAlignMinXNearest | NSAlignMaxYNearest;
@@ -176,8 +176,8 @@ public:
         if(sizeRoundType==RoundType::down)
             alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
         
-        else if(positionRoundType==RoundType::up)
-            alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
+        else if(sizeRoundType==RoundType::up)
+            alignOptions |= NSAlignWidthOutward | NSAlignHeightOutward;
         
         else
             alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
@@ -187,7 +187,7 @@ public:
             [_nsWindow backingAlignedRect:macRect
                                 options:alignOptions ];
         
-        Rect adjustedBounds = macRectToRect( adjustedMacRect, screen.frame.size.height);
+        Rect adjustedBounds = macRectToRect( adjustedMacRect, screenHeight);
         
         return adjustedBounds;
     }

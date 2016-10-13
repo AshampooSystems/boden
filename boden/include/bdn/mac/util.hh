@@ -78,7 +78,8 @@ inline NSRect rectToMacRect(const Rect& rect, int coordinateSpaceHeightForFlippi
     
     if(coordinateSpaceHeightForFlipping!=-1)
     {
-        // seem acRectToRect for an explanation
+        // see macRectToRect for an explanation.
+
         macRect.origin.y += macRect.size.height;
         macRect.origin.y = coordinateSpaceHeightForFlipping-macRect.origin.y;
     }

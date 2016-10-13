@@ -65,13 +65,14 @@ public:
         
         NSAlignmentOptions alignOptions =
             NSAlignRectFlipped;    // coordinate system is "flipped" for mac (normal for us), so we need this flag
-        
-        
+                                   // apparently this only affects how halfway values are rounded, not
+                                   // what "minY" and "maxY" refers to.
+                
         if(positionRoundType==RoundType::down)
-            alignOptions |= NSAlignMinXInward | NSAlignMinYInward;
+            alignOptions |= NSAlignMinXOutward | NSAlignMinYOutward;
         
         else if(positionRoundType==RoundType::up)
-            alignOptions |= NSAlignMinXOutward | NSAlignMinYOutward;
+            alignOptions |= NSAlignMinXInward | NSAlignMinYInward;
         
         else
             alignOptions |= NSAlignMinXNearest | NSAlignMinYNearest;
