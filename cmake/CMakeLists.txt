@@ -223,11 +223,11 @@ if(BODEN_USES_FK)
 endif()
 
 if(BODEN_USES_JAVA)
-	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/java/*.h ${BODEN_INCDIR}/bdn/java/test/*.h)
-	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
+	file( GLOB BODEN_JAVA_HEADERS ${BODEN_INCDIR}/bdn/java/*.h ${BODEN_INCDIR}/bdn/java/test/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_JAVA_HEADERS} )	
 
-	file( GLOB BODEN_PTHREAD_SOURCES ${BODEN_SRCDIR}/java/*.cpp)
-	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
+	file( GLOB BODEN_JAVA_SOURCES ${BODEN_SRCDIR}/java/*.cpp)
+	list( APPEND BODEN_SOURCES ${BODEN_JAVA_SOURCES} )	
 endif()
 
 if(BODEN_USES_GTK)
@@ -238,8 +238,8 @@ if(BODEN_USES_GTK)
 	list( APPEND BODEN_SOURCES ${BODEN_GTK_SOURCES} )	
 endif()
 
-source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.h|\\.hh)")
-source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.cpp|\\.m|\\.mm)")
+source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk|fk)\\/.*(\\.h|\\.hh)")
+source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk|fk)\\/.*(\\.cpp|\\.m|\\.mm)")
 
 
 include_directories( ${BODEN_INCDIR} )

@@ -3,6 +3,10 @@
 
 #import <UiKit/UiKit.h>
 
+#import <bdn/fk/IdleRunner.hh>
+
+#include <bdn/log.h>
+
 
 @interface SimpleCallableWrapper : NSObject
 {
@@ -42,8 +46,7 @@
 
 namespace bdn
 {
-    
-    
+
 void CallFromMainThreadBase_::dispatchCall()
 {
     SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
@@ -56,10 +59,11 @@ void CallFromMainThreadBase_::dispatchCall()
         
 }
     
+    
  
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-	XXX
+    bdn::fk::IdleRunner::get().callWhenIdle(this);
 }
     
 void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)

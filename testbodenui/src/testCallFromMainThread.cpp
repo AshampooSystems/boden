@@ -1013,6 +1013,39 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
             }
         };
     }
+    
+    
+    SECTION("newly added idle handlers executed after newly added other events")
+    {
+        P<TestCallWhenIdleOrder> pTestData = newObj<TestCallWhenIdleOrder>();
+        
+        asyncCallFromMainThreadWhenIdle(
+            [pTestData]()
+            {
+                // schedule another idle call, then schedule a "normal" async call.
+                // the "normal" call should take precedence
+                asyncCallFromMainThreadWhenIdle(
+                    [pTestData]()
+                    {
+                        pTestData->callOrder.push_back(1);
+                    } );
+                
+                asyncCallFromMainThread(    [pTestData]()
+                                            {
+                                                pTestData->callOrder.push_back(0);
+                                            } );
+            } );
+        
+        // wait two seconds for the events to be executed
+        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        {
+            // then verify their order
+            REQUIRE( pTestData->callOrder.size()==2 );
+            REQUIRE( pTestData->callOrder[0]==0 );  // normal handler first
+            REQUIRE( pTestData->callOrder[1]==1 );  // then idle handler
+            
+        };
+    }
 }
 
 static void testAsyncCallFromMainThreadWhenIdle(bool exception)

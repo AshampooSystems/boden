@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/mainThread.h>
 
+#import <bdn/fk/IdleRunner.hh>
+
 #import <Cocoa/Cocoa.h>
 
 
@@ -60,7 +62,7 @@ void CallFromMainThreadBase_::dispatchCall()
 
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-	XXX
+    bdn::fk::IdleRunner::get().callOnceWhenIdle(this);
 }
 
 void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
