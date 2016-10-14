@@ -11,6 +11,7 @@ project (boden)
 SET(BODEN_USES_PTHREAD 0)
 SET(BODEN_USES_GTK 0)
 SET(BODEN_USES_JAVA 0)
+SET(BODEN_USES_FK 0)    # Foundation Kit
 
 if(BODEN_TARGET)
 	# do nothing	
@@ -21,6 +22,7 @@ else()
 		SET( BODEN_TARGET "ios" )
 
 		SET(BODEN_USES_PTHREAD 1)
+        SET(BODEN_USES_FK 1)    # Foundation Kit
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -55,6 +57,7 @@ else()
 		SET( BODEN_TARGET "mac" )
 
 		SET(BODEN_USES_PTHREAD 1)
+        SET(BODEN_USES_FK 1)    # Foundation Kit
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -209,6 +212,14 @@ if(BODEN_USES_PTHREAD)
 
 	file( GLOB BODEN_PTHREAD_SOURCES ${BODEN_SRCDIR}/pthread/*.cpp)
 	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
+endif()
+
+if(BODEN_USES_FK)
+    file( GLOB BODEN_FK_HEADERS ${BODEN_INCDIR}/bdn/fk/*.h ${BODEN_INCDIR}/bdn/fk/*.hh ${BODEN_INCDIR}/bdn/fk/test/*.h ${BODEN_INCDIR}/bdn/fk/test/*.hh)
+    list( APPEND BODEN_HEADERS ${BODEN_FK_HEADERS} )   
+
+    file( GLOB BODEN_FK_SOURCES ${BODEN_SRCDIR}/fk/*.cpp ${BODEN_SRCDIR}/fk/*.mm)
+    list( APPEND BODEN_SOURCES ${BODEN_FK_SOURCES} )   
 endif()
 
 if(BODEN_USES_JAVA)
