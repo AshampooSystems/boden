@@ -3,6 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/PixelAligner.h>
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/util.h>
 
@@ -38,11 +39,20 @@ public:
 	void setPadding(const Nullable<UiMargin>& padding) override
     {
     }
-
-	
-	void setPosition(const Point& position) override
+    
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
-        GtkAllocation alloc = rectToGtkRect( Rect( position, Size(1,1) ) );
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+        
+        GtkAllocation alloc = rectToGtkRect( adjustedBounds );
+        
+         if(alloc.width<0)
+            alloc.width = 0;
+        if(alloc.height<0)
+            alloc.height = 0;
+            
+        gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );        
                 
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
@@ -55,21 +65,21 @@ public:
                 pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
             }
         }
+        
+        return adjustedBounds;
+    }
+    
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
+    {
+        // GTK uses DIPs, but with inteher values. So while there can be more than 1 pixel per DIP,
+        // we cannot address them. So we have to adjust to DIP boundaries, rather than pixel boundaries.
+        // Note that the GTK scale factor (factor from DIPs to pixels) is always an integer, so DIP
+        // boundaries are always also pixel boundaries. But there may be additional pixel boundaries
+        // between DIP boundaries.
+        return PixelAligner( 1 ).alignRect(requestedBounds, positionRoundType, sizeRoundType);
     }
 
-	void setSize(const Size& size) override
-    {
-        GtkAllocation alloc = rectToGtkRect( Rect(Point(), size) );
-        
-        if(alloc.width<0)
-            alloc.width = 0;
-        if(alloc.height<0)
-            alloc.height = 0;
-            
-        //std::cout << typeid(*this).name() << " setSize " << size.width << "x" << size.height << std::endl;
-        
-        gtk_widget_set_size_request( _pWidget, alloc.width, alloc.height );        
-    }
 
 	double uiLengthToDips(const UiLength& uiLength) const override
     {
@@ -102,7 +112,7 @@ public:
         if(oldVisible==FALSE)
             gtk_widget_set_visible(_pWidget, TRUE);
             
-        Margin padding = _getPaddingDips();
+        Margin padding = _getPaddingIntegerDips();
            
                              
         gtk_widget_set_size_request( _pWidget, 0, 0);

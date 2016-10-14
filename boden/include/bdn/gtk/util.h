@@ -23,10 +23,10 @@ inline GdkRectangle rectToGtkRect(const Rect& rect)
 {
     GdkRectangle result;
     
-    result.x = rect.x;
-    result.y = rect.y;
-    result.width = rect.width;
-    result.height = rect.height;
+    result.x = std::lround(rect.x);
+    result.y = std::lround(rect.y);
+    result.width = std::lround(rect.width);
+    result.height = std::lround(rect.height);
     
     return result;
 }

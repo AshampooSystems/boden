@@ -55,7 +55,12 @@ void CallFromMainThreadBase_::dispatchCall()
 
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-    XXX
+    addRef();
+
+    gdk_threads_add_idle_full(  G_PRIORITY_DEFAULT_IDLE,
+                                _callFromMainThreadBase_doCall,
+                                static_cast<ISimpleCallable*>(this),
+                                NULL );
 }
 
 void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)

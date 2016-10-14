@@ -141,21 +141,14 @@ protected:
         }
 
 
-        SECTION("position")
+        SECTION("bounds")
         {
-            _pView->adjustAndSetBounds( Rect(110, 220, 10,10) );
+            _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
 
             initCore();
             verifyInitialDummyCorePosition();
-        }
-
-        SECTION("size")
-        {
-            _pView->adjustAndSetBounds( Rect(0, 0, 880, 990) );
-
-            initCore();
             verifyInitialDummyCoreSize();
-        }        
+        }
     }
 
     /** Runs the tests that verify the core behaviour for operations that happen
@@ -391,27 +384,34 @@ protected:
 
             P<TestViewCore> pThis = this;
             
+            // on some platform and with some view types (Linux / GTK with top level window)
+            // waiting for idle is not enough to ensure that the position actually changed.
+            // So instead we first wait for idle and then wait 2 additional seconds to ensure
+            // that our changes have been applied
             CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {
-                // the core size and position should always represent what
-                // is configured in the view.
-                pThis->verifyCorePosition();
-                pThis->verifyCoreSize();
-
-                if(!pThis->canManuallyChangePosition())
+                CONTINUE_SECTION_AFTER_SECONDS(2, pThis, bounds, returnedBounds )
                 {
-                    // when the view cannot modify its position then trying to set another position should yield the same resulting position
-                    Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds( Rect( bounds.x*2, bounds.y*2, bounds.width, bounds.height) );            
-                    REQUIRE( returnedBounds2 == returnedBounds );
+                    // the core size and position should always represent what
+                    // is configured in the view.
+                    pThis->verifyCorePosition();
+                    pThis->verifyCoreSize();
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis )
+                    if(!pThis->canManuallyChangePosition())
                     {
-                        // the core size and position should always represent what
-                        // is configured in the view.
-                        pThis->verifyCorePosition();
-                        pThis->verifyCoreSize();
-                    };
-                }
+                        // when the view cannot modify its position then trying to set another position should yield the same resulting position
+                        Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds( Rect( bounds.x*2, bounds.y*2, bounds.width, bounds.height) );            
+                        REQUIRE( returnedBounds2 == returnedBounds );
+
+                        CONTINUE_SECTION_WHEN_IDLE( pThis )
+                        {
+                            // the core size and position should always represent what
+                            // is configured in the view.
+                            pThis->verifyCorePosition();
+                            pThis->verifyCoreSize();
+                        };
+                    }
+                };
             };
 		}
 
