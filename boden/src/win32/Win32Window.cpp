@@ -91,7 +91,12 @@ Win32Window::Win32Window(	const String& className,
     // and our WM_CREATE handler is not yet hooked up. In that case we need to call handleCreation
     // here, after CreateWindow returned.
     if(!_creationHandled)
+    {
         handleCreation(hwnd);
+
+        // we also need to subclass the window so that our own windowproc is called.
+        _prevWindowProc = (WNDPROC)::SetWindowLongPtr( _hwnd, GWLP_WNDPROC, (LONG_PTR)&Win32Window::windowProc );
+    }
 }
 
 Win32Window::~Win32Window()

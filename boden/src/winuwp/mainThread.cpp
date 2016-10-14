@@ -36,7 +36,20 @@ void CallFromMainThreadBase_::dispatchCallWhenIdle()
 
 	P<CallFromMainThreadBase_> pThis = this;
 
-    XXX
+    bdn::winuwp::DispatcherAccess::get().getMainDispatcher()->RunAsync(
+        // using Low priority is correct here. RunAsync only accepts Low and Normal
+        // and Low is executed when there are no events pending in the queue.
+        // The Idle priority value is apparently not used by CoreDispatcher
+		::Windows::UI::Core::CoreDispatcherPriority::Low,
+		ref new Windows::UI::Core::DispatchedHandler(
+			[pThis]()
+			{
+                BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
+				pThis->call();
+
+                BDN_WINUWP_TO_PLATFORMEXC_END
+			} ) );
 
     BDN_WINUWP_TO_STDEXC_END;
 

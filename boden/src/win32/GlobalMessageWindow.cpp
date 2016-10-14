@@ -55,8 +55,12 @@ void GlobalMessageWindow::notifyIdleBegun()
         _callOnceWhenIdleList.clear();
     }
 
-    for( P<ISimpleCallable>& pCallable: toCallList)
+    // we want each handler to be released directly after it is called.
+    // So we remove each item from the list after the call.
+    while(!toCallList.empty())
     {
+        P<ISimpleCallable>& pCallable = toCallList.front();
+
         try
 		{
 			pCallable->call();
@@ -66,6 +70,9 @@ void GlobalMessageWindow::notifyIdleBegun()
 			// log and ignore exceptions
 			logError(e, "Exception thrown by ISimpleCallable::call during GlobalMessageWindow::notifyIdleBegun. Ignoring.");
 		}
+
+        
+        toCallList.pop_front();
     }
 }
 
