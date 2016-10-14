@@ -14,7 +14,7 @@ class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ISimpleCallable
 public:
 	void dispatchCall();
     void dispatchCallWithDelaySeconds(double seconds);
-    void dispatchCallWhenIdleOrAfterSeconds(double seconds);
+    void dispatchCallWhenIdle();
 };
 
 template <class FuncType, class... Args>
@@ -96,42 +96,21 @@ void asyncCallFromMainThread(FuncType&& func, Args&&... args)
 
 
 
-/** Schedules the specified function to be called from the main thread asynchronously,
-    either when the app is idle or after the specified time.
+/** Schedules the specified function to be called from the main thread asynchronously
+    after all pending UI events and UI work has finished.
+    
+    If new UI events are enqueued after the idle call was scheduled then those are ALSO
+    executed BEFORE the idle call is executed. I.e. the idle call happens when the UI
+    work/event queue is empty.
 
-    The behavious of this function depends on whether or not the target platform supports
-    detecting when the app goes into idle state. The app is idle when
-    all pending UI events and UI work has finished and the app would wait for
-    new events.
-
-    If idle detection is supported then the call is made (from the main thread) when the app becomes idle.
-    If it is currently idle then the call is made almost immediately (from the main thread).
-    The \c seconds parameter is completely ignored if idle detection is supported.
-
-    If idle detection is not supported and the \c seconds parameter is <=0 then
-    the function behaves like asyncCallFromMainThread().
-
-    If idle detection is not supported and the \c seconds parameter is >0 then
-    the function behaves like asyncCallFromMainThreadAfterSeconds().
-
-    The intended use case of this function is to wait for scheduled work (like
-    initial initialization of the app) to have finished before initiating a new task.
-    The fallback with the fixed wait time is used on systems where waiting
-    for an idle condition is not possible. The specified time should be an amount that
-    makes it reasonably likely that the pending work is done by the time the seconds have
-    elapsed.
-
-    Platform notes:
-
-    All platforms except the web platfrom support idle detection.
-
-    */
+	The main thread is the thread that runs the user interface and the event loop.
+*/
 template <class FuncType, class... Args>
-void asyncCallFromMainThreadWhenIdleOrAfterSeconds(double seconds, FuncType&& func, Args&&... args)
+void asyncCallFromMainThreadWhenIdle(FuncType&& func, Args&&... args)
 {
 	P< CallFromMainThread_<FuncType, Args...> > pCall = newObj< CallFromMainThread_<FuncType, Args...> >(std::forward<FuncType>(func), std::forward<Args>(args)... );
 
-	pCall->dispatchCallWhenIdleOrAfterSeconds(seconds);
+	pCall->dispatchCallWhenIdle();
 }
 
 
