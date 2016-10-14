@@ -3,6 +3,7 @@
 
 #include <bdn/java/JObject.h>
 
+
 namespace bdn
 {
 namespace android

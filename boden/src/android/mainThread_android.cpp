@@ -2,6 +2,8 @@
 #include <bdn/mainThread.h>
 
 #include <bdn/android/JNativeHandler.h>
+#include <bdn/android/IdleRunner.h>
+
 #include <bdn/java/JNativeOnceRunnable.h>
 
 namespace bdn
@@ -18,7 +20,8 @@ void CallFromMainThreadBase_::dispatchCall()
 
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-    XXX
+    bdn::android::IdleRunner::get().callOnceWhenIdle(this);
+}
 
 void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
