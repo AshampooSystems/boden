@@ -34,7 +34,7 @@ protected:
     {
         return bdn::android::UiProvider::get();
     }
-    
+
     void verifyCoreVisibility() override
     {
         bool expectedVisible = BaseClass::_pView->visible();

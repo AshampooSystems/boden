@@ -25,6 +25,18 @@ protected:
     }
 
 
+    bool canManuallyChangePosition() const override
+    {
+        return false;
+    }
+
+    bool canManuallyChangeSize() const override
+    {
+        return false;
+    }
+
+
+
     /** Removes all references to the core object.*/
     void clearAllReferencesToCore() override
     {

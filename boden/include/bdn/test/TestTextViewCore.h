@@ -128,7 +128,13 @@ protected:
 
 			Size prefSizeBefore = _pTextView->calcPreferredSize(-1, availableHeight);                   
 
-			_pTextView->text() = "hello\nhello";
+			// we put a little less text in the first line. On some systems the text view
+			// will allocate space for the linebreak at the end of the first line, which
+			// would cause our width test below to fail. So to avoid that we make the
+			// first line considerably shorter, thus causing the whole width of the text view
+			// to be measured according to the second line (which should have exactly the
+			// same width as the single line above).
+			_pTextView->text() = "he\nhello";
 
 			Size prefSize = _pTextView->calcPreferredSize(-1, availableHeight);                   
 

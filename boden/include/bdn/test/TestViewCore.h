@@ -456,6 +456,7 @@ protected:
 
             SECTION("need adjustments")
             {
+
 			    Rect bounds(110.12345, 220.12345, 880.12345, 990.12345);
 
                 std::list<RoundType> roundTypes
