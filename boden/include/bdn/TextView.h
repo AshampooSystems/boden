@@ -48,7 +48,9 @@ public:
 	{
 		return _text;
 	}
-        
+
+
+       
 	/* * Can be used to give the text view a hint as to what the preferred width
 		or height should be.
 

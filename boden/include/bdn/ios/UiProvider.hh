@@ -22,27 +22,12 @@ public:
 
     static UiProvider& get();
     
-    
-    double				uiLengthToDips(const UiLength& uiLength) const
+    /** Returns the size of 1 sem in DIPs.*/
+    double getSemSizeDips() const
     {
-        if(uiLength.unit==UiLength::sem)
-            return (int)std::lround( uiLength.value * _semDips );
-        
-        else if(uiLength.unit==UiLength::dip)
-            return uiLength.value;
-        
-        else
-            throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        return _semDips;    
     }
     
-    Margin			uiMarginToDipMargin(const UiMargin& margin) const
-    {
-        return Margin(
-                      uiLengthToDips(margin.top),
-                      uiLengthToDips(margin.right),
-                      uiLengthToDips(margin.bottom),
-                      uiLengthToDips(margin.left) );
-    }
 
 private:
     double _semDips;

@@ -101,18 +101,34 @@ public:
     }
     
 
-    double uiLengthToDips(const UiLength& uiLength) const override
-    {
-        return UiProvider::get().uiLengthToDips(uiLength);
-    }
     
 
-    Margin uiMarginToDipMargin(const UiMargin& margin) const override
+	double uiLengthToDips(const UiLength& uiLength) const override
+    {        
+        if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
+
+        else if(uiLength.unit==UiLength::em)
+            return uiLength.value * getEmSizeDips();
+
+		else if(uiLength.unit==UiLength::sem)
+			return uiLength.value * getSemSizeDips();
+
+		else
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+	}
+
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToDipMargin(margin);
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
-    
-    
+
+
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
@@ -209,10 +225,36 @@ private:
         cast<ViewCore>( pParentCore )->addChildUIView( _view );
     }
 
+    
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+        {
+            XXX
+
+            _emDipsIfInitialized = size;
+        }
+
+        return _emDipsIfInitialized;
+    }
+
+
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semDipsIfInitialized;
+    }
+    
 
     WeakP<View>   _outerViewWeak;
     
     UIView* _view;
+
+
+    double  _emDipsIfInitialized = -1;
+    double  _semDipsIfInitialized = -1;
 };
 
 

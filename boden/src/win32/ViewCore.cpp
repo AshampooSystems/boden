@@ -33,6 +33,8 @@ ViewCore::ViewCore(	View* pOuterView,
 	_outerViewWeak = pOuterView;
 
 	_uiScaleFactor = 0;
+    _emSizeDips = 0;
+    
 
 	View* pParentView = pOuterView->getParentView();
 	if(pParentView==nullptr)
@@ -64,7 +66,7 @@ void ViewCore::setUiScaleFactor(double factor)
 		// we must now update our font
 		updateFont();
 
-		// and we must also notify our child views.
+        // and we must also notify our child views.
         P<View> pOuter = getOuterViewIfStillAttached();
 		std::list< P<View> > childViews;
         if(pOuter!=nullptr)
@@ -87,8 +89,12 @@ void ViewCore::updateFont()
     {
 	    _pFont = UiProvider::get().getFontForView( pOuter, _uiScaleFactor);
 
+        _emSizeDips = _pFont->getSizePixels() / _uiScaleFactor;
+
 	    ::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
     }
+    else
+        _emSizeDips = 0;
 }
 
 
@@ -249,14 +255,42 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 
 
 double ViewCore::uiLengthToDips(const UiLength& uiLength) const
-{
-	return UiProvider::get().uiLengthToDips( uiLength, _uiScaleFactor );
+{    
+    if(uiLength.unit==UiLength::none)
+		return 0;
+
+    else if(uiLength.unit==UiLength::dip)
+		return uiLength.value;
+
+    else if(uiLength.unit==UiLength::em)
+        return uiLength.value * _emSizeDips;
+
+	else if(uiLength.unit==UiLength::sem)
+		return uiLength.value * getSemSizeDips();
+
+	else
+		throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+
 }
 
 Margin ViewCore::uiMarginToDipMargin(const UiMargin& margin) const
 {
-	return UiProvider::get().uiMarginToDipMargin( margin, _uiScaleFactor );
+	return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
 }
+
+
+double ViewCore::getSemSizeDips() const
+{
+    if(_semSizeDipsIfInitialized==-1)
+        _semSizeDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+    return _semSizeDipsIfInitialized;
+}
+
 
 
 }

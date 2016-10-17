@@ -160,18 +160,30 @@ protected:
     {        
         SECTION("uiLengthToDips")
         {
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::none, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::none, 17) ) == 0 );
             REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 0) ) == 0 );
             REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::sem, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::em, 0) ) == 0 );
 
             REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 17.34) ) == 17.34 );
             
             double semSize = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
             REQUIRE( semSize>0 );
             REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::sem, 3) ), semSize*3, 3);
+
+            double emSize = _pCore->uiLengthToDips( UiLength(UiLength::em, 1) );
+            REQUIRE( emSize>0 );
+            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::em, 3) ), emSize*3, 3);
         }
 
         SECTION("uiMarginToDipMargin")
         {
+            SECTION("none")
+            {
+                REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(UiLength::none, 10, 20, 30, 40) ) == Margin(0, 0, 0, 0) );
+            }
+
             SECTION("dip")
             {
                 REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(UiLength::dip, 10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
@@ -186,6 +198,17 @@ protected:
                 REQUIRE_ALMOST_EQUAL( m.right, 20*semDips, 20);
                 REQUIRE_ALMOST_EQUAL( m.bottom, 30*semDips, 30);
                 REQUIRE_ALMOST_EQUAL( m.left, 40*semDips, 40);
+            }
+
+            SECTION("em")
+            {
+                double emDips = _pCore->uiLengthToDips( UiLength(UiLength::em, 1) );
+
+                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::em, 10, 20, 30, 40) );
+                REQUIRE_ALMOST_EQUAL( m.top, 10*emDips, 10);
+                REQUIRE_ALMOST_EQUAL( m.right, 20*emDips, 20);
+                REQUIRE_ALMOST_EQUAL( m.bottom, 30*emDips, 30);
+                REQUIRE_ALMOST_EQUAL( m.left, 40*emDips, 40);
             }
         }
 
@@ -205,7 +228,7 @@ protected:
                     REQUIRE( prefSize.height>=0 );
                 }
                 
-                SECTION("availableSize same as preferredSize")	
+                SECTION("padding influence")	
                 {
                     SECTION("no padding")
                     {
@@ -223,8 +246,90 @@ protected:
                     
                     REQUIRE( prefSize == prefSizeRestricted);
                 }
+
+                SECTION("minSize influence")	
+                {
+                    Size prefSizeBefore = _pCore->calcPreferredSize();
+
+                    SECTION("smaller than preferred size")
+                    {
+                        _pView->minSize() = UiSize( prefSizeBefore-Size(1,1) );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore);
+                    }
+
+                    SECTION("same as preferred size")
+                    {
+                        _pView->minSize() = UiSize( prefSizeBefore );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore);
+                    }
+                    
+                    SECTION("width bigger than preferred width")
+                    {
+                        _pView->minSize() = UiSize( UiLength( UiLength::dip, prefSizeBefore.width+1 ), UiLength() );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore+Size(1, 0));
+                    }
+
+                    SECTION("height bigger than preferred height")
+                    {
+                        _pView->minSize() = UiSize( UiLength(), UiLength( UiLength::dip, prefSizeBefore.height+1 ) );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore+Size(0, 1));
+                    }
+                }
+
+                SECTION("maxSize influence")	
+                {
+                    Size prefSizeBefore = _pCore->calcPreferredSize();
+
+                    SECTION("bigger than preferred size")
+                    {
+                        _pView->maxSize() = UiSize( prefSizeBefore+Size(1,1) );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore);
+                    }
+
+                    SECTION("same as preferred size")
+                    {
+                        _pView->maxSize() = UiSize( prefSizeBefore );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore);
+                    }
+                    
+                    SECTION("width smaller than preferred width")
+                    {
+                        _pView->maxSize() = UiSize( UiLength( UiLength::dip, prefSizeBefore.width-1 ), UiLength() );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore+Size(-1, 0));
+                    }
+
+                    SECTION("height smaller than preferred height")
+                    {
+                        _pView->maxSize() = UiSize( UiLength(), UiLength( UiLength::dip, prefSizeBefore.height-1 ) );
+
+                        Size prefSize = _pCore->calcPreferredSize();
+
+                        REQUIRE( prefSize == prefSizeBefore+Size(0, -1));
+                    }
+                }
                                 
-                SECTION("calcPreferredSize restrictedWidth plausible")	
+                SECTION("calcPreferredSize with constrained width plausible")	
                 {
                     // this is difficult to test, since it depends heavily on what kind of view
                     // we actually work with. Also, it is perfectly normal for different core implementations
@@ -250,7 +355,7 @@ protected:
                     }
                 }
 
-                SECTION("calcPreferredSize restrictedHeight plausible")	
+                SECTION("calcPreferredSize with constrained height plausible")	
                 {
                     Size prefSize = _pCore->calcPreferredSize();
 

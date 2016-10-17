@@ -243,11 +243,14 @@ inline void testView()
 
 		    BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
 
-		    BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::sem, 0, 0, 0, 0) );
+            BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::none, 0, 0, 0, 0) );
 		    BDN_REQUIRE( pView->padding().get().isNull() );
 
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
+
+            BDN_REQUIRE( pView->minSize() == UiSize(UiLength::Unit::none, 0, 0) );
+            BDN_REQUIRE( pView->maxSize() == UiSize(UiLength::Unit::none, 0, 0) );
 
 		    BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 

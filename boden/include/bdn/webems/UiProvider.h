@@ -40,35 +40,7 @@ public:
     String getName() const override;
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
-
-
-    double uiLengthToDips(const UiLength& uiLength) const
-    {
-        if(uiLength.unit==UiLength::sem)
-            return uiLength.value * _semDips;
-
-        else if(uiLength.unit==UiLength::dip)
-        {
-            // we assume that the browser uses device independent pixels.
-            // So, no need for any scaling.
-            return uiLength.value;
-        }
-
-        else
-            throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
-    }
     
-
-    Margin          uiMarginToDipMargin(const UiMargin& margin) const
-    {
-        return Margin(
-            uiLengthToDips(margin.top),
-            uiLengthToDips(margin.right),
-            uiLengthToDips(margin.bottom),
-            uiLengthToDips(margin.left) );
-    }
-
-
 
     static UiProvider& get();
 

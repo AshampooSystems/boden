@@ -22,7 +22,7 @@ public:
         _outerViewWeak = pOuterView;
         
         _pWidget = pWidget;
-        
+
         setVisible( pOuterView->visible() );
         
         _addToParent();        
@@ -82,14 +82,28 @@ public:
 
 
 	double uiLengthToDips(const UiLength& uiLength) const override
-    {
-        return UiProvider::get().uiLengthToDips( uiLength);
-    }
-	
+    {        
+        if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
+
+        else if(uiLength.unit==UiLength::em)
+            return uiLength.value * getEmSizeDips();
+
+		else if(uiLength.unit==UiLength::sem)
+			return uiLength.value * getSemSizeDips();
+
+		else
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+	}
+
     
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiMarginToDipMargin( margin);
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
 
 	
@@ -344,10 +358,61 @@ private:
         }
     }
     
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+        {
+            double size=0;
 
+            if(_pWidget!=nullptr)
+            {
+                GtkStyleContext* pStyleContext = gtk_widget_get_style_context( _pWidget );
+                if(pStyleContext!=nullptr)
+                {
+                    const PangoFontDescription* pFontDesc = gtk_style_context_get_font(pStyleContext, GTK_STATE_FLAG_NORMAL);
+                    if(pFontDesc!=nullptr)
+                    {
+                        double size = pango_font_description_get_size(pFontDesc);
+                        if(size>0)
+                        {
+                            // might be in points or pixels (what they call "absolute")
+                            if( ! pango_font_description_get_size_is_absolute(pFontDesc) )
+                            {
+                                // the unit is points. Convert to DIPs
+                                size = size / 72.0 * 96.0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(size<=0)
+            {
+                // size not set explicitly => system font size is used => em same as sem
+                size = UiProvider::get().getSemDips();
+            }
+
+            _emDipsIfInitialized = size;
+        }
+
+        return _emDipsIfInitialized;
+    }
+
+
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semDipsIfInitialized;
+    }
+    
 
     GtkWidget*  _pWidget;
     WeakP<View> _outerViewWeak;
+
+    mutable double      _emDipsIfInitialized = -1;
+    mutable double      _semDipsIfInitialized = -1;
 };
 
 

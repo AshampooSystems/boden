@@ -149,28 +149,6 @@ double UiProvider::getUiScaleFactorForMonitor(HMONITOR monitorHandle)
 }
 
 
-double UiProvider::uiLengthToDips(const UiLength& uiLength, double uiScaleFactor)
-{
-	if(uiLength.unit==UiLength::sem)
-		return uiLength.value * _semSizeDips;
-
-	else if(uiLength.unit==UiLength::dip)
-	{
-        return uiLength.value;
-    }
-   
-	else
-		throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
-}
-
-Margin UiProvider::uiMarginToDipMargin(const UiMargin& margin, double uiScaleFactor)
-{
-	return Margin(
-		uiLengthToDips(margin.top, uiScaleFactor),
-		uiLengthToDips(margin.right, uiScaleFactor),
-		uiLengthToDips(margin.bottom, uiScaleFactor),
-		uiLengthToDips(margin.left, uiScaleFactor) );	
-}
 
 }
 }

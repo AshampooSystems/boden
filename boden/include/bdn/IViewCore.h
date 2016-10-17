@@ -66,7 +66,11 @@ public:
 
         
 	
-	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).*/
+	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).
+    
+        Return 0 for "none" values (see UiLength::none).
+
+    */
 	virtual double uiLengthToDips(const UiLength& uiLength) const=0;
 	
 
@@ -94,6 +98,11 @@ public:
 		If the view cannot reduce its size to fit into the available space then it is valid for the function
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
+
+        calcPreferredSize should take the View::minSize and View::maxSize properties of the outer view into account
+        and clip or extend the result accordingly. In rare cases, if the minSize and/or maxSize absolutely
+        do not make sense for the view implementation then the function may also return a preferred size that exceeds
+        these bounds.
 
         IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
         that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded

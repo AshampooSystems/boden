@@ -13,9 +13,35 @@ TEST_CASE("UiLength")
 	{
 		UiLength a;
 
-		REQUIRE( a.unit == UiLength::Unit::sem );
+		REQUIRE( a.unit == UiLength::Unit::none );
 		REQUIRE( a.value == 0.0 );
+
+        REQUIRE( a.isNone() );
 	}
+
+    SECTION("isNone")
+    {
+        UiLength a;
+
+        REQUIRE( a.isNone() );
+
+        a.unit = UiLength::dip;
+        REQUIRE( ! a.isNone() );
+
+        a.unit = UiLength::none;
+        REQUIRE( a.isNone() );
+
+        // value should not matter.
+
+        a.value = 1;
+        REQUIRE( a.isNone() );
+
+        a.value = -1;
+        REQUIRE( a.isNone() );
+
+        a.value = 0;
+        REQUIRE( a.isNone() );        
+    }
 
 	SECTION("constructUnitValue")
 	{

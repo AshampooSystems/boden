@@ -98,17 +98,33 @@ public:
     }
     
     
-    double uiLengthToDips(const UiLength& uiLength) const override
+
+	double uiLengthToDips(const UiLength& uiLength) const override
+    {        
+        if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
+
+        else if(uiLength.unit==UiLength::em)
+            return uiLength.value * getEmSizeDips();
+
+		else if(uiLength.unit==UiLength::sem)
+			return uiLength.value * getSemSizeDips();
+
+		else
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+	}
+
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiLengthToDips(uiLength);
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
-    
-    Margin uiMarginToDipMargin(const UiMargin& margin) const override
-    {
-        return UiProvider::get().uiMarginToDipMargin(margin);
-    }
-    
-    
+
+
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override

@@ -215,16 +215,32 @@ public:
         return _getBounds();
 	}
 
-    
+
     double uiLengthToDips(const UiLength& uiLength) const override
-	{
-		return _pUiProvider->uiLengthToDips(uiLength);
+    {        
+        if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
+
+        else if(uiLength.unit==UiLength::em)
+            return uiLength.value * getEmSizeDips();
+
+		else if(uiLength.unit==UiLength::sem)
+			return uiLength.value * getSemSizeDips();
+
+		else
+			throw InvalidArgumentError("Invalid UiLength unit passed to WindowCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
 	}
+
     
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override
-	{
-		return _pUiProvider->uiMarginToDipMargin(margin);
-	}
+    {
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
+    }
+    
 
 
 	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override

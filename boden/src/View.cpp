@@ -22,6 +22,9 @@ View::View()
 
     initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
     initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
+
+    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_minSize);
+    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_maxSize);
 }
 
 View::~View()
@@ -85,6 +88,28 @@ void View::verifyInMainThread(const String& methodName) const
 {
 	if(!Thread::isCurrentMain())
 		programmingError(methodName + " must be called from main thread.");
+}
+
+
+double View::uiLengthToDips( const UiLength& length) const
+{
+	verifyInMainThread("View::uiLengthToDips");	
+
+    if(length.unit==UiLength::none)
+        return 0;
+
+    else if(length.unit == UiLength::dip)
+		return length.value;	
+
+    else
+    {
+	    P<IViewCore> pCore = getViewCore();
+
+	    if(pCore!=nullptr)
+    		return pCore->uiLengthToDips(length);
+        else
+            return 0;
+    }    
 }
 
 Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const

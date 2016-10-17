@@ -2,6 +2,7 @@
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/NotImplementedError.h>
+#include <bdn/log.h>
 
 #include <vector>
 
@@ -199,7 +200,18 @@ void LayoutCoordinator::mainThreadUpdateNow()
 				ToDo toDo = toDoList.front();
 				toDoList.pop_front();
 
-				toDo.pView->updateSizingInfo();		
+                try
+                {
+				    toDo.pView->updateSizingInfo();		
+                }
+                catch(std::exception& e)
+                {
+                    handleException(&e, "View::updateSizingInfo");
+                }
+                catch(...)
+                {
+                    handleException(nullptr, "View::updateSizingInfo");                    
+                }		
 			}
 		}
 
@@ -228,7 +240,18 @@ void LayoutCoordinator::mainThreadUpdateNow()
 				P<Window> pWindow = *toDoSet.begin();
 				toDoSet.erase(toDoSet.begin());
 
-				pWindow->autoSize();
+				try
+                {
+				    pWindow->autoSize();
+                }
+                catch(std::exception& e)
+                {
+                    handleException(&e, "Window::autoSize");
+                }
+                catch(...)
+                {
+                    handleException(nullptr, "Window::autoSize::layout");                    
+                }		
 			}	
 		}		
 	
@@ -298,7 +321,18 @@ void LayoutCoordinator::mainThreadUpdateNow()
 				ToDo toDo = toDoList.front();
 				toDoList.pop_front();
 
-				toDo.pView->layout();
+                try
+                {
+				    toDo.pView->layout();
+                }
+                catch(std::exception& e)
+                {
+                    handleException(&e, "View::layout");                    
+                }
+                catch(...)
+                {
+                    handleException(nullptr, "View::layout");                    
+                }				
 			}	
 		}
 
@@ -327,7 +361,18 @@ void LayoutCoordinator::mainThreadUpdateNow()
 				P<Window> pWindow = *toDoSet.begin();
 				toDoSet.erase(toDoSet.begin());
 
-				pWindow->center();
+                try
+                {
+				    pWindow->center();
+                }
+                catch(std::exception& e)
+                {
+                    handleException(&e, "Window::center");
+                }
+                catch(...)
+                {
+                    handleException(nullptr, "Window::center");                    
+                }		
 			}	
 		}		
 	}
@@ -338,6 +383,17 @@ void LayoutCoordinator::mainThreadUpdateNow()
 	}
 
 	_inUpdateNow = false;
+}
+
+
+void LayoutCoordinator::handleException(const std::exception* pExceptionIfAvailable, const String& functionName)
+{
+    // log and ignore
+    if(pExceptionIfAvailable!=nullptr)
+        logError(*pExceptionIfAvailable, "Exception in "+functionName+" during LayoutCoordinator updating. Ignording.");
+    else
+        logError("Exception pf unknown type in "+functionName+" during LayoutCoordinator updating. Ignording.");
+
 }
 
 }

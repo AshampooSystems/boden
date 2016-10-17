@@ -35,8 +35,9 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
     {
         WindowDeviceContext dc( getHwnd() );
 
-        if(_pFont!=nullptr)
-		    dc.setFont( *_pFont );
+        P<const win32::Font> pFont = getFont();
+        if(pFont!=nullptr)
+		    dc.setFont( *pFont );
         prefSize = dc.getTextSize( label );        
     }
     
@@ -63,6 +64,9 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
 	// size for the focus rect and one pixel of free space next to it
 	prefSize.width += 2 * 2;
 	prefSize.height += 2 * 2;
+
+    if(pButton!=nullptr)
+        prefSize = applyConstraintsToPreferredSize( prefSize );
 
 	return prefSize;
 }

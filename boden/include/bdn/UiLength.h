@@ -7,7 +7,9 @@ namespace bdn
 	
 /** Represents a length or distance to use sizing and spacing user interface elements.
 
-	The recommended units are UILength::Unit::dip or UiLength::Unit::sem.
+    UiLength objects can also be "none", which means that they represent a non-existent value
+    (similar to the standard nullptr value).
+
 
 	Background information
 	----------------------
@@ -86,11 +88,18 @@ namespace bdn
 	DIPs).
 
 	*/
-class UiLength : public Base
+struct UiLength : public Base
 {
 public:
 	enum Unit
 	{
+        /** Special unit that indicates a "null" length. I.e. a UiLength object that has no value.
+        
+            The value variable is ignored if the unit is none.
+        */
+        none,
+
+
         /** A "device independent pixel". This unit corresponds roughly to the perceived size of a pixel on
             an legacy 96 dpi desktop monitor.
 			
@@ -98,6 +107,15 @@ public:
 			user preferences, etc.). See the UiLength class documentation for more information.
 			*/
 		dip,
+
+
+        /** The height of the active font. Which font this is depends on where the
+            UiLength element is used.
+            
+            For example, if the UiLength object is assigned to a View object then this refers to
+            the font of the view.
+            */
+        em,
 
 
         /** 1 sem equals the height of the screen's default UI font.
@@ -111,9 +129,10 @@ public:
 		sem,	};
 
 
+    /** Default constructor - sets the unit to #UiLength::none and value to 0.*/
 	UiLength()
 	{
-		unit = sem;
+		unit = UiLength::none;
 		value = 0;		
 	};
 
@@ -125,6 +144,11 @@ public:
 	}
 
 
+    /** Returns true if this UiLength object has the special "none" value.*/
+    bool isNone() const
+    {
+        return (unit==UiLength::none);
+    }
 	
 	Unit	unit;	
 	double	value;	

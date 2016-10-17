@@ -37,8 +37,9 @@ Size TextViewCore::calcPreferredSize(double availableWidth, double availableHeig
     {
         WindowDeviceContext dc( getHwnd() );
 
-        if(_pFont!=nullptr)
-		    dc.setFont( *_pFont );
+        P<const Font> pFont = getFont();
+        if(pFont!=nullptr)
+		    dc.setFont( *pFont );
         prefSize = dc.getTextSize( text, availableWidth );
     }
 

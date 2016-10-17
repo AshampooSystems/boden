@@ -171,8 +171,8 @@ public:
 protected:
 	void layout() override;	
 
-	void autoSize();
-	void center();
+	virtual void autoSize();
+	virtual void center();
 	
 	// allow the coordinator to call our protected functions like autoSize.
 	friend class LayoutCoordinator;

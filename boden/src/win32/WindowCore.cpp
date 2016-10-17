@@ -24,8 +24,6 @@ WindowCore::WindowCore(Window* pWindow)
 				WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW,
 				WS_EX_APPWINDOW )
 {
-	_uiScaleFactor = 0;
-
 	initUiScaleFactor();
 }
 
@@ -146,7 +144,7 @@ Rect WindowCore::getContentArea()
 	RECT clientRect;
 	::GetClientRect(getHwnd(), &clientRect);
 
-	return win32RectToRect(clientRect, _uiScaleFactor);
+	return win32RectToRect(clientRect, getUiScaleFactor() );
 }
 
 
@@ -178,10 +176,11 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 
     // round the content area size UP to the next pixel here. Having a window that is 1 pixel "too large"
     // is usually preferable to having one in which the content does not fit.
+    double scaleFactor = getUiScaleFactor();
     Rect contentArea( Point(), contentAreaSize);
-    contentArea = PixelAligner( _uiScaleFactor ).alignRect( contentArea, RoundType::nearest, RoundType::up);
+    contentArea = PixelAligner( scaleFactor ).alignRect( contentArea, RoundType::nearest, RoundType::up);
 
-    RECT rect = rectToWin32Rect(contentArea, _uiScaleFactor );
+    RECT rect = rectToWin32Rect(contentArea, scaleFactor );
 
 	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
 	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
@@ -195,7 +194,7 @@ Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
 	}
 
-    Rect windowRect = win32RectToRect( rect, _uiScaleFactor );
+    Rect windowRect = win32RectToRect( rect, scaleFactor );
 
     return windowRect.getSize();
 }
@@ -241,7 +240,7 @@ Rect WindowCore::getScreenWorkArea() const
 											.add("context", "WindowCore::getScreenWorkArea")  );
 	}
 	
-	return win32RectToRect(monitorInfo.rcWork, _uiScaleFactor);
+	return win32RectToRect(monitorInfo.rcWork, getUiScaleFactor() );
 }
 
 

@@ -159,33 +159,36 @@ public:
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		if(uiLength.unit==UiLength::Unit::sem)
-		{
-			// one sem = 20 mock DIPs;
-			return uiLength.value*20;
-		}
-		else if(uiLength.unit==UiLength::Unit::dip)
-		{
+        if(uiLength.unit==UiLength::none)
 			return uiLength.value;
-		}
+        
+        else if(uiLength.unit==UiLength::dip)
+			return uiLength.value;
+
+        else if(uiLength.unit==UiLength::em)
+            // one em = 23 mock DIPs;
+			return uiLength.value*23;
+
+		else if(uiLength.unit==UiLength::sem)
+            // one sem = 20 mock DIPs;
+			return uiLength.value*20;
+
 		else
-		{
-			// invalid parameter passed to this function
-			REQUIRE(false);
-			return 0;
-		}
+			throw InvalidArgumentError("Invalid UiLength unit passed to MockViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
 	}
-	
 
+    
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
 
-		return Margin( uiLengthToDips(margin.top),
-						uiLengthToDips(margin.right),
-						uiLengthToDips(margin.bottom),
-						uiLengthToDips(margin.left) );
-	}
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
+    }
+
 
 
 

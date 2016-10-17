@@ -66,36 +66,8 @@ public:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
-	
-	double	uiLengthToDips(const UiLength& uiLength) const
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		if(uiLength.unit==UiLength::sem)
-			return uiLength.value * _semDips;
-
-		else if(uiLength.unit==UiLength::dip)
-            return uiLength.value;
-		
-		else
-			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToPixels: "+std::to_string((int)uiLength.unit) );
-
-        BDN_WINUWP_TO_STDEXC_END;
-	}
-	
-
-	Margin			uiMarginToDipMargin(const UiMargin& margin) const
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		return Margin(
-			uiLengthToDips(margin.top),
-			uiLengthToDips(margin.right),
-			uiLengthToDips(margin.bottom),
-			uiLengthToDips(margin.left) );
-
-        BDN_WINUWP_TO_STDEXC_END;
-	}
+    
 
 
     static UiProvider& get();
