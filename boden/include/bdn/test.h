@@ -3782,6 +3782,10 @@ public:
 
     Continues the current test section after all pending UI events and scheduled work has finished
     and the event queue is empty.
+
+    Caveat: On some platforms it may not be possible to detect a true "idle" state for the app. In that case
+    the implementation is a "best effort" one that tries to make it likely that all pending work
+    has finished before the test continues - see asyncCallFromMainThreadWhenIdle() for more information.
     
     A code block with the code for the continuation must follow (see example below).
     There must be a semicolon after the code block.
@@ -3810,6 +3814,8 @@ public:
     The capture statement of the lambda expression are the (optional) parameters of the 
     CONTINUE_SECTION_WHEN_IDLE macro. Often one will simply specify = here to capture
     the local variables by value.
+
+
     
 	Example:
 
