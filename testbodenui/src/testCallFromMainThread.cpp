@@ -27,7 +27,7 @@ void testCallFromMainThread(bool throwException)
 
         if(throwException)
         {
-#if BDN_PLATFORM_WEB
+#if BDN_PLATFORM_WEBEMS
             // XXX             
             // result.get() causes a crash here with emscripten (due to a compiler bug).
             // See https://github.com/kripken/emscripten/issues/4546
@@ -479,7 +479,7 @@ void testWrapCallFromMainThread(bool throwException)
 
         if(throwException)
         {
-#if BDN_PLATFORM_WEB
+#if BDN_PLATFORM_WEBEMS
             // XXX             
             // result.get() causes a crash here with emscripten (due to a compiler bug).
             // See https://github.com/kripken/emscripten/issues/4546
