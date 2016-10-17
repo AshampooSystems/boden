@@ -116,7 +116,7 @@ void asyncCallFromMainThread(FuncType&& func, Args&&... args)
 
 	Platform note:
 
-	At the time of this writing the only platform with an imperfect "best effort" implementation is the web target.
+	At the time of this writing the only platform with an imperfect "best effort" implementation is the webems target.
 	Here it may be that idle calls are executed even though user input events or similar are
 	in the event queue.
 

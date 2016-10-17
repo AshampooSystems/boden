@@ -3,8 +3,8 @@
 
 
 #include <bdn/View.h>
-#include <bdn/web/ViewCore.h>
-#include <bdn/web/UiProvider.h>
+#include <bdn/webems/ViewCore.h>
+#include <bdn/webems/UiProvider.h>
 
 namespace bdn
 {
@@ -29,7 +29,7 @@ protected:
     {
         BaseClass::initCore();
 
-        _pWebCore = cast<bdn::web::ViewCore>( BaseClass::_pView->getViewCore() );
+        _pWebCore = cast<bdn::webems::ViewCore>( BaseClass::_pView->getViewCore() );
         REQUIRE( _pWebCore!=nullptr );
 
         _domObject = _pWebCore->getDomObject();
@@ -38,7 +38,7 @@ protected:
 
     IUiProvider& getUiProvider() override
     {
-        return bdn::web::UiProvider::get();
+        return bdn::webems::UiProvider::get();
     }
 
     void verifyCoreVisibility() override
@@ -181,7 +181,7 @@ protected:
     }
 
 
-    P<bdn::web::ViewCore> _pWebCore;
+    P<bdn::webems::ViewCore> _pWebCore;
     emscripten::val       _domObject;
 };
 

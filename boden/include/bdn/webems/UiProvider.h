@@ -1,5 +1,5 @@
-#ifndef BDN_WEB_UiProvider_H_
-#define BDN_WEB_UiProvider_H_
+#ifndef BDN_WEBEMS_UiProvider_H_
+#define BDN_WEBEMS_UiProvider_H_
 
 #include <bdn/IUiProvider.h>
 
@@ -12,7 +12,7 @@
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider

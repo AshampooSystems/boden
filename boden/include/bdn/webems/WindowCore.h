@@ -1,15 +1,15 @@
-#ifndef BDN_WEB_WindowCore_H_
-#define BDN_WEB_WindowCore_H_
+#ifndef BDN_WEBEMS_WindowCore_H_
+#define BDN_WEBEMS_WindowCore_H_
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
-#include <bdn/web/ViewCore.h>
+#include <bdn/webems/ViewCore.h>
 
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore

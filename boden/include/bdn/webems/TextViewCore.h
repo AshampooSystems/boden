@@ -1,16 +1,16 @@
-#ifndef BDN_WEB_TextViewCore_H_
-#define BDN_WEB_TextViewCore_H_
+#ifndef BDN_WEBEMS_TextViewCore_H_
+#define BDN_WEBEMS_TextViewCore_H_
 
 #include <emscripten/html5.h>
 
-#include <bdn/web/ViewCore.h>
+#include <bdn/webems/ViewCore.h>
 #include <bdn/ITextViewCore.h>
 #include <bdn/TextView.h>
 
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 

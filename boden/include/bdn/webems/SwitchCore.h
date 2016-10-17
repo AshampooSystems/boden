@@ -1,5 +1,5 @@
-#ifndef BDN_WEB_SwitchCore_H_
-#define BDN_WEB_SwitchCore_H_
+#ifndef BDN_WEBEMS_SwitchCore_H_
+#define BDN_WEBEMS_SwitchCore_H_
 
 #include <emscripten/html5.h>
 /*
@@ -9,7 +9,7 @@
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 class SwitchCore : public ViewCore

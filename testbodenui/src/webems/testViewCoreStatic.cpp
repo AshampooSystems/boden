@@ -1,13 +1,13 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/web/ViewCore.h>
+#include <bdn/webems/ViewCore.h>
 
 using namespace bdn;
-using namespace bdn::web;
+using namespace bdn::webems;
 
 
-TEST_CASE("web.ViewCoreStatic")
+TEST_CASE("webems.ViewCoreStatic")
 {
     SECTION("htmlEscape")
     {

@@ -23,7 +23,7 @@ platformList = [ ("winuwp", "Universal Windows app (Windows 10 and later)" ),
                ("mac", "Apple Mac OS (formerly OSX)" ),
                ("ios", "iPhone, iPad" ),
                ("android", "Android devices" ),
-               ("web", """\
+               ("webems", """\
 Compiles the C++ code to a Javascript-based web app or Javascript
     library that can be run either in a web browser or on a Node.js system.
     The resulting JS code is pure Javascript. No native components or
@@ -952,7 +952,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
         
 
-    elif platform=="web":
+    elif platform=="webems":
 
         if arch!="std":
             raise InvalidArchitectureError(arch);
@@ -1312,7 +1312,7 @@ def commandRun(args):
                     moduleFilePath += ".app";
                     commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
 
-            elif platformName=="web":
+            elif platformName=="webems":
                 moduleFilePath += ".html";
 
                 mainDir = getMainDir();
@@ -1537,7 +1537,7 @@ BUILDSYSTEM values:
 
 RESTRICTIONS:
   ios platform: only the Xcode build system is supported
-  web platform: only the Makefile build systems are supported
+  webems platform: only the Makefile build systems are supported
   android platform: only the AndroidStudio build system is supported
 
 IMPORTANT: Remember to enclose the build system names that consist of multiple

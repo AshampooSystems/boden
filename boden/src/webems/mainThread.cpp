@@ -9,7 +9,7 @@ namespace bdn
 {
 
 
-namespace web
+namespace webems
 {
 
 
@@ -145,7 +145,7 @@ static void CallFromMainThread_timedCallback(void* pArg)
 
 void CallFromMainThreadBase_::dispatchCall()
 {
-	bdn::web::MainThreadRunner_::get().addNormal(this);
+	bdn::webems::MainThreadRunner_::get().addNormal(this);
 }
 
 
@@ -167,7 +167,7 @@ void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-	bdn::web::MainThreadRunner_::get().addIdle(this);	
+	bdn::webems::MainThreadRunner_::get().addIdle(this);	
 }
 
 
