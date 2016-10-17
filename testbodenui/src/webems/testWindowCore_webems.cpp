@@ -3,8 +3,8 @@
 
 #include <bdn/Window.h>
 #include <bdn/test/TestWindowCore.h>
-#include <bdn/web/UiProvider.h>
-#include <bdn/web/WindowCore.h>
+#include <bdn/webems/UiProvider.h>
+#include <bdn/webems/WindowCore.h>
 #include "TestWebViewCoreMixin.h"
 
 using namespace bdn;
@@ -94,7 +94,7 @@ protected:
     }
 };
 
-TEST_CASE("web.WindowCore")
+TEST_CASE("webems.WindowCore")
 {
     P<TestWebWindowCore> pTest = newObj<TestWebWindowCore>();
 

@@ -39,7 +39,7 @@ protected:
 
 };
 
-TEST_CASE("web.TextViewCore")
+TEST_CASE("webems.TextViewCore")
 {
     P<TestWebTextViewCore> pTest = newObj<TestWebTextViewCore>();
 

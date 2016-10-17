@@ -1,11 +1,11 @@
-#ifndef BDN_WEB_ViewCore_H_
-#define BDN_WEB_ViewCore_H_
+#ifndef BDN_WEBEMS_ViewCore_H_
+#define BDN_WEBEMS_ViewCore_H_
 
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
 #include <bdn/PixelAligner.h>
 
-#include <bdn/web/UiProvider.h>
+#include <bdn/webems/UiProvider.h>
 
 #include <emscripten/val.h>
 #include <emscripten/html5.h>
@@ -15,7 +15,7 @@
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
@@ -330,7 +330,7 @@ protected:
         {
             P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
-                throw ProgrammingError("Internal error: parent of bdn::web::ViewCore does not have a core.");
+                throw ProgrammingError("Internal error: parent of bdn::webems::ViewCore does not have a core.");
 
             docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", _domObject);
         }

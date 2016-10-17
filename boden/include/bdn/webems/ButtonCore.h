@@ -1,16 +1,16 @@
-#ifndef BDN_WEB_ButtonCore_H_
-#define BDN_WEB_ButtonCore_H_
+#ifndef BDN_WEBEMS_ButtonCore_H_
+#define BDN_WEBEMS_ButtonCore_H_
 
 #include <emscripten/html5.h>
 
-#include <bdn/web/ViewCore.h>
+#include <bdn/webems/ViewCore.h>
 #include <bdn/IButtonCore.h>
 #include <bdn/Button.h>
 
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 

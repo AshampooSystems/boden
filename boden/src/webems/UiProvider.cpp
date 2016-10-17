@@ -1,13 +1,13 @@
 #include <bdn/init.h>
-#include <bdn/web/UiProvider.h>
+#include <bdn/webems/UiProvider.h>
 
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
-#include <bdn/web/ContainerViewCore.h>
-#include <bdn/web/ButtonCore.h>
-#include <bdn/web/TextViewCore.h>
-#include <bdn/web/WindowCore.h>
+#include <bdn/webems/ContainerViewCore.h>
+#include <bdn/webems/ButtonCore.h>
+#include <bdn/webems/TextViewCore.h>
+#include <bdn/webems/WindowCore.h>
 
 
 namespace bdn
@@ -15,7 +15,7 @@ namespace bdn
     
 P<IUiProvider> getPlatformUiProvider()
 {
-    return &bdn::web::UiProvider::get();
+    return &bdn::webems::UiProvider::get();
 }
     
 }
@@ -23,14 +23,14 @@ P<IUiProvider> getPlatformUiProvider()
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 String UiProvider::getName() const
 {
-    return "web";
+    return "webems";
 }
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)

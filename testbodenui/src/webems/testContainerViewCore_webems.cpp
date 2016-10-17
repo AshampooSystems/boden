@@ -3,7 +3,7 @@
 
 #include <bdn/test/TestContainerViewCore.h>
 
-#include <bdn/web/UiProvider.h>
+#include <bdn/webems/UiProvider.h>
 #include "TestWebViewCoreMixin.h"
 
 using namespace bdn;
@@ -23,7 +23,7 @@ protected:
 
 
 
-TEST_CASE("web.ContainerViewCore")
+TEST_CASE("webems.ContainerViewCore")
 {
     P<TestWebContainerViewCore> pTest = newObj<TestWebContainerViewCore>();
 

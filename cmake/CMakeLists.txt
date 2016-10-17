@@ -62,7 +62,7 @@ else()
 		SET( BODEN_TARGET_FAMILY "posix")
 
 	elseif( CMAKE_SYSTEM_NAME STREQUAL "Emscripten" )		
-		SET( BODEN_TARGET "web" )
+		SET( BODEN_TARGET "webems" )
 
 	else()
 		# assume some Unix variant
@@ -150,7 +150,7 @@ endif()
 
 add_definitions( -DUNICODE -D_UNICODE )
 
-if( "${BODEN_TARGET}" STREQUAL "web" )
+if( "${BODEN_TARGET}" STREQUAL "webems" )
 	add_definitions( -DBDN_PLATFORM_WEB )
 
 	# the C++ standard library provided by Emscripten has a bug in codecvt.

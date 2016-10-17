@@ -1,13 +1,13 @@
-#ifndef BDN_WEB_ContainerViewCore_HH_
-#define BDN_WEB_ContainerViewCore_HH_
+#ifndef BDN_WEBEMS_ContainerViewCore_HH_
+#define BDN_WEBEMS_ContainerViewCore_HH_
 
 #include <bdn/ContainerView.h>
-#include <bdn/web/ViewCore.h>
+#include <bdn/webems/ViewCore.h>
 
 
 namespace bdn
 {
-namespace web
+namespace webems
 {
 
 class ContainerViewCore : public ViewCore

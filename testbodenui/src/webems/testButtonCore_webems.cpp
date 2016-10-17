@@ -26,7 +26,7 @@ protected:
     }
 };
 
-TEST_CASE("web.ButtonCore")
+TEST_CASE("webems.ButtonCore")
 {
     P<TestWebButtonCore> pTest = newObj<TestWebButtonCore>();
 
