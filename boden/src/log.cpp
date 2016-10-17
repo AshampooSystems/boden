@@ -68,7 +68,7 @@ void logInfo(const String& message) noexcept
 {
     try
     {
-	    std::cerr << message << std::endl;
+	    std::cerr << ("Info: "+message) << std::endl;
     }
     catch(...)
     {

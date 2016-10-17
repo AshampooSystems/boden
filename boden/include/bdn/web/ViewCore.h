@@ -130,11 +130,11 @@ public:
         // use std::to_string to convert them to a string.
 
 
-        styleObj.set("left", std::to_string((int)adjustedBounds.x)+"px" );
-        styleObj.set("top", std::to_string((int)adjustedBounds.y)+"px" );        
+        styleObj.set("left", std::to_string((int)std::lround(adjustedBounds.x))+"px" );
+        styleObj.set("top", std::to_string((int)std::lround(adjustedBounds.y))+"px" );        
 
-        styleObj.set("width", std::to_string((int)adjustedBounds.width)+"px" );
-        styleObj.set("height", std::to_string((int)adjustedBounds.height)+"px" );
+        styleObj.set("width", std::to_string((int)std::lround(adjustedBounds.width))+"px" );
+        styleObj.set("height", std::to_string((int)std::lround(adjustedBounds.height))+"px" );
 
         return adjustedBounds;
     }

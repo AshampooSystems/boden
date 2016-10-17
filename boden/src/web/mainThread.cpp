@@ -12,106 +12,116 @@ namespace bdn
 namespace web
 {
 
-class IdleRunner_ : public Base
+
+/** Handles main thread calls and ensures that they are executed in the correct order.
+
+	Note that we cannot rely on the execution order of events that were scheduled with 
+	setTimeout(0). Different JS engines behave in different ways and sometimmes (it seems)
+	even a little bit random. So to avoid these issues we implement our own queuing.
+	*/
+class MainThreadRunner_ : public Base
 {
 public:
 
-	static IdleRunner_& get();
+	static MainThreadRunner_& get();
 
-	void normalPriorityCallQueued()
+
+	void addIdle(ISimpleCallable* pCallable)
 	{
-		_normalPriorityCallsPending++;
+		// There is no standard way to schedule something "when idle".
+		// At the time of this writing, requestIdleCallback is non-standard and only supported
+		// by a handful of browsers (Chrome, Opera, Android). So we cannot really use that,
+		// otherwise we risk to have vastly different timing dependending on the browser.
+
+		// It is also difficult to define what "idle" means for a web browser.
+		// DOM changes take effect immediately, so there is are no queued events for that.
+		// The whole rendering is done in a way that is mostly opaque to the app, so we can
+		// ignore rendering events.
+		// So what might be queued up are basically only user input events.
+
+		// If we use emscripten_async_call then any events that are already in the queue will
+		// be processed before our idle handler is called. So the only difference for external
+		// events are user input events that come in between now and the time emscripten_async_call
+		// calls our function. In a perfect world those SHOULD be handled before our idle callback.
+		// But we could argue that those events come at "random" times anyway and the behaviour of the
+		// whole system does not depend on exact timing for them.
+		// In other words: we could argue that we can safely treat newly enqueued user input events as if they
+		// happened just after our idle handler was called, instead of the real occurrence time (between now
+		// and the handler call).
+
+		// So as far as external events are concerned, it should be "safe" (although slightly incorrect) to
+		// behave the same way as asyncCallFromMainThread here, as long as we ensure the ordering of our OWN scheduled
+		// calls.
+
+		_idleList.push_back(pCallable);
+
+
+		// we immediately schedule the callbacks for all pending events.
+		// That might yield better performance than chaining them
+		// (i.e. scheduling the next event after the first has been executed ).
+		emscripten_async_call(&MainThreadRunner_::callback, static_cast<void*>(this), 0);
 	}
 
-	void normalPriorityCallUnqueued()
+	void addNormal(ISimpleCallable* pCallable)
 	{
-		_normalPriorityCallsPending--;
-	}
+		_normalList.push_back(pCallable);
 
-	void addCall(ISimpleCallable* pCallable)
-	{
-		_callList.push_back(pCallable);
+		// we immediately schedule the callbacks for all pending events.
+		// That might yield better performance than chaining them
+		// (i.e. scheduling the next event after the first has been executed ).
 
-		ensureCallbackPending();
+		emscripten_async_call(&MainThreadRunner_::callback, static_cast<void*>(this), 0);
 	}
 
 private:
-
-	void ensureCallbackPending()
-	{
-		if(!_callbackPending)
-		{
-			// schedule a new callback
-			emscripten_async_call(&IdleRunner_::callback, static_cast<void*>(this), 0);
-			_callbackPending = true;
-		}
-	}
-
 	void handler()
 	{
-		_callbackPending = false;
-
-		if(_normalPriorityCallsPending>0)
+		// execute a single event to ensure that we do not block for too long.
+		P<ISimpleCallable> pCallable;
+		if(!_normalList.empty())
 		{
-			// there are normal piority tasks pending. Re-schedule again to wait until they are done.
-			ensureCallbackPending();
+			pCallable = _normalList.front();
+			_normalList.pop_front();
 		}
-		else
+		else if(!_idleList.empty())
 		{
-			// no more normal priority tasks in the queue. We can execute the idle tasks.
-
-			// Make a copy to ensure that tasks that are added after this are not executed.
-			std::list< P<ISimpleCallable> > toCall = _callList;
-			_callList.clear();
-
-			// we want the callable objects to be released right after they are
-			// executed. So we remove them from the list in each iteration
-			while( !toCall.empty() )
-			{
-				P<ISimpleCallable>& pCallable = toCall.front();
-
-				try
-				{
-					pCallable->call();
-				}
-				catch(std::exception& e)
-				{
-					// log and ignore
-					logError(e, "Exception while performing idle call in main thread. Ignoring.");
-				}
-				catch(...)
-				{
-					// log and ignore
-					logError("Exception (not derived from std::exception) while performing idle call in main thread. Ignoring.");
-				}
-
-				toCall.pop_front();
-			}
-
+			pCallable = _idleList.front();
+			_idleList.pop_front();
 		}
+
+		try
+		{
+			pCallable->call();
+		}
+		catch(std::exception& e)
+		{
+			// log and ignore
+			logError(e, "Exception while performing idle call in main thread. Ignoring.");
+		}
+		catch(...)
+		{
+			// log and ignore
+			logError("Exception (not derived from std::exception) while performing idle call in main thread. Ignoring.");
+		}
+
 	}
 
 	static void callback(void* pArg)
 	{
-		((IdleRunner_*)pArg)->handler();
+		((MainThreadRunner_*)pArg)->handler();
 	}
 
 
-	std::list< P<ISimpleCallable> > _callList;
-
-	bool _callbackPending = false;
-
-	int64_t _normalPriorityCallsPending = 0;
+	std::list< P<ISimpleCallable> > _idleList;
+	std::list< P<ISimpleCallable> > _normalList;
 };
 
-BDN_SAFE_STATIC_IMPL( IdleRunner_, IdleRunner_::get );
+BDN_SAFE_STATIC_IMPL( MainThreadRunner_, MainThreadRunner_::get );
 
 }
 	
-static void CallFromMainThread_callbackNormalPriority(void* pArg)
+static void CallFromMainThread_timedCallback(void* pArg)
 {
-	web::IdleRunner_::get().normalPriorityCallUnqueued();
-
 	P<CallFromMainThreadBase_> pObj;
 
 	pObj.attachPtr( static_cast<CallFromMainThreadBase_*>(pArg) );
@@ -123,24 +133,19 @@ static void CallFromMainThread_callbackNormalPriority(void* pArg)
 	catch(std::exception& e)
 	{
 		// log and ignore
-		logError(e, "Exception while performing async call in main thread. Ignoring.");
+		logError(e, "Exception while performing timed async call in main thread. Ignoring.");
 	}
 	catch(...)
 	{
 		// log and ignore
-		logError("Exception (not derived from std::exception) while performing async call in main thread. Ignoring.");
+		logError("Exception (not derived from std::exception) while performing timed async call in main thread. Ignoring.");
 	}
 }
 
 
 void CallFromMainThreadBase_::dispatchCall()
 {
-	// keep ourselves alive during this
-	addRef();
-
-	web::IdleRunner_::get().normalPriorityCallQueued();
-
-	emscripten_async_call(CallFromMainThread_callbackNormalPriority, static_cast<void*>(this), 0);
+	bdn::web::MainThreadRunner_::get().addNormal(this);
 }
 
 
@@ -155,45 +160,14 @@ void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 		// keep ourselves alive during this
 		addRef();
 
-		web::IdleRunner_::get().normalPriorityCallQueued();
-
-		emscripten_async_call(CallFromMainThread_callbackNormalPriority, static_cast<void*>(this), (int)millis);
+		emscripten_async_call(CallFromMainThread_timedCallback, static_cast<void*>(this), (int)millis);
 	}
 }
 
 
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-	// There is no standard way to schedule something "when idle".
-	// At the time of this writing, requestIdleCallback is non-standard and only supported
-	// by a handful of browsers (Chrome, Opera, Android). So we cannot really use that,
-	// otherwise we risk to have vastly different timing dependending on the browser.
-
-	// It is also difficult to define what "idle" means for a web browser.
-	// DOM changes take effect immediately, so there is are no queued events for that.
-	// The whole rendering is done in a way that is mostly opaque to the app, so we can
-	// ignore rendering events.
-	// So what might be queued up are basically only user input events.
-
-	// If we use emscripten_async_call then any events that are already in the queue will
-	// be processed before our idle handler is called. So the only difference for external
-	// events are user input events that come in between now and the time emscripten_async_call
-	// calls our function. In a perfect world those SHOULD be handled before our idle callback.
-	// But we could argue that those events come at "random" times anyway and the behaviour of the
-	// whole system does not depend on exact timing for them.
-	// In other words: we could argue that we can safely treat newly enqueued user input events as if they
-	// happened just after our idle handler was called, instead of the real occurrence time (between now
-	// and the handler call).
-
-	// So as far as external events are concerned, it should be "safe" (although slightly incorrect) to
-	// behave the same way as asyncCallFromMainThread here.
-
-	// Where it is not safe is for our own internal events. Here the ordering is well defined and
-	// we must ensure that newly enqueued async tasks are handled before our idle tasks.
-
-	// So for this we use the IdleRunner helper object.
-
-	web::IdleRunner_::get().addCall( this );
+	bdn::web::MainThreadRunner_::get().addIdle(this);	
 }
 
 
