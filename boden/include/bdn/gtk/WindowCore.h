@@ -67,9 +67,20 @@ public:
         gtk_window_set_title( getGtkWindow(), title.asUtf8Ptr() );
     }
 
-    void setPosition(const Point& position) override
-    {   
-        GtkAllocation alloc = rectToGtkRect( Rect(position, Size(1,1)) );
+
+    Rect adjustAndSetBounds(const Rect& requestedBounds)
+    {
+        if(_inReconfigured)
+        {
+            // adjustAndSetBounds is currently called in the context of a _reconfigured
+            // event. That is just done to notify the outer view of the new bounds and no change
+            // is actually intended. Just return the current bounds as the "adjusted" bounds.
+            return _currBounds;
+        }
+        
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+        
+        GtkAllocation alloc = rectToGtkRect( adjustedBounds );
         
         // the X window system is not always precise when it comes to sizing and positioning.
         // So if the size and/or position did not change then we should not reset it.
@@ -77,37 +88,21 @@ public:
         // the result is slightly different that the actual current size and position.
         
         
-        if(position != _currBounds.getPosition() )            
+        if(adjustedBounds.getPosition() != _currBounds.getPosition() )            
             gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
             
-            
-        // it seems that we will not get a configure event when we modify the
-        // size and position ourselves. So we call the handler manually.
-        _reconfigured();
-    }
-    
-    
-    void setSize(const Size& size) override
-    {   
-        // GTK will assume that the requested size is without any window decorations
-        // and borders. That is OK, since we ignore these nonclient sizes as well.
-        
-        GtkAllocation alloc = rectToGtkRect(Rect(Point(), size) );
-        
-        // the X window system is not always precise when it comes to sizing and positioning.
-        // So if the size and/or position did not change then we should not reset it.
-        // If we were to set the "current" size or position again then we would risk that
-        // the result is slightly different that the actual current size and position.
-        
-                       
-        if(size != _currBounds.getSize())
+        if(adjustedBounds.getSize() != _currBounds.getSize())
             gtk_window_resize( getGtkWindow(), alloc.width, alloc.height );
             
             
-        // it seems that we will not get a configure event when we modify the
-        // size and position ourselves. So we call the handler manually.
-        _reconfigured();
+        this->_currBounds = adjustedBounds;
+        
+        Rect testy = _currBounds;
+        
+        return adjustedBounds;
     }
+    
+    
 
 
 
@@ -231,20 +226,35 @@ protected:
     
     void _reconfigured()
     {
-        // size, position or "stacking" has changed. Update the bounds() property
+        _inReconfigured = true;
         
-        _currBounds = _getBounds();
-        
-        // update the property. Note that this will not cause
-        // another configure event, because the setBounds method will only
-        // reposition or resize the window if the new size/position are different
-        // from the current ones.
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
+        try
+        {                    
+            // size, position or "stacking" has changed. Update the bounds() property
+            
+            Rect newBounds = _getBounds();
+            
+            // the bounds may not have changed
+            if(newBounds!=_currBounds)
+            {   
+                _currBounds = newBounds;            
+            
+                // update the properties. Note that this will not cause
+                // another configure event, because the setBounds method will only
+                // reposition or resize the window if the new size/position are different
+                // from the current ones.
+                P<View> pView = getOuterViewIfStillAttached();
+                if(pView!=nullptr)
+                    pView->adjustAndSetBounds( _currBounds );
+            }
+        }
+        catch(...)
         {
-            pView->position() = _currBounds.getPosition();
-            pView->size() = _currBounds.getSize();
-        }            
+            _inReconfigured = false;
+            throw;
+        }
+        
+        _inReconfigured = false;
     }
     
     
@@ -262,6 +272,8 @@ protected:
     
     Size        _minSize;    
     Rect        _currBounds;
+    
+    bool        _inReconfigured = false;
 };
 
 

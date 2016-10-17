@@ -1,9 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/Window.h>
 
-
 #include <bdn/LayoutCoordinator.h>
-
 
 namespace bdn
 {
@@ -58,10 +56,10 @@ void Window::autoSize()
 	SizingInfo mySizingInfo = sizingInfo();
 
 	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
-	
+    	
 	double width = mySizingInfo.preferredSize.width;
 	double height = mySizingInfo.preferredSize.height;
-
+    
 	if(width > screenArea.width)
 	{
 		// we do not fit on the screen at our preferred width.
@@ -91,7 +89,16 @@ void Window::autoSize()
 			width = screenArea.width;
 	}
 
-	size() = Size(width, height);
+    // we want to round the size up always. If the window does not exceed the screen size
+    // then we want all our content to fit guaranteed. And if the window size previously exceeded the screen size
+    // then it has been clipped to the screen size. And we assume that the screen size is a valid size
+    // for the display and rounding does not matter in that case. So round up.
+
+    // Position is always rounded to nearest.
+
+    Rect adjustedBounds = adjustBounds( Rect( position(), Size(width, height) ), RoundType::nearest, RoundType::up );
+
+    adjustAndSetBounds(adjustedBounds);
 }
 
 void Window::center()
@@ -111,7 +118,9 @@ void Window::center()
     double x = screenWorkArea.x + (screenWorkArea.width - mySize.width)/2;
 	double y = screenWorkArea.y + (screenWorkArea.height - mySize.height)/2;
 
-	position() = Point(x, y);
+    Rect newBounds( Point(x, y), size() );
+
+    adjustAndSetBounds(newBounds);
 }
 
 Size Window::calcPreferredSize(double availableWidth, double availableHeight) const
@@ -127,7 +136,7 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 		return Size(0,0);
 	}
 
-	Margin contentMargin;
+    Margin contentMargin;
 	P<const View>	pContentView = getContentView();
 	if(pContentView!=nullptr)
 		contentMargin = pContentView->uiMarginToDipMargin( _pContentView->margin() );
@@ -164,6 +173,7 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 
 	Size contentAreaSize = contentSize + myPadding + contentMargin;
 	
+    // the core will round up here if any adjustments for the current display are needed.
 	Size preferredSize = pCore->calcWindowSizeFromContentAreaSize( contentAreaSize );
 
 	Size minSize = pCore->calcMinimumSize();
@@ -183,7 +193,7 @@ void Window::layout()
 		// nothing to do.
 		return;
 	}
-
+    
 	// just set our content window to content area (but taking margins and padding into account).
 
 	Rect contentBounds = pCore->getContentArea();
@@ -192,11 +202,9 @@ void Window::layout()
 	contentBounds -= getDipPadding();
 
 	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );    
+	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );
     
-    
-	pContentView->position() = contentBounds.getPosition();
-    pContentView->size() = contentBounds.getSize();
+    pContentView->adjustAndSetBounds( contentBounds );
 
 	// note that we do not need to call layout on the content view.
 	// If it needs to update its layout then the bounds change should have caused

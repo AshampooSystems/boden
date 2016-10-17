@@ -14,6 +14,7 @@ namespace bdn
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
+#include <bdn/round.h>
 
 namespace bdn
 {
@@ -124,24 +125,18 @@ public:
 
 
 	/** The position of the view inside its parent coordinate system in DIP units (see UiLength::Unit::dip).
-	
+
+        The position property is read-only. The position of a view can be modified with adjustAndSetBounds,
+        which is usually called automatically during the parent view's layout process.
+
 		The default position for a newly constructed view is always position 0,0.
-        The position is usually modified automatically by the parent view's layout routine.
+        The position is usually initialized automatically by the parent view's layout routine.
 
         IMPORTANT:
 
-        The position of top level #Window objects is restricted on some platforms. Sometimes
-        it is not possible to change the Window position at all (in that case the position property
-        will automatically revert back to the previous value whenever it is changed).
-
-        On some platforms top level windows may also report a zero position at all times, even though
+        On some platforms top level windows (see #Window class) may report a zero position at all times, even though
         the window is not at the top left corner of the screen.
 	*/
-	virtual Property<Point>& position()
-	{
-		return _position;
-	}
-
 	virtual const ReadProperty<Point>& position() const
 	{
 		return _position;
@@ -150,28 +145,74 @@ public:
 
 
     /** The size of the view DIP units (see UiLength::Unit::dip).
+
+        The size property is read-only. The size of a view can be modified with adjustAndSetBounds,
+        which is usually called automatically during the parent view's layout process.
 	
 		The default size for a newly constructed view is always 0x0.
-		The size is usually modified automatically by the parent view's layout routine.
-
-        IMPORTANT:
-
-        The size of top level #Window objects is restricted on some platforms. Sometimes
-        it is not possible to change the Window size at all (in that case the size property
-        will automatically revert back to the previous value whenever it is changed).        
+		The size is usually set automatically by the parent view's layout routine.        
 	*/
-	virtual Property<Size>& size()
-	{
-		return _size;
-	}
-
 	virtual const ReadProperty<Size>& size() const
 	{
 		return _size;
 	}
 
 
-	
+
+    /** Sets the view's position and size, after adjusting the specified values
+        to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
+        and refer to the parent view's coordinate system.
+
+        IMPORTANT: This function must only be called from the main thread.
+
+        See adjustBounds() for more information about the adjustments that are made.
+        
+        Note that the adjustments are made with a "nearest valid" policy. I.e. the position and size are set
+        to the closest valid value. This can mean that the view ends up being bigger or smaller than requested.
+        If you need more control over which way the adjustments are made then you should pre-adjust the bounds
+        with adjustBounds().
+
+        The function returns the adjusted bounds that are actually used.
+
+        IMPORTANT:
+
+        The position and/or size of top level #Window objects are restricted on some platforms. Sometimes
+        it is not possible to change the top level Window bounds at all (in that case the bounds will be
+        "adjusted" to the current bounds value).
+
+        On some platforms top level windows may also report a zero position at all times, even though
+        the window is not at the top left corner of the screen.
+        */
+    virtual Rect adjustAndSetBounds(const Rect& requestedBounds);
+
+
+
+    /** Adjusts the specified bounds to values that are compatible with the underlying view implementation
+        and returns the result. The bounds are specified in DIP units and refer to the parent view's coordinate system.
+
+        IMPORTANT: This function must only be called from the main thread.
+
+        Not all positions and sizes are necessarily valid for all view implementations. For example,
+        the backend might need to round the abstract DIP coordinates to the nearest physical pixel boundary.
+
+        The function adjusts the specified bounds according to its implementation constraints and returns the
+        valid values. The positionRoundType and sizeRoundType control in which direction adjustments are made
+        (adjusting up, down or to the nearest valid value).     
+
+        IMPORTANT:
+
+        The position and/or size of top level #Window objects are restricted on some platforms. Sometimes
+        it is not possible to change the top level Window bounds at all (in that case the bounds will be
+        "adjusted" to the current bounds value).
+
+        On some platforms top level windows may also report a zero position at all times, even though
+        the window is not at the top left corner of the screen.
+    */
+    virtual Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const;
+
+
+
+
 
 	enum class HorizontalAlignment
 	{			
@@ -345,6 +386,14 @@ public:
 
 	struct SizingInfo
 	{
+        /** The preferred size of the view (in DIP units), assuming that unlimited space is available.
+        
+            Note that this size is not yet adjusted to meet the constraints of the physical display
+            that the view is rendered to. For example, it is NOT rounded to full pixel boundaries.
+            As a result, the size might be adjusted when it is assigned to the view with
+            adjustAndSetSize(). You can also call adjustSize() ahead of time to adjust it manually,
+            if you need to.
+            */
 		Size preferredSize;
 
 		bool operator==(const SizingInfo& o) const
@@ -382,7 +431,7 @@ public:
 
 
 
-    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+    /** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
         based on it current content	and properties.
         
 		availableWidth and availableHeight are used to indicate the maximum amount of available
@@ -400,10 +449,18 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        IMPORTANT: This function must only called be called from the main thread.
+        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
+        that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded
+        to full physical pixels yet.
+        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
 
+        IMPORTANT: This function must only called be called from the main thread.
 		*/		
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
+
+
+
+    
 
 
 protected:
@@ -424,11 +481,32 @@ protected:
 
 
 	/**	Tells the view to update the layout of its child views. The
-		view should NOT update its own size or position during this - 
+		view should NOT update its OWN size or position during this - 
 		it has to work with the size and position it currently has and
 		should ONLY update the size and position of its child views.
-		
-		IMPORTANT: This function must only be called from the main thread.
+
+        IMPORTANT: This function must only be called from the main thread.
+
+        Note to implementors
+        --------------------
+
+        Depending on the UI implementation backend, 
+        the sizes and positions of child views may have some constraints. For example,
+        with many implementations the sizes and positions must be rounded to full physical
+        pixel boundaries. The layout() function should be aware of this and use
+        adjustBounds() to calculate a bounds rect that meets these constraints.
+        
+        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
+        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
+        disappearing completely.
+        
+        Child view sizes should usually be rounded with RoundType::up when enough space is available
+        and RoundType::down when not enough space is available.
+
+        The rounding policies noted above are merely guidelines: layout implementations are free to
+        ignore them if there are other considerations that cause other rounding types to be better for
+        for the particular case.
+
 		*/
 	virtual void layout()=0;
 
@@ -493,7 +571,7 @@ protected:
 
 		// In that case we need to revive the object and keep it alive until the notification has finished.
 
-		// Note that this cannot happen after the property subs have been released. The Notifier object
+		// Note that this cannot phappen after the property subs have been released. The Notifier object
 		// ensures that no more notifications are called after the sub was deleted and that all notifications
 		// that were in progress are done.
 
@@ -632,6 +710,9 @@ protected:
 
 
 
+
+
+
 	/** (Re-)initializes the core object of the view. If a core object existed before then
 		the old object is destroyed.
 
@@ -676,6 +757,7 @@ protected:
 	DefaultProperty<bool>                   _visible;
 	DefaultProperty<UiMargin>               _margin;
 	DefaultProperty< Nullable<UiMargin> >	_padding;
+
 	DefaultProperty<Point>                  _position;
     DefaultProperty<Size>                   _size;
 

@@ -2,12 +2,14 @@
 #include <bdn/mainThread.h>
 
 #include <bdn/android/JNativeHandler.h>
+#include <bdn/android/IdleRunner.h>
+
 #include <bdn/java/JNativeOnceRunnable.h>
 
 namespace bdn
 {
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
     bdn::android::JNativeHandler    handler = bdn::android::JNativeHandler::getMainNativeHandler();
 
@@ -16,13 +18,17 @@ void CallFromMainThreadBase_::dispatch()
     handler.post( runnable );
 }
 
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    bdn::android::IdleRunner::get().callOnceWhenIdle(this);
+}
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     int64_t millis = (int64_t)(seconds*1000);
 
     if(millis<=0)
-        dispatch();
+        dispatchCall();
     else
     {
         bdn::android::JNativeHandler handler = bdn::android::JNativeHandler::getMainNativeHandler();

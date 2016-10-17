@@ -53,7 +53,7 @@ public:
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		return Rect(0, 0, _size.width-10-10, _size.height-20-10);
+		return Rect(0, 0, _bounds.width-10-10, _bounds.height-20-10);
 	}
 
 

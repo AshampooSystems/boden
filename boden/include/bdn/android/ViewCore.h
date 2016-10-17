@@ -13,6 +13,7 @@ class ViewCore;
 }
 
 #include <bdn/IViewCore.h>
+#include <bdn/PixelAligner.h>
 
 #include <bdn/java/NativeWeakPointer.h>
 
@@ -32,7 +33,7 @@ namespace android
 class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
-    ViewCore(View* pOuterView, JView* pJView, bool initBounds=true )
+    ViewCore(View* pOuterView, JView* pJView)
     {
         _pJView = pJView;
         _outerViewWeak = pOuterView;
@@ -53,12 +54,6 @@ public:
                                   _pJView->getPaddingLeft() );
 
         setPadding( pOuterView->padding() );
-
-        if(initBounds)
-        {
-            setPosition( pOuterView->position() );
-            setSize( pOuterView->size() );
-        }
 
         // initialize the onClick listener. It will call the view core's
         // virtual clicked() method.
@@ -148,8 +143,10 @@ public:
     }
 
 
-    void setPosition(const Point& pos) override
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+
         bdn::java::JObject parent( _pJView->getParent() );
 
         if(parent.isNull_())
@@ -162,30 +159,22 @@ public:
             // the parent of all our views is ALWAYS a NativeViewGroup object.
             JNativeViewGroup parentView( parent.getRef_() );
 
-            parentView.setChildPosition( getJView(), pos.x * _uiScaleFactor, pos.y * _uiScaleFactor );
+            parentView.setChildBounds(
+                    getJView(),
+                    adjustedBounds.x * _uiScaleFactor,
+                    adjustedBounds.y * _uiScaleFactor,
+                    adjustedBounds.width * _uiScaleFactor,
+                    adjustedBounds.height * _uiScaleFactor);
         }
+
+        return adjustedBounds;
     }
 
-    void setSize(const Size& size) override
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
     {
-        //logInfo("Settings size to "+std::to_string(bounds.width)+"x"+std::to_string(bounds.height));
-
-        bdn::java::JObject parent( _pJView->getParent() );
-
-        if(parent.isNull_())
-        {
-            // we do not have a parent => we cannot set anything.
-            // Simply do nothing.
-        }
-        else
-        {
-            // the parent of all our views is ALWAYS a NativeViewGroup object.
-            JNativeViewGroup parentView( parent.getRef_() );
-
-            parentView.setChildSize( getJView(), size.width * _uiScaleFactor, size.height * _uiScaleFactor );
-        }
+        // align on pixel boundaries
+        return PixelAligner(_uiScaleFactor).alignRect( requestedBounds, positionRoundType, sizeRoundType);
     }
-
 
 
     double uiLengthToDips(const UiLength& uiLength) const override;
@@ -210,12 +199,21 @@ public:
         if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
             widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(availableWidth*_uiScaleFactor, JView::MeasureSpec::atMost);
+        {
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(
+                    std::lround( stableScaledRoundDown(availableWidth, _uiScaleFactor)*_uiScaleFactor ), // round DOWN to the closest pixel then scale up and round to the nearest integer
+                    JView::MeasureSpec::atMost);
+        }
 
         if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
             heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(availableHeight*_uiScaleFactor, JView::MeasureSpec::atMost);
+        {
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(
+                    std::lround(stableScaledRoundDown(availableHeight, _uiScaleFactor) *
+                                _uiScaleFactor), // round DOWN to the closest pixel then scale up and round to the nearest integer
+                    JView::MeasureSpec::atMost);
+        }
 
         _pJView->measure( widthSpec, heightSpec );
 

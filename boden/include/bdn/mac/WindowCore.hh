@@ -123,45 +123,75 @@ public:
         // the outer window handles padding during layout. So nothing to do here.
     }
     
-
-    void setPosition(const Point& position) override
+    
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
-        if(position!=_currActualWindowBounds.getPosition())
+        // first adjust the bounds so that they are on pixel boundaries
+        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+        
+        if(adjustedBounds!=_currActualWindowBounds)
         {
-            Rect newBounds( position, _currActualWindowBounds.getSize() );
-            
+            // the screen's coordinate system is inverted (from our point of view). So we need to
+            // flip the coordinates.
             NSScreen* screen = _getNsScreen();
             
             // the screen's coordinate system is inverted. So we need to
             // flip the coordinates.
-            NSRect nsBounds = rectToMacRect(newBounds, screen.frame.size.height);
-        
-            [_nsWindow setFrame:nsBounds display: FALSE];
-            _currActualWindowBounds = newBounds;
+            NSRect macRect = rectToMacRect(adjustedBounds, screen.frame.size.height);
+            
+            [_nsWindow setFrame:macRect display: FALSE];
+            _currActualWindowBounds = adjustedBounds;
         }
+        
+        return adjustedBounds;
     }
     
-    void setSize(const Size& size) override
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
-        if(size!=_currActualWindowBounds.getSize())
-        {
-            NSScreen* screen = _getNsScreen();
-            
-            _currActualWindowBounds.width = size.width;
-            _currActualWindowBounds.height = size.height;
-            
-            // note that if we only change the size of the window then that
-            // will actually also modify its position, since the coordinate space is flipped
-            // and the window thus grows "upwards".
-            // So we have to update the position as well to ensure that the
-            // Window actually grows downwards and its upper left corner stays at the
-            // same place.
-            NSRect newBounds = rectToMacRect( _currActualWindowBounds, screen.frame.size.height);
-            
-            [_nsWindow setFrame:newBounds display: FALSE];
-        }
+        NSScreen* screen = _getNsScreen();
+        
+        // the screen's coordinate system is inverted (from our point of view). So we need to
+        // flip the coordinates.
+        double screenHeight = screen.frame.size.height;
+        NSRect macRect = rectToMacRect( requestedBounds, screenHeight);
+        
+        NSAlignmentOptions alignOptions = 0;
+        
+        // our "position" indicates the top/left position of the window. However, in the
+        // flipped screen coordinate system the (0,0) is actually the bottom left cordner
+        // of the window.
+        // The top/left of the window is minX/maxY.
+        if(positionRoundType==RoundType::down)
+            alignOptions |= NSAlignMinXOutward | NSAlignMaxYOutward;
+        
+        else if(positionRoundType==RoundType::up)
+            alignOptions |= NSAlignMinXInward | NSAlignMaxYInward;
+        
+        else
+            alignOptions |= NSAlignMinXNearest | NSAlignMaxYNearest;
+        
+        
+        if(sizeRoundType==RoundType::down)
+            alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
+        
+        else if(sizeRoundType==RoundType::up)
+            alignOptions |= NSAlignWidthOutward | NSAlignHeightOutward;
+        
+        else
+            alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
+        
+        
+        NSRect adjustedMacRect =
+            [_nsWindow backingAlignedRect:macRect
+                                options:alignOptions ];
+        
+        Rect adjustedBounds = macRectToRect( adjustedMacRect, screenHeight);
+        
+        return adjustedBounds;
     }
-
+    
     
     
     double uiLengthToDips(const UiLength& uiLength) const override
@@ -200,25 +230,13 @@ public:
     }
     
     
-    void _resized()
+    void _movedOrResized()
     {
         _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
 
         P<Window> pOuter = getOuterWindowIfStillAttached();
         if(pOuter!=nullptr)
-        {     
-            pOuter->size() = _currActualWindowBounds.getSize();
-            pOuter->needLayout();
-        }
-    }
-    
-    void _moved()
-    {
-        _currActualWindowBounds = macRectToRect( _nsWindow.frame, _getNsScreen().frame.size.height );
-
-        P<Window> pOuter = getOuterWindowIfStillAttached();
-        if(pOuter!=nullptr)        
-            pOuter->position() = _currActualWindowBounds.getPosition();
+            pOuter->adjustAndSetBounds( _currActualWindowBounds );
     }
     
 private:

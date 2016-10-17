@@ -1,5 +1,9 @@
 package io.boden.android;
 
+
+import android.os.Looper;
+import android.os.MessageQueue;
+
 /**
  * Handles initialization of the native-code side.
  *
@@ -32,6 +36,8 @@ public class NativeInit
             // ensure that the NativeHandler object exists
             NativeHandler.getMainNativeHandler();
 
+            Looper.getMainLooper().getQueue().addIdleHandler( new NativeIdleHandler() );
+
             mBaseInitialized = true;
         }
     }
@@ -52,6 +58,9 @@ public class NativeInit
     private static boolean mLaunched = false;
 
     private static native void nativeLaunch();
+
+
+
 
 };
 

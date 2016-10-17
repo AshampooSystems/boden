@@ -69,17 +69,19 @@ public:
         _pJTextView->requestLayout();
     }
 
-    void setSize(const Size& size) override
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
-        ViewCore::setSize(size);
+        Rect adjustedBounds = ViewCore::adjustAndSetBounds(requestedBounds);
 
         // for some reason the TextView does not wrap its text, unless we explicitly set the
         // width with setMaxWidth (even if the widget's size is actually smaller than the text).
         // This seems to be a bug in android.
-        int widthPixels = (int)std::floor( size.width * getUiScaleFactor() );
+        int widthPixels = std::lround( adjustedBounds.width * getUiScaleFactor() );
 
         _pJTextView->setMaxWidth( widthPixels );
         _currWidthPixels = widthPixels;
+
+        return adjustedBounds;
     }
 
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override

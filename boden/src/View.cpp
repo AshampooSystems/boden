@@ -17,8 +17,8 @@ View::View()
 
 	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
 
-	initProperty<Point, IViewCore, &IViewCore::setPosition, (int)PropertyInfluence_::none>(_position);
-    initProperty<Size, IViewCore, &IViewCore::setSize, (int)PropertyInfluence_::childLayout>(_size);
+	initProperty<Point, IViewCore, nullptr, (int)PropertyInfluence_::none>(_position);
+    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::childLayout>(_size);
 
     initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
     initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
@@ -32,6 +32,42 @@ View::~View()
     // So we deinit the core now
     _deinitCore();
 }
+
+
+Rect View::adjustAndSetBounds(const Rect& requestedBounds)
+{
+    P<IViewCore> pCore = getViewCore();
+
+    Rect adjustedBounds;
+    if(pCore!=nullptr)
+        adjustedBounds = pCore->adjustAndSetBounds(requestedBounds);
+    else
+        adjustedBounds = requestedBounds;
+
+    // update the position and size properties.
+    // Note that the property changes will automatically cause our propertyChanged method
+    // to be called, which will schedule any additional operations that should follow
+    // (like re-layout when the size changes, etc.).
+    _position = adjustedBounds.getPosition();
+    _size = adjustedBounds.getSize();
+
+    return adjustedBounds;
+}
+
+
+
+Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
+{
+    P<const IViewCore> pCore = getViewCore();
+
+    if(pCore!=nullptr)
+        return pCore->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
+    else
+        return requestedBounds;
+}
+
+
+
 
 void View::needSizingInfoUpdate()
 {
@@ -308,7 +344,7 @@ Size View::calcPreferredSize(double availableWidth, double availableHeight) cons
 		return Size(0, 0);
 }
 
-	
+
 
 }
 

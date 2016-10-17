@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/mainThread.h>
 
+#import <bdn/fk/IdleRunner.hh>
+
 #import <Cocoa/Cocoa.h>
 
 
@@ -44,7 +46,7 @@ namespace bdn
 {
 	
 
-void CallFromMainThreadBase_::dispatch()
+void CallFromMainThreadBase_::dispatchCall()
 {
     SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
     wrapper.pCallable = this;
@@ -57,7 +59,13 @@ void CallFromMainThreadBase_::dispatch()
 }
 
 
-void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
+
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    bdn::fk::IdleRunner::get().callOnceWhenIdle(this);
+}
+
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
 {
     SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
     wrapper.pCallable = this;

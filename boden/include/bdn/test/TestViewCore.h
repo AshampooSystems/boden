@@ -62,7 +62,7 @@ public:
 
             // ensure that all pending initializations have finished.
             P<TestViewCore> pThis = this;
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->runPostInitTests();
             };
@@ -140,19 +140,13 @@ protected:
             }
         }
 
-        SECTION("position")
+
+        SECTION("bounds")
         {
-            _pView->position() = Point(110, 220);
+            _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
 
             initCore();
             verifyInitialDummyCorePosition();
-        }
-
-        SECTION("size")
-        {
-            _pView->size() = Size(880, 990);
-
-            initCore();
             verifyInitialDummyCoreSize();
         }
     }
@@ -245,6 +239,11 @@ protected:
                         REQUIRE( _pCore->calcPreferredSize(prefSize.width).height == prefSize.height );
                     }
 
+                    SECTION("unconditionalWidth/2")
+                    {
+                        REQUIRE( _pCore->calcPreferredSize(prefSize.width/2).height >= prefSize.height );
+                    }
+
                     SECTION("zero")
                     {
                         REQUIRE( _pCore->calcPreferredSize(0).height >= prefSize.height );
@@ -257,6 +256,9 @@ protected:
 
                     SECTION("unconditionalHeight")
                         REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height).width == prefSize.width );
+
+                    SECTION("unconditionalHeight/2")
+                        REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height/2).width >= prefSize.width );
         
                     SECTION("zero")
                         REQUIRE( _pCore->calcPreferredSize(-1, 0).width >= prefSize.width );
@@ -330,11 +332,8 @@ protected:
                     _pView->padding() = paddingBefore;
                     
                     // wait a little so that sizing info is updated.
-                    // Note that on some platforms CONTINUE_SECTION_AFTER_PENDING_EVENTS is not good enough
-                    // because the sizing updates happen with a low priority.
-                    // So we explicitly wait a little bit.
                     P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_SECONDS(0.5, pThis, paddingBefore )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
 
@@ -351,7 +350,7 @@ protected:
                         pThis->_pView->padding() = increasedPadding;
 
 
-                        CONTINUE_SECTION_AFTER_PENDING_EVENTS( pThis, prefSizeBefore, additionalPadding )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, prefSizeBefore, additionalPadding )
                         {        
                             // the padding should increase the preferred size.
                             Size prefSize = pThis->_pCore->calcPreferredSize();
@@ -363,126 +362,166 @@ protected:
                     };
                 }
             }
-        }
+        }       
 
-        SECTION("position")
-        {
-            SECTION("manualChange")
+        
+		SECTION("adjustAndSetBounds")
+		{            
+			Rect    bounds;
+            Point   initialPosition = _pView->position();
+
+            SECTION("no need to adjust")
             {
-                if(canManuallyChangePosition())
-                {
-					_pView->position() = Point(110, 220);
-
-                    // it may take a layout cycle until the bounds have updated
-                    P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
-                    {
-                        pThis->verifyCorePosition();
-                    };
-                }
-                else
-                {
-                    // when the control does not have control over its own position then there can be
-                    // a delay in the processing.
-                    // We must ensure that the control has finished its initial initialization before
-                    // we continue. That might take some time in some ports - and a simple
-                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
-                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
-                    P<TestViewCore> pThis = this;
-
-                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
-                    {
-                        // the control cannot manually change its position.
-                        // In that case the core must reset the position property back
-                        // to what it was originally. This reset may be done in a scheduled async call,
-                        // so we must process pending events before we test for it.
-                        Point origPosition = pThis->_pView->position();
-                        
-                        // sanity check: at this point the core bounds should always match
-                        pThis->verifyCorePosition();
-
-                        pThis->_pView->position() = Point(117, 227);
-
-                        // again, we must wait until the changes have propagated
-                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origPosition )
-                        {
-                            REQUIRE( pThis->_pView->position().get() == origPosition );
-
-                            pThis->verifyCorePosition();
-                        };
-                    };
-                }
+                // pre-adjust bounds so that we know that they are valid
+                bounds = Rect(110, 220, 880, 990);
+                bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
             }
-        }
+            
+            SECTION("need adjustments")
+                bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
 
+            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
 
-        SECTION("size")
-        {
-            SECTION("manualChange")
+            P<TestViewCore> pThis = this;
+            
+            // on some platform and with some view types (Linux / GTK with top level window)
+            // waiting for idle is not enough to ensure that the position actually changed.
+            // So instead we first wait for idle and then wait 2 additional seconds to ensure
+            // that our changes have been applied
+            CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {
-                if(canManuallyChangeSize())
+                CONTINUE_SECTION_AFTER_SECONDS(2, pThis, bounds, returnedBounds )
                 {
-					// note: don't get too big here. If we exceed the screen size then
-					// the window size be clipped by the OS.
-                    _pView->size() = Size(550, 330);
+                    // the core size and position should always represent what
+                    // is configured in the view.
+                    pThis->verifyCorePosition();
+                    pThis->verifyCoreSize();
 
-                    // it may take a layout cycle until the bounds have updated
-                    P<TestViewCore> pThis = this;
-                    CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+                    if(!pThis->canManuallyChangePosition())
                     {
-                        pThis->verifyCoreSize();
-                    };
-                }
-                else
-                {
-                    // when the control does not have control over its own size then there can be
-                    // a delay in the processing.
-                    // We must ensure that the control has finished its initial initialization before
-                    // we continue. That might take some time in some ports - and a simple
-                    // CONTINUE_SECTION_AFTER_PENDING_EVENTS is not enough on all platforms (e.g. winuwp).
-                    // So we use CONTINUE_SECTION_AFTER_SECONDS instead
-                    P<TestViewCore> pThis = this;
+                        // when the view cannot modify its position then trying to set another position should yield the same resulting position
+                        Rect returnedBounds2 = pThis->_pCore->adjustAndSetBounds( Rect( bounds.x*2, bounds.y*2, bounds.width, bounds.height) );            
+                        REQUIRE( returnedBounds2 == returnedBounds );
 
-                    CONTINUE_SECTION_AFTER_SECONDS( 2, pThis )
-                    {
-                        // the control cannot manually change its size.
-                        // In that case the core must reset the size property back
-                        // to what it was originally. This reset may be done in a scheduled async call,
-                        // so we must process pending events before we test for it.
-                        Size origSize = pThis->_pView->size();
-
-                        // sanity check: at this point the core size should always match
-                        pThis->verifyCoreSize();
-
-                        pThis->_pView->size() = Size(887, 997);
-
-                        // again, we must wait until the changes have propagated
-                        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, origSize )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis )
                         {
-                            REQUIRE( pThis->_pView->size().get() == origSize );
-
+                            // the core size and position should always represent what
+                            // is configured in the view.
+                            pThis->verifyCorePosition();
                             pThis->verifyCoreSize();
                         };
-                    };
-                }
-            }
+                    }
+                };
+            };
+		}
 
-            if(coreCanCalculatePreferredSize())
+        if(coreCanCalculatePreferredSize())
+        {
+            SECTION("adjustAndSetBounds no effect on preferred size")
             {
-                SECTION("noEffectOnPreferredSize")
-                {
-                    Size prefSizeBefore = _pCore->calcPreferredSize();
+                Size prefSizeBefore = _pCore->calcPreferredSize();
 
-                    _pView->size() = Size(300, 400);
+                _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
                     
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
-
-                    _pView->size() = Size(3000, 4000);
-                    
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
-                }
+                REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
             }
         }
+
+
+        SECTION("adjustBounds")
+		{
+            SECTION("no need to adjust")
+            {
+			    Rect bounds(110, 220, 880, 990);
+
+                // pre-adjust the bounds
+                bounds = _pCore->adjustBounds( bounds, RoundType::nearest, RoundType::nearest );
+
+                std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+
+                for(RoundType positionRoundType: roundTypes)
+                {
+                    for(RoundType sizeRoundType: roundTypes)
+                    {
+                        SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                        {
+                            Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                            // no adjustments are necessary. So we should always get out the same that we put in
+                            REQUIRE( adjustedBounds==bounds );
+                        }
+                    }
+                }
+            }
+
+            SECTION("need adjustments")
+            {
+
+			    Rect bounds(110.12345, 220.12345, 880.12345, 990.12345);
+
+                std::list<RoundType> roundTypes
+                {
+                    RoundType::down,
+                    RoundType::nearest,
+                    RoundType::up
+                };
+
+                std::vector<Rect> adjustedBoundsArray;
+
+                for(RoundType sizeRoundType: roundTypes)
+                {
+                    for(RoundType positionRoundType: roundTypes)
+                    {                    
+                        Rect adjustedBounds = _pCore->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                        adjustedBoundsArray.push_back(adjustedBounds);
+                    }
+                }
+
+                // there is not much we can do to "verify" the bounds. However, there are some relationships
+                // of the rounding operations that must be true.
+
+                // down-rounded must be <= nearest <=up
+
+                for(int sizeRoundTypeIndex=0; sizeRoundTypeIndex<3; sizeRoundTypeIndex++)
+                {
+                    Point downRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 0].getPosition();
+                    Point nearestRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 1].getPosition();
+                    Point upRoundedPosition = adjustedBoundsArray[sizeRoundTypeIndex*3 + 2].getPosition();
+                    
+                    REQUIRE( downRoundedPosition <= nearestRoundedPosition );
+                    REQUIRE( nearestRoundedPosition <= upRoundedPosition );
+
+                    // if canManuallyChangePosition returns false then it means that the view
+                    // has no control over its position. That means that adjustBounds will
+                    // always return the view's current position.
+                    if(canManuallyChangePosition())
+                    {
+                        REQUIRE( downRoundedPosition <= bounds.getPosition() );
+                        REQUIRE( upRoundedPosition >= bounds.getPosition() );
+                    }
+                }
+
+                for(int positionRoundTypeIndex=0; positionRoundTypeIndex<3; positionRoundTypeIndex++)
+                {
+                    Size downRoundedSize = adjustedBoundsArray[0*3 + positionRoundTypeIndex].getSize();
+                    Size nearestRoundedSize = adjustedBoundsArray[1*3 + positionRoundTypeIndex].getSize();
+                    Size upRoundedSize = adjustedBoundsArray[2*3 + positionRoundTypeIndex].getSize();
+                    
+                    REQUIRE( downRoundedSize <= nearestRoundedSize );
+                    REQUIRE( nearestRoundedSize <= upRoundedSize );
+                    
+                    // if canManuallyChangeSize returns false then it means that the view
+                    // has no control over its size. That means that adjustBounds will
+                    // always return the view's current size.
+                    if(canManuallyChangeSize())
+                    {
+                        REQUIRE( downRoundedSize <= bounds.getSize() );
+                        REQUIRE( upRoundedSize >= bounds.getSize() );
+                    }
+                }
+            }
+        }        
     }
 
 

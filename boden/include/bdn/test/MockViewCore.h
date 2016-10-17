@@ -2,6 +2,7 @@
 #define BDN_TEST_MockViewCore_H_
 
 #include <bdn/IViewCore.h>
+#include <bdn/PixelAligner.h>
 
 #include <bdn/test.h>
 
@@ -20,6 +21,7 @@ class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore
 {
 public:
 	explicit MockViewCore(View* pView)
+        : _pixelAligner(3)  // 3 physical pixels per DIP
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -27,8 +29,7 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
-        _position = pView->position();
-		_size = pView->size();
+        _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
 
@@ -74,33 +75,19 @@ public:
 
 
 
-    /** Returns the current view position.*/
-    Point getPosition() const
+    /** Returns the current view bounds.*/
+    Rect getBounds() const
 	{
-	    return _position;
+	    return _bounds;
 	}
 
-    /** Returns the number of times the view's position has changed.*/
-    int getPositionChangeCount() const
+    /** Returns the number of times the view's bounds have changed.*/
+    int getBoundsChangeCount() const
 	{
-	    return _positionChangeCount;
-	}
-
-
-    /** Returns the current view size.*/
-    Size getSize() const
-	{
-	    return _size;
-	}
-
-    /** Returns the number of times the view's size has changed.*/
-    int getSizeChangeCount() const
-	{
-	    return _sizeChangeCount;
+	    return _boundsChangeCount;
 	}
 
 
-    
 
     /** Returns the view's current parent view.
         Note that the MockViewCore does not hold a reference to it, so it
@@ -126,8 +113,8 @@ public:
 
 	Size _getTextSize(const String& s) const
 	{
-		// our fake font has a size of 10x20 DIPs for each character.
-		return Size( static_cast<int>( s.getLength()*10 ), 20);
+		// our fake font has a size of 9.75 x 19.60 DIPs for each character.
+		return Size( s.getLength()*9.75, 19.60);
 	}
 
 	void	setVisible(const bool& visible) override
@@ -148,22 +135,24 @@ public:
 		_paddingChangeCount++;
 	}
 
-	void setPosition(const Point& position) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		_position = position;
-		_positionChangeCount++;
-	}
 
 
-    void setSize(const Size& size) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		_size = size;
-		_sizeChangeCount++;
-	}
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
+    {
+        _bounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
+
+        _boundsChangeCount++;
+
+        return _bounds;
+    }
+
+
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
+    {
+        // our mock UI has 3 pixels per DIP
+        return PixelAligner(3).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+    }
 
        
 	double uiLengthToDips(const UiLength& uiLength) const override
@@ -210,6 +199,8 @@ public:
 		return true;
 	}
 
+     
+
 protected:    
 	bool		_visible = false;
 	int			_visibleChangeCount = 0;
@@ -218,16 +209,15 @@ protected:
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
-	Point       _position;
-	int			_positionChangeCount = 0;
-
-    Size        _size;
-	int			_sizeChangeCount = 0;
+	Rect        _bounds;
+	int			_boundsChangeCount = 0;
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;
     
 	WeakP<View>	 _outerViewWeak = nullptr;
+
+    PixelAligner _pixelAligner;
 
 };
 

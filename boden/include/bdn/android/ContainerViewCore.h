@@ -45,15 +45,19 @@ public:
 	}
 
 
-    void setSize(const Size& size) override
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
 	{
-		ViewCore::setSize(size);
+		Rect adjustedBounds = ViewCore::adjustAndSetBounds(requestedBounds);
 
 		JNativeViewGroup thisGroup( getJView().getRef_() );
 
         double scaleFactor = getUiScaleFactor();
 
-		thisGroup.setSize(size.width * scaleFactor, size.height * scaleFactor);
+		thisGroup.setSize(
+				std::lround(adjustedBounds.width * scaleFactor),
+				std::lround(adjustedBounds.height * scaleFactor) );
+
+		return adjustedBounds;
 	}
 
 };

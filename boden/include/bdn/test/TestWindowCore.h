@@ -85,14 +85,13 @@ protected:
             // make the window a somewhat big size.
             // Note that fullscreen windows may ignore this, but that is ok.
             // We only want to avoid cases where the window is tiny.
-            _pWindow->position() = Point(0, 0);
-            _pWindow->size() = Size(1000, 1000);
+            _pWindow->adjustAndSetBounds( Rect(0, 0, 1000, 1000) );
 
             P<TestWindowCore> pThis = this;
 
             // continue async to give the core a chance to correct / override
             // the new bounds.
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 Size size = pThis->_pWindow->size();
 
@@ -172,7 +171,7 @@ protected:
 
             P<TestWindowCore> pThis = this;
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pThis)
+            CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->testCoreUiElementDestroyedWhenObjectDestroyed();                
             };

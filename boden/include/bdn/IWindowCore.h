@@ -24,6 +24,10 @@ public:
 	/** Calculates the size that the whole window from the size of the content area.
 		This usually adds sizes for the window border (if it has any), title bar, menu bar
 		and the like.
+
+        If the content viewport has constraints for the current display that make adjustments
+        to the specified contentSize necessary then the function will round up the contentSize
+        to a representable size and then return the corresponding window size.
 	*/
 	virtual Size calcWindowSizeFromContentAreaSize(const Size& contentSize)=0;
 

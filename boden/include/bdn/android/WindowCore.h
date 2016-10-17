@@ -53,7 +53,14 @@ public:
         updateUiScaleFactor( rootView.getContext().getResources().getConfiguration() );
 
         // update our size to fully fill the root view.
-        rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
+        // Do this async, so that the property change cannot have bad effects on the in-progress
+        // operation.
+        P<WindowCore> pThis = this;
+        asyncCallFromMainThread(
+            [pThis, rootView]() mutable
+            {
+                pThis->rootViewSizeChanged(rootView.getWidth(), rootView.getHeight() );
+            } );
     }
 
     ~WindowCore()
@@ -74,30 +81,20 @@ public:
         // the title is not shown by android.
     }
 
-    void setPosition(const Point& position) override
-    {
-        // we cannot move ourselves
 
-        if(position!=_currentBounds.getPosition())
-        {
-            P<View> pView = getOuterViewIfStillAttached();
-            if(pView!=nullptr)
-                pView->position() = _currentBounds.getPosition();
-        }
+
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
+    {
+        // we cannot influence our bounds. So "adjust" the bounds to the view's current bounds
+        return _currentBounds;
     }
 
-    void setSize(const Size& size) override
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
     {
-        // we are always exactly the size of the root view. So we undo
-        // any changes we get from the outside world.
-
-        if(size!=_currentBounds.getSize())
-        {
-            P<View> pView = getOuterViewIfStillAttached();
-            if(pView!=nullptr)
-                pView->size() = _currentBounds.getSize();
-        }
+        // we cannot influence our bounds. So "adjust" the bounds to the view's current bounds
+        return _currentBounds;
     }
+
 
     void setVisible(const bool& visible) override
     {
@@ -236,11 +233,7 @@ protected:
 
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-        {
-            pView->size() = _currentBounds.getSize();
-
-            pView->needLayout();
-        }
+            pView->adjustAndSetBounds( _currentBounds );
     }
 
     /** Called when the configuration changed for this window core.

@@ -3,6 +3,10 @@
 
 #import <UiKit/UiKit.h>
 
+#import <bdn/fk/IdleRunner.hh>
+
+#include <bdn/log.h>
+
 
 @interface SimpleCallableWrapper : NSObject
 {
@@ -42,32 +46,37 @@
 
 namespace bdn
 {
+
+void CallFromMainThreadBase_::dispatchCall()
+{
+    SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
+    wrapper.pCallable = this;
+    wrapper.delaySeconds = 0;
+        
+    [wrapper performSelectorOnMainThread:@selector(invoke)
+                                withObject:nil
+                            waitUntilDone:NO];
+        
+}
     
     
-    void CallFromMainThreadBase_::dispatch()
-    {
-        SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
-        wrapper.pCallable = this;
-        wrapper.delaySeconds = 0;
-        
-        [wrapper performSelectorOnMainThread:@selector(invoke)
-                                  withObject:nil
-                               waitUntilDone:NO];
-        
-    }
+ 
+void CallFromMainThreadBase_::dispatchCallWhenIdle()
+{
+    bdn::fk::IdleRunner::get().callWhenIdle(this);
+}
     
-    
-    void CallFromMainThreadBase_::dispatchWithDelaySeconds(double seconds)
-    {
-        SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
-        wrapper.pCallable = this;
-        wrapper.delaySeconds = seconds;
+void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
+{
+    SimpleCallableWrapper* wrapper = [[SimpleCallableWrapper alloc] init];
+    wrapper.pCallable = this;
+    wrapper.delaySeconds = seconds;
         
-        [wrapper performSelectorOnMainThread:@selector(invoke)
-                                  withObject:nil
-                               waitUntilDone:NO];
+    [wrapper performSelectorOnMainThread:@selector(invoke)
+                                withObject:nil
+                            waitUntilDone:NO];
         
-    }
+}
     
     
 }

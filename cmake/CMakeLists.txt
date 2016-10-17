@@ -11,6 +11,7 @@ project (boden)
 SET(BODEN_USES_PTHREAD 0)
 SET(BODEN_USES_GTK 0)
 SET(BODEN_USES_JAVA 0)
+SET(BODEN_USES_FK 0)    # Foundation Kit
 
 if(BODEN_TARGET)
 	# do nothing	
@@ -21,6 +22,7 @@ else()
 		SET( BODEN_TARGET "ios" )
 
 		SET(BODEN_USES_PTHREAD 1)
+        SET(BODEN_USES_FK 1)    # Foundation Kit
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -55,6 +57,7 @@ else()
 		SET( BODEN_TARGET "mac" )
 
 		SET(BODEN_USES_PTHREAD 1)
+        SET(BODEN_USES_FK 1)    # Foundation Kit
 
 		SET( BODEN_TARGET_FAMILY "posix")
 
@@ -211,12 +214,20 @@ if(BODEN_USES_PTHREAD)
 	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
 endif()
 
-if(BODEN_USES_JAVA)
-	file( GLOB BODEN_PTHREAD_HEADERS ${BODEN_INCDIR}/bdn/java/*.h ${BODEN_INCDIR}/bdn/java/test/*.h)
-	list( APPEND BODEN_HEADERS ${BODEN_PTHREAD_HEADERS} )	
+if(BODEN_USES_FK)
+    file( GLOB BODEN_FK_HEADERS ${BODEN_INCDIR}/bdn/fk/*.h ${BODEN_INCDIR}/bdn/fk/*.hh ${BODEN_INCDIR}/bdn/fk/test/*.h ${BODEN_INCDIR}/bdn/fk/test/*.hh)
+    list( APPEND BODEN_HEADERS ${BODEN_FK_HEADERS} )   
 
-	file( GLOB BODEN_PTHREAD_SOURCES ${BODEN_SRCDIR}/java/*.cpp)
-	list( APPEND BODEN_SOURCES ${BODEN_PTHREAD_SOURCES} )	
+    file( GLOB BODEN_FK_SOURCES ${BODEN_SRCDIR}/fk/*.cpp ${BODEN_SRCDIR}/fk/*.mm)
+    list( APPEND BODEN_SOURCES ${BODEN_FK_SOURCES} )   
+endif()
+
+if(BODEN_USES_JAVA)
+	file( GLOB BODEN_JAVA_HEADERS ${BODEN_INCDIR}/bdn/java/*.h ${BODEN_INCDIR}/bdn/java/test/*.h)
+	list( APPEND BODEN_HEADERS ${BODEN_JAVA_HEADERS} )	
+
+	file( GLOB BODEN_JAVA_SOURCES ${BODEN_SRCDIR}/java/*.cpp)
+	list( APPEND BODEN_SOURCES ${BODEN_JAVA_SOURCES} )	
 endif()
 
 if(BODEN_USES_GTK)
@@ -227,8 +238,8 @@ if(BODEN_USES_GTK)
 	list( APPEND BODEN_SOURCES ${BODEN_GTK_SOURCES} )	
 endif()
 
-source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.h|\\.hh)")
-source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk)\\/.*(\\.cpp|\\.m|\\.mm)")
+source_group("${BODEN_TARGET} headers" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk|fk)\\/.*(\\.h|\\.hh)")
+source_group("${BODEN_TARGET} sources" REGULAR_EXPRESSION "\\/(${BODEN_TARGET}|pthread|gtk|fk)\\/.*(\\.cpp|\\.m|\\.mm)")
 
 
 include_directories( ${BODEN_INCDIR} )

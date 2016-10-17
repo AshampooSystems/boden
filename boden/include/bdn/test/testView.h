@@ -158,7 +158,7 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc)
+        CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc)
         {
             BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
         };
@@ -183,27 +183,9 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// So do another async call. That one will be executed after the property
 		// changes.
 
-        CONTINUE_SECTION_AFTER_PENDING_EVENTS( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
+        CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
 		{
-			// the core should now have been updated.
-			
-            // However, sizing info updates should never happen immediately when
-			// a core property changes. They should be scheduled asynchronously
-			// so that multiple changes can be handled together with a single update.
-
-			// so the sizing info update count should still be unchanged at this point.
-			BDN_REQUIRE( pView->getSizingInfoUpdateCount()==initialSizingInfoUpdateCount );	
-
-			// now we do another async step. At that point the scheduled
-			// update should have happened and the sizing info should have been
-			// updated (once!)
-
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates)
-            {
-				verifyFunc();
-						
-				BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
-			};					
+			BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
         };
 	};
 
@@ -246,7 +228,7 @@ inline void testView()
     // We wait until that is done before we continue.
     REQUIRE( pView->getSizingInfoUpdateCount()==0 );
     
-    BDN_CONTINUE_SECTION_AFTER_PENDING_EVENTS( pPreparer, initialCoresCreated, pWindow, pView, pCore )
+    BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore )
     {
         // the pending updates should have happened now
         REQUIRE( pView->getSizingInfoUpdateCount()==1 );
@@ -294,7 +276,7 @@ inline void testView()
             pView->needSizingInfoUpdate();
             pView->needSizingInfoUpdate();
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pPreparer, pView, updateCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, updateCountBefore)
             {
                 REQUIRE( pView->getSizingInfoUpdateCount() == updateCountBefore+1 );
             };
@@ -321,7 +303,7 @@ inline void testView()
             // Since we want the window to be destroyed, we do the remaining test asynchronously
             // after all pending operations are done.
 
-            CONTINUE_SECTION_AFTER_PENDING_EVENTS(pView, pPreparer)
+            CONTINUE_SECTION_WHEN_IDLE(pView, pPreparer)
             {                
                 BDN_REQUIRE( pView->getParentView() == nullptr);	    
             };
@@ -384,47 +366,142 @@ inline void testView()
 				    );
 		    }
 
-		    SECTION("position")
+		    SECTION("adjustAndSetBounds")
 		    {
-			    Point p(1, 2);
+                SECTION("no need to adjust")
+                {
+			        Rect bounds(1, 2, 3, 4);
 
-                int positionChangeCountBefore = pCore->getPositionChangeCount();
+                    int boundsChangeCountBefore = pCore->getBoundsChangeCount();
 
-			    testViewOp<ViewType>( 
-				    pView,
-				    [pView, p, pWindow]()
-				    {
-					    pView->position() = p;
-				    },
-				    [pCore, p, pView, pWindow, positionChangeCountBefore]()
-				    {
-					    BDN_REQUIRE( pCore->getPositionChangeCount()==positionChangeCountBefore+1 );
-					    BDN_REQUIRE( pCore->getPosition() == p);
-				    },
-				    0	// should NOT have caused a sizing info update
-				    );
+			        testViewOp<ViewType>( 
+				        pView,
+				        [pView, bounds, pWindow]()
+				        {
+					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);
+                            REQUIRE( adjustedBounds==bounds );
+				        },
+				        [pCore, bounds, pView, pWindow, boundsChangeCountBefore]()
+				        {
+					        BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
+					        BDN_REQUIRE( pCore->getBounds() == bounds );
+
+                            // the view's position and size properties should reflect the new bounds
+					        BDN_REQUIRE( pView->position() == bounds.getPosition() );
+                            BDN_REQUIRE( pView->size() == bounds.getSize() );
+				        },
+				        0	// should NOT have caused a sizing info update
+				        );
+                }
+
+                SECTION("need adjustment")
+                {
+                    Rect bounds(1.3, 2.4, 3.1, 4.9);
+
+                    // the mock view uses 3 pixels per DIP. Coordinates should be rounded to the
+                    // NEAREST value
+                    Rect expectedAdjustedBounds( 1+1.0/3, 2 + 1.0/3, 3, 5 );
+
+                    int boundsChangeCountBefore = pCore->getBoundsChangeCount();
+
+			        testViewOp<ViewType>( 
+				        pView,
+				        [pView, bounds, expectedAdjustedBounds, pWindow]()
+				        {
+					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);                            
+                            REQUIRE( adjustedBounds==expectedAdjustedBounds );
+				        },
+				        [pCore, bounds, expectedAdjustedBounds, pView, pWindow, boundsChangeCountBefore]()
+				        {
+					        BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
+                            BDN_REQUIRE( pCore->getBounds()==expectedAdjustedBounds );
+
+                            // the view's position and size properties should reflect the new, adjusted bounds
+					        BDN_REQUIRE( pView->position() == expectedAdjustedBounds.getPosition() );
+                            BDN_REQUIRE( pView->size() == expectedAdjustedBounds.getSize() );
+				        },
+				        0	// should NOT have caused a sizing info update
+				        );
+
+                }
 		    }
 
-            SECTION("size")
+
+            SECTION("adjustBounds")
 		    {
-			    Size s(3, 4);
+                SECTION("no need to adjust")
+                {
+			        Rect bounds(1, 2, 3, 4);
+                    Rect origBounds = pCore->getBounds();
 
-                int sizeChangeCountBefore = pCore->getSizeChangeCount();
+                    std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
-			    testViewOp<ViewType>( 
-				    pView,
-				    [pView, s, pWindow]()
-				    {
-					    pView->size() = s;
-				    },
-				    [pCore, s, pView, pWindow, sizeChangeCountBefore]()
-				    {
-					    BDN_REQUIRE( pCore->getSizeChangeCount()==sizeChangeCountBefore+1 );
-					    BDN_REQUIRE( pCore->getSize() == s);
-				    },
-				    0	// should NOT have caused a sizing info update
-				    );
-		    }
+                    for(RoundType positionRoundType: roundTypes)
+                    {
+                        for(RoundType sizeRoundType: roundTypes)
+                        {
+                            SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                            {
+                                Rect adjustedBounds = pView->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                                // no adjustments are necessary. So we should always get out the same that we put in
+                                REQUIRE( adjustedBounds==bounds );
+
+                                // view properties should not have changed
+                                REQUIRE( pView->position() == origBounds.getPosition() );
+                                REQUIRE( pView->size() == origBounds.getSize() );
+
+                                // the core bounds should not have been updated
+                                REQUIRE( pCore->getBounds() == origBounds );
+                            }
+                        }
+                    }
+                }
+
+                SECTION("need adjustments")
+                {
+			        Rect bounds(1.3, 2.4, 3.1, 4.9);
+                    Rect origBounds = pCore->getBounds();
+
+                    std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+
+                    for(RoundType positionRoundType: roundTypes)
+                    {
+                        for(RoundType sizeRoundType: roundTypes)
+                        {
+                            SECTION( "positionRoundType: "+std::to_string((int)positionRoundType)+", "+std::to_string((int)sizeRoundType) )
+                            {
+                                Rect adjustedBounds = pView->adjustBounds(bounds, positionRoundType, sizeRoundType);
+
+                                Point expectedPos;
+                                if(positionRoundType==RoundType::down)
+                                    expectedPos = Point(1, 2 + 1.0/3);
+                                else if(positionRoundType==RoundType::up)
+                                    expectedPos = Point(1 + 1.0/3, 2 + 2.0/3);
+                                else
+                                    expectedPos = Point(1 + 1.0/3, 2 + 1.0/3);
+
+                                Size expectedSize;
+                                if(sizeRoundType==RoundType::down)
+                                    expectedSize = Size(3, 4+2.0/3);
+                                else if(sizeRoundType==RoundType::up)
+                                    expectedSize = Size(3+1.0/3, 5);
+                                else
+                                    expectedSize = Size(3, 5);
+
+                                REQUIRE( adjustedBounds==Rect(expectedPos, expectedSize) );
+
+                                // view properties should not have changed
+                                REQUIRE( pView->position() == origBounds.getPosition() );
+                                REQUIRE( pView->size() == origBounds.getSize() );
+
+                                // the core bounds should not have been updated
+                                REQUIRE( pCore->getBounds() == origBounds );
+                            }
+                        }
+                    }
+                }
+            }
 	    }
 
 
@@ -450,6 +527,7 @@ inline void testView()
 
 			    );		
 	    }
+
 
 #if BDN_HAVE_THREADS
         SECTION("core deinit called from main thread")

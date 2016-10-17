@@ -4,6 +4,8 @@
 #include <bdn/win32/UiProvider.h>
 #include <bdn/win32/util.h>
 
+#include <bdn/PixelAligner.h>
+
 namespace bdn
 {
 namespace win32
@@ -100,19 +102,29 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }
 
-void ViewCore::setPosition(const Point& pos)
-{
-    POINT winPoint = pointToWin32Point( pos, _uiScaleFactor);
 
-	::SetWindowPos( getHwnd(), NULL, winPoint.x, winPoint.y, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+
+
+Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
+{
+    RECT winRect = rectToWin32Rect(requestedBounds, _uiScaleFactor);
+
+    ::SetWindowPos(
+        getHwnd(),
+        NULL,
+        winRect.left,
+        winRect.top,
+        winRect.right-winRect.left,
+        winRect.bottom-winRect.top,
+        SWP_NOACTIVATE | SWP_NOZORDER);
+
+    return win32RectToRect( winRect, _uiScaleFactor );
 }
 
 
-void ViewCore::setSize(const Size& size)
+Rect ViewCore::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
 {
-    SIZE winSize = sizeToWin32Size(size, _uiScaleFactor);
-
-	::SetWindowPos( getHwnd(), NULL, 0, 0, winSize.cx, winSize.cy, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+    return PixelAligner( _uiScaleFactor ).alignRect(requestedBounds, positionRoundType, sizeRoundType);
 }
 
 
