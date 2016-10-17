@@ -99,11 +99,27 @@ void asyncCallFromMainThread(FuncType&& func, Args&&... args)
 /** Schedules the specified function to be called from the main thread asynchronously
     after all pending UI events and UI work has finished.
     
-    If new UI events are enqueued after the idle call was scheduled then those are ALSO
+    If new UI events are enqueued after the idle call was scheduled then those are also
     executed BEFORE the idle call is executed. I.e. the idle call happens when the UI
     work/event queue is empty.
 
 	The main thread is the thread that runs the user interface and the event loop.
+
+	On some platforms it may not be possible to define or detect a true "idle" state for the
+	app. On those platforms the framework will provide a "best effort" implementation
+	that makes it likely (but not guaranteed) that all pending work happens before the idle call.	
+	However, all implementations WILL ensure that events and calls that were scheduled
+	from inside the Boden framework (for example with asyncCallFromMainThread) are executed
+	in the correct priority order. The "best effort" aspect only
+	applies to system events and "under the hood" processing that may not be visible to the app
+	or that the app may not have control over.
+
+	Platform note:
+
+	At the time of this writing the only platform with an imperfect "best effort" implementation is the web target.
+	Here it may be that idle calls are executed even though user input events or similar are
+	in the event queue.
+
 */
 template <class FuncType, class... Args>
 void asyncCallFromMainThreadWhenIdle(FuncType&& func, Args&&... args)
