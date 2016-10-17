@@ -4,7 +4,7 @@
 #include <bdn/test.h>
 #include <bdn/Thread.h>
 
-#if BDN_PLATFORM_WEB
+#if BDN_PLATFORM_WEBEMS
 #include <bdn/Uri.h>
 #endif
 
@@ -123,7 +123,7 @@ int _commandLineAppMain(	std::function< int(const AppLaunchInfo& launchInfo) > a
 #elif BDN_PLATFORM_WIN32
 		args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );		
 
-#elif BDN_PLATFORM_WEB
+#elif BDN_PLATFORM_WEBEMS
 		// arguments are URL-escaped
 		for(int i=0; i<argCount; i++)
 			args.push_back( Uri::unescape( String(argv[i]) ) );

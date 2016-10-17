@@ -17,11 +17,11 @@
 #endif
 
 
-// BDN_PLATFORM_WEB cannot be detected automatically. It must be defined
+// BDN_PLATFORM_WEBEMS cannot be detected automatically. It must be defined
 // via compiler commandline options.
-#if !defined(BDN_PLATFORM_DETECTED) && defined(BDN_PLATFORM_WEB)
-    #undef BDN_PLATFORM_WEB
-    #define BDN_PLATFORM_WEB 1
+#if !defined(BDN_PLATFORM_DETECTED) && defined(BDN_PLATFORM_WEBEMS)
+    #undef BDN_PLATFORM_WEBEMS
+    #define BDN_PLATFORM_WEBEMS 1
     #define BDN_PLATFORM_DETECTED 1
 
 #endif
@@ -100,7 +100,7 @@
 #endif
 
 
-#if BDN_PLATFORM_WEB
+#if BDN_PLATFORM_WEBEMS
 
 	#if __EMSCRIPTEN_major__<1 || (__EMSCRIPTEN_major__==1 && __EMSCRIPTEN_minor__ < 36 )
 		// Older emscripten versions had compiler bugs that cause major troubles with some integral
