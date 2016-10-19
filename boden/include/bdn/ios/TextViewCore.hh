@@ -45,6 +45,14 @@ public:
         _uiLabel.text = stringToIosString(text);
     }
     
+protected:
+
+    double getFontSize() const override
+    {
+        return _uiLabel.font.pointSize;
+    }
+    
+    
 private:
     UILabel*    _uiLabel;
 };

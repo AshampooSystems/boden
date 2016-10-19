@@ -32,19 +32,10 @@ BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 UiProvider::UiProvider()
 {
-    // this is a bit of a hack. We use the height of the letter M as the em size.
-    // Is there a better way?
+    // iOS uses DIPs for font sizes (although they call it "points").
+    // So no conversion necessary
     
-    NSAttributedString* attrString = [NSAttributedString alloc];
-    
-    attrString = [attrString initWithString:@"M"];
-    
-    CGSize fontSize = attrString.size;
-    
-    // iOS also uses DIPs, so no conversion necessary
-    
-    _semDips = fontSize.height;
-
+    _semDips = UIFont.systemFontSize;
 }
 
 String UiProvider::getName() const

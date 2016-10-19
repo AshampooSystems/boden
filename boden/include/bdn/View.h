@@ -9,13 +9,14 @@ namespace bdn
 }
 
 #include <bdn/UiMargin.h>
+#include <bdn/UiSize.h>
 #include <bdn/Rect.h>
 #include <bdn/Nullable.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
-#include <bdn/UiSize.h>
+
 
 namespace bdn
 {

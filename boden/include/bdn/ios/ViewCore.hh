@@ -163,6 +163,10 @@ public:
         if(size.height<0)
             size.height = 0;
         
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
+        
         return size;
     }
     
@@ -231,15 +235,19 @@ private:
         cast<ViewCore>( pParentCore )->addChildUIView( _view );
     }
 
+    virtual double getFontSize() const
+    {
+        // most views do not have a font size attached to them on ios.
+        // UiLabel and UiButton are pretty much the only ones.
+        // Those should override this function.
+        // In the default implementation we simply return the system font size.
+        return getSemSizeDips();
+    }
     
     double getEmSizeDips() const
     {
         if(_emDipsIfInitialized==-1)
-        {
-            XXX
-
-            _emDipsIfInitialized = size;
-        }
+            _emDipsIfInitialized = getFontSize();
 
         return _emDipsIfInitialized;
     }
@@ -259,8 +267,8 @@ private:
     UIView* _view;
 
 
-    double  _emDipsIfInitialized = -1;
-    double  _semDipsIfInitialized = -1;
+    mutable double  _emDipsIfInitialized = -1;
+    mutable double  _semDipsIfInitialized = -1;
 };
 
 

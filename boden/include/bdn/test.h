@@ -111,6 +111,7 @@
 #include <bdn/Margin.h>
 #include <bdn/UiLength.h>
 #include <bdn/UiMargin.h>
+#include <bdn/UiSize.h>
 #include <bdn/Thread.h>
 #include <bdn/Property.h>
 #include <bdn/ProgrammingError.h>
@@ -1640,6 +1641,7 @@ std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);
 std::string toString( const UiLength& length);
 std::string toString( const UiMargin& margin);
+std::string toString( const UiSize& size);
 
 template<class PropValueType>
 inline std::string toString( const ReadProperty<PropValueType>& prop)

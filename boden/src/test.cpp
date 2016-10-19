@@ -5944,6 +5944,10 @@ std::string toString( const UiMargin& margin)
 	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
 }
 
+std::string toString( const UiSize& size)
+{
+	return "("+toString(size.width)+" x "+toString(size.height)+")";
+}
 
 
 } // end namespace bdn
