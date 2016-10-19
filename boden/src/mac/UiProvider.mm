@@ -32,18 +32,8 @@ BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 UiProvider::UiProvider()
 {
-    // this is a bit of a hack. We use the height of the letter M as the em size.
-    // Is there a better way?
-    
-    NSAttributedString* attrString = [NSAttributedString alloc];
-    
-    attrString = [attrString initWithString:@"M"];
-    
-    NSSize fontSize = attrString.size;
-    
     // mac uses DIPs natively. So no conversion necessary
-    _semDips = fontSize.height;
-    
+    _semDips = NSFont.systemFontSize;
 }
 
 String UiProvider::getName() const

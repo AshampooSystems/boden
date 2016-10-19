@@ -263,6 +263,30 @@ public:
     
 private:
 
+        
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+        {
+            // windows on mac cannot have their own font attached. So
+            // use the system font size
+            _emDipsIfInitialized = getSemSizeDips();
+        }
+        
+        return _emDipsIfInitialized;
+    }
+    
+    
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+        
+        return _semDipsIfInitialized;
+    }
+    
+
+
     NSScreen* _getNsScreen() const
     {
         NSScreen* screen = _nsWindow.screen;
@@ -281,7 +305,12 @@ private:
     NSObject*       _ourDelegate;
     
     Rect            _currActualWindowBounds;
+    
+    mutable double  _emDipsIfInitialized = -1;
+    mutable double  _semDipsIfInitialized = -1;
+
 };
+
 
 
 }

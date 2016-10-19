@@ -80,6 +80,7 @@ protected:
         return uiMarginToDipMargin( UiMargin(UiLength::sem(0.5), UiLength::sem(1) ) );
     }
     
+    
 private:
     void _updateBezelStyle();    
     

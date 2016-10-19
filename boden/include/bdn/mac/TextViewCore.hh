@@ -180,9 +180,20 @@ public:
         
         size += additionalSpace;
         
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
+        
         return size;
     }
     
+    
+protected:
+    
+    double getFontSize() const override
+    {
+        return _nsTextView.font.pointSize;
+    }
 
     
     
