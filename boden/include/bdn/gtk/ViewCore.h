@@ -232,6 +232,10 @@ public:
         Size size = gtkSizeToSize(resultSize);        
 
         size += padding;
+        
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
                 
         //std::cout << typeid(*this).name() << " preferred: " << size.width << "x" << size.height << " padding: " << padding.top << "," << padding.right <<","<< padding.bottom <<","<< padding.left << std::endl;
         
@@ -375,12 +379,15 @@ private:
                 GtkStyleContext* pStyleContext = gtk_widget_get_style_context( _pWidget );
                 if(pStyleContext!=nullptr)
                 {
-                    const PangoFontDescription* pFontDesc = gtk_style_context_get_font(pStyleContext, GTK_STATE_FLAG_NORMAL);
+                    const PangoFontDescription* pFontDesc = nullptr;
+                    gtk_style_context_get(pStyleContext, GTK_STATE_FLAG_NORMAL, "font", &pFontDesc, NULL);
                     if(pFontDesc!=nullptr)
                     {
-                        double size = pango_font_description_get_size(pFontDesc);
+                        size = pango_font_description_get_size(pFontDesc);
                         if(size>0)
                         {
+                            size /= PANGO_SCALE;
+                            
                             // might be in points or pixels (what they call "absolute")
                             if( ! pango_font_description_get_size_is_absolute(pFontDesc) )
                             {
@@ -395,7 +402,7 @@ private:
             if(size<=0)
             {
                 // size not set explicitly => system font size is used => em same as sem
-                size = UiProvider::get().getSemDips();
+                size = UiProvider::get().getSemSizeDips();
             }
 
             _emDipsIfInitialized = size;
