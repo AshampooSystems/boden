@@ -8059,6 +8059,10 @@ public:
             P<ColumnView> pColumnView = newObj<ColumnView>();            
             
             P<TextView> pStatusView = newObj<TextView>();
+
+            // we want to see at least 3 lines in our status view
+            pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
+
             pColumnView->addChildView( pStatusView );
             
             _pWindow->setContentView( pColumnView );

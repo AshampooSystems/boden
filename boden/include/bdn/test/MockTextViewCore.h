@@ -53,6 +53,14 @@ public:
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		Size size = _getTextSize(_text);
+
+        // add our padding
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr && !pView->padding().get().isNull())
+            size += uiMarginToDipMargin(pView->padding().get());
+
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
         
 		return size;
 	}
