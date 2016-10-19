@@ -125,6 +125,12 @@ protected:
         return true;
     }
 
+    double getFontSizeDips() const override
+    {
+        // the text size is in pixels
+        return _pJTextView->getTextSize() / getUiScaleFactor();
+    }
+
 private:
     P<JTextView> _pJTextView;
 

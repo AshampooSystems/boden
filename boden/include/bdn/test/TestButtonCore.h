@@ -59,23 +59,26 @@ protected:
             {
                 String labelBefore = _pButton->label();
 
+                // the label should not be empty here
+                REQUIRE(labelBefore.getLength()>3);
+
                 Size prefSizeBefore = _pButton->calcPreferredSize();
 
-                _pButton->label() = labelBefore+labelBefore;
+                _pButton->label() = labelBefore+labelBefore+labelBefore;
 
                 Size prefSize = _pButton->calcPreferredSize();
 
                 // width must increase with a bigger label
-                REQUIRE( prefSize.width > prefSizeBefore.width );
+                REQUIRE(prefSize.width > prefSizeBefore.width);
 
                 // note that the height might or might not increase. But it cannot be smaller.
-                REQUIRE( prefSize.height >= prefSizeBefore.height );
+                REQUIRE(prefSize.height >= prefSizeBefore.height);
 
                 // when we go back to the same label as before then the preferred size should
                 // also be the same again
                 _pButton->label() = labelBefore;
 
-                REQUIRE( _pButton->calcPreferredSize() == prefSizeBefore );
+                REQUIRE(_pButton->calcPreferredSize() == prefSizeBefore);
             }
         }
     }

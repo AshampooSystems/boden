@@ -159,6 +159,15 @@ public:
     }
 
 
+    /** Returns the size (in pixels) of the default text size in this TextView.*/
+    double getTextSize()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<double>(getStaticClass_(), methodId, "getTextSize");
+    }
+
+
 
     /** Sets the text appearance from the specified style resource.
     */

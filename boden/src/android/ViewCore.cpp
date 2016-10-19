@@ -26,23 +26,20 @@ double ViewCore::uiLengthToDips(const UiLength& uiLength) const
         return uiLength.value * getEmSizeDips();
 
     case UiLength::Unit::sem:
-		return uiLength.value * UiProvider::get().getSemDips(*const_cast<ViewCore*>(this);
+		return uiLength.value * UiProvider::get().getSemSizeDips(*const_cast<ViewCore*>(this));
 
     default:
 		throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
     }
 }
 
-   
-Margin ViewCore::uiMarginToDipMargin(const UiMargin& margin) const override
+double ViewCore::getSemSizeDips() const
 {
-    return Margin(
-        uiLengthToDips(margin.top),
-        uiLengthToDips(margin.right),
-        uiLengthToDips(margin.bottom),
-        uiLengthToDips(margin.left) );
-}
+    if(_semDipsIfInitialized==-1)
+        _semDipsIfInitialized = UiProvider::get().getSemSizeDips(*const_cast<ViewCore*>(this));
 
+    return _semDipsIfInitialized;
+}
 
 
 }
