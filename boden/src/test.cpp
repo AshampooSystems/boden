@@ -5925,9 +5925,13 @@ std::string toString( const UiLength& length)
     std::string unit;
     switch(length.unit)
     {
-    case UiLength::sem: unit = "sem";
+    case UiLength::Unit::none: return "none";
         break;
-    case UiLength::dip: unit = "dip";
+    case UiLength::Unit::em: unit = "em";
+        break;
+    case UiLength::Unit::sem: unit = "sem";
+        break;
+    case UiLength::Unit::dip: unit = "dip";
         break;
     default:    unit = "unit"+std::to_string((int)length.unit);
         break;
@@ -5940,6 +5944,10 @@ std::string toString( const UiMargin& margin)
 	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
 }
 
+std::string toString( const UiSize& size)
+{
+	return "("+toString(size.width)+" x "+toString(size.height)+")";
+}
 
 
 } // end namespace bdn
@@ -8050,11 +8058,15 @@ public:
 			_pWindow->title() = "Running tests...";
             _pWindow->visible() = true;
 
-            _pWindow->padding() = UiMargin( UiLength::sem, 1);
+            _pWindow->padding() = UiMargin( UiLength::sem(1) );
             
             P<ColumnView> pColumnView = newObj<ColumnView>();            
             
             P<TextView> pStatusView = newObj<TextView>();
+
+            // we want to see at least 3 lines in our status view
+            pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
+
             pColumnView->addChildView( pStatusView );
             
             _pWindow->setContentView( pColumnView );

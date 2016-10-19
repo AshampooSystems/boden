@@ -35,8 +35,9 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
     {
         WindowDeviceContext dc( getHwnd() );
 
-        if(_pFont!=nullptr)
-		    dc.setFont( *_pFont );
+        P<const win32::Font> pFont = getFont();
+        if(pFont!=nullptr)
+		    dc.setFont( *pFont );
         prefSize = dc.getTextSize( label );        
     }
     
@@ -48,7 +49,8 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
     {
         // we should use the "default" padding. On win32 there is no real system-defined
         // default, so we choose one that looks good for most buttons:
-        uiPadding = UiMargin(UiLength::sem, 0.12, 0.5);
+        uiPadding = UiMargin( UiLength::sem(0.12),
+                              UiLength::sem( 0.5) );
     }
     else
         uiPadding = pad;
@@ -63,6 +65,9 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
 	// size for the focus rect and one pixel of free space next to it
 	prefSize.width += 2 * 2;
 	prefSize.height += 2 * 2;
+
+    if(pButton!=nullptr)
+        prefSize = pButton->applySizeConstraints( prefSize );
 
 	return prefSize;
 }

@@ -22,6 +22,9 @@ View::View()
 
     initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
     initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
+
+    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_minSize);
+    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_maxSize);
 }
 
 View::~View()
@@ -85,6 +88,28 @@ void View::verifyInMainThread(const String& methodName) const
 {
 	if(!Thread::isCurrentMain())
 		programmingError(methodName + " must be called from main thread.");
+}
+
+
+double View::uiLengthToDips( const UiLength& length) const
+{
+	verifyInMainThread("View::uiLengthToDips");	
+
+    if(length.isNone())
+        return 0;
+
+    else if(length.unit == UiLength::Unit::dip)
+		return length.value;	
+
+    else
+    {
+	    P<IViewCore> pCore = getViewCore();
+
+	    if(pCore!=nullptr)
+    		return pCore->uiLengthToDips(length);
+        else
+            return 0;
+    }    
 }
 
 Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
@@ -342,6 +367,50 @@ Size View::calcPreferredSize(double availableWidth, double availableHeight) cons
 		return pCore->calcPreferredSize(availableWidth, availableHeight);
 	else
 		return Size(0, 0);
+}
+
+
+Size View::applySizeConstraints(const Size& inputSize) const
+{
+    verifyInMainThread("View::applySizeConstraints");
+
+    UiSize minSize = _minSize.get();
+    UiSize maxSize = _maxSize.get();
+    Size   resultSize( inputSize );
+
+    if(!minSize.width.isNone())
+    {
+        double minWidth = uiLengthToDips(minSize.width);
+
+        if(resultSize.width < minWidth)
+            resultSize.width = minWidth;            
+    }
+
+    if(!minSize.height.isNone())
+    {
+        double minHeight = uiLengthToDips(minSize.height);
+
+        if(resultSize.height < minHeight)
+            resultSize.height = minHeight;            
+    }
+
+    if(!maxSize.width.isNone())
+    {
+        double maxWidth = uiLengthToDips(maxSize.width);
+
+        if(resultSize.width > maxWidth)
+            resultSize.width = maxWidth;  
+    }
+
+    if(!maxSize.height.isNone())
+    {
+        double maxHeight = uiLengthToDips(maxSize.height);
+
+        if(resultSize.height > maxHeight)
+            resultSize.height = maxHeight;  
+    }
+
+    return resultSize;
 }
 
 

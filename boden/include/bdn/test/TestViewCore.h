@@ -4,6 +4,7 @@
 #include <bdn/View.h>
 #include <bdn/Window.h>
 #include <bdn/test.h>
+#include <bdn/test/testCalcPreferredSize.h>
 #include <bdn/IUiProvider.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/Button.h>
@@ -62,6 +63,7 @@ public:
 
             // ensure that all pending initializations have finished.
             P<TestViewCore> pThis = this;
+
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->runPostInitTests();
@@ -133,7 +135,7 @@ protected:
 
             SECTION("explicit")
             {
-                _pView->padding() = UiMargin( UiLength::sem, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44) );
 
                 initCore();
                 verifyCorePadding();
@@ -160,110 +162,67 @@ protected:
     {        
         SECTION("uiLengthToDips")
         {
-            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 0) ) == 0 );
-            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::sem, 0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength::none() ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength( 17, UiLength::Unit::none) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength::dip(0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength::sem(0) ) == 0 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength::em(0) ) == 0 );
 
-            REQUIRE( _pCore->uiLengthToDips( UiLength(UiLength::dip, 17.34) ) == 17.34 );
+            REQUIRE( _pCore->uiLengthToDips( UiLength::dip(17.34) ) == 17.34 );
             
-            double semSize = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
+            double semSize = _pCore->uiLengthToDips( UiLength::sem(1) );
             REQUIRE( semSize>0 );
-            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength(UiLength::sem, 3) ), semSize*3, 3);
+            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength::sem(3) ), semSize*3, 3);
+
+            double emSize = _pCore->uiLengthToDips( UiLength::em(1) );
+            REQUIRE( emSize>0 );
+            REQUIRE_ALMOST_EQUAL( _pCore->uiLengthToDips( UiLength::em(3) ), emSize*3, 3);
         }
 
         SECTION("uiMarginToDipMargin")
         {
+            SECTION("none")
+            {
+                REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(
+                    UiLength(10, UiLength::Unit::none),
+                    UiLength(20, UiLength::Unit::none),
+                    UiLength(30, UiLength::Unit::none),
+                    UiLength(40, UiLength::Unit::none) ) ) == Margin(0, 0, 0, 0) );
+            }
+
             SECTION("dip")
             {
-                REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(UiLength::dip, 10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
+                REQUIRE( _pCore->uiMarginToDipMargin( UiMargin(10, 20, 30, 40) ) == Margin(10, 20, 30, 40) );
             }
 
             SECTION("sem")
             {
-                double semDips = _pCore->uiLengthToDips( UiLength(UiLength::sem, 1) );
+                double semDips = _pCore->uiLengthToDips( UiLength::sem(1) );
 
-                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::sem, 10, 20, 30, 40) );
+                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::sem(10), UiLength::sem(20), UiLength::sem(30), UiLength::sem(40) ) );
                 REQUIRE_ALMOST_EQUAL( m.top, 10*semDips, 10);
                 REQUIRE_ALMOST_EQUAL( m.right, 20*semDips, 20);
                 REQUIRE_ALMOST_EQUAL( m.bottom, 30*semDips, 30);
                 REQUIRE_ALMOST_EQUAL( m.left, 40*semDips, 40);
+            }
+
+            SECTION("em")
+            {
+                double emDips = _pCore->uiLengthToDips( UiLength::em(1) );
+
+                Margin m = _pCore->uiMarginToDipMargin( UiMargin(UiLength::em(10), UiLength::em(20), UiLength::em(30), UiLength::em(40) ) );
+                REQUIRE_ALMOST_EQUAL( m.top, 10*emDips, 10);
+                REQUIRE_ALMOST_EQUAL( m.right, 20*emDips, 20);
+                REQUIRE_ALMOST_EQUAL( m.bottom, 30*emDips, 30);
+                REQUIRE_ALMOST_EQUAL( m.left, 40*emDips, 40);
             }
         }
 
         
         if(coreCanCalculatePreferredSize())
         {	
-            SECTION("preferredSize")
-            {
-	            SECTION("calcPreferredSize plausible")	
-                {
-                    // we check elsewhere that padding is properly included in the preferred size
-                    // So here we only check that the preferred size is "plausible"
-
-                    Size prefSize = _pCore->calcPreferredSize();
-
-                    REQUIRE( prefSize.width>=0 );
-                    REQUIRE( prefSize.height>=0 );
-                }
-                
-                SECTION("availableSize same as preferredSize")	
-                {
-                    SECTION("no padding")
-                    {
-                        // do nothing
-                    }
-                    
-                    SECTION("with padding")
-                    {
-                        _pView->padding() = UiMargin( UiLength::Unit::dip, 10, 20, 30, 40);
-                    }
-                    
-                    Size prefSize = _pCore->calcPreferredSize();
-                    
-                    Size prefSizeRestricted = _pCore->calcPreferredSize( prefSize.width, prefSize.height);
-                    
-                    REQUIRE( prefSize == prefSizeRestricted);
-                }
-                                
-                SECTION("calcPreferredSize restrictedWidth plausible")	
-                {
-                    // this is difficult to test, since it depends heavily on what kind of view
-                    // we actually work with. Also, it is perfectly normal for different core implementations
-                    // to have different preferred size values for the same inputs.
-
-                    // So we can only test rough plausibility here.
-                    Size prefSize = _pCore->calcPreferredSize();
-
-                    SECTION("unconditionalWidth")
-                    {
-                        // When we specify exactly the unconditional preferred width then we should get exactly the unconditional preferred height
-                        REQUIRE( _pCore->calcPreferredSize(prefSize.width).height == prefSize.height );
-                    }
-
-                    SECTION("unconditionalWidth/2")
-                    {
-                        REQUIRE( _pCore->calcPreferredSize(prefSize.width/2).height >= prefSize.height );
-                    }
-
-                    SECTION("zero")
-                    {
-                        REQUIRE( _pCore->calcPreferredSize(0).height >= prefSize.height );
-                    }
-                }
-
-                SECTION("calcPreferredSize restrictedHeight plausible")	
-                {
-                    Size prefSize = _pCore->calcPreferredSize();
-
-                    SECTION("unconditionalHeight")
-                        REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height).width == prefSize.width );
-
-                    SECTION("unconditionalHeight/2")
-                        REQUIRE( _pCore->calcPreferredSize(-1, prefSize.height/2).width >= prefSize.width );
-        
-                    SECTION("zero")
-                        REQUIRE( _pCore->calcPreferredSize(-1, 0).width >= prefSize.width );
-                }
-            }
+            SECTION("calcPreferredSize")
+                bdn::test::_testCalcPreferredSize<IViewCore>( _pView, _pCore );
         }
     
         SECTION("visibility")   
@@ -303,14 +262,14 @@ protected:
         {
             SECTION("custom")
             {
-                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( 11, 22, 33, 44);
                 verifyCorePadding();
             }
 
             SECTION("default after custom")
             {
                 // set a non-default padding, then go back to default padding.
-                _pView->padding() = UiMargin( UiLength::dip, 11, 22, 33, 44);
+                _pView->padding() = UiMargin( 11, 22, 33, 44);
                 _pView->padding() = nullptr;
 
                 verifyCorePadding();
@@ -327,7 +286,7 @@ protected:
                     // So to verify the effects of padding we first set a big padding that
                     // we are fairly confident to be over any minimum.
         
-                    UiMargin paddingBefore(UiLength::sem, 10, 10, 10, 10);
+                    UiMargin paddingBefore(UiLength::sem(10) );
 
                     _pView->padding() = paddingBefore;
                     
@@ -337,13 +296,12 @@ protected:
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
 
-                        UiMargin additionalPadding(UiLength::sem, 1, 2, 3, 4);
+                        UiMargin additionalPadding(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) );
                         UiMargin increasedPadding = UiMargin(
-                            UiLength::sem,
-                            paddingBefore.top.value + additionalPadding.top.value,
-                            paddingBefore.right.value + additionalPadding.right.value,
-                            paddingBefore.bottom.value + additionalPadding.bottom.value,
-                            paddingBefore.left.value + additionalPadding.left.value );
+                            UiLength::sem(paddingBefore.top.value + additionalPadding.top.value),
+                            UiLength::sem(paddingBefore.right.value + additionalPadding.right.value),
+                            UiLength::sem(paddingBefore.bottom.value + additionalPadding.bottom.value),
+                            UiLength::sem(paddingBefore.left.value + additionalPadding.left.value ));
 
                         // setting padding should increase the preferred size
                         // of the core.

@@ -51,7 +51,7 @@ public:
         if(!pad.isNull())
             uiPadding = pad;
 
-		Margin padding = UiProvider::get().uiMarginToDipMargin(uiPadding);
+		Margin padding = uiMarginToDipMargin(uiPadding);
 
 		_doSizingInfoUpdateOnNextLayout = true;		
 

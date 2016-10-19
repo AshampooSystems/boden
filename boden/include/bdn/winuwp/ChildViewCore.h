@@ -148,19 +148,33 @@ public:
         // first adjust the bounds
         Rect adjustedBounds = adjustBounds( requestedBounds, RoundType::nearest, RoundType::nearest);
 
-        try
+        if(adjustedBounds!=_currBounds || !_currBoundsInitialized)
         {
-            // note that UWP also uses DIPs as the fundamental UI unit. So no conversion necessary.
-		    ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, adjustedBounds.x );
-		    ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, adjustedBounds.y );
+            _currBounds = adjustedBounds;
+            _currBoundsInitialized = true;
 
-            // The size is set by manipulating the Width and Height property.		
-		    _pFrameworkElement->Width = doubleToUwpDimension( adjustedBounds.width );
-		    _pFrameworkElement->Height = doubleToUwpDimension( adjustedBounds.height );
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
+            try
+            {
+                // note that UWP also uses DIPs as the fundamental UI unit. So no conversion necessary.
+		        ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, adjustedBounds.x );
+		        ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, adjustedBounds.y );
+
+                // The size is set by manipulating the Width and Height property.		
+		        _pFrameworkElement->Width = doubleToUwpDimension( adjustedBounds.width );
+		        _pFrameworkElement->Height = doubleToUwpDimension( adjustedBounds.height );            
+
+                // ensure that the changes are reflected as soon as possible.
+                // Note that almost everything works well if we omit this, but the test code has a hard time
+                // verifying the results of the operations. So for the time being we do it this way.
+                // If this turns out to be too slow and inefficient then we can try to find a better way
+                // at that point in time.
+
+                _pFrameworkElement->UpdateLayout();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
         }
 
         return adjustedBounds;
@@ -182,16 +196,39 @@ public:
         return adjustedBounds;
     }
 
+
+    
 	double uiLengthToDips(const UiLength& uiLength) const override
-	{
-		return UiProvider::get().uiLengthToDips(uiLength);
+    {        
+        switch( uiLength.unit )
+        {
+        case UiLength::Unit::none:
+            return 0;
+
+        case UiLength::Unit::dip:
+            return uiLength.value;
+
+        case UiLength::Unit::em:
+            return uiLength.value * getEmSizeDips();
+
+        case UiLength::Unit::sem:
+			return uiLength.value * getSemSizeDips();
+
+        default:
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+
 	}
 
+    
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override
-	{
-		return UiProvider::get().uiMarginToDipMargin(margin);
-	}
-
+    {
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
+    }
 
 
 	bool tryChangeParentView(View* pNewParent) override
@@ -260,6 +297,8 @@ public:
 		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
 		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
 
+            _pFrameworkElement->InvalidateMeasure();
+
 		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidthFloat, availableHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
@@ -268,6 +307,10 @@ public:
 
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;
+
+            P<View> pOuter = getOuterViewIfStillAttached();
+            if(pOuter!=nullptr)
+                size = pOuter->applySizeConstraints(size);
 
             return size;
         }
@@ -291,7 +334,7 @@ public:
 	/** Returns a pointer to the outer view object that is associated with this core.
         Can return null if the core has been disposed (i.e. if it is not connected
         to an outer view anymore).*/
-	P<View> getOuterViewIfStillAttached()
+	P<View> getOuterViewIfStillAttached() const
 	{
 		return _outerViewWeak.toStrong();
 	}
@@ -343,6 +386,41 @@ protected:
 		    pView->needLayout();
 	}
 
+
+    double getEmSizeDips() const
+    {
+        if(_emSizeDipsIfInitialized==-1)
+        {
+            // FrameworkElement does not have a FontSize property. Only Control and TextBlock
+            // objects have a font size.
+
+            ::Windows::UI::Xaml::Controls::Control^ pControl = dynamic_cast<::Windows::UI::Xaml::Controls::Control^>(_pFrameworkElement);
+            if(pControl!=nullptr)
+                _emSizeDipsIfInitialized = pControl->FontSize;
+            else
+            {
+                ::Windows::UI::Xaml::Controls::TextBlock^ pTextBlock = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>(_pFrameworkElement);
+                if(pTextBlock!=nullptr)
+                    _emSizeDipsIfInitialized = pTextBlock->FontSize;
+                else
+                {
+                    // use the default font size (which is documented as being 11 DIPs).
+                    _emSizeDipsIfInitialized = 11;
+                }
+            }
+        }
+
+        return _emSizeDipsIfInitialized;
+    }
+
+    double getSemSizeDips() const
+    {
+        if(_semSizeDipsIfInitialized==-1)
+            _semSizeDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semSizeDipsIfInitialized;
+    }
+
     
 		
 private:
@@ -373,6 +451,12 @@ private:
 	WeakP<View> 			_outerViewWeak;	// weak by design
 
 	ViewCoreEventForwarder^ _pEventForwarder;
+
+    mutable double _emSizeDipsIfInitialized = -1;
+    mutable double _semSizeDipsIfInitialized = -1;
+
+    bool _currBoundsInitialized = false;
+    Rect _currBounds;
 };
 
 

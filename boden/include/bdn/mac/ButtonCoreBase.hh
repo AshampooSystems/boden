@@ -29,6 +29,13 @@ public:
     
     
 protected:
+    
+    double getFontSize() const override
+    {
+        return _nsButton.font.pointSize;
+    }
+    
+    
     NSButton*   _nsButton;
 };
 

@@ -121,7 +121,7 @@ public:
     }
     
     
-    Size calcMinimumSize() const override
+    Size getMinimumSize() const override
     {
         // no border or title bar => no minimum size.
         return Size(0,0);

@@ -76,26 +76,11 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
     
     
-    double uiLengthToDips(const UiLength& uiLength) const
-	{
-		if(uiLength.unit==UiLength::sem)
-			return uiLength.value * _semDips;
-
-		else if(uiLength.unit==UiLength::dip)
-			return uiLength.value;
-
-		else
-			throw InvalidArgumentError("Invalid UiLength unit passed to UiProvider::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
-	}
-    
-    Margin uiMarginToDipMargin(const UiMargin& margin) const
-	{
-		return Margin(
-			uiLengthToDips(margin.top),
-			uiLengthToDips(margin.right),
-			uiLengthToDips(margin.bottom),
-			uiLengthToDips(margin.left) );
-	}
+    /** Returns the size of 1 sem in DIPs. See UiLength::Unit::sem for more information.*/
+    double getSemSizeDips() const
+    {
+        return _semDips;
+    }
 
 
 	

@@ -36,6 +36,13 @@ public:
     
     void _clicked();
     
+protected:
+    double getFontSize() const override
+    {
+        return _button.titleLabel.font.pointSize;
+    }
+
+    
 private:
     UIButton*   _button;
     

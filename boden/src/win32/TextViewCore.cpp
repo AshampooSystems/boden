@@ -37,8 +37,9 @@ Size TextViewCore::calcPreferredSize(double availableWidth, double availableHeig
     {
         WindowDeviceContext dc( getHwnd() );
 
-        if(_pFont!=nullptr)
-		    dc.setFont( *_pFont );
+        P<const Font> pFont = getFont();
+        if(pFont!=nullptr)
+		    dc.setFont( *pFont );
         prefSize = dc.getTextSize( text, availableWidth );
     }
 
@@ -49,12 +50,15 @@ Size TextViewCore::calcPreferredSize(double availableWidth, double availableHeig
     if(pad.isNull())
     {
         // we should use the "default" padding. This is zero.
-        uiPadding = UiMargin(UiLength::sem, 0, 0);
+        uiPadding = UiMargin( 0 );
     }
     else
         uiPadding = pad;
 
 	prefSize += uiMarginToDipMargin( uiPadding );	
+
+    if(pTextView!=nullptr)
+        prefSize = pTextView->applySizeConstraints( prefSize );
     
 	return prefSize;
 }

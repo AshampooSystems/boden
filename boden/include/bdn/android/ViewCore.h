@@ -223,7 +223,13 @@ public:
         //logInfo("Preferred size of "+std::to_string((int64_t)this)+" "+String(typeid(*this).name())+" : ("+std::to_string(width)+"x"+std::to_string(height)+"); available: ("+std::to_string(availableWidth)+"x"+std::to_string(availableHeight)+") ");
 
         // android uses physical pixels. So we must convert to DIPs.
-        return Size(width / _uiScaleFactor, height / _uiScaleFactor);
+        Size prefSize(width / _uiScaleFactor, height / _uiScaleFactor);
+
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            prefSize = pView->applySizeConstraints(prefSize);
+
+        return prefSize;
 	}
     
     
@@ -314,6 +320,27 @@ protected:
     }
 
 
+    virtual double getFontSizeDips() const
+    {
+        // most views do not have a font attached on android. So for most views we return the
+        // sem size.
+        return getSemSizeDips();
+    }
+
+
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+            _emDipsIfInitialized = getFontSizeDips();
+
+        return _emDipsIfInitialized;
+    }
+
+
+    double getSemSizeDips() const;
+
+
+
 private:
     void _addToParent(View* pParent)
     {
@@ -338,6 +365,9 @@ private:
     double          _uiScaleFactor;
 
     Margin          _defaultPixelPadding;
+
+    mutable double      _emDipsIfInitialized;
+    mutable double      _semDipsIfInitialized;
 };
 
 }

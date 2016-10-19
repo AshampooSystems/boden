@@ -30,7 +30,7 @@ public:
 	
 	Rect getScreenWorkArea() const override;	
 
-	Size calcMinimumSize() const;
+	Size getMinimumSize() const;
 
 	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
 	

@@ -48,29 +48,15 @@ public:
 	/** Returns the UI scale factor for the specified monitor.*/
 	double getUiScaleFactorForMonitor(HMONITOR monitor);
 
+    
 
-	/** Returns the size of one sem for the specified UI scale factor.
-		(also see UiLength::sem).
-		
-		uiScaleFactor is a value that depends on the screen that the top level window is on.
-		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	double getSemSizeForUiScaleFactor(double uiScaleFactor);
+    /** Returns the size of 1 sem in DIPs.*/
+    double getSemSizeDips() const
+    {
+        return _semSizeDips;
+    }
 
-
-	/** Converts the specified Ui length to DIPs (device independent pixels - see UiLength::Unit::dip).
-		uiScaleFactor is a value that depends on the screen that the top level window is on.
-		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	double uiLengthToDips(const UiLength& uiLength, double uiScaleFactor);
-	
-
-	/** Converts a UiMargin object to a DIP-based margin object. DIPs are device independent pixels
-        (see UiLength::Unit::dip).
-		uiScaleFactor is a value that depends on the screen that the top level window is on.
-		It can be obtained via getUiScaleFactorForWindowScreen().*/
-	Margin uiMarginToDipMargin(const UiMargin& margin, double uiScaleFactor);
-
-
-
+    
 	static UiProvider& get();
 
 protected:

@@ -88,7 +88,7 @@ public:
     }
     
 
-    Size calcMinimumSize() const override
+    Size getMinimumSize() const override
     {
         return macSizeToSize( _nsWindow.minSize );
     }
@@ -193,19 +193,41 @@ public:
     }
     
     
+
     
-    double uiLengthToDips(const UiLength& uiLength) const override
+
+	double uiLengthToDips(const UiLength& uiLength) const override
+    {        
+         switch( uiLength.unit )
+        {
+        case UiLength::Unit::none:
+            return 0;
+
+        case UiLength::Unit::dip:
+            return uiLength.value;
+
+        case UiLength::Unit::em:
+            return uiLength.value * getEmSizeDips();
+
+        case UiLength::Unit::sem:
+			return uiLength.value * getSemSizeDips();
+
+        default:
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+	}
+
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiLengthToDips(uiLength);
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
-    
-    
-    Margin uiMarginToDipMargin(const UiMargin& margin) const override
-    {
-        return UiProvider::get().uiMarginToDipMargin(margin);
-    }
-    
-    
+
+   
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
@@ -241,6 +263,30 @@ public:
     
 private:
 
+        
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+        {
+            // windows on mac cannot have their own font attached. So
+            // use the system font size
+            _emDipsIfInitialized = getSemSizeDips();
+        }
+        
+        return _emDipsIfInitialized;
+    }
+    
+    
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+        
+        return _semDipsIfInitialized;
+    }
+    
+
+
     NSScreen* _getNsScreen() const
     {
         NSScreen* screen = _nsWindow.screen;
@@ -259,7 +305,12 @@ private:
     NSObject*       _ourDelegate;
     
     Rect            _currActualWindowBounds;
+    
+    mutable double  _emDipsIfInitialized = -1;
+    mutable double  _semDipsIfInitialized = -1;
+
 };
+
 
 
 }

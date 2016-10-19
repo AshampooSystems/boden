@@ -57,7 +57,7 @@ protected:
 
     Margin getDefaultPaddingDips() const override
     {        
-        return uiMarginToDipMargin( UiMargin(UiLength::sem, 0.12, 0.5) );
+        return uiMarginToDipMargin( UiMargin(UiLength::sem(0.12), UiLength::sem(0.5) ) );
     }
     
     static void clickedCallback(GtkWidget* pWidget, gpointer pParam)

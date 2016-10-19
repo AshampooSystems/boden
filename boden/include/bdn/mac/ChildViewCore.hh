@@ -98,17 +98,39 @@ public:
     }
     
     
-    double uiLengthToDips(const UiLength& uiLength) const override
+
+	double uiLengthToDips(const UiLength& uiLength) const override
+    {        
+        switch( uiLength.unit )
+        {
+        case UiLength::Unit::none:
+            return 0;
+
+        case UiLength::Unit::dip:
+            return uiLength.value;
+
+        case UiLength::Unit::em:
+            return uiLength.value * getEmSizeDips();
+
+        case UiLength::Unit::sem:
+			return uiLength.value * getSemSizeDips();
+
+        default:
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+	}
+
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
     {
-        return UiProvider::get().uiLengthToDips(uiLength);
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
-    
-    Margin uiMarginToDipMargin(const UiMargin& margin) const override
-    {
-        return UiProvider::get().uiMarginToDipMargin(margin);
-    }
-    
-    
+
+
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
@@ -150,6 +172,10 @@ public:
             size.width = 0;
         if(size.height<0)
             size.height = 0;
+        
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
+        
         
         return size;
     }
@@ -197,7 +223,37 @@ protected:
         return Margin();
     }
     
-  
+    
+    
+    virtual double getFontSize() const
+    {
+        // most views do not have a font size attached to them in cocoa.
+        // Those should override this function.
+        // In the default implementation we simply return the system font size.
+        return getSemSizeDips();
+    }
+    
+    
+    
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+            _emDipsIfInitialized = getFontSize();
+        
+        return _emDipsIfInitialized;
+    }
+    
+    
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+        
+        return _semDipsIfInitialized;
+    }
+    
+    
+
     
 private:
      void _addToParent(View* pParentView)
@@ -222,6 +278,10 @@ private:
     
     WeakP<View>       _outerViewWeak;
     NSView*           _nsView;
+    
+    mutable double  _emDipsIfInitialized = -1;
+    mutable double  _semDipsIfInitialized = -1;
+
 };
 
 

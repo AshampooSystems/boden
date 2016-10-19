@@ -101,18 +101,40 @@ public:
     }
     
 
-    double uiLengthToDips(const UiLength& uiLength) const override
-    {
-        return UiProvider::get().uiLengthToDips(uiLength);
-    }
     
 
-    Margin uiMarginToDipMargin(const UiMargin& margin) const override
+	double uiLengthToDips(const UiLength& uiLength) const override
     {
-        return UiProvider::get().uiMarginToDipMargin(margin);
+        switch(uiLength.unit)
+        {
+        case UiLength::Unit::none:
+            return 0;
+
+        case UiLength::Unit::dip:
+			return uiLength.value;
+
+        case UiLength::Unit::em:
+            return uiLength.value * getEmSizeDips();
+
+        case UiLength::Unit::sem:
+			return uiLength.value * getSemSizeDips();
+
+        default:
+			throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+	}
+
+    
+	Margin uiMarginToDipMargin(const UiMargin& margin) const override
+    {
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
     }
-    
-    
+
+
     
     
     Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
@@ -140,6 +162,10 @@ public:
             size.width = 0;
         if(size.height<0)
             size.height = 0;
+        
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
         
         return size;
     }
@@ -209,10 +235,40 @@ private:
         cast<ViewCore>( pParentCore )->addChildUIView( _view );
     }
 
+    virtual double getFontSize() const
+    {
+        // most views do not have a font size attached to them on ios.
+        // UiLabel and UiButton are pretty much the only ones.
+        // Those should override this function.
+        // In the default implementation we simply return the system font size.
+        return getSemSizeDips();
+    }
+    
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+            _emDipsIfInitialized = getFontSize();
+
+        return _emDipsIfInitialized;
+    }
+
+
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semDipsIfInitialized;
+    }
+    
 
     WeakP<View>   _outerViewWeak;
     
     UIView* _view;
+
+
+    mutable double  _emDipsIfInitialized = -1;
+    mutable double  _semDipsIfInitialized = -1;
 };
 
 

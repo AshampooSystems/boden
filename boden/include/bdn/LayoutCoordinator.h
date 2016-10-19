@@ -72,6 +72,18 @@ protected:
 
 	void mainThreadUpdateNow();
 
+    /** This function is called when an exception occurs during while a
+        view is being updated. The default implementation logs the exception
+        and does nothing otherwise.
+        
+        \param pExceptionIfAvailable is non-null if the exception is a std::exception object.
+        It is null if it is another kind of exception.
+
+        \param functionName is the name of the function that produced the exception.
+
+        */
+    virtual void handleException(const std::exception* pExceptionIfAvailable, const String& functionName);
+
 	Mutex				_mutex;
 	
 	std::set< P<View> > _sizingInfoSet;

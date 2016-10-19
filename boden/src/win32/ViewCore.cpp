@@ -33,6 +33,8 @@ ViewCore::ViewCore(	View* pOuterView,
 	_outerViewWeak = pOuterView;
 
 	_uiScaleFactor = 0;
+    _emSizeDips = 0;
+    
 
 	View* pParentView = pOuterView->getParentView();
 	if(pParentView==nullptr)
@@ -64,7 +66,7 @@ void ViewCore::setUiScaleFactor(double factor)
 		// we must now update our font
 		updateFont();
 
-		// and we must also notify our child views.
+        // and we must also notify our child views.
         P<View> pOuter = getOuterViewIfStillAttached();
 		std::list< P<View> > childViews;
         if(pOuter!=nullptr)
@@ -87,8 +89,12 @@ void ViewCore::updateFont()
     {
 	    _pFont = UiProvider::get().getFontForView( pOuter, _uiScaleFactor);
 
+        _emSizeDips = _pFont->getSizePixels() / _uiScaleFactor;
+
 	    ::SendMessage( getHwnd(), WM_SETFONT, (WPARAM)_pFont->getHandle(), FALSE);
     }
+    else
+        _emSizeDips = 0;
 }
 
 
@@ -249,14 +255,44 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 
 
 double ViewCore::uiLengthToDips(const UiLength& uiLength) const
-{
-	return UiProvider::get().uiLengthToDips( uiLength, _uiScaleFactor );
+{    
+    switch( uiLength.unit )
+    {
+    case UiLength::Unit::none:
+        return 0;
+
+    case UiLength::Unit::dip:
+        return uiLength.value;
+
+    case UiLength::Unit::em:
+        return uiLength.value * _emSizeDips;
+
+    case UiLength::Unit::sem:
+		return uiLength.value * getSemSizeDips();
+
+    default:
+		throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+    }
 }
 
 Margin ViewCore::uiMarginToDipMargin(const UiMargin& margin) const
 {
-	return UiProvider::get().uiMarginToDipMargin( margin, _uiScaleFactor );
+	return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
 }
+
+
+double ViewCore::getSemSizeDips() const
+{
+    if(_semSizeDipsIfInitialized==-1)
+        _semSizeDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+    return _semSizeDipsIfInitialized;
+}
+
 
 
 }

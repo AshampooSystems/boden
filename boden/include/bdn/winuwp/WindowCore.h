@@ -167,7 +167,7 @@ public:
 	}
 
 
-	Size calcMinimumSize() const override
+	Size getMinimumSize() const override
 	{
 		return _getNonContentSize();
 	}
@@ -215,16 +215,39 @@ public:
         return _getBounds();
 	}
 
-    
+
     double uiLengthToDips(const UiLength& uiLength) const override
-	{
-		return _pUiProvider->uiLengthToDips(uiLength);
+    {        
+        switch( uiLength.unit )
+        {
+        case UiLength::Unit::none:
+            return 0;
+
+        case UiLength::Unit::dip:
+            return uiLength.value;
+
+        case UiLength::Unit::em:
+            return uiLength.value * getEmSizeDips();
+
+        case UiLength::Unit::sem:
+			return uiLength.value * getSemSizeDips();
+
+        default:
+			throw InvalidArgumentError("Invalid UiLength unit passed to WindowCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+
 	}
+
     
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override
-	{
-		return _pUiProvider->uiMarginToDipMargin(margin);
-	}
+    {
+        return Margin(
+            uiLengthToDips(margin.top),
+            uiLengthToDips(margin.right),
+            uiLengthToDips(margin.bottom),
+            uiLengthToDips(margin.left) );
+    }
+    
 
 
 	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
@@ -309,6 +332,29 @@ private:
 		// 0 as far as we need to be concerned.
 		return Size(0, 0);
 	}
+
+    double getEmSizeDips() const
+    {
+        if(_emSizeDipsIfInitialized==-1)
+        {
+            // the font size of a Window cannot be changed within the UWP system.
+            // Only Controls have a font size attached to them.
+            // The default font size for controls is documented as being 11 DIPs, so we use that
+            // here as the em size.
+            _emSizeDipsIfInitialized = 11;
+        }
+
+        return _emSizeDipsIfInitialized;
+    }
+
+    double getSemSizeDips() const
+    {
+        if(_semSizeDipsIfInitialized==-1)
+            _semSizeDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semSizeDipsIfInitialized;
+    }
+
 
 	void _scheduleUpdateOuterPositionAndSizeProperty()
 	{
@@ -428,6 +474,9 @@ private:
 	EventForwarder^ _pEventForwarder;
 
     bool _outerPositionAndSizeUpdateScheduled = false;
+
+    mutable double _emSizeDipsIfInitialized = -1;
+    mutable double _semSizeDipsIfInitialized = -1;
 };
 
 

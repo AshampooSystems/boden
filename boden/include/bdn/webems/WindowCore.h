@@ -100,7 +100,7 @@ public:
     }
 
 
-    Size calcMinimumSize() const override
+    Size getMinimumSize() const override
     {
         // don't have a minimum size since the title bar is not connected to our window div.
         // (the title is displayed in the browser tab bar).

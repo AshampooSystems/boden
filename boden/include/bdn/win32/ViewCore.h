@@ -136,6 +136,14 @@ protected:
 	/** Returns the child view core that the specified message should be forwarded to.*/
 	virtual P<ViewCore> findChildCoreForMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
+    P<const win32::Font> getFont() const
+    {
+        return _pFont;
+    }
+
+private:
+
+    double getSemSizeDips() const;
 
 	WeakP<View> _outerViewWeak;	// weak by design
 
@@ -143,6 +151,10 @@ protected:
 	double _uiScaleFactor;
 
 	P<Font> _pFont;
+
+
+    mutable double _emSizeDips = 0;
+    mutable double _semSizeDipsIfInitialized = -1;
 };
 
 

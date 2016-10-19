@@ -77,8 +77,9 @@ protected:
         // the button automatically includes some padding in the fitting size.
         // This is rougly this:
         
-        return uiMarginToDipMargin( UiMargin(UiLength::sem, 0.5, 1) );
+        return uiMarginToDipMargin( UiMargin(UiLength::sem(0.5), UiLength::sem(1) ) );
     }
+    
     
 private:
     void _updateBezelStyle();    

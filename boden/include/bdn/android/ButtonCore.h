@@ -70,6 +70,14 @@ public:
         }
     }
 
+protected:
+
+    double getFontSizeDips() const override
+    {
+        // the text size is in pixels
+        return _pJButton->getTextSize() / getUiScaleFactor();
+    }
+
 private:
     P<JButton> _pJButton;
 };

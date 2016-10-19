@@ -143,7 +143,7 @@ public:
     }
 
 
-	Size calcMinimumSize() const override
+	Size getMinimumSize() const override
     {
         return _minSize;
     }

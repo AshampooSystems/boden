@@ -123,14 +123,14 @@ public:
 
 		_pHelloMessageButton = newObj<Button>();
         _pHelloMessageButton->label().bind( _pViewModel->helloMessage() );
-		_pHelloMessageButton->margin() = UiMargin(UiLength::sem, 2);
+		_pHelloMessageButton->margin() = UiMargin( UiLength::sem(2) );
 		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
 		pColumnView->addChildView( _pHelloMessageButton );                
         _pHelloMessageButton->onClick().subscribeVoidMember<MainViewController>(_pButtonClickSub, this, &MainViewController::buttonClicked);
 
         _pMorphingTextView = newObj<TextView>();
         _pMorphingTextView->text().bind( _pViewModel->morphingText() );
-        _pMorphingTextView->margin() = UiMargin(UiLength::sem, 0, 2, 2, 2);
+        _pMorphingTextView->margin() = UiMargin(UiLength::sem(0), UiLength::sem(2), UiLength::sem(2), UiLength::sem(2) );
         pColumnView->addChildView( _pMorphingTextView );
 
 		_pWindow->setContentView( pColumnView );

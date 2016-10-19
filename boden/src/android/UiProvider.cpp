@@ -29,7 +29,7 @@ namespace android
 BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
 
 
-double UiProvider::getSemDips(ViewCore &viewCore)
+double UiProvider::getSemSizeDips(ViewCore &viewCore)
 {
     if (_semDips == -1)
     {

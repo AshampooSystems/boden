@@ -63,7 +63,7 @@ void CallFromMainThreadBase_::dispatchCall()
  
 void CallFromMainThreadBase_::dispatchCallWhenIdle()
 {
-    bdn::fk::IdleRunner::get().callWhenIdle(this);
+    bdn::fk::IdleRunner::get().callOnceWhenIdle(this);
 }
     
 void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)

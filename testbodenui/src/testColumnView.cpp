@@ -17,7 +17,7 @@ void testChildAlignment(
     // add a second button that is considerably bigger.
     // That will cause the column view to become bigger.
     P<Button> pButton2 = newObj<Button>();
-    pButton2->padding() = UiMargin(UiLength::dip, 500, 500 );
+    pButton2->padding() = UiMargin(500, 500 );
 
     pColumnView->addChildView(pButton2);
 
@@ -193,7 +193,7 @@ TEST_CASE("ColumnView")
                     int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
                     int layoutCountBefore = pColumnView->getLayoutCount();
 
-                    pButton->margin() = UiMargin(UiLength::dip, 1, 2, 3, 4);
+                    pButton->margin() = UiMargin(1, 2, 3, 4);
 
                     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
                     {
@@ -223,7 +223,7 @@ TEST_CASE("ColumnView")
                 SECTION("aligned on pixel multiples")
                 {
                     // add a weird margin to the button to bring everything out of pixel alignment
-                    pButton->margin() = UiMargin( UiLength::Unit::dip, 0.1234567 );
+                    pButton->margin() = UiMargin( 0.1234567 );
 
                     SECTION("availableWidth = -1")
                     {
@@ -303,8 +303,8 @@ TEST_CASE("ColumnView")
                 m2 = Margin(11, 22, 33, 44);
             }
 
-            pButton->margin() = UiMargin(UiLength::dip, m.top, m.right, m.bottom, m.left );
-            pButton2->margin() = UiMargin(UiLength::dip, m2.top, m2.right, m2.bottom, m2.left );
+            pButton->margin() = UiMargin(m.top, m.right, m.bottom, m.left );
+            pButton2->margin() = UiMargin(m2.top, m2.right, m2.bottom, m2.left );
 
             CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
             {

@@ -100,6 +100,9 @@ protected:
 
     void verifyCorePosition() override
     {        
+        // ensure that pending changes are reflected in the layout
+        _pWinFrameworkElement->UpdateLayout();
+
         double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
         double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
         

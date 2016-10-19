@@ -84,25 +84,30 @@ public:
             // Xaml uses zero padding as the default, so we cannot use their
             // default value. So we choose our own default that matches the
             // normal aesthetic of Windows apps.
-            uiPadding = UiMargin(UiLength::sem, 0.4, 1);
+            uiPadding = UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
         }
         else
             uiPadding = pad;
 
-		Margin padding = UiProvider::get().uiMarginToDipMargin(uiPadding);
+		Margin padding = uiMarginToDipMargin(uiPadding);
 
 		_doSizingInfoUpdateOnNextLayout = true;		
 
         // UWP also uses DIPs => no conversion necessary
 
-		_pButton->Padding = ::Windows::UI::Xaml::Thickness(
+        // Note that the padding must be set on the button Content to have an effect. The button
+        // class itself seems to completely ignore it.
+        _contentPadding = ::Windows::UI::Xaml::Thickness(
 			padding.left,
 			padding.top,
 			padding.right,
 			padding.bottom );
+        _applyContentPadding = true;
 
-        _activePadding = uiPadding;
+        if(_pButton->Content!=nullptr)
+            ((::Windows::UI::Xaml::Controls::TextBlock^)_pButton->Content)->Padding = _contentPadding;
 
+        
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
@@ -122,6 +127,10 @@ public:
 		_doSizingInfoUpdateOnNextLayout = true;		
 
         _pButton->Content = pLabel;		
+
+        if(_applyContentPadding)
+            pLabel->Padding = _contentPadding;
+
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -154,8 +163,10 @@ protected:
    
 	::Windows::UI::Xaml::Controls::Button^ _pButton;
 
+    ::Windows::UI::Xaml::Thickness _contentPadding;
+    bool                           _applyContentPadding = false;
+
 	double      _doSizingInfoUpdateOnNextLayout = true;
-    UiMargin    _activePadding;
 	
 };
 

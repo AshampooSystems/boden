@@ -77,7 +77,7 @@ public:
 	}
 
 
-	Size calcMinimumSize() const override
+	Size getMinimumSize() const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
