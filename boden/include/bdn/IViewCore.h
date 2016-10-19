@@ -102,7 +102,8 @@ public:
         calcPreferredSize should take the View::minSize and View::maxSize properties of the outer view into account
         and clip or extend the result accordingly. In rare cases, if the minSize and/or maxSize absolutely
         do not make sense for the view implementation then the function may also return a preferred size that exceeds
-        these bounds.
+        these bounds. Implementors of calcPreferredSize can use the helper function
+        View::applySizeConstraints() to apply minSize and maxSize.
 
         IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
         that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded

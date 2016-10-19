@@ -19,7 +19,8 @@ public:
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
         // XXX Todo: need to properly determine base font size.
-		_semDips = 15;
+        // The default font size for controls is documented as 11 DIPs. So we use that in the meantime.
+		_semDips = 11;
 
 		Windows::UI::ViewManagement::ApplicationView^ pAppView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
 
@@ -54,6 +55,13 @@ public:
 	{
 		return _uiScaleFactor;
 	}
+
+
+    double getSemSizeDips() const
+    {
+        return _semDips;
+    }
+
 
 
 	Rect			getScreenWorkArea() const

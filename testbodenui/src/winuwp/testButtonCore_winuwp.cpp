@@ -30,7 +30,7 @@ protected:
 
     void verifyCorePadding() override
     {
-        verifyIsExpectedWinPadding( _pWinButton->Padding );
+        verifyIsExpectedWinPadding( ((::Windows::UI::Xaml::Controls::TextBlock^)_pWinButton->Content)->Padding );
     }
 
     void verifyCoreLabel() override

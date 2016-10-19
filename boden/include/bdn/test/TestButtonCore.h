@@ -18,7 +18,10 @@ protected:
 
     P<View> createView() override
     {
-        return newObj<Button>();
+        P<Button> pButton = newObj<Button>();
+        pButton->label() = "hello";
+
+        return pButton;
     }
 
     void setView(View* pView) override
@@ -54,9 +57,11 @@ protected:
 
             SECTION("effectsOnPreferredSize")
             {
+                String labelBefore = _pButton->label();
+
                 Size prefSizeBefore = _pButton->calcPreferredSize();
 
-                _pButton->label() = "helloworld";
+                _pButton->label() = labelBefore+labelBefore;
 
                 Size prefSize = _pButton->calcPreferredSize();
 
@@ -68,7 +73,7 @@ protected:
 
                 // when we go back to the same label as before then the preferred size should
                 // also be the same again
-                _pButton->label() = "";
+                _pButton->label() = labelBefore;
 
                 REQUIRE( _pButton->calcPreferredSize() == prefSizeBefore );
             }

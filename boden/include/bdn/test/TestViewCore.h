@@ -63,6 +63,7 @@ public:
 
             // ensure that all pending initializations have finished.
             P<TestViewCore> pThis = this;
+
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
                 pThis->runPostInitTests();

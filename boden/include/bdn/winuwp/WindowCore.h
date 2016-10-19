@@ -333,6 +333,29 @@ private:
 		return Size(0, 0);
 	}
 
+    double getEmSizeDips() const
+    {
+        if(_emSizeDipsIfInitialized==-1)
+        {
+            // the font size of a Window cannot be changed within the UWP system.
+            // Only Controls have a font size attached to them.
+            // The default font size for controls is documented as being 11 DIPs, so we use that
+            // here as the em size.
+            _emSizeDipsIfInitialized = 11;
+        }
+
+        return _emSizeDipsIfInitialized;
+    }
+
+    double getSemSizeDips() const
+    {
+        if(_semSizeDipsIfInitialized==-1)
+            _semSizeDipsIfInitialized = UiProvider::get().getSemSizeDips();
+
+        return _semSizeDipsIfInitialized;
+    }
+
+
 	void _scheduleUpdateOuterPositionAndSizeProperty()
 	{
         if(_outerPositionAndSizeUpdateScheduled)
@@ -451,6 +474,9 @@ private:
 	EventForwarder^ _pEventForwarder;
 
     bool _outerPositionAndSizeUpdateScheduled = false;
+
+    mutable double _emSizeDipsIfInitialized = -1;
+    mutable double _semSizeDipsIfInitialized = -1;
 };
 
 

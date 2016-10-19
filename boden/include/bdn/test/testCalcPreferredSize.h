@@ -9,7 +9,7 @@ namespace test
 {
 
 template<class ObjectType>
-inline void _testCalcPreferredSize(View* pView, ObjectType* pObject)
+inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject)
 {
 	SECTION("plausible")	
     {
