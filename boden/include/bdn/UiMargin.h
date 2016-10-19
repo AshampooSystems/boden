@@ -12,9 +12,7 @@ namespace bdn
 	In contast to #Margin, UiMargin specifies the margin sizes with UiLength
 	objects, thus allowing use of more abstract sizes that depend on the screen
 	and system settings.
-
-	It is recommended to use UiLength::sem as the unit for margins.
-
+    
 	*/
 struct UiMargin
 {
@@ -22,32 +20,7 @@ public:
 	UiMargin()
 	{		
 	}
-
-	UiMargin(UiLength::Unit unit, double all)
-		: top(unit, all)
-		, right(unit, all)
-		, bottom(unit, all)
-		, left(unit, all)
-	{		
-	}
-
-	UiMargin(UiLength::Unit unit, double topBottom, double leftRight)
-		: top(unit, topBottom)
-		, right(unit, leftRight)
-		, bottom(unit, topBottom)
-		, left(unit, leftRight)
-	{		
-	}
-
-	UiMargin(UiLength::Unit unit, double top, double right, double bottom, double left)
-		: top(unit, top)
-		, right(unit, right)
-		, bottom(unit, bottom)
-		, left(unit, left)
-	{		
-	}
-
-
+    
 	UiMargin(const UiLength& all)
 		: top(all)
 		, right(all)

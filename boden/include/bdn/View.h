@@ -82,9 +82,7 @@ public:
 	
 		The margin is NOT part of the view itself. It is merely something that the
 		layout takes into account.
-
-		It is recommended to specify the margin in UiLength::sem units.
-
+        
 		The default margin is 0.
 	*/
 	virtual Property<UiMargin>& margin()
@@ -102,9 +100,7 @@ public:
 
 		The padding is part of the view and thus it influences the size of
 		the view (in contrast to the margin(), which is NOT part of the view).
-
-		It is recommended to specify the padding in UiLength::sem units.
-        
+                
         On some platforms some UI elements may have a built-in minimum for the padding.
         If you specify a smaller padding then the minimum padding will be silently
         used instead.
@@ -392,7 +388,7 @@ public:
         (see calcPreferredSize()).
         Its parent view may decide to make it bigger than this because of other layout considerations.
 
-        If the width and/or height are UiLength::none then it means that there is no minimum.
+        If the width and/or height are UiLength::Unit::none then it means that there is no minimum.
         
         The minimum size affects the preferred size calculation (see #sizingInfo() and calcPreferredSize()).
         If the internally calculated preferred size would be below the minimum size then it is increased
@@ -430,6 +426,18 @@ public:
     {
         return _maxSize;
     }
+
+
+    
+    /** Helper function that applies the size constraints that are configured in the view
+        (minSize(), maxSize, etc) so the specified size and returns the resulting
+        constrained size.
+        
+        This function does not modify the view's own size. It only works on the specified size object.
+
+        This function must only be called from the main thread.
+        */
+    virtual Size applySizeConstraints(const Size& size) const;
 
 
 

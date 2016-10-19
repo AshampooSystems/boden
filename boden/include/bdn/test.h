@@ -1638,7 +1638,7 @@ std::string toString( const Point& point);
 std::string toString( const Size& size);
 std::string toString( const Rect& rect);
 std::string toString( const Margin& margin);
-std::string toString( const UiLength& margin);
+std::string toString( const UiLength& length);
 std::string toString( const UiMargin& margin);
 
 template<class PropValueType>

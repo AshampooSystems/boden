@@ -5925,9 +5925,13 @@ std::string toString( const UiLength& length)
     std::string unit;
     switch(length.unit)
     {
-    case UiLength::sem: unit = "sem";
+    case UiLength::Unit::none: return "none";
         break;
-    case UiLength::dip: unit = "dip";
+    case UiLength::Unit::em: unit = "em";
+        break;
+    case UiLength::Unit::sem: unit = "sem";
+        break;
+    case UiLength::Unit::dip: unit = "dip";
         break;
     default:    unit = "unit"+std::to_string((int)length.unit);
         break;
@@ -8050,7 +8054,7 @@ public:
 			_pWindow->title() = "Running tests...";
             _pWindow->visible() = true;
 
-            _pWindow->padding() = UiMargin( UiLength::sem, 1);
+            _pWindow->padding() = UiMargin( UiLength::sem(1) );
             
             P<ColumnView> pColumnView = newObj<ColumnView>();            
             

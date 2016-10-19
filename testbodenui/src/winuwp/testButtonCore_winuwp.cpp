@@ -25,7 +25,7 @@ protected:
 
     UiMargin getExpectedDefaultPadding() override
     {
-        return UiMargin(UiLength::sem, 0.4, 1);
+        return UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
     }
 
     void verifyCorePadding() override

@@ -76,7 +76,7 @@ public:
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
     
     
-    /** Returns the size of 1 sem in DIPs. See UiLength::sem for more information.*/
+    /** Returns the size of 1 sem in DIPs. See UiLength::Unit::sem for more information.*/
     double getSemSizeDips() const
     {
         return _semDips;

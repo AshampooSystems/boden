@@ -68,7 +68,7 @@ public:
 	
 	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).
     
-        Return 0 for "none" values (see UiLength::none).
+        Return 0 for "none" values (see UiLength::isNone()).
 
     */
 	virtual double uiLengthToDips(const UiLength& uiLength) const=0;

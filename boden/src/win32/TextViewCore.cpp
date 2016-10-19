@@ -50,12 +50,15 @@ Size TextViewCore::calcPreferredSize(double availableWidth, double availableHeig
     if(pad.isNull())
     {
         // we should use the "default" padding. This is zero.
-        uiPadding = UiMargin(UiLength::sem, 0, 0);
+        uiPadding = UiMargin( 0 );
     }
     else
         uiPadding = pad;
 
 	prefSize += uiMarginToDipMargin( uiPadding );	
+
+    if(pTextView!=nullptr)
+        prefSize = pTextView->applySizeConstraints( prefSize );
     
 	return prefSize;
 }

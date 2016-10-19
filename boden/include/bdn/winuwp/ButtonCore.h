@@ -84,7 +84,7 @@ public:
             // Xaml uses zero padding as the default, so we cannot use their
             // default value. So we choose our own default that matches the
             // normal aesthetic of Windows apps.
-            uiPadding = UiMargin(UiLength::sem, 0.4, 1);
+            uiPadding = UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
         }
         else
             uiPadding = pad;

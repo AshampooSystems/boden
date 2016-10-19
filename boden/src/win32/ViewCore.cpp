@@ -256,21 +256,23 @@ P<ViewCore> ViewCore::findChildCoreForMessage(UINT message, WPARAM wParam, LPARA
 
 double ViewCore::uiLengthToDips(const UiLength& uiLength) const
 {    
-    if(uiLength.unit==UiLength::none)
-		return 0;
+    switch( uiLength.unit )
+    {
+    case UiLength::Unit::none:
+        return 0;
 
-    else if(uiLength.unit==UiLength::dip)
-		return uiLength.value;
+    case UiLength::Unit::dip:
+        return uiLength.value;
 
-    else if(uiLength.unit==UiLength::em)
+    case UiLength::Unit::em:
         return uiLength.value * _emSizeDips;
 
-	else if(uiLength.unit==UiLength::sem)
+    case UiLength::Unit::sem:
 		return uiLength.value * getSemSizeDips();
 
-	else
+    default:
 		throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
-
+    }
 }
 
 Margin ViewCore::uiMarginToDipMargin(const UiMargin& margin) const

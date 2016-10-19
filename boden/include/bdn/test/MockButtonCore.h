@@ -54,8 +54,16 @@ public:
 
 		Size size = _getTextSize(_label);
 
+        // add our padding
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr && !pView->padding().get().isNull())
+            size += uiMarginToDipMargin(pView->padding().get());
+
 		// add some space for the fake button border
 		size += Margin( 4, 5);
+
+        if(pView!=nullptr)
+            size = pView->applySizeConstraints(size);
 
 		return size;
 	}

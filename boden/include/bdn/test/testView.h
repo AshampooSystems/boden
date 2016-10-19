@@ -4,6 +4,7 @@
 
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test/ViewWithTestExtensions.h>
+#include <bdn/test/testCalcPreferredSize.h>
 
 namespace bdn
 {
@@ -243,14 +244,14 @@ inline void testView()
 
 		    BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
 
-            BDN_REQUIRE( pView->margin() == UiMargin(UiLength::Unit::none, 0, 0, 0, 0) );
+            BDN_REQUIRE( pView->margin() == UiMargin( UiLength() ) );
 		    BDN_REQUIRE( pView->padding().get().isNull() );
 
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
-            BDN_REQUIRE( pView->minSize() == UiSize(UiLength::Unit::none, 0, 0) );
-            BDN_REQUIRE( pView->maxSize() == UiSize(UiLength::Unit::none, 0, 0) );
+            BDN_REQUIRE( pView->minSize() == UiSize(UiLength(), UiLength()) );
+            BDN_REQUIRE( pView->maxSize() == UiSize(UiLength(), UiLength()) );
 
 		    BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 
@@ -312,6 +313,53 @@ inline void testView()
             };
 	    }
 
+        SECTION("applySizeConstraints")
+        {
+            double limit = 11.7;
+            double below = 11.3;
+            double above = 12.5;
+
+            SECTION("minWidth")
+            {
+                pView->minSize() = UiSize( limit, UiLength() );
+
+                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(limit, below) );
+                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
+                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(limit, above) );
+                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
+            }
+
+            SECTION("minHeight")
+            {
+                pView->minSize() = UiSize( UiLength(), limit );
+
+                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, limit) );
+                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, limit) );
+                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
+                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
+            }
+
+            SECTION("maxWidth")
+            {
+                pView->maxSize() = UiSize( limit, UiLength() );
+
+                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
+                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(limit, below) );
+                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
+                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(limit, above) );
+            }
+
+            SECTION("maxHeight")
+            {
+                pView->maxSize() = UiSize( UiLength(), limit );
+
+                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
+                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
+                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, limit) );
+                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, limit) );
+            }
+        }
+
 	    SECTION("changeViewProperty")
 	    {
 		    SECTION("visible")
@@ -333,7 +381,10 @@ inline void testView()
 	
 		    SECTION("margin")
 		    {
-			    UiMargin m(UiLength::Unit::sem, 1, 2, 3, 4);
+			    UiMargin m( UiLength::sem(1),
+                            UiLength::sem(2),
+                            UiLength::sem(3),
+                            UiLength::sem(4) );
 
 			    testViewOp<ViewType>( 
 				    pView,
@@ -352,7 +403,7 @@ inline void testView()
 
 		    SECTION("padding")
 		    {
-			    UiMargin m(UiLength::Unit::sem, 1, 2, 3, 4);
+			    UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) );
 
 			    testViewOp<ViewType>( 
 				    pView,
@@ -507,6 +558,8 @@ inline void testView()
             }
 	    }
 
+        SECTION("preferredSize")
+            bdn::test::_testCalcPreferredSize<View>(pView, pView);
 
 	    SECTION("multiplePropertyChangesThatInfluenceSizing")
 	    {
@@ -515,15 +568,15 @@ inline void testView()
 
 			    [pView, pWindow]()
 			    {
-				    pView->padding() = UiMargin(UiLength::Unit::sem, 7, 8, 9, 10);
-				    pView->padding() = UiMargin(UiLength::Unit::sem, 6, 7, 8, 9);
+				    pView->padding() = UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10));
+				    pView->padding() = UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9) );
 			    },
 
 			    [pCore, pView, pWindow]()
 			    {
 				    // padding changed twice
 				    BDN_REQUIRE( pCore->getPaddingChangeCount()==2 );
-				    BDN_REQUIRE( pCore->getPadding() == UiMargin(UiLength::Unit::sem, 6, 7, 8, 9));
+				    BDN_REQUIRE( pCore->getPadding() == UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9) ));
 			    },
 
 			    1	// should cause a single(!) sizing info update

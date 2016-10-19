@@ -42,7 +42,7 @@ public:
     
 
     /** Returns the outer view object that this core is embedded in.*/
-    P<View> getOuterViewIfStillAttached()
+    P<View> getOuterViewIfStillAttached() const
 	{
         return _outerViewWeak.toStrong();	    
 	}
@@ -159,22 +159,26 @@ public:
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-        if(uiLength.unit==UiLength::none)
-			return uiLength.value;
-        
-        else if(uiLength.unit==UiLength::dip)
-			return uiLength.value;
+        switch( uiLength.unit )
+        {
+        case UiLength::Unit::none:
+            return 0;
 
-        else if(uiLength.unit==UiLength::em)
+        case UiLength::Unit::dip:
+            return uiLength.value;
+
+        case UiLength::Unit::em:
             // one em = 23 mock DIPs;
 			return uiLength.value*23;
 
-		else if(uiLength.unit==UiLength::sem)
+        case UiLength::Unit::sem:
             // one sem = 20 mock DIPs;
 			return uiLength.value*20;
 
-		else
+        default:
 			throw InvalidArgumentError("Invalid UiLength unit passed to MockViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+        }
+
 	}
 
     

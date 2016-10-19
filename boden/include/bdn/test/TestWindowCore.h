@@ -146,12 +146,29 @@ protected:
             }
         }
     
-        SECTION("calcMinimumSize")
+        SECTION("getMinimumSize")
         {
-            Size minSize = _pWindowCore->calcMinimumSize();
+            SECTION("plausible")
+            {
+                Size minSize = _pWindowCore->getMinimumSize();
 
-            REQUIRE( minSize.width>=0 );
-            REQUIRE( minSize.height>=0 );
+                REQUIRE( minSize.width>=0 );
+                REQUIRE( minSize.height>=0 );
+            }
+
+            SECTION("not affected by View::minSize()")
+            {
+                Size minSizeUnconstrained = _pWindowCore->getMinimumSize();
+
+                SECTION("smaller")
+                    _pWindow->minSize() = UiSize( minSizeUnconstrained-Size(1,1) );
+                SECTION("bigger")
+                    _pWindow->minSize() = UiSize( minSizeUnconstrained+Size(1,1) );
+
+                // View::minSize() should have no effect
+                Size minSize = _pWindowCore->getMinimumSize();
+                REQUIRE( minSize == minSizeUnconstrained );
+            }
         }
 
         SECTION("getScreenWorkArea")

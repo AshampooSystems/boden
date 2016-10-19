@@ -45,8 +45,12 @@ public:
 
 
 	/** Returns the minimum size of the window, so that all the essential window controls
-		are visible (close, maximize buttons, etc.)*/
-	virtual Size calcMinimumSize() const=0;
+		are visible (close, maximize buttons, etc.).
+        
+        The function should NOT include the size constraints from the outer window object in its
+        calculation (i.e. View::minSize() should be ignored );
+        */
+	virtual Size getMinimumSize() const=0;
     
 
 	/** Returns the area of the screen that can be used by windows.

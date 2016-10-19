@@ -148,7 +148,7 @@ Rect WindowCore::getContentArea()
 }
 
 
-Size WindowCore::calcMinimumSize() const
+Size WindowCore::getMinimumSize() const
 {
 	Size minSize;
 	

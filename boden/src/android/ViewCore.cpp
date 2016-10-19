@@ -14,17 +14,23 @@ namespace android
 
 double ViewCore::uiLengthToDips(const UiLength& uiLength) const
 {
-    if(uiLength.unit==UiLength::dip)
-		return uiLength.value;
+    switch( uiLength.unit )
+    {
+    case UiLength::Unit::none:
+        return 0;
 
-    else if(uiLength.unit==UiLength::em)
+    case UiLength::Unit::dip:
+        return uiLength.value;
+
+    case UiLength::Unit::em:
         return uiLength.value * getEmSizeDips();
 
-	else if(uiLength.unit==UiLength::sem)        
+    case UiLength::Unit::sem:
 		return uiLength.value * UiProvider::get().getSemDips(*const_cast<ViewCore*>(this);
 
-	else
+    default:
 		throw InvalidArgumentError("Invalid UiLength unit passed to ViewCore::uiLengthToDips: "+std::to_string((int)uiLength.unit) );
+    }
 }
 
    

@@ -176,9 +176,11 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
     // the core will round up here if any adjustments for the current display are needed.
 	Size preferredSize = pCore->calcWindowSizeFromContentAreaSize( contentAreaSize );
 
-	Size minSize = pCore->calcMinimumSize();
+    preferredSize = applySizeConstraints(preferredSize);
+
+	Size minSize = pCore->getMinimumSize();
 	preferredSize.width = std::max( minSize.width, preferredSize.width );
-	preferredSize.height = std::max( minSize.height, preferredSize.height );
+	preferredSize.height = std::max( minSize.height, preferredSize.height );    
 
 	return preferredSize;
 }

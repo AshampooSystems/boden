@@ -24,7 +24,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	SECTION("semMargin")
 	{
-		pButton->margin() = UiMargin(UiLength::Unit::sem, 1, 2, 3, 4);
+		pButton->margin() = UiMargin( UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) );
 
 		// 1 sem = 20 DIPs in our mock ui
 		buttonMargin = Margin(20, 40, 60, 80 );
@@ -32,7 +32,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	SECTION("dipMargin")
 	{
-		pButton->margin() = UiMargin(UiLength::Unit::dip, 1, 2, 3, 4);
+		pButton->margin() = UiMargin(1, 2, 3, 4);
 
 		buttonMargin = Margin(1, 2, 3, 4 );
 	}
@@ -302,10 +302,10 @@ TEST_CASE("Window", "[ui]")
             pChild->label() = "hello";
 
             SECTION("weird child margin")
-                pChild->margin() = UiMargin( UiLength::Unit::dip, 0.12345678 );
+                pChild->margin() = UiMargin( 0.12345678 );
 
             SECTION("weird window padding")
-                pWindow->padding() = UiMargin( UiLength::Unit::dip, 0.12345678 );
+                pWindow->padding() = UiMargin( 0.12345678 );
 
             pWindow->setContentView(pChild);
 

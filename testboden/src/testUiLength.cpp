@@ -25,10 +25,16 @@ TEST_CASE("UiLength")
 
         REQUIRE( a.isNone() );
 
-        a.unit = UiLength::dip;
+        a.unit = UiLength::Unit::dip;
         REQUIRE( ! a.isNone() );
 
-        a.unit = UiLength::none;
+        a.unit = UiLength::Unit::sem;
+        REQUIRE( ! a.isNone() );
+
+        a.unit = UiLength::Unit::em;
+        REQUIRE( ! a.isNone() );
+
+        a.unit = UiLength::Unit::none;
         REQUIRE( a.isNone() );
 
         // value should not matter.
@@ -43,22 +49,84 @@ TEST_CASE("UiLength")
         REQUIRE( a.isNone() );        
     }
 
-	SECTION("constructUnitValue")
+    SECTION("construct(double)")
 	{
-		UiLength a(UiLength::Unit::dip, 12.3456 );
+		UiLength a( 12.3456 );
 
 		REQUIRE( a.unit == UiLength::Unit::dip );
 		REQUIRE( a.value == 12.3456);
 	}
 
+    SECTION("construct(int)")
+	{
+		UiLength a( 12 );
+
+		REQUIRE( a.unit == UiLength::Unit::dip );
+		REQUIRE( a.value == 12);
+	}
+
+	SECTION("construct(value, unit)")
+	{
+		UiLength a(12.3456, UiLength::Unit::sem );
+
+		REQUIRE( a.unit == UiLength::Unit::sem );
+		REQUIRE( a.value == 12.3456);
+	}
+
+    SECTION("static construct helpers")
+    {
+        SECTION("none")
+        {
+            UiLength a = UiLength::none();
+
+            REQUIRE( a.unit == UiLength::Unit::none);
+            REQUIRE( a.value == 0);
+
+            REQUIRE( a.isNone() );
+        }
+
+        SECTION("dip")
+        {
+            UiLength a = UiLength::dip(1.234);
+
+            REQUIRE( a.unit == UiLength::Unit::dip);
+            REQUIRE( a.value == 1.234);
+
+            REQUIRE( !a.isNone() );
+        }
+
+        SECTION("sem")
+        {
+            UiLength a = UiLength::sem(1.234);
+
+            REQUIRE( a.unit == UiLength::Unit::sem);
+            REQUIRE( a.value == 1.234);
+
+            REQUIRE( !a.isNone() );
+        }
+
+        SECTION("em")
+        {
+            UiLength a = UiLength::em(1.234);
+
+            REQUIRE( a.unit == UiLength::Unit::em);
+            REQUIRE( a.value == 1.234);
+
+            REQUIRE( !a.isNone() );
+        }
+    }
+
 	SECTION("equality")
 	{
-		UiLength a(UiLength::Unit::dip, 12.3456 );
+		UiLength a(12.3456, UiLength::Unit::dip );
 		
 		checkEquality( UiLength(), UiLength(), true );
 		checkEquality( a, UiLength(), false );
-		checkEquality( a, UiLength(UiLength::Unit::dip, 12.3456), true );
-		checkEquality( a, UiLength(UiLength::Unit::dip, 17), false );
+		checkEquality( a, UiLength::dip(12.3456), true );
+		checkEquality( a, UiLength::dip(17), false );
+
+        checkEquality( a, UiLength::sem(12.3456), false );
+        checkEquality( a, UiLength::em(12.3456), false );
 	}
 
 }

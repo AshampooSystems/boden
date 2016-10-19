@@ -61,10 +61,7 @@ public:
 		to give the view a hint at what width it should start to automatically wrap its
 		text into multiple lines. It is usually best to set the height component of the
 		preferred size hint to -1.
-
-		It is recommended that you specify any size hint in UiLength::sem units, to ensure
-		that they scale properly in all circumstances and on all devices.
-		
+        		
 	Property<UiSize>& preferredSizeHint()
 	{		
         return _preferredSizeHint;

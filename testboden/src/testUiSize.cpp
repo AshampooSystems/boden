@@ -18,40 +18,57 @@ TEST_CASE("UiSize")
 
 	SECTION("constructUiLength")
 	{
-		UiSize a( UiLength(UiLength::Unit::dip, 1.1),
-					UiLength(UiLength::Unit::sem, 2.2) );
+		UiSize a( UiLength::em(1.1),
+					UiLength::sem(2.2) );
 			
-		REQUIRE( a.width == UiLength(UiLength::Unit::dip, 1.1));
-		REQUIRE( a.height == UiLength(UiLength::Unit::sem, 2.2));
+		REQUIRE( a.width == UiLength::em(1.1));
+		REQUIRE( a.height == UiLength::sem(2.2));
+	}
+
+    SECTION("constructDouble")
+	{
+		UiSize a( 1.1, 2.2 );
+			
+		REQUIRE( a.width == UiLength(1.1));
+		REQUIRE( a.height == UiLength(2.2));
+	}
+
+    SECTION("constructInt")
+	{
+		UiSize a( 1, 2 );
+			
+		REQUIRE( a.width == UiLength(1));
+		REQUIRE( a.height == UiLength(2));
 	}
 
     SECTION("constructSize")
 	{
 		UiSize a( Size(1.1, 2.2) );
 			
-		REQUIRE( a.width == UiLength(UiLength::Unit::dip, 1.1));
-		REQUIRE( a.height == UiLength(UiLength::Unit::dip, 2.2));
+		REQUIRE( a.width == UiLength(1.1));
+		REQUIRE( a.height == UiLength(2.2));
 	}
 
     SECTION("constructUnitWidthHeight")
 	{
-		UiSize a(UiLength::sem, 1.1, 2.2 );
+		UiSize a(UiLength::em(1.1), UiLength::sem(2.2) );
 			
-		REQUIRE( a.width == UiLength(UiLength::Unit::sem, 1.1));
-		REQUIRE( a.height == UiLength(UiLength::Unit::sem, 2.2));
+		REQUIRE( a.width == UiLength::em(1.1));
+		REQUIRE( a.height == UiLength::sem(2.2));
 	}
 
 	
 	SECTION("equality")
 	{
-		UiSize a( UiLength::Unit::dip, 1.1, 2.2 );
+		UiSize a( 1.1, 2.2 );
 		
 		checkEquality( UiSize(), UiSize(), true );
 		checkEquality( a, UiSize(), false );
-		checkEquality( a, UiSize(UiLength::Unit::dip, 1.1, 2.2 ), true );
-		checkEquality( a, UiSize(UiLength::Unit::dip, 10.1, 2.2), false );
-		checkEquality( a, UiSize(UiLength::Unit::dip, 1.1, 20.2 ), false );
-		checkEquality( a, UiSize(UiLength::Unit::sem, 1.1, 2.2 ), false );
+		checkEquality( a, UiSize(1.1, 2.2 ), true );
+		checkEquality( a, UiSize(10.1, 2.2), false );
+		checkEquality( a, UiSize(1.1, 20.2 ), false );
+		checkEquality( a, UiSize( UiLength::sem(1.1), 2.2 ), false );
+        checkEquality( a, UiSize( 1.1, UiLength::sem(2.2)), false );
 	}
 
 }

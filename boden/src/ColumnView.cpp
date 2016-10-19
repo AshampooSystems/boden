@@ -171,8 +171,13 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 	}
 
 	currY += myPadding.bottom;
+
+    Size prefSize( usefulWidth, currY );
+
+    // apply our own size constraints (minSize, maxSize)
+    prefSize = applySizeConstraints(prefSize);
     
-    return Size( usefulWidth, currY );
+    return prefSize;
 }
 
 void ColumnView::layout()

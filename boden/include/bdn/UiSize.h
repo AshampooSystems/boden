@@ -22,14 +22,8 @@ public:
 	}
         
     UiSize(const Size& size)
-		: width(UiLength::dip, size.width)
-		, height(UiLength::dip, size.height)
-	{		
-	}
-
-	UiSize(UiLength::Unit unit, double width, double height)
-		: width(unit, width)
-		, height(unit, height)
+		: width(size.width)
+		, height(size.height)
 	{		
 	}
 

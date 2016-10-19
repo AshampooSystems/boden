@@ -49,7 +49,8 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
     {
         // we should use the "default" padding. On win32 there is no real system-defined
         // default, so we choose one that looks good for most buttons:
-        uiPadding = UiMargin(UiLength::sem, 0.12, 0.5);
+        uiPadding = UiMargin( UiLength::sem(0.12),
+                              UiLength::sem( 0.5) );
     }
     else
         uiPadding = pad;
@@ -66,7 +67,7 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
 	prefSize.height += 2 * 2;
 
     if(pButton!=nullptr)
-        prefSize = applyConstraintsToPreferredSize( prefSize );
+        prefSize = pButton->applySizeConstraints( prefSize );
 
 	return prefSize;
 }
