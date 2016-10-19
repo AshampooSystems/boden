@@ -151,7 +151,7 @@ endif()
 add_definitions( -DUNICODE -D_UNICODE )
 
 if( "${BODEN_TARGET}" STREQUAL "webems" )
-	add_definitions( -DBDN_PLATFORM_WEB )
+	add_definitions( -DBDN_PLATFORM_WEBEMS )
 
 	# the C++ standard library provided by Emscripten has a bug in codecvt.
 	# In encodes the data in UTF-8, but when multi-byte sequences are generated

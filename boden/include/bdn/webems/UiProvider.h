@@ -45,6 +45,12 @@ public:
     static UiProvider& get();
 
 
+    double getSemSizeDips() const
+    {
+        return _semDips;
+    }
+
+
 private:
     double _semDips;
 

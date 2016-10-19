@@ -296,7 +296,13 @@ public:
         width = std::ceil(width);
         height = std::ceil(height);
 
-        return Size( width, height );
+        Size prefSize(width, height );
+
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            prefSize = pView->applySizeConstraints(prefSize);
+
+        return prefSize;
     }
     
     
@@ -340,6 +346,35 @@ public:
     
 protected:
 
+
+
+    double getEmSizeDips() const
+    {
+        if(_emDipsIfInitialized==-1)
+        {
+            emscripten::val styleObj = _domObject["style"];
+            emscripten::val fontObj = styleObj["font"];
+
+            double size = fontObj["size"].as<double>();
+
+            // the computed font size we get from the DOM is in CSS pixels (i.e. DIPs).
+            // So no conversion necessary.
+
+            _emDipsIfInitialized = size;
+        }
+        
+        return _emDipsIfInitialized;
+    }
+    
+    
+    double getSemSizeDips() const
+    {
+        if(_semDipsIfInitialized==-1)
+            _semDipsIfInitialized = UiProvider::get().getSemSizeDips();
+        
+        return _semDipsIfInitialized;
+    }
+
     
 
     void _addToParent(View* pParent)
@@ -364,6 +399,9 @@ protected:
     String              _elementId;
     
     emscripten::val     _domObject;
+
+    mutable double      _emDipsIfInitialized;
+    mutable double      _semDipsIfInitialized;
 };
 
 }

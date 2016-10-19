@@ -169,10 +169,15 @@ protected:
 
             s.imbue( std::locale::classic() );
 
-            s << expectedDipPadding.top << "px "
-                << expectedDipPadding.right << "px "
-                << expectedDipPadding.bottom << "px "
-                << expectedDipPadding.left << "px";
+            int top = (int)std::ceil(expectedDipPadding.top);
+            int right = (int)std::ceil(expectedDipPadding.right);
+            int bottom = (int)std::ceil(expectedDipPadding.bottom);
+            int left = (int)std::ceil(expectedDipPadding.left);
+
+            if(top==right==bottom==left)
+                s << top << "px";
+            else
+                s << top << "px " << right << "px " << bottom << "px " << left << "px";
 
             String expectedPadString = s.str();
 
