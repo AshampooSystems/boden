@@ -1,0 +1,57 @@
+#!/bin/sh
+
+if [ -z "$1" ]
+then
+	PLATFORM="linux"
+else
+	PLATFORM="$1"
+fi
+
+
+
+if [ -z "$2" ]
+then
+	BUILD_SYSTEM="make"
+else
+	BUILD_SYSTEM="$2"
+fi
+
+
+
+python build.py prepare --platform "$PLATFORM" --build-system "$BUILD_SYSTEM" && exit 2
+
+python build.py build --platform "$PLATFORM"  && exit 3
+
+if [ ! -d reports ]
+then
+	mkdir reports
+fi
+
+REPORT_DIR="`pwd`/reports"
+
+echo "Running tests: testboden Debug"
+OUTFILE=$REPORT_DIR/testboden_debug.xml
+rm -f "$OUTFILE"
+python build.py --platform $PLATFORM --config Debug --module testboden -- run --reporter junit -o "$OUTFILE"
+
+echo "Running tests: testboden Release"
+OUTFILE=$REPORT_DIR/testboden_release.xml
+rm -f "$OUTFILE"
+python build.py --platform $PLATFORM --config Release --module testboden -- run --reporter junit -o "$OUTFILE"
+
+
+echo "Running tests: testbodenui debug"
+OUTFILE=$REPORT_DIR/testbodenui_debug.xml
+rm -f "$OUTFILE"
+python build.py --platform $PLATFORM --config Debug --module testbodenui -- run --reporter junit -o "$OUTFILE"
+
+echo "Running tests: testbodenui Release"
+OUTFILE=$REPORT_DIR/testbodenui_release.xml
+rm -f "$OUTFILE"
+python build.py --platform $PLATFORM --config Release --module testbodenui -- run --reporter junit -o "$OUTFILE"
+
+
+
+
+
+

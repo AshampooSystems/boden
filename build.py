@@ -1076,6 +1076,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     # we do not validate the toolset name
     commandLine = "cmake";
+    #commandLine = "cmake --debug-output";
     for a in args:
         commandLine += ' "%s"' % (a);
 
@@ -1089,6 +1090,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     exitCode = subprocess.call(commandLine, cwd=cmakeBuildDir, shell=True);
     if exitCode!=0:
+        #subprocess.call("cat /boden/build/linux/Debug/CMakeFiles/CMakeOutput.log", shell=True);
         raise ToolFailedError("cmake", exitCode);
 
 
@@ -1259,6 +1261,7 @@ def commandBuild(args):
 
 def commandClean(args):
     commandBuildOrClean("clean", args);
+
 
 
 def commandRun(args):

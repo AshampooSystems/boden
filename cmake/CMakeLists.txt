@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0011 NEW)
 
-if(${CMAKE_VERSION} VERSION_GREATER 3.0)
+if(${CMAKE_VERSION} VERSION_GREATER 3.1)
 	cmake_policy(SET CMP0054 NEW)
 endif()
 
@@ -178,10 +178,10 @@ set( DEPENDENCIES_INCDIR ${WEBDRIVERXX_INCDIR} ${CURL_INCDIR} )
 if( BODEN_TARGET STREQUAL "linux")
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-	
+
 	include_directories(${GTK3_INCLUDE_DIRS})
 	link_directories(${GTK3_LIBRARY_DIRS})
-	
+
 	# Add other flags to the compiler
 	add_definitions(${GTK3_CFLAGS_OTHER})
 
@@ -320,7 +320,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif()
 
 target_link_libraries(testboden boden)
-
 
 if( BODEN_TARGET STREQUAL "win32")
     target_link_libraries(testboden Shcore)
@@ -542,7 +541,5 @@ endif()
 if( BODEN_TARGET STREQUAL "android")
 	target_link_libraries(uidemo "${ANDROID_LIBS}")
 endif()
-
-
 
 
