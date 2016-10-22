@@ -18,9 +18,9 @@ fi
 
 
 
-python build.py prepare --platform "$PLATFORM" --build-system "$BUILD_SYSTEM" && exit 2
+python build.py prepare --platform "$PLATFORM" --build-system "$BUILD_SYSTEM" || exit 2
 
-python build.py build --platform "$PLATFORM"  && exit 3
+python build.py build --platform "$PLATFORM"  || exit 3
 
 if [ ! -d reports ]
 then
