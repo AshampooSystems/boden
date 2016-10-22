@@ -6498,9 +6498,10 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 	virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {}
 
 	virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
-		assert( !m_sectionStack.empty() );
-		SectionNode& sectionNode = *m_sectionStack.back();
-		sectionNode.assertions.push_back( assertionStats );
+		// assertions are always attached to the deepest section. It is ok
+		// to have assertions after the section has exited.
+		assert( m_deepestSection!=nullptr );
+		m_deepestSection->assertions.push_back( assertionStats );
 		return true;
 	}
 	virtual void sectionEnded( SectionStats const& sectionStats ) BDN_OVERRIDE {
