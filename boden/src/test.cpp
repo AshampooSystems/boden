@@ -8167,6 +8167,9 @@ protected:
 
 				_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
 
+				delete _pTestRunner;
+				_pTestRunner = nullptr;
+
 				waitAndClose(exitCode);
 			}
         }
@@ -8177,6 +8180,9 @@ protected:
 			_pWindow->title() = "Fatal Error";
 
             int exitCode = (std::numeric_limits<int>::max)();
+
+			delete _pTestRunner;
+			_pTestRunner = nullptr;
 
             // we want to exit
 			waitAndClose(exitCode);
