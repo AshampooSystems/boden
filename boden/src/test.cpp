@@ -6531,6 +6531,8 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 		node->children.swap( m_testGroups );
 		m_testRuns.push_back( node );
 		testRunEndedCumulative();
+
+		stream.flush();
 	}
 	virtual void testRunEndedCumulative() = 0;
 
