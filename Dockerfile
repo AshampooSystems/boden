@@ -11,11 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # add a non-root user that we run as
 RUN adduser --disabled-password --gecos '' normusr
 
-USER normusr
-
 ADD . boden/
 
+RUN chown -R normusr boden
+
 WORKDIR boden
+
+USER normusr
+
 
 
 CMD xvfb-run ./prepareBuildTest linux make
