@@ -6,11 +6,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     xauth \
     libgtk-3-dev \
-    firefox
+    iceweasel
+
+# add a non-root user that we run as
+RUN adduser --disabled-password --gecos '' normusr
+
+USER normusr
 
 ADD . boden/
 
 WORKDIR boden
+
 
 CMD xvfb-run ./prepareBuildTest linux make
 

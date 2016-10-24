@@ -1346,7 +1346,7 @@ def commandRun(args):
 
                 emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
-                browserName = "chrome";                
+                browserOption = ""; # use default browser by default
 
                 if sys.platform=="win32":
                     commandLine = '"%s" activate latest && ' % emsdkExePath;
@@ -1364,9 +1364,7 @@ def commandRun(args):
                         commandLine = '/bin/bash -c "' + commandLine.replace('"', '\\"');
 
                     if sys.platform=="darwin":
-                        browserName = "safari";
-                    else:
-                        browserName = "firefox"
+                        browserOption = "--browser safari";
 
 
                 # find a free port number
@@ -1384,7 +1382,7 @@ def commandRun(args):
                 # "checked in". However, since we have huge JS files, it may well be that the
                 # browser takes longer to download and initialize them. So we disable the warning.
 
-                actualCommand = "emrun --no_emrun_detect --port %d --browser %s %s" % (portNum, browserName, moduleFilePath);
+                actualCommand = "emrun --no_emrun_detect --port %d %s %s" % (portNum, browserOption, moduleFilePath);
 
                 if commandIsInQuote:
                 	commandLine += actualCommand.replace('"', '\\"');
