@@ -2848,7 +2848,7 @@ public:
         _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
 
         if(m_printLevel>=1)
-            std::cout << "Test case: "+getCurrentTestName() << std::endl;
+            std::cerr << "Test case: "+getCurrentTestName() << std::endl;
 
 		_testDoneCallback = doneCallback;
 

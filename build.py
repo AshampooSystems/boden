@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+from __future__ import print_function
+
 import sys;
 import subprocess;
 import os.path;
@@ -8,6 +10,7 @@ import json;
 import argparse;
 import traceback;
 import time;
+
 
 EXIT_PROGRAM_ARGUMENT_ERROR = 1;
 EXIT_CMAKE_PROBLEM = 10;
@@ -147,7 +150,7 @@ def changePython2ToPython(dirPath):
                             f.seek(0);
                             f.write(replacementPrefix);
 
-                            print("Updated %s" % itemPath);
+                            print("Updated %s" % itemPath, file=sys.stderr);
 
                         f.close();
 
@@ -374,7 +377,7 @@ def commandPrepare(commandArgs):
         if buildSystem and oldBuildSystem and buildSystem!=oldBuildSystem:
 
             # user wants to switch toolset. We must delete the platform build dir.
-            print("Build system does not match the one used when the projects for this platform were first prepared. Cleaning existing build files.");
+            print("Build system does not match the one used when the projects for this platform were first prepared. Cleaning existing build files.", file=sys.stderr);
 
             shutil.rmtree(platformBuildDir);
             oldBuildSystem = "";
@@ -427,7 +430,7 @@ def commandPrepare(commandArgs):
                 msg += " and config %s " % config;
             msg += " (build system: '%s')..." %  buildSystem;
 
-            print(msg);
+            print(msg, file=sys.stderr);
 
             prepareFunc = prepareCmake;
             if platform=="android":
@@ -895,6 +898,8 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
     args = [];
 
     generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);
+
+    commandIsInQuote = False;
     
     if platform.startswith("win"):
 
@@ -964,7 +969,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
         if not os.path.isdir(emsdkDir):
-            print("Setting up Emscripten SDK. This can take a while...")
+            print("Setting up Emscripten SDK. This can take a while...", file=sys.stderr);
 
             try:
                 emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
@@ -1008,12 +1013,25 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
                 raise;
 
-            print("Emscripten was successfully set up.");
+            print("Emscripten was successfully set up.", file=sys.stderr);
 
         if sys.platform=="win32":
             envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
         else:
-            envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+
+        	envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+
+        	if sys.platform=="linux2":
+	        	# if we just call subprocess with "shell=True" then python
+	        	# will use /bin/sh as the shell. And on ubuntu what you get
+	        	# then is an intentionally restricted shell that does not
+	        	# support any of the bash commands (even though it is most
+	        	# likely bash). emsdk_env.sh requires bash, so we have to
+	        	# explicitly execute bash to get this.
+	        	commandIsInQuote = True;
+	        	envSetupPrefix = '/bin/bash -c "' + envSetupPrefix.replace('"', '\\"');
+
+            
 
 
         # the emscripten scrips call python2. However, python is not available
@@ -1025,7 +1043,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
             havePython2 = False;
 
         if not havePython2:
-            print("Python2 executable is named just 'python'. Changing references...")
+            print("Python2 executable is named just 'python'. Changing references...", file=sys.stderr);
             
             # change python2 references to python
             changePython2ToPython(emsdkDir);
@@ -1045,11 +1063,11 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         gccVer = getGCCVersion();
         clangVer = getClangVersion();
 
-        print("Detected GCC version %s" % (repr(gccVer)) );
-        print("Detected Clang version %s" % (repr(clangVer)) );
+        print("Detected GCC version %s" % (repr(gccVer)) , file=sys.stderr);
+        print("Detected Clang version %s" % (repr(clangVer)) , file=sys.stderr);
 
         if gccVer is not None and gccVer[0]==4 and clangVer is not None:
-            print("Forcing use of clang instead of GCC because of bugs in this GCC version.");
+            print("Forcing use of clang instead of GCC because of bugs in this GCC version.", file=sys.stderr);
             envSetupPrefix = "env CC=/usr/bin/clang CXX=/usr/bin/clang++ ";
 
 
@@ -1062,7 +1080,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     if toolChainFilePath:
         if not os.path.isfile(toolChainFilePath):
-            print("Required CMake toolchain file not found: "+toolChainFilePath);
+            print("Required CMake toolchain file not found: "+toolChainFilePath, file=sys.stderr);
             return 5;
 
         args.extend( ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath] );
@@ -1080,13 +1098,16 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
     for a in args:
         commandLine += ' "%s"' % (a);
 
-    commandLine = envSetupPrefix+commandLine;
+    if commandIsInQuote:
+        commandLine = envSetupPrefix + commandLine.replace('"', '\\"').replace("&&", "\\&\\&") + '"'
+    else:
+        commandLine = envSetupPrefix+commandLine;
 
     if not os.path.isdir(cmakeBuildDir):
         os.makedirs(cmakeBuildDir);
 
 
-    print("## Calling CMake:\n  "+commandLine+"\n");
+    print("## Calling CMake:\n  "+commandLine+"\n", file=sys.stderr);
 
     exitCode = subprocess.call(commandLine, cwd=cmakeBuildDir, shell=True);
     if exitCode!=0:
@@ -1110,13 +1131,13 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
                 modified = False;
                 if "<CallingConvention />" not in data and "</ClCompile>" in data:
 
-                    print("Modifying %s (adding required empty CallingConvention entry)..." % name);
+                    print("Modifying %s (adding required empty CallingConvention entry)..." % name, file=sys.stderr);
                     data = data.replace("</ClCompile>", "  <CallingConvention />\n    </ClCompile>");                            
 
                     modified = True;
 
                 if "<CLRSupport>" not in data and "<UseOfMfc>" in data:
-                    print("Modifying %s (adding CLRSupport entry)..." % name);
+                    print("Modifying %s (adding CLRSupport entry)..." % name, file=sys.stderr);
                     data = data.replace("<UseOfMfc>", "<CLRSupport>Pure</CLRSupport>\n    <UseOfMfc>");                            
 
                     modifed = True;
@@ -1146,7 +1167,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
                 modified = False;
                 if "<ProjectPriFullPath>$(TargetDir)resources.pri</ProjectPriFullPath>" in data:
-                    print("Modifying %s (fixing ProjectPriFullPath entry)..." % name);
+                    print("Modifying %s (fixing ProjectPriFullPath entry)..." % name, file=sys.stderr);
                     data = data.replace("<ProjectPriFullPath>$(TargetDir)resources.pri</ProjectPriFullPath>", "<ProjectPriFullPath>%s.dir\\resources.pri</ProjectPriFullPath>" % title);                            
                     modified = True;
 
@@ -1243,11 +1264,11 @@ def commandBuildOrClean(command, args):
                 commandLine += " --config "+config;
 
             if config:
-                print("Calling cmake --build for config %s" % config);
+                print("Calling cmake --build for config %s" % config, file=sys.stderr);
             else:
-                print("Calling cmake --build for all configs");
+                print("Calling cmake --build for all configs", file=sys.stderr);
 
-            print(commandLine);
+            print(commandLine, file=sys.stderr);
 
             exitCode = subprocess.call(commandLine, shell=True, cwd=cmakeBuildDir);
             if exitCode!=0:
@@ -1284,6 +1305,8 @@ def commandRun(args):
 
         platformState = loadState(platformBuildDir);
         singleConfigBuildSystem = platformState.get("singleConfigBuildSystem", False);
+
+        commandIsInQuote = False;
 
         if not args.config:
             configList = ["Debug", "Release"];
@@ -1323,22 +1346,67 @@ def commandRun(args):
 
                 emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
+                browserName = "chrome";                
+
                 if sys.platform=="win32":
                     commandLine = '"%s" activate latest && ' % emsdkExePath;
                 else:
                     commandLine = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
 
-                commandLine += "emrun --browser safari "+moduleFilePath;
+                    if sys.platform=="linux2":
+                        # if we just call subprocess with "shell=True" then python
+                        # will use /bin/sh as the shell. And on ubuntu what you get
+                        # then is an intentionally restricted shell that does not
+                        # support any of the bash commands (even though it is most
+                        # likely bash). emsdk_env.sh requires bash, so we have to
+                        # explicitly execute bash to get this.
+                        commandIsInQuote = True;
+                        commandLine = '/bin/bash -c "' + commandLine.replace('"', '\\"');
+
+                    if sys.platform=="darwin":
+                        browserName = "safari";
+                    else:
+                        browserName = "firefox"
+
+
+                # find a free port number
+                import socket;                
+                sock = socket.socket();
+                try:
+                    sock.bind(('', 0))
+                    portNum = sock.getsockname()[1];
+                finally:
+                    sock.close();
+
+                # note that we pass the --no_emrun_detect flag. This disables the warning
+                # message that the files were not built with --emrun. The warning is generated
+                # by a timed check after 10 seconds, which verifies that the JS code has
+                # "checked in". However, since we have huge JS files, it may well be that the
+                # browser takes longer to download and initialize them. So we disable the warning.
+
+                actualCommand = "emrun --no_emrun_detect --port %d --browser %s %s" % (portNum, browserName, moduleFilePath);
+
+                if commandIsInQuote:
+                	commandLine += actualCommand.replace('"', '\\"');
+                else:
+                	commandLine += actualCommand;
                 
             if commandLine is None:
                 commandLine = moduleFilePath;
 
             for p in args.params:                
-                commandLine += ' "%s"' % (p);
+                argPart = ' "%s"' % (p);
+                if commandIsInQuote:                    
+                    commandLine += argPart.replace('"', '\\"');
+                else:
+                    commandLine += argPart;
 
-            print("Calling executable of module %s:" % args.module);
+            print("Calling executable of module %s:" % args.module, file=sys.stderr);
 
-            print(commandLine);
+            if commandIsInQuote:
+                commandLine += '"'
+
+            print(commandLine, file=sys.stderr);
 
             exitCode = subprocess.call(commandLine, shell=True, cwd=outputDir);
             if exitCode!=0:
@@ -1571,13 +1639,13 @@ class MyArgParser(argparse.ArgumentParser):
 
 
     def print_help(self):
-        print(getUsage());
+        print(getUsage(), file=sys.stderr);
 
 
 
 def main():
 
-    print("");    
+    print("", file=sys.stderr);
 
 
 
@@ -1627,13 +1695,13 @@ def main():
         return 0;
 
     except ProgramArgumentError as e:
-        print( "\n"+str(e)+"\n" );        
-        print('Call with --help to get help information.');
+        print( "\n"+str(e)+"\n" , file=sys.stderr);
+        print('Call with --help to get help information.', file=sys.stderr);
 
         return e.exitCode;
 
     except ErrorWithExitCode as e:
-        print( "\n"+str(e)+"\n" );
+        print( "\n"+str(e)+"\n" , file=sys.stderr);
         return e.exitCode;
 
 

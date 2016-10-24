@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$1" ]
 then
@@ -22,36 +22,36 @@ python build.py prepare --platform "$PLATFORM" --build-system "$BUILD_SYSTEM" ||
 
 python build.py build --platform "$PLATFORM"  || exit 3
 
-if [ ! -d reports ]
-then
-	mkdir reports
-fi
 
 REPORT_DIR="`pwd`/reports"
+if [ ! -d $REPORT_DIR ]
+then
+    mkdir $REPORT_DIR
+fi
 
-echo "Running tests: testboden Debug"
-OUTFILE=$REPORT_DIR/testboden_debug.xml
+
+function runTestExe {
+echo "Running tests: $1 $2"
+
+OUTFILE=$REPORT_DIR/${1}_${PLATFORM}_${2}.xml
 rm -f "$OUTFILE"
-python build.py --platform $PLATFORM --config Debug --module testboden -- run --reporter junit -o "$OUTFILE"
+if [ "$PLATFORM" = "webems" ]
+then
+    # the javascript code does not have access to the filesystem.
+    # So we have to use stdout (which gets piped through to us with
+    # emrun magic).
+    python build.py --platform $PLATFORM --config $2 --module $1 -- run --reporter junit > "$OUTFILE"
 
-echo "Running tests: testboden Release"
-OUTFILE=$REPORT_DIR/testboden_release.xml
-rm -f "$OUTFILE"
-python build.py --platform $PLATFORM --config Release --module testboden -- run --reporter junit -o "$OUTFILE"
+else
+    # use the -o parameter if we have filesystem access
+    python build.py --platform $PLATFORM --config Debug --module testboden -- run --reporter junit -o "$OUTFILE"
+fi
+}
 
-
-echo "Running tests: testbodenui debug"
-OUTFILE=$REPORT_DIR/testbodenui_debug.xml
-rm -f "$OUTFILE"
-python build.py --platform $PLATFORM --config Debug --module testbodenui -- run --reporter junit -o "$OUTFILE"
-
-echo "Running tests: testbodenui Release"
-OUTFILE=$REPORT_DIR/testbodenui_release.xml
-rm -f "$OUTFILE"
-python build.py --platform $PLATFORM --config Release --module testbodenui -- run --reporter junit -o "$OUTFILE"
-
-
-
+runTestExe testboden Debug
+runTestExe testboden Release
+runTestExe testbodenui Debug
+runTestExe testbodenui Release
 
 
 

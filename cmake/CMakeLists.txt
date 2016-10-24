@@ -163,8 +163,10 @@ if( "${BODEN_TARGET}" STREQUAL "webems" )
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0 -s DEMANGLE_SUPPORT=1")
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -s ASSERTIONS=2")
 
-	
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --emrun --bind")
+	# for some reason it has no effect if we set the generic CMAKE_EXE_LINKER_FLAGS
+	# on linux. We must set the debug/release versions
+	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind")
+	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind")
 
 endif()
 
