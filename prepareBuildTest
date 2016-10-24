@@ -44,7 +44,7 @@ then
 
 else
     # use the -o parameter if we have filesystem access
-    python build.py --platform $PLATFORM --config Debug --module testboden -- run --reporter junit -o "$OUTFILE"
+    python build.py --platform $PLATFORM --config $2 --module $1 -- run --reporter junit -o "$OUTFILE"
 fi
 }
 
