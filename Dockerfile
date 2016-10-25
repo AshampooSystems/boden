@@ -8,18 +8,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgtk-3-dev \
     iceweasel
 
-# add a non-root user that we run as
-RUN adduser --disabled-password --gecos '' normusr 
-
 ADD . boden/
 
-RUN chown -R normusr boden
-
 WORKDIR boden
-
-USER normusr
-
-
 
 CMD xvfb-run ./prepareBuildTest linux make
 
