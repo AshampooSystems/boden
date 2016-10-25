@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iceweasel
 
 # add a non-root user that we run as
-RUN adduser --create-home --defaults normusr 
+RUN adduser --disabled-password --gecos '' normusr 
 
 ADD . boden/
 
