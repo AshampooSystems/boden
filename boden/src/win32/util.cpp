@@ -34,6 +34,27 @@ std::vector<String> parseWin32CommandLine(const String& commandLine)
 }
 
 
+AppLaunchInfo makeAppLaunchInfo(int showCommand)
+{
+	// we ignore the commandline arguments we get from the main function.
+	// There are problems with the unicode-encoding with those (e.g. if the code page
+	// cannot represent the actual parameters). So we always get the command line
+	// from GetCommandLine, which handles Unicode properly
+	std::vector<String> args = bdn::win32::parseWin32CommandLine( ::GetCommandLineW() );		
+		
+	if(args.empty())
+		args.push_back("");	// always add the first entry.		
+
+	AppLaunchInfo launchInfo;
+	launchInfo.setArguments(args);
+
+	launchInfo.setWindowsShowCommand(showCommand);
+
+	return launchInfo;
+}
+
+
+
 }
 }
 

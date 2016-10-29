@@ -43,8 +43,6 @@ void _mainInit()
 
 	// the older function would be ::SetProcessDPIAware()
 #endif
-
-
 }
 
 std::vector<String> _askForCommandlineParameters()

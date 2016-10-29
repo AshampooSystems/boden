@@ -2,6 +2,7 @@
 #define BDN_WIN32_util_H_
 
 #include <bdn/Rect.h>
+#include <bdn/AppLaunchInfo.h>
 
 #include <Windows.h>
 
@@ -85,6 +86,12 @@ inline Rect win32RectToRect(const RECT& rect, double scaleFactor)
 	will be the executable name that was included in the commandline.	
 	*/
 std::vector<String> parseWin32CommandLine(const String& commandline);
+
+
+/** Creates an AppLaunchInfo object for the app. The commandline arguments
+	are obtained directly from the operating system and do not need to be passed.
+	*/
+AppLaunchInfo makeAppLaunchInfo(int showCommand = SW_SHOWNORMAL);
 
 
 }

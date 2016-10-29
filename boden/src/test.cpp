@@ -8029,7 +8029,7 @@ int runTestSession( int argc, char const* const argv[] )
 	return bdn::Session().run( argc, argv );
 }
 
-class TestAppWithUiController::Impl
+class TestAppController::Impl
 {
 public:
 	Impl()
@@ -8127,6 +8127,10 @@ public:
 		_pWindow = nullptr;
 	}
 
+	void mainLoopIteration()
+	{
+	}
+
 protected:
 
 	void scheduleNextTest()
@@ -8200,30 +8204,41 @@ protected:
 };
 
 
-TestAppWithUiController::TestAppWithUiController()
+TestAppController::TestAppController()
 {
 	_pImpl = new Impl;
 }
 
-TestAppWithUiController::~TestAppWithUiController()
+TestAppController::~TestAppController()
 {
 	delete _pImpl;
 }
 
 
-void TestAppWithUiController::beginLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->init( launchInfo.getArguments() );
 }
 
-void TestAppWithUiController::finishLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->start();
 }
 
-void TestAppWithUiController::onTerminate()
+void TestAppController::onTerminate()
 {
 	_pImpl->deinit();
+}
+
+
+bool TestAppController::usesMainLoop() const
+{
+	return true;
+}
+
+void TestAppController::mainLoopIteration()
+{
+	_pImpl->mainLoopIteration();
 }
 
 }
