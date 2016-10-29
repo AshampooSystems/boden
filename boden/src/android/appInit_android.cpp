@@ -71,7 +71,7 @@ public:
     {
         // tell the app controller to stop. If the user has implemented graceful stopping
         // in a custom app controller then this will call it.
-        AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
+        getAppRunner()->initiateExitIfPossible(0);
     }
 
 private:

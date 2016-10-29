@@ -2,7 +2,7 @@
 #include <bdn/appInit.h>
 
 
-BDN_INIT_UI_TEST_APP();
+BDN_TEST_APP_INIT();
 
 
 

@@ -2,8 +2,6 @@
 #define BDN_appInit_H_
 
 #include <bdn/AppControllerBase.h>
-#include <bdn/TestAppController.h>
-
 
 #ifdef BDN_COMPILING_COMMANDLINE_APP
 	#define BDN_APP_RUNNER_CLASS_NAME_ CommandLineAppRunner
@@ -24,7 +22,7 @@
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int main(int argc, char* argv[]) \
 			{ \
-				P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
+				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
 				return pAppRunner->entry(); \
 			}
 
@@ -33,7 +31,7 @@
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
-				P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, showCommand ); \
+				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, showCommand ); \
 				return pAppRunner->entry(); \
 			}
 
@@ -47,7 +45,7 @@
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
-			P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+			bdn::P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
 			return pAppRunner->entry(); \
 		}
 
@@ -63,7 +61,7 @@
 		{ \
 			BDN_JNI_BEGIN( pEnv ); \
 			{ \
-				P< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = newObj< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+				bdn::P< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
 				pAppRunner->entry(); \
 			} \
 			BDN_JNI_END; \
@@ -108,7 +106,7 @@
     #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int main(int argc, char* argv[]) \
 		{ \
-			P< BDN_APPRUNNER_ > pAppRunner = newObj< BDN_APPRUNNER_ >( appControllerCreator, argc, argv ); \
+			bdn::P< BDN_APPRUNNER_ > pAppRunner = bdn::newObj< BDN_APPRUNNER_ >( appControllerCreator, argc, argv ); \
 			return pAppRunner->entry(); \
 		}
 
@@ -148,7 +146,7 @@
     \endcode
  
  */
-#define BDN_APP_INIT(appControllerClass) BDN_APP_INIT_WITH_CONTROLLER_CREATOR( (( [](){ newObj<appControllerClass>() } )) )
+#define BDN_APP_INIT(appControllerClass) BDN_APP_INIT_WITH_CONTROLLER_CREATOR( (( [](){ return bdn::newObj<appControllerClass>(); } )) )
 
 
 
@@ -159,7 +157,13 @@
 	This replaces the normal BDN_APP_INIT() statement that you use for normal apps.
 
 	*/
-#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::TestAppController )
+#if BDN_COMPILING_COMMANDLINE_APP
+	#include <bdn/CommandLineTestAppController.h>
+	#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::CommandLineTestAppController )
+#else
+	#include <bdn/UiTestAppController.h>
+	#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::UiTestAppController )
+#endif
 
 
 #endif

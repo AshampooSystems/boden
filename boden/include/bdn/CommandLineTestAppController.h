@@ -1,29 +1,27 @@
-#ifndef BDN_TestAppController_H_
-#define BDN_TestAppController_H_
+#ifndef BDN_CommandLineTestAppController_H_
+#define BDN_CommandLineTestAppController_H_
 
 #include <bdn/AppControllerBase.h>
 
 namespace bdn
 {
 
-/** Default app controller implementation for a boden test app.
+/** Default app controller implementation for a commandline boden test app.
+	See UiTestAppController for a similar implementation for UI apps.
 
 	Usually you do not need to use this directly. Use the macro #BDN_TEST_APP_INIT() instead.
 */
-class TestAppController : public AppControllerBase
+class CommandLineTestAppController : public AppControllerBase
 {
 public:
-	TestAppController();
-	~TestAppController();
+	CommandLineTestAppController();
+	~CommandLineTestAppController();
 
 	void beginLaunch(const AppLaunchInfo& launchInfo) override;
 	void finishLaunch(const AppLaunchInfo& launchInfo) override;
 
 	void onTerminate() override;
-
-	bool usesMainLoop() const override;
-	void mainLoopIteration() override;
-
+	
 protected:
 
 	class Impl;

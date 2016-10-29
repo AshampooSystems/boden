@@ -37,7 +37,10 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/TestAppWithUiController.h>
+#include <bdn/IAppRunner.h>
+#include <bdn/AppControllerBase.h>
+#include <bdn/UiTestAppController.h>
+#include <bdn/CommandLineTestAppController.h>
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
 #include <bdn/TextView.h>
@@ -8029,14 +8032,16 @@ int runTestSession( int argc, char const* const argv[] )
 	return bdn::Session().run( argc, argv );
 }
 
-class TestAppController::Impl
+
+class TestAppControllerImplBase
 {
 public:
-	Impl()
+	TestAppControllerImplBase()
 	{
 		_pTestSession = nullptr;
         _pTestRunner = nullptr;
 	}
+
 
 
 	void init(std::vector<String> args)
@@ -8056,24 +8061,8 @@ public:
 
             _pTestSession = new bdn::Session;
 
-			// this is just a place holder frame so that we have something visible.
-            _pWindow = newObj<Window>();
-			_pWindow->title() = "Running tests...";
-            _pWindow->visible() = true;
-
-            _pWindow->padding() = UiMargin( UiLength::sem(1) );
-            
-            P<ColumnView> pColumnView = newObj<ColumnView>();            
-            
-            P<TextView> pStatusView = newObj<TextView>();
-
-            // we want to see at least 3 lines in our status view
-            pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
-
-            pColumnView->addChildView( pStatusView );
-            
-            _pWindow->setContentView( pColumnView );
-
+			initUi();
+			
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
@@ -8082,36 +8071,31 @@ public:
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.
-				_pWindow->title() = "Invalid commandline";
-                pStatusView->text() = "Invalid commandline";
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+				abortingBecauseOfInvalidCommandLineArguments();
+				getAppRunner()->initiateExitIfPossible(exitCode);
                 return;
             }
 
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
-				_pWindow->title() = "Done";
-                pStatusView->text() = "Done";
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
+				abortingBecauseJustShowingHelp();
+				getAppRunner()->initiateExitIfPossible(exitCode);
 				return;
             }
 
             _pTestRunner = new TestRunner( &_pTestSession->config() );
             
-            pStatusView->text().bind( _pTestRunner->statusText() );
-            
-            _pWindow->requestAutoSize();
-            _pWindow->requestCenter();
+			testRunnerReady();
         }
-        catch( std::exception& ex )
+        catch( std::exception& e )
         {
-            bdn::cerr() << ex.what() << std::endl;
+			abortingBecauseOfException(e);
 
             int exitCode = (std::numeric_limits<int>::max)();
 
             // we want to exit
-            AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
+            getAppRunner()->initiateExitIfPossible(exitCode);
         }
 
 	}
@@ -8124,18 +8108,43 @@ public:
 
 	void deinit()
 	{
-		_pWindow = nullptr;
+		deinitUi();
 	}
 
-	void mainLoopIteration()
+
+protected:
+	
+	virtual void initUi()
 	{
 	}
 
-protected:
+	virtual void deinitUi()
+	{
+	}
+
+	virtual void testRunnerReady()
+	{
+	}
+
+	virtual void abortingBecauseOfInvalidCommandLineArguments()
+	{
+	}
+
+	virtual void abortingBecauseJustShowingHelp()
+	{
+	}
+
+	virtual void abortingBecauseOfException(const std::exception& e)
+	{
+	}
+
+	virtual void finished(int failedCount)
+	{
+	}
 
 	void scheduleNextTest()
 	{
-		asyncCallFromMainThread( std::bind(&Impl::runNextTest, this) );
+		asyncCallFromMainThread( std::bind(&TestAppControllerImplBase::runNextTest, this) );
 	}
 
 	void waitAndClose(int exitCode)
@@ -8145,7 +8154,7 @@ protected:
 			{
 				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
 
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+				getAppRunner()->initiateExitIfPossible(exitCode);
 			} );
 	}
 
@@ -8158,7 +8167,7 @@ protected:
     {
         try
         {
-            if(_pTestRunner->beginNextTest( std::bind(&Impl::onTestDone, this) ) )
+            if(_pTestRunner->beginNextTest( std::bind(&TestAppControllerImplBase::onTestDone, this) ) )
             {
 				// this was not the last test.
 
@@ -8171,7 +8180,7 @@ protected:
 
 				int exitCode = failedCount;
 
-				_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
+				finished(failedCount);
 
 				delete _pTestRunner;
 				_pTestRunner = nullptr;
@@ -8179,12 +8188,10 @@ protected:
 				waitAndClose(exitCode);
 			}
         }
-        catch( std::exception& ex )
+        catch( std::exception& e )
         {
-            bdn::cerr() << ex.what() << std::endl;
-
-			_pWindow->title() = "Fatal Error";
-
+			abortingBecauseOfException(e);
+			
             int exitCode = (std::numeric_limits<int>::max)();
 
 			delete _pTestRunner;
@@ -8199,47 +8206,155 @@ protected:
 protected:
 	Session*    _pTestSession;
     TestRunner* _pTestRunner;
-
-	P<Window>	_pWindow;
 };
 
 
-TestAppController::TestAppController()
+class UiTestAppController::Impl : public TestAppControllerImplBase
+{
+public:
+
+
+protected:
+	
+	void initUi() override
+	{
+		// this is just a place holder frame so that we have something visible.
+		_pWindow = newObj<Window>();
+		_pWindow->title() = "Running tests...";
+		_pWindow->visible() = true;
+
+		_pWindow->padding() = UiMargin( UiLength::sem(1) );
+            
+		P<ColumnView> pColumnView = newObj<ColumnView>();            
+            
+		_pStatusView = newObj<TextView>();
+
+		// we want to see at least 3 lines in our status view
+		_pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
+
+		pColumnView->addChildView( _pStatusView );
+	            
+		_pWindow->setContentView( pColumnView );
+	}
+
+	void deinitUi()  override
+	{
+		_pStatusView = nullptr;
+		_pWindow = nullptr;
+	}
+
+	void testRunnerReady() override
+	{
+		_pStatusView->text().bind( _pTestRunner->statusText() );
+            
+        _pWindow->requestAutoSize();
+        _pWindow->requestCenter();
+	}
+
+	void abortingBecauseOfInvalidCommandLineArguments()  override
+	{
+		_pWindow->title() = "Invalid commandline";
+		_pStatusView->text() = "Invalid commandline";
+	}
+
+	void abortingBecauseJustShowingHelp()  override
+	{
+		_pWindow->title() = "Done";
+		_pStatusView->text() = "Done";
+	}
+
+	void abortingBecauseOfException(const std::exception& e)  override
+	{
+		_pWindow->title() = "Fatal Error";
+
+		_pStatusView->text() = "Fatal Error: " + String(e.what());
+	}
+
+	void finished(int failedCount)  override
+	{
+		_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
+	}
+		
+	P<Window>	_pWindow;
+	P<TextView>	_pStatusView;
+};
+
+
+UiTestAppController::UiTestAppController()
 {
 	_pImpl = new Impl;
 }
 
-TestAppController::~TestAppController()
+UiTestAppController::~UiTestAppController()
 {
 	delete _pImpl;
 }
 
 
-void TestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
+void UiTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->init( launchInfo.getArguments() );
 }
 
-void TestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
+void UiTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->start();
 }
 
-void TestAppController::onTerminate()
+void UiTestAppController::onTerminate()
 {
 	_pImpl->deinit();
 }
 
 
-bool TestAppController::usesMainLoop() const
+
+
+class CommandLineTestAppController::Impl : public TestAppControllerImplBase
 {
-	return true;
+public:
+
+
+protected:
+	
+	void abortingBecauseOfInvalidCommandLineArguments()  override
+	{
+		bdn::cerr() << "Invalid commandline" << std::endl;
+	}
+
+	void abortingBecauseOfException(const std::exception& e)  override
+	{
+		bdn::cerr() << ("Fatal Error: " + String(e.what()) ).asUtf8() << std::endl;
+	}			
+};
+
+
+CommandLineTestAppController::CommandLineTestAppController()
+{
+	_pImpl = new Impl;
 }
 
-void TestAppController::mainLoopIteration()
+CommandLineTestAppController::~CommandLineTestAppController()
 {
-	_pImpl->mainLoopIteration();
+	delete _pImpl;
 }
+
+
+void CommandLineTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
+{
+	_pImpl->init( launchInfo.getArguments() );
+}
+
+void CommandLineTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
+{
+	_pImpl->start();
+}
+
+void CommandLineTestAppController::onTerminate()
+{
+	_pImpl->deinit();
+}
+
+
 
 }
 

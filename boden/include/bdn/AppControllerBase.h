@@ -68,63 +68,6 @@ public:
     
     
 
-	/** Returns true if this app needs a tight main loop, where loop iterations are called as 
-		quickly as possible. This is needed by some kinds of games, for example.
-
-		If this function returns true then the mainLoopIteration() will be called in a loop as quickly as
-		possible.
-
-		The default implementation returns false.
-
-		*/
-	virtual bool usesMainLoop()
-	{
-		return false;
-	}
-
-
-	/** If the app needs a tight main loop, where loop iterations are called as 
-		quickly as possible, then this method should be overridden together with usesMainLoop().
-
-		Keep it short!
-		--------------
-
-		mainLoopIteration should implement a single iteration of the "main loop" that runs at the core
-		of the app. **Each iteration should short**. A good rule of thumb is that mainLoopIteration should
-		return in less than a second and optimally in less than 100ms. Otherwise the app may become unresponsive to
-		certain user actions and may even be terminated by the operating system.
-
-		Housekeeping
-		------------
-
-		Note that user interface events and other housekeeping are automatically handled by the Boden framework
-		between mainLoopIteration calls. So the mainLoopIteration method only needs to do the app-specific work
-		and does not need to concern itself with general housekeeping.
-
-		When to use
-		-----------
-
-		It should be noted that a tight main loop is actually only needed in rare cases. High performance games that
-		want to run with as high a framerate as possible are one example. However, even for games there are many
-		cases in which it is actually better to run a timer with a fixed interval and perform your work there. So you should
-		consider your options before using a main loop.
-
-		When it is called
-		-----------------
-		
-		Note that mainLoopIteration() is ONLY called if usesMainLoop() returns true. So you need to override both
-		methods if your app needs a main loop.
-		
-		\return a boolean that indicates wether or not the loop should continue or not. If mainLoopIteration returns
-			false then the app will try to end itself (if that is supported by the platform - see closeAtNextOpportunityIfPossible())
-			and mainLoopIteration will not be called anymore.
-		*/
-	virtual bool mainLoopIteration()
-	{
-		return false;
-	}
-
-
     
     /** The app has become active and ready for the user to interact with it.
      
@@ -233,21 +176,6 @@ public:
      
     
 
-	/** Causes the app to close at the next opportunity, if that is possible.
-	
-		Note that some platforms do not allow apps to exit on their own. For example,
-		iOS apps must never close themselves. They can only be closed by the user.
-
-		Also, even if the platform supports exiting, it might be possible for
-		some other component of the app to veto the exit request and prevent the exit.
-
-		So you should always consider the possibility that the exit might not actually happen.
-		If your app has nothing relevant to do anymore then you should consider
-		simply displaying a message to the user to indicate that fact.
-	*/
-	virtual void closeAtNextOpportunityIfPossible(int exitCode)=0;
-    
-    
     /** Returns the global app controller instance.*/
     static P<AppControllerBase> get()
     {

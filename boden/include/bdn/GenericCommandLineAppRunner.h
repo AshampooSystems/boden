@@ -67,12 +67,18 @@ protected:
 
 	void mainLoopImpl() override
 	{
+		// commandline apps have no user interface events to handle. So our main loop
+		// only needs to handle our own scheduled events.
+
+		
 		P<AppControllerBase> pAppController = AppControllerBase::get();
 
 		if(pAppController->usesMainLoop())
 		{
 			// just run the app controller iterations until we need to close.
 			while( !shouldExit() )
+			{
+				_pDispatcher->
 				pAppController->mainLoopIteration();
 		}
 		else
