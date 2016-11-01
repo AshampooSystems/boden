@@ -95,10 +95,7 @@ public:
 		loop.
 
 		The app controller can throttle down the call freqeuency of the high performance loop with the return value of highPerformanceLoopIteration().
-		The return value is the number of seconds that the next call of highPerformanceLoopIteration() should be delayed. It is perfectly ok (and even
-		common) to return 0, which causes highPerformanceLoopIteration to be called as quickly as possible. However, when the app is in a mode where it
-		does not need the high performance loop for some time, or if the call frequency is so high that the app cannot utilize it then returning
-		a value >0 can be used to prevent the app from busy-looping with nothing to do.
+		See below for more information.
 		
 		The way the loop function is integrated with other scheduled work depends on the implementation of the app scheduler.
 		However, the scheduler guarantees that other pending work (including user interface events and work scheduled with the dispatcher)
@@ -115,10 +112,18 @@ public:
 		- When the app does not need the highPerformanceLoopIteration for a while, use the return value to cause calls to happen less frequently.		  
 
 
-		\return the number of seconds that the next call of highPerformanceLoopIteration should be delayed. It is ok to return 0 here
-			to have calls happen as quickly as possible. Note that the return value a double, so you can return fractional values
-			like 0.1 etc. to wait for less than a second.		
-		*/		
+		\return The return value can be used to throttle the call frequency of highPerformanceLoopIteration().
+		
+			If it <=0 then highPerformanceLoopIteration will be called as quickly as possible. Note that there are some platforms
+			where "as quickly as possible" might be quite slow. For example, on the webems (web app) platform many browsers do not allow
+			more than 100 or so iterations per second, even if the computer is very fast.
+			
+			If the return value is > 0 then the return value is the number of seconds that the next call of highPerformanceLoopIteration() should be delayed.
+			Note that the return value a double, so you can return fractional values like 0.1 etc. to wait for less than a second.	
+			As described above, this is intended to slow down in cases when the app does not need all the available speed - i.e. it is intended
+			for temporary slow downs. Do not use this to emulate a timer with a fixed call frequency per second - use IDispatcher::createTimer
+			for those cases.
+		*/
 	double highPerformanceLoopIteration();
 
 

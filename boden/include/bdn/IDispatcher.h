@@ -65,19 +65,14 @@ public:
 		The specified timer function must return a bool. If it is true then the timer continues and the
 		function will be called again. If it returns false then the timer is destroyed.
 
-		The optional priority parameter indicates the priority of the timer. Timer priorities are
-		handled the same way as the priority of enqueue(). It behaves as if the function was enqueued
-		with this priority after the interval has elapsed.
-
 		Note that if there is already a call for this timer pending and the interval elapses again
-		then the second call is simply skipped. In other words: if the timer is held up by higher
-		priority work then there will be only one event waiting in the queue and you will not get
+		then the second call is not enqueued. In other words: if the timer is held up by higher
+		priority work then there will be at most one event waiting in the queue and you will not get
 		a quick succession of calls when the queue empties.
 		*/
 	void createTimer(
 		double intervalSeconds,
-		std::function< bool() > func,
-		Priority priority = Priority::normal );
+		std::function< bool() > func );
 
 	
 
