@@ -78,7 +78,7 @@ public:
 
 		The default implementation returns false.
 		*/
-	bool usingHighPerformanceLoop() const
+	virtual bool usingHighPerformanceLoop() const
 	{
 		return false;
 	}
@@ -124,7 +124,10 @@ public:
 			for temporary slow downs. Do not use this to emulate a timer with a fixed call frequency per second - use IDispatcher::createTimer
 			for those cases.
 		*/
-	double highPerformanceLoopIteration();
+	virtual double highPerformanceLoopIteration()
+    {
+        return 0;
+    }
 
 
     

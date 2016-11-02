@@ -51,7 +51,7 @@ void AppRunnerBase::runMainLoop()
 {
 	try
 	{
-		mainLoopImpl();
+		mainLoop();
 	}
 	catch( std::exception& e )
 	{

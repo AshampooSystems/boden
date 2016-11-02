@@ -2,6 +2,7 @@
 #define BDN_GenericCommandLineAppRunner_H_
 
 #include <bdn/AppRunnerBase.h>
+#include <bdn/GenericDispatcher.h>
 
 namespace bdn
 {
@@ -12,7 +13,7 @@ namespace bdn
 class GenericCommandLineAppRunner : public AppRunnerBase
 {
 private:
-	AppLaunchInfo _makeLaunchInfo(int argCount, const char** args)
+	AppLaunchInfo _makeLaunchInfo(int argCount, char* args[] )
 	{
 		AppLaunchInfo launchInfo;
 
@@ -25,14 +26,16 @@ private:
 	}
 
 public:
-	GenericCommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, const char** args)
-		: GenericCommandLineAppRunner( appControllerCreator, _makeLaunchInfo(argCount, args) )
+	GenericCommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[] )
+		: AppRunnerBase( appControllerCreator, _makeLaunchInfo(argCount, args) )
 	{
+        _pDispatcher = newObj<GenericDispatcher>();
 	}
 
 	GenericCommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, const AppLaunchInfo& launchInfo)
-		: GenericCommandLineAppRunner( appControllerCreator, launchInfo )
+		: AppRunnerBase( appControllerCreator, launchInfo )
 	{
+        _pDispatcher = newObj<GenericDispatcher>();
 	}
 
 	void initiateExitIfPossible(int exitCode) override
@@ -65,36 +68,87 @@ protected:
 		return _exitRequested;
 	}
 
-	void mainLoopImpl() override
+	void mainLoop() override
 	{
 		// commandline apps have no user interface events to handle. So our main loop
 		// only needs to handle our own scheduled events.
-
-		
+        		
 		P<AppControllerBase> pAppController = AppControllerBase::get();
 
-		if(pAppController->usesMainLoop())
+		if( ! pAppController->usingHighPerformanceLoop() )
 		{
-			// just run the app controller iterations until we need to close.
-			while( !shouldExit() )
-			{
-				_pDispatcher->
-				pAppController->mainLoopIteration();
-		}
-		else
+            // if the high performance loop is not used then we treat this the
+            // same as if it is suspended. We simply never schedule it to wake up
+            _highPerformanceLoopSuspended = true;
+        }
+
+		// just run the app controller iterations until we need to close.
+            
+		while( !shouldExit() )
 		{
-			// a commandline controller without a main loop. The app probably
-			// does everything it needs to do in beginLaunch and finishLaunch.
-			// So do nothing here.
-		}
+            // We want to handle all pending dispatcher work items that are ready
+            // at this point in time, but not any newly scheduled that
+            // might be added during the processing of the ones that are ready.
+            // Doing it this way is important because it ensures that the high performance
+            // loop will not be starved if there is always something new added to the queue.
+
+            // However, work item priorities make this a little difficult. We cannot
+            // simply take the set of items that are currently ready and then execute them.
+            // If a higher priority item is added during the execution of the initial batch
+            // then that MUST be executed before the remaining items in the initial batch.
+            // However, we to execute more work that is added during the initial batch
+            // to ensure that the high performance loop is not starved.
+            
+            // We solve this by determining the NUMBER of items that are currently ready
+            // to be executed. Then we execute exactly that number of items.
+            // If a higher priority item is added during the operation then it will be executed
+            // with the correct ordering and a lower priority item will be pushed out of the execution
+            // set.
+
+            int readyCount = _pDispatcher->getReadyCount();
+            for(int i=0; i<readyCount; i++)
+            {
+                if(!_pDispatcher->executeNext())
+                    break;
+            }
+
+            if(_highPerformanceLoopSuspended)
+            {
+                // just wait for the next work item. Note that the main loop
+                // being unsuspended is also a work item, so we will automatically
+                // wake up for that.
+                if(readyCount==0)
+                    _pDispatcher->waitForNext( 10 );
+            }
+            else
+            {
+				double suspendSeconds = pAppController->highPerformanceLoopIteration();
+                if(suspendSeconds>0)
+                {
+                    // suspend the main loop. Then add an item to the dispatcher
+                    // to unsuspend it.
+                    _highPerformanceLoopSuspended = true;
+                    _pDispatcher->enqueueInSeconds(
+                        suspendSeconds,
+                        [this]()
+                        {
+                            _highPerformanceLoopSuspended = false;
+                        } );
+                }
+            }
+        }
 	}
 
 	
 
 	mutable Mutex _exitMutex;
 
+    P<GenericDispatcher> _pDispatcher;
+
 	bool _exitRequested = false;
 	int	 _exitCode = 0;
+
+    bool _highPerformanceLoopSuspended = false;
 };
   		
 

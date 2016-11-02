@@ -2,17 +2,26 @@
 #define BDN_GenericDispatcher_H_
 
 #include <bdn/IDispatcher.h>
+#include <bdn/Signal.h>
 
 #include <chrono>
+#include <functional>
 
 namespace bdn
 {
 
+/** A generic dispatcher implementation for cases when there is no platform-specific
+    work queue.
 
+    This can also be used if an independent dispatcher is needed in a secondary work thread.
+
+    */
 class GenericDispatcher : public Base, BDN_IMPLEMENTS IDispatcher
 {
 public:
-	GenericDispatcher();
+	GenericDispatcher()
+    {
+    }
 
 
 	void enqueue( std::function<void()> func, Priority priority = Priority::normal ) override
@@ -20,6 +29,8 @@ public:
 		MutexLock lock(_mutex);
 
 		getQueue(priority).push_back(func);
+
+        _somethingChangedSignal.set();
 	}
 
 	void enqueueInSeconds(double seconds, std::function<void()> func, Priority priority = Priority::normal ) override
@@ -27,8 +38,8 @@ public:
 		if(seconds<=0)
 			enqueue(func, priority);
 		else
-			enqueueTimedItem(
-				Clock::now() + makeDuration(seconds) ,
+			addTimedItem(
+				Clock::now() + secondsToDuration(seconds) ,
 				func,
 				priority );
 		
@@ -39,155 +50,74 @@ public:
 		std::function< bool() > func ) override
 	{
 		if(intervalSeconds<=0)
-			throw InvalidArgumentError("GenericDispatcher::createTimer must be called with intervalSeconds > 0")
+			throw InvalidArgumentError("GenericDispatcher::createTimer must be called with intervalSeconds > 0");
 		else
 		{
-			Duration	interval = makeDuration(intervalSeconds);
-
-			TimePoint	nextEventTime = Clock::now() + interval;
-
-			P<Timer> pTimer = newObj<Timer>(nextEventTime, func, interval);
+			Duration	interval = secondsToDuration(intervalSeconds);
+            
+			P<Timer> pTimer = newObj<Timer>(this, func, interval);
 
 			pTimer->scheduleNextEvent();
 		}
 	}
 
 
-	bool handleNext()
-	{
-		// go through the queues in priority order and handle one item
-		std::function< void() > func;
-		if( getNextReady(func, true) )
-		{
-			try
-			{
-				func();
-			}
-			catch(std::exception& e)
-			{
-				// log and ignore
-				logError(e, "Exception while executing GenericDispatcher item. Ignoring.")
-			}
-			catch(...)
-			{
-				logError("Exception of unknown type while executing GenericDispatcher item. Ignoring.")
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	bool waitForNext(double timeoutSeconds)
-	{
-		while(true)
-		{
-			std::function< void() > func;
-
-			if(getNextReady(func, false))
-			{
-				// we have items pending that are ready to be executed.
-				return true;
-			}
-			else if(timeoutSeconds<=0)
-			{
-				// no items ready and the caller does not want us to wait.
-				// So, return false.
-				return false;
-			}
-			else
-			{
-				// get an absolute timeout time.
-				TimePoint timeoutTime = Clock::now() + makeDuration(timeoutSeconds);
-
-				// we have no items currently pending. See when the next timed item is due.
-				if( _timedItemMap.empty() )
-				{
-					// no timed items. So we wait until the timeout expires, or until a new
-					// item is added.
-					if( _newItemAddedSignal.wait(timeoutSeconds) )
-					{
-						// a new item was added. Start again from the beginning.
-					}
-				}
-				if()
+    /** Executes the next work item. Returns true if one was executed,
+        false when there are currently no items ready to be executed.*/
+	bool executeNext();
 
 
-		else
-	}
-		TimePoint nextTime;
+    /** Returns the number of work items that are currently ready to be executed.
+    */
+	int getReadyCount();
 
-		for( int priorityIndex=3; priorityIndex>=0; priorityIndex--)
-		{
-			std::list< std::function< void() > >& queue = _queues[priorityIndex];
+    
 
-			if(!queue.empty())
-			{
-				// we have one available
+    /** Waits until at least one work item is ready to be executed.
+    
+        timeoutSeconds is the number of seconds to wait at most.
+
+        \return true if a work item is ready, false if the timeout has elapsed.*/
+	bool waitForNext(double timeoutSeconds);
 
 
-
-	}
-
-protected:
-
-	bool getNextReady(std::function< void() >& func, bool remove)
-	{	
-		enqueueTimedItemsIfTimeReached();
-
-		// go through the queues in priority order and handle one item
-		for( int priorityIndex=3; priorityIndex>=0; priorityIndex--)
-		{
-			std::list< std::function< void() > >& queue = _queues[priorityIndex];
-
-			if(!queue.empty())
-			{
-				func = queue.front();
-				if(remove)
-					queue.pop_front();
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-				try
-				{
-					func();
-				}
-				catch(std::exception& e)
-				{
-					// log and ignore
-					logError(e, "Exception while executing GenericDispatcher item. Ignoring.")
-				}
-				catch(...)
-				{
-					logError("Exception of unknown type while executing GenericDispatcher item. Ignoring.")
-				}
-
-				return true;
-			}
-		}
-
+private:
+	bool getNextReady(std::function< void() >& func, bool remove);
 
 	typedef std::chrono::steady_clock	Clock;
 	typedef Clock::time_point			TimePoint;
 	typedef Clock::duration				Duration;
 
-	Duration makeDuration(double seconds)
+	Duration secondsToDuration(double seconds)
 	{
-		return std::chrono::microseconds( seconds * 1000000.0 );
+		return std::chrono::microseconds( (int64_t)(seconds * 1000000.0) );
 	}
 
+    double durationToSeconds(const Duration& dur)
+    {
+        int64_t  micros = std::chrono::duration_cast<std::chrono::microseconds>( dur ).count();
+        double seconds = micros / 1000000.0;
+
+        return seconds;
+    }
+
+
+    int priorityToQueueIndex(Priority priority) const
+    {
+        switch(priority)
+        {
+        case Priority::idle:    return 0;
+        case Priority::low:     return 1;
+        case Priority::normal:  return 2;
+        case Priority::high:    return 3;
+        }
+
+        throw InvalidArgumentError("Invalid dispatcher item priority: "+std::to_string((int)priority) );
+    }
 
 	std::list< std::function< void() > >& getQueue(Priority priority)
 	{
-		int queueIndex = (priority/100)+2;
-		if(queueIndex<0 || queueIndex>3)
-
-		return _queues[queueIndex];
+		return _queues[ priorityToQueueIndex(priority) ];
 	}
 
 
@@ -208,10 +138,11 @@ protected:
 		TimedItemKey key(scheduledTime , _timedItemCounter );
 		_timedItemCounter++;
 
-		TimedItemValue& val = _timedItemMap[ key ];
-		val.func = func;
-		val.priority = priority;
-		val.interval = interval;
+		TimedItem& item = _timedItemMap[ key ];
+		item.func = func;
+		item.priority = priority;
+
+        _somethingChangedSignal.set();
 	}
 
 	void enqueueTimedItemsIfTimeReached()
@@ -223,8 +154,8 @@ protected:
 			while(true)
 			{
 				auto it = _timedItemMap.begin();
-				TimedItemKey&	key( it->first );
-				TimedItemValue& val( it->second );
+				const TimedItemKey&	key( it->first );
+				const TimedItem&    val( it->second );
 
 				auto& scheduledTime = std::get<0>(key);
 
@@ -241,56 +172,14 @@ protected:
 		}
 	}
 
-	TimePoint calcNextTimerEventTime( TimePoint lastEventTime, Duration interval)
-	{
-		TimePoint now = Clock::now();
-		TimePoint nextEventTime = lastEventTime + interval;		
-		if(nextEventTime < now)
-		{
-			// the next scheduled time has already elapsed.
-			// Find the next one after "now"
 
-			auto diffDuration = now - nextEventTime;
-
-			auto diffIntervals = diffDuration / interval;
-
-			// schedule one more than the elapsed intervals
-			nextEventTime = nextEventTime + (diffIntervals+1)*val.interval;
-		}
-
-		return nextEventTime;
-	}
-
-
-	void scheduleTimerEvent( TimePoint nextEventTime, Duration interval, std::function< bool() > func )
-	{
-		enqueueTimedItem(
-				nextEventTime,
-				[this, nextEventTime, interval, func]()
-				{
-					// if func returns false then the timer should be destroyed (i.e.
-					// no additional event should be scheduled).
-					if( func() )
-					{
-						// timer remains in effect. Reschedule it.
-						scheduleTimerEvent(
-							calcNextTimerEventTime(nextEventTime, interval),
-							interval,
-							func );
-					}
-				}
-		);
-	}
-
-
-private:
 
 	class Timer : public Base
 	{
 	public:
 		Timer( GenericDispatcher* pDispatcherWeak, std::function< bool() > func, Duration interval)
 		{
-			_pDispatcherWeak = pDispatcher;
+			_pDispatcherWeak = pDispatcherWeak;
 
 			_nextEventTime = Clock::now() + interval;
 			_func = func;
@@ -314,7 +203,7 @@ private:
 				_pTimer = pTimer;
 			}
 
-			void operator()
+			void operator ()()
 			{
 				_pTimer->onEvent();
 			}
@@ -350,37 +239,38 @@ private:
 
 				auto diffDuration = now - _nextEventTime;
 
-				auto diffIntervals = diffDuration / interval;
+				auto diffIntervals = diffDuration / _interval;
 
 				// schedule one more than the elapsed intervals
-				_nextEventTime += (diffIntervals+1)*val.interval;
+				_nextEventTime += (diffIntervals+1)*_interval;
 			}
 		}
+
+        GenericDispatcher*      _pDispatcherWeak;
 		
 		TimePoint				_nextEventTime;
 		std::function< bool() > _func;
-		dynamic_cast			_interval;
+		Duration			    _interval;
 	};
 	friend class Timer;
-
-	std::list< std::function< void() > > _queues[4];
 
 	typedef std::tuple< TimePoint, int64_t > TimedItemKey;
 
 	struct TimedItem
 	{
-		TimedItem()
-			: interval(0)
-			, priority( Priority::nomal );
-		{
-		}
-
 		std::function< void() > func;
-		Priority				priority;
+		Priority				priority = Priority::normal;
 	};
+
+    
+    Mutex                                _mutex;
+
+    std::list< std::function< void() > > _queues[4];
 
 	std::map<  TimedItemKey, TimedItem > _timedItemMap;
 	int64_t								 _timedItemCounter = 0;
+
+    Signal                               _somethingChangedSignal;
 };
 
 }

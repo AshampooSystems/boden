@@ -41,18 +41,18 @@ public:
 	
 	
 	/** Returns the app's launch information.*/
-	const AppLaunchInfo& getLaunchInfo() const
+	const AppLaunchInfo& getLaunchInfo() const override
 	{
 		return _launchInfo;
 	}
 
 protected:
 
-	/** Calls mainLoopImpl(). Automatically handles exceptions and notifies the app controller
+	/** Executes mainLoop(). Automatically handles exceptions and notifies the app controller
 		when the loop ends.
 		
 		You usually do not need to override this if you want to provide a main loop implementation.
-		Instead you should override mainLoopImpl().
+		Instead you should override mainLoop().
 		*/
 	virtual void runMainLoop();
 
@@ -64,10 +64,10 @@ protected:
 		It is ok for this to let exceptions through - they will be handled by the
 		function that calls this.
 
-		mainLoopImpl also does NOT have to notify the app controller when the app exits
+		mainLoop also does NOT have to notify the app controller when the app exits
 		- that is also done by the function that calls this.	
 	*/
-	virtual void mainLoopImpl()=0;
+	virtual void mainLoop()=0;
 
 
 	void setLaunchInfo(const AppLaunchInfo& launchInfo)

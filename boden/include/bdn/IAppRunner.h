@@ -2,6 +2,7 @@
 #define BDN_IAppRunner_H_
 
 #include <bdn/AppLaunchInfo.h>
+#include <bdn/IDispatcher.h>
 
 #include <vector>
 #include <map>
@@ -19,21 +20,6 @@ namespace bdn
 class IAppRunner : BDN_IMPLEMENTS IBase
 {
 public:
-
-
-	/** Returns true if the app is a commandline app.
-
-		For most desktop platforms being a "commandline app" means that the app is either
-		run in a text-mode commandline windo (Terminal), or is executed as a subprocess
-		by another app.
-		
-		Some platforms do not have a concept of a commandline app (like iOS or android).
-		In these cases the commandline environment is emulated by the app runner, so that the
-		app itself can work the same as on other platforms.	
-
-		*/
-	virtual bool isCommandLineApp()=0;
-
 	
 	/** Causes the app to close gracefully close at the next opportunity, if that is possible.
 	
@@ -52,7 +38,13 @@ public:
 
 	
 	/** Returns the app's launch information.*/
-	virtual const AppLaunchInfo& getLaunchInfo()=0;
+	virtual const AppLaunchInfo& getLaunchInfo() const=0;
+
+
+
+    /** Returns the main dispatcher that is responsible handling app events
+        and scheduling of work items.*/
+    virtual P<IDispatcher> getMainDispatcher()=0;
 
 };
 

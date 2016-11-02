@@ -5,6 +5,7 @@
 
 #include <bdn/win32/util.h>
 #include <bdn/win32/GlobalMessageWindow.h>
+#include <bdn/win32/MessageDispatcher.h>
 
 #include <windows.h>
 
@@ -16,6 +17,12 @@ namespace bdn
 namespace win32
 {
 
+
+UiAppRunner::UiAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int showCommand)
+		: AppRunnerBase(appControllerCreator, makeAppLaunchInfo(showCommand) )
+{
+    _pMainDispatcher = newObj<MessageDispatcher>();
+}
 
 void UiAppRunner::platformSpecificInit()
 {
@@ -41,11 +48,18 @@ void UiAppRunner::initiateExitIfPossible(int exitCode)
 }
 	
 
-void UiAppRunner::mainLoopImpl()
+void UiAppRunner::mainLoop()
 {
     MSG msg;
     while(true)
     {
+
+        XXX handle high priority items
+
+        handle normal messages
+
+        handle idle messages
+
         // find out if there are any messages left in the queue.
         // If so then we call GetMessage as normal to process them.
         // If not then we execute our idle handlers.

@@ -14,23 +14,27 @@ namespace win32
 class UiAppRunner : public AppRunnerBase
 {
 public:
-	UiAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int showCommand)
-		: AppRunnerBase(appControllerCreator, makeAppLaunchInfo(showCommand) )
-	{
-	}
+	UiAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int showCommand);
 
 
 	int entry();
 
 	void initiateExitIfPossible(int exitCode) override;
+
+    P<IDispatcher> getMainDispatcher() override
+    {
+        return _pMainDispatcher;
+    }
+
 	
 protected:
 	void platformSpecificInit() override;
 
-	void mainLoopImpl() override;
-
-
+	void mainLoop() override;
+    
 	int _exitCode = 0;
+
+    P<IDispatcher> pMainDispatcher;
 };
   		
 

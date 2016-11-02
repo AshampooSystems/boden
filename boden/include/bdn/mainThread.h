@@ -1,8 +1,9 @@
-#ifndef BDN_Dispatcher_H_
-#define BDN_Dispatcher_H_
+#ifndef BDN_mainThread_H_
+#define BDN_mainThread_H_
 
 #include <bdn/ISimpleCallable.h>
 #include <bdn/Thread.h>
+#include <bdn/IDispatcher.h>
 
 #include <future>
 
@@ -12,9 +13,38 @@ namespace bdn
 class CallFromMainThreadBase_ : public Base, BDN_IMPLEMENTS ISimpleCallable
 {
 public:
-	void dispatchCall();
-    void dispatchCallWithDelaySeconds(double seconds);
-    void dispatchCallWhenIdle();
+	void dispatchCall()
+    {
+        getMainDispatcher()->enqueue( Caller(this) );
+    }
+
+    void dispatchCallWithDelaySeconds(double seconds)
+    {
+        getMainDispatcher()->enqueueInSeconds( seconds, Caller(this) );
+    }
+
+    void dispatchCallWhenIdle()
+    {
+        getMainDispatcher()->enqueue( Caller(this), IDispatcher::Priority::idle );
+    }
+
+private:
+    class Caller
+    {
+    public:
+        Caller(CallFromMainThreadBase_* pCallable)
+        {
+            _pCallable = pCallable;
+        }
+
+        void operator()()
+        {
+            _pCallable->call();
+        }
+
+    private:
+        P<CallFromMainThreadBase_> _pCallable;
+    };
 };
 
 template <class FuncType, class... Args>
@@ -31,7 +61,7 @@ public:
 		return _packagedTask.get_future();
 	}
 
-	virtual void call() override
+	void call() override
 	{
 		_packagedTask();
 	}

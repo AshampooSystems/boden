@@ -167,7 +167,7 @@ protected:
 };
 
 
-class AppController : public UiAppControllerBase
+class AppController : public AppControllerBase
 {
 public:
    
@@ -187,7 +187,7 @@ protected:
 };
 
 
-BDN_INIT_UI_APP( AppController )
+BDN_APP_INIT( AppController )
 
 
 

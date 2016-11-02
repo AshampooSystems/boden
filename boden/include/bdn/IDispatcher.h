@@ -11,6 +11,9 @@ namespace bdn
 
 	They are often used to schedule something to be executed by a certain thread
 	or at certain times.
+
+    The default dispatcher instance of the app can be obtained with getMainDispatcher().
+
 	*/
 class IDispatcher : BDN_IMPLEMENTS IBase
 {
@@ -70,13 +73,16 @@ public:
 		priority work then there will be at most one event waiting in the queue and you will not get
 		a quick succession of calls when the queue empties.
 		*/
-	void createTimer(
+	virtual void createTimer(
 		double intervalSeconds,
-		std::function< bool() > func );
-
-	
-
+		std::function< bool() > func )=0;
 };
+
+
+/** Returns the main dispatcher of the app.
+    This is the same as the one returned by getAppRunner() -> getMainDispatcher().*/
+P<IDispatcher> getMainDispatcher();
+
 
 }
 

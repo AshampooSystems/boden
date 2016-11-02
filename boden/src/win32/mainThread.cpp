@@ -6,7 +6,7 @@
 namespace bdn
 {
 	
-
+    /*
 void CallFromMainThreadBase_::dispatchCall()
 {
 	win32::GlobalMessageWindow::get().postCall(this);
@@ -40,6 +40,6 @@ void CallFromMainThreadBase_::dispatchCallWithDelaySeconds(double seconds)
             } );
     }    
 }
-
+*/
 }
 

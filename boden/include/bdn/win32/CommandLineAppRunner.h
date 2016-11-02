@@ -13,7 +13,7 @@ namespace win32
 class CommandLineAppRunner : public GenericCommandLineAppRunner
 {
 public:
-	CommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, const char** args)
+	CommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[])
 		: GenericCommandLineAppRunner( appControllerCreator, makeAppLaunchInfo() )
 	{
 	}

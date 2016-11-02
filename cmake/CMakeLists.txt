@@ -315,6 +315,7 @@ else()
 endif()
 
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS BDN_COMPILING_COMMANDLINE_APP)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file
@@ -392,16 +393,12 @@ IF ( APPLE )
 	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testbodenui")
 endif()
 
-
-# we cannot build commandline tools on iOS. So we have to build a UI app
-if(BODEN_TARGET STREQUAL "ios")
-    add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
-
-elseif( "${BODEN_TARGET}" STREQUAL "android" )
+if( "${BODEN_TARGET}" STREQUAL "android" )
 	add_library(testbodenui SHARED ${TESTBODENUI_SOURCES} )
 
 else()
-    add_executable(testbodenui ${TESTBODENUI_SOURCES} )
+    add_executable(testbodenui  WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+    
 endif()
 
 set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
