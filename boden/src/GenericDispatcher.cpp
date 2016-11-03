@@ -121,7 +121,7 @@ bool GenericDispatcher::getNextReady(std::function< void() >& func, bool remove)
 	enqueueTimedItemsIfTimeReached();
 
 	// go through the queues in priority order and handle one item
-	for( int priorityIndex=3; priorityIndex>=0; priorityIndex--)
+	for( int priorityIndex = priorityCount-1; priorityIndex>=0; priorityIndex--)
 	{
 		std::list< std::function< void() > >& queue = _queues[priorityIndex];
 
@@ -144,7 +144,7 @@ int GenericDispatcher::getReadyCount()
 	enqueueTimedItemsIfTimeReached();
 
     int readyCount=0;
-	for( int priorityIndex=3; priorityIndex>=0; priorityIndex--)
+	for( int priorityIndex = priorityCount-1; priorityIndex>=0; priorityIndex--)
 	{
 		std::list< std::function< void() > >& queue = _queues[priorityIndex];
 

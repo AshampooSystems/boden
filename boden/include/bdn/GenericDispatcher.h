@@ -102,14 +102,17 @@ private:
     }
 
 
+    enum
+    {
+        priorityCount = 2
+    };
+
     int priorityToQueueIndex(Priority priority) const
     {
         switch(priority)
         {
         case Priority::idle:    return 0;
-        case Priority::low:     return 1;
-        case Priority::normal:  return 2;
-        case Priority::high:    return 3;
+        case Priority::normal:  return 1;
         }
 
         throw InvalidArgumentError("Invalid dispatcher item priority: "+std::to_string((int)priority) );
@@ -262,10 +265,13 @@ private:
 		Priority				priority = Priority::normal;
 	};
 
+
     
     Mutex                                _mutex;
 
-    std::list< std::function< void() > > _queues[4];
+
+
+    std::list< std::function< void() > > _queues[ priorityCount ];
 
 	std::map<  TimedItemKey, TimedItem > _timedItemMap;
 	int64_t								 _timedItemCounter = 0;

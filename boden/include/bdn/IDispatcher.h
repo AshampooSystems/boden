@@ -21,10 +21,8 @@ public:
 
 	enum class Priority
 	{
-		idle	= -200,		
-		low		= -100,
-		normal	= 0,
-		high	= 100
+        idle = -100,
+        normal = 0,
 	};
 
 
