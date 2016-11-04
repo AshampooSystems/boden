@@ -205,6 +205,9 @@ void UiAppRunner::mainLoop()
         if(_highPerformanceLoopSuspended)
         {
             // if the high performance loop is suspended then we can just block and wait for the next work item.
+			// Note that the loop will be unsuspended by posting a message, so we will automatically
+			// wake up when that happens
+
             XXX
         }
         else
