@@ -62,14 +62,17 @@ bool GenericDispatcher::waitForNext(double timeoutSeconds)
             // we have no items ready to be executed. So we have to wait until
             // we get new items, or until a timed item becomes active
 
+            TimePoint now = Clock::now();
+
 			// get an absolute timeout time.
             if(!absoluteTimeoutTimeInitialized)
             {
-                absoluteTimeoutTime = Clock::now() + secondsToDuration(timeoutSeconds);
+                Duration  timeout = secondsToDuration(timeoutSeconds);
+                
+                absoluteTimeoutTime = now + timeout;
                 absoluteTimeoutTimeInitialized = true;
             }
-
-            TimePoint now = Clock::now();
+                        
             if(now >= absoluteTimeoutTime)
             {
                 // timeout has expired
@@ -93,7 +96,7 @@ bool GenericDispatcher::waitForNext(double timeoutSeconds)
             }
 
             Duration currWaitDuration = nextCheckTime - now;
-            double   currWaitSeconds = durationToSeconds(currWaitDuration);
+            currWaitSeconds = durationToSeconds(currWaitDuration);
 
             // wait at least a millisecond
             if(currWaitSeconds<0.001)

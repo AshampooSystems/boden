@@ -95,29 +95,9 @@ void UiAppRunner::platformSpecificInit()
 	::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 
     // launch the thread that will enqueue our timed events
-    _pTimedEventThread = newObj<Thread>( newObj<TimedEventThreadRunnable>(_pTimedEventThreadDispatcher) );
+    _pTimedEventThread = newObj<Thread>( newObj<GenericDispatcher::ThreadRunnable>(_pTimedEventThreadDispatcher) );
 }
 
-void UiAppRunner::TimedEventThreadRunnable::signalStop()
-{
-    ThreadRunnableBase::signalStop();
-
-    // post a dummy message so that we will wake up if we ware waiting.
-    _pDispatcher->enqueue( [](){} );
-}
-
-void UiAppRunner::TimedEventThreadRunnable::run()
-{
-    while(!shouldStop())
-    {    
-        if(! _pDispatcher->executeNext() )
-        {
-            // we can wait for a long time here because when signalStop is called we will
-            // get an item posted. So we automatically wake up.
-            _pDispatcher->waitForNext(10);
-        }
-    }
-}
 
 int UiAppRunner::entry() 
 {

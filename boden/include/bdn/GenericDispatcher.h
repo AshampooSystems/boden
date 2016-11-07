@@ -3,6 +3,7 @@
 
 #include <bdn/IDispatcher.h>
 #include <bdn/Signal.h>
+#include <bdn/ThreadRunnableBase.h>
 
 #include <chrono>
 #include <functional>
@@ -76,6 +77,60 @@ public:
 	bool waitForNext(double timeoutSeconds);
 
 
+   
+    /** Convenience implementation of a IThreadRunnable for a thread that has a
+        GenericDispatcher at its core.
+
+        Example:
+
+        \code
+
+        P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
+        P<Thread>            pThread = newObj<Thread>( newObj<GenericDispatcher::Runnable>( pDispatcher) );
+
+        // the thread will now execute the items from the dispatcher.
+
+        // to stop the thread:
+        pThread->stop( Thread::ExceptionIgnore );
+
+        \endcode
+
+        */
+    class ThreadRunnable : public ThreadRunnableBase
+    {
+    public:
+        ThreadRunnable(GenericDispatcher* pDispatcher)
+        {
+            _pDispatcher = pDispatcher;
+        }
+
+        
+        void signalStop() override
+        {
+            ThreadRunnableBase::signalStop();
+
+            // post a dummy item so that we will wake up if we are currently waiting.
+            _pDispatcher->enqueue( [](){} );
+        }
+
+        void run() override
+        {
+            while(!shouldStop())
+            {    
+                if(! _pDispatcher->executeNext() )
+                {
+                    // we can wait for a long time here because when signalStop is called we will
+                    // get an item posted. So we automatically wake up.
+                    _pDispatcher->waitForNext(10);
+                }
+            }
+        }
+
+    private:
+        P<GenericDispatcher> _pDispatcher;
+    };
+    
+
 private:
 	bool getNextReady(std::function< void() >& func, bool remove);
 
@@ -85,15 +140,12 @@ private:
 
 	Duration secondsToDuration(double seconds)
 	{
-		return std::chrono::microseconds( (int64_t)(seconds * 1000000.0) );
+		return Duration( (Duration::rep) (seconds * Duration::period::den / Duration::period::num ) );        
 	}
 
     double durationToSeconds(const Duration& dur)
     {
-        int64_t  micros = std::chrono::duration_cast<std::chrono::microseconds>( dur ).count();
-        double seconds = micros / 1000000.0;
-
-        return seconds;
+        return ((double)dur.count()) * Duration::period::num / Duration::period::den;
     }
 
 
@@ -152,6 +204,9 @@ private:
 			while(true)
 			{
 				auto it = _timedItemMap.begin();
+                if(it==_timedItemMap.end())
+                    break;
+
 				const TimedItemKey&	key( it->first );
 				const TimedItem&    val( it->second );
 
@@ -162,6 +217,7 @@ private:
 					// the scheduled time is in the future. We can stop here.
 					// Note that the map entries are sorted by time, so we know
 					// that all other items are also in the future
+                    break;
 				}
 				
 				enqueue( val.func, val.priority );

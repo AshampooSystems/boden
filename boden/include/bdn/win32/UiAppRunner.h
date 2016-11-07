@@ -90,21 +90,6 @@ private:
     friend class AppMessageWindow;
 
 
-    class TimedEventThreadRunnable : public ThreadRunnableBase
-    {
-    public:
-        TimedEventThreadRunnable(GenericDispatcher* pDispatcher)
-        {
-            _pDispatcher = pDispatcher;
-        }
-
-        void signalStop() override;
-
-        void run() override;
-
-    private:
-        P<GenericDispatcher> _pDispatcher;
-    };
     
     void handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam);
     
