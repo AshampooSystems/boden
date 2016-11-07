@@ -79,5 +79,11 @@ void logInfo(const String& message) noexcept
 
 #endif
 
+
+void logActiveException(const String& additionalInfo) noexcept
+{
+    std::exception_ptr p = std::current_exception();
+}
+
 }
 

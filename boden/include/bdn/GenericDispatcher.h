@@ -4,6 +4,7 @@
 #include <bdn/IDispatcher.h>
 #include <bdn/Signal.h>
 #include <bdn/ThreadRunnableBase.h>
+#include <bdn/log.h>
 
 #include <chrono>
 #include <functional>
@@ -24,6 +25,42 @@ public:
     {
     }
 
+
+    virtual void dispose()
+    {
+        // disposes the dispatcher and clears any pending items from the queue (without
+        // executing them).
+        MutexLock lock(_mutex);
+        
+        for(int priorityQueueIndex=0; priorityQueueIndex<priorityCount; priorityQueueIndex++)
+        {
+            std::list< std::function< void() > >& queue = _queues[priorityQueueIndex];
+
+            // remove the objects one by one so that we can ignore exceptions that happen in
+            // the destructor.            
+            while(!queue.empty())
+            {
+                BDN_LOG_AND_IGNORE_EXCEPTION( 
+                        { // make a copy so that pop_front is not aborted if the destructor fails.
+                            std::function<void()> item = queue.front();
+                            queue.pop_front();
+                        }
+                    , "Error clearing GenericDispatcher item during dispose. Ignoring.");
+            }
+        }
+        
+        // also remove timed items
+        while(!_timedItemMap.empty())
+        {
+            BDN_LOG_AND_IGNORE_EXCEPTION(
+                {
+                    // make a copy so that pop_front is not aborted if the destructor fails.
+                    std::function<void()> func = _timedItemMap.begin()->second.func;
+                    _timedItemMap.erase( _timedItemMap.begin() );
+                },
+                "Error clearing GenericDispatcher timed item during dispose. Ignoring.");
+        }
+    }
 
 	void enqueue( std::function<void()> func, Priority priority = Priority::normal ) override
 	{

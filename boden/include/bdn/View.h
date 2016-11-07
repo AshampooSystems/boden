@@ -536,6 +536,44 @@ public:
 		*/		
 	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
 
+    
+
+	/** Returns the global mutex object that is used to synchronize changes in the
+		UI hierarchy (parent-child relationships) and replacement of view core objects.
+
+        Why a single global mutex?
+        ---------------------------
+
+		The reason why we use a single global mutex for hierarchy changes is that otherwise deadlocks
+		could occur. We need to lock the old parent, the child and the new parent.
+		If multiple changes with the same objects are done in different threads
+		then it could potentially happen that the same two objects are locked in inverse order
+		in two threads, creating a deadlock.
+		For example, consider this UI hierarchy:
+
+		A
+		  B
+			C
+		D
+
+		Lets say we want to move B to D and C to D at the same time. Since B is the child-to-be-moved
+		for one operation and the old parent for another, the locking order could easily be inverse
+		and thus a deadlock could occur.
+
+		To avoid all this we use a single mutex for all hierarchy modifications. The impact on parallel
+		performance should be negligible, since the operations are short (just setting a parent pointer or
+		adding to a child list). Also, it should be a rare case when the hierarchy is modified from two
+		threads at the same time.
+
+		The same mutex is used to guard changes to the view cores. The reason is that hierarchy changes
+		sometimes cause creation, destruction or replacement of view cores. And these changes can also
+		propagate down the UI hierarchy (if a parent core is destroyed then all child cores must also
+		be destroyed). Because of this, the hierarchy mutex must be locked whenever a core is updated
+		(so that it does not change during the update operation). And if we had multiple mutexes
+		for cores and the hierarchy, then such operations would again be very sensitive to locking order
+		and could create potential deadlocks.
+		*/
+	static Mutex& getHierarchyAndCoreMutex();
 
 
     
@@ -592,41 +630,6 @@ protected:
 	// allow the coordinator to call the sizing info and layout functions.
 	friend class LayoutCoordinator;
 
-
-
-	/** Returns the global mutex object that is used to synchronize changes in the
-		UI hierarchy (parent-child relationships) and replacement of view core objects.
-
-		The reason why we use a single global mutex for hierarchy changes is that otherwise deadlocks
-		could occur. We need to lock the old parent, the child and the new parent.
-		If multiple changes with the same objects are done in different threads
-		then it could potentially happen that the same two objects are locked in inverse order
-		in two threads, creating a deadlock.
-		For example, consider this UI hierarchy:
-
-		A
-		  B
-			C
-		D
-
-		Lets say we want to move B to D and C to D at the same time. Since B is the child-to-be-moved
-		for one operation and the old parent for another, the locking order could easily be inverse
-		and thus a deadlock could occur.
-
-		To avoid all this we use a single mutex for all hierarchy modifications. The impact on parallel
-		performance should be negligible, since the operations are short (just setting a parent pointer or
-		adding to a child list). Also, it should be a rare case when the hierarchy is modified from two
-		threads at the same time.
-
-		The same mutex is used to guard changes to the view cores. The reason is that hierarchy changes
-		sometimes cause creation, destruction or replacement of view cores. And these changes can also
-		propagate down the UI hierarchy (if a parent core is destroyed then all child cores must also
-		be destroyed). Because of this, the hierarchy mutex must be locked whenever a core is updated
-		(so that it does not change during the update operation). And if we had multiple mutexes
-		for cores and the hierarchy, then such operations would again be very sensitive to locking order
-		and could create potential deadlocks.
-		*/
-	static Mutex& getHierarchyAndCoreMutex();
 
 
 

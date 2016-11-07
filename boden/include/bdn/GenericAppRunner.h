@@ -92,6 +92,11 @@ protected:
         }
 	}
 
+
+    void disposeMainDispatcher() override
+    {
+        _pDispatcher->dispose();
+    }
 	
 
 	mutable Mutex _exitMutex;

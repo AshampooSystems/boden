@@ -42,13 +42,15 @@ public:
 
 	/** Schedules the specified function to be executed after
 		the specified number of seconds.
+
+        If seconds is <=0 then the function is executed as soon as possible, as if enqueue() had been called.
 		
 		Note that the seconds parameter is a double, so you can specify something
 		like 0.25 to wait for 250 ms, for example.
 
 		Other tasks can be executed during the wait time (event events with lower priority).
 
-		Also see schedule().
+		Also see enqueue().
 		*/
 	virtual void enqueueInSeconds(
 		double seconds,

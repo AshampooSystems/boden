@@ -29,16 +29,7 @@ public:
 	}
 
 	virtual void launch();
-
-	virtual void onTerminate()
-	{
-		if(_appControllerBeginLaunchCalled)
-			AppControllerBase::get()->onTerminate();
-
-		platformSpecificCleanup();
-	}
-
-	
+    	
 	
 	/** Returns the app's launch information.*/
 	const AppLaunchInfo& getLaunchInfo() const override
@@ -84,6 +75,14 @@ protected:
 	{
 		// do nothing by default
 	}
+
+    /** Stops the main dispatcher and prevents it from executing any more work.
+        Any items currently in the queue must be released/destroyed.
+
+        This is called when the app is about to terminate (after AppController::onTerminate was
+        called).
+    */
+    virtual void disposeMainDispatcher()=0;
 
 	virtual void beginningLaunch()
 	{

@@ -162,41 +162,96 @@ inline void testDispatcher(IDispatcher* pDispatcher)
 
     SECTION("timed")
     {
-        IDispatcher::Priority prio;
-
-        SECTION("Priority normal")
-            prio = IDispatcher::Priority::normal;
-        SECTION("Priority idle")
-            prio = IDispatcher::Priority::idle;
-
-        P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
-
-        pDispatcher->enqueueInSeconds(
-            2,
-            [pData]()
-            {                
-                pData->callOrder.push_back(0);
-            },
-            prio);
-
-        CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
+        SECTION("positive time")
         {
-            // should NOT have been called immediately
-            REQUIRE( pData->callOrder.size()==0 );
+            IDispatcher::Priority prio;
+
+            SECTION("Priority normal")
+                prio = IDispatcher::Priority::normal;
+            SECTION("Priority idle")
+                prio = IDispatcher::Priority::idle;
+
+            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+            pDispatcher->enqueueInSeconds(
+                2,
+                [pData]()
+                {                
+                    pData->callOrder.push_back(0);
+                },
+                prio);
 
             CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
             {
-                // also not after 1 second
+                // should NOT have been called immediately
                 REQUIRE( pData->callOrder.size()==0 );
 
-                CONTINUE_SECTION_AFTER_SECONDS(2, pData)
+                CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
                 {
-                    // but after another 2 seconds it should have been called
-                    REQUIRE( pData->callOrder.size()==1 );
-                    REQUIRE( pData->callOrder[0]==0 );
-                };
-            };            
-        };
+                    // also not after 1 second
+                    REQUIRE( pData->callOrder.size()==0 );
+
+                    CONTINUE_SECTION_AFTER_SECONDS(2, pData)
+                    {
+                        // but after another 2 seconds it should have been called
+                        REQUIRE( pData->callOrder.size()==1 );
+                        REQUIRE( pData->callOrder[0]==0 );
+                    };
+                };            
+            };
+        }
+
+        SECTION("time=0")
+        {
+            IDispatcher::Priority prio;
+
+            SECTION("Priority normal")
+                prio = IDispatcher::Priority::normal;
+            SECTION("Priority idle")
+                prio = IDispatcher::Priority::idle;
+
+            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+            pDispatcher->enqueueInSeconds(
+                0,
+                [pData]()
+                {                
+                    pData->callOrder.push_back(0);
+                },
+                prio);
+
+            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
+            {
+                // should already have been called.
+                REQUIRE( pData->callOrder.size()==1 );      
+            };
+        }
+
+        SECTION("time=-1")
+        {
+            IDispatcher::Priority prio;
+
+            SECTION("Priority normal")
+                prio = IDispatcher::Priority::normal;
+            SECTION("Priority idle")
+                prio = IDispatcher::Priority::idle;
+
+            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+            pDispatcher->enqueueInSeconds(
+                -1,
+                [pData]()
+                {                
+                    pData->callOrder.push_back(0);
+                },
+                prio);
+
+            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
+            {
+                // should already have been called.
+                REQUIRE( pData->callOrder.size()==1 );      
+            };
+        }
     }
 
     SECTION("timer")

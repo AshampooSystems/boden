@@ -248,6 +248,38 @@ void UiAppRunner::mainLoop()
         ::DispatchMessage(&msg);
     }
 }
+
+
+void UiAppRunner::disposeMainDispatcher()
+{
+    // first clear the timed events, since those can post new normal events into our queue    
+    _pTimedEventThread->stop( Thread::ExceptionIgnore );
+    _pTimedEventThreadDispatcher->dispose();
+
+    MutexLock lock(_queueMutex);
+        
+    // remove the objects one by one so that we can ignore exceptions that happen in
+    // the destructor.            
+    while(!_normalQueue.empty())
+    {
+        BDN_LOG_AND_IGNORE_EXCEPTION( 
+                { // make a copy so that pop_front is not aborted if the destructor fails.
+                    std::function<void()> item = _normalQueue.front();
+                    _normalQueue.pop_front();
+                }
+            , "Error clearing UiAppRunner dispatcher item during disposeMainDispatcher. Ignoring.");
+    }
+
+    while(!_idleQueue.empty())
+    {
+        BDN_LOG_AND_IGNORE_EXCEPTION( 
+                { // make a copy so that pop_front is not aborted if the destructor fails.
+                    std::function<void()> item = _idleQueue.front();
+                    _idleQueue.pop_front();
+                }
+            , "Error clearing UiAppRunner dispatcher item during disposeMainDispatcher. Ignoring.");
+    }
+}
     
 
 

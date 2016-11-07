@@ -52,6 +52,8 @@ protected:
 
 	void mainLoop() override;
 
+    void disposeMainDispatcher() override;
+
 private:
 
     enum class Message
