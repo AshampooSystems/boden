@@ -2,10 +2,12 @@
 #define BDN_WIN32_UiAppRunner_H_
 
 #include <bdn/AppRunnerBase.h>
-#include <bdn/IDispatcher.h>
+#include <bdn/GenericDispatcher.h>
+#include <bdn/ThreadRunnableBase.h>
+#include <bdn/Thread.h>
 
 #include <bdn/win32/util.h>
-#include <bdn/win32/MessageWindowBase>
+#include <bdn/win32/MessageWindowBase.h>
 
 namespace bdn
 {
@@ -55,18 +57,17 @@ private:
     enum class Message
     {
         /** Handle the next normal priority item*/
-        handleNormal,
+        executeNormalItem = WM_USER+100,
 
-        /** Do nothing - used to wake up the message queue.*/
-        nop,
-
-        executeEndMarker
+        /** An idle item was added to the queue.*/
+        idleItemAdded,
     };
 
     class AppMessageWindow : public MessageWindowBase
     {
     public:
         AppMessageWindow(UiAppRunner* pAppRunnerWeak)
+            : MessageWindowBase( "win32.UiAppRunner" )
         {
             _pAppRunnerWeak = pAppRunnerWeak;
         }
@@ -80,7 +81,7 @@ private:
         {
             // we know that the app runner object still exists because
             // it implements the message loop
-            _pAppRunnerWeak->handleAppMessage(context, message, wParam, lParam);
+            _pAppRunnerWeak->handleAppMessage(context, windowHandle, message, wParam, lParam);
         }
 
     private:
@@ -88,9 +89,42 @@ private:
     };
     friend class AppMessageWindow;
 
-    void handleAppMessage(MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam);
+
+    class TimedEventThreadRunnable : public ThreadRunnableBase
+    {
+    public:
+        TimedEventThreadRunnable(GenericDispatcher* pDispatcher)
+        {
+            _pDispatcher = pDispatcher;
+        }
+
+        void signalStop() override;
+
+        void run() override;
+
+    private:
+        P<GenericDispatcher> _pDispatcher;
+    };
     
-	int _exitCode = 0;
+    void handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam);
+    
+    bool executeAndRemoveItem( std::list< std::function<void()> >& queue, bool* pHaveMoreWaiting=nullptr );
+
+
+    AppMessageWindow _messageWindow;
+
+
+	int     _exitCode = 0;
+
+    bool    _haveIdleItemsWaiting_MainThread = false;
+    
+    Mutex                                _queueMutex;
+    std::list< std::function< void() > > _idleQueue;
+    std::list< std::function< void() > > _normalQueue;
+
+
+    P<Thread>                            _pTimedEventThread;
+    P<GenericDispatcher>                 _pTimedEventThreadDispatcher;
 };
   		
 

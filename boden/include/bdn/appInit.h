@@ -23,6 +23,7 @@
 			int main(int argc, char* argv[]) \
 			{ \
 				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
+                _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
 			}
 
@@ -32,6 +33,7 @@
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
 				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, showCommand ); \
+                _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
 			}
 
@@ -46,6 +48,7 @@
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
 			bdn::P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+            _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
 		}
 
@@ -62,6 +65,7 @@
 			BDN_JNI_BEGIN( pEnv ); \
 			{ \
 				bdn::P< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+                _setAppRunner(pAppRunner); \
 				pAppRunner->entry(); \
 			} \
 			BDN_JNI_END; \
@@ -107,6 +111,7 @@
 		int main(int argc, char* argv[]) \
 		{ \
 			bdn::P< BDN_APPRUNNER_ > pAppRunner = bdn::newObj< BDN_APPRUNNER_ >( appControllerCreator, argc, argv ); \
+            _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
 		}
 

@@ -137,22 +137,7 @@ bool GenericDispatcher::getNextReady(std::function< void() >& func, bool remove)
 	return false;
 }
 
-int GenericDispatcher::getReadyCount()
-{
-    MutexLock lock(_mutex);
 
-	enqueueTimedItemsIfTimeReached();
-
-    int readyCount=0;
-	for( int priorityIndex = priorityCount-1; priorityIndex>=0; priorityIndex--)
-	{
-		std::list< std::function< void() > >& queue = _queues[priorityIndex];
-
-        readyCount += queue.size();
-    }
-
-    return readyCount;
-}
 
 }
 

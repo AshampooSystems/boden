@@ -68,67 +68,6 @@ public:
     
     
 
-	/** Must return true if the app needs a high performance loop at its core.
-		See highPerformanceLoopIteration() for more information.
-		
-		Note that usingHighPerformanceLoop should not change the value it returns
-		during the lifetime of the app. It may only be called once when the app starts,
-		so changing the result during the lifetime may have no effect. In other words:
-		the high performance loop cannot be activated at runtime, only during launch.
-
-		The default implementation returns false.
-		*/
-	virtual bool usingHighPerformanceLoop() const
-	{
-		return false;
-	}
-
-	
-	/** If the app has declared that it needs a high performance loop (see usingHighPerformanceLoop()) then
-		this function will be called over and over again, by default as quickly as possible. Other pending work and
-		user interface events will still be handled automatically in between calls.
-		
-		High performance loops are intended for certain games and other "realtime" apps that want to use every bit of available
-		processing power in the main thread. While using all power is good for certain types of apps, it can also have negative effects,
-		like high energy usage (i.e. battery draining), causing the computer to spin up its fans, etc. Because of this, high performance loops should
-		only be used when they are really needed. Even in the case of games a normal timer is often a better choice than a high performance
-		loop.
-
-		The app controller can throttle down the call freqeuency of the high performance loop with the return value of highPerformanceLoopIteration().
-		See below for more information.
-		
-		The way the loop function is integrated with other scheduled work depends on the implementation of the app scheduler.
-		However, the scheduler guarantees that other pending work (including user interface events and work scheduled with the dispatcher)
-		is still executed in a timely manner, so that the app remains responsive. Even work with priority "idle" will be executed.
-
-		Some guidelines to using highPerformanceLoopIteration:
-
-		- Each call to highPerformanceLoopIteration should only perform a small amount of work and return as quickly as possible, so that
-		  user interface events and other scheduled work can be executed regularly.
-
-		- Do not sleep or wait in highPerformanceLoopIteration. Instead, use the return value to cause the caller to wait before the next
-		  iteration.
-
-		- When the app does not need the highPerformanceLoopIteration for a while, use the return value to cause calls to happen less frequently.		  
-
-
-		\return The return value can be used to throttle the call frequency of highPerformanceLoopIteration().
-		
-			If it <=0 then highPerformanceLoopIteration will be called as quickly as possible. Note that there are some platforms
-			where "as quickly as possible" might be quite slow. For example, on the webems (web app) platform many browsers do not allow
-			more than 100 or so iterations per second, even if the computer is very fast.
-			
-			If the return value is > 0 then the return value is the number of seconds that the next call of highPerformanceLoopIteration() should be delayed.
-			Note that the return value a double, so you can return fractional values like 0.1 etc. to wait for less than a second.	
-			As described above, this is intended to slow down in cases when the app does not need all the available speed - i.e. it is intended
-			for temporary slow downs. Do not use this to emulate a timer with a fixed call frequency per second - use IDispatcher::createTimer
-			for those cases.
-		*/
-	virtual double highPerformanceLoopIteration()
-    {
-        return 0;
-    }
-
 
     
     /** The app has become active and ready for the user to interact with it.

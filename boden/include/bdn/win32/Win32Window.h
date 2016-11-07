@@ -76,27 +76,9 @@ public:
 		when you create custom window classes for use with #Window (see #WindowClass).*/
 	static LRESULT CALLBACK windowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-protected:
-	
 
-
-	class ClassBase : public Base
-	{
-	public:
-		ClassBase(const String& name);
-
-		void ensureRegistered();
-
-	protected:
-		String		_name;
-		bool		_registered;
-
-		WNDCLASSEX	_info;
-	};
-	friend class ClassBase;
-
-
-	
+    /** The message context is used to track the results of a message
+        and control how it is processed further.*/
 	class MessageContext
 	{
 	public:
@@ -153,6 +135,25 @@ protected:
 		bool	_callDefaultHandler;
 	};
 
+
+protected:
+	class ClassBase : public Base
+	{
+	public:
+		ClassBase(const String& name);
+
+		void ensureRegistered();
+
+	protected:
+		String		_name;
+		bool		_registered;
+
+		WNDCLASSEX	_info;
+	};
+	friend class ClassBase;
+
+
+	
 
 	/** Called when the window is about to be destroyed.*/
 	virtual void notifyDestroy();

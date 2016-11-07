@@ -66,12 +66,7 @@ public:
         false when there are currently no items ready to be executed.*/
 	bool executeNext();
 
-
-    /** Returns the number of work items that are currently ready to be executed.
-    */
-	int getReadyCount();
-
-    
+        
 
     /** Waits until at least one work item is ready to be executed.
     
@@ -268,8 +263,6 @@ private:
 
     
     Mutex                                _mutex;
-
-
 
     std::list< std::function< void() > > _queues[ priorityCount ];
 

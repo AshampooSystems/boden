@@ -4,8 +4,8 @@
 #include <bdn/mainThread.h>
 
 #include <bdn/win32/util.h>
-#include <bdn/win32/GlobalMessageWindow.h>
-#include <bdn/win32/MessageDispatcher.h>
+#include <bdn/log.h>
+#include <bdn/Thread.h>
 
 #include <windows.h>
 
@@ -19,17 +19,17 @@ namespace win32
 
 
 UiAppRunner::UiAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int showCommand)
-		: AppRunnerBase(appControllerCreator, makeAppLaunchInfo(showCommand) )
+ : AppRunnerBase(appControllerCreator, makeAppLaunchInfo(showCommand) )
+, _messageWindow(this)
 {
+    _pTimedEventThreadDispatcher = newObj<GenericDispatcher>();
 }
-
-
 
 void UiAppRunner::enqueue(
 	std::function< void() > func,
 	Priority priority)
 {
-    MutexLock lock(_mutex);
+    MutexLock lock( _queueMutex );
 
     if(priority == Priority::idle)
     {
@@ -37,14 +37,14 @@ void UiAppRunner::enqueue(
 
         // post a null message, just to ensure that we will wake up
         // if we are waiting for messages
-        ::PostMessage( _messageWindow.getHwnd(), Message::idleItemAdded, 0, 0);
+        ::PostMessage( _messageWindow.getHwnd(), static_cast<UINT>( Message::idleItemAdded ), 0, 0);
     }
     else if(priority == Priority::normal)
     {
         _normalQueue.push_back(func);
 
         // post a message that will cause us to handle the next entry in the normal queue.
-        ::PostMessage( _messageWindow.getHwnd(), Message::normalItemAdded, 0, 0);
+        ::PostMessage( _messageWindow.getHwnd(), static_cast<UINT>( Message::executeNormalItem ), 0, 0);
     }
     else
         throw InvalidArgumentError("Invalid priority passed to win32::UiAppRunner::enqueue: "+ std::to_string((int)priority) );
@@ -64,7 +64,7 @@ void UiAppRunner::enqueueInSeconds(
         // That is not what we want here.
         // So we have to use something else. The only thing we can do is have a helper thread
         // that posts the messages when the timers elapse.
-        _pThreadDispatcher->enqueueInSeconds(
+        _pTimedEventThreadDispatcher->enqueueInSeconds(
             seconds,
             [this, func, priority]()
             {
@@ -80,7 +80,7 @@ void UiAppRunner::createTimer(
     // for timers we have the same problem as for timed single events. We cannot use
     // SetTimer because it has low priority and only fires if the message queue is empty.
     // So we also use our helper thread here.
-    _pThreadDispatcher->createTimer(
+    _pTimedEventThreadDispatcher->createTimer(
         intervalSeconds,
         [this, func]() -> bool
         {
@@ -89,24 +89,43 @@ void UiAppRunner::createTimer(
 }
 
 
-void UiAppRunner::handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam)
-{
-    if(message==Message::handleNormal)
-    {
-        handleNormalItem();
-    }
-}
-
 void UiAppRunner::platformSpecificInit()
 {
 	// tell windows that we are DPI-aware
 	::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+
+    // launch the thread that will enqueue our timed events
+    _pTimedEventThread = newObj<Thread>( newObj<TimedEventThreadRunnable>(_pTimedEventThreadDispatcher) );
+}
+
+void UiAppRunner::TimedEventThreadRunnable::signalStop()
+{
+    ThreadRunnableBase::signalStop();
+
+    // post a dummy message so that we will wake up if we ware waiting.
+    _pDispatcher->enqueue( [](){} );
+}
+
+void UiAppRunner::TimedEventThreadRunnable::run()
+{
+    while(!shouldStop())
+    {    
+        if(! _pDispatcher->executeNext() )
+        {
+            // we can wait for a long time here because when signalStop is called we will
+            // get an item posted. So we automatically wake up.
+            _pDispatcher->waitForNext(10);
+        }
+    }
 }
 
 int UiAppRunner::entry() 
 {
 	launch();
+    
 	runMainLoop();
+
+    _pTimedEventThread->stop( Thread::ExceptionIgnore );
 
 	return _exitCode;
 }
@@ -120,34 +139,69 @@ void UiAppRunner::initiateExitIfPossible(int exitCode)
 		} );
 }
 
-void UiAppRunner::getMessage(MSG& msg, bool& exit)
+
+bool UiAppRunner::executeAndRemoveItem( std::list< std::function<void()> >& queue, bool* pHaveMoreWaiting )
 {
-    int result = ::GetMessage(&msg, NULL, 0, 0);
-    if(result==0)   // WM_QUIT received
-	{
-		if(msg.message==WM_QUIT)
-			_exitCode = msg.wParam;
-        exit = true;
-	}
-    else if(result==-1)
+    std::function<void()> func;
+
     {
-        // error. Just exit.
-        exit = true;
+        MutexLock lock(_queueMutex);
+
+        if(queue.empty())
+            return false;
+
+        func = queue.front();
+        queue.pop_front();
+
+        if(pHaveMoreWaiting!=nullptr)
+            *pHaveMoreWaiting = !queue.empty();
     }
+
+    try
+    {
+        func();
+    }
+    catch(std::exception& e)
+    {
+        // log and ignore
+        logError(e, "Exception while executing item from main dispatcher. Ignoring.");
+    }
+    catch(...)
+    {
+        // log and ignore
+        logError("Exception of unknown type while executing item from main dispatcher. Ignoring.");
+    }
+
+    return true;
 }
 
-bool UiAppRunner::peekMessage(MSG& msg, int flag, bool& exit)
+void UiAppRunner::handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if( PeekMessageW(&msg, NULL, 0, 0, flag) )
+    if(message == static_cast<UINT>( Message::idleItemAdded ) )
     {
-		if(msg.message==WM_QUIT)
-			_exitCode = msg.wParam;
-        exit = true;
+        // an idle item has been added. That means that we need to update
+        // our "have idle items waiting" value.
 
-        return true;
-	}
-    else
-        return false;
+        if(!_haveIdleItemsWaiting_MainThread)
+        {
+            // This might have happened at some point in the
+            // past or just now. So the item might actually have already been handled.
+            // BUT for us this means that we need to check again if the idle queue is empty 
+            // or not. We can do that by just breaking the loop here.                        
+            MutexLock lock(_queueMutex);
+            _haveIdleItemsWaiting_MainThread = !_idleQueue.empty();
+        }
+
+        context.setResult(0, false);    // do not call the default handler for this message
+    }
+    else if(message == static_cast<UINT>( Message::executeNormalItem ) )
+    {
+        // execute one item from our normal queue.
+        executeAndRemoveItem(_normalQueue);
+
+        context.setResult(0, false);    // do not call the default handler for this message
+    }
+    
 }
 
 void UiAppRunner::mainLoop()
@@ -158,188 +212,60 @@ void UiAppRunner::mainLoop()
     
     bool exit = false;
 
-    while( !exit )
     {
-        if(_highPerformanceLoopSuspended)
-        {
-            // if the high performance loop is suspended then we can just block and wait for the next work item.
-			// Note that the loop will be unsuspended by posting a message, so we will automatically
-			// wake up when that happens.
-
-            bool idleQueueEmpty;
-            {
-                MutexLock lock(_mutex);
-                idleQueueEmpty = _idleQueue.empty();
-            }
+        MutexLock lock(_queueMutex);
+        _haveIdleItemsWaiting_MainThread = !_idleQueue.empty();
+    }
             
-            while( _highPerformanceLoopSuspended )
+    while( true )
+    {
+        bool shouldExit = false;
+
+        if(_haveIdleItemsWaiting_MainThread)
+        {
+            // if we have idle items waiting then we must not block when the normal message loop is empty.
+            // So we need to peek first, before we handle messages.
+            if( !PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) )
             {
-                bool haveMessage = false;
-
-                if(idleQueueEmpty)
-                {
-                    // if we have no idle messages in the queue then we can just
-                    // use GetMessage and block. If a new idle message is added
-                    // then a nop message will be posted, so we will automatically
-                    // wake up again.
-                    // Note that there is no race condition here. Even if the idle
-                    // message was added after the empty check above then we will 
-                    // still end up getting the nop message in the queue and
-                    // the first GetMessage call will not block.
-
-                    // remove the message from the queue
-                    getMessage(msg, exit);
-                    if(exit)
-                        break;
-
-                    haveMessage = true;
-                }
-                else
-                {
-                    // if we have idle items waiting then we must not block when the message loop is empty.
-                    // So we need to peek first, before we handle messages.
-                    if( peekMessage(msg, PM_REMOVE, exit) )
-                    {
-                        if(exit)
-                            break;
-
-                        // we have a message. It was already removed from the queue.
-                        haveMessage = true;                        
-                    }
-                    else
-                    {
-                        // no more messages in the queue.
-                        // Execute idle item now.
-                        handleIdleItem( idleQueueEmpty );
-                    }
-                }
-
-                if(haveMessage)
-                {
-                    if(msg.hwnd == messageWindowHwnd
-                        && msg.message==Message::idleItemAdded)
-                    {
-                        if(idleQueueEmpty
-                            && msg.hwnd == messageWindowHwnd
-                            && msg.message==Message::idleItemAdded)
-                        {
-                            // an idle item has been added. This might have happened at some point in the
-                            // past or just now. So the item might actually have already been handled.
-                            // BUT for us this means that we need to check again if the idle queue is empty 
-                            // or not. We can do that by just breaking the loop here.                        
-                            MutexLock lock(_mutex);
-                            idleQueueEmpty = _idleQueue.empty();
-                        }
-                    }
-                    else
-                    {
-                        // normal message.
-                        ::TranslateMessage(&msg);
-                        ::DispatchMessage(&msg);
-                    }
-                }                
+                // no more messages in the queue.
+                // Execute idle item now, then continue.
+                executeAndRemoveItem( _idleQueue, &_haveIdleItemsWaiting_MainThread );
+                continue;
             }
         }
         else
         {
-            // _highPerformanceLoopSuspended is false.
+            // if we have no idle messages in the queue then we can just
+            // use GetMessage and block. If a new idle message is added
+            // then a nop message will be posted, so we will automatically
+            // wake up again.
+            // Note that there is no race condition here. Even if the idle
+            // message was added after the empty check above then we will 
+            // still end up getting the nop message in the queue and
+            // the first GetMessage call will not block.
 
-            // we want to execute all messages that are in the queue right now,
-            // then we execute the next high performance loop iteration and
-            // so on.
-
-            // Unfortunately, it is not easy to find out what is in the queue
-            // right now. We could use the message timestamp, but that has problems
-            // because the timer can wrap and in some cases also jump ahead or back.
-            // Also, messages can be posted to the start of the queue, i.e. the queue
-            // is not necessarily in "time" order.
-            // Instead we post a marker message to the queue when we start handling messages.
-            // When we get to the marker then we stop.
-            // To avoid posting too many marker messages we only do that if we have found
-            // at least one message in the queue.
-
-            // we also need to limit the number of idle items we execute to those
-            // that are already in the queue.
-
-            size_t idleCountAtStart;
-
+            int result = ::GetMessage(&msg, NULL, 0, 0);
+            if(result==0)   // WM_QUIT received
+                shouldExit = true;
+            else if(result-1)
             {
-                MutexLock lock(_mutex);
-                
-                idleCountAtStart = _idleQueue.size();
-            }
-
-            if( peekMessage(msg, PM_REMOVE, exit) )
-            {
-                if(exit)
-                    break;
-
-                // we have a message in the queue. Post our marker.
-                ::PostMessage( messageWindowHwnd, Message::executeEndMarker, 0, 0);               
-
-                while(true)
-                {
-                    if(msg.hwnd == messageWindowHwnd && msg.message==Message::executeEndMarker)
-                    {
-                        // we have hit our end marker. Stop here.
-                        // We also need to know if there are more messages after the end marker,
-                        // so check that now.                    
-                        break;
-                    }                
-
-                    ::TranslateMessage(&msg);
-                    ::DispatchMessage(&msg);
-
-                    // remove the next message from the queue
-                    getMessage(msg, exit);
-                    if(exit)
-                        break;
-                }
-
-                // now we have handled all messages up to our end marker.
-            }
-
-            // after executing the messages from the normal queue we may want to handle idle messages.
-            // We execute the number of idle items that were already enqueued
-            // when we started the iteration (IF the normal queue is empty).
-            // BUT we have to ensure that we still handle priorities correctly.
-            // When a new message with higher priority is in the normal queue then we need to handle
-            // that INSTEAD of an idle message. I.e. the idle message is pushed out
-            // of the set to handle right now.
-            for(size_t i=0; i<idleCountAtStart; i++)
-            {
-                if( peekMessage(msg, PM_REMOVE))
-                {
-                    if(exit)
-                        break;
-
-                    // got a normal message. This preempts an idle message, so handle this instead.
-                    ::TranslateMessage(&msg);
-                    ::DispatchMessage(&msg);
-                }
-                else
-                {
-                    // queue still empty. Handle an idle message
-                    handleIdleItem();
-                }
-            }
-
-            // at this point we have handled the exact number of messages that were in the queue when we started
-            // the iteration. So now we can execute one high performance loop iteration.
-            double suspendSeconds = pAppController->highPerformanceLoopIteration();
-            if(suspendSeconds>0)
-            {
-                // suspend the main loop. Then add an item to the dispatcher
-                // to unsuspend it.
-                _highPerformanceLoopSuspended = true;
-                enqueueInSeconds(
-                    suspendSeconds,
-                    [this]()
-                    {
-                        _highPerformanceLoopSuspended = false;
-                    } );
+                // error. Just exit.
+                shouldExit = true;
+                _exitCode = -1;
             }
         }
+
+        if(msg.message==WM_QUIT)
+        {
+			_exitCode = msg.wParam;
+            shouldExit = true;
+        }
+
+        if(shouldExit )
+            break;
+
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
     }
 }
     
