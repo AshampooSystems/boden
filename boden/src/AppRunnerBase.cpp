@@ -9,9 +9,9 @@
 namespace bdn
 {
 
-void AppRunnerBase::launch()
+void AppRunnerBase::prepareLaunch()
 {
-	// ensure that the global mutex for safeinit is allocated. It is important
+    // ensure that the global mutex for safeinit is allocated. It is important
 	// that this happens before multiple threads are created.
 	SafeInitBase::_ensureReady();
 
@@ -23,8 +23,7 @@ void AppRunnerBase::launch()
     // that it is destructed as one of the last objects.
     View::getHierarchyAndCoreMutex();
 
-    
-	try
+    try
 	{
         // do additional platform-specific initialization (if needed)
         platformSpecificInit();
@@ -32,18 +31,33 @@ void AppRunnerBase::launch()
         // set the app controller as the global one
 	    P<AppControllerBase> pAppController = _appControllerCreator();
 	    AppControllerBase::_set( pAppController );
+    }
+    catch(...)
+    {
+        terminating();
+        throw;
+    }
+}
 
+void AppRunnerBase::beginLaunch()
+{
+    _appControllerBeginLaunchCalled = true;
+    pAppController->beginLaunch(_launchInfo);
+}
 
-		beginningLaunch();
+void AppRunnerBase::finishLaunch()
+{
+    pAppController->finishLaunch(_launchInfo);
+}
 
-		_appControllerBeginLaunchCalled = true;
-		pAppController->beginLaunch(_launchInfo);
-
-		finishingLaunch();
-
-		pAppController->finishLaunch(_launchInfo);
-
-		launched();
+void AppRunnerBase::launch()
+{
+    prepareLaunch();
+    
+	try
+	{
+        beginLaunch();
+        finishLaunch();
 	}
 	catch(...)
 	{

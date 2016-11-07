@@ -28,7 +28,22 @@ public:
 		_launchInfo = launchInfo;
 	}
 
+
+    /** Launches the app.
+
+        The default implementation calls prepareLaunch, beginLaunch and finishLaunch.*/
 	virtual void launch();
+
+    /** Prepares the app launch. The default implementation initialized global
+        data structures and creates the app controller.        
+        */
+    virtual void prepareLaunch();
+
+    /** Begins the launch. The default implementation calls AppController::beginLaunch() */
+    virtual void beginLaunch();
+
+    /** Finishes the launch. The default implementation calls AppController::finishLaunch() */
+	virtual void finishLaunch();
     	
 	
 	/** Returns the app's launch information.*/
@@ -83,21 +98,6 @@ protected:
         called).
     */
     virtual void disposeMainDispatcher()=0;
-
-	virtual void beginningLaunch()
-	{
-		// do nothing by default
-	}
-
-	virtual void finishingLaunch()
-	{
-		// do nothing by default
-	}
-
-	virtual void launched()
-	{
-		// do nothing by default
-	}
 
 	virtual void terminating();
 

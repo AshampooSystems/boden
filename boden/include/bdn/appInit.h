@@ -41,15 +41,16 @@
 
 #elif BDN_PLATFORM_WINUWP
 
-	#include <bdn/winuwp/UiAppRunner.h>
-	#include <bdn/winuwp/CommandLineAppRunner.h>
+	#include <bdn/winuwp/AppRunner.h>
 
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN \
 			bdn::P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
+            BDN_WINUWP_TO_PLATFORMEXC_END \
 		}
 
 #elif BDN_PLATFORM_ANDROID
