@@ -14,7 +14,7 @@ TEST_CASE("GenericDispatcher")
     static P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
     static P<Thread> pThread = newObj< Thread >( newObj<GenericDispatcher::ThreadRunnable>(pDispatcher) );
     
-    bdn::test::testDispatcher( pDispatcher );
+    bdn::test::testDispatcher( pDispatcher, pThread->getId() );
 
     SECTION("cleanup")
     {

@@ -44,6 +44,23 @@ public:
     void dispose();
     
 private:
+    template<typename FuncReturnType>
+    struct TimedItem : public Base
+    {   
+        std::function< FuncReturnType() >   func;
+        IDispatcher::Priority               priority;
+    };
+
+    class Timer : public Base
+    {
+    public:
+        Timer( std::function<bool()> func);
+
+        void dispose();
+    };
+
+    void enqueueAndReleaseTimedItemFromOtherThread( TimedItem& item );
+
     Windows::UI::Core::CoreDispatcher^ _pCoreDispatcher;
 };
 

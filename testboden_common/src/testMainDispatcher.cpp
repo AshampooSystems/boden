@@ -8,7 +8,7 @@ using namespace bdn;
 
 TEST_CASE("mainDispatcher")
 {
-    bdn::test::testDispatcher( getMainDispatcher() );
+    bdn::test::testDispatcher( getMainDispatcher(), Thread::getMainId() );
 }
 
 

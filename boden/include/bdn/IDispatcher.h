@@ -72,7 +72,10 @@ public:
 		then the second call is not enqueued. In other words: if the timer is held up by higher
 		priority work then there will be at most one event waiting in the queue and you will not get
 		a quick succession of calls when the queue empties.
-		*/
+        
+        If func throws an exception then the exception is logged and the timer continues. It is not aborted.
+        
+        */
 	virtual void createTimer(
 		double intervalSeconds,
 		std::function< bool() > func )=0;

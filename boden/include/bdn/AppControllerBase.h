@@ -155,6 +155,13 @@ public:
     {
         // do nothing by default
     }
+
+
+    /** Called when there was an unhandled problem (like an unhandled exception).
+        XXX
+    virtual void unhandledProblem(IUnhandledProblem& problem)
+    {
+    }
     
 
     
