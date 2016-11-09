@@ -25,6 +25,26 @@ public:
     /** Returns the problem type.*/
     virtual Type getType() const=0;
 
+
+
+
+    /** Returns true if the app can continue to run despite this problem.
+        
+        Note that you need to call keepRunning() to tell the app to actually keep running if you want that.
+        */
+    virtual bool canKeepRunning() const=0;
+
+
+    /** Tells the app to try to continue to run despite the problem, if that is possible (see canKeepRunning()).
+
+        If keepRunning is not called for an unhandled problem then the app will automatically terminate.
+
+        If the app must cannot continue to run (canKeepRunning()==false) then keepRunning does nothing and returns false.
+
+        Returns true otherwise.
+        */
+    virtual bool keepRunning();
+
         
 
 

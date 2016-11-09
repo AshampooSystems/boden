@@ -294,35 +294,40 @@ int _uiAppMain(AppControllerBase* pAppController, Platform::Array<Platform::Stri
 {
     BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-	P<AppLaunchInfo> pLaunchInfo = newObj<AppLaunchInfo>();
+    try
+    {
+	    P<AppLaunchInfo> pLaunchInfo = newObj<AppLaunchInfo>();
 
-	// note: apparently the args array is always empty (there does not seem to be a way
-	// to pass commandline arguments to a universal app from the outside).
-	// One can apparently add arguments via a XAML, if there is one. But since we do not
-	// have one (at least not at launch) it will probably always be empty. But we
-	// handle it nevertheless.
-	std::vector<String> argVector;
-	for(auto a: args)
-		argVector.push_back( a->Data() );
+	    // note: apparently the args array is always empty (there does not seem to be a way
+	    // to pass commandline arguments to a universal app from the outside).
+	    // One can apparently add arguments via a XAML, if there is one. But since we do not
+	    // have one (at least not at launch) it will probably always be empty. But we
+	    // handle it nevertheless.
+	    std::vector<String> argVector;
+	    for(auto a: args)
+		    argVector.push_back( a->Data() );
 
-	if(argVector.empty())
-		argVector.push_back("");
+	    if(argVector.empty())
+		    argVector.push_back("");
 
-	pLaunchInfo->setArguments(argVector);
+	    pLaunchInfo->setArguments(argVector);
 
-	Windows::UI::Xaml::Application::Start(
-		ref new Windows::UI::Xaml::ApplicationInitializationCallback(
-			[pLaunchInfo, pAppController](Windows::UI::Xaml::ApplicationInitializationCallbackParams^ pParams)
-			{
-				ref new App(pAppController, pLaunchInfo);		
-			} ) );
+	    Windows::UI::Xaml::Application::Start(
+		    ref new Windows::UI::Xaml::ApplicationInitializationCallback(
+			    [pLaunchInfo, pAppController](Windows::UI::Xaml::ApplicationInitializationCallbackParams^ pParams)
+			    {
+				    ref new App(pAppController, pLaunchInfo);		
+			    } ) );
 
-	/*Windows::UI::Xaml::Application^ pApp = Windows::UI::Xaml::Application::Current;
+	    /*Windows::UI::Xaml::Application^ pApp = Windows::UI::Xaml::Application::Current;
 	
-	auto frameworkViewSource = ref new AppFrameworkViewSource(pAppController, pLaunchInfo);
+	    auto frameworkViewSource = ref new AppFrameworkViewSource(pAppController, pLaunchInfo);
 
-    ::Windows::ApplicationModel::Core::CoreApplication::Run(frameworkViewSource);
-	*/
+        ::Windows::ApplicationModel::Core::CoreApplication::Run(frameworkViewSource);
+	    */
+
+    }
+
 
     BDN_WINUWP_TO_PLATFORMEXC_END
 

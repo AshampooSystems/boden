@@ -5,8 +5,9 @@ namespace bdn
 {
 
 
-UnhandledException::UnhandledException( const std::exception_ptr& p )
-    : _exceptionPtr(p);
+UnhandledException::UnhandledException( const std::exception_ptr& p, bool ignorable )
+    : _exceptionPtr(p)
+    , _ignorable(ignorable)
 {
 }
 
@@ -21,22 +22,10 @@ void UnhandledException::ensureStringsInitialized()
 {
     if(!_stringsInitialized)
     {
-        try
-        {
-            throwAsException();
-        }
-        catch(std::exception& e)
-        {
-            ErrorInfo info(e);
+        ErrorInfo info(_exceptionPtr);
 
-            _errorMessage = getMessage();
-            _detailedString = e.what();
-        }
-        catch(...)
-        {
-            _errorMessage = "Exception of unknown type.";
-            _detailedString = _errorMessage;
-        }
+        _errorMessage = info.getMessage();
+        _detailedString = info.toString();
 
         _stringsInitialized = true;
     }

@@ -2,6 +2,7 @@
 #define BDN_AppControllerBase_H_
 
 #include <bdn/AppLaunchInfo.h>
+#include <bdn/IUnhandledProblem.h>
 
 #include <vector>
 #include <map>
@@ -158,10 +159,17 @@ public:
 
 
     /** Called when there was an unhandled problem (like an unhandled exception).
-        XXX
-    virtual void unhandledProblem(IUnhandledProblem& problem)
-    {
-    }
+
+        If the implementation of this method does call IUnhandledProblem::ignore() then
+        the app will terminate after the method returns. Note that not all problems
+        can be ignored.
+    
+        The default implementation simply logs the problem and lets the app terminate.
+
+        Note that the normal termination handlers and notifiers are often not 
+        called when the app terminates because of such a problem.
+    */
+    virtual void unhandledProblem(IUnhandledProblem& problem);
     
 
     

@@ -4,6 +4,7 @@
 #include <bdn/log.h>
 #include <bdn/Thread.h>
 #include <bdn/View.h>
+#include <bdn/UnhandledException.h>
 
 
 namespace bdn
@@ -23,20 +24,12 @@ void AppRunnerBase::prepareLaunch()
     // that it is destructed as one of the last objects.
     View::getHierarchyAndCoreMutex();
 
-    try
-	{
-        // do additional platform-specific initialization (if needed)
-        platformSpecificInit();
+    // do additional platform-specific initialization (if needed)
+    platformSpecificInit();
 
-        // set the app controller as the global one
-	    P<AppControllerBase> pAppController = _appControllerCreator();
-	    AppControllerBase::_set( pAppController );
-    }
-    catch(...)
-    {
-        terminating();
-        throw;
-    }
+    // set the app controller as the global one
+	P<AppControllerBase> pAppController = _appControllerCreator();
+	AppControllerBase::_set( pAppController );
 }
 
 void AppRunnerBase::beginLaunch()
@@ -54,24 +47,13 @@ void AppRunnerBase::launch()
 {
     prepareLaunch();
     
-	try
-	{
-        beginLaunch();
-        finishLaunch();
-	}
-	catch(...)
-	{
-		// we will exit abnormally. Still call onTerminate.
-		terminating();
-        
-		// let error through.
-		throw;
-	}    
+    beginLaunch();
+    finishLaunch();
 }
 
 void AppRunnerBase::runMainLoop()
 {
-    BDN_LOG_AND_IGNORE_EXCEPTION( mainLoop(), "Top level exception encountered in main loop. Ignoring.");
+    mainLoop();
 
 	terminating();
 }
@@ -96,6 +78,24 @@ void AppRunnerBase::terminating()
     BDN_LOG_AND_IGNORE_EXCEPTION( platformSpecificCleanup(), "AppRunnerBase::platformSpecificCleanup threw exception. Ignoring." );
 }
 
+bool AppRunnerBase::unhandledException(bool canKeepRunning)
+{
+    UnhandledException unhandled( std::current_exception(), canKeepRunning );
 
+#ifdef BDN_DEBUG
+	if (IsDebuggerPresent())
+        __debugbreak();
+#endif
+    
+    BDN_LOG_AND_IGNORE_EXCEPTION(
+        {
+            P<AppControllerBase> pAppController = AppControllerBase::get();
+            if(pAppController!=nullptr)
+                pAppController->unhandledProblem( unhandled );
+        }, "Exception while notifying app controller of unhandled exception. Ignoring the additional exception.");
+
+    return unhandled.shouldKeepRunning();
+}
 
 }
+
