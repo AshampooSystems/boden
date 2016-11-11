@@ -6,7 +6,7 @@
 namespace bdn
 {
 
-void AppControllerBase::unhandledProblem(IUnhandledProblem& problem);
+void AppControllerBase::unhandledProblem(IUnhandledProblem& problem)
 {
     // log the problem and let the app terminate.
 

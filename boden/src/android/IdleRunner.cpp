@@ -9,11 +9,11 @@
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeIdleHandler_nativeOnIdle(JNIEnv* pEnv, jobject rawSelf )
 {
-    BDN_JNI_BEGIN(pEnv);
+    BDN_ENTRY_BEGIN(pEnv);
 
     bdn::android::IdleRunner::get()._beginningIdlePhase();
 
-    BDN_JNI_END;
+    BDN_ENTRY_END(true);
 }
 
 

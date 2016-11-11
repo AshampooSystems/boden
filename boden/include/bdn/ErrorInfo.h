@@ -106,6 +106,11 @@ protected:
     /** Initializes the object from a string that may or may not include
         encoded error fields with additional information.*/
     void initFromErrorString(const String& errorString);
+
+
+	/** Initializes the object from a std::system_error object.*/
+	void initFromSystemError(const std::system_error& e);
+
 	
 	String		_message;
 	ErrorFields	_fields;

@@ -35,12 +35,12 @@ void AppRunnerBase::prepareLaunch()
 void AppRunnerBase::beginLaunch()
 {
     _appControllerBeginLaunchCalled = true;
-    pAppController->beginLaunch(_launchInfo);
+    AppControllerBase::get()->beginLaunch(_launchInfo);
 }
 
 void AppRunnerBase::finishLaunch()
 {
-    pAppController->finishLaunch(_launchInfo);
+    AppControllerBase::get()->finishLaunch(_launchInfo);
 }
 
 void AppRunnerBase::launch()

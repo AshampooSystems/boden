@@ -3,6 +3,8 @@
 
 #include <bdn/Uri.h>
 
+#include <bdn/win32/hresultError.h>
+
 namespace bdn
 {
 	
@@ -14,7 +16,7 @@ ErrorInfo::ErrorInfo(const std::exception& error)
     if(pSysError!=nullptr)
         initFromSystemError(*pSysError);
     else
-        initFromErrorString( error.what() )
+        initFromErrorString( error.what() );
 }
 
 ErrorInfo::ErrorInfo(const String& errorString)

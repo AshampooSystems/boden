@@ -55,14 +55,14 @@ public:
     String toString() const override;
 
 private:
-    void ensureStringsInitialized();
+    void ensureStringsInitialized() const;
 
     std::exception_ptr  _exceptionPtr;
 
-    bool                _stringsInitialized = false;
+    mutable bool        _stringsInitialized = false;
 
-    String              _errorMessage;
-    String              _detailedString;
+    mutable String      _errorMessage;
+    mutable String      _detailedString;
 
     bool                _canKeepRunning;
     bool                _keepRunning = false;

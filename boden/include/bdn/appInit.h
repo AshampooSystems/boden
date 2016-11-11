@@ -23,11 +23,11 @@
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int main(int argc, char* argv[]) \
 			{ \
-                BDN_ROOT_BEGIN; \
+                BDN_ENTRY_BEGIN; \
 				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
-                BDN_ROOT_END_EXCEPTIONS_ARE_FATAL; \
+                BDN_ENTRY_END(false); \
 			}
 
 	#else
@@ -35,11 +35,11 @@
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
-                BDN_ROOT_BEGIN; \
+                BDN_ENTRY_BEGIN; \
 				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, showCommand ); \
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
-                BDN_ROOT_END_EXCEPTIONS_ARE_FATAL; \
+                BDN_ENTRY_END(false); \
 			}
 
 	#endif
@@ -51,11 +51,11 @@
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
-            BDN_ROOT_BEGIN; \
+            BDN_ENTRY_BEGIN; \
 			bdn::P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
-            BDN_ROOT_END_EXCEPTIONS_ARE_FATAL; \
+            BDN_ENTRY_END(false); \
 		}
 
 #elif BDN_PLATFORM_ANDROID
@@ -68,13 +68,13 @@
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls ) \
 		{ \
-			BDN_JNI_BEGIN( pEnv ); \
+			BDN_ENTRY_BEGIN( pEnv ); \
 			{ \
 				bdn::P< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
                 _setAppRunner(pAppRunner); \
 				pAppRunner->entry(); \
 			} \
-			BDN_JNI_END_EXCEPTIONS_ARE_FATAL; \
+			BDN_ENTRY_END(false); \
 		}
 
 #else
@@ -116,11 +116,11 @@
     #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int main(int argc, char* argv[]) \
 		{ \
-            BDN_ROOT_BEGIN; \
+            BDN_ENTRY_BEGIN; \
 			bdn::P< BDN_APPRUNNER_ > pAppRunner = bdn::newObj< BDN_APPRUNNER_ >( appControllerCreator, argc, argv ); \
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
-            BDN_ROOT_END_EXCEPTIONS_ARE_FATAL; \
+            BDN_ENTRY_END(false); \
 		}
 
 #endif

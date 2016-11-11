@@ -1,13 +1,15 @@
 #include <bdn/init.h>
 #include <bdn/UnhandledException.h>
 
+#include <bdn/ErrorInfo.h>
+
 namespace bdn
 {
 
 
-UnhandledException::UnhandledException( const std::exception_ptr& p, bool ignorable )
+UnhandledException::UnhandledException( const std::exception_ptr& p, bool canKeepRunning )
     : _exceptionPtr(p)
-    , _ignorable(ignorable)
+    , _canKeepRunning(canKeepRunning)
 {
 }
 
@@ -18,7 +20,7 @@ void UnhandledException::throwAsException() const
 }
 
 
-void UnhandledException::ensureStringsInitialized()
+void UnhandledException::ensureStringsInitialized() const
 {
     if(!_stringsInitialized)
     {

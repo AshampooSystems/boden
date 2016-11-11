@@ -6,7 +6,6 @@
 
 #include <bdn/win32/ThreadLocalStorageManager.h>
 #include <bdn/RequireNewAlloc.h>
-#include <bdn/winuwp/DispatcherAccess.h>
 
 namespace bdn
 {

@@ -8,29 +8,6 @@
 #include <jni.h>
 
 
-#define BDN_JNI_BEGIN(pEnv) \
-    { \
-        bdn::java::Env::JniBlock jniBlock_(pEnv); \
-        try \
-        {
-
-
-#define BDN_JNI_END \
-        } \
-        catch(std::exception& e) \
-        { \
-            jniBlock_.endedWithException(e); \
-            return; \
-        } \
-        catch(...) \
-        { \
-            jniBlock_.endedWithException(std::exception()); \
-            return; \
-        } \
-        jniBlock_.endedNormally(); \
-    }
-
-
 
 namespace bdn
 {
@@ -57,44 +34,10 @@ public:
     BDN_SAFE_STATIC_THREAD_LOCAL(Env, get );
 
 
-    /** Helper class that manages the environment inside a JNI callback function.
-     *
-     *  This class is usually not used directly. Use BDN_JNI_BEGIN and BDN_JNI_END instead.
-     * */
-    class JniBlock
-    {
-    public:
-        JniBlock(JNIEnv* pEnv)
-        {
-            Env::get().jniBlockBegun(pEnv);
-        }
-
-        ~JniBlock()
-        {
-            if(!_ended)
-                Env::get().jniBlockEnded();
-        }
-
-        void endedWithException(const std::exception& e)
-        {
-            Env::get().jniBlockEndedWithException(e);
-            _ended = true;
-        }
-
-        void endedNormally()
-        {
-            Env::get().jniBlockEnded();
-            _ended = true;
-        }
-
-    private:
-        bool _ended = false;
-    };
-
 
     /** Indicates that a block of native code was begun.
      *
-     *  This is called automatically by the BDN_JNI_BEGIN macro. It is usually not necessary
+     *  This is called automatically by the BDN_ENTRY_BEGIN macro. It is usually not necessary
      *  to call this directly.
      *
      *  pEnv must be a pointer to the JNI environment object that was received by the
@@ -105,21 +48,6 @@ public:
         // thread local (and the JNIEnv stays the same for the same thread).
         if(_pEnvIfKnown==nullptr)
             setEnv(pEnv, false);
-    }
-
-    /** Indicates that a JNI block has ended with an exception.
-     *
-     *  The exception will be forwarded to the Java side.
-     *
-     *  This is called automatically by the BDN_JNI_END macro. It is usually not necessary
-     *  to call this directly.
-     *
-     * */
-    void jniBlockEndedWithException(const std::exception& e)
-    {
-        setJavaSideException(e);
-
-        jniBlockEnded();
     }
 
 
@@ -136,7 +64,7 @@ public:
 
     /** Returns the Jni environment object.
      *  Throws a JniEnvNotSetError if it has not been set yet.
-     *  The JNI environment is set with the macro BDN_JNI_BEGIN.
+     *  The JNI environment is set with the macro BDN_ENTRY_BEGIN.
      **/
     JNIEnv* getJniEnv()
     {

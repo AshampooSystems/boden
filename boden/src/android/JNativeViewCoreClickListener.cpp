@@ -8,7 +8,7 @@
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListener_viewClicked(JNIEnv* pEnv, jobject rawSelf, jobject rawView)
 {
-    BDN_JNI_BEGIN(pEnv);
+    BDN_ENTRY_BEGIN(pEnv);
 
     bdn::android::ViewCore* pViewCore = bdn::android::ViewCore::getViewCoreFromJavaViewRef( bdn::java::Reference::convertExternalLocal(rawView) );
 
@@ -22,7 +22,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
         pViewCore->clicked();
     }
 
-    BDN_JNI_END;
+    BDN_ENTRY_END(true);
 }
 
 
