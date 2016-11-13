@@ -50,7 +50,7 @@ public:
 protected:
 	void platformSpecificInit() override;
 
-	void mainLoop() override;
+	void mainLoop();
 
     void disposeMainDispatcher() override;
 

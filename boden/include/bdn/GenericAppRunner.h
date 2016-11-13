@@ -51,7 +51,9 @@ public:
 	{
 		launch();
 
-		runMainLoop();
+		mainLoop();
+
+		terminating();
 
 		{
 			MutexLock lock(_exitMutex);
@@ -75,7 +77,7 @@ protected:
 		return _exitRequested;
 	}
 
-	void mainLoop() override
+	void mainLoop()
 	{
 		// commandline apps have no user interface events to handle. So our main loop
 		// only needs to handle our own scheduled events.

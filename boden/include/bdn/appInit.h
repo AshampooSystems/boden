@@ -3,11 +3,12 @@
 
 #include <bdn/AppControllerBase.h>
 #include <bdn/IAppRunner.h>
+#include <bdn/entry.h>
 
 #ifdef BDN_COMPILING_COMMANDLINE_APP
-	#define BDN_APP_RUNNER_CLASS_NAME_ CommandLineAppRunner
+	#define BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ CommandLineAppRunner
 #else
-	#define BDN_APP_RUNNER_CLASS_NAME_ UiAppRunner
+	#define BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ UiAppRunner
 #endif
 
 
@@ -24,7 +25,7 @@
 			int main(int argc, char* argv[]) \
 			{ \
                 BDN_ENTRY_BEGIN; \
-				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
+				bdn::P< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
                 BDN_ENTRY_END(false); \
@@ -36,7 +37,7 @@
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
                 BDN_ENTRY_BEGIN; \
-				bdn::P< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, showCommand ); \
+				bdn::P< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, showCommand ); \
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
                 BDN_ENTRY_END(false); \
@@ -52,7 +53,7 @@
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
             BDN_ENTRY_BEGIN; \
-			bdn::P< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::winuwp:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+			bdn::P< bdn::winuwp::AppRunner> pAppRunner = bdn::newObj< bdn::winuwp::AppRunner>( appControllerCreator, args ); \
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
             BDN_ENTRY_END(false); \
@@ -70,7 +71,7 @@
 		{ \
 			BDN_ENTRY_BEGIN( pEnv ); \
 			{ \
-				bdn::P< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_CLASS_NAME_ >( appControllerCreator, args ); \
+				bdn::P< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, args ); \
                 _setAppRunner(pAppRunner); \
 				pAppRunner->entry(); \
 			} \
@@ -82,22 +83,22 @@
 	#if BDN_PLATFORM_LINUX
 		#include <bdn/gtk/CommandLineAppRunner.h>
 		#include <bdn/gtk/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::gtk:: BDN_APP_RUNNER_CLASS_NAME_
+		#define BDN_APPRUNNER_ bdn::gtk:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
 
 	#elif BDN_PLATFORM_MAC
 		#include <bdn/mac/CommandLineAppRunner.h>
 		#include <bdn/mac/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::mac:: BDN_APP_RUNNER_CLASS_NAME_
+		#define BDN_APPRUNNER_ bdn::mac:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
 
 	#elif BDN_PLATFORM_IOS
 		#include <bdn/ios/CommandLineAppRunner.h>
 		#include <bdn/ios/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::ios:: BDN_APP_RUNNER_CLASS_NAME_
+		#define BDN_APPRUNNER_ bdn::ios:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
 
 	#elif BDN_PLATFORM_WEBEMS
 		#include <bdn/webems/CommandLineAppRunner.h>
 		#include <bdn/webems/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::webems:: BDN_APP_RUNNER_CLASS_NAME_
+		#define BDN_APPRUNNER_ bdn::webems:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
 
 	#else
 

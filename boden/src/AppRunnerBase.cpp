@@ -51,19 +51,10 @@ void AppRunnerBase::launch()
     finishLaunch();
 }
 
-void AppRunnerBase::runMainLoop()
-{
-    mainLoop();
-
-	terminating();
-}
-
 void AppRunnerBase::terminating()
 {
-    BDN_LOG_AND_IGNORE_EXCEPTION(
-        if(_appControllerBeginLaunchCalled)
-            AppControllerBase::get()->onTerminate()
-        ,"AppController onTerminating threw exception. Ignoring." );
+    if(_appControllerBeginLaunchCalled)
+        AppControllerBase::get()->onTerminate();
 
     // the main dispatcher may still contain some pending items. However, when we return
     // from terminating then the destruction of global variables may begin almost immediately.
@@ -72,10 +63,9 @@ void AppRunnerBase::terminating()
     // And since the app runner is created first, it will be destroyed last. Which means that if the
     // object's destructors access any global objects then those might already be destroyed and we
     // can get a crash.
-    BDN_LOG_AND_IGNORE_EXCEPTION( disposeMainDispatcher(), "AppRunnerBase::disposeMainDispatcher threw exception. Ignoring." );
+    disposeMainDispatcher();
 
-
-    BDN_LOG_AND_IGNORE_EXCEPTION( platformSpecificCleanup(), "AppRunnerBase::platformSpecificCleanup threw exception. Ignoring." );
+    platformSpecificCleanup();
 }
 
 bool AppRunnerBase::unhandledException(bool canKeepRunning)

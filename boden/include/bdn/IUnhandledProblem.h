@@ -43,7 +43,7 @@ public:
 
         Returns true otherwise.
         */
-    virtual bool keepRunning();
+    virtual bool keepRunning()=0;
 
         
 

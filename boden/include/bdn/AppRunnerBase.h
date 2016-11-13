@@ -70,27 +70,6 @@ public:
 
 protected:
 
-	/** Executes mainLoop(). Automatically handles exceptions and notifies the app controller
-		when the loop ends.
-		
-		You usually do not need to override this if you want to provide a main loop implementation.
-		Instead you should override mainLoop().
-		*/
-	virtual void runMainLoop();
-
-
-	/** The core main loop implementation.
-
-		Runs the apps main loop and does not return until the app should exit.
-
-		It is ok for this to let exceptions through - they will be handled by the
-		function that calls this.
-
-		mainLoop also does NOT have to notify the app controller when the app exits
-		- that is also done by the function that calls this.	
-	*/
-	virtual void mainLoop()=0;
-
 
 	void setLaunchInfo(const AppLaunchInfo& launchInfo)
 	{

@@ -1,5 +1,9 @@
 #include <bdn/init.h>
-#include <bdn/Dispatcher.h>
+#include <bdn/winuwp/Dispatcher.h>
+
+#include <bdn/winuwp/platformError.h>
+#include <bdn/entry.h>
+#include <bdn/log.h>
 
 namespace bdn
 {
@@ -25,16 +29,16 @@ void Dispatcher::enqueue(
 
     P<Dispatcher> pThis = this;
     
-	bdn::winuwp::DispatcherAccess::get().getMainDispatcher()->RunAsync(
+	_pCoreDispatcher->RunAsync(
 		::Windows::UI::Core::CoreDispatcherPriority::Normal,
 		ref new Windows::UI::Core::DispatchedHandler(
 			[pThis, priority]()
 			{
-                BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+				BDN_ENTRY_BEGIN;
 
                 pThis->executeItem(priority);
 
-                BDN_WINUWP_TO_PLATFORMEXC_END
+				BDN_ENTRY_END(true);
 			} ) );
 
 
@@ -60,9 +64,7 @@ void Dispatcher::executeItem(Priority priority)
     }
 
     if(func)
-    {
-        BDN_LOG_AND_IGNORE_EXCEPTION( func(), "Exception executing queued Dispatcher item. Ignoring." );
-    }
+        func();
 }
 
 std::list< std::function<void()> >& Dispatcher::getQueue(Priority priority)
@@ -72,7 +74,7 @@ std::list< std::function<void()> >& Dispatcher::getQueue(Priority priority)
     else if(priority==IDispatcher::Priority::normal)
         return _normalQueue;
     else
-        throw InvalidArgumentError("Invalid Dispatcher item priority: "+ std::to_string((int)) );
+        throw InvalidArgumentError("Invalid Dispatcher item priority: "+ std::to_string((int)priority) );
 }
 
 
@@ -89,7 +91,6 @@ void Dispatcher::enqueueInSeconds(
     
     P< TimedItem<void> > pItem = newObj< TimedItem<void> >();
 
-    pItem->pThis = this;
     pItem->func = func;
     pItem->priority = priority;
 
@@ -112,14 +113,21 @@ void Dispatcher::enqueueInSeconds(
 
                 pThis->enqueue(
                     [pItem]()
-                    {                        
-                        BDN_LOG_AND_IGNORE_EXCEPTION( pItem->func(), "Exception in Dispatcher item handler. Ignoring.");
+                    {                 
+						try
+						{
+							pItem->func();
+						}
+						catch(...)
+						{
+							// release the function here to ensure that the destruction of associated data happens
+							// in the dispatcher thread.
+							pItem->func = std::function<void()>();
 
-                        // release the function here to ensure that the destruction of associated data happens
-                        // in the dispatcher thread.
-                        BDN_LOG_AND_IGNORE_EXCEPTION( 
-                            pItem->func = std::function<void()>()
-                            , "Exception in destructor of Dispatcher item handler. Ignoring." );
+							throw;
+						}
+
+						pItem->func = std::function<void()>();
 
                     },
                     pItem->priority);
@@ -146,14 +154,13 @@ void Dispatcher::createTimer(
 
     MutexLock lock(_queueMutex);
 
-    std::list< P<Timer> >::iterator it = _timerList.emplace_back(pTimer);
+    std::list< P<Timer> >::iterator it = _timerList.insert( _timerList.end(), nullptr );
+
+	P<Timer> pTimer = newObj<Timer>( this, it, func );
         
-    P<Timer> pTimer = newObj<Timer>( this, it, func );
     *it = pTimer;
     
-    P<Dispatcher>         pThis = this;
-
-    ::Windows::Foundation::TimeSpan ts;
+	::Windows::Foundation::TimeSpan ts;
     ts.Duration = (int64_t)(intervalSeconds*10000000);
     
     // note that we would love to use ::Windows::UI::Xaml::DispatcherTimer here,
@@ -162,58 +169,21 @@ void Dispatcher::createTimer(
     // the event queue is empty, which is not good enough for us.
     // So instead we are forced to use a ThreadPoolTimer instead.
 
-    ::Windows::System::Threading::ThreadPoolTimer::CreatePeriodicTimer(
+    ::Windows::System::Threading::ThreadPoolTimer^ pUwpTimer = ::Windows::System::Threading::ThreadPoolTimer::CreatePeriodicTimer(
         ref new ::Windows::System::Threading::TimerElapsedHandler(
-            [pItem, pThis](::Windows::System::Threading::ThreadPoolTimer^ pTimer)
+            [pTimer](::Windows::System::Threading::ThreadPoolTimer^ pUwpTimer)
             {
-                BDN_WINUWP_TO_PLATFORMEXC_BEGIN;
+                BDN_ENTRY_BEGIN;
 
-                // we have to call the function synchronously, because we need
-                // to react to the return value. We also have to ensure that
-                // this handler does not return before func has finished,
-                // because otherwise we can potentially spam our queue full of
-                // timer events when the handler executes too slowly.
+				pTimer->setUwpTimer(pUwpTimer);
 
-                std::packaged_task<bool>* pTask = new std::packaged_task<bool>(
-                    [pItem]() -> bool
-                    {
-                        bool result = true; // continue timer by default
+				pTimer->call();
 
-                        if(pItem->func)
-                        {
-                            BDN_LOG_AND_IGNORE_EXCEPTION( result = pItem->func(), "Exception in Dispatcher timer handler. Ignoring.");
-
-                            if(!result)
-                            {
-                                BDN_LOG_AND_IGNORE_EXCEPTION( 
-                                    // release the function reference to ensure that this
-                                    // happens from the main thread.
-                                    pItem->func = std::function<bool()>(),
-                                    "Exception in destructor of Dispatcher timer handler. Ignoring." );
-                            }
-                        }
-
-                        return result;                        
-                    } );
-
-                std::future<bool> resultFuture = pTask->get_future();
-
-                pThis->enqueue(
-                    [pTask]()
-                    {
-                        *pTask();
-                    },
-                    pItem->priority);
-
-                // wait for the result.
-                bool result = resultFuture.get();
-
-                if(!result)
-                    pTimer->Cancel();
-                
-                BDN_WINUWP_TO_PLATFORMEXC_END
+				BDN_ENTRY_END(true);
             } ),
         ts );
+
+	pTimer->setUwpTimer(pUwpTimer);
 }
 
 Dispatcher::Timer::Timer( Dispatcher* pDispatcher, std::list<P<Timer> >::iterator it, std::function<bool()> func )
@@ -229,78 +199,110 @@ Dispatcher::Timer::~Timer()
     dispose();
 }
 
-Dispatcher::Timer::setUwpTimer(::Windows::System::Threading::ThreadPoolTimer^ pTimer)
+void Dispatcher::Timer::setUwpTimer(::Windows::System::Threading::ThreadPoolTimer^ pTimer)
 {
     _pUwpTimer = pTimer;
 }
 
 void Dispatcher::Timer::dispose()
 {
-    MutexLock lock( _pDispatcher->queueMutex );
+	// keep ourselves alive
+	P<Timer> pThis = this;
+	bool	 cleanUp = false;
 
-    if(!_disposed)
-    {
-        // keep ourselves alive
-        P<Timer> pThis = this;
+	{
+		MutexLock lock( _pDispatcher->_queueMutex );
 
-        // remove ourselves from the timer list
-        _pDispatcher->_timerList.erase( _it );
+		if(!_disposed)
+		{
+			cleanUp = true;
 
-        _disposed = true;
+			// remove ourselves from the timer list
+			_pDispatcher->_timerList.erase( _it );
 
-        // make sure that data referenced by the function is released.
-        // Note that we first make a copy here to ensure that destructing
-        // our member object always works. If the referenced data throws
-        // an exception then it will happen when the local object is destroyed.
-        BDN_LOG_AND_IGNORE_EXCEPTION(
-            std::function< bool() > func = _func;        
-            _func = std::function<bool()>();
-            , "Exception destructing Dispatcher Timer handler function object. Ignoring." );            
+			_disposed = true;
+		}
+	}
+	
 
-        BDN_LOG_AND_IGNORE_EXCEPTION(
-            {
-                BDN_WINUWP_TO_STDEXC_BEGIN
-                    _pUwpTimer->Cancel();
-                BDN_WINUWP_TO_STDEXC_END
-            },
-            "Exception cancelling winuwp timer while disposing Dispatcher timer. Ignoring." );        
-    }
+	if(cleanUp)
+	{
+		// make sure that data referenced by the function is released.
+		// Note that we first make a copy here to ensure that destructing
+		// our member object always works. If the referenced data throws
+		// an exception then it will happen when the local object is destroyed.
+		BDN_LOG_AND_IGNORE_EXCEPTION(
+			std::function< bool() > func = _func;        
+			_func = std::function<bool()>();
+			, "Exception destructing Dispatcher Timer handler function object. Ignoring." );            
+
+		BDN_LOG_AND_IGNORE_EXCEPTION(
+			{
+				if(_pUwpTimer!=nullptr)
+					_pUwpTimer->Cancel();
+			},
+			"Exception cancelling winuwp timer while disposing Dispatcher timer. Ignoring." );        
+	}
 }
 
-bool Dispatcher::Timer::call()
+void Dispatcher::Timer::call()
 {
-    MutexLock lock(_mutex);XXX
+	{
+		MutexLock lock(_callPendingMutex);
 
-    if(_disposed)
-        return false;
+		if(_callPending)
+		{
+			// a call is pending or still being executed. So we simply
+			// skip this iteration here and do nothing. Otherwise we risk
+			// to spam the dispatcher queue full of multiple timer call messages
+			// which will be executed at some point in quick succession.
+			return;
+		}
 
-    _callFinishedSignal.clear();
+		_callPending = true;
+	}
+
+	P<Timer> pThis = this;
 
     _pDispatcher->enqueue(
-        // note that it is ok to just pass this here, without increasing our reference
-        // count. We wait for the call to finish, so we cannot be destroyed until it is done.
-        [this]()
+        [pThis]()
         {
-            _lastCallResult = true;
+			try
+			{
+				std::function< bool() > func;
 
-            BDN_LOG_AND_IGNORE_EXCEPTION(
-                _lastCallResult = _func(),
-                "Exception in Dispatcher Timer handler. Ignoring.");
+				{
+					MutexLock lock( pThis->_pDispatcher->_queueMutex );
 
-            if(!_lastCallResult)
-            {
-                // dispose from this thread, to ensure that the destructor of func's data
-                // is also called from this thread.
-                dispose();
-            }
+					// do nothing if we have been disposed.
+					if(!pThis->_disposed)
+					{
+						// make a copy of the function so that we can release the queue mutex.
+						func = pThis->_func;
+					}
+				}
 
-            _callFinishedSignal.set();
-        } );
+				// check if the function is valid. If not then we have been disposed and should
+				// do nothing.
+				if(func)
+				{
+					if(!func())
+					{
+						// cancel the timer. I.e. dispose.
+						pThis->dispose();
+					}
+				}
+			}
+			catch(...)
+			{
+				MutexLock lock(pThis->_callPendingMutex);
+				pThis->_callPending = false;
+				throw;
+			}
 
-    // wait for the call to be finished.
-    _callFinishedSignal.wait();
-
-    return _lastCallResult;
+			MutexLock lock(pThis->_callPendingMutex);
+			pThis->_callPending = false;
+		} );
 }
 
 void Dispatcher::disposeQueue(std::list< std::function<void()> >& queue)
@@ -317,6 +319,12 @@ void Dispatcher::disposeQueue(std::list< std::function<void()> >& queue)
     }
 }
 
+void Dispatcher::disposeTimers()
+{
+	while( ! _timerList.empty() )
+		_timerList.front()->dispose();
+}
+
 void Dispatcher::dispose()
 {
     MutexLock lock(_queueMutex);
@@ -324,12 +332,10 @@ void Dispatcher::dispose()
     disposeQueue(_idleQueue);
     disposeQueue(_normalQueue);
 
-    XXX dispose timers
+	disposeTimers();
 }
     
 
 }
 }
 
-
-#endif

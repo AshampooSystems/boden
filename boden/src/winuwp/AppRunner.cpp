@@ -24,6 +24,7 @@ namespace bdn
 namespace winuwp
 {    
 
+BDN_SAFE_STATIC_THREAD_LOCAL_IMPL( AppRunner::StoredUnhandledException, AppRunner::getThreadLocalStoredUnhandledException )
 
 void _storeParametersForUnhandledException(::Platform::Exception^ pUwpException, bool canKeepRunningAfterException)
 {
@@ -41,7 +42,7 @@ ref class App sealed :	public ::Windows::UI::Xaml::Application,
 internal:
 	App( AppRunner* pAppRunner )
 	{	
-        _pAppRunner = pAppRunner;
+		_pAppRunner = pAppRunner;
 
         InitializeComponent();
 
@@ -62,6 +63,8 @@ public:
 		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByType(type);
 
         BDN_ENTRY_END(false);
+
+		return nullptr;
 	}
 
 	virtual ::Windows::UI::Xaml::Markup::IXamlType^ GetXamlType(::Platform::String^ fullName)
@@ -71,6 +74,8 @@ public:
 		return nullptr;//return getXamlTypeInfoProvider()->GetXamlTypeByName(fullName);
 
         BDN_ENTRY_END(false);
+
+		return nullptr;
 	}
 
 	virtual ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>^ GetXmlnsDefinitions()
@@ -80,6 +85,8 @@ public:
 		return nullptr;//return ref new ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>(0);
 
         BDN_ENTRY_END(false);
+
+		return nullptr;
 	}
 
 
@@ -96,8 +103,12 @@ protected:
 
 	void unhandledUwpException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
 	{
+		BDN_ENTRY_BEGIN;
+
 		if(_pAppRunner!=nullptr)
-			_pAppRunner->unhandledUwpException(pArgs);        
+			_pAppRunner->_unhandledUwpException(pSender, pArgs);        
+
+		BDN_ENTRY_END(true);
 	}
 	
 	void InitializeComponent()
@@ -113,7 +124,7 @@ protected:
 	{
         BDN_ENTRY_BEGIN;
 
-		_pAppController->onSuspend();
+		AppControllerBase::get()->onSuspend();
 
         BDN_ENTRY_END(true);
 	}
@@ -122,13 +133,13 @@ protected:
 	{
         BDN_ENTRY_BEGIN
 
-		_pAppController->onResume();
+		AppControllerBase::get()->onResume();
 
         BDN_ENTRY_END(true);
 	}
     
 internal:
-	P<AppRunnerBase> _pAppRunner;
+	P<AppRunner> _pAppRunner;
 };
 
 
@@ -157,7 +168,7 @@ void AppRunner::prepareLaunch()
     _pMainDispatcher = newObj< bdn::winuwp::Dispatcher >( Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher );
 }
 
-void AppRunner::entry()
+int AppRunner::entry()
 {
 	P<AppRunner> pThis = this;
 
@@ -165,11 +176,26 @@ void AppRunner::entry()
 		ref new Windows::UI::Xaml::ApplicationInitializationCallback(
 			[pThis](Windows::UI::Xaml::ApplicationInitializationCallbackParams^ pParams)
 			{
+				BDN_ENTRY_BEGIN;
+
 				ref new App(pThis);		
+
+				BDN_ENTRY_END(false);
 			} ) );
 
     return 0;
 }    
+
+P<IDispatcher> AppRunner::getMainDispatcher()
+{
+	return _pMainDispatcher;
+}
+
+void AppRunner::initiateExitIfPossible(int exitCode)
+{
+	// UWP apps must not exit themselves. So, ignore this and do nothing.
+	
+}
 
 void AppRunner::disposeMainDispatcher()
 {    
@@ -177,7 +203,7 @@ void AppRunner::disposeMainDispatcher()
 }
 
 
-void AppRunner::storeParametersForUnhandledException(::Platform::Exception^ pUwpException, bool canKeepRunningAfterException)
+void AppRunner::_storeParametersForUnhandledException(::Platform::Exception^ pUwpException, bool canKeepRunningAfterException)
 {
 	// this is called by the BDN_ENTRY_END macro when an unhandled exception is let through
 	// to the UWP runtime. We expect that the app's unhandled exception handler is called,
@@ -186,35 +212,39 @@ void AppRunner::storeParametersForUnhandledException(::Platform::Exception^ pUwp
 
 	// What is important here is that we store the original C++ exception here and use that if unhandledException
 	// is called. That way we do not have to use the derived UWP exception and do not lose information.
-	XXX store thread local
-	_storedUnhandledExceptionPtr = std::current_exception();
-	_canKeepRunningAfterUnhandledException = canKeepRunningAfterException;
 
+	StoredUnhandledException& stored = getThreadLocalStoredUnhandledException();
+
+	stored.exceptionPtr = std::current_exception();
+	stored.canKeepRunning = canKeepRunningAfterException;
+	
 	// store the error code and message of the UWP exception so that we can verify that the unhandled exception
 	// call really is the same one we expect here.
-	_unhandledExceptionHresult = pUwpException->HResult;
-	_unhandledExceptionMessage = pUwpException->Message;
+	stored.hresult = pUwpException->HResult;
+	stored.message = pUwpException->Message;
 }
 
-void AppRunner::unhandledUwpException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
+void AppRunner::_unhandledUwpException(::Platform::Object^ pSender, ::Windows::UI::Xaml::UnhandledExceptionEventArgs^ pArgs)
 {
 	bool canKeepRunning = false;
 
-    try
+	StoredUnhandledException& stored = getThreadLocalStoredUnhandledException();
+
+	try
     {
 		// rethrow the exception so that it becomes the active one.
 
-		HRESULT hresult = pArgs->Exception.Value;
+		HRESULT hresult = pArgs->Exception.Value;	
 
-		if(_storedUnhandledExceptionPtr && hresult==_unhandledExceptionHresult && pArgs->Message==_unhandledExceptionMessage)
+		if(stored.exceptionPtr && hresult==stored.hresult && pArgs->Message==stored.message)
 		{
-			canKeepRunning = _canKeepRunningAfterUnhandledException;
+			canKeepRunning = stored.canKeepRunning;
 
 			try
 			{
 				// this is the unhandled exception we expected. So instead of the UWP exception we get here we use
 				// the C++ exception we stored earlier (see storeParametersForUnhandledException).
-				std::rethrow_exception( _storedUnhandledExceptionPtr );
+				std::rethrow_exception( stored.exceptionPtr );
 			}
 			catch(::Platform::Exception^ pException)
 			{
@@ -227,7 +257,7 @@ void AppRunner::unhandledUwpException(::Platform::Object^ pSender, ::Windows::UI
 				// So convert it into that...
 				String	message( pException->Message->Data() );
 
-				throw bdn::win32::hresultToSystemError(pException->HResult.Value, message);
+				throw bdn::win32::hresultToSystemError(pException->HResult, message);
 			}
 		}
 		else
@@ -252,10 +282,10 @@ void AppRunner::unhandledUwpException(::Platform::Object^ pSender, ::Windows::UI
 
 	// release any stored exception pointers here. If we did match then we used it.
 	// If we did not then no additional call will come for that exception.
-	_storedUnhandledExceptionPtr = std::exception_ptr();
+	stored.exceptionPtr = std::exception_ptr();
 }
 
-    
+
 }
 }
 

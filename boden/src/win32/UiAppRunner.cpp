@@ -103,7 +103,9 @@ int UiAppRunner::entry()
 {
 	launch();
     
-	runMainLoop();
+	mainLoop();
+
+	terminating();
 
     _pTimedEventThread->stop( Thread::ExceptionIgnore );
 

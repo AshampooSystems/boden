@@ -54,14 +54,47 @@ private:
     class Timer : public Base
     {
     public:
-        Timer( std::function<bool()> func);
+        Timer( Dispatcher* pDispatcher, std::list<P<Timer> >::iterator it, std::function<bool()> func );
+		~Timer();
+
+		void setUwpTimer(::Windows::System::Threading::ThreadPoolTimer^ pTimer);
+
+		void call();
 
         void dispose();
+
+	private:
+		::Windows::System::Threading::ThreadPoolTimer^ _pUwpTimer;
+
+		P<Dispatcher>					_pDispatcher;
+		std::list<P<Timer> >::iterator	_it;
+
+		std::function<bool()>	_func;
+		
+		bool	_disposed = false;
+
+		Mutex	_callPendingMutex;
+		bool	_callPending = false;
     };
+	friend class Timer;
 
-    void enqueueAndReleaseTimedItemFromOtherThread( TimedItem& item );
 
-    Windows::UI::Core::CoreDispatcher^ _pCoreDispatcher;
+	std::list< std::function<void()> >& getQueue(Priority priority);
+
+	void executeItem(Priority priority);
+
+	void disposeQueue(std::list< std::function<void()> >& queue);
+	void disposeTimers();
+
+
+    Windows::UI::Core::CoreDispatcher^	_pCoreDispatcher;
+
+	Mutex								_queueMutex;
+	std::list< std::function<void()> >	_idleQueue;
+	std::list< std::function<void()> >	_normalQueue;
+
+
+	std::list< P<Timer> >				_timerList;
 };
 
 

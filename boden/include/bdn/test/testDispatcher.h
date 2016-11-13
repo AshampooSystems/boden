@@ -26,6 +26,7 @@ public:
     {
         _func = func;
         _expectedThreadId = expectedThreadId;
+		_pData = pData;
     }
 
     ~TestDispatcherCallable_()
@@ -33,15 +34,15 @@ public:
         if(!_ignoreThisInstance)
         {
             // destructor MUST also be called from the expected thread
-            REQUIRE( Thread::getId() == _expectedThreadId );
+            REQUIRE( Thread::getCurrentId() == _expectedThreadId );
 
-            pData->callableDestroyedCount++;
+            _pData->callableDestroyedCount++;
         }
     }
 
     ResultType operator()()
     {
-        REQUIRE( Thread::getId() == _expectedThreadId );
+        REQUIRE( Thread::getCurrentId() == _expectedThreadId );
 
         return _func();
     }
@@ -55,6 +56,8 @@ private:
     bool                        _ignoreThisInstance = false;
     std::function<ResultType()> _func;
     Thread::Id                  _expectedThreadId;
+
+	P<TestDispatcherData_>		_pData;
 };
 
 inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, Thread::Id expectedDispatcherThreadId)
@@ -156,7 +159,7 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
         CONTINUE_SECTION_AFTER_SECONDS(1, pData)
         {
             REQUIRE( pData->callOrder.size()==1 );
-            REQUIRE( pData->callableDestroyedCount>0 )
+            REQUIRE( pData->callableDestroyedCount>0 );
         };
     }
 
