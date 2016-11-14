@@ -113,8 +113,10 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
             double expectedTimeAfterStart = (i+1)*0.1;
 
-            // should not have been called before the expected time
-            REQUIRE( timeAfterStart>=expectedTimeAfterStart);
+            // should not have been called before the expected time.
+            // Note that we allow for minor rounding errors or drift that might have caused the call to happen
+            // a tiny fractional time too early.
+            REQUIRE( timeAfterStart>=expectedTimeAfterStart-0.01);
 
             // and not too much after the expected time. Note that we do allow for small
             // hiccups and differences, but the actual time must never be too far behind

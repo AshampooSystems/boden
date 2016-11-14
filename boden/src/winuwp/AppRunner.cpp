@@ -194,6 +194,7 @@ P<IDispatcher> AppRunner::getMainDispatcher()
 void AppRunner::initiateExitIfPossible(int exitCode)
 {
 	// UWP apps must not exit themselves. So, ignore this and do nothing.
+    bdn::doNothing();
 	
 }
 
