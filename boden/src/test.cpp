@@ -7936,6 +7936,10 @@ public:
 		_pTestSession = nullptr;
         _pTestRunner = nullptr;
 	}
+    
+    virtual ~TestAppControllerImplBase()
+    {
+    }
 
 
 

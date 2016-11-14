@@ -3,7 +3,9 @@
 
 #include <bdn/Uri.h>
 
+#if BDN_PLATFORM_WINUWP
 #include <bdn/win32/hresultError.h>
+#endif
 
 namespace bdn
 {

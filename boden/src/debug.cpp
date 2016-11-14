@@ -14,13 +14,11 @@
     namespace bdn
     {
 
-        // The following function is taken directly from the following technical note:
-        // http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
-
-        // Returns true if the current process is being debugged (either
-        // running under the debugger or has a debugger attached post facto).
         bool _isDebuggerActive()
         {
+            // Source:
+            // http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
+
 	        int                 mib[4];
 	        struct kinfo_proc   info;
 	        size_t              size;
@@ -38,11 +36,10 @@
 	        mib[2] = KERN_PROC_PID;
 	        mib[3] = getpid();
 
-	        // Call sysctl.
-
 	        size = sizeof(info);
-	        if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, BDN_NULL, 0) != 0 ) {
-		        bdn::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
+	        if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0) != 0 )
+            {
+		        // unable to determine if debugger is running. Assuming that it is not.
 		        return false;
 	        }
 
@@ -53,7 +50,7 @@
             return active;
         }
 
-    } // namespace bdn
+    }
 
 #elif BDN_PLATFORM_WIN32 || BDN_PLATFORM_WINUWP
 

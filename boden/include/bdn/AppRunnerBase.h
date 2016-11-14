@@ -66,7 +66,7 @@ public:
         \return true if the exception should be ignored and the app should continue (only allowed if
         ignorable is true). False if the app should terminate.
         */
-    bool unhandledException(bool canKeepRunning);
+    bool unhandledException(bool canKeepRunning) override;
 
 protected:
 

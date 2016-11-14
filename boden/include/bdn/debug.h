@@ -64,7 +64,7 @@ inline void debugBreakDummy()
                 }
 
     #else
-        #define BDN_DEBUG_BREAK_IMPL_() if( bdn::isDebuggerActive() ) {__asm__("int $3\n" : : );}
+        #define BDN_DEBUG_BREAK_IMPL_() if( bdn::_isDebuggerActive() ) {__asm__("int $3\n" : : );}
 
     #endif
 

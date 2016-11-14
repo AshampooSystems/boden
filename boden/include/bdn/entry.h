@@ -138,7 +138,7 @@ the original C++ exception and using that instead of the UWP version when our ha
                         }
 
 
-#elid BDN_PLATFORM_ANDROID
+#elif BDN_PLATFORM_ANDROID
 
 #include <bdn/java/Env.h>
 
@@ -160,6 +160,37 @@ the original C++ exception and using that instead of the UWP version when our ha
 				Env::get().setJavaSideException( std::current_exception() ); \
 			} \
         }
+
+#elif BDN_PLATFORM_MAC || BDN_PLATFORM_IOS
+
+#define BDN_ENTRY_BEGIN  \
+    try \
+    {
+
+#define BDN_ENTRY_END(canKeepRunningAfterException) \
+    catch(...) \
+    { \
+        /* This will catch both C++ exceptions and objective C exceptions.*/
+        if( ! bdn::unhandledException(canKeepRunningAfterException) ) \
+        { \
+            /* we want to abort. The best way is to re-throw the exception, so that the runtime will log an appropriate crash message.*/ \
+            /* For C++ exceptions we want to convert them to NSException objects.*/ \
+            try \
+            { \
+                throw; \
+            } \
+            catch(std::exception& e) \
+            { \
+                NSException* nsException = [NSException \
+                                            exceptionWithName:@"CppException" \
+                                            reason:stringToNSString(e.what()) \
+                                            userInfo:nil]; \
+                @throw nsException; \
+            } \
+        } \
+    }
+
+
 
 #else
 
