@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/AppRunnerBase.h>
 
+#include <bdn/debug.h>
+
 #include <bdn/log.h>
 #include <bdn/Thread.h>
 #include <bdn/View.h>
@@ -72,11 +74,6 @@ bool AppRunnerBase::unhandledException(bool canKeepRunning)
 {
     UnhandledException unhandled( std::current_exception(), canKeepRunning );
 
-#ifdef BDN_DEBUG
-	if (IsDebuggerPresent())
-        __debugbreak();
-#endif
-    
     BDN_LOG_AND_IGNORE_EXCEPTION(
         {
             P<AppControllerBase> pAppController = AppControllerBase::get();
@@ -84,7 +81,11 @@ bool AppRunnerBase::unhandledException(bool canKeepRunning)
                 pAppController->unhandledProblem( unhandled );
         }, "Exception while notifying app controller of unhandled exception. Ignoring the additional exception.");
 
-    return unhandled.shouldKeepRunning();
+    if(unhandled.shouldKeepRunning())
+        return true;
+    
+    BDN_DEBUG_BREAK();
+    return false;
 }
 
 }

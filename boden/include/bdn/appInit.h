@@ -29,6 +29,7 @@
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
                 BDN_ENTRY_END(false); \
+                return 0; \
 			}
 
 	#else
@@ -41,6 +42,7 @@
                 _setAppRunner(pAppRunner); \
 				return pAppRunner->entry(); \
                 BDN_ENTRY_END(false); \
+                return 0; \
 			}
 
 	#endif
@@ -57,6 +59,7 @@
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
             BDN_ENTRY_END(false); \
+            return 0; \
 		}
 
 #elif BDN_PLATFORM_ANDROID
@@ -68,7 +71,7 @@
 
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls ) \
-		{ \
+		{ \4
 			BDN_ENTRY_BEGIN( pEnv ); \
 			{ \
 				bdn::P< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, args ); \
@@ -122,6 +125,7 @@
             _setAppRunner(pAppRunner); \
 			return pAppRunner->entry(); \
             BDN_ENTRY_END(false); \
+            return 0; \
 		}
 
 #endif

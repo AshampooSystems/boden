@@ -14,6 +14,16 @@ namespace bdn
 
     The default dispatcher instance of the app can be obtained with getMainDispatcher().
 
+    Exception handling
+    ------------------
+
+    If a dispatcher task throws an exception then the dispatcher must handle it as follows:
+
+    If the dispatcher is executing tasks in a loop then it must call bdn::getAppRunner()->unhandledException(true)
+    and react to the return value accordingly. If true is returned the exception should be ignored
+    and the loop should continue. If false is returned then the loop should be aborted and the exception
+    propagated upwards to the caller of the dispatcher loop (usually causing the app to terminate).
+
 	*/
 class IDispatcher : BDN_IMPLEMENTS IBase
 {
@@ -34,6 +44,7 @@ public:
 
 		enqueue() can be called from any thread.
 
+        See #IDispatcher class documentation for information about how exceptions thrown by func are handled.
 		*/
 	virtual void enqueue(
 		std::function< void() > func,
@@ -51,6 +62,8 @@ public:
 		Other tasks can be executed during the wait time (event events with lower priority).
 
 		Also see enqueue().
+
+        See #IDispatcher class documentation for information about how exceptions thrown by func are handled.
 		*/
 	virtual void enqueueInSeconds(
 		double seconds,
@@ -73,7 +86,7 @@ public:
 		priority work then there will be at most one event waiting in the queue and you will not get
 		a quick succession of calls when the queue empties.
         
-        If func throws an exception then the exception is logged and the timer continues. It is not aborted.
+        See #IDispatcher class documentation for information about how exceptions thrown by func are handled.
         
         */
 	virtual void createTimer(

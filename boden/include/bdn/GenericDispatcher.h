@@ -5,6 +5,7 @@
 #include <bdn/Signal.h>
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/log.h>
+#include <bdn/IAppRunner.h>
 
 #include <chrono>
 #include <functional>
@@ -93,7 +94,7 @@ public:
 		{
 			Duration	interval = secondsToDuration(intervalSeconds);
             
-			P<Timer> pTimer = newObj<Timer>(this, func, interval);
+			P<Timer>    pTimer = newObj<Timer>(this, func, interval);
 
 			pTimer->scheduleNextEvent();
 		}
@@ -101,7 +102,11 @@ public:
 
 
     /** Executes the next work item. Returns true if one was executed,
-        false when there are currently no items ready to be executed.*/
+        false when there are currently no items ready to be executed.
+        
+        executeNext does not handle exceptions thrown by the work function
+        that it calls. So if an exception is thrown then executeNext will let it come through.
+        */
 	bool executeNext();
 
         
@@ -153,12 +158,23 @@ public:
         void run() override
         {
             while(!shouldStop())
-            {    
-                if(! _pDispatcher->executeNext() )
+            {
+                try
                 {
-                    // we can wait for a long time here because when signalStop is called we will
-                    // get an item posted. So we automatically wake up.
-                    _pDispatcher->waitForNext(10);
+                    if(! _pDispatcher->executeNext() )
+                    {
+                        // we can wait for a long time here because when signalStop is called we will
+                        // get an item posted. So we automatically wake up.
+                        _pDispatcher->waitForNext(10);
+                    }
+                }
+                catch(...)
+                {
+                    if( ! bdn::getAppRunner()->unhandledException(true) )
+                    {
+                        // abort the app (= let exception through).
+                        throw;
+                    }
                 }
             }
         }
@@ -308,13 +324,27 @@ private:
 		{
 			// if func returns false then the timer should be destroyed (i.e.
 			// no additional event should be scheduled).
-			if( _func() )
-			{
-				// timer remains in effect. Reschedule it.
+            bool continueTimer = true;
+            try
+            {
+                continueTimer = _func();
+            }
+            catch(...)
+            {
+                // when we get an exception then we keep the timer running.
 				updateNextEventTime();
-
 				scheduleNextEvent();
+
+                // then let the exception through for normal unhandledProblem processing.
+                throw;
 			}
+
+            // if continueTimer is false then we simply do not schedule the next event.
+            if(continueTimer)
+            {
+                updateNextEventTime();
+                scheduleNextEvent();
+            }
 		}
 		
 

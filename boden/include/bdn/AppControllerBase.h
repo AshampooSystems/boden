@@ -160,9 +160,9 @@ public:
 
     /** Called when there was an unhandled problem (like an unhandled exception).
 
-        If the implementation of this method does call IUnhandledProblem::ignore() then
+        If the implementation of this method does call IUnhandledProblem::keepRunning() then
         the app will terminate after the method returns. Note that not all problems
-        can be ignored.
+        can be ignored in this way (see IUnhandledProblem::canKeepRunning()).
     
         The default implementation simply logs the problem and lets the app terminate.
 

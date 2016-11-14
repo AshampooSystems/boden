@@ -12,19 +12,7 @@ bool GenericDispatcher::executeNext()
 	std::function< void() > func;
 	if( getNextReady(func, true) )
 	{
-		try
-		{
-			func();
-		}
-		catch(std::exception& e)
-		{
-			// log and ignore
-			logError(e, "Exception while executing GenericDispatcher item. Ignoring.");
-		}
-		catch(...)
-		{
-			logError("Exception of unknown type while executing GenericDispatcher item. Ignoring.");
-		}
+        func();
 
 		return true;
 	}

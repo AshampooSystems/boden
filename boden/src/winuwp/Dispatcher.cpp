@@ -28,18 +28,34 @@ void Dispatcher::enqueue(
     BDN_WINUWP_TO_STDEXC_BEGIN;
 
     P<Dispatcher> pThis = this;
-    
-	_pCoreDispatcher->RunAsync(
-		::Windows::UI::Core::CoreDispatcherPriority::Normal,
-		ref new Windows::UI::Core::DispatchedHandler(
-			[pThis, priority]()
-			{
-				BDN_ENTRY_BEGIN;
 
-                pThis->executeItem(priority);
+    if(priority==Priority::idle)
+    {    
+        _pCoreDispatcher->RunIdleAsync(
+		    ref new Windows::UI::Core::IdleDispatchedHandler(
+			    [pThis, priority](::Windows::UI::Core::IdleDispatchedHandlerArgs^ e)
+			    {
+				    BDN_ENTRY_BEGIN;
 
-				BDN_ENTRY_END(true);
-			} ) );
+                    pThis->executeItem(priority);
+
+				    BDN_ENTRY_END(true);
+			    } ) );	    
+    }
+    else
+    {
+        _pCoreDispatcher->RunAsync(
+		    ::Windows::UI::Core::CoreDispatcherPriority::Normal,
+		    ref new Windows::UI::Core::DispatchedHandler(
+			    [pThis, priority]()
+			    {
+				    BDN_ENTRY_BEGIN;
+
+                    pThis->executeItem(priority);
+
+				    BDN_ENTRY_END(true);
+			    } ) );        
+    }
 
 
     BDN_WINUWP_TO_STDEXC_END;

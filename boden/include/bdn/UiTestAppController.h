@@ -21,6 +21,8 @@ public:
 	void finishLaunch(const AppLaunchInfo& launchInfo) override;
 
 	void onTerminate() override;
+
+    void unhandledProblem(IUnhandledProblem& problem) override;
 	
 protected:
 

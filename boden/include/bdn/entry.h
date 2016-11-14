@@ -21,10 +21,13 @@ namespace bdn
 			return false;
 	}
 
+#if BDN_PLATFORM_WINUWP
 	namespace winuwp
 	{
 		void _storeParametersForUnhandledException(::Platform::Exception^ pUwpException, bool canKeepRunningAfterException);
 	}
+#endif
+
 }
 
 

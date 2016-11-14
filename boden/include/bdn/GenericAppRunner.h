@@ -86,10 +86,21 @@ protected:
             
 		while( !shouldExit() )
 		{
-            if(!_pDispatcher->executeNext())
+            try
             {
-                // just wait for the next work item.
-                _pDispatcher->waitForNext( 10 );
+                if(!_pDispatcher->executeNext())
+                {
+                    // just wait for the next work item.
+                    _pDispatcher->waitForNext( 10 );
+                }
+            }
+            catch(...)
+            {
+                if(!unhandledException(true))
+                {
+                    // terminate the app = let error through.
+                    throw;
+                }
             }
         }
 	}

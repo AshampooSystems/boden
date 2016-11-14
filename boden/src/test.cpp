@@ -443,16 +443,7 @@ public: // IStream
 	virtual std::ostream& stream() const BDN_OVERRIDE;
 };
 
-class DebugOutStream : public IStream {
-	std::unique_ptr<StreamBufBase> m_streamBuf;
-	mutable std::ostream m_os;
-public:
-	DebugOutStream();
-	virtual ~DebugOutStream() BDN_NOEXCEPT;
 
-public: // IStream
-	virtual std::ostream& stream() const BDN_OVERRIDE;
-};
 }
 
 #include <memory>
@@ -584,12 +575,8 @@ private:
 	IStream const* openStream() {
 		if( m_data.outputFilename.empty() )
 			return new CoutStream();
-		else if( m_data.outputFilename[0] == '%' ) {
-			if( m_data.outputFilename == "%debug" )
-				return new DebugOutStream();
-			else
-				throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
-		}
+		else if( m_data.outputFilename[0] == '%' )
+			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
 		else
 			return new FileStream( m_data.outputFilename );
 	}
@@ -4543,21 +4530,6 @@ std::ostream& FileStream::stream() const {
 	return m_ofs;
 }
 
-struct OutputDebugWriter {
-
-	void operator()( std::string const&str ) {
-		writeToDebugConsole( str );
-	}
-};
-
-DebugOutStream::DebugOutStream()
-	:   m_streamBuf( new StreamBufImpl<OutputDebugWriter>() ),
-	m_os( m_streamBuf.get() )
-{}
-
-std::ostream& DebugOutStream::stream() const {
-	return m_os;
-}
 
 // Store the streambuf from cout up-front because
 // cout may get redirected when running tests
@@ -4831,9 +4803,7 @@ Colour::Colour( Colour const& _other ) : m_moved( false ) { const_cast<Colour&>(
 Colour::~Colour(){ if( !m_moved ) use( None ); }
 
 void Colour::use( Code _colourCode ) {
-	static IColourImpl* impl = isDebuggerActive()
-		? NoColourImpl::instance()
-		: platformColourInstance();
+	static IColourImpl* impl = platformColourInstance();
 	impl->use( _colourCode );
 }
 
@@ -5574,92 +5544,6 @@ Section::operator bool() const {
 #define TWOBLUECUBES_BDN_DEBUGGER_HPP_INCLUDED
 
 #include <iostream>
-
-#ifdef BDN_PLATFORM_OSX
-
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-
-namespace bdn{
-
-// The following function is taken directly from the following technical note:
-// http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
-
-// Returns true if the current process is being debugged (either
-// running under the debugger or has a debugger attached post facto).
-bool isDebuggerActive(){
-
-	int                 mib[4];
-	struct kinfo_proc   info;
-	size_t              size;
-
-	// Initialize the flags so that, if sysctl fails for some bizarre
-	// reason, we get a predictable result.
-
-	info.kp_proc.p_flag = 0;
-
-	// Initialize mib, which tells sysctl the info we want, in this case
-	// we're looking for information about a specific process ID.
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PID;
-	mib[3] = getpid();
-
-	// Call sysctl.
-
-	size = sizeof(info);
-	if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, BDN_NULL, 0) != 0 ) {
-		bdn::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
-		return false;
-	}
-
-	// We're being debugged if the P_TRACED flag is set.
-
-	bool active = ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-
-    return active;
-}
-} // namespace bdn
-
-#elif defined(_MSC_VER)
-extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-namespace bdn {
-bool isDebuggerActive() {
-	return IsDebuggerPresent() != 0;
-}
-}
-#elif defined(__MINGW32__)
-extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-namespace bdn {
-bool isDebuggerActive() {
-	return IsDebuggerPresent() != 0;
-}
-}
-#else
-namespace bdn {
-inline bool isDebuggerActive() { return false; }
-}
-#endif // Platform
-
-#ifdef BDN_PLATFORM_WINDOWS
-extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
-namespace bdn {
-void writeToDebugConsole( std::string const& text ) {
-	::OutputDebugStringA( text.c_str() );
-}
-}
-#else
-namespace bdn {
-void writeToDebugConsole( std::string const& text ) {
-	// !TBD: Need a version for Mac/ XCode and other IDEs
-	bdn::cout() << text;
-}
-}
-#endif // Platform
 
 // #included from: catch_tostring.hpp
 #define TWOBLUECUBES_BDN_TOSTRING_HPP_INCLUDED
@@ -7961,7 +7845,6 @@ IShared::~IShared() {}
 IStream::~IStream() BDN_NOEXCEPT {}
 FileStream::~FileStream() BDN_NOEXCEPT {}
 CoutStream::~CoutStream() BDN_NOEXCEPT {}
-DebugOutStream::~DebugOutStream() BDN_NOEXCEPT {}
 StreamBufBase::~StreamBufBase() BDN_NOEXCEPT {}
 IContext::~IContext() {}
 IResultCapture::~IResultCapture() {}
@@ -8031,6 +7914,18 @@ int runTestSession( int argc, char const* const argv[] )
 {
 	return bdn::Session().run( argc, argv );
 }
+
+namespace test
+{
+    std::function<void(IUnhandledProblem&)> _globalUnhandledProblemHandler;
+
+    void _setUnhandledProblemHandler( std::function<void(IUnhandledProblem&)> func)
+    {
+        _globalUnhandledProblemHandler = func;
+    }
+
+}
+
 
 
 class TestAppControllerImplBase
@@ -8111,6 +8006,18 @@ public:
 		deinitUi();
 	}
 
+
+
+    bool  unhandledProblem(IUnhandledProblem& problem)
+    {
+        if(bdn::test::_globalUnhandledProblemHandler)
+        {
+            bdn::test::_globalUnhandledProblemHandler(problem);
+            return true;
+        }
+        else
+            return false;
+    }
 
 protected:
 	
@@ -8202,6 +8109,7 @@ protected:
         }
 
     }
+
 
 protected:
 	Session*    _pTestSession;
@@ -8306,7 +8214,11 @@ void UiTestAppController::onTerminate()
 	_pImpl->deinit();
 }
 
-
+void UiTestAppController::unhandledProblem(IUnhandledProblem& problem)
+{
+    if(!_pImpl->unhandledProblem(problem))
+        AppControllerBase::unhandledProblem(problem);
+}
 
 
 class CommandLineTestAppController::Impl : public TestAppControllerImplBase
@@ -8354,7 +8266,11 @@ void CommandLineTestAppController::onTerminate()
 	_pImpl->deinit();
 }
 
-
+void CommandLineTestAppController::unhandledProblem(IUnhandledProblem& problem)
+{
+    if(!_pImpl->unhandledProblem(problem))
+        AppControllerBase::unhandledProblem(problem);
+}
 
 }
 
