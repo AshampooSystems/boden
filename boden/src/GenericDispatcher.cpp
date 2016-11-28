@@ -75,7 +75,6 @@ bool GenericDispatcher::waitForNext(double timeoutSeconds)
 
                 auto it = _timedItemMap.begin();
 				const TimedItemKey&	key( it->first );
-				const TimedItem&    val( it->second );
 
 				auto& scheduledTime = std::get<0>(key);
 

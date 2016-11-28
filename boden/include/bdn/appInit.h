@@ -89,9 +89,16 @@
 		#define BDN_APPRUNNER_ bdn::gtk:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
 
 	#elif BDN_PLATFORM_OSX
-		#include <bdn/mac/CommandLineAppRunner.h>
-		#include <bdn/mac/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::mac:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
+
+        #ifdef BDN_COMPILING_COMMANDLINE_APP
+            #include <bdn/GenericAppRunner.h>
+            #define BDN_APPRUNNER_ bdn::GenericAppRunner
+
+        #else
+      		#include <bdn/mac/UiAppRunner.h>
+            #define BDN_APPRUNNER_ bdn::mac::UiAppRunner
+
+        #endif
 
 	#elif BDN_PLATFORM_IOS
 		#include <bdn/ios/CommandLineAppRunner.h>

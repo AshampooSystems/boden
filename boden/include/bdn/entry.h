@@ -161,33 +161,22 @@ the original C++ exception and using that instead of the UWP version when our ha
 			} \
         }
 
-#elif BDN_PLATFORM_MAC || BDN_PLATFORM_IOS
+#elif BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
+
+#include <bdn/fk/exceptionUtil.h>
 
 #define BDN_ENTRY_BEGIN  \
     try \
     {
 
 #define BDN_ENTRY_END(canKeepRunningAfterException) \
+    } \
     catch(...) \
     { \
-        /* This will catch both C++ exceptions and objective C exceptions.*/
-        if( ! bdn::unhandledException(canKeepRunningAfterException) ) \
-        { \
-            /* we want to abort. The best way is to re-throw the exception, so that the runtime will log an appropriate crash message.*/ \
-            /* For C++ exceptions we want to convert them to NSException objects.*/ \
-            try \
-            { \
-                throw; \
-            } \
-            catch(std::exception& e) \
-            { \
-                NSException* nsException = [NSException \
-                                            exceptionWithName:@"CppException" \
-                                            reason:stringToNSString(e.what()) \
-                                            userInfo:nil]; \
-                @throw nsException; \
-            } \
-        } \
+        /* For C++ exceptions we want to convert them to NSException objects, so that the objective C runtime can */ \
+        /* deal with them as normal. Note that that is OK, because NSExceptions are intended */ \
+        /* to be used for programming errors. And an exception reaching an entry point can be considered a programming error.*/ \
+        bdn::fk::rethrowAsNSException(); \
     }
 
 

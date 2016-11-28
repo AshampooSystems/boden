@@ -22,7 +22,7 @@ private:
 		for(int i=0; i<argCount; i++)
 			argStrings.push_back( String::fromLocaleEncoding(args[i]) );
         if(argCount==0)
-            args.push_back(""); // always add the first entry.
+            argStrings.push_back(""); // always add the first entry.
 		launchInfo.setArguments(argStrings);
 
 		return launchInfo;

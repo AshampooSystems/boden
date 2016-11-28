@@ -34,13 +34,16 @@ public:
         The default implementation calls prepareLaunch, beginLaunch and finishLaunch.*/
 	virtual void launch();
 
+
     /** Prepares the app launch. The default implementation initialized global
         data structures and creates the app controller.        
         */
     virtual void prepareLaunch();
 
+
     /** Begins the launch. The default implementation calls AppController::beginLaunch() */
     virtual void beginLaunch();
+
 
     /** Finishes the launch. The default implementation calls AppController::finishLaunch() */
 	virtual void finishLaunch();
@@ -53,7 +56,7 @@ public:
 	}
 
 
-    /** Notifies the app runner taht an unhandled exception was encountered.
+    /** Notifies the app runner that an unhandled exception was encountered.
 
         The exception must be the currently active one that is accessible with
         std::current_exception().
