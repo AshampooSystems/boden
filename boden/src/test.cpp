@@ -4777,8 +4777,16 @@ private:
 
 IColourImpl* platformColourInstance() {
 	Ptr<IConfig const> config = getCurrentContext().getConfig();
+    
+    bool useColor = (config && config->forceColour()) || isatty(STDOUT_FILENO);
+    
+#if BDN_PLATFORM_OSX
+    // the Xcode debugger cannot handle Ansi color codes.
+    if(useColor && bdn::_isDebuggerActive())
+        useColor = false;
+#endif
 
-	return (config && config->forceColour()) || isatty(STDOUT_FILENO)
+	return useColor
 		? PosixColourImpl::instance()
 		: NoColourImpl::instance();
 }
@@ -8141,8 +8149,9 @@ protected:
             
 		_pStatusView = newObj<TextView>();
 
-		// we want to see at least 3 lines in our status view
-		_pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
+		// we want to see at least 3 lines in our status view. We also want to have
+        // a bit of a min size to show at least some text.
+		_pStatusView->minSize() = UiSize( UiLength::em(20), UiLength::em(3) );
 
 		pColumnView->addChildView( _pStatusView );
 	            

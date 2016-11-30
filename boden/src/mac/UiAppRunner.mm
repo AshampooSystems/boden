@@ -94,9 +94,6 @@ static void _globalUnhandledNSException(NSException* exception)
 {
     NSObject* cppExceptionWrapper = nil;
     
-    // XXX
-    std::cerr << "global handler called" << std::endl;
-    
     if(exception.userInfo!=nil)
         cppExceptionWrapper = [exception.userInfo objectForKey:@"bdn::ExceptionReference"];
     
@@ -109,27 +106,15 @@ static void _globalUnhandledNSException(NSException* exception)
         // if the exception is a wrapped C++ exception then we rethrow
         // the original
         if(pCppExceptionRef!=nullptr)
-        {
-            // XXX
-            std::cerr << "rethrow c++" << std::endl;
             pCppExceptionRef->rethrow();
-        }
         else
         {
             // otherwise we throw the NSException pointer.
-
-            // XXX
-            std::cerr << "rethrow ns" << std::endl;
-            
             throw exception;
         }
     }
     catch(...)
     {
-        // XXX
-        std::cerr << "recaught: calling unhandledException" << std::endl;
-
-
         // note that exceptions are never recoverable on mac and ios
         bdn::unhandledException(false);
     }

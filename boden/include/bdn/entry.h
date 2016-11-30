@@ -161,24 +161,44 @@ the original C++ exception and using that instead of the UWP version when our ha
 			} \
         }
 
-#elif BDN_PLATFORM_OSX || BDN_PLATFORM_IOS
 
-#include <bdn/fk/exceptionUtil.h>
+#elif BDN_PLATFORM_IOS
 
-#define BDN_ENTRY_BEGIN  \
-    try \
-    {
 
-#define BDN_ENTRY_END(canKeepRunningAfterException) \
-    } \
-    catch(...) \
-    { \
-        /* For C++ exceptions we want to convert them to NSException objects, so that the objective C runtime can */ \
-        /* deal with them as normal. Note that that is OK, because NSExceptions are intended */ \
-        /* to be used for programming errors. And an exception reaching an entry point can be considered a programming error.*/ \
-        bdn::fk::rethrowAsNSException(); \
-    }
+    #define BDN_ENTRY_BEGIN  \
+        try \
+        {
 
+    #define BDN_ENTRY_END(canKeepRunningAfterException) \
+        } \
+        catch(...) \
+        { \
+            /* For C++ exceptions we want to convert them to NSException objects, so that the objective C runtime can */ \
+            /* deal with them as normal. Note that that is OK, because NSExceptions are intended */ \
+            /* to be used for programming errors. And an exception reaching an entry point can be considered a programming error.*/ \
+            bdn::fk::rethrowAsNSException(); \
+        }
+
+
+#elif BDN_PLATFORM_OSX
+
+    #include <bdn/fk/exceptionUtil.h>
+
+    #define BDN_ENTRY_BEGIN  \
+        try \
+        {
+
+    #define BDN_ENTRY_END(canKeepRunningAfterException) \
+        } \
+        catch(...) \
+        { \
+            /* On macOS the global uncaught exception handler is NOT caught for exceptions that happen in the event loop.*/ \
+            /* Those exceptions are simply logged and ignored. So we cannot simply convert our exceptions to NSException and */ \
+            /* let them through like we do on iOS. Instead we have to manually call our own unhandled exception handler here */ \
+            /* and manually terminate.*/ \
+            if( ! bdn::unhandledException(canKeepRunningAfterException) ) \
+                std::terminate(); \
+        }
 
 
 #else

@@ -94,7 +94,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
     pDestructTest = nullptr;
 
-    CONTINUE_SECTION_AFTER_SECONDS(2.5, pData, startTime, pRedirectUnhandled, throwException)
+    CONTINUE_SECTION_AFTER_SECONDS(4, pData, startTime, pRedirectUnhandled, throwException)
     {
         // our timer is expected to be called once every 100 ms.            
         // Verify that all expected timer calls have happened.
