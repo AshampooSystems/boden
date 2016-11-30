@@ -315,8 +315,8 @@ file( GLOB TESTBODEN_SOURCES
 include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
-# we cannot build commandline tools on iOS. So we have to build a UI app
-if(BODEN_TARGET STREQUAL "ios")
+# we cannot build commandline tools on iOS and UWP. So we have to build a UI app
+if((BODEN_TARGET STREQUAL "ios") OR (BODEN_TARGET STREQUAL "winuwp") )
 	add_executable(testboden WIN32 MACOSX_BUNDLE ${TESTBODEN_SOURCES} )
 
 elseif( "${BODEN_TARGET}" STREQUAL "android" )

@@ -4,6 +4,8 @@
 #include <bdn/win32/CommandLineAppRunner.h>
 #include <bdn/win32/UiAppRunner.h>
 
+#include <bdn/entry.h>
+
 namespace bdn
 {
 namespace win32

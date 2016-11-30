@@ -3,6 +3,8 @@
 
 #include <bdn/winuwp/AppRunner.h>
 
+#include <bdn/entry.h>
+
 namespace bdn
 {
 namespace winuwp

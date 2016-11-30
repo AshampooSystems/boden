@@ -1,6 +1,8 @@
 #ifndef BDN_WIN32_appEntry_H_
 #define BDN_WIN32_appEntry_H_
 
+#include <bdn/AppControllerBase.h>
+
 namespace bdn
 {
 namespace win32

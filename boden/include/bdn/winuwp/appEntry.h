@@ -1,6 +1,8 @@
 #ifndef BDN_WINUWP_appEntry_H_
 #define BDN_WINUWP_appEntry_H_
 
+#include <bdn/AppControllerBase.h>
+
 namespace bdn
 {
 namespace winuwp

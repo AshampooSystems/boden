@@ -15,10 +15,13 @@
 			}
 
 	#else
+
+        #include <windows.h>
+
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
-                return bdn::win32::uiAppEntry(appControllerCreator, showCommand; \
+                return bdn::win32::uiAppEntry(appControllerCreator, showCommand); \
 			}
 
 	#endif

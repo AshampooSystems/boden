@@ -151,8 +151,12 @@ AppLaunchInfo AppRunner::makeAppLaunchInfo(Platform::Array<Platform::String^>^ a
     // there is no way to pass commandline arguments to a universal windows
     // app. The args parameter does not contain commandline arguments.
 
-    // So we return an empty launchInfo object.
+    // However, we must add the the dummy commandline argument for the program name.
 
+    std::vector<String> dummyArgs;
+    dummyArgs.push_back("");
+    launchInfo.setArguments(dummyArgs);
+    
     return launchInfo;
 }
 
