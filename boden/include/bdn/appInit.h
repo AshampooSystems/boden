@@ -2,138 +2,130 @@
 #define BDN_appInit_H_
 
 #include <bdn/AppControllerBase.h>
-#include <bdn/IAppRunner.h>
-#include <bdn/entry.h>
-
-#ifdef BDN_COMPILING_COMMANDLINE_APP
-	#define BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ CommandLineAppRunner
-#else
-	#define BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ UiAppRunner
-#endif
-
 
 #if BDN_PLATFORM_WIN32
 
-	#include <windows.h>
-
-	#include <bdn/win32/UiAppRunner.h>
-	#include <bdn/win32/CommandLineAppRunner.h>
+    #include <bdn/win32/appEntry.h>
 
 	#ifdef BDN_COMPILING_COMMANDLINE_APP	
-
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int main(int argc, char* argv[]) \
 			{ \
-                BDN_ENTRY_BEGIN; \
-				bdn::P< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, argc, argv ); \
-                _setAppRunner(pAppRunner); \
-				return pAppRunner->entry(); \
-                BDN_ENTRY_END(false); \
-                return 0; \
+                return bdn::win32::commandLineAppEntry(appControllerCreator, argc, argv); \
 			}
 
 	#else
-
 		#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 			int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCommand) \
 			{ \
-                BDN_ENTRY_BEGIN; \
-				bdn::P< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::win32:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, showCommand ); \
-                _setAppRunner(pAppRunner); \
-				return pAppRunner->entry(); \
-                BDN_ENTRY_END(false); \
-                return 0; \
+                return bdn::win32::uiAppEntry(appControllerCreator, showCommand; \
 			}
 
 	#endif
 
 #elif BDN_PLATFORM_WINUWP
 
-	#include <bdn/winuwp/AppRunner.h>
+	#include <bdn/winuwp/appEntry.h>
 
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		int __cdecl main(Platform::Array<Platform::String^>^ args) \
 		{ \
-            BDN_ENTRY_BEGIN; \
-			bdn::P< bdn::winuwp::AppRunner> pAppRunner = bdn::newObj< bdn::winuwp::AppRunner>( appControllerCreator, args ); \
-            _setAppRunner(pAppRunner); \
-			return pAppRunner->entry(); \
-            BDN_ENTRY_END(false); \
-            return 0; \
+            return bdn::winuwp::appEntry(appControllerCreator, args); \
 		}
 
 #elif BDN_PLATFORM_ANDROID
 
-	#include <bdn/java/Env.h>
-
-	#include <bdn/android/UiAppRunner.h>
-	#include <bdn/android/CommandLineAppRunner.h>
+	#include <bdn/android/appEntry.h>
 
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
 		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls ) \
-		{ \4
-			BDN_ENTRY_BEGIN( pEnv ); \
-			{ \
-				bdn::P< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ > pAppRunner = bdn::newObj< bdn::android:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_ >( appControllerCreator, args ); \
-                _setAppRunner(pAppRunner); \
-				pAppRunner->entry(); \
-			} \
-			BDN_ENTRY_END(false); \
+		{ \
+            bdn::android::appEntry(appControllerCreator, pEnv); \
 		}
+
+
+#elif BDN_PLATFORM_LINUX
+
+    #ifdef BDN_COMPILING_COMMANDLINE_APP
+        #include <bdn/genericAppEntry.h>
+
+        #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+            int main(int argc, char* argv[]) \
+            { \
+                return bdn::genericCommandLineAppEntry(appControllerCreator, argc, argv); \
+            }
+
+    #else
+        #include <bdn/gtk/appEntry.h>
+
+        #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+            int main(int argc, char* argv[]) \
+            { \
+                return bdn::gtk::uiAppEntry(appControllerCreator, argc, argv); \
+            }
+
+    #endif
+
+
+#elif BDN_PLATFORM_OSX
+
+    #ifdef BDN_COMPILING_COMMANDLINE_APP
+        #include <bdn/genericAppEntry.h>
+
+        #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+            int main(int argc, char* argv[]) \
+            { \
+                return bdn::genericCommandLineAppEntry(appControllerCreator, argc, argv); \
+            }
+
+    #else
+        #include <bdn/mac/appEntry.h>
+
+        #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+            int main(int argc, char* argv[]) \
+            { \
+                return bdn::mac::uiAppEntry(appControllerCreator, argc, argv); \
+            }
+
+    #endif
+
+#elif BDN_PLATFORM_IOS
+
+    #include <bdn/ios/appEntry.h>
+
+    #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+        int main(int argc, char* argv[]) \
+        { \
+            return bdn::ios::appEntry(appControllerCreator, argc, argv); \
+        }
+
+#elif BDN_PLATFORM_WEBEMS
+
+    #include <bdn/webems/appEntry.h>
+
+    #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+        int main(int argc, char* argv[]) \
+        { \
+            return bdn::webems::appEntry(appControllerCreator, argc, argv); \
+        }
 
 #else
 
-	#if BDN_PLATFORM_LINUX
-		#include <bdn/gtk/CommandLineAppRunner.h>
-		#include <bdn/gtk/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::gtk:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
+    #ifdef BDN_COMPILING_COMMANDLINE_APP
 
-	#elif BDN_PLATFORM_OSX
+        #include <bdn/appEntry.h>
 
-        #ifdef BDN_COMPILING_COMMANDLINE_APP
-            #include <bdn/GenericAppRunner.h>
-            #define BDN_APPRUNNER_ bdn::GenericAppRunner
+        #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
+            int main(int argc, char* argv[]) \
+            { \
+                return bdn::genericCommandLineAppEntry(appControllerCreator, argc, argv); \
+            }
 
-        #else
-      		#include <bdn/mac/UiAppRunner.h>
-            #define BDN_APPRUNNER_ bdn::mac::UiAppRunner
+    #else
 
-        #endif
+        static_assert(false, "Unknown target platform - don't know how to define app entry point.");
 
-	#elif BDN_PLATFORM_IOS
-		#include <bdn/ios/CommandLineAppRunner.h>
-		#include <bdn/ios/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::ios:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
-
-	#elif BDN_PLATFORM_WEBEMS
-		#include <bdn/webems/CommandLineAppRunner.h>
-		#include <bdn/webems/UiAppRunner.h>
-		#define BDN_APPRUNNER_ bdn::webems:: BDN_APP_RUNNER_DEFAULT_CLASS_NAME_
-
-	#else
-
-		#ifdef BDN_COMPILING_COMMANDLINE_APP
-			// we can fall back to using the generic app runner for commandline apps
-			#include <bdn/GenericCommandLineAppRunner.h>
-			#define BDN_APPRUNNER_ bdn::GenericCommandLineAppRunner
-
-		#else
-			// there is no generic way to implement UI apps. So we have to bail out here
-			#error Unsupported platform. Cannot create UI apps for unknown platforms.
-		#endif
-
-	#endif
-
-    #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
-		int main(int argc, char* argv[]) \
-		{ \
-            BDN_ENTRY_BEGIN; \
-			bdn::P< BDN_APPRUNNER_ > pAppRunner = bdn::newObj< BDN_APPRUNNER_ >( appControllerCreator, argc, argv ); \
-            _setAppRunner(pAppRunner); \
-			return pAppRunner->entry(); \
-            BDN_ENTRY_END(false); \
-            return 0; \
-		}
+    #endif
 
 #endif
 
@@ -182,7 +174,7 @@
 	This replaces the normal BDN_APP_INIT() statement that you use for normal apps.
 
 	*/
-#if BDN_COMPILING_COMMANDLINE_APP
+#if BDN_COMPILING_COMMANDLINE_APP && (BDN_PLATFORM_WIN32 || BDN_PLATFORM_LINUX || BDN_PLATFORM_MAC)
 	#include <bdn/CommandLineTestAppController.h>
 	#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::CommandLineTestAppController )
 #else

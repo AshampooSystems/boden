@@ -1,5 +1,5 @@
 #include <bdn/init.h>
-#include <bdn/mac/UiAppRunner.h>
+#import <bdn/mac/UiAppRunner.hh>
 
 #import <bdn/fk/MainDispatcher.hh>
 #import <bdn/fk/objectUtil.hh>
@@ -30,31 +30,31 @@ bdn::mac::UiAppRunner* _pRunner;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-    _pRunner->_applicationWillFinishLaunching();
+    _pRunner->_applicationWillFinishLaunching(aNotification);
 }
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidFinishLaunching();
+    _pRunner->_applicationDidFinishLaunching(aNotification);
 }
 
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidBecomeActive();
+    _pRunner->_applicationDidBecomeActive(aNotification);
 }
 
 
 - (void)applicationDidResignActive:(NSNotification *)aNotification
 {
-    _pRunner->_applicationDidResignActive();
+    _pRunner->_applicationDidResignActive(aNotification);
 }
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
 {
-    _pRunner->_applicationWillTerminate();
+    _pRunner->_applicationWillTerminate(aNotification);
 }
 
 
@@ -135,7 +135,7 @@ int UiAppRunner::entry()
 }
 
 
-void UiAppRunner::_applicationWillFinishLaunching()
+void UiAppRunner::_applicationWillFinishLaunching(NSNotification* notification)
 {
     BDN_ENTRY_BEGIN;
 
@@ -145,7 +145,7 @@ void UiAppRunner::_applicationWillFinishLaunching()
     BDN_ENTRY_END(false);
 }
 
-void UiAppRunner::_applicationDidFinishLaunching()
+void UiAppRunner::_applicationDidFinishLaunching(NSNotification* notification)
 {
     BDN_ENTRY_BEGIN;
     
@@ -154,7 +154,7 @@ void UiAppRunner::_applicationDidFinishLaunching()
     BDN_ENTRY_END(false);
 }
 
-void UiAppRunner::_applicationDidBecomeActive()
+void UiAppRunner::_applicationDidBecomeActive(NSNotification* notification)
 {
     BDN_ENTRY_BEGIN;
     
@@ -163,7 +163,7 @@ void UiAppRunner::_applicationDidBecomeActive()
     BDN_ENTRY_END(false);
 }
 
-void UiAppRunner::_applicationDidResignActive()
+void UiAppRunner::_applicationDidResignActive(NSNotification* notification)
 {
     BDN_ENTRY_BEGIN;
     
@@ -172,7 +172,7 @@ void UiAppRunner::_applicationDidResignActive()
     BDN_ENTRY_END(false);
 }
 
-void UiAppRunner::_applicationWillTerminate()
+void UiAppRunner::_applicationWillTerminate(NSNotification* notification)
 {
     BDN_ENTRY_BEGIN;
     

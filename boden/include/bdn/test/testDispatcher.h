@@ -70,7 +70,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
     }
         
     pDispatcher->createTimer(
-        0.1,
+        0.25,
         [pData, expectedDispatcherThreadId, throwException, pDestructTest]() -> bool                
         {
             REQUIRE( Thread::getCurrentId() == expectedDispatcherThreadId );
@@ -80,7 +80,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
             // sleep a little so that we can verify that subsequent call times
             // are scheduled based on the scheduled time, not the finish time of
             // the handler.
-            Thread::sleepSeconds( 0.05 );
+            Thread::sleepSeconds( 0.1 );
 
             if(pData->callTimes.size()>=20)
                 return false;
@@ -94,7 +94,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
     pDestructTest = nullptr;
 
-    CONTINUE_SECTION_AFTER_SECONDS(4, pData, startTime, pRedirectUnhandled, throwException)
+    CONTINUE_SECTION_AFTER_SECONDS(7, pData, startTime, pRedirectUnhandled, throwException)
     {
         // our timer is expected to be called once every 100 ms.            
         // Verify that all expected timer calls have happened.
@@ -111,7 +111,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
             double timeAfterStart = std::chrono::duration_cast<std::chrono::microseconds>(callTime-startTime).count() / 1000000.0;
 
-            double expectedTimeAfterStart = (i+1)*0.1;
+            double expectedTimeAfterStart = (i+1)*0.25;
 
             // should not have been called before the expected time.
             // Note that we allow for minor rounding errors or drift that might have caused the call to happen
@@ -137,7 +137,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
 /** Tests an IDispatcher implementation. The dispatcher must execute the enqueued
     items automatically. It may do so in the same thread or a separate thread. */
-inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatcherThreadId)
+inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatcherThreadId, bool canKeepRunningAfterUnhandledExceptions=true)
 {
     SECTION("enqueue")
     {
@@ -297,59 +297,62 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 };
             }
         }
-
-        SECTION("exception")
+        
+        if(canKeepRunningAfterUnhandledExceptions)
         {
-            IDispatcher::Priority prio;
-
-            SECTION("Priority normal")
-                prio = IDispatcher::Priority::normal;
-            SECTION("Priority idle")
-                prio = IDispatcher::Priority::idle;
-
-            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
-
-            P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
-
-            P<bdn::test::RedirectUnhandledProblem> pRedirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>(
-                [pData](IUnhandledProblem& problem)
-                {
-                    IUnhandledProblem::Type type = problem.getType();
-                    String                  message = problem.getErrorMessage();
-                    
-                    REQUIRE( type==IUnhandledProblem::Type::exception );
-                    REQUIRE( message=="bla" );
-
-                    REQUIRE_THROWS_AS( problem.throwAsException(), InvalidArgumentError );
-                
-                    // ignore and continue.
-                    REQUIRE( problem.canKeepRunning() );
-                    problem.keepRunning();
-
-                    pData->unhandledProblemCount++;
-                } );
-
-            pDispatcher->enqueue(
-                [pDestructTest, pData]()
-                {
-                    // ensure that the enqueuing thread has time to release its reference to the destruct test object
-                    Thread::sleepSeconds(0.5); 
-
-                    pData->callOrder.push_back(0);
-
-                    throw InvalidArgumentError("bla");                
-                },
-                prio);
-
-            pDestructTest = nullptr;
-
-            CONTINUE_SECTION_AFTER_SECONDS(2, pData, pRedirectUnhandled)
+            SECTION("exception")
             {
-                REQUIRE( pData->callOrder.size()==1 );
-                REQUIRE( pData->callableDestroyedCount==1 );
+                IDispatcher::Priority prio;
 
-                REQUIRE( pData->unhandledProblemCount==1 );
-            };
+                SECTION("Priority normal")
+                    prio = IDispatcher::Priority::normal;
+                SECTION("Priority idle")
+                    prio = IDispatcher::Priority::idle;
+
+                P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+                P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
+
+                P<bdn::test::RedirectUnhandledProblem> pRedirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>(
+                    [pData](IUnhandledProblem& problem)
+                    {
+                        IUnhandledProblem::Type type = problem.getType();
+                        String                  message = problem.getErrorMessage();
+                        
+                        REQUIRE( type==IUnhandledProblem::Type::exception );
+                        REQUIRE( message=="bla" );
+
+                        REQUIRE_THROWS_AS( problem.throwAsException(), InvalidArgumentError );
+                    
+                        // ignore and continue.
+                        REQUIRE( problem.canKeepRunning() );
+                        problem.keepRunning();
+
+                        pData->unhandledProblemCount++;
+                    } );
+
+                pDispatcher->enqueue(
+                    [pDestructTest, pData]()
+                    {
+                        // ensure that the enqueuing thread has time to release its reference to the destruct test object
+                        Thread::sleepSeconds(0.5); 
+
+                        pData->callOrder.push_back(0);
+
+                        throw InvalidArgumentError("bla");                
+                    },
+                    prio);
+
+                pDestructTest = nullptr;
+
+                CONTINUE_SECTION_AFTER_SECONDS(2, pData, pRedirectUnhandled)
+                {
+                    REQUIRE( pData->callOrder.size()==1 );
+                    REQUIRE( pData->callableDestroyedCount==1 );
+
+                    REQUIRE( pData->unhandledProblemCount==1 );
+                };
+            }
         }
     }
     
@@ -460,55 +463,58 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
         }
 
 
-        SECTION("exception")
+        if(canKeepRunningAfterUnhandledExceptions)
         {
-            IDispatcher::Priority prio;
-
-            SECTION("Priority normal")
-                prio = IDispatcher::Priority::normal;
-            SECTION("Priority idle")
-                prio = IDispatcher::Priority::idle;
-
-            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
-
-            P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
-
-            P<bdn::test::RedirectUnhandledProblem> pRedirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>(
-                [pData](IUnhandledProblem& problem)
-                {
-                    REQUIRE( problem.getType()==IUnhandledProblem::Type::exception );
-                    REQUIRE( problem.getErrorMessage()=="bla" );
-                
-                    // ignore and continue.
-                    REQUIRE( problem.canKeepRunning() );
-                    problem.keepRunning();
-
-                    pData->unhandledProblemCount++;
-                } );
-
-            pDispatcher->enqueueInSeconds(
-                2,
-                [pDestructTest, pData]()
-                {
-                    // ensure that the enqueuing thread has time to release its reference to the destruct test object
-                    Thread::sleepSeconds(0.1); 
-
-                    pData->callOrder.push_back(0);
-
-                    throw InvalidArgumentError("bla");                
-                },
-                prio);
-
-            pDestructTest = nullptr;
-
-            CONTINUE_SECTION_AFTER_SECONDS(3, pData, pRedirectUnhandled)
+            SECTION("exception")
             {
-                REQUIRE( pData->callOrder.size()==1 );
-                REQUIRE( pData->callableDestroyedCount==1 );
+                IDispatcher::Priority prio;
 
-                REQUIRE( pData->unhandledProblemCount==1 );
-            };
+                SECTION("Priority normal")
+                    prio = IDispatcher::Priority::normal;
+                SECTION("Priority idle")
+                    prio = IDispatcher::Priority::idle;
 
+                P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+                P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
+
+                P<bdn::test::RedirectUnhandledProblem> pRedirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>(
+                    [pData](IUnhandledProblem& problem)
+                    {
+                        REQUIRE( problem.getType()==IUnhandledProblem::Type::exception );
+                        REQUIRE( problem.getErrorMessage()=="bla" );
+                    
+                        // ignore and continue.
+                        REQUIRE( problem.canKeepRunning() );
+                        problem.keepRunning();
+
+                        pData->unhandledProblemCount++;
+                    } );
+
+                pDispatcher->enqueueInSeconds(
+                    2,
+                    [pDestructTest, pData]()
+                    {
+                        // ensure that the enqueuing thread has time to release its reference to the destruct test object
+                        Thread::sleepSeconds(0.1); 
+
+                        pData->callOrder.push_back(0);
+
+                        throw InvalidArgumentError("bla");                
+                    },
+                    prio);
+
+                pDestructTest = nullptr;
+
+                CONTINUE_SECTION_AFTER_SECONDS(3, pData, pRedirectUnhandled)
+                {
+                    REQUIRE( pData->callOrder.size()==1 );
+                    REQUIRE( pData->callableDestroyedCount==1 );
+
+                    REQUIRE( pData->unhandledProblemCount==1 );
+                };
+
+            }
         }
     }
 
@@ -516,9 +522,12 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
     {
         SECTION("no exception")
             _testDispatcherTimer(pDispatcher, false, expectedDispatcherThreadId );
-
-        SECTION("exception")
-            _testDispatcherTimer(pDispatcher, true, expectedDispatcherThreadId );
+        
+        if(canKeepRunningAfterUnhandledExceptions)
+        {
+            SECTION("exception")
+                _testDispatcherTimer(pDispatcher, true, expectedDispatcherThreadId );
+        }
     }
 }
 

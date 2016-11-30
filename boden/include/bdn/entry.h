@@ -164,6 +164,8 @@ the original C++ exception and using that instead of the UWP version when our ha
 
 #elif BDN_PLATFORM_IOS
 
+    #include <bdn/fk/exceptionUtil.h>
+
 
     #define BDN_ENTRY_BEGIN  \
         try \
@@ -181,8 +183,6 @@ the original C++ exception and using that instead of the UWP version when our ha
 
 
 #elif BDN_PLATFORM_OSX
-
-    #include <bdn/fk/exceptionUtil.h>
 
     #define BDN_ENTRY_BEGIN  \
         try \

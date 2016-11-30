@@ -3,6 +3,8 @@
 
 #include <bdn/AppRunnerBase.h>
 
+#import <Cocoa/Cocoa.h>
+
 namespace bdn
 {
 namespace mac
@@ -33,19 +35,19 @@ public:
     
     
     /** Used internally. Do not call.*/
-    void _applicationWillFinishLaunching();
+    void _applicationWillFinishLaunching(NSNotification* notification);
 
     /** Used internally. Do not call.*/
-    void _applicationDidFinishLaunching();
+    void _applicationDidFinishLaunching(NSNotification* notification);
     
     /** Used internally. Do not call.*/
-    void _applicationDidBecomeActive();
+    void _applicationDidBecomeActive(NSNotification* notification);
     
     /** Used internally. Do not call.*/
-    void _applicationDidResignActive();
+    void _applicationDidResignActive(NSNotification* notification);
     
     /** Used internally. Do not call.*/
-    void _applicationWillTerminate();
+    void _applicationWillTerminate(NSNotification* notification);
     
     
 private:

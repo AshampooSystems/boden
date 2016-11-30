@@ -345,6 +345,11 @@ private:
                 updateNextEventTime();
                 scheduleNextEvent();
             }
+            else
+            {
+                // release the timer function to make sure that that happens here, from this thread.
+                _func = std::function<bool()>();
+            }
 		}
 		
 
