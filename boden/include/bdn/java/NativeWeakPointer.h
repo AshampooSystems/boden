@@ -53,6 +53,20 @@ public:
     }
 
 
+    /** An optimized function to retrieve the stored pointer directly from the specified
+     *  jobject. The java-side object must have been created with NativeWeakPointer.*/
+    static void* unwrapJObject(jobject obj)
+    {
+        Env& env = Env::get();
+
+        void* pBuffer = env.getJniEnv()->GetDirectBufferAddress( obj );
+
+        env.throwAndClearExceptionFromLastJavaCall();
+
+        return pBuffer;
+    }
+
+
     void* getPointer()
     {
         Reference bufferRef = getRef_();

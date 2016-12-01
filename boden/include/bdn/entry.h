@@ -118,7 +118,7 @@ the original C++ exception and using that instead of the UWP version when our ha
 							/* let these through. They will cause the UWP unhandled exception handler in our \
 							app to be called, which in turn forwards the exception to our own unhandledException \
 							handler.*/ \
-							_storeParametersForUnhandledException(pException, canKeepRunningAfterException); \
+							bdn::winuwp::_storeParametersForUnhandledException(pException, canKeepRunningAfterException); \
 							throw; \
 						} \
 						catch(std::exception& e) \
@@ -141,23 +141,48 @@ the original C++ exception and using that instead of the UWP version when our ha
 #elif BDN_PLATFORM_ANDROID
 
 #include <bdn/java/Env.h>
+#include <bdn/java/JavaException.h>
 
 #define BDN_ENTRY_BEGIN(pJniEnv) \
-        bdn::java::Env::get()->jniBlockBegun(pEnv); \
+        bdn::java::Env::get().jniBlockBegun(pEnv); \
         try \
         {
 
 
 #define BDN_ENTRY_END(canKeepRunningAfterException) \
 		} \
-        catch(...) \
-        { \
+		catch(JavaException& e) \
+		{ \
+			/* let these through. They will cause the android unhandled exception handler in our \
+			app to be called, which in turn forwards the exception to our own unhandledException \
+			handler.*/ \
+			bdn::android::_storeParametersForUnhandledException(pException, canKeepRunningAfterException); \
+			throw; \
+		} \
+		catch(std::exception& e) \
+		{ \
+			/* convert C++ exceptions to UWP exceptions. Then we will get the normal \
+			UWP handling, which in turn will call our unhandled exception handler, as explained above. */ \
+			::Platform::Exception^ pException = bdn::winuwp::exceptionToPlatformException(e); \
+			bdn::winuwp::_storeParametersForUnhandledException(pException, canKeepRunningAfterException); \
+			throw pException; \
+		} \
+		catch(...) \
+		{ \
+			/* all other exceptions (not UWP and not std) are converted to a dummy UWP exception.*/ \
+			::Platform::Exception^ pException = ::Platform::Exception::CreateException(E_FAIL, ref new ::Platform::String(L"Exception of unknown type encountered."); \
+			bdn::winuwp::_storeParametersForUnhandledException(pException, canKeepRunningAfterException); \
+			throw pException; \
+		}
+
+
+
             if( ! bdn::unhandledException(canKeepRunningAfterException) ) \
 			{
-				/* terminate by letting the exception through to the java side. This \
-				   will terminate the program and also allows the operating system to present \
-				   a better error message. */ \
-				Env::get().setJavaSideException( std::current_exception() ); \
+				/* terminate by letting the exception through to the java side. This */ \
+				/*   will terminate the program and also allows the operating system to present */ \
+				/*   a better error message. */ \
+				bdn::java::Env::get().setJavaSideException( std::current_exception() ); \
 			} \
         }
 

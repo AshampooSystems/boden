@@ -953,8 +953,15 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         toolChainFileName = "android.toolchain.cmake";
         if arch!="std":
             args.extend( ['-DANDROID_ABI='+arch ] );
+
+        # API levels and reach as of December 2016
+        # Target Level      Reach     Target Android Version
+        # 16                97%       4.1 Jelly Bean
+        # 19                81%       4.4 Kitkat
+
+        # See https://www.statista.com/statistics/271774/share-of-android-platforms-on-mobile-devices-with-android-os/
         
-        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
+        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=16', '-DANDROID_STL=c++_static' ] );
         
 
     elif platform=="webems":

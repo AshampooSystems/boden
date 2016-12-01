@@ -1,8 +1,9 @@
 #ifndef BDN_ANDROID_appEntry_H_
 #define BDN_ANDROID_appEntry_H_
 
-#include <jni.h>
+#include <bdn/AppControllerBase.h>
 
+#include <jni.h>
 
 namespace bdn
 {

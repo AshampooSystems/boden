@@ -90,6 +90,20 @@ public:
     }
 
 
+    /** An optimized function to retrieve the stored pointer directly from the specified
+     *  jobject. The java-side object must have been created with JNativeStrongPointer.*/
+    static IBase* unwrapJObject(jobject obj)
+    {
+        Env& env = Env::get();
+
+        void* pBuffer = env.getJniEnv()->GetDirectBufferAddress( obj );
+
+        env.throwAndClearExceptionFromLastJavaCall();
+
+        return static_cast<IBase*>(pBuffer);
+    }
+
+
     /** Returns the JClass object for this class.
      *
      *  Note that the returned class object is not necessarily unique for the whole

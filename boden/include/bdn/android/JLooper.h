@@ -3,6 +3,7 @@
 
 #include <bdn/java/JObject.h>
 
+#include <bdn/android/JLooper.h>
 
 namespace bdn
 {
@@ -22,6 +23,15 @@ public:
     explicit JLooper(const bdn::java::Reference& javaRef)
     : JObject(javaRef)
     {
+    }
+
+
+    /** Returns the application's main looper, which lives in the main thread of the application. */
+    static JLooper getMainLooper()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invokeStatic_<JLooper>(getStaticClass_(), methodId, "getMainLooper" );
     }
 
 

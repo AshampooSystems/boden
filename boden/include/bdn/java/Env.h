@@ -90,23 +90,30 @@ public:
     }
 
 
-    void setJavaSideException(const std::exception& e)
+    void setJavaSideException(const std::exception_ptr& exceptionPtr)
     {
         JNIEnv* pEnv = getJniEnv();
 
-        const JavaException* pJavaException = dynamic_cast<const JavaException*>(&e);
-        if(pJavaException!=nullptr)
+        try
+        {
+            std::rethrow_exception(exceptionPtr);
+        }
+        catch(JavaException& e)
         {
             // the exception already wraps a java exception. Use the wrapped
             // java exception on the java side.
-            pEnv->Throw( (jthrowable)const_cast<JavaException*>(pJavaException)->getJThrowable_().getRef_().getJObject() );
+            pEnv->Throw( (jthrowable)e.getJThrowable_().getRef_().getJObject() );
         }
-        else
+        catch(std::exception& e)
         {
             // this is a C++ exception. Generate a corresponding java exception.
-            JException javaException( "Error from JNI component: "+String(e.what()) );
-
-            pEnv->Throw( (jthrowable)javaException.getRef_().getJObject() );
+            JException javaException("Exception from JNI component: " + String(e.what()));
+            pEnv->Throw((jthrowable) javaException.getRef_().getJObject());
+        }
+        catch(...)
+        {
+            JException javaException("Exception of unknown type from JNI component.");
+            pEnv->Throw((jthrowable) javaException.getRef_().getJObject());
         }
     }
 
