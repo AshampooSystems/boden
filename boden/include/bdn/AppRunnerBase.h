@@ -67,7 +67,7 @@ public:
         then it must call the app controller's AppControllerBase::unhandledException.
 
         \return true if the exception should be ignored and the app should continue (only allowed if
-        ignorable is true). False if the app should terminate.
+        canKeepRunning is true). False if the app should terminate.
         */
     bool unhandledException(bool canKeepRunning) override;
 

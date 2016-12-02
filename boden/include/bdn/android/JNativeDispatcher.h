@@ -48,7 +48,7 @@ public:
 
         static bdn::java::MethodId methodId;
 
-        return invoke_<void>(getStaticClass_(), methodId, "enqueue", delaySeconds, runnable, idlePriority);
+        return invoke_<void>(getStaticClass_(), methodId, "enqueue", delaySeconds, (bdn::java::JNativeRunnable&)runnable, idlePriority);
     }
 
 

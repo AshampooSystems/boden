@@ -16,7 +16,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nat
 
     pTimer->onEvent();
 
-    BDN_ENTRY_END(true);
+    BDN_ENTRY_END();
 }
 
 

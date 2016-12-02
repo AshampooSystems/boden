@@ -2,6 +2,7 @@
 #define BDN_JAVA_StaticFieldKind_H_
 
 #include <bdn/java/Env.h>
+#include <bdn/java/JClass.h>
 
 namespace bdn
 {

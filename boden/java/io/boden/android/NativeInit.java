@@ -33,10 +33,7 @@ public class NativeInit
         {
             System.loadLibrary(nativeLibName);
 
-            // ensure that the NativeHandler object exists
-            NativeHandler.getMainNativeHandler();
-
-            Looper.getMainLooper().getQueue().addIdleHandler( new NativeIdleHandler() );
+            NativeUncaughtExceptionHandler.install();
 
             mBaseInitialized = true;
         }

@@ -16,6 +16,7 @@ struct TestDispatcherData_ : public Base
     std::vector< std::chrono::steady_clock::time_point > callTimes;
 
     int callableDestroyedCount = 0;
+    std::vector< Thread::Id > callableDestructWrongThreadIds;
 
     int unhandledProblemCount = 0;
 };
@@ -32,7 +33,13 @@ public:
     ~TestDispatcherCallableDataDestruct_()
     {
         // destructor MUST also be called from the expected thread
-        REQUIRE( Thread::getCurrentId() == _expectedThreadId );
+
+        // note that we cannot use REQUIRE here since it throws an exception and we are in a destructor.
+        // instead we set a member in pData if the test fails and that is checked
+        // from somewhere else.
+        Thread::Id threadId = Thread::getCurrentId();
+        if( threadId != _expectedThreadId )
+            _pData->callableDestructWrongThreadIds.push_back( threadId );
 
         _pData->callableDestroyedCount++;
     }
@@ -105,6 +112,8 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
         // the callable should have been destroyed
         REQUIRE( pData->callableDestroyedCount==1 );
 
+        REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
+
         for(size_t i=0; i<pData->callTimes.size(); i++)
         {
             std::chrono::steady_clock::time_point callTime = pData->callTimes[i];
@@ -172,6 +181,7 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
             {
                 REQUIRE( pData->callOrder.size()==1 );
                 REQUIRE( pData->callableDestroyedCount==1 );
+                REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
             };
         }
 
@@ -349,6 +359,7 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 {
                     REQUIRE( pData->callOrder.size()==1 );
                     REQUIRE( pData->callableDestroyedCount==1 );
+                    REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
 
                     REQUIRE( pData->unhandledProblemCount==1 );
                 };
@@ -403,6 +414,7 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                         REQUIRE( pData->callOrder[0]==0 );
 
                         REQUIRE( pData->callableDestroyedCount==1 );
+                        REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
                     };
                 };            
             };
@@ -510,6 +522,7 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 {
                     REQUIRE( pData->callOrder.size()==1 );
                     REQUIRE( pData->callableDestroyedCount==1 );
+                    REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
 
                     REQUIRE( pData->unhandledProblemCount==1 );
                 };

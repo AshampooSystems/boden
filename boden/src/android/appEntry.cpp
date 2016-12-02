@@ -20,7 +20,7 @@ void appEntry(const std::function< P<AppControllerBase>() >& appControllerCreato
     
     pAppRunner->entry();
 
-    BDN_ENTRY_END(false);
+    BDN_ENTRY_END();
 }
 
 

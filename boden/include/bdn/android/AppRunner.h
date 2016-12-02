@@ -31,8 +31,6 @@ public:
 	void initiateExitIfPossible(int exitCode) override;
 
 
-    void prepareLaunch() override;	
-
 
 protected:
 	void disposeMainDispatcher() override;

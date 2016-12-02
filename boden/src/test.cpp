@@ -37,6 +37,8 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <bdn/ErrorInfo.h>
+
 #include <bdn/IAppRunner.h>
 #include <bdn/AppControllerBase.h>
 #include <bdn/UiTestAppController.h>
@@ -4052,9 +4054,12 @@ public:
 
 			return static_cast<int>( runTests( m_config ).assertions.failed );
 		}
-		catch( std::exception& ex ) {
-			bdn::cerr() << ex.what() << std::endl;
-			return (std::numeric_limits<int>::max)();
+		catch( ... )
+		{
+			ErrorInfo errorInfo( std::current_exception() );
+
+			bdn::cerr() << errorInfo.toString().asUtf8() << std::endl;
+			return 1;
 		}
 	}
 
@@ -7981,14 +7986,15 @@ public:
             
 			testRunnerReady();
         }
-        catch( std::exception& e )
+        catch(...)
         {
-			abortingBecauseOfException(e);
-
-            int exitCode = (std::numeric_limits<int>::max)();
+			ErrorInfo errorInfo{ std::current_exception() };
+			abortingBecauseOfException(errorInfo);
 
             // we want to exit
-            getAppRunner()->initiateExitIfPossible(exitCode);
+            getAppRunner()->initiateExitIfPossible(1);
+
+			throw;
         }
 
 	}
@@ -8039,9 +8045,10 @@ protected:
 	{
 	}
 
-	virtual void abortingBecauseOfException(const std::exception& e)
+	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
 	{
 	}
+
 
 	virtual void finished(int failedCount)
 	{
@@ -8093,11 +8100,12 @@ protected:
 				waitAndClose(exitCode);
 			}
         }
-        catch( std::exception& e )
+        catch(...)
         {
-			abortingBecauseOfException(e);
-			
-            int exitCode = (std::numeric_limits<int>::max)();
+			ErrorInfo errorInfo( std::current_exception() );
+			abortingBecauseOfException(errorInfo);
+
+            int exitCode = 1;
 
 			delete _pTestRunner;
 			_pTestRunner = nullptr;
@@ -8105,7 +8113,6 @@ protected:
             // we want to exit
 			waitAndClose(exitCode);
         }
-
     }
 
 
@@ -8160,21 +8167,29 @@ protected:
 
 	void abortingBecauseOfInvalidCommandLineArguments()  override
 	{
-		_pWindow->title() = "Invalid commandline";
-		_pStatusView->text() = "Invalid commandline";
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Invalid commandline";
+
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Invalid commandline";
 	}
 
 	void abortingBecauseJustShowingHelp()  override
 	{
-		_pWindow->title() = "Done";
-		_pStatusView->text() = "Done";
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Done";
+
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Done";
 	}
 
-	void abortingBecauseOfException(const std::exception& e)  override
+	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
 	{
-		_pWindow->title() = "Fatal Error";
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Fatal Error";
 
-		_pStatusView->text() = "Fatal Error: " + String(e.what());
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Fatal Error: " + errorInfo.getMessage();
 	}
 
 	void finished(int failedCount)  override
@@ -8232,9 +8247,9 @@ protected:
 		bdn::cerr() << "Invalid commandline" << std::endl;
 	}
 
-	void abortingBecauseOfException(const std::exception& e)  override
+	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
 	{
-		bdn::cerr() << ("Fatal Error: " + String(e.what()) ).asUtf8() << std::endl;
+		bdn::cerr() << ("Fatal Error: " + errorInfo.toString().asUtf8()) << std::endl;
 	}			
 };
 

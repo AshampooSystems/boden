@@ -24,6 +24,15 @@ public:
         _messageUtf8 = (throwable.getCanonicalClassName_() + ": " + throwable.getMessage()).asUtf8();
     }
 
+
+    /** Rethrows the specified java throwable as a C++ exception.
+     *  If the throwable is a wrapped C++ exception (see JNativeException) then
+     *  the original C++ exception is thrown.
+     *  If the throwable is a pure java exception then a JavaException instance is thrown.
+     *  */
+    static void rethrowThrowable(JThrowable throwable);
+
+
     JThrowable getJThrowable_()
     {
         return _throwable;

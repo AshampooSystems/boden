@@ -22,6 +22,10 @@ public:
 	Dispatcher( JLooper looper );
 
 
+	/** Releases the internal resources of the dispatcher.
+	 * 	Also releases all pending queued items, timed items and timers.*/
+	void dispose();
+
 	void enqueue(
 			std::function< void() > func,
 			Priority priority = Priority::normal ) override;

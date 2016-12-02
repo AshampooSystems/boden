@@ -2,6 +2,7 @@
 #include <bdn/android/JNativeViewCoreClickListener.h>
 
 #include <bdn/java/Env.h>
+#include <bdn/entry.h>
 
 #include <bdn/android/ViewCore.h>
 
@@ -22,7 +23,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeViewCoreClickListe
         pViewCore->clicked();
     }
 
-    BDN_ENTRY_END(true);
+    BDN_ENTRY_END();
 }
 
 

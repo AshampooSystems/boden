@@ -21,8 +21,12 @@ public class NativeOnceRunnable extends NativeRunnable
     @Override
     public void run()
     {
-        super.run();
+        try {
+            super.run();
 
-        dispose();
+        }
+        finally {
+            dispose();
+        }
     }
 }

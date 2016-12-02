@@ -2,11 +2,8 @@
 #define BDN_JAVA_Env_H_
 
 #include <bdn/java/JniEnvNotSetError.h>
-#include <bdn/java/JavaException.h>
-#include <bdn/java/JException.h>
 
 #include <jni.h>
-
 
 
 namespace bdn
@@ -51,15 +48,6 @@ public:
     }
 
 
-    /** Indicates that a JNI block has ended normally (without an exception).
-     *
-     *  This is called automatically by the BDN_JNI_END macro. It is usually not necessary
-     *  to call this directly.
-     * */
-    void jniBlockEnded()
-    {
-    }
-
 
 
     /** Returns the Jni environment object.
@@ -78,44 +66,20 @@ public:
     /** If the last JAVA call produced an exception then this is thrown as a C++ exception
      *  and the exception is cleared from the global state. Since the exception is cleared,
      *  a second call to throwAndClearExceptionFromLastJavaCall() will return without any exception.
+     *
+     *  If the Java exception is a wrapped C++ exception then the original C++ exception is thrown.
      * */
-    void throwAndClearExceptionFromLastJavaCall()
-    {
-        JNIEnv* pEnv = getJniEnv();
-
-        jthrowable exc = pEnv->ExceptionOccurred();
-        pEnv->ExceptionClear();
-        if(exc!=nullptr)
-            throw JavaException( JThrowable( Reference::convertAndDestroyOwnedLocal((jobject)exc) ) );
-    }
+    void throwAndClearExceptionFromLastJavaCall();
 
 
-    void setJavaSideException(const std::exception_ptr& exceptionPtr)
-    {
-        JNIEnv* pEnv = getJniEnv();
-
-        try
-        {
-            std::rethrow_exception(exceptionPtr);
-        }
-        catch(JavaException& e)
-        {
-            // the exception already wraps a java exception. Use the wrapped
-            // java exception on the java side.
-            pEnv->Throw( (jthrowable)e.getJThrowable_().getRef_().getJObject() );
-        }
-        catch(std::exception& e)
-        {
-            // this is a C++ exception. Generate a corresponding java exception.
-            JException javaException("Exception from JNI component: " + String(e.what()));
-            pEnv->Throw((jthrowable) javaException.getRef_().getJObject());
-        }
-        catch(...)
-        {
-            JException javaException("Exception of unknown type from JNI component.");
-            pEnv->Throw((jthrowable) javaException.getRef_().getJObject());
-        }
-    }
+    /** "Throws" an exception on the java side. A java exception object is created and stored as the result
+     *  of the currently active JNI call. Once the JNI function returns that exception will be thrown on
+     *  the java side.
+     *
+     *  If the exception is a wrapped java exception then the original java exception is thrown on the java side.
+     *
+     *  */
+    void setJavaSideException(const std::exception_ptr& exceptionPtr);
 
 
     /** Used internally. Do not call.*/

@@ -8,7 +8,7 @@ import android.os.Looper;
 import android.os.MessageQueue;
 
 import java.util.LinkedList;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Timer;
 
 /** Implements the functionality of bdn::IDispatcher on the Java side.*/
@@ -31,6 +31,10 @@ public class NativeDispatcher
 
     public NativeDispatcher(Looper looper)
     {
+        mNormalQueue = new LinkedList<NativeRunnable>();
+        mPendingProcessTimedItemActions = new HashSet< ProcessTimedItemAction >();
+        mTimerTaskSet = new HashSet< NativeTimerTask >();
+
         mHandler = new Handler( looper );
 
         // install an idle listener for the queue so that we get notified.
@@ -71,8 +75,24 @@ public class NativeDispatcher
 
         public void run()
         {
-            mRunnable.run();
             mDispatcher.mPendingProcessTimedItemActions.remove(this);
+
+            try {
+                mRunnable.run();
+            }
+            catch(Throwable e)
+            {
+                // we must catch exceptions manually here. The uncaught exception handler
+                // is only called when the exception reaches the root of the dispatcher thread,
+                // which is too late to decide to ignore it.
+
+                if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
+                {
+                    // let the exception through
+                    throw e;
+                }
+            }
+
         }
 
         public void dispose()
@@ -90,7 +110,22 @@ public class NativeDispatcher
         {
             NativeRunnable item = mNormalQueue.removeFirst();
 
-            item.run();
+            try
+            {
+                item.run();
+            }
+            catch(Throwable e)
+            {
+                // we must catch exceptions manually here. The uncaught exception handler
+                // is only called when the exception reaches the root of the dispatcher thread,
+                // which is too late to decide to ignore it.
+
+                if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
+                {
+                    // let the exception through
+                    throw e;
+                }
+            }
         }
     }
 
@@ -109,6 +144,7 @@ public class NativeDispatcher
                 // a reference until it is run.
                 // So instead we manage the queue ourselves and
                 // post an action that causes processNormalQueueItem to be called.
+                mNormalQueue.add(item);
                 mHandler.post( mProcessNormalQueueItemAction );
             }
             else
@@ -172,7 +208,24 @@ public class NativeDispatcher
             {
                 if(mTimerData!=null)
                 {
-                    if (!mDispatcher.nativeTimerEvent(mTimerData))
+                    boolean continueTimer;
+
+                    try {
+                        continueTimer = mDispatcher.nativeTimerEvent(mTimerData);
+                    }
+                    catch(Throwable e)
+                    {
+                        if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
+                        {
+                            // let the exception through
+                            throw e;
+                        }
+
+                        // exception should be ignored and timer should continue.
+                        continueTimer = true;
+                    }
+
+                    if (! continueTimer)
                         dispose();
                 }
             }
@@ -239,7 +292,7 @@ public class NativeDispatcher
         // timers
         while(!mTimerTaskSet.isEmpty())
         {
-            NativeTimerTask task = mTimerTaskSet.first();
+            NativeTimerTask task = mTimerTaskSet.iterator().next();
             task.dispose();
         }
     }
@@ -250,6 +303,8 @@ public class NativeDispatcher
         IdleHandler( Handler handler)
         {
             mHandler = handler;
+
+            mQueue = new LinkedList<NativeRunnable>();
         }
 
         private class EnqueueAction implements Runnable
@@ -282,7 +337,7 @@ public class NativeDispatcher
 
             EnqueueAction action = new EnqueueAction(mQueue, item);
 
-            if(delayMillis>0)
+            if(delayMillis<=0)
                 mHandler.post( action );
             else
                 mHandler.postDelayed( action, delayMillis );
@@ -322,8 +377,8 @@ public class NativeDispatcher
     private Timer       mMasterTimer;
 
     private LinkedList<NativeRunnable>          mNormalQueue;
-    private TreeSet< ProcessTimedItemAction >   mPendingProcessTimedItemActions;
-    private TreeSet< NativeTimerTask >          mTimerTaskSet;
+    private HashSet< ProcessTimedItemAction >   mPendingProcessTimedItemActions;
+    private HashSet< NativeTimerTask >          mTimerTaskSet;
 
     private ProcessNormalQueueItemAction        mProcessNormalQueueItemAction;
 

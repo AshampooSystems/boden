@@ -2,6 +2,7 @@
 #include <bdn/java/JNativeStrongPointer.h>
 
 #include <bdn/java/Env.h>
+#include <bdn/entry.h>
 
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_disposed(JNIEnv* pEnv, jobject rawSelf, jobject rawByteBuffer)
@@ -14,7 +15,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeStrongPointer_dispose
 
     pObject->releaseRef();
 
-    BDN_ENTRY_END(false);
+    BDN_ENTRY_END();
 }
 
 
