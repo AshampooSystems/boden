@@ -8,15 +8,17 @@
 #include <jni.h>
 
 
-extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv* pEnv, jobject rawSelf, jobject rawTimerObject )
+extern "C" JNIEXPORT jboolean JNICALL Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv* pEnv, jclass rawClass, jobject rawTimerObject )
 {
     BDN_ENTRY_BEGIN(pEnv);
 
     bdn::android::Dispatcher::Timer_* pTimer = dynamic_cast<bdn::android::Dispatcher::Timer_*>(bdn::java::JNativeStrongPointer::unwrapJObject(rawTimerObject));
 
-    pTimer->onEvent();
+    return pTimer->onEvent() ? JNI_TRUE : JNI_FALSE;
 
     BDN_ENTRY_END();
+
+    return JNI_TRUE;
 }
 
 

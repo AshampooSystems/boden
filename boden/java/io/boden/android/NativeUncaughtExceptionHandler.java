@@ -25,6 +25,7 @@ public class NativeUncaughtExceptionHandler implements Thread.UncaughtExceptionH
     }
 
 
+
     public NativeUncaughtExceptionHandler(long mainThreadId)
     {
         mMainThreadId = mainThreadId;
@@ -34,12 +35,15 @@ public class NativeUncaughtExceptionHandler implements Thread.UncaughtExceptionH
     /** This can be called from dispatchers when an exception is encountered at a point
      *  before it is let through to the core message loop.
      *
-     *  The return value is true if the exception should be ignored and false if the
-     *  exception should be let through to the core message loop.
+     *  If the return value is true if the exception should be ignored and false if the
+     *  exception should NOT be let through to the core message loop.
+     *
+     *  If the return value is false then the exception should be let through (re-thrown) to
+     *  the core message loop.
      */
     public static boolean uncaughtExceptionFromDispatcher(Throwable e, boolean canKeepRunning)
     {
-        return nativeUncaughtException(e, canKeepRunning);
+        return callNativeUncaughtException(e, canKeepRunning);
     }
 
     public void uncaughtException(Thread t, Throwable e)    {
@@ -58,9 +62,17 @@ public class NativeUncaughtExceptionHandler implements Thread.UncaughtExceptionH
 
         boolean canKeepRunning = (t.getId()!=mMainThreadId);
 
-        boolean wantsToKeepRunning = nativeUncaughtException(e, canKeepRunning);
+        boolean wantToKeepRunning;
 
-        if(wantsToKeepRunning && canKeepRunning)
+        if(mDecidedToTerminate)
+        {
+            // we already decided that the app should terminate. Let the exception through to the original handler.
+            wantToKeepRunning = false;
+        }
+        else
+            wantToKeepRunning = callNativeUncaughtException(e, canKeepRunning);
+
+        if(wantToKeepRunning && canKeepRunning)
         {
             // we should ignore the exception.
             // Just do nothing.
@@ -79,6 +91,34 @@ public class NativeUncaughtExceptionHandler implements Thread.UncaughtExceptionH
     }
 
 
+    private static boolean callNativeUncaughtException(Throwable e, boolean canKeepRunning)
+    {
+        try
+        {
+            if(nativeUncaughtException(e, canKeepRunning))
+            {
+                // exception handled, we want to continue. Do not let the exception through.
+                return true;
+            }
+        }
+        catch(Throwable e2)
+        {
+            // if the uncaught exception handler throws an exception then we treat
+            // that as if it had returned false,
+            String message = e2.getMessage();
+
+        }
+
+        // we want to abort. The exception will be let through to the core message
+        // loop and will cause our handler to be called again. We have to make sure that
+        // we do not call the native handler again, since it has already made the decision how
+        // to handle this exception.
+        mDecidedToTerminate = true;
+
+        return false;
+    }
+
+
     /** Returns true if the app should continue running, false otherwise.*/
     private native static boolean nativeUncaughtException(Throwable e, boolean canKeepRunning);
 
@@ -86,4 +126,6 @@ public class NativeUncaughtExceptionHandler implements Thread.UncaughtExceptionH
 
     private static NativeUncaughtExceptionHandler mGlobalInstance;
     private static Thread.UncaughtExceptionHandler mOriginalHandler;
+
+    private static boolean mDecidedToTerminate = false;
 }

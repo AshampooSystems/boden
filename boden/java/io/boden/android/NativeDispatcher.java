@@ -65,6 +65,95 @@ public class NativeDispatcher
     };
 
 
+    /** Processes exceptions that occur during the processing of a dispatcher item.
+     *
+     *  Such exceptions must be explicitly caught and passed to this function.
+     *  While we also have a global uncaught exception handler that would eventually be called to process
+     *  exceptions we do not catch, at that point it would be too late to decide to ignore the exception
+     *  (since the message loop has already been aborted at that point). So exceptions must be caught
+     *  manually before that point and passed to this function.
+     *
+     *  Returns true if the exception should be ignored and the app should keep running.
+     *
+     *  Return false if the exception should be let through.
+     */
+    private static boolean handleDispatcherException(Throwable e)
+    {
+        if( NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
+        {
+            // app should continue running
+            int x=0;
+            x++;
+            return true;
+        }
+        else
+        {
+            // let the exception through. This will cause the app to terminate.
+            int x=0;
+            x++;
+            return false;
+        }
+    }
+
+
+    /** Calls the specified native runnable and processes any exceptions that occur from it
+     *  as uncaught dispatcher exceptions (calling the uncaught exception handler, etc.)
+     */
+    private static void callNativeRunnable(NativeRunnable runnable)
+    {
+        try
+        {
+            runnable.run();
+        }
+        catch(Throwable e)
+        {
+            if( !handleDispatcherException(e) )
+                throw e;
+        }
+    }
+
+
+    /** Calls the native timer event handler and processes any exceptions that occur from it
+     *  as uncaught dispatcher exceptions (calling the uncaught exception handler, etc.)
+     */
+    private static boolean callNativeTimerEvent(NativeStrongPointer nativeTimerData)
+    {
+        try
+        {
+            // note that we pass the wrapped pointer directly to the function, instead of
+            // the NativeStrongPointer object. That allows the native side to be more efficient
+            // since it does not have to call back in to the java side to get the inner wrapper object.
+            return nativeTimerEvent( nativeTimerData.getWrappedPointer() );
+        }
+        catch(Throwable e)
+        {
+            if( !handleDispatcherException(e) )
+                throw e;
+
+            // continue the timer if an exception is ignored
+            return true;
+        }
+    }
+
+
+
+    /** Runnable that calls a native runnable via callNativeRunnable.*/
+    private class NativeRunnableCaller implements Runnable
+    {
+        NativeRunnableCaller(NativeRunnable runnable)
+        {
+            mRunnable = runnable;
+        }
+
+        public void run()
+        {
+            callNativeRunnable( mRunnable );
+        }
+
+        private NativeRunnable mRunnable;
+    }
+
+
     private class ProcessTimedItemAction implements Runnable
     {
         ProcessTimedItemAction(NativeDispatcher dispatcher, NativeRunnable runnable)
@@ -77,22 +166,7 @@ public class NativeDispatcher
         {
             mDispatcher.mPendingProcessTimedItemActions.remove(this);
 
-            try {
-                mRunnable.run();
-            }
-            catch(Throwable e)
-            {
-                // we must catch exceptions manually here. The uncaught exception handler
-                // is only called when the exception reaches the root of the dispatcher thread,
-                // which is too late to decide to ignore it.
-
-                if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
-                {
-                    // let the exception through
-                    throw e;
-                }
-            }
-
+            callNativeRunnable( mRunnable );
         }
 
         public void dispose()
@@ -110,22 +184,7 @@ public class NativeDispatcher
         {
             NativeRunnable item = mNormalQueue.removeFirst();
 
-            try
-            {
-                item.run();
-            }
-            catch(Throwable e)
-            {
-                // we must catch exceptions manually here. The uncaught exception handler
-                // is only called when the exception reaches the root of the dispatcher thread,
-                // which is too late to decide to ignore it.
-
-                if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
-                {
-                    // let the exception through
-                    throw e;
-                }
-            }
+            callNativeRunnable( item );
         }
     }
 
@@ -208,22 +267,7 @@ public class NativeDispatcher
             {
                 if(mTimerData!=null)
                 {
-                    boolean continueTimer;
-
-                    try {
-                        continueTimer = mDispatcher.nativeTimerEvent(mTimerData);
-                    }
-                    catch(Throwable e)
-                    {
-                        if( ! NativeUncaughtExceptionHandler.uncaughtExceptionFromDispatcher(e, true))
-                        {
-                            // let the exception through
-                            throw e;
-                        }
-
-                        // exception should be ignored and timer should continue.
-                        continueTimer = true;
-                    }
+                    boolean continueTimer = callNativeTimerEvent(mTimerData);
 
                     if (! continueTimer)
                         dispose();
@@ -317,7 +361,7 @@ public class NativeDispatcher
 
             public void run()
             {
-                mQueue.add(mItem);
+                mQueue.add( mItem );
             }
 
             private LinkedList<NativeRunnable> mQueue;
@@ -360,7 +404,7 @@ public class NativeDispatcher
                 // schedule the item with normal priority now. That will ensure
                 // that queueIdle is called again afterwards, if there are no higher priority
                 // items added in the meantime.
-                mHandler.post(item);
+                mHandler.post( new NativeRunnableCaller(item) );
             }
 
             return true;
@@ -384,7 +428,7 @@ public class NativeDispatcher
 
 
 
-    private native boolean nativeTimerEvent(NativeStrongPointer timerData);
+    private native static boolean nativeTimerEvent(java.nio.ByteBuffer timerData);
 }
 
 

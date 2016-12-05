@@ -91,16 +91,23 @@ public:
 
 
     /** An optimized function to retrieve the stored pointer directly from the specified
-     *  jobject. The java-side object must have been created with JNativeStrongPointer.*/
+     *  jobject. The java-side object must be a ByteBuffer as returned by getWrappedPointer().*/
     static IBase* unwrapJObject(jobject obj)
     {
         Env& env = Env::get();
 
-        void* pBuffer = env.getJniEnv()->GetDirectBufferAddress( obj );
+        JNIEnv* pEnv = env.getJniEnv();
 
-        env.throwAndClearExceptionFromLastJavaCall();
+        if( pEnv->IsSameObject(obj, NULL) )
+            return nullptr;
+        else
+        {
+            void *pBuffer = env.getJniEnv()->GetDirectBufferAddress(obj);
 
-        return static_cast<IBase*>(pBuffer);
+            env.throwAndClearExceptionFromLastJavaCall();
+
+            return static_cast<IBase *>(pBuffer);
+        }
     }
 
 
