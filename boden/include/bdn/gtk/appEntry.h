@@ -1,6 +1,7 @@
 #ifndef BDN_GTK_appEntry_H_
 #define BDN_GTK_appEntry_H_
 
+#include <bdn/AppControllerBase.h>
 
 namespace bdn
 {

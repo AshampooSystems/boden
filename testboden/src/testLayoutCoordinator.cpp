@@ -3,6 +3,8 @@
 
 #include <bdn/LayoutCoordinator.h>
 
+#include <bdn/test/MockUiProvider.h>
+
 using namespace bdn;
 
 class LayoutCoordinatorForTesting : public LayoutCoordinator
@@ -22,6 +24,10 @@ protected:
 class LayoutCoordinatorTestView : public Window
 {
 public:
+    LayoutCoordinatorTestView(bdn::test::MockUiProvider* pUiProvider)
+    : Window(pUiProvider)
+    {        
+    }
 
     void resetCalls()
     {
@@ -82,19 +88,21 @@ public:
 TEST_CASE("LayoutCoordinator")
 {
     P<LayoutCoordinatorForTesting> pCoord = newObj<LayoutCoordinatorForTesting>();
+    
+    P<bdn::test::MockUiProvider> pUiProvider = newObj<bdn::test::MockUiProvider>();
 
-    P<LayoutCoordinatorTestView> pView1 = newObj<LayoutCoordinatorTestView>();
-    P<LayoutCoordinatorTestView> pView2 = newObj<LayoutCoordinatorTestView>();
-    P<LayoutCoordinatorTestView> pView3 = newObj<LayoutCoordinatorTestView>();
+    P<LayoutCoordinatorTestView> pView1 = newObj<LayoutCoordinatorTestView>(pUiProvider);
+    P<LayoutCoordinatorTestView> pView2 = newObj<LayoutCoordinatorTestView>(pUiProvider);
+    P<LayoutCoordinatorTestView> pView3 = newObj<LayoutCoordinatorTestView>(pUiProvider);
 
     // wait for the initial updates by the global layout coordinator to be done
-    CONTINUE_SECTION_WHEN_IDLE(pCoord, pView1, pView2, pView3)
+    CONTINUE_SECTION_WHEN_IDLE(pUiProvider, pCoord, pView1, pView2, pView3)
     {
         pView1->resetCalls();
         pView2->resetCalls();
         pView3->resetCalls();
         
-        P<LayoutCoordinatorTestView> pCenterWindow = newObj<LayoutCoordinatorTestView>();
+        P<LayoutCoordinatorTestView> pCenterWindow = newObj<LayoutCoordinatorTestView>(pUiProvider);
 
         // pCenterWindow is always scheduled for centering. This is because window centering
         // is always done last, so this allows us to reasonably detect when an exception

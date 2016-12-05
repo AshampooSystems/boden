@@ -3,6 +3,8 @@
 
 #include <bdn/gtk/UiAppRunner.h>
 
+#include <bdn/entry.h>
+
 namespace bdn
 {
 namespace gtk
