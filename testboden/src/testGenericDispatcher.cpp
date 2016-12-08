@@ -8,6 +8,9 @@
 using namespace bdn;
 
 
+// the generic dispatcher has to run in its own thread for our tests to work.
+// So we cannot do this if threading is not supported.
+#if BDN_HAVE_THREADS
 
 TEST_CASE("GenericDispatcher")
 {
@@ -25,5 +28,7 @@ TEST_CASE("GenericDispatcher")
         pDispatcher = nullptr;
     }
 }
+
+#endif
 
 

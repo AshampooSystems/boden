@@ -5,6 +5,8 @@
 
 #include <bdn/entry.h>
 
+#include <emscripten/emscripten.h>
+
 namespace bdn
 {
 namespace webems
@@ -81,7 +83,7 @@ void MainDispatcher::dispose()
 
 
 
-static void MainDispatcher::processQueueItemCallback(void* pArg)
+void MainDispatcher::processQueueItemCallback(void* pArg)
 {
     P<MainDispatcher> pThis;
     pThis.attachPtr( static_cast<MainDispatcher*>(pArg) );
@@ -187,7 +189,7 @@ void MainDispatcher::enqueue( std::function<void()> func, Priority priority)
 
 void MainDispatcher::processTimedItemCallback(void* pArg)
 {
-    TimedItem* pItem = static_cast<TimedItem*>(data);
+    TimedItem* pItem = static_cast<TimedItem*>(pArg);
         
     pItem->pDispatcher->processTimedItem(pItem);    
 }
@@ -251,10 +253,15 @@ void MainDispatcher::enqueueInSeconds(double seconds, std::function<void()> func
 }
 
 
+// we need this as a pure C function so that we can predict the javascript name
+// of the function
+void MainDispatcher_timerEventCallback(void* pArg)
+{
+    MainDispatcher::_timerEventCallback(pArg);
+}
 
 
-
-void MainDispatcher::timerEventCallback(void* pArg)
+void MainDispatcher::_timerEventCallback(void* pArg)
 {
     Timer* pTimer = static_cast<Timer*>(pArg);
     
@@ -306,16 +313,12 @@ void MainDispatcher::processTimer(Timer* pTimer)
     }
 }
 
-void MainDispatcher_timerEventCallback(void* pArg)
-{
-    MainDispatcher::timerEventCallback(pArg);
-}
 
 void MainDispatcher::createTimer(
     double intervalSeconds,
     std::function< bool() > func )
 {
-    int64_t millis = (int64_t)(seconds*1000);
+    int millis = (int)(intervalSeconds*1000);
     
     if(millis<1)
         millis = 1;
@@ -338,7 +341,7 @@ void MainDispatcher::createTimer(
     
     int timerId = EM_ASM_INT(
         {
-            var eventFunc = Module.cwrap('MainDispatcher_timerEventCallback',
+            var eventFunc = Module.cwrap('_MainDispatcher_timerEventCallback',
                 'null', // return type
                 ['number']); // argument types - note that number can be used for pointers
 

@@ -3,6 +3,8 @@
 
 #include <bdn/webems/AppRunner.h>
 
+#include <bdn/entry.h>
+
 namespace bdn
 {
 namespace webems
@@ -19,6 +21,8 @@ int appEntry(const std::function< P<AppControllerBase>() >& appControllerCreator
     return pAppRunner->entry();
 
     BDN_ENTRY_END(false);
+
+    return 0;
 }
 
 

@@ -1389,7 +1389,7 @@ def commandRun(args):
                         commandLine = '/bin/bash -c "' + commandLine.replace('"', '\\"');
 
                     if sys.platform=="darwin":
-                        browserOption = "--browser safari";
+                        browserOption = "--browser firefox";
 
 
                 # find a free port number

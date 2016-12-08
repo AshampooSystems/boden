@@ -25,17 +25,24 @@ public:
 	void createTimer(
 		double intervalSeconds,
 		std::function< bool() > func ) override;
+
+
+    /** Used internally - do not call.*/
+    static void _timerEventCallback(void* pArg);
         
         
 private:
-        
-    void processItem(std::list< std::function<void()> >& queue);
+
+    static void processQueueItemCallback(void* pArg);        
+    void processQueueItem();
+
     
     struct TimedItem
     {
-        TimedItem(const std::function< void() >& func, MainDispatcher* pDispatcher)
+        TimedItem(const std::function< void() >& func, MainDispatcher* pDispatcher, Priority priority)
         : func(func)
         , pDispatcher(pDispatcher)
+        , priority(priority)
         {
         }
         
@@ -44,8 +51,12 @@ private:
         
         // strong reference. This is intended
         P<MainDispatcher>               pDispatcher;
+
+        Priority                        priority;
     };
     
+
+    static void processTimedItemCallback(void* pArg);
     void processTimedItem(TimedItem* pItem);
     
     
@@ -58,14 +69,17 @@ private:
         }
         
         // strong reference to dispatcher. That is by design
-        P<MainDispatcher> pDispatcher;
+        P<MainDispatcher>               pDispatcher;
         
         std::function<bool()>           func;
         std::list< Timer >::iterator    it;
+
         bool                            disposed = false;
+
+        int                             jsId = -1;
     };
     
-    bool processTimer(Timer* pTimer);
+    void processTimer(Timer* pTimer);
     
    
     

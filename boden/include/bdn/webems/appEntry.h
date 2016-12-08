@@ -1,6 +1,8 @@
 #ifndef BDN_WEBEMS_appEntry_H_
 #define BDN_WEBEMS_appEntry_H_
 
+#include <bdn/AppControllerBase.h>
+
 
 namespace bdn
 {
