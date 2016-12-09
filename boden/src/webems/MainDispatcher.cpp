@@ -352,7 +352,7 @@ void MainDispatcher::createTimer(
                 'null', // return type
                 ['number']); // argument types - note that number can be used for pointers
 
-            return Window.setInterval(
+            return window.setInterval(
                 function()
                 {
                     eventFunc($0);
