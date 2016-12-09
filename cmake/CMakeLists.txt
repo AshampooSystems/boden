@@ -165,8 +165,8 @@ if( "${BODEN_TARGET}" STREQUAL "webems" )
 
 	# for some reason it has no effect if we set the generic CMAKE_EXE_LINKER_FLAGS
 	# on linux. We must set the debug/release versions
-	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind")
+	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
+	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
 
 endif()
 

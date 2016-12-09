@@ -7,6 +7,21 @@
 
 #include <emscripten/emscripten.h>
 
+
+extern "C"
+{
+
+// we need this as a pure C function so that we can predict the javascript name
+// of the function
+void bdn_webems_MainDispatcher_timerEventCallback(void* pArg)
+{
+    bdn::webems::MainDispatcher::_timerEventCallback(pArg);
+}
+
+}
+
+
+
 namespace bdn
 {
 namespace webems
@@ -253,14 +268,6 @@ void MainDispatcher::enqueueInSeconds(double seconds, std::function<void()> func
 }
 
 
-// we need this as a pure C function so that we can predict the javascript name
-// of the function
-void MainDispatcher_timerEventCallback(void* pArg)
-{
-    MainDispatcher::_timerEventCallback(pArg);
-}
-
-
 void MainDispatcher::_timerEventCallback(void* pArg)
 {
     Timer* pTimer = static_cast<Timer*>(pArg);
@@ -341,7 +348,7 @@ void MainDispatcher::createTimer(
     
     int timerId = EM_ASM_INT(
         {
-            var eventFunc = Module.cwrap('_MainDispatcher_timerEventCallback',
+            var eventFunc = Module.cwrap('bdn_webems_MainDispatcher_timerEventCallback',
                 'null', // return type
                 ['number']); // argument types - note that number can be used for pointers
 
