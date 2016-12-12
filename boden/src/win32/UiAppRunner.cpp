@@ -6,6 +6,7 @@
 #include <bdn/win32/util.h>
 #include <bdn/log.h>
 #include <bdn/Thread.h>
+#include <bdn/entry.h>
 
 #include <windows.h>
 
@@ -77,17 +78,136 @@ void UiAppRunner::createTimer(
 	double intervalSeconds,
 	std::function< bool() > func )
 {
+
+    // we must store the function in a separate object because
+    // we need to release it from the main thread. So we must ensure
+    // that the dispatcher thread and the lambda below do not hold a direct
+    // reference to func.
+    P<Timer> pTimer = newObj<Timer>(func, this);
+        
     // for timers we have the same problem as for timed single events. We cannot use
     // SetTimer because it has low priority and only fires if the message queue is empty.
     // So we also use our helper thread here.
     _pTimedEventThreadDispatcher->createTimer(
         intervalSeconds,
-        [this, func]() -> bool
+        [pTimer]() -> bool
         {
-            return callFromMainThread(func).get();
+            return pTimer->timerEventFromHelperThread();
         } );
 }
 
+UiAppRunner::Timer::Timer(const std::function<bool()>& func, UiAppRunner* pAppRunner)
+{
+    // it is ok for the timer to hold a reference to the apprunner.
+    // The reference will be released when the timer ends.
+    _pAppRunner = pAppRunner;
+
+    _func = func;
+
+    // note that it is ok that the timer holds a strong reference
+    // to itself. That reference is released when the timer ends.
+    P<Timer> pThis = this;
+    _timerEventFromMainThreadFunc =
+        [pThis]()
+        {
+            pThis->timerEventFromMainThread();
+        };
+}
+
+bool UiAppRunner::Timer::timerEventFromHelperThread()
+{
+    std::function<void()> func;
+
+    // this is called from the helper thread that implements the timing.
+    {
+        MutexLock lock(_mutex);
+
+        if(_ended)
+        {
+            // timer has ended.
+            return false;
+        }
+    
+        if(_callPending)
+        {
+            // we already have a call for this timer pending. So we must ignore this one, but
+            // continue to generate future events.
+            return true;
+        }
+
+        _callPending = true;
+
+        func = _timerEventFromMainThreadFunc;
+    }
+
+    // just post the event to the main queue
+    _pAppRunner->enqueue( func );
+
+    // continue the timer for the time being. If it was ended then we will
+    // find out about it the next time the function is called.
+    return true;
+}
+
+void UiAppRunner::Timer::timerEventFromMainThread()
+{
+    // keep ourselves alive during this.
+    P<Timer> pThis = this;
+
+    bool continueTimer = false;
+
+    try
+    {
+        bool continueTimer;
+        if(_ended)
+            continueTimer = false;
+        else
+            continueTimer = _func();
+
+        {
+            MutexLock lock(_mutex);
+
+            _callPending = false;
+
+            if(!continueTimer && !_ended)
+            {
+                // release the function object here to ensure that this happens
+                // in the main thread.                
+                _ended = true;
+
+                _pAppRunner = nullptr;
+
+                // make a copy of the func object to ensure that exceptions thrown from
+                // the destructor do not prevent us from clearing our own _func member
+                try
+                {
+                    std::function<bool()> func = _func;                
+                    _func = std::function<bool()>();                            
+                }
+                catch(...)
+                {
+                    // ignore exceptions here. The destructor should not throw any anyways, so we can
+                    // ignore them.
+                }
+
+                // release our reference to ourselves. Note that this might delete
+                // our object if it is the last reference, so we must ensure that it is not the last one (since
+                // we have a member mutex locked).
+                _timerEventFromMainThreadFunc = std::function<void()>();
+            }            
+        }
+    }
+    catch(...)
+    {
+        {
+            MutexLock lock(_mutex);
+            _callPending = false;
+        }
+
+        if(!bdn::unhandledException(true))
+            std::terminate();
+    }
+
+}
 
 void UiAppRunner::platformSpecificInit()
 {
@@ -143,15 +263,13 @@ bool UiAppRunner::executeAndRemoveItem( std::list< std::function<void()> >& queu
     {
         func();
     }
-    catch(std::exception& e)
-    {
-        // log and ignore
-        logError(e, "Exception while executing item from main dispatcher. Ignoring.");
-    }
     catch(...)
     {
-        // log and ignore
-        logError("Exception of unknown type while executing item from main dispatcher. Ignoring.");
+        if(!bdn::unhandledException(true))
+        {
+            // we should terminate
+            std::terminate();
+        }
     }
 
     return true;

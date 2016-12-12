@@ -94,22 +94,16 @@ private:
     class Timer : public Base
     {
     public:
-        Timer(const std::function<bool()>& func, UiAppRunner* pAppRunner);
+        Timer(const std::function<bool()>& func)
+        {
+            _func = func;
+        }
 
-        bool timerEventFromHelperThread();
+        bool timerEvent();
 
-        
     private:
-        void timerEventFromMainThread();
-
-        P<UiAppRunner>          _pAppRunner;
-        std::function< void()>  _timerEventFromMainThreadFunc;
-
-        Mutex                   _mutex;
-        bool                    _ended = false;
-
         std::function<bool()>   _func;
-        bool                    _callPending = false;        
+        bool                    _disposed = false;
     };
     
     void handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam);

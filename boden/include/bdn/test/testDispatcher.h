@@ -336,22 +336,22 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                         bool didntthrow = false;
                         bool wrongType = false;
 
-                        do {
-                    try {
-                problem.throwAsException();
-                        didntthrow = true;
-            }
-            catch( InvalidArgumentError ) {
-                ok = true;
-            }
-            catch( ... ) {
-                wrongType = true;
-            }
-    } while( bdn::alwaysFalse() );
-
-
-
-
+                        do
+                        {
+                            try
+                            {
+                                problem.throwAsException();
+                                didntthrow = true;
+                            }
+                            catch( InvalidArgumentError )
+                            {
+                                ok = true;
+                            }
+                            catch( ... )
+                            {
+                                wrongType = true;
+                            }
+                        } while( bdn::alwaysFalse() );
 
                         //REQUIRE_THROWS_AS( problem.throwAsException(), InvalidArgumentError );
                     
