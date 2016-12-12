@@ -38,6 +38,10 @@ public:
         emscripten::val styleObj = _domObject["style"];
         styleObj.set("position", "absolute");
 
+
+        // we want the padding to be included in the reported box size.
+        styleObj.set("box-sizing", "border-box");
+
         for(auto stylePair: styleMap)
             styleObj.set(stylePair.first.asUtf8(), stylePair.second.asUtf8());        
         
@@ -90,33 +94,13 @@ public:
 
         if(padding.isNull())
         {
-            // we should use "default" padding. There is "padding=initial", which, according to the standard,
-            // should mean "use default padding". However, our tests have shown that padding=initial with buttons
-            // sets the padding to 0, while not specifying a padding at all causes the padding to be nonzero.
-            // We tested this with Safari and Chrome.
-            // So, padding=initial seems to be out as an option. We need to actually remove the entry.
-            // Note that apparently the padding cannot be fully removed from the DOM. Even when we assign
-            // an empty style object and then access its padding, we will still get an empty object (as opposed
-            // to "undefined"). This seems to be a special case for the DOM.
-            // So instead we assign an empty string. That seems to do what we want.
-            _domObject["style"].set("padding", "");
+            setDefaultPadding();            
         }
         else
         {
             Margin pad = uiMarginToDipMargin( padding.get() );
-            
-            String paddingString;
 
-            // we specify the padding in full DIPs. That seems like a good idea, because
-            // we do not know how good the browser is an if it will automatically align the
-            // content viewport on physical pixel boundaries if we specify anything weird here.
-
-            paddingString = std::to_string((int)std::ceil(pad.top))+"px"
-                             + " " + std::to_string((int)std::ceil(pad.right))+"px"
-                             + " " + std::to_string((int)std::ceil(pad.bottom))+"px"
-                             + " " + std::to_string((int)std::ceil(pad.left))+"px";
-
-            _domObject["style"].set("padding", paddingString.asUtf8());
+            setNonDefaultPadding(pad);
         }
     }
     
@@ -270,10 +254,12 @@ public:
         double width = rectObj["width"].as<double>();
         double height = rectObj["height"].as<double>();
 
-/*
-        double width = _domObject["offsetWidth"].as<double>();
-        double height = _domObject["offsetHeight"].as<double>();
-*/
+
+        /*double offsetWidth = _domObject["offsetWidth"].as<double>();
+        double offsetHeight = _domObject["offsetHeight"].as<double>();
+        double scrollWidth = _domObject["scrollWidth"].as<double>();
+        double scrollHeight = _domObject["offsetHeight"].as<double>();
+        std::cerr << width << "x" << height << " offset: " << offsetWidth << "x" << offsetHeight << "scroll " << scrollWidth << "x" << scrollHeight << std::endl;*/
 
         styleObj.set("width", oldWidthStyle);
         styleObj.set("height", oldHeightStyle);
@@ -408,6 +394,39 @@ protected:
         }
     }
 
+
+    /** This is called when it is requested to set the "default" padding.*/
+    virtual void setDefaultPadding()
+    {
+        // we should use "default" padding. There is "padding=initial", which, according to the standard,
+        // should mean "use default padding". However, our tests have shown that padding=initial with buttons
+        // sets the padding to 0, while not specifying a padding at all causes the padding to be nonzero.
+        // We tested this with Safari and Chrome.
+        // So, padding=initial seems to be out as an option. We need to actually remove the entry.
+        // Note that apparently the padding cannot be fully removed from the DOM. Even when we assign
+        // an empty style object and then access its padding, we will still get an empty object (as opposed
+        // to "undefined"). This seems to be a special case for the DOM.
+        // So instead we assign an empty string. That seems to do what we want.
+        _domObject["style"].set("padding", "");
+    }
+
+
+    /** This is called when a padding is set that is not the implicit default.*/
+    virtual void setNonDefaultPadding(const Margin& pad)
+    {
+        String paddingString;
+
+        // we specify the padding in full DIPs. That seems like a good idea, because
+        // we do not know how good the browser is an if it will automatically align the
+        // content viewport on physical pixel boundaries if we specify anything weird here.
+
+        paddingString = std::to_string((int)std::ceil(pad.top))+"px"
+                         + " " + std::to_string((int)std::ceil(pad.right))+"px"
+                         + " " + std::to_string((int)std::ceil(pad.bottom))+"px"
+                         + " " + std::to_string((int)std::ceil(pad.left))+"px";
+
+        _domObject["style"].set("padding", paddingString.asUtf8());
+    }
 
 
     WeakP<View>         _outerViewWeak;

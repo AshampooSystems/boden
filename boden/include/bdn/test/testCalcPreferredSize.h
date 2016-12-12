@@ -9,7 +9,7 @@ namespace test
 {
 
 template<class ObjectType>
-inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject)
+inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase> pKeepAliveDuringContinuations)
 {
 	SECTION("plausible")	
     {
@@ -32,15 +32,18 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject)
         // increasing the padding
         pView->padding() = UiMargin( 100, 200, 300, 400);
 
-        Size sizeWithPadding = pObject->calcPreferredSize();
+        CONTINUE_SECTION_WHEN_IDLE(pView, pObject, zeroPaddingSize, pKeepAliveDuringContinuations)
+        {
+            Size sizeWithPadding = pObject->calcPreferredSize();
 
-        // the increased padding should have increased the preferred size.
-        // Note that we cannot really know by how much because there can be
-        // hidden minimum padding values for certain views. I.e. the padding
-        // we apply might be rounded up to that minimum.
-        // But since we applied a rather large padding we can expect that 
-        // this will make the view bigger
-        REQUIRE( sizeWithPadding > zeroPaddingSize);
+            // the increased padding should have increased the preferred size.
+            // Note that we cannot really know by how much because there can be
+            // hidden minimum padding values for certain views. I.e. the padding
+            // we apply might be rounded up to that minimum.
+            // But since we applied a rather large padding we can expect that 
+            // this will make the view bigger
+            REQUIRE( sizeWithPadding > zeroPaddingSize);
+        };
     }
                 
     SECTION("availableSize = preferredSize")	

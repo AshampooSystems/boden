@@ -559,7 +559,7 @@ inline void testView()
 	    }
 
         SECTION("preferredSize")
-            bdn::test::_testCalcPreferredSize<View>(pView, pView);
+            bdn::test::_testCalcPreferredSize<View>(pView, pView, pPreparer);
 
 	    SECTION("multiplePropertyChangesThatInfluenceSizing")
 	    {
