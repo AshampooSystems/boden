@@ -5,23 +5,23 @@
 #include <bdn/test/TestWindowCore.h>
 #include <bdn/webems/UiProvider.h>
 #include <bdn/webems/WindowCore.h>
-#include "TestWebViewCoreMixin.h"
+#include "TestWebemsViewCoreMixin.h"
 
 using namespace bdn;
 
 
-class TestWebWindowCore : public bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >
+class TestWebemsWindowCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >
 {
 protected:
     
     void initCore() override
     {
-        bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+        bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >::initCore();
     }
 
     void clearAllReferencesToCore() override
     {
-        bdn::test::TestWebViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
+        bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
 
         _pWebCore = nullptr;
         _domObject = emscripten::val::undefined();
@@ -96,7 +96,7 @@ protected:
 
 TEST_CASE("webems.WindowCore")
 {
-    P<TestWebWindowCore> pTest = newObj<TestWebWindowCore>();
+    P<TestWebemsWindowCore> pTest = newObj<TestWebemsWindowCore>();
 
     pTest->runTests();
 }

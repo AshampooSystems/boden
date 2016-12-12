@@ -2,7 +2,6 @@
 #define BDN_ANDROID_JRStyle_H_
 
 #include <bdn/java/JObject.h>
-#include <bdn/java/StaticField.h>
 
 
 namespace bdn

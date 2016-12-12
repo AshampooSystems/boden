@@ -1,6 +1,9 @@
 #include <bdn/init.h>
 #include <bdn/java/Env.h>
 
+#include <bdn/java/JavaException.h>
+#include <bdn/java/JNativeException.h>
+
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* pVm, void* reserved)
 {
@@ -91,6 +94,38 @@ void Env::createEnv()
     }
 }
 
+
+void Env::throwAndClearExceptionFromLastJavaCall()
+{
+    JNIEnv* pEnv = getJniEnv();
+
+    jthrowable exc = pEnv->ExceptionOccurred();
+    pEnv->ExceptionClear();
+    if(exc!=nullptr)
+        JavaException::rethrowThrowable( JThrowable( Reference::convertAndDestroyOwnedLocal((jobject)exc) ) );
+}
+
+
+void Env::setJavaSideException(const std::exception_ptr& exceptionPtr)
+{
+    JNIEnv* pEnv = getJniEnv();
+
+    try
+    {
+        std::rethrow_exception(exceptionPtr);
+    }
+    catch(JavaException& e)
+    {
+        // this is a wrapped java exception. Throw the original exception.
+        pEnv->Throw( (jthrowable) e.getJThrowable_().getRef_().getJObject() );
+    }
+    catch(...)
+    {
+        // a real c++ exception. Wrap it in a dummy java exception and throw that.
+        bdn::java::JNativeException nativeException( exceptionPtr );
+        pEnv->Throw( (jthrowable) nativeException.getRef_().getJObject() );
+    }
+}
 
 
 

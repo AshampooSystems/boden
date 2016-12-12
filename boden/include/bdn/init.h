@@ -23,7 +23,15 @@
 #define BDN_APPEND_LINE(baseName) BDN_APPEND_LINE_IMPL_3(baseName, __LINE__)
 
 
+namespace bdn
+{
+    /** A dummy function that does nothing. This can be used in macros and the like
+        when an actual instruction (rather than an empty statement) is needed.*/
+    inline void doNothing()
+    {
+    }
 
+}
 
 
 

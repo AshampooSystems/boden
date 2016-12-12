@@ -38,6 +38,8 @@
 
 #include <type_traits>
 
+#include <bdn/IUnhandledProblem.h>
+
 
 #define TWOBLUECUBES_BDN_HPP_INCLUDED
 
@@ -2100,104 +2102,8 @@ namespace bdn {
 
 #include <string>
 
-namespace bdn{
+#include <bdn/debug.h>
 
-    bool isDebuggerActive();
-    void writeToDebugConsole( std::string const& text );
-}
-
-#if BDN_PLATFORM_OSX
-
-
-    // The following code snippet based on:
-    // http://cocoawithlove.com/2008/03/break-into-debugger.html
-    #if defined(__ppc64__) || defined(__ppc__)
-        #define BDN_BREAK_INTO_DEBUGGER() \
-            if( bdn::isDebuggerActive() ) { \
-                __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
-                : : : "memory","r0","r3","r4" ); \
-            }
-    #else
-        #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) {__asm__("int $3\n" : : );}
-    #endif
-
-#elif defined(_MSC_VER)
-    #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { __debugbreak(); }
-
-#elif defined(__MINGW32__)
-    extern "C" __declspec(dllimport) void __stdcall DebugBreak();
-    #define BDN_BREAK_INTO_DEBUGGER() if( bdn::isDebuggerActive() ) { DebugBreak(); }
-
-#elif BDN_PLATFORM_POSIX
-
-    // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
-    // However, we do not need it since we can raise a SIGTRAP that
-    // will stop a debugger and not have any effect on
-    // a program that is not being debugged. For that
-    // we disable the SIGTRAP for the process,
-    // and then raise that signal. If the process is being debugged
-    // the signal will be delivered to the debugger instead
-	// of this process and cause it to break.
-	// If not it is ignored.
-	// Note that we simply disable the SIGTRAP signal and leave
-	// it at that. It is only used for debugging and if we are
-	// not debugged it should not be a problem to ignore it.
-	// If we were to restore the old signal action then we'd have
-	// to deal with race conditions when multiple threads execute
-	// a debugBreak at the same time.
-
-#include <signal.h>
-
-#if BDN_PLATFORM_ANDROID
-
-// unfortunately SIGTRAP does not break into the debugger in android studio
-// (at least as of 2016-08-02). Instead the debugger and the program seem
-// to lock up.
-// So right now there is no good way to do a debug break on android.
-// What we will do is define an empty function that is called in that case
-// - that way one can at least set a breakpoint in the function and achieve
-// the debug break that way.
-namespace bdn
-{
-namespace android
-{
-
-inline void debugBreakDummy()
-{
-    // do nothing - see comment above.
-    // You can set a debug breakpoint here if you want to stop the debugger
-    // at points when BDN_BREAK_INTO_DEBUGGER is used.
-    bdn::alwaysTrue();
-}
-
-}
-}
-
-#define BDN_BREAK_INTO_DEBUGGER() bdn::android::debugBreakDummy();
-
-#else
-
-// we configure SIGTRAP to be ignored by the runtime lib and then
-// raise SIGTRAP. When a debugger is attached then it will pick up the signal
-// and interrupt the program. When no debugger is used then the
-// signal will be ignored and have no effect.
-#define BDN_BREAK_INTO_DEBUGGER() { \
-                                    struct sigaction dbrk_newAction_; \
-                                    dbrk_newAction_.sa_handler = SIG_IGN; \
-                                    sigemptyset(&dbrk_newAction_.sa_mask); \
-                                    dbrk_newAction_.sa_flags = 0; \
-                                    if(sigaction(SIGTRAP, &dbrk_newAction_, NULL)==0) \
-                                        raise(SIGTRAP); \
-                                }
-
-#endif
-
-
-#endif
-
-#ifndef BDN_BREAK_INTO_DEBUGGER
-#define BDN_BREAK_INTO_DEBUGGER() bdn::alwaysTrue();
-#endif
 
 // #included from: catch_interfaces_runner.h
 #define TWOBLUECUBES_BDN_INTERFACES_RUNNER_H_INCLUDED
@@ -2221,7 +2127,7 @@ namespace bdn {
 // This needs to be done as a macro so the debugger will stop in the user
 // source code rather than in bdn library code
 #define INTERNAL_BDN_REACT( resultBuilder ) \
-    if( resultBuilder.shouldDebugBreak() ) BDN_BREAK_INTO_DEBUGGER(); \
+    if( resultBuilder.shouldDebugBreak() ) BDN_DEBUG_BREAK(); \
     resultBuilder.react();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -4030,6 +3936,64 @@ namespace bdn
 				);
 	}
 
+}
+
+
+
+namespace bdn
+{
+namespace test
+{
+
+void _setUnhandledProblemHandler( std::function<void(IUnhandledProblem&)> func);
+
+
+/** You can use this inside test applications (those that use one of Boden's default
+    test app controllers) to temporarily intercept unhandled problems and redirect their handler
+    to a custom function.
+
+    The handler is redirected to the custom function when the object is constructed
+    and the redirection is removed when the object is destructed.
+
+    Example:
+
+    \code
+
+    {
+        RedirectUnhandledProblem redirectUnhandledProblem(
+            [](IUnhandledProblem& problem)
+            {
+                // custom handler code
+                ...
+            } );
+
+        // test code that can cause an unhandled problem. Any problems that happen
+        // here will be redirected to the function (and not cause the app to exit).
+        ...
+    }
+
+    // the redirection has been removed here, so unhandled problems get the default
+    // handling now (usually causing the test app to terminate).
+
+    \endcode
+
+    */
+class RedirectUnhandledProblem : public Base
+{
+public:
+    RedirectUnhandledProblem( std::function<void(IUnhandledProblem&)> func )
+    {
+        _setUnhandledProblemHandler(func);
+    }
+
+    ~RedirectUnhandledProblem()
+    {
+        _setUnhandledProblemHandler( std::function<void(IUnhandledProblem&)>() );
+    }
+};
+
+
+}
 }
 
 #endif // _BDN_test_H_

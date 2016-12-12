@@ -165,8 +165,8 @@ if( "${BODEN_TARGET}" STREQUAL "webems" )
 
 	# for some reason it has no effect if we set the generic CMAKE_EXE_LINKER_FLAGS
 	# on linux. We must set the debug/release versions
-	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind")
+	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
+	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
 
 endif()
 
@@ -299,12 +299,24 @@ endif()
 # testboden
 
 set( TESTBODEN_SRCDIR "../testboden/src")
-file( GLOB TESTBODEN_SOURCES ${TESTBODEN_SRCDIR}/*.cpp ${TESTBODEN_SRCDIR}/*.h ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.cpp ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.h)
+set( TESTBODEN_COMMON_SRCDIR "../testboden_common/src")
+file( GLOB TESTBODEN_SOURCES
+    ${TESTBODEN_SRCDIR}/*.cpp
+    ${TESTBODEN_SRCDIR}/*.h
+    ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODEN_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.mm
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.hh
+    )
 include_directories( ${BODEN_INCDIR} )
 include_directories( ${DEPENDENCIES_INCDIR} )
 
-# we cannot build commandline tools on iOS. So we have to build a UI app
-if(BODEN_TARGET STREQUAL "ios")
+# we cannot build commandline tools on iOS and UWP. So we have to build a UI app
+if((BODEN_TARGET STREQUAL "ios") OR (BODEN_TARGET STREQUAL "winuwp") )
 	add_executable(testboden WIN32 MACOSX_BUNDLE ${TESTBODEN_SOURCES} )
 
 elseif( "${BODEN_TARGET}" STREQUAL "android" )
@@ -315,6 +327,7 @@ else()
 endif()
 
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS BDN_COMPILING_COMMANDLINE_APP)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	# make sure that we also generate a HTML file
@@ -375,7 +388,20 @@ endif()
 # testbodenui
 
 set( TESTBODENUI_SRCDIR "../testbodenui/src")
-file( GLOB TESTBODENUI_SOURCES ${TESTBODENUI_SRCDIR}/*.cpp  ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.cpp ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.mm ${TESTBODENUI_SRCDIR}/*.h ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.h ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.hh )
+file( GLOB TESTBODENUI_SOURCES
+    ${TESTBODENUI_SRCDIR}/*.cpp
+    ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.mm
+    ${TESTBODENUI_SRCDIR}/*.h
+    ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODENUI_SRCDIR}/${BODEN_TARGET}/*.hh
+    ${TESTBODEN_COMMON_SRCDIR}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.mm
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.hh
+     )
 
 
 if(BODEN_USES_GTK)
@@ -392,16 +418,12 @@ IF ( APPLE )
 	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testbodenui")
 endif()
 
-
-# we cannot build commandline tools on iOS. So we have to build a UI app
-if(BODEN_TARGET STREQUAL "ios")
-    add_executable(testbodenui WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
-
-elseif( "${BODEN_TARGET}" STREQUAL "android" )
+if( "${BODEN_TARGET}" STREQUAL "android" )
 	add_library(testbodenui SHARED ${TESTBODENUI_SOURCES} )
 
 else()
-    add_executable(testbodenui ${TESTBODENUI_SOURCES} )
+    add_executable(testbodenui  WIN32 MACOSX_BUNDLE ${TESTBODENUI_SOURCES} )
+    
 endif()
 
 set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)

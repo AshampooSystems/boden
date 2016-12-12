@@ -222,7 +222,7 @@ protected:
         if(coreCanCalculatePreferredSize())
         {	
             SECTION("calcPreferredSize")
-                bdn::test::_testCalcPreferredSize<IViewCore>( _pView, _pCore );
+                bdn::test::_testCalcPreferredSize<IViewCore>( _pView, _pCore, this );
         }
     
         SECTION("visibility")   

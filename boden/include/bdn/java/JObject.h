@@ -67,6 +67,16 @@ public:
     }
 
 
+
+    /** Returns a string representation of the object. */
+    String	toString()
+    {
+        static MethodId methodId;
+
+        return invoke_<String>(getStaticClass_(), methodId, "toString" );
+    }
+
+
     /** Returns the Reference to the Java-side object.
      *
      *  Note that the returned reference can be a null Reference object.
@@ -112,6 +122,12 @@ public:
     {
         return getRef_().isNull();
     }
+
+
+
+    /** Returns true if this object is the same as the specified object.
+     *  This does not compare equality, but identity. I.e. it must be the exact same object.*/
+    bool isSameObject_(JObject& o);
 
 
     template<typename ReturnType, typename... Arguments>

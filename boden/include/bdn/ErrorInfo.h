@@ -43,14 +43,14 @@ namespace bdn
 class ErrorInfo : public Base
 {
 public:
-	/** Constructs an ErrorInfo object from an error message. If the error message contains
+	/** Constructs an ErrorInfo object from an error string. If the error string contains
 		encoded fields (see encodeFields()) then they are automatically extracted and are
 		accessible via getFields() or getField() afterwards.
 
 		It is ok to pass an error message without encoded field data here. The effect will simply
 		be that the fields map will be empty.
 		*/
-	ErrorInfo(const String& errorMessage);
+	ErrorInfo(const String& errorString);
 
 
 	/** Constructs an ErrorInfo object from an exception object. This is currently the same as
@@ -58,6 +58,11 @@ public:
 		from certain kinds of exception objects. So if you have an exception object it is recommended
 		to pass the whole object to this constructed, rather than passing just the error message.*/
 	ErrorInfo(const std::exception& error);
+
+
+    /** Constructs an ErrorInfo object from a std::exception_ptr object.
+    */
+	ErrorInfo(const std::exception_ptr& exceptionPtr);
 
 	
 
@@ -89,9 +94,23 @@ public:
 	{
 		return _message;
 	}
+
+
+    /** Returns a combined error string that contains all the information in this error
+        info object. This is intended for diagnostic messages. Use getMessage() if you
+        want to display an error message for the user.*/
+    String toString() const;
 		
 	
 protected:
+    /** Initializes the object from a string that may or may not include
+        encoded error fields with additional information.*/
+    void initFromErrorString(const String& errorString);
+
+
+	/** Initializes the object from a std::system_error object.*/
+	void initFromSystemError(const std::system_error& e);
+
 	
 	String		_message;
 	ErrorFields	_fields;

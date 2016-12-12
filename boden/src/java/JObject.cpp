@@ -34,6 +34,13 @@ bool JObject::isInstanceOf_ (JClass& cls)
     return Env::get().getJniEnv()->IsInstanceOf( getJObject_(), (jclass)cls.getJObject_() );
 }
 
+
+bool JObject::isSameObject_(JObject& o)
+{
+    return Env::get().getJniEnv()->IsSameObject( getJObject_(), o.getJObject_() );
+}
+
+
 }
 }
 

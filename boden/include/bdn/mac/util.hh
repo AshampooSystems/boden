@@ -1,6 +1,7 @@
 #ifndef BDN_MAC_util_HH_
 #define BDN_MAC_util_HH_
 
+#import <bdn/fk/stringUtil.hh>
 
 namespace bdn
 {
@@ -110,14 +111,13 @@ inline NSSize sizeToMacSize(const Size& size)
 
 inline NSString* stringToMacString(const String& val)
 {
-    return [NSString stringWithCString: val.asUtf8Ptr()
-                     encoding: NSUTF8StringEncoding];
+    return bdn::fk::stringToNSString(val);
 }
 
 
 inline String macStringToString(NSString* nsString)
 {
-    return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
+    return bdn::fk::nsStringToString(nsString);
 }
 
 		

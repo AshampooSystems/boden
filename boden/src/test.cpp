@@ -37,18 +37,18 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/TestAppWithUiController.h>
+#include <bdn/ErrorInfo.h>
+
+#include <bdn/IAppRunner.h>
+#include <bdn/AppControllerBase.h>
+#include <bdn/UiTestAppController.h>
+#include <bdn/CommandLineTestAppController.h>
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
 #include <bdn/TextView.h>
 #include <bdn/mainThread.h>
 #include <bdn/NotImplementedError.h>
 
-
-namespace bdn
-{
-    std::vector<String> _askForCommandlineParameters();
-}
 
 #include <cstring>
 
@@ -440,16 +440,7 @@ public: // IStream
 	virtual std::ostream& stream() const BDN_OVERRIDE;
 };
 
-class DebugOutStream : public IStream {
-	std::unique_ptr<StreamBufBase> m_streamBuf;
-	mutable std::ostream m_os;
-public:
-	DebugOutStream();
-	virtual ~DebugOutStream() BDN_NOEXCEPT;
 
-public: // IStream
-	virtual std::ostream& stream() const BDN_OVERRIDE;
-};
 }
 
 #include <memory>
@@ -581,12 +572,8 @@ private:
 	IStream const* openStream() {
 		if( m_data.outputFilename.empty() )
 			return new CoutStream();
-		else if( m_data.outputFilename[0] == '%' ) {
-			if( m_data.outputFilename == "%debug" )
-				return new DebugOutStream();
-			else
-				throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
-		}
+		else if( m_data.outputFilename[0] == '%' )
+			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
 		else
 			return new FileStream( m_data.outputFilename );
 	}
@@ -4067,9 +4054,12 @@ public:
 
 			return static_cast<int>( runTests( m_config ).assertions.failed );
 		}
-		catch( std::exception& ex ) {
-			bdn::cerr() << ex.what() << std::endl;
-			return (std::numeric_limits<int>::max)();
+		catch( ... )
+		{
+			ErrorInfo errorInfo( std::current_exception() );
+
+			bdn::cerr() << errorInfo.toString().asUtf8() << std::endl;
+			return 1;
 		}
 	}
 
@@ -4540,21 +4530,6 @@ std::ostream& FileStream::stream() const {
 	return m_ofs;
 }
 
-struct OutputDebugWriter {
-
-	void operator()( std::string const&str ) {
-		writeToDebugConsole( str );
-	}
-};
-
-DebugOutStream::DebugOutStream()
-	:   m_streamBuf( new StreamBufImpl<OutputDebugWriter>() ),
-	m_os( m_streamBuf.get() )
-{}
-
-std::ostream& DebugOutStream::stream() const {
-	return m_os;
-}
 
 // Store the streambuf from cout up-front because
 // cout may get redirected when running tests
@@ -4802,8 +4777,16 @@ private:
 
 IColourImpl* platformColourInstance() {
 	Ptr<IConfig const> config = getCurrentContext().getConfig();
+    
+    bool useColor = (config && config->forceColour()) || isatty(STDOUT_FILENO);
+    
+#if BDN_PLATFORM_OSX
+    // the Xcode debugger cannot handle Ansi color codes.
+    if(useColor && bdn::_isDebuggerActive())
+        useColor = false;
+#endif
 
-	return (config && config->forceColour()) || isatty(STDOUT_FILENO)
+	return useColor
 		? PosixColourImpl::instance()
 		: NoColourImpl::instance();
 }
@@ -4828,9 +4811,7 @@ Colour::Colour( Colour const& _other ) : m_moved( false ) { const_cast<Colour&>(
 Colour::~Colour(){ if( !m_moved ) use( None ); }
 
 void Colour::use( Code _colourCode ) {
-	static IColourImpl* impl = isDebuggerActive()
-		? NoColourImpl::instance()
-		: platformColourInstance();
+	static IColourImpl* impl = platformColourInstance();
 	impl->use( _colourCode );
 }
 
@@ -5571,92 +5552,6 @@ Section::operator bool() const {
 #define TWOBLUECUBES_BDN_DEBUGGER_HPP_INCLUDED
 
 #include <iostream>
-
-#ifdef BDN_PLATFORM_OSX
-
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-
-namespace bdn{
-
-// The following function is taken directly from the following technical note:
-// http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
-
-// Returns true if the current process is being debugged (either
-// running under the debugger or has a debugger attached post facto).
-bool isDebuggerActive(){
-
-	int                 mib[4];
-	struct kinfo_proc   info;
-	size_t              size;
-
-	// Initialize the flags so that, if sysctl fails for some bizarre
-	// reason, we get a predictable result.
-
-	info.kp_proc.p_flag = 0;
-
-	// Initialize mib, which tells sysctl the info we want, in this case
-	// we're looking for information about a specific process ID.
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PID;
-	mib[3] = getpid();
-
-	// Call sysctl.
-
-	size = sizeof(info);
-	if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, BDN_NULL, 0) != 0 ) {
-		bdn::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
-		return false;
-	}
-
-	// We're being debugged if the P_TRACED flag is set.
-
-	bool active = ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-
-    return active;
-}
-} // namespace bdn
-
-#elif defined(_MSC_VER)
-extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-namespace bdn {
-bool isDebuggerActive() {
-	return IsDebuggerPresent() != 0;
-}
-}
-#elif defined(__MINGW32__)
-extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-namespace bdn {
-bool isDebuggerActive() {
-	return IsDebuggerPresent() != 0;
-}
-}
-#else
-namespace bdn {
-inline bool isDebuggerActive() { return false; }
-}
-#endif // Platform
-
-#ifdef BDN_PLATFORM_WINDOWS
-extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
-namespace bdn {
-void writeToDebugConsole( std::string const& text ) {
-	::OutputDebugStringA( text.c_str() );
-}
-}
-#else
-namespace bdn {
-void writeToDebugConsole( std::string const& text ) {
-	// !TBD: Need a version for Mac/ XCode and other IDEs
-	bdn::cout() << text;
-}
-}
-#endif // Platform
 
 // #included from: catch_tostring.hpp
 #define TWOBLUECUBES_BDN_TOSTRING_HPP_INCLUDED
@@ -7958,7 +7853,6 @@ IShared::~IShared() {}
 IStream::~IStream() BDN_NOEXCEPT {}
 FileStream::~FileStream() BDN_NOEXCEPT {}
 CoutStream::~CoutStream() BDN_NOEXCEPT {}
-DebugOutStream::~DebugOutStream() BDN_NOEXCEPT {}
 StreamBufBase::~StreamBufBase() BDN_NOEXCEPT {}
 IContext::~IContext() {}
 IResultCapture::~IResultCapture() {}
@@ -8029,89 +7923,78 @@ int runTestSession( int argc, char const* const argv[] )
 	return bdn::Session().run( argc, argv );
 }
 
-class TestAppWithUiController::Impl
+namespace test
+{
+    std::function<void(IUnhandledProblem&)> _globalUnhandledProblemHandler;
+
+    void _setUnhandledProblemHandler( std::function<void(IUnhandledProblem&)> func)
+    {
+        _globalUnhandledProblemHandler = func;
+    }
+
+}
+
+
+
+class TestAppControllerImplBase
 {
 public:
-	Impl()
+	TestAppControllerImplBase()
 	{
 		_pTestSession = nullptr;
         _pTestRunner = nullptr;
 	}
+    
+    virtual ~TestAppControllerImplBase()
+    {
+    }
+
 
 
 	void init(std::vector<String> args)
 	{
         try
         {
-#if BDN_PLATFORM_WINUWP
-		    if(args.size()<=1)
-            {
-		        // WinRT apps do not support commandline arguments (at least not at the time of this writing).
-		        // So we let the user enter them programmatically.
-		        // Note that this is pretty hackish. We should probably produce "real" UI apps with an integrated
-		        // commandline instead. But for the moment this works.
-                args = _askForCommandlineParameters();
-            }
-#endif
-
             _pTestSession = new bdn::Session;
 
-			// this is just a place holder frame so that we have something visible.
-            _pWindow = newObj<Window>();
-			_pWindow->title() = "Running tests...";
-            _pWindow->visible() = true;
-
-            _pWindow->padding() = UiMargin( UiLength::sem(1) );
-            
-            P<ColumnView> pColumnView = newObj<ColumnView>();            
-            
-            P<TextView> pStatusView = newObj<TextView>();
-
-            // we want to see at least 3 lines in our status view
-            pStatusView->minSize() = UiSize( UiLength(), UiLength::em(3) );
-
-            pColumnView->addChildView( pStatusView );
-            
-            _pWindow->setContentView( pColumnView );
-
+			initUi();
+			
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
+            if(argPtrs.empty())
+                argPtrs.push_back("");
 
             int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.
-				_pWindow->title() = "Invalid commandline";
-                pStatusView->text() = "Invalid commandline";
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+				abortingBecauseOfInvalidCommandLineArguments();
+				getAppRunner()->initiateExitIfPossible(exitCode);
                 return;
             }
 
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
-				_pWindow->title() = "Done";
-                pStatusView->text() = "Done";
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(0);
+				abortingBecauseJustShowingHelp();
+				getAppRunner()->initiateExitIfPossible(exitCode);
 				return;
             }
 
             _pTestRunner = new TestRunner( &_pTestSession->config() );
             
-            pStatusView->text().bind( _pTestRunner->statusText() );
-            
-            _pWindow->requestAutoSize();
-            _pWindow->requestCenter();
+			testRunnerReady();
         }
-        catch( std::exception& ex )
+        catch(...)
         {
-            bdn::cerr() << ex.what() << std::endl;
-
-            int exitCode = (std::numeric_limits<int>::max)();
+			ErrorInfo errorInfo{ std::current_exception() };
+			abortingBecauseOfException(errorInfo);
 
             // we want to exit
-            AppControllerBase::get()->closeAtNextOpportunityIfPossible( exitCode );
+            getAppRunner()->initiateExitIfPossible(1);
+
+			throw;
         }
 
 	}
@@ -8124,14 +8007,56 @@ public:
 
 	void deinit()
 	{
-		_pWindow = nullptr;
+		deinitUi();
 	}
 
+
+
+    bool  unhandledProblem(IUnhandledProblem& problem)
+    {
+        if(bdn::test::_globalUnhandledProblemHandler)
+        {
+            bdn::test::_globalUnhandledProblemHandler(problem);
+            return true;
+        }
+        else
+            return false;
+    }
+
 protected:
+	
+	virtual void initUi()
+	{
+	}
+
+	virtual void deinitUi()
+	{
+	}
+
+	virtual void testRunnerReady()
+	{
+	}
+
+	virtual void abortingBecauseOfInvalidCommandLineArguments()
+	{
+	}
+
+	virtual void abortingBecauseJustShowingHelp()
+	{
+	}
+
+	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
+	{
+	}
+
+
+	virtual void finished(int failedCount)
+	{
+	}
 
 	void scheduleNextTest()
 	{
-		asyncCallFromMainThread( std::bind(&Impl::runNextTest, this) );
+		asyncCallFromMainThread( std::bind(&TestAppControllerImplBase::runNextTest, this) );
 	}
 
 	void waitAndClose(int exitCode)
@@ -8141,7 +8066,7 @@ protected:
 			{
 				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
 
-				AppControllerBase::get()->closeAtNextOpportunityIfPossible(exitCode);
+				getAppRunner()->initiateExitIfPossible(exitCode);
 			} );
 	}
 
@@ -8154,7 +8079,7 @@ protected:
     {
         try
         {
-            if(_pTestRunner->beginNextTest( std::bind(&Impl::onTestDone, this) ) )
+            if(_pTestRunner->beginNextTest( std::bind(&TestAppControllerImplBase::onTestDone, this) ) )
             {
 				// this was not the last test.
 
@@ -8167,7 +8092,7 @@ protected:
 
 				int exitCode = failedCount;
 
-				_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
+				finished(failedCount);
 
 				delete _pTestRunner;
 				_pTestRunner = nullptr;
@@ -8175,13 +8100,12 @@ protected:
 				waitAndClose(exitCode);
 			}
         }
-        catch( std::exception& ex )
+        catch(...)
         {
-            bdn::cerr() << ex.what() << std::endl;
+			ErrorInfo errorInfo( std::current_exception() );
+			abortingBecauseOfException(errorInfo);
 
-			_pWindow->title() = "Fatal Error";
-
-            int exitCode = (std::numeric_limits<int>::max)();
+            int exitCode = 1;
 
 			delete _pTestRunner;
 			_pTestRunner = nullptr;
@@ -8189,41 +8113,177 @@ protected:
             // we want to exit
 			waitAndClose(exitCode);
         }
-
     }
+
 
 protected:
 	Session*    _pTestSession;
     TestRunner* _pTestRunner;
-
-	P<Window>	_pWindow;
 };
 
 
-TestAppWithUiController::TestAppWithUiController()
+class UiTestAppController::Impl : public TestAppControllerImplBase
+{
+public:
+
+
+protected:
+	
+	void initUi() override
+	{
+		// this is just a place holder frame so that we have something visible.
+		_pWindow = newObj<Window>();
+		_pWindow->title() = "Running tests...";
+		_pWindow->visible() = true;
+
+		_pWindow->padding() = UiMargin( UiLength::sem(1) );
+            
+		P<ColumnView> pColumnView = newObj<ColumnView>();            
+            
+		_pStatusView = newObj<TextView>();
+
+		// we want to see at least 3 lines in our status view. We also want to have
+        // a bit of a min size to show at least some text.
+		_pStatusView->minSize() = UiSize( UiLength::em(20), UiLength::em(3) );
+
+		pColumnView->addChildView( _pStatusView );
+	            
+		_pWindow->setContentView( pColumnView );
+	}
+
+	void deinitUi()  override
+	{
+		_pStatusView = nullptr;
+		_pWindow = nullptr;
+	}
+
+	void testRunnerReady() override
+	{
+		_pStatusView->text().bind( _pTestRunner->statusText() );
+            
+        _pWindow->requestAutoSize();
+        _pWindow->requestCenter();
+	}
+
+	void abortingBecauseOfInvalidCommandLineArguments()  override
+	{
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Invalid commandline";
+
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Invalid commandline";
+	}
+
+	void abortingBecauseJustShowingHelp()  override
+	{
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Done";
+
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Done";
+	}
+
+	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
+	{
+		if(_pWindow!=nullptr)
+			_pWindow->title() = "Fatal Error";
+
+		if(_pStatusView!=nullptr)
+			_pStatusView->text() = "Fatal Error: " + errorInfo.getMessage();
+	}
+
+	void finished(int failedCount)  override
+	{
+		_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
+	}
+		
+	P<Window>	_pWindow;
+	P<TextView>	_pStatusView;
+};
+
+
+UiTestAppController::UiTestAppController()
 {
 	_pImpl = new Impl;
 }
 
-TestAppWithUiController::~TestAppWithUiController()
+UiTestAppController::~UiTestAppController()
 {
 	delete _pImpl;
 }
 
 
-void TestAppWithUiController::beginLaunch(const AppLaunchInfo& launchInfo)
+void UiTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->init( launchInfo.getArguments() );
 }
 
-void TestAppWithUiController::finishLaunch(const AppLaunchInfo& launchInfo)
+void UiTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
 	_pImpl->start();
 }
 
-void TestAppWithUiController::onTerminate()
+void UiTestAppController::onTerminate()
 {
 	_pImpl->deinit();
+}
+
+void UiTestAppController::unhandledProblem(IUnhandledProblem& problem)
+{
+    if(!_pImpl->unhandledProblem(problem))
+        AppControllerBase::unhandledProblem(problem);
+}
+
+
+class CommandLineTestAppController::Impl : public TestAppControllerImplBase
+{
+public:
+
+
+protected:
+	
+	void abortingBecauseOfInvalidCommandLineArguments()  override
+	{
+		bdn::cerr() << "Invalid commandline" << std::endl;
+	}
+
+	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
+	{
+		bdn::cerr() << ("Fatal Error: " + errorInfo.toString().asUtf8()) << std::endl;
+	}			
+};
+
+
+CommandLineTestAppController::CommandLineTestAppController()
+{
+	_pImpl = new Impl;
+}
+
+CommandLineTestAppController::~CommandLineTestAppController()
+{
+	delete _pImpl;
+}
+
+
+void CommandLineTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
+{
+	_pImpl->init( launchInfo.getArguments() );
+}
+
+void CommandLineTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
+{
+	_pImpl->start();
+}
+
+void CommandLineTestAppController::onTerminate()
+{
+	_pImpl->deinit();
+}
+
+void CommandLineTestAppController::unhandledProblem(IUnhandledProblem& problem)
+{
+    if(!_pImpl->unhandledProblem(problem))
+        AppControllerBase::unhandledProblem(problem);
 }
 
 }

@@ -4,19 +4,19 @@
 #include <bdn/test/TestContainerViewCore.h>
 
 #include <bdn/webems/UiProvider.h>
-#include "TestWebViewCoreMixin.h"
+#include "TestWebemsViewCoreMixin.h"
 
 using namespace bdn;
 
 
 
-class TestWebContainerViewCore : public bdn::test::TestWebViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestWebemsContainerViewCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestContainerViewCore >
 {
 protected:
 
     void initCore() override
     {
-        TestWebViewCoreMixin< TestContainerViewCore >::initCore();
+        TestWebemsViewCoreMixin< TestContainerViewCore >::initCore();
     }        
 
 };
@@ -25,7 +25,7 @@ protected:
 
 TEST_CASE("webems.ContainerViewCore")
 {
-    P<TestWebContainerViewCore> pTest = newObj<TestWebContainerViewCore>();
+    P<TestWebemsContainerViewCore> pTest = newObj<TestWebemsContainerViewCore>();
 
     pTest->runTests();
 }

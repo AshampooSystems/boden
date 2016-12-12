@@ -31,8 +31,8 @@ View::~View()
 {
 	// We have to be careful here to ensure that the last reference to the core object is not deleted
     // from some other thread (this destructor might be called from another thread).
+    // _deinitCore takes care of this.
 
-    // So we deinit the core now
     _deinitCore();
 }
 

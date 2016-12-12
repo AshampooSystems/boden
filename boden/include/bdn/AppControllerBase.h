@@ -2,6 +2,7 @@
 #define BDN_AppControllerBase_H_
 
 #include <bdn/AppLaunchInfo.h>
+#include <bdn/IUnhandledProblem.h>
 
 #include <vector>
 #include <map>
@@ -67,6 +68,8 @@ public:
     }
     
     
+
+
     
     /** The app has become active and ready for the user to interact with it.
      
@@ -153,6 +156,20 @@ public:
     {
         // do nothing by default
     }
+
+
+    /** Called when there was an unhandled problem (like an unhandled exception).
+
+        If the implementation of this method does call IUnhandledProblem::keepRunning() then
+        the app will terminate after the method returns. Note that not all problems
+        can be ignored in this way (see IUnhandledProblem::canKeepRunning()).
+    
+        The default implementation simply logs the problem and lets the app terminate.
+
+        Note that the normal termination handlers and notifiers are often not 
+        called when the app terminates because of such a problem.
+    */
+    virtual void unhandledProblem(IUnhandledProblem& problem);
     
 
     
@@ -175,21 +192,6 @@ public:
      
     
 
-	/** Causes the app to close at the next opportunity, if that is possible.
-	
-		Note that some platforms do not allow apps to exit on their own. For example,
-		iOS apps must never close themselves. They can only be closed by the user.
-
-		Also, even if the platform supports exiting, it might be possible for
-		some other component of the app to veto the exit request and prevent the exit.
-
-		So you should always consider the possibility that the exit might not actually happen.
-		If your app has nothing relevant to do anymore then you should consider
-		simply displaying a message to the user to indicate that fact.
-	*/
-	virtual void closeAtNextOpportunityIfPossible(int exitCode)=0;
-    
-    
     /** Returns the global app controller instance.*/
     static P<AppControllerBase> get()
     {

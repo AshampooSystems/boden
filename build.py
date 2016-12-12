@@ -494,14 +494,14 @@ class AndroidStudioProjectGenerator(object):
 
 
 
-    def generateModule(self, projectModuleName, packageId, moduleName, userFriendlyModuleName, dependencyList, isLibrary):        
+    def generateModule(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, userFriendlyModuleName, dependencyList, isLibrary):        
 
         moduleDir = os.path.join(self._projectDir, projectModuleName);
         if not os.path.isdir(moduleDir):
             os.makedirs(moduleDir);
 
         with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-            f.write( self.getModuleBuildGradleCode(packageId, moduleName, dependencyList, isLibrary ) )
+            f.write( self.getModuleBuildGradleCode(packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
             
 
         srcMainDir = os.path.join(moduleDir, "src", "main");
@@ -572,7 +572,7 @@ class AndroidStudioProjectGenerator(object):
 
 
 
-    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
+    def getModuleBuildGradleCode(self, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
 
 
         if isLibrary:
@@ -669,7 +669,7 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
         return "classpath 'com.android.tools.build:gradle-experimental:0.7.2'";
 
 
-    def getModuleBuildGradleCode(self, packageId, moduleName, dependencyList, isLibrary):
+    def getModuleBuildGradleCode(self, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
 
         jniDependencyCode = "";
         moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
@@ -716,6 +716,23 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
         	appIdCode = "applicationId = '%s'" % packageId
 
 
+        srcDirCode = "srcDirs = [ ";
+
+        sourceModuleNames = [moduleName];
+        sourceModuleNames.extend( additionalSourceModuleNames );
+
+        srcDirList = [];
+        for sourceModuleName in sourceModuleNames:
+            srcDirList.append( "../../../%s/src" % sourceModuleName )
+            srcDirList.append( "../../../%s/include" % sourceModuleName );
+
+        for index, srcDir in enumerate(srcDirList):
+            if index!=0:
+                srcDirCode+=", "
+            srcDirCode += "'%s'" % srcDir;
+
+        srcDirCode += " ]";
+
         return """\
 apply plugin: '$$PluginName$$'
 
@@ -736,7 +753,7 @@ model {
             main {
                 jni {
                     source {
-                        srcDirs = ['../../../$$ModuleName$$/src', '../../../$$ModuleName$$/include' ]
+$$SrcDirCode$$
                         
 $$ExcludeSourceDirCode$$
                     }
@@ -828,13 +845,14 @@ repositories{
 $$RepositoriesCode$$
 }
 
-""" .replace("$$AppIdCode$$", appIdCode) \
+""" .replace("$$SrcDirCode$$", srcDirCode) \
+        .replace("$$AppIdCode$$", appIdCode) \
     	.replace("$$PluginName$$", pluginName) \
         .replace("$$ModuleName$$", moduleName) \
         .replace("$$JniDependencyCode$$", jniDependencyCode) \
         .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
         .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
-        .replace("$$RepositoriesCode$$", repositoriesCode)
+        .replace("$$RepositoriesCode$$", repositoriesCode)       
 
 
 
@@ -874,10 +892,10 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
     gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
 
     gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui"]);
-    gen.generateModule("boden", "io.boden.android.boden", "boden", "Boden", [], True)
-    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", "UIDemo", ["boden"], False)
-    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", "TestBoden", ["boden"], False)
-    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", "TestBodenUI", ["boden"], False)
+    gen.generateModule("boden", "io.boden.android.boden", "boden", [], "Boden", [], True)
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", [], "UIDemo", ["boden"], False)
+    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", ["testboden_common"], "TestBoden", ["boden"], False)
+    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", ["testboden_common"], "TestBodenUI", ["boden"], False)
 
     
 
@@ -953,8 +971,15 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         toolChainFileName = "android.toolchain.cmake";
         if arch!="std":
             args.extend( ['-DANDROID_ABI='+arch ] );
+
+        # API levels and reach as of December 2016
+        # Target Level      Reach     Target Android Version
+        # 16                97%       4.1 Jelly Bean
+        # 19                81%       4.4 Kitkat
+
+        # See https://www.statista.com/statistics/271774/share-of-android-platforms-on-mobile-devices-with-android-os/
         
-        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=9', '-DANDROID_STL=c++_static' ] );
+        args.extend( [ '-DANDROID_NATIVE_API_LEVEL=16', '-DANDROID_STL=c++_static' ] );
         
 
     elif platform=="webems":
@@ -1364,7 +1389,7 @@ def commandRun(args):
                         commandLine = '/bin/bash -c "' + commandLine.replace('"', '\\"');
 
                     if sys.platform=="darwin":
-                        browserOption = "--browser safari";
+                        browserOption = "--browser firefox";
 
 
                 # find a free port number

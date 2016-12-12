@@ -1,7 +1,7 @@
 #ifndef BDN_ThreadRunnableBase_H_
 #define BDN_ThreadRunnableBase_H_
 
-
+#include <bdn/IThreadRunnable.h>
 
 namespace bdn
 {

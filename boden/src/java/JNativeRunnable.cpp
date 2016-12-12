@@ -2,10 +2,11 @@
 #include <bdn/java/JNativeRunnable.h>
 
 #include <bdn/java/Env.h>
+#include <bdn/entry.h>
 
 extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JNIEnv* pEnv, jobject rawSelf, jobject rawNativeObject )
 {
-    BDN_JNI_BEGIN(pEnv);
+    BDN_ENTRY_BEGIN(pEnv);
 
     bdn::java::JNativeStrongPointer nativePointer(( bdn::java::Reference::convertExternalLocal(rawNativeObject) ));
 
@@ -15,6 +16,6 @@ extern "C" JNIEXPORT void JNICALL Java_io_boden_java_NativeRunnable_nativeRun(JN
 
     pCallable->call();
 
-    BDN_JNI_END;
+    BDN_ENTRY_END();
 }
 

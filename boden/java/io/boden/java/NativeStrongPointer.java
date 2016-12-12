@@ -26,7 +26,7 @@ public class NativeStrongPointer extends Object
         super.finalize();
     }
 
-    java.nio.ByteBuffer getWrappedPointer()
+    public java.nio.ByteBuffer getWrappedPointer()
     {
         return mWrappedPointer;
     }

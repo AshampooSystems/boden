@@ -285,8 +285,8 @@ private:
             JView child = rootView.getChildAt(i);
 
             P<WindowCore> pWindowCore = cast<WindowCore>( ViewCore::getViewCoreFromJavaViewRef(child.getRef_()) );
-
-            windowCoreList.push_back( pWindowCore );
+            if(pWindowCore!=nullptr)
+                windowCoreList.push_back( pWindowCore );
         }
     }
 

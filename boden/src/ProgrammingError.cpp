@@ -2,7 +2,7 @@
 #include <bdn/ProgrammingError.h>
 
 #include <bdn/log.h>
-#include <bdn/test.h>
+#include <bdn/debug.h>
 
 #include <cassert>
 
@@ -19,7 +19,7 @@ void programmingError(const String& errorMessage)
 
 		logError("IMPORTANT: Programming error encountered: "+errorMessage);
 
-		BDN_BREAK_INTO_DEBUGGER();
+		BDN_DEBUG_BREAK();
 
 		assert(false && "IMPORTANT: Programming error encountered");		
 	}
