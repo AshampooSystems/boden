@@ -4,12 +4,12 @@
 #include <bdn/Button.h>
 #include <bdn/Window.h>
 #include <bdn/test/TestTextViewCore.h>
-#include "TestWebViewCoreMixin.h"
+#include "TestWebemsViewCoreMixin.h"
 
 using namespace bdn;
 
 
-class TestWebTextViewCore : public bdn::test::TestWebViewCoreMixin< bdn::test::TestTextViewCore >
+class TestWebemsTextViewCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestTextViewCore >
 {
 protected:
 
@@ -41,7 +41,7 @@ protected:
 
 TEST_CASE("webems.TextViewCore")
 {
-    P<TestWebTextViewCore> pTest = newObj<TestWebTextViewCore>();
+    P<TestWebemsTextViewCore> pTest = newObj<TestWebemsTextViewCore>();
 
     pTest->runTests();
 }

@@ -4,12 +4,12 @@
 #include <bdn/Button.h>
 #include <bdn/Window.h>
 #include <bdn/test/TestButtonCore.h>
-#include "TestWebViewCoreMixin.h"
+#include "TestWebemsViewCoreMixin.h"
 
 using namespace bdn;
 
 
-class TestWebButtonCore : public bdn::test::TestWebViewCoreMixin< bdn::test::TestButtonCore >
+class TestWebemsButtonCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestButtonCore >
 {
 protected:
 
@@ -28,7 +28,7 @@ protected:
 
 TEST_CASE("webems.ButtonCore")
 {
-    P<TestWebButtonCore> pTest = newObj<TestWebButtonCore>();
+    P<TestWebemsButtonCore> pTest = newObj<TestWebemsButtonCore>();
 
     pTest->runTests();
 }

@@ -1,5 +1,5 @@
-#ifndef BDN_TEST_TestWebViewCoreMixin_H_
-#define BDN_TEST_TestWebViewCoreMixin_H_
+#ifndef BDN_TEST_TestWebemsViewCoreMixin_H_
+#define BDN_TEST_TestWebemsViewCoreMixin_H_
 
 
 #include <bdn/View.h>
@@ -15,10 +15,10 @@ namespace test
 /** A mixin class that adds implementations of web view specific functionality on top of
     the base class specified in the template parameter BaseClass.*/
 template<class BaseClass>
-class TestWebViewCoreMixin : public BaseClass
+class TestWebemsViewCoreMixin : public BaseClass
 {
 public:
-    TestWebViewCoreMixin()
+    TestWebemsViewCoreMixin()
     : _domObject( emscripten::val::null() )
     {        
     }

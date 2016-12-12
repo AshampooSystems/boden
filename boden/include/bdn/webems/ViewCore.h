@@ -352,10 +352,25 @@ protected:
     {
         if(_emDipsIfInitialized==-1)
         {
-            emscripten::val styleObj = _domObject["style"];
-            emscripten::val fontObj = styleObj["font"];
+            emscripten::val windowVal = emscripten::val::global("window");
 
-            double size = fontObj["size"].as<double>();
+            emscripten::val computedStyleObj = windowVal.call<emscripten::val>("getComputedStyle", _domObject );
+
+            std::string fontSizeString = computedStyleObj["font-size"].as<std::string>();
+
+            // if the string ends with "px" then cut it off
+            if(fontSizeString.length()>=2 && fontSizeString.substr( fontSizeString.length()-2, 2)=="px")
+                fontSizeString = fontSizeString.substr( 0, fontSizeString.length()-2 );
+
+            for(auto c: fontSizeString)
+            {
+                if(!isdigit(c) && c!='.')
+                    throw std::runtime_error("Unsupported computed style value for font-size: "+fontSizeString);
+            }
+
+            std::stringstream s(fontSizeString);
+            double size;
+            s >> size;
 
             // the computed font size we get from the DOM is in CSS pixels (i.e. DIPs).
             // So no conversion necessary.
@@ -400,8 +415,8 @@ protected:
     
     emscripten::val     _domObject;
 
-    mutable double      _emDipsIfInitialized;
-    mutable double      _semDipsIfInitialized;
+    mutable double      _emDipsIfInitialized = -1;
+    mutable double      _semDipsIfInitialized = -1;
 };
 
 }

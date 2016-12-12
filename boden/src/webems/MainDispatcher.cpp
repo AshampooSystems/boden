@@ -301,7 +301,7 @@ void MainDispatcher::processTimer(Timer* pTimer)
 
             EM_ASM_(
                 {
-                    Window.clearInterval($0);
+                    window.clearInterval($0);
                 }
                 , pTimer->jsId );
         } 
