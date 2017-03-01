@@ -63,6 +63,7 @@ public:
 protected:
 	// mutex objects cannot be copied.
 	Mutex(const Mutex&) = delete;
+	Mutex& operator=(const Mutex&) = delete;
 
 #if BDN_PLATFORM_DOTNET
 	gcroot<msclr::lock ^>	_lockRef;
