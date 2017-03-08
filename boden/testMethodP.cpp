@@ -168,12 +168,12 @@ TEST_CASE("MethodP")
 
     SECTION("defaultInit")
     {
-        MethodP<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+        MethodP_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
         
         verifyMethodNull(m, true);
         
         // calling the method should have no effect
-        REQUIRE_THROWS_AS( m(1), ProgrammingError );
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
     SECTION("object=null")
@@ -182,7 +182,7 @@ TEST_CASE("MethodP")
         
         verifyMethodNull(m, true);
         
-        REQUIRE_THROWS_AS( m(1), ProgrammingError );
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
     SECTION("method=null")
@@ -195,7 +195,7 @@ TEST_CASE("MethodP")
         
         verifyMethodNull(m, true);
         
-        REQUIRE_THROWS_AS( m(1), ProgrammingError );
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
     SECTION("method and object null")
@@ -207,7 +207,7 @@ TEST_CASE("MethodP")
         
         verifyMethodNull(m, true);
         
-        REQUIRE_THROWS_AS( m(1), ProgrammingError );
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
 
 
@@ -215,14 +215,14 @@ TEST_CASE("MethodP")
     {
         SECTION("defaultInit")
         {
-            MethodP<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            MethodP_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            MethodP<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
+            MethodP_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
             
             verifyMethodNull(m2, true);
             
             // calling the method should have no effect
-            REQUIRE_THROWS_AS( m2(1), ProgrammingError );
+            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
@@ -232,7 +232,7 @@ TEST_CASE("MethodP")
                 REQUIRE( helper.getRefCount() == 2);
                 verifyMethodNull(m, false);
                 
-                MethodP<MethodPTestHelper, int (MethodPTestHelper::*)(int)> m2(m);
+                MethodP_<MethodPTestHelper, int (MethodPTestHelper::*)(int)> m2(m);
                 REQUIRE( helper.getRefCount() == 3);
                 verifyMethodNull(m2, false);
                 
@@ -257,16 +257,16 @@ TEST_CASE("MethodP")
     {
         SECTION("defaultInit")
         {
-            MethodP<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            MethodP_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            MethodP<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
+            MethodP_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
             
             m2 = m;
             
             verifyMethodNull(m2, true);
             
             // calling the method should have no effect
-            REQUIRE_THROWS_AS( m2(1), ProgrammingError );
+            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
@@ -276,7 +276,7 @@ TEST_CASE("MethodP")
                 REQUIRE( helper.getRefCount() == 2);
                 verifyMethodNull(m, false);
                 
-                MethodP<MethodPTestHelper, int (MethodPTestHelper::*)(int)> m2;
+                MethodP_<MethodPTestHelper, int (MethodPTestHelper::*)(int)> m2;
                 
                 m2 = m;
                 
