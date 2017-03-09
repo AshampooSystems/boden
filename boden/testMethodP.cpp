@@ -14,11 +14,32 @@ struct MethodPTestStruct
 };
 
 
-class MethodPTestHelper : public Base
+class MethodPTestHelperBase : public Base
 {
 public:
 
+    virtual int ii(int a)
+    {
+        _lastCalled = "base int(int)";
+        
+        return a;
+    }
+    
     String _lastCalled;
+    
+};
+
+class IMethodPTestHelper : BDN_IMPLEMENTS IBase
+{
+public:
+    
+    virtual int ii(int a)=0;
+    
+};
+
+class MethodPTestHelper : public MethodPTestHelperBase, BDN_IMPLEMENTS IMethodPTestHelper
+{
+public:
 
     int i()
     {
@@ -27,7 +48,7 @@ public:
         return 42;
     }
     
-    int ii(int a)
+    int ii(int a) override
     {
         _lastCalled = "int(int)";
         
@@ -45,9 +66,6 @@ public:
         
         return MethodPTestStruct{a.i+b.i, a.s+b.s};
     }
-    
-
-
 };
 
 
@@ -100,6 +118,42 @@ TEST_CASE("MethodP")
         
         REQUIRE( helper.getRefCount()==1 );
     }
+    
+    SECTION("int(int) virtual base")
+    {
+        {
+            auto m = makeMethodP((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
+            
+            REQUIRE( helper.getRefCount() == 2);
+            verifyMethodNull(m, false);
+            
+            int val = m(3);
+            REQUIRE( val==9 );
+            
+            REQUIRE( helper._lastCalled=="int(int)" );
+        }
+        
+        REQUIRE( helper.getRefCount()==1 );
+    }
+    
+    SECTION("int(int) virtual interface")
+    {
+        {
+            auto m = makeMethodP((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
+            
+            REQUIRE( helper.getRefCount() == 2);
+            verifyMethodNull(m, false);
+            
+            int val = m(3);
+            REQUIRE( val==9 );
+            
+            REQUIRE( helper._lastCalled=="int(int)" );
+        }
+        
+        REQUIRE( helper.getRefCount()==1 );
+    }
+
+
     
     
     SECTION("void(int)")
