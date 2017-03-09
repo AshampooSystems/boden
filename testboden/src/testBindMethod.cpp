@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/method.h>
+#include <bdn/func.h>
 
 using namespace bdn;
 
@@ -94,7 +94,7 @@ static void verifyMethodValid(const MethodType& m, bool expectedValid )
     REQUIRE( (m!=nullptr) == expectedValid );
 }
 
-TEST_CASE("method")
+TEST_CASE("bindMethod")
 {
 
     MethodPTestHelper helper;
@@ -105,7 +105,7 @@ TEST_CASE("method")
     SECTION("int()")
     {
         {
-            auto m = method(&helper, &MethodPTestHelper::i);
+            auto m = bindMethod(&helper, &MethodPTestHelper::i);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -122,7 +122,7 @@ TEST_CASE("method")
     SECTION("int(int)")
     {
         {
-            auto m = method(&helper, &MethodPTestHelper::ii);
+            auto m = bindMethod(&helper, &MethodPTestHelper::ii);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -139,7 +139,7 @@ TEST_CASE("method")
     SECTION("int(int) virtual base")
     {
         {
-            auto m = method((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
+            auto m = bindMethod((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -156,7 +156,7 @@ TEST_CASE("method")
     SECTION("int(int) virtual interface")
     {
         {
-            auto m = method((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
+            auto m = bindMethod((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -176,7 +176,7 @@ TEST_CASE("method")
     SECTION("void(int)")
     {
         {
-            auto m = method(&helper, &MethodPTestHelper::vi);
+            auto m = bindMethod(&helper, &MethodPTestHelper::vi);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -192,7 +192,7 @@ TEST_CASE("method")
     SECTION("struct(struct, struct)")
     {
         {
-            auto m = method(&helper, &MethodPTestHelper::sss);
+            auto m = bindMethod(&helper, &MethodPTestHelper::sss);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -217,7 +217,7 @@ TEST_CASE("method")
         {
             P<MethodPTestHelper> pHelper = &helper;
         
-            auto m = method(pHelper, &MethodPTestHelper::sss);
+            auto m = bindMethod(pHelper, &MethodPTestHelper::sss);
             
             REQUIRE( helper.getRefCount() == 3);
             verifyMethodValid(m, true);
@@ -239,42 +239,42 @@ TEST_CASE("method")
 
     SECTION("defaultInit")
     {
-        MethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+        BoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
         
         verifyMethodValid(m, false);
         
-        // calling the method should have no effect
+        // calling the bindMethod should have no effect
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
     SECTION("object=null")
     {
-        auto m = method((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
+        auto m = bindMethod((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
         
         verifyMethodValid(m, false);
         
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
-    SECTION("method=null")
+    SECTION("bindMethod=null")
     {
         void (MethodPTestHelper::* nullFunc)(int);
         
         nullFunc = nullptr;
     
-        auto m = method(&helper, nullFunc);
+        auto m = bindMethod(&helper, nullFunc);
         
         verifyMethodValid(m, false);
         
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
-    SECTION("method and object null")
+    SECTION("bindMethod and object null")
     {
         void (MethodPTestHelper::* nullFunc)(int);
         nullFunc = nullptr;
         
-        auto m = method((MethodPTestHelper*)nullptr, nullFunc);
+        auto m = bindMethod((MethodPTestHelper*)nullptr, nullFunc);
         
         verifyMethodValid(m, false);
         
@@ -286,20 +286,20 @@ TEST_CASE("method")
     {
         SECTION("defaultInit")
         {
-            MethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            BoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            MethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
+            BoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
             
             verifyMethodValid(m2, false);
             
-            // calling the method should have no effect
+            // calling the bindMethod should have no effect
             REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
         {
             {
-                auto m = method(&helper, &MethodPTestHelper::ii);
+                auto m = bindMethod(&helper, &MethodPTestHelper::ii);
                 REQUIRE( helper.getRefCount() == 2);
                 verifyMethodValid(m, true);
                 
@@ -328,22 +328,22 @@ TEST_CASE("method")
     {
         SECTION("defaultInit")
         {
-            MethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            BoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            MethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
+            BoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
             
             m2 = m;
             
             verifyMethodValid(m2, false);
             
-            // calling the method should have no effect
+            // calling the bindMethod should have no effect
             REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
         {
             {
-                auto m = method(&helper, &MethodPTestHelper::ii);
+                auto m = bindMethod(&helper, &MethodPTestHelper::ii);
                 REQUIRE( helper.getRefCount() == 2);
                 verifyMethodValid(m, true);
                 
@@ -376,7 +376,7 @@ TEST_CASE("method")
 
 
 
-TEST_CASE("weakMethod")
+TEST_CASE("weakBindMethod")
 {
     
     MethodPTestHelper helper;
@@ -387,7 +387,7 @@ TEST_CASE("weakMethod")
     SECTION("int()")
     {
         {
-            auto m = weakMethod(&helper, &MethodPTestHelper::i);
+            auto m = weakBindMethod(&helper, &MethodPTestHelper::i);
             
             // refcount should not have increased
             REQUIRE( helper.getRefCount() == 1);
@@ -405,7 +405,7 @@ TEST_CASE("weakMethod")
     SECTION("int(int)")
     {
         {
-            auto m = weakMethod(&helper, &MethodPTestHelper::ii);
+            auto m = weakBindMethod(&helper, &MethodPTestHelper::ii);
             
             // refcount should not have increased
             REQUIRE( helper.getRefCount() == 1);
@@ -425,7 +425,7 @@ TEST_CASE("weakMethod")
         NonBaseMethodPTestHelper nonBaseHelper;
         
         {
-            auto m = weakMethod(&nonBaseHelper, &NonBaseMethodPTestHelper::ii);
+            auto m = weakBindMethod(&nonBaseHelper, &NonBaseMethodPTestHelper::ii);
             
             verifyMethodValid(m, true);
             
@@ -439,7 +439,7 @@ TEST_CASE("weakMethod")
     SECTION("int(int) virtual base")
     {
         {
-            auto m = weakMethod((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
+            auto m = weakBindMethod((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
             
             REQUIRE( helper.getRefCount() == 1);
             verifyMethodValid(m, true);
@@ -456,7 +456,7 @@ TEST_CASE("weakMethod")
     SECTION("int(int) virtual interface")
     {
         {
-            auto m = weakMethod((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
+            auto m = weakBindMethod((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
             
             REQUIRE( helper.getRefCount() == 1);
             verifyMethodValid(m, true);
@@ -476,7 +476,7 @@ TEST_CASE("weakMethod")
     SECTION("void(int)")
     {
         {
-            auto m = weakMethod(&helper, &MethodPTestHelper::vi);
+            auto m = weakBindMethod(&helper, &MethodPTestHelper::vi);
             
             REQUIRE( helper.getRefCount() == 1);
             verifyMethodValid(m, true);
@@ -492,7 +492,7 @@ TEST_CASE("weakMethod")
     SECTION("struct(struct, struct)")
     {
         {
-            auto m = weakMethod(&helper, &MethodPTestHelper::sss);
+            auto m = weakBindMethod(&helper, &MethodPTestHelper::sss);
             
             REQUIRE( helper.getRefCount() == 1);
             verifyMethodValid(m, true);
@@ -519,7 +519,7 @@ TEST_CASE("weakMethod")
             
             REQUIRE( helper.getRefCount() == 2);
             
-            auto m = weakMethod(pHelper, &MethodPTestHelper::sss);
+            auto m = weakBindMethod(pHelper, &MethodPTestHelper::sss);
             
             REQUIRE( helper.getRefCount() == 2);
             verifyMethodValid(m, true);
@@ -541,42 +541,42 @@ TEST_CASE("weakMethod")
     
     SECTION("defaultInit")
     {
-        WeakMethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+        WeakBoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
         
         verifyMethodValid(m, false);
         
-        // calling the method should have no effect
+        // calling the bindMethod should have no effect
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
     SECTION("object=null")
     {
-        auto m = weakMethod((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
+        auto m = weakBindMethod((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
         
         verifyMethodValid(m, false);
         
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
-    SECTION("method=null")
+    SECTION("bindMethod=null")
     {
         void (MethodPTestHelper::* nullFunc)(int);
         
         nullFunc = nullptr;
         
-        auto m = weakMethod(&helper, nullFunc);
+        auto m = weakBindMethod(&helper, nullFunc);
         
         verifyMethodValid(m, false);
         
         REQUIRE_THROWS_AS( m(1), std::bad_function_call );
     }
     
-    SECTION("method and object null")
+    SECTION("bindMethod and object null")
     {
         void (MethodPTestHelper::* nullFunc)(int);
         nullFunc = nullptr;
         
-        auto m = weakMethod((MethodPTestHelper*)nullptr, nullFunc);
+        auto m = weakBindMethod((MethodPTestHelper*)nullptr, nullFunc);
         
         verifyMethodValid(m, false);
         
@@ -588,20 +588,20 @@ TEST_CASE("weakMethod")
     {
         SECTION("defaultInit")
         {
-            WeakMethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            WeakBoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            WeakMethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
+            WeakBoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
             
             verifyMethodValid(m2, false);
             
-            // calling the method should have no effect
+            // calling the bindMethod should have no effect
             REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
         {
             {
-                auto m = weakMethod(&helper, &MethodPTestHelper::ii);
+                auto m = weakBindMethod(&helper, &MethodPTestHelper::ii);
                 REQUIRE( helper.getRefCount() == 1);
                 verifyMethodValid(m, true);
                 
@@ -630,22 +630,22 @@ TEST_CASE("weakMethod")
     {
         SECTION("defaultInit")
         {
-            WeakMethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
+            WeakBoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
             
-            WeakMethodCallable_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
+            WeakBoundMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
             
             m2 = m;
             
             verifyMethodValid(m2, false);
             
-            // calling the method should have no effect
+            // calling the bindMethod should have no effect
             REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
         }
         
         SECTION("ok")
         {
             {
-                auto m = weakMethod(&helper, &MethodPTestHelper::ii);
+                auto m = weakBindMethod(&helper, &MethodPTestHelper::ii);
                 REQUIRE( helper.getRefCount() == 1);
                 verifyMethodValid(m, true);
                 

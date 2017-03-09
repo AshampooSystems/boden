@@ -12,15 +12,15 @@ namespace bdn
 /** Internal class. Do not use directly.
     */
 template<class ObjectType, class MethodType>
-class MethodCallable_
+class BoundMethod_
 {
 public:
-    MethodCallable_()
+    BoundMethod_()
     : _method(nullptr)
     {
     }
     
-    MethodCallable_(ObjectType* pObject, MethodType method)
+    BoundMethod_(ObjectType* pObject, MethodType method)
         : _pObject(pObject)
         , _method(method)
     {
@@ -74,15 +74,15 @@ private:
 /** Internal class. Do not use directly.
  */
 template<class ObjectType, class MethodType>
-class WeakMethodCallable_
+class WeakBoundMethod_
 {
 public:
-    WeakMethodCallable_()
+    WeakBoundMethod_()
     : _method(nullptr)
     {
     }
     
-    WeakMethodCallable_(ObjectType* pObject, MethodType method)
+    WeakBoundMethod_(ObjectType* pObject, MethodType method)
     : _pObject(pObject)
     , _method(method)
     {
@@ -131,17 +131,16 @@ private:
 };
 
 
-/**  Wraps an object method and allows it to be called like
-     a normal function. The pointer to the object that the method works is stored internally
-     and is not needed when the returned callable is called.
- 
-     The wrapped object holds a strong reference to the method's object. So the object is kept
-     alive as long as the returned callable object exists.
+/**  Packages a method together with its object pointer and allows it to be called
+     like a global function (without providing the object pointer at the point of the call).
      
-     You can also use this function with virtual methods. They work as expected, just as if the
+     The wrapped method object holds a strong reference to the method's object. So the object is kept
+     alive as long as the returned method object exists.
+     
+     You can also use this with virtual methods. They work as expected, just as if the
      method was called normally.
      
-     This function only works with methods of classes that implement IBase (which is true for
+     This function only works with methods of classes that implement IBase (which is automatically the case for
      all classes that derive from Base, i.e. for most classes in this framework). A similar function
      that also works for other classes is weakMethod().
  
@@ -158,7 +157,7 @@ private:
      
      P<MyClass> pObject = newObj<MyClass>();
      
-     std::function<int(String)> method = method(pObject, &MyClass::hello);
+     std::function<int(String)> method = bindMethod(pObject, &MyClass::hello);
      
      // the method can now be called without the need to provide pObject.
      int returnValue = method("abc");
@@ -171,52 +170,52 @@ private:
  
      */
 template<class ObjectType, typename FuncType>
-std::function<FuncType> method( ObjectType* pObject, FuncType ObjectType::* method )
+std::function<FuncType> bindMethod( ObjectType* pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return MethodCallable_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
+        return BoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
 }
 
 template<class ObjectType, typename FuncType>
-std::function<FuncType> method( const P<ObjectType>& pObject, FuncType ObjectType::* method )
+std::function<FuncType> bindMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return MethodCallable_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
+        return BoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
 }
 
 
 
-/** This is similar to method(), except that the function object will not hold a strong
-    reference to the object that the method is working on. So the function object will not
+/** This is similar to bindMethod(), except that the returned callable will not hold a strong
+    reference to the object that the method is working on. So the returned callable will not
     keep that object alive.
     
-    Use this carefully. If the object is deleted and the returned function object is called
+    Use this carefully. If the object is deleted and the returned callable is called
     afterwards then this will likely cause a crash.
     
-    In contrast to method() this can be used with any class (the class does not have to implement
-    IBase).
+    weakBindMethod can can be used with any class - the class does not have to implement
+    IBase as with bindMethod().
  
     */
 template<class ObjectType, typename FuncType>
-std::function<FuncType> weakMethod( ObjectType* pObject, FuncType ObjectType::* method )
+std::function<FuncType> weakBindMethod( ObjectType* pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return WeakMethodCallable_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
+        return WeakBoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
 }
 
 template<class ObjectType, typename FuncType>
-std::function<FuncType> weakMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
+std::function<FuncType> weakBindMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return WeakMethodCallable_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
+        return WeakBoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
 }
 
 
