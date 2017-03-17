@@ -61,7 +61,7 @@ public:
         The exception must be the currently active one that is accessible with
         std::current_exception().
 
-        The ignorable parameter indicates whether or not the exception can be ignored.
+        The canKeepRunning parameter indicates whether or not the exception can be ignored.
                 
         The unhandledException implementation must check if there is an app controller and if there is
         then it must call the app controller's AppControllerBase::unhandledException.

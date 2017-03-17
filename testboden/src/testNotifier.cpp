@@ -78,12 +78,6 @@ void testNotifier(ArgTypes... args)
 			verifySame(callArgs..., args...);		
 		});
 
-	SECTION("subscribeMember")			
-		notifier.template subscribeMember<Listener>(pSub, &l, &Listener::onNotify);
-
-	SECTION("subscribeMemberVoid")			
-		notifier.template subscribeVoidMember<Listener>(pSub, &l, &Listener::onNotifyVoid);
-
 	notifier.notify(args...);
 
 	REQUIRE(called);

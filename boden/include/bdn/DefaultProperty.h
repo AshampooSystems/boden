@@ -3,6 +3,7 @@
 
 
 #include <bdn/Property.h>
+#include <bdn/func.h>
 
 namespace bdn
 {
@@ -77,7 +78,7 @@ public:
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        sourceProperty.onChange().template subscribeMember<DefaultProperty>(_pBindSourceSubscription, this, &DefaultProperty::bindSourceChanged);
+        sourceProperty.onChange().subscribe(_pBindSourceSubscription, weakBindMethod(this, &DefaultProperty::bindSourceChanged) );
         
         bindSourceChanged(sourceProperty);
     }

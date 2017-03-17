@@ -115,7 +115,7 @@ public:
 
 		\endcode
 		*/
-    void subscribe( P<IBase>& pResultSub, const std::function<void(ArgTypes...)>& func)
+    virtual void subscribe( P<IBase>& pResultSub, const std::function<void(ArgTypes...)>& func)
     {
         MutexLock lock(_mutex);
         
@@ -138,24 +138,9 @@ public:
     }
     
     
-    template<class OwnerType>
-    void subscribeMember(P<IBase>& pResultSub, OwnerType* pOwner, const std::function<void(OwnerType*,ArgTypes...)>& func)
-    {
-		return subscribe(	pResultSub,
-							[pOwner, func](ArgTypes... args)
-							{
-								func(pOwner, args...);
-							} );
-    }
-    
-    template<class OwnerType>
-    void subscribeVoidMember(P<IBase>& pResultSub, OwnerType* pOwner, const std::function<void(OwnerType*)>& func)
-    {
-        return subscribe( pResultSub, VoidFunctionAdapter( std::bind(func, pOwner) ) );
-    }
     
     
-    void notify(ArgTypes... args)
+    virtual void notify(ArgTypes... args)
     {
         MutexLock lock(_mutex);
         

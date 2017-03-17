@@ -77,7 +77,7 @@ public:
 		Returns true if the signal occurred and false if
 		the timeout has expired.
 
-        It is guarantedd that there are no spurious wakeups. If wait returns true then you can be
+        It is guaranteed that there are no spurious wakeups. If wait returns true then you can be
         certain that the signal actually occurred.
         */
 	bool wait(int timeoutMillis=-1);

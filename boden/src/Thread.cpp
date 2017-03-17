@@ -17,7 +17,7 @@ Thread::Thread() noexcept
 
 #if BDN_HAVE_THREADS
 
-Thread::Thread( IThreadRunnable* pRunnable )
+Thread::Thread( IThreadRunnable* pRunnable)
 {
 	// ensure that our SafeInit global mutex stuff is initialized
 	SafeInitBase::_ensureReady();
@@ -25,7 +25,7 @@ Thread::Thread( IThreadRunnable* pRunnable )
     _pThreadData = newObj<ThreadData>();
 
     _pThreadData->pRunnable = pRunnable;
-
+    
     _thread = std::thread(&Thread::run, _pThreadData );
 
     _threadId = _thread.get_id();
