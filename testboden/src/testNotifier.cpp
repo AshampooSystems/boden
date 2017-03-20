@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/Notifier.h>
+#include <bdn/DanglingFunctionError.h>
 
 using namespace bdn;
 
@@ -160,6 +161,32 @@ TEST_CASE("Notifier")
 
 		pSub = nullptr;		
 	}
+
+    SECTION("DanglingFunctionError")
+    {
+        Notifier<>  notifier;
+        P<IBase>    pSub;
+        int         callCount = 0;
+			
+		notifier.subscribe(
+            pSub,
+            [&callCount]()
+            {
+                callCount++;
+                throw DanglingFunctionError();
+            } );
+
+
+        // this should NOT cause an exception
+        notifier.notify();
+
+        REQUIRE( callCount==1 );
+
+        // the function should have been removed and should not be called again
+        notifier.notify();
+        // so callCount should still be 1
+        REQUIRE( callCount==1 );
+    }
 }
 
 

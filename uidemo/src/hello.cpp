@@ -63,7 +63,7 @@ public:
     {
         _pModel = pModel;
 
-		_pModel->helloCounter().onChange().subscribeVoid( _pHelloCounterSub, weakBindMethod(this, &ViewModel::updateHelloMessage) );
+		_pModel->helloCounter().onChange().subscribeVoid( _pHelloCounterSub, weakMethod(this, &ViewModel::updateHelloMessage) );
 		updateHelloMessage();
     }
     
@@ -117,7 +117,7 @@ public:
         _pWindow = newObj<Window>();
 		_pWindow->title() = "hello";
 
-		_pWindow->sizingInfo().onChange().subscribeVoid(_pWindowSizingSub, weakBindMethod(this, &MainViewController::windowSizingInfoChanged) );
+		_pWindow->sizingInfo().onChange().subscribeVoid(_pWindowSizingSub, weakMethod(this, &MainViewController::windowSizingInfoChanged) );
 
 		P<ColumnView> pColumnView = newObj<ColumnView>();
 
@@ -126,7 +126,7 @@ public:
 		_pHelloMessageButton->margin() = UiMargin( UiLength::sem(2) );
 		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
 		pColumnView->addChildView( _pHelloMessageButton );                
-        _pHelloMessageButton->onClick().subscribeVoid(_pButtonClickSub, weakBindMethod(this, &MainViewController::buttonClicked) );
+        _pHelloMessageButton->onClick().subscribeVoid(_pButtonClickSub, weakMethod(this, &MainViewController::buttonClicked) );
 
         _pMorphingTextView = newObj<TextView>();
         _pMorphingTextView->text().bind( _pViewModel->morphingText() );

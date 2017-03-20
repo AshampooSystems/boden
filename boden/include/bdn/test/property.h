@@ -61,7 +61,7 @@ public:
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        sourceProperty.onChange().subscribe(_pBindSourceSubscription, weakBindMethod(this, &TestProperty_::set) );
+        sourceProperty.onChange().subscribe(_pBindSourceSubscription, weakMethod(this, &TestProperty_::set) );
         
         set( sourceProperty.get() );
     }    

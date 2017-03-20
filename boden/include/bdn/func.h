@@ -4,6 +4,8 @@
 #include <utility>
 #include <functional>
 
+#include <bdn/DanglingFunctionError.h>
+
 
 namespace bdn
 {
@@ -12,15 +14,15 @@ namespace bdn
 /** Internal class. Do not use directly.
     */
 template<class ObjectType, class MethodType>
-class BoundMethod_
+class StrongMethod_
 {
 public:
-    BoundMethod_()
+    StrongMethod_()
     : _method(nullptr)
     {
     }
     
-    BoundMethod_(ObjectType* pObject, MethodType method)
+    StrongMethod_(ObjectType* pObject, MethodType method)
         : _pObject(pObject)
         , _method(method)
     {
@@ -74,17 +76,19 @@ private:
 /** Internal class. Do not use directly.
  */
 template<class ObjectType, class MethodType>
-class WeakBoundMethod_
+class WeakMethod_
 {
 public:
-    WeakBoundMethod_()
+    WeakMethod_()
     : _method(nullptr)
+    , _valid(false)
     {
     }
     
-    WeakBoundMethod_(ObjectType* pObject, MethodType method)
-    : _pObject(pObject)
+    WeakMethod_(ObjectType* pObject, MethodType method)
+    : _pObjectWeak(pObject)
     , _method(method)
+    , _valid( (pObject!=nullptr) && method!=nullptr )
     {
     }
     
@@ -93,8 +97,13 @@ public:
     {
         if(!isValid())
             throw std::bad_function_call();
+
+        P<ObjectType> pObject = _pObjectWeak.toStrong();
+
+        if(pObject==nullptr)
+            throw DanglingFunctionError();
         
-        return ((*_pObject).*_method)( std::forward<ArgTypes>(args)... );
+        return ((*pObject).*_method)( std::forward<ArgTypes>(args)... );
     }
     
     
@@ -102,7 +111,7 @@ public:
      Invalid methods will throw an exception when they are called.*/
     bool isValid() const
     {
-        return (_pObject!=nullptr && _method!=nullptr);
+        return _valid;
     }
     
     
@@ -122,12 +131,12 @@ public:
     explicit operator bool() const
     {
         return isValid();
-    }
-    
+    }    
     
 private:
-    ObjectType*   _pObject;
-    MethodType    _method;
+    WeakP<ObjectType>   _pObjectWeak;    
+    MethodType          _method;    
+    bool                _valid;
 };
 
 
@@ -135,14 +144,14 @@ private:
      like a global function (without providing the object pointer at the point of the call).
      
      The wrapped method object holds a strong reference to the method's object. So the object is kept
-     alive as long as the returned method object exists.
+     alive as long as the returned method object exists. See weakMethod() for an alternative that does
+     not keep the object alive.
      
      You can also use this with virtual methods. They work as expected, just as if the
      method was called normally.
      
-     This function only works with methods of classes that implement IBase (which is automatically the case for
-     all classes that derive from Base, i.e. for most classes in this framework). A similar function
-     that also works for other classes is weakMethod().
+     Note that this function only works with methods of classes that implement IBase (which is automatically the case for
+     all classes that derive from Base, i.e. for most classes in the Boden framework).
  
      Example:
      
@@ -157,65 +166,63 @@ private:
      
      P<MyClass> pObject = newObj<MyClass>();
      
-     std::function<int(String)> method = bindMethod(pObject, &MyClass::hello);
+     std::function<int(String)> methodObj = strongMethod(pObject, &MyClass::hello);
      
      // the method can now be called without the need to provide pObject.
-     int returnValue = method("abc");
+     int returnValue = methodObj("abc");
      
      // pObject can also be released - the method object will keep the object alive automatically.
      pObject = nullptr;
-     returnValue = method("abc");
+     returnValue = methodObj("abc");
      
      \endcode
  
      */
 template<class ObjectType, typename FuncType>
-std::function<FuncType> bindMethod( ObjectType* pObject, FuncType ObjectType::* method )
+std::function<FuncType> strongMethod( ObjectType* pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return BoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
+        return StrongMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
 }
 
 template<class ObjectType, typename FuncType>
-std::function<FuncType> bindMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
+std::function<FuncType> strongMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return BoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
+        return StrongMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
 }
 
 
 
-/** This is similar to bindMethod(), except that the returned callable will not hold a strong
-    reference to the object that the method is working on. So the returned callable will not
-    keep that object alive.
-    
-    Use this carefully. If the object is deleted and the returned callable is called
-    afterwards then this will likely cause a crash.
-    
-    weakBindMethod can can be used with any class - the class does not have to implement
-    IBase as with bindMethod().
+/** This is similar to strongMethod(), except that the returned callable will not keep the method's
+    object alive.
+
+    When the returned callable is called after the method's owning object was destroyed
+    then a DanglingFunctionError exception will be thrown. Note that bdn::Notifier objects
+    automatically handle this exception. They will remove the callable from their internal list
+    and otherwise ignore the exception. So it is perfectly safe to use weak methods with Notifiers.
  
     */
 template<class ObjectType, typename FuncType>
-std::function<FuncType> weakBindMethod( ObjectType* pObject, FuncType ObjectType::* method )
+std::function<FuncType> weakMethod( ObjectType* pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return WeakBoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
+        return WeakMethod_<ObjectType, FuncType (ObjectType::*)>(pObject, method);
 }
 
 template<class ObjectType, typename FuncType>
-std::function<FuncType> weakBindMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
+std::function<FuncType> weakMethod( const P<ObjectType>& pObject, FuncType ObjectType::* method )
 {
     if(pObject==nullptr || method==nullptr)
         return std::function<FuncType>();
     else
-        return WeakBoundMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
+        return WeakMethod_<ObjectType, FuncType (ObjectType::*)>(pObject.getPtr(), method);
 }
 
 

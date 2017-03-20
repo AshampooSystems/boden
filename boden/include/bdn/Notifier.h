@@ -6,6 +6,8 @@
 #include <functional>
 #include <list>
 
+#include <bdn/DanglingFunctionError.h>
+
 namespace bdn
 {
 
@@ -19,6 +21,12 @@ namespace bdn
 	It is possible to pass arguments to notify(), which it will in turn pass on to each of
 	the functions it calls. The number and types of these arguments are defined by the
 	template parameters of the Notifier class.
+
+    Notifier objects work well with weak method references (see weakMethod()). If any subscribed
+    function throws DanglingFunctionError then the subscribed function will simply be removed and
+    the exception will be ignored otherwise. That means that weak methods can be added to notifiers
+    safely. When the corresponding method owner object is destroyed then the method will automatically
+    be removed from the notifier the next time the notifier fires.
 
 	Notifier objects are thread safe. Notifications can be triggered from any thread.
 	However, that also means that subscribed functions need to be aware that they might be called from different threads.
@@ -153,8 +161,19 @@ public:
         {
             auto pSub = _remainingSubListForCall.front();
             _remainingSubListForCall.pop_front();
-            
-            pSub->call(args...);
+
+            try
+            {            
+                pSub->call(args...);
+            }
+            catch(DanglingFunctionError&)
+            {
+                // this is a perfectly normal case. It means that the target function
+                // was a weak reference and the target object has been destroyed.
+                // Just remove it from our list and ignore the exception.
+
+                unsubscribe(pSub);
+            }
         }
     }
     

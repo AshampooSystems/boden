@@ -703,7 +703,7 @@ protected:
 	void initProperty( Property<ValueType>& prop )
 	{	
 		_propertySubs.emplace_front();
-		prop.onChange().subscribe( _propertySubs.front(), weakBindMethod(this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences>) );
+		prop.onChange().subscribe( _propertySubs.front(), weakMethod(this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences>) );
 	}
 
 
