@@ -633,48 +633,6 @@ protected:
 
 
 
-	void deleteThis() override
-	{
-		// release all property subscriptions
-		_propertySubs.clear();
-
-		// Normally the reference count SHOULD still be the same as when the last reference was released.
-		// When that happened, _deleteThisRefCountDelta was subtracted from the refcount for implementation reasons.
-			
-		// No one else has a reference to us, so no other thread could have called incRef.
-
-		// The only exception to this are scheduled notifications from property changes.
-		// Those do not hold a reference to us (by design).
-
-		// IF the reference count has changed then we know that a change notification was still scheduled
-		// and executed in another thread just before we deleted the subscriptions. During that change
-		// notification a new reference was added.
-
-		// In that case we need to revive the object and keep it alive until the notification has finished.
-
-		// Note that this cannot phappen after the property subs have been released. The Notifier object
-		// ensures that no more notifications are called after the sub was deleted and that all notifications
-		// that were in progress are done.
-
-		if(getRefCount() > -_deleteThisRefCountDelta)
-		{
-			// there was an in-progress notifications and it added a new reference.
-
-			// So we abort the deletion.
-			P<IBase> pNewRef = reviveDuringDeleteThis();
-
-			// Immediately release the new reference. If the pending call has finished
-			// already then this will re-trigger our deletion. Otherwise the deletion will
-			// re-trigger when the pending operation releases its reference.
-			pNewRef = nullptr;			
-		}
-		else
-		{
-			// continue deletion
-			Base::deleteThis();
-		}
-	}
-
     enum class PropertyInfluence_
     {
         /** The property has no influence on the view size or layout.*/
@@ -702,8 +660,7 @@ protected:
 	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType &), int propertyInfluences>
 	void initProperty( Property<ValueType>& prop )
 	{	
-		_propertySubs.emplace_front();
-		prop.onChange().subscribe( _propertySubs.front(), weakMethod(this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences>) );
+		prop.onChange() += weakMethod(this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences>);
 	}
 
 
@@ -851,9 +808,7 @@ protected:
 private:
 	View*					_pParentViewWeak = nullptr;
 	P<IViewCore>			_pCore;
-
-	std::list< P<IBase> >	_propertySubs;
-
+    
 	DefaultProperty<SizingInfo>		_sizingInfo;
 
     DefaultProperty<UiSize>         _minSize;

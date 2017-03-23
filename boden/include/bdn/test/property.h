@@ -21,9 +21,11 @@ public:
 
 	~TestProperty_()
     {
-        // ensure that we unsubscribe from the bound property
-		// before any of our members get destroyed
-        _pBindSourceSubscription = nullptr;
+        if(_pBindSourceSubscriptionControl!=nullptr)
+        {
+            _pBindSourceSubscriptionControl->unsubscribe();
+            _pBindSourceSubscriptionControl = nullptr;
+        }
     }
 
 	ValType get() const override
@@ -61,7 +63,13 @@ public:
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        sourceProperty.onChange().subscribe(_pBindSourceSubscription, weakMethod(this, &TestProperty_::set) );
+         if(_pBindSourceSubscriptionControl!=nullptr)
+        {
+            _pBindSourceSubscriptionControl->unsubscribe();
+            _pBindSourceSubscriptionControl = nullptr;
+        }
+
+        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( weakMethod(this, &TestProperty_::set) );
         
         set( sourceProperty.get() );
     }    
@@ -70,7 +78,7 @@ protected:
 	ValType									_value;
     
 	mutable Notifier<const ReadProperty<ValType>&>	_onChange;
-	P<IBase>								_pBindSourceSubscription;
+	P<INotifierSubControl>							_pBindSourceSubscriptionControl;
 
 	
 };

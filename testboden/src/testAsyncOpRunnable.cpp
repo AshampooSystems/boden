@@ -40,23 +40,18 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
     int done1CallCount = 0;
     int done2CallCount = 0;
 
-    P<IBase> pDone1Subscription;
-    P<IBase> pDone2Subscription;
-
     if(withDoneListeners)
     {
-        pRunnable->onDone().subscribe(
-            pDone1Subscription,
+        pRunnable->onDone() +=
             [&done1CallCount](IAsyncOp<String>& op)
             {
                 done1CallCount++;
-            });
-        pRunnable->onDone().subscribe(
-            pDone2Subscription,
+            };
+        pRunnable->onDone() +=
             [&done2CallCount](IAsyncOp<String>& op)
             {
                 done2CallCount++;
-            });
+            };
     }
 
     SECTION("no exception")

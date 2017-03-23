@@ -29,11 +29,10 @@ void testNotifier(ArgTypes... args)
 	Notifier<ArgTypes...> notifier;
 
 	bool	 called = false;
-	P<IBase> pSub;
+	P<INotifierSubControl> pSub;
 
 	SECTION("subscribe")
-		notifier.subscribe(
-			pSub,
+		pSub = notifier.subscribe(
 			[&called, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
@@ -41,8 +40,8 @@ void testNotifier(ArgTypes... args)
 				called = true;
 			} );
 
-	SECTION("subscribeVoid")
-		notifier.subscribeVoid(pSub, [&called](){ called = true; } );
+	SECTION("subscribeParamless")
+		pSub = notifier.subscribeParamless([&called](){ called = true; } );
 
 
 
@@ -83,7 +82,7 @@ void testNotifier(ArgTypes... args)
 
 	REQUIRE(called);
 
-	pSub = nullptr;
+	pSub->unsubscribe();
 	called = false;
 
 	notifier.notify(args...);
@@ -115,10 +114,8 @@ TEST_CASE("Notifier")
 		bool called1 = false;
 		bool called2 = false;
 
-		P<IBase> pSub1;
-		notifier.subscribe(pSub1, [&called1](int){called1 = true;} );
-		P<IBase> pSub2;
-		notifier.subscribe(pSub2, [&called2](int){called2 = true;} );
+		P<INotifierSubControl> pSub1 = notifier.subscribe([&called1](int){called1 = true;} );
+		P<INotifierSubControl> pSub2 = notifier.subscribe([&called2](int){called2 = true;} );
 
 		notifier.notify(42);
 
@@ -128,9 +125,20 @@ TEST_CASE("Notifier")
 		called1 = false;
 		called2 = false;
 
-		SECTION("deleteFirst")
+		SECTION("unsubFirst")
 		{
-			pSub1 = nullptr;
+            pSub1->unsubscribe();
+			
+			notifier.notify(42);
+
+			REQUIRE( !called1 );
+			REQUIRE( called2 );
+
+            // unsubscribing again should have no effect
+            called1 = false;
+		    called2 = false;
+
+            pSub1->unsubscribe();
 			
 			notifier.notify(42);
 
@@ -138,26 +146,61 @@ TEST_CASE("Notifier")
 			REQUIRE( called2 );
 		}
 
-		SECTION("deleteSecond")
+		SECTION("unsubscribeSecond")
 		{
-			pSub2 = nullptr;
+			pSub2->unsubscribe();
 			
 			notifier.notify(42);
 
 			REQUIRE( called1 );
 			REQUIRE( !called2 );
 		}
+
+
+        SECTION("deleteFirst")
+		{
+            pSub1 = nullptr;
+
+            // deleting the control object should not affect the subscription
+			
+			notifier.notify(42);
+
+			REQUIRE( called1 );
+			REQUIRE( called2 );
+		}
+
+        SECTION("deleteSecond")
+		{
+            pSub2 = nullptr;
+
+            // deleting the control object should not affect the subscription
+			
+			notifier.notify(42);
+
+			REQUIRE( called1 );
+			REQUIRE( called2 );
+		}
 	}
 
-	SECTION("notifierDeletedBeforeSub")
+	SECTION("notifierDeletedBeforeSubControl")
 	{
-		P<IBase> pSub;
+		P<INotifierSubControl> pSub;
 
 		{
 			Notifier<> notifier;
 			
-			notifier.subscribe(pSub, [](){} );
+			pSub = notifier.subscribe( [](){} );
 		}
+
+        SECTION("unsubscribe called")
+        {
+            pSub->unsubscribe();
+        }
+
+        SECTION("unsubscribe not called")
+        {
+            // do nothing
+        }
 
 		pSub = nullptr;		
 	}
@@ -165,17 +208,24 @@ TEST_CASE("Notifier")
     SECTION("DanglingFunctionError")
     {
         Notifier<>  notifier;
-        P<IBase>    pSub;
         int         callCount = 0;
 			
-		notifier.subscribe(
-            pSub,
+		P<INotifierSubControl> pSub = notifier.subscribe(
             [&callCount]()
             {
                 callCount++;
                 throw DanglingFunctionError();
             } );
 
+        SECTION("subcontrol deleted before notify")
+        {
+            pSub = nullptr;
+        }
+
+        SECTION("subcontrol still exists")
+        {
+            // do nothing
+        }
 
         // this should NOT cause an exception
         notifier.notify();
@@ -186,6 +236,154 @@ TEST_CASE("Notifier")
         notifier.notify();
         // so callCount should still be 1
         REQUIRE( callCount==1 );
+    }
+
+    SECTION("unsubscribe during callback")
+    {
+        Notifier<>  notifier;
+        int         callCount = 0;
+        P<INotifierSubControl> pSub;
+			
+		pSub = notifier.subscribe(
+            [&pSub, &callCount]()
+            {
+                callCount++;
+                pSub->unsubscribe();
+            } );
+
+        // should not crash or cause an exception
+        notifier.notify();
+
+        // sanity check
+        REQUIRE( callCount==1 );
+
+        // should not be called again
+        notifier.notify();
+
+        // so callCount should still be 1
+        REQUIRE( callCount==1 );
+    }
+
+    SECTION("unsubscribe during callback then DanglingException")
+    {
+        Notifier<>  notifier;
+        int         callCount = 0;
+        P<INotifierSubControl> pSub;
+			
+		pSub = notifier.subscribe(
+            [&pSub, &callCount]()
+            {
+                callCount++;
+                pSub->unsubscribe();
+                throw DanglingFunctionError();
+            } );
+
+        // should not crash or cause an exception
+        notifier.notify();
+
+        // sanity check
+        REQUIRE( callCount==1 );
+
+        // should not be called again
+        notifier.notify();
+
+        // so callCount should still be 1
+        REQUIRE( callCount==1 );
+    }
+
+
+    SECTION("unsubscribe next func during callback")
+    {
+        Notifier<>  notifier;
+        int         callCount = 0;
+        int         callCount2 = 0;
+        P<INotifierSubControl> pSub;
+        P<INotifierSubControl> pSub2;
+			
+		pSub = notifier.subscribe(
+            [&pSub2, &callCount]()
+            {
+                callCount++;
+                // unsubscribe the second one
+                pSub2->unsubscribe();
+            } );
+
+
+        pSub2 = notifier.subscribe(
+            [&callCount2]()
+            {
+                callCount2++;
+            } );
+
+
+        // should not crash or cause an exception
+        notifier.notify();
+
+        // the first function should have been called
+        REQUIRE( callCount==1 );
+
+        // the second function should NOT have been called
+        REQUIRE( callCount2==0 );
+               
+
+        // notify again
+        notifier.notify();
+
+        // again, first one should have been called, second not
+        REQUIRE( callCount==2 );
+        REQUIRE( callCount2==0 );        
+    }
+
+    SECTION("unsubscribe func following next during callback")
+    {
+        Notifier<>  notifier;
+        int         callCount = 0;
+        int         callCount2 = 0;
+        int         callCount3 = 0;
+        P<INotifierSubControl> pSub;
+        P<INotifierSubControl> pSub2;
+        P<INotifierSubControl> pSub3;
+			
+		pSub = notifier.subscribe(
+            [&pSub3, &callCount]()
+            {
+                callCount++;
+                // unsubscribe the third one
+                pSub3->unsubscribe();
+            } );
+
+
+        pSub2 = notifier.subscribe(
+            [&callCount2]()
+            {
+                callCount2++;
+            } );
+
+
+        pSub3 = notifier.subscribe(
+            [&callCount3]()
+            {
+                callCount3++;
+            } );
+
+
+        // should not crash or cause an exception
+        notifier.notify();
+
+        // the first and second functions should have been called
+        REQUIRE( callCount==1 );
+        REQUIRE( callCount2==1 );
+
+        // the third function should NOT have been called
+        REQUIRE( callCount3==0 );               
+
+        // notify again
+        notifier.notify();
+
+        // again, first and second should have been called, third not
+        REQUIRE( callCount==2 );
+        REQUIRE( callCount2==2 );   
+        REQUIRE( callCount3==0 );          
     }
 }
 

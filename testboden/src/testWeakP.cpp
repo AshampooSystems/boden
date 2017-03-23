@@ -89,6 +89,7 @@ void testConstructToStrongDestruct(WeakPHelper& helper, ArgType helperArg)
 
             P<WeakPHelper> p = w.toStrong();
             REQUIRE( p!=nullptr );
+            REQUIRE( p.getPtr() == &helper );
             
             // The strong pointer should have added a ref twice and released one
             helper.verifyCounters(2, 1);

@@ -142,6 +142,15 @@ protected:
 
 
 private:
+    class DummySubControl : public Base, BDN_IMPLEMENTS INotifierSubControl
+    {
+    public:
+
+        void unsubscribe() override
+        {
+            // do nothing
+        }
+    };
 
     class DoneNotifier : public Notifier<IAsyncOp&>
     {
@@ -151,20 +160,25 @@ private:
         {            
         }
 
-        void subscribe( P<IBase>& pResultSub, const std::function<void(IAsyncOp&)>& func) override
+        P<INotifierSubControl> subscribe( const std::function<void(IAsyncOp&)>& func) override
         {
-            MutexLock lock(_mutex);
+            MutexLock lock(getMutex());
 
             // call immediately if we are already done.
             if(_done)
+            {
                 func(*_pOpWeak);
+
+                // return a dummy control object.
+                return newObj<DummySubControl>();
+            }
             else
-                Notifier::subscribe(pResultSub, func);
+                return Notifier::subscribe(func);
         }
 
         void notify(IAsyncOp& op) override
         {
-            MutexLock lock(_mutex);
+            MutexLock lock(getMutex());
             _done = true;
 
             Notifier::notify(op);
@@ -172,7 +186,7 @@ private:
 
         bool isDone()
         {
-            MutexLock lock(_mutex);
+            MutexLock lock(getMutex());
 
             return _done;
         }

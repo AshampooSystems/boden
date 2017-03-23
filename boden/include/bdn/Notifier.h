@@ -1,12 +1,13 @@
-#ifndef BDN_EventSource_H_
-#define BDN_EventSource_H_
+#ifndef BDN_Notifier_H_
+#define BDN_Notifier_H_
 
 #include <bdn/init.h>
 
+#include <bdn/INotifierSubControl.h>
+#include <bdn/DanglingFunctionError.h>
+
 #include <functional>
 #include <list>
-
-#include <bdn/DanglingFunctionError.h>
 
 namespace bdn
 {
@@ -22,11 +23,9 @@ namespace bdn
 	the functions it calls. The number and types of these arguments are defined by the
 	template parameters of the Notifier class.
 
-    Notifier objects work well with weak method references (see weakMethod()). If any subscribed
-    function throws DanglingFunctionError then the subscribed function will simply be removed and
-    the exception will be ignored otherwise. That means that weak methods can be added to notifiers
-    safely. When the corresponding method owner object is destroyed then the method will automatically
-    be removed from the notifier the next time the notifier fires.
+    Notifier objects work well with weak method references (see weakMethod()). If the method's
+    associated object is deleted then this will be detected and the subscribtion will be removed
+    the next time a notification happens.
 
 	Notifier objects are thread safe. Notifications can be triggered from any thread.
 	However, that also means that subscribed functions need to be aware that they might be called from different threads.
@@ -46,23 +45,69 @@ namespace bdn
 	// The Notifier instance manages the notifications
 	Notifier<String, int> eventNotifier;
 
-	// Subscribe myFunc to the notifier
-	auto pSub = eventNotifier.subscribe(myFunc);
+	// Subscribe myFunc to the notifier. The returned INotifierSubControl object
+    // can optionally be stored for explicitly unsubscribing later.
+    // However, it is often simpler to use weak methods, since those
+    // do not need to be unsubscribed (see below)
+	P<INotifierSubControl> pControl = eventNotifier.subscribe(myFunc);
+    // note that we could also subscribe with the += operator
+    // like this: eventNotifier += myFunc
 
 	// when the event occurs then someone needs to call the "notify" method of
 	// the notifier and pass the correct parameters that describe the event.
 	eventNotifier.notify("Some text", 42);
 
-	// When the pSub object is destroyed then the corresponding
-	// function is automatically removed.
-	pSub = nullptr;
+	// You can unsubscribe using the subscription control object, if you want.
+    // Using weak methods may be an easier alternative (see below)
+    pControl->unsubscribe();
 
 	// So this will NOT call myFunc anymore, since pSub was set to null and the
 	// subscription has been destroyed.
 	eventNotifier.notify("Other text", 17);
-
-
+    
 	\endcode	
+
+    Notifier objects can use weak methods to avoid having to unsubscribe explicitly
+    when an object is destroyed.
+
+    \code
+
+    class MyClass
+    {
+    public:
+
+        void myCallbackMethod(String param)
+        {
+            ...
+        }
+    };
+
+    P<MyClass> pObject = newObj<MyClass>();
+
+    Notifier<String> eventNotifier;
+
+    // subscribe myCallbackMethod to the event
+    // as a weak method.
+    eventNotifier += weakMethod(pObject, &MyClass::myCallbackMethod);
+
+    // weak methods do not keep the method's object alive. So the object
+    // can be destroyed at any time.
+
+    // This will destroy pObject.
+    pObject = nullptr;
+
+    // What happens now when eventNotifier is called? Some might expect a crash here,
+    // since it still has a method of a destroyed object in its internal list.
+    // However, nothing bad will happen when we call the notifier.
+    // It is safe to call weak methods even after their object was destroyed.
+    // All that happens is that a DanglingFunctionError exception is generated.
+    // And the notifier will automatically handle that and simply remove the method
+    // from its list. So calling notify has no bad effects here and will simply
+    // cause the expired method to be removed from the notifier.
+    eventNotifier.notify("hello");
+
+    \endcode
+
 */
 template<class... ArgTypes>
 class Notifier : public Base
@@ -70,179 +115,177 @@ class Notifier : public Base
 public:
     Notifier()
     {
+        _pMutex = newObj<Mutex>();
     }
-    
+
     ~Notifier()
     {
-        MutexLock lock(_mutex);
-        
-        for(auto pSub: _subList)
-            pSub->detachFromParent();
-    }
-    
+        MutexLock lock(_pMutex);
 
-    
+        for(auto item: _subMap)
+        {
+            SubControl_* pControl = item.second.pControlWeak;
+            if(pControl!=nullptr)
+                pControl->detachFromParent();
+        }
+    }      
+
+
     /** Subscribes a function to the notifier. While subscribed, the function will be called
 		whenever the notifier's notify() function is called.	
 
 		The parameter list of \c func must match the template parameters of the notifier object.
-		Note that for convenience there is also a variant called subscribeVoid() that subscribes a function
+		Note that for convenience there is also a variant called subscribeParamless() that subscribes a function
 		without parameters. You can use that if your notification function does not care about the
 		event parameters.
 
-		The pResultSub parameter receives a pointer to a subscription object that controls the lifetime
-		of the subscription.
-		The subscription remains in place as long as the returned subscription object is alive. In other words:
-		you should store the returned pointer in some place and destroy it or set it to null when you want the subscription
-		to go away.
+        The returned INotifierSubControl object can be used to remove the subscription later. However, in many
+        cases this is not necessary and the control object is not needed.
 
-		Example:
+        There are two main reasons to unsubscribe:
 
-		\code
-
-		Notifier<String, int> eventNotifier;
-
-		// this function should be called when the notifier fires
-		void myFunc(String x, int y)
-		{
-			... handle notification
-		}
-
-		// Subscribe myFunc to the notifier and store the returned
-		// subscription pointer
-		P<IBase> pSub;
-		eventNotifier.subscribe(pSub, myFunc);
-
-		// myFunc will now be called whenever the notifier is fired.
-
-		// Now destroy the subscription object
-		pSub = nullptr;
-
-		// From this point on the subscription is deleted and myFunc will
-		// not be called anymore.
-
-		\endcode
-		*/
-    virtual void subscribe( P<IBase>& pResultSub, const std::function<void(ArgTypes...)>& func)
-    {
-        MutexLock lock(_mutex);
+        1) The subscribed function or method accesses resources that are being deleted.
         
-        P<Sub_> pSub = newObj<Sub_>(this, func);
+           For this case you often do not need to unsubscribe explicitly, depending on what kind of function you
+           subscribed.
 
-        _subList.push_back( pSub );
+           - If you subscribe a weak method (see weakMethod()) and the object that the method belongs to is deleted
+             then the subscription will automatically and silently be deleted the next time a notification happens.
+             This is a fully supported use case and completely safe.
 
-		pResultSub = pSub;
+           - If you subscribe a strong method (see strongMethod()) then the object that is associated with the method
+             is kept alive by the Notifier. So the method will always be valid.
+
+           - For other types of functions you might need to unsubscribe if the function accesses resources
+             that become invalid. You could also implement your callback function in a way so that it throws
+             DanglingFunctionError if the associated resources are invalid. In that case the subscription will be removed
+             automatically, just as with weak methods (see above).
+
+             
+        2) You do not want the subscription to happen anymore because of internal application reasons,
+           even if all required resources are still there. In this case you will always have to unsubscribe explicitly,
+           using the returns INotifierSubControl object.
+
+
+        Note that it is perfectly save to use the returned INotifierSubControl object even if the Notifier object that returned it
+        has already been deleted. In that case calling INotifierSubControl::unsubscribe() will have
+        no effect, since the subscription does not exist anymore. This safety feature allows
+        one to subscribe to a notifier and call INotifierSubControl::unsubscrbe at some point in time later, without having to keep a
+        pointer to the Notifier object or ensuring that the Notifier even still exists.                
+		*/
+    virtual P<INotifierSubControl> subscribe(const std::function<void(ArgTypes...)>& func)
+    {
+        MutexLock lock(_pMutex);
+
+        int64_t subId = _nextSubId;
+        _nextSubId++;
+
+        P<SubControl_> pControl = newObj<SubControl_>(this, subId);        
+        
+        _subMap[subId] = Sub_(func, pControl);
+        
+        return pControl;
     }
-    
 
-	/** Convenience function. Similar to the other version of subscribe(), except that this
-		one takes a function without parameters and subscribes it to the event. You can use this
-		if your function is not interested in the event parameters and only cares about when the event
+     
+   
+
+    /** Same as subscribe(). Returns a reference to the notifier object.*/
+    virtual Notifier& operator+=(const std::function<void(ArgTypes...)>& func)
+    {
+        subscribe(func);
+        return *this;
+    }
+
+
+
+	/** Convenience function. Similar to subscribe(), except that this
+		version takes a function without parameters and subscribes it to the event. You can use this
+		if your callback function is not interested in the event parameters and only cares about when the event
 		itself happens.
 		*/
-    void subscribeVoid(P<IBase>& pResultSub, const std::function<void()>& func)
+    P<INotifierSubControl> subscribeParamless(const std::function<void()>& func)
     {
-        return subscribe( pResultSub, VoidFunctionAdapter(func) );
+        return subscribe( ParamlessFunctionAdapter(func) );
     }
     
+        
     
     
     
+
+    /** Calls all subscribed functions and passes the specified arguments to them.
+    */
     virtual void notify(ArgTypes... args)
     {
-        MutexLock lock(_mutex);
-        
-        // make a note of the subscribers that we still need to call.
-        // We must make this copy of the list, so that we can handle cases
-        // when a subscriber unsubscribes in response to the call.
-        _remainingSubListForCall = _subList;
-        
-        while(!_remainingSubListForCall.empty())
-        {
-            auto pSub = _remainingSubListForCall.front();
-            _remainingSubListForCall.pop_front();
+        MutexLock lock(_pMutex);
 
-            try
-            {            
-                pSub->call(args...);
-            }
-            catch(DanglingFunctionError&)
+        // we need to ensure that subscribers that are removed while our notification
+        // is running are not called after they are removed.
+        // Note that subscribers can ONLY be removed during a notification if a callback
+        // function does that. Other threads cannot remove subscribers because we keep
+        // our mutex locked.
+        // Note that multiple notify calls for the same notifier can be in progress at the same
+        // time, if a callback triggers another notification.
+        
+        // So to solve these issues we keep a list for each running notification. If subscribers
+        // are removed during a callback then unsubscribe() will add them to our list.
+
+        std::list< NotificationState >::iterator notificationStateSlotIt = _inProgressNotificationStates.emplace( _inProgressNotificationStates.end() );
+        NotificationState&                       state = *notificationStateSlotIt;
+                
+        try
+        {
+            state.nextItemIt = _subMap.begin();
+
+            while(state.nextItemIt != _subMap.end())
             {
-                // this is a perfectly normal case. It means that the target function
-                // was a weak reference and the target object has been destroyed.
-                // Just remove it from our list and ignore the exception.
+                std::pair< int64_t, Sub_ > item = *state.nextItemIt;
 
-                unsubscribe(pSub);
+                // increase the iterator before we call the notification function. That is necessary
+                // for cases when the notification function removes the next item in our map.
+                // The unsubscribe function will update the iterator properly, to ensure that
+                // it remains valid.
+                state.nextItemIt++;
+            
+                try
+                {
+                    item.second.func( args... );
+                }
+                catch(DanglingFunctionError&)
+                {
+                    // this is a perfectly normal case. It means that the target function
+                    // was a weak reference and the target object has been destroyed.
+                    // Just remove it from our list and ignore the exception.
+
+                    unsubscribe(item.first);
+                }
             }
         }
+        catch(...)
+        {
+            _inProgressNotificationStates.erase( notificationStateSlotIt );
+            throw;
+        }
+
+        _inProgressNotificationStates.erase( notificationStateSlotIt );
     }
-    
+
+
 protected:
-
-	class Sub_ : public Base
+    /** Returns the internal mutex of the notifier. This is locked
+        when subscriptions are created or removed and when they fire.*/
+    Mutex& getMutex() const
     {
-    public:		
-        Sub_(Notifier* pParent, const std::function<void(ArgTypes...)>& func)
-        {
-            _pParent = pParent;
-            _func = func;
-        }
-
-        ~Sub_()
-        {
-			MutexLock lock(_parentMutex);
-            
-            if(_pParent!=nullptr)
-                _pParent->unsubscribe(this);
-        }
-        
-        
-        void detachFromParent()
-        {
-            MutexLock lock(_parentMutex);
-            
-            _pParent = nullptr;
-        }
-        
-        void call(ArgTypes... args)
-        {
-            _func(args...);
-        }
-        
-        Mutex							 _parentMutex;
-        Notifier*						 _pParent;
-        std::function<void(ArgTypes...)> _func;
-        
-        friend class Notifier;
-    };
-    friend class Sub_;
-    
-    void unsubscribe(Sub_* pSub)
-    {
-        MutexLock lock(_mutex);
-        
-        auto it = std::find(_subList.begin(), _subList.end(), pSub);
-        if(it!=_subList.end())
-            _subList.erase( it );
-        
-        // note that a notification cannot currently be in progress in
-        // ANOTHER thread (since we lock the mutex).
-        // But the a notification might be in progress in our thread. This can
-        // happen if the unsubscribe happens in response to the notification call.
-        // We MUST ensure that we do not call this subscriber after unsubscribe
-        // returns (since it might be deleted immediately afterwards).
-        // So we simply also remove it from the _remainingSubListForCall.
-        
-        auto remIt = std::find(_remainingSubListForCall.begin(), _remainingSubListForCall.end(), pSub);
-        if(remIt!=_remainingSubListForCall.end())
-            _remainingSubListForCall.erase( remIt );
-        
+        return *_pMutex;
     }
+
     
-    class VoidFunctionAdapter
+private:
+    class ParamlessFunctionAdapter
     {
     public:
-        VoidFunctionAdapter( std::function<void()> func)
+        ParamlessFunctionAdapter( std::function<void()> func)
         {
             _func = func;
         }
@@ -255,12 +298,136 @@ protected:
     protected:
         std::function<void()> _func;
     };
+
+
+
+    class SubControl_ : public Base, BDN_IMPLEMENTS INotifierSubControl
+    {
+    public:		
+        SubControl_(Notifier* pParent, int64_t subId)
+        {
+            _pParent = pParent;
+            _subId = subId;
+
+            // we use the same mutex as our parent to avoid deadlocks
+            _pMutex = pParent->_pMutex;
+        }
+        
+        ~SubControl_()
+        {
+            MutexLock lock(_pMutex);
+            
+            if(_pParent!=nullptr)
+                _pParent->subControlDeleted(_subId);
+        }
+
+        void detachFromParent()
+        {
+            MutexLock lock(_pMutex);
+
+            _pParent = nullptr;
+        }
+
+        void unsubscribe()
+        {
+            MutexLock lock(_pMutex);
+            
+            if(_pParent!=nullptr)
+            {
+                _pParent->unsubscribe(_subId);
+                _pParent = nullptr;
+            }
+        }
+
+
+    private:
+        P<Mutex>            _pMutex;
+        Notifier*			_pParent;
+        int64_t             _subId;
+        
+        friend class Notifier;
+    };
+    friend class SubControl_;
+
+
+    /** Unsubscribed a function from the notifier.
+        
+        \param subId the subscription id that was returned by a previous call to subscrive().*/
+    void unsubscribe(int64_t subId)
+    {
+        MutexLock lock(_pMutex);
+
+        auto it = _subMap.find(subId);
+        if(it!=_subMap.end())
+        {
+            Sub_& sub = it->second;
+
+            if(sub.pControlWeak!=nullptr)
+            {
+                sub.pControlWeak->detachFromParent();
+                sub.pControlWeak = nullptr;
+            }                
+
+            // note that a notification cannot currently be in progress in
+            // ANOTHER thread (since we lock the mutex during notifications).
+            // But the a notification might be in progress in our thread. This can
+            // happen if the unsubscribe happens in response to the notification call.
+            // We MUST ensure that we do not call this subscriber after unsubscribe
+            // returns (since it might be deleted immediately afterwards).
+            // The local states from each running notification are in _inProgressNotificationStates.
+            // We update those accordingly and remove this subscriber if it is in there.
+            for( NotificationState& state: _inProgressNotificationStates )
+            {
+                if(state.nextItemIt==it)
+                    state.nextItemIt++;
+            }           
+            
+            _subMap.erase(it);
+        }
+    }
+
+
+    void subControlDeleted(int64_t subId)
+    {
+        MutexLock lock(_pMutex);
+
+        auto subIt = _subMap.find(subId);
+        if(subIt!=_subMap.end())
+            subIt->second.pControlWeak = nullptr;
+    }
     
-    Mutex               _mutex;
     
-    // weak by design. We do not keep subscriptions alive
-    std::list< Sub_* >   _subList;
-    std::list< Sub_* >   _remainingSubListForCall;
+    struct Sub_
+    {
+        Sub_()
+            : pControlWeak(nullptr)
+        {
+        }
+
+        Sub_(const std::function<void(ArgTypes...)>& func, SubControl_* pControl)
+            : func(func)
+            , pControlWeak(pControl)
+        {
+        }
+
+        
+
+        std::function<void(ArgTypes...)> func;
+
+        // weak by design. The sub control objects notify us when they are deleted
+        SubControl_*                     pControlWeak;
+    };
+
+    struct NotificationState
+    {
+        typename std::map<int64_t, Sub_ >::iterator   nextItemIt;
+    };
+
+    
+    P<Mutex>                            _pMutex;
+    int64_t                             _nextSubId = 1;
+    std::map<int64_t,  Sub_>            _subMap;
+    std::list< NotificationState >      _inProgressNotificationStates;
 };
     
 }
