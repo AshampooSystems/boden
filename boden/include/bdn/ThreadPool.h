@@ -6,6 +6,7 @@
 
 #include <bdn/Thread.h>
 #include <bdn/ThreadRunnableBase.h>
+#include <bdn/Signal.h>
 
 namespace bdn
 {
@@ -22,10 +23,17 @@ public:
 
     ~ThreadPool()
     {
+        XXX should we stop busy runners or just detach them?
+        
         XXX stop busy and idle runners?
+
+        // stop idle runners
+        for(auto& pRunner: _idleRunners)
+            pRunner->signalStop();
+        _idleRunners.clear();
     }
 
-    void schedule(IThreadRunnable* pRunnable)
+    void addJob(IThreadRunnable* pRunnable)
     {
         MutexLock lock(_mutex);
 
