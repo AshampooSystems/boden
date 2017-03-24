@@ -16,7 +16,10 @@ public:
     
     /** Constructor. The implementation does NOT take ownership of the specified streams, 
         i.e. it will not delete it. So it is ok to use std::cin here.*/
-    AsyncStdioReader( basic_istream<CharType>* pStream );
+    AsyncStdioReader( std::basic_istream<CharType>* pStream )
+        : _pStream(pStream)
+    {
+    }
 
 
     /** Asynchronously reads a line of text from the stream.
@@ -26,28 +29,29 @@ public:
         Use IAsyncOp::onDone() to register a callback that is executed when the
         operation has finished.
         */
-    IAsyncOp<String> readLine()
+    P< IAsyncOp<String> > readLine()
     {
+        P<ReadLineOp> pOp = newObj<ReadLineOp>(_pStream);
+
         {
             MutexLock lock(_mutex);
 
-            if(_pThread==nullptr)
-            {
-                _pRunnable = newObj<Runnable>( _pInStream );
-                _pThread = newObj<Thread>( _pRunnable );
-            }
+            // XXX need to instantiate singe thread thread pool here
         }
-            
-        return _pRunnable->readLine();
+
+        // need to add op to thread pool
+
+        return pOp;
     }
 
 
 private:
-
+    
     class ReadLineOp : public AsyncOpRunnable<String>
     {
     public:
-        ReadLineOp()
+        ReadLineOp(std::basic_istream<CharType>* pStream)
+            : _pStream(pStream)
         {
         }
 
@@ -55,9 +59,9 @@ private:
         String doOp() override
         {           
             std::basic_string<CharType> l;
-            std::getline(*_pInStream, l);
+            std::getline(*_pStream, l);
             
-            _promise.set_value( decodeString(l, _pInStream->getloc() ) );
+            return decodeString(l, _pStream->getloc() );
         }
 
     private:       
@@ -74,7 +78,14 @@ private:
         {
             return String::fromLocaleEncoding( s.c_str(), loc );
         }
+
+    private:
+        std::basic_istream<CharType>* _pStream;
     };
+
+
+    Mutex       _mutex;
+    std::basic_istream<CharType>* _pStream;
 };
 
 

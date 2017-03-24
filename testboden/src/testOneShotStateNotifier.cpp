@@ -29,6 +29,8 @@ void testOneShotStateNotifier(ArgTypes... args)
 
     SECTION("one call")
     {
+        REQUIRE( !notifier.didNotify() );
+
         int callCount=0;
         notifier += 
 			[&callCount, args...](ArgTypes... callArgs)
@@ -38,7 +40,11 @@ void testOneShotStateNotifier(ArgTypes... args)
 				callCount++;
 			};
 
+        REQUIRE( !notifier.didNotify() );
+
         notifier.notify(args...);
+
+        REQUIRE( notifier.didNotify() );
 
         REQUIRE(callCount==1);
     }
@@ -56,14 +62,20 @@ void testOneShotStateNotifier(ArgTypes... args)
 
         notifier.notify(args...);
 
+        REQUIRE( !notifier.didNotify() );
+
         REQUIRE(callCount==1);
 
         REQUIRE_THROWS_PROGRAMMING_ERROR( notifier.notify(args...) );
+
+        REQUIRE( !notifier.didNotify() );
     }
 
     SECTION("late subscription")
     {
         notifier.notify(args...);
+
+        REQUIRE( !notifier.didNotify() );
 
         int callCount=0;
         notifier += 
@@ -77,7 +89,11 @@ void testOneShotStateNotifier(ArgTypes... args)
         // the subscription should have been called immediately.
         REQUIRE(callCount==1);
 
+        REQUIRE( !notifier.didNotify() );
+
         REQUIRE_THROWS_PROGRAMMING_ERROR( notifier.notify(args...) );
+
+        REQUIRE( !notifier.didNotify() );
     }
 
 

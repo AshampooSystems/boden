@@ -98,7 +98,7 @@ public:
     /** Returns true if notify() has already been called.*/
     bool didNotify()
     {
-        MutexLock lock(Notifier<ArgTypes...>getMutex());
+        MutexLock lock(Notifier<ArgTypes...>::getMutex());
 
         return _notified;
     }

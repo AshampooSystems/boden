@@ -64,4 +64,6 @@ namespace bdn
 
 #include <bdn/WeakP.h>
 
+#include <bdn/func.h>
+
 #endif
