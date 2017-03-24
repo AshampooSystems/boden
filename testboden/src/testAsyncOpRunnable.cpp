@@ -166,6 +166,34 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
             REQUIRE(done2CallCount == (withDoneListeners ? 1 : 0) );           
         }
     }
+
+    if(withDoneListeners)
+    {
+        SECTION("done listener added after finish")
+        {		
+            Thread thread( pRunnable );
+
+            pRunnable->_proceedSignal.set();
+
+            thread.join( Thread::ExceptionThrow );
+
+            String result = pRunnable->getResult();
+
+            REQUIRE( result=="hello" );           
+
+            int lateSubscribedCallCount = 0;
+
+            pRunnable->onDone() +=
+                [&lateSubscribedCallCount](IAsyncOp<String>* pOp)
+                {
+                    REQUIRE( pOp->getResult()=="hello" );
+
+                    lateSubscribedCallCount++;
+                };
+
+            REQUIRE(lateSubscribedCallCount==1);
+        }
+    }
 }
 
 
