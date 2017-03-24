@@ -80,7 +80,7 @@ public:
 
 
 
-    bool isDone() const
+    bool isDone() const override
     {
         return _doneNotifier.didNotify();
     }
@@ -117,7 +117,7 @@ public:
     }
 
 
-    OneShotStateNotifier<IAsyncOp*>& onDone() const override
+    OneShotStateNotifier<IAsyncOp<ResultType>*>& onDone() const override
     {
         return _doneNotifier;
     }
@@ -156,7 +156,7 @@ private:
     bool                 _stopSignalled = false;
     bool                 _abortedBeforeStart = false;
     bool                 _started = false;
-    mutable OneShotStateNotifier<IAsyncOp*> _doneNotifier;
+    mutable OneShotStateNotifier<IAsyncOp<ResultType>*> _doneNotifier;
 
     std::exception_ptr   _error;
     ResultType*          _pResult = nullptr;

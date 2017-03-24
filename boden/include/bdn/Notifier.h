@@ -231,7 +231,7 @@ public:
         // So to solve these issues we keep a list for each running notification. If subscribers
         // are removed during a callback then unsubscribe() will add them to our list.
 
-        std::list< NotificationState >::iterator notificationStateSlotIt = _inProgressNotificationStates.emplace( _inProgressNotificationStates.end() );
+        typename std::list< NotificationState >::iterator notificationStateSlotIt = _inProgressNotificationStates.emplace( _inProgressNotificationStates.end() );
         NotificationState&                       state = *notificationStateSlotIt;
                 
         try

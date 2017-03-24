@@ -6,6 +6,7 @@
 
 using namespace bdn;
 
+#if BDN_HAVE_THREADS
 
 class TestAsyncOpError : public std::exception
 {
@@ -205,4 +206,7 @@ TEST_CASE("AsyncOpRunnable")
     SECTION("with done listener")
         verifyAsyncOpRunnable(true);
 }
+
+#endif
+
 

@@ -57,7 +57,7 @@ public:
 
     P<INotifierSubControl> subscribe( const std::function<void(ArgTypes...)>& func) override
     {
-        MutexLock lock(getMutex());
+        MutexLock lock( Notifier<ArgTypes...>::getMutex());
 
         // call immediately if we are already done.
         if(_notified)
@@ -68,13 +68,13 @@ public:
             return newObj<DummySubControl>();
         }
         else
-            return Notifier::subscribe(func);
+            return Notifier<ArgTypes...>::subscribe(func);
 
     }
 
     void notify(ArgTypes... args) override
     {
-        MutexLock lock(getMutex());
+        MutexLock lock(Notifier<ArgTypes...>::getMutex());
 
         if(_notified)
         {
@@ -88,17 +88,17 @@ public:
         // added functions when they subscribe
         _caller = std::bind(&OneShotStateNotifier::callFunc, std::placeholders::_1, args... );
 
-        Notifier::notify(args...);
+        Notifier<ArgTypes...>::notify(args...);
 
         // unsubscribe all. Our notifications only happen once, so we can release the notification functions.
-        unsubscribeAll();
+        Notifier<ArgTypes...>::unsubscribeAll();
     }
 
 
     /** Returns true if notify() has already been called.*/
     bool didNotify()
     {
-        MutexLock lock(getMutex());
+        MutexLock lock(Notifier<ArgTypes...>getMutex());
 
         return _notified;
     }
