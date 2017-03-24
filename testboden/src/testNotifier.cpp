@@ -6,18 +6,18 @@
 
 using namespace bdn;
 
-void verifySame()
+static void verifySame()
 {	
 }
 
 template<class T1>
-void verifySame(T1 a, T1 b)
+static void verifySame(T1 a, T1 b)
 {	
 	REQUIRE( a==b );
 }
 
 template<class T1, class T2>
-void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
+static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 {	
 	REQUIRE( a1==b1 );
 	REQUIRE( a2==b2 );
@@ -78,14 +78,14 @@ void testNotifier(ArgTypes... args)
 			verifySame(callArgs..., args...);		
 		});
 
-	notifier.notify(args...);
+	notifier.notify(std::forward<ArgTypes>(args)...);
 
 	REQUIRE(called);
 
 	pSub->unsubscribe();
 	called = false;
 
-	notifier.notify(args...);
+	notifier.notify(std::forward<ArgTypes>(args)...);
 
 	// the subscription should have been deleted again
 	REQUIRE( !called );
@@ -384,6 +384,70 @@ TEST_CASE("Notifier")
         REQUIRE( callCount==2 );
         REQUIRE( callCount2==2 );   
         REQUIRE( callCount3==0 );          
+    }
+
+    SECTION("unsubscribeAll")
+    {
+        Notifier<>  notifier;
+        int         callCount=0;
+
+        notifier.subscribe(
+            [&callCount]()
+            {
+                callCount++;
+            } );
+
+
+        notifier.subscribe(
+            [&callCount]()
+            {
+                callCount++;
+            } );
+
+        notifier.unsubscribeAll();
+
+        notifier.notify();
+
+        // none of the functions should have been called
+        REQUIRE( callCount==0 );
+
+        // subscribe another one and notify again. Then it should be called.
+        notifier.subscribe(
+            [&callCount]()
+            {
+                callCount++;
+            } );
+
+        notifier.notify();
+
+        REQUIRE( callCount==1 );        
+    }
+
+
+    SECTION("use control after unsubscribeAll")
+    {
+        Notifier<>  notifier;
+        int         callCount=0;
+
+        P<INotifierSubControl> pControl = notifier.subscribe(
+            [&callCount]()
+            {
+                callCount++;
+            } );
+
+        notifier.unsubscribeAll();
+
+        notifier.notify();
+
+        // none of the functions should have been called
+        REQUIRE( callCount==0 );
+
+        // using the control object should not have any effect
+        pControl->unsubscribe();    
+
+        REQUIRE( callCount==0 );
+
+        pControl = nullptr;
     }
 }
 

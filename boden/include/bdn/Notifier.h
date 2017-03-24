@@ -271,6 +271,22 @@ public:
         _inProgressNotificationStates.erase( notificationStateSlotIt );
     }
 
+    /** Unsubscribes all currently subscribed functions.*/
+    void unsubscribeAll()
+    {
+        MutexLock lock(_pMutex);
+        
+        // detach all control objects
+        for(auto item: _subMap)
+        {
+            SubControl_* pControl = item.second.pControlWeak;
+            if(pControl!=nullptr)
+                pControl->detachFromParent();
+        }
+
+        // and then just clear the map
+        _subMap.clear();
+    }
 
 protected:
     /** Returns the internal mutex of the notifier. This is locked
