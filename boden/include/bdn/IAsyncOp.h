@@ -3,6 +3,7 @@
 
 #include <bdn/UnfinishedError.h>
 #include <bdn/AbortedError.h>
+#include <bdn/OneShotStateNotifier.h>
 
 namespace bdn
 {
@@ -50,7 +51,7 @@ public:
         is called immediately.
         
         */
-    virtual Notifier<IAsyncOp&>& onDone() const=0;
+    virtual OneShotStateNotifier<IAsyncOp*>& onDone() const=0;
 
 
 };

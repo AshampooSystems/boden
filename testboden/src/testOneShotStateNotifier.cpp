@@ -146,12 +146,49 @@ TEST_CASE("OneShotStateNotifier")
 
             notifier.notify(inputString);
 
+            inputString = "world";
+
             int callCount=0;
             notifier += 
-			    [&callCount, &inputString](String& paramString)
+			    [&callCount](String& paramString)
 			    {
-                    // we must get a reference to the exact same string object
-                    REQUIRE( &paramString == &inputString);
+                    // the object should have been copied. So it should still be the old value.
+                    REQUIRE( paramString == "hello" );
+				
+				    callCount++;
+			    };
+
+            // the subscription should have been called immediately.
+            REQUIRE(callCount==1);
+        }
+	}
+
+    SECTION("paramIsPointer")
+	{
+        String inputString("hello");
+
+        SECTION("standard tests")
+        {
+		    testOneShotStateNotifier<String*>( &inputString );
+        }
+
+        SECTION("param changed between notify and late subscribe")
+        {
+            OneShotStateNotifier<String*> notifier;
+
+            notifier.notify(&inputString);
+
+            inputString = "world";
+
+            int callCount=0;
+            notifier += 
+			    [&callCount, &inputString](String* pParamString)
+			    {
+                    // the pointer should refer to the exact original object.
+                    REQUIRE( pParamString == &inputString );
+
+                    // and of course it should have the new valid
+                    REQUIRE( *pParamString == "world" );
 				
 				    callCount++;
 			    };

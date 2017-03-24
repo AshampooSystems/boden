@@ -16,8 +16,7 @@ namespace bdn
       resources are released.
 
     - Any functions that are subscribed after notify will be called immediately, with the parameters
-      of the original notify call. Note that this means that the notify() parameters must still be
-      valid at that point in time!
+      of the original notify call. These parameters are copied, unless they are pointers (see below for details).
 
     This kind of notifier is well suited for "finished" notifications. I.e. notifications
     that indicate that some process is done.
@@ -34,6 +33,18 @@ namespace bdn
     later with the original parameters is only correct if the notification applies to a "state"
     that has been reached by some kind of process or object and that state remains until the notifier
     object is deleted or no more subscribers can be added.
+
+    Pointer and reference parameters
+    --------------------------------
+
+    The argument types of the notifier (the template parameters) need some special consideration.
+    In most cases, the parameters passed to notify are copied so that they can be passed on 
+    to late subscribers (subscribers that are added after the initial notify() call).
+    This is also true for reference parameters - their value is also copied and the late subscriber
+    will get passed a reference to the copied object.
+    If you want late subscribers and initial subscribers to get the exact same object instance as a parameter
+    then you have to use a pointer as the Notifier template parameter (and as such, the subscribed functions will
+    get such a pointer as their parameter).
     
 */
 template<class... ArgTypes>
@@ -84,8 +95,8 @@ public:
     }
 
 
-    /** Returns true if notify() was called.*/
-    bool notified()
+    /** Returns true if notify() has already been called.*/
+    bool didNotify()
     {
         MutexLock lock(getMutex());
 

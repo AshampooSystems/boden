@@ -43,12 +43,12 @@ void verifyAsyncOpRunnable(bool withDoneListeners)
     if(withDoneListeners)
     {
         pRunnable->onDone() +=
-            [&done1CallCount](IAsyncOp<String>& op)
+            [&done1CallCount](IAsyncOp<String>* pOp)
             {
                 done1CallCount++;
             };
         pRunnable->onDone() +=
-            [&done2CallCount](IAsyncOp<String>& op)
+            [&done2CallCount](IAsyncOp<String>* pOp)
             {
                 done2CallCount++;
             };

@@ -33,7 +33,6 @@ class AsyncOpRunnable : public Base, BDN_IMPLEMENTS IAsyncOp<ResultType>, BDN_IM
 {
 public:
     AsyncOpRunnable()
-        : _doneNotifier(this)
     {
     }
 
@@ -76,14 +75,14 @@ public:
         }
 
         if(actuallyAborted)
-            _doneNotifier.notify( *this );
+            _doneNotifier.notify( this );
     }
 
 
 
     bool isDone() const
     {
-        return _doneNotifier.isDone();
+        return _doneNotifier.didNotify();
     }
 
 
@@ -114,11 +113,11 @@ public:
             _error = std::current_exception();
         }
 
-        _doneNotifier.notify( *this );
+        _doneNotifier.notify( this );
     }
 
 
-    Notifier<IAsyncOp&>& onDone() const override
+    OneShotStateNotifier<IAsyncOp*>& onDone() const override
     {
         return _doneNotifier;
     }
@@ -152,55 +151,12 @@ private:
         }
     };
 
-    class DoneNotifier : public Notifier<IAsyncOp&>
-    {
-    public:
-        DoneNotifier(IAsyncOp* pOp)
-            : _pOpWeak(pOp)
-        {            
-        }
-
-        P<INotifierSubControl> subscribe( const std::function<void(IAsyncOp&)>& func) override
-        {
-            MutexLock lock(getMutex());
-
-            // call immediately if we are already done.
-            if(_done)
-            {
-                func(*_pOpWeak);
-
-                // return a dummy control object.
-                return newObj<DummySubControl>();
-            }
-            else
-                return Notifier::subscribe(func);
-        }
-
-        void notify(IAsyncOp& op) override
-        {
-            MutexLock lock(getMutex());
-            _done = true;
-
-            Notifier::notify(op);
-        }
-
-        bool isDone()
-        {
-            MutexLock lock(getMutex());
-
-            return _done;
-        }
-
-    private:
-        IAsyncOp*   _pOpWeak = nullptr;
-        bool        _done = false;
-    };
     
     Mutex                _mutex;
     bool                 _stopSignalled = false;
     bool                 _abortedBeforeStart = false;
     bool                 _started = false;
-    mutable DoneNotifier _doneNotifier;
+    mutable OneShotStateNotifier<IAsyncOp*> _doneNotifier;
 
     std::exception_ptr   _error;
     ResultType*          _pResult = nullptr;
