@@ -69,7 +69,8 @@ public:
             _pBindSourceSubscriptionControl = nullptr;
         }
 
-        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( weakMethod(this, &TestProperty_::set) );
+        // we can use plainMethod here because we explicitly unsubscribe when we are deleted.
+        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( plainMethod(this, &TestProperty_::set) );
         
         set( sourceProperty.get() );
     }    

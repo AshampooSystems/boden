@@ -86,7 +86,8 @@ public:
             _pBindSourceSubscriptionControl = nullptr;
         }
 
-        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe(weakMethod(this, &DefaultProperty::bindSourceChanged) );
+        // we can use plainMethod here because we explicitly unsubscribe when we are deleted.
+        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( plainMethod(this, &DefaultProperty::bindSourceChanged) );
         
         bindSourceChanged(sourceProperty);
     }

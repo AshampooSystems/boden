@@ -71,6 +71,7 @@ public:
 
 
 
+
 template<class MethodType>
 static void verifyMethodValid(const MethodType& m, bool expectedValid )
 {
@@ -647,12 +648,205 @@ TEST_CASE("weakMethod")
         verifyMethodValid(m, true);
 
         REQUIRE_THROWS_AS( m(), DanglingFunctionError );
-    }
-    
+    }   
     
 }
 
 
+
+
+
+
+class PlainMethodTestHelperNonBase
+{
+public:
+
+    virtual int ii(int a)
+    {
+        _lastCalled = "int(int)";
+        
+        return a*a;
+    }
+
+    virtual void v()
+    {
+        _lastCalled = "void()";
+    }
+    
+    String _lastCalled;
+    
+};
+
+TEST_CASE("plainMethod")
+{
+    
+    PlainMethodTestHelperNonBase helper;
+        
+    
+    SECTION("int(int)")
+    {
+        {
+            auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+            
+            verifyMethodValid(m, true);
+            
+            int val = m(17);
+            REQUIRE( val==17*17 );
+            
+            REQUIRE( helper._lastCalled=="int(int)" );
+        }        
+    }
+    
+    
+    SECTION("void()")
+    {
+        {
+            auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::v);
+            
+            verifyMethodValid(m, true);
+            
+            m();
+            
+            REQUIRE( helper._lastCalled=="void()" );
+        }
+    }
+
+
+    SECTION("int(int) from P")
+    {
+         P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
+
+        {
+            auto m = plainMethod(pHelper, &MethodPTestHelper::ii);
+            
+            verifyMethodValid(m, true);
+            // should not have increased the refcount
+            REQUIRE(pHelper->getRefCount()==1);
+            
+            int val = m(17);
+            REQUIRE( val==17*17 );
+            
+            REQUIRE( pHelper->_lastCalled=="int(int)" );
+        }        
+
+        // refcount should still be the same
+        REQUIRE(pHelper->getRefCount()==1);
+    }
+    
+
+    SECTION("defaultInit")
+    {
+        PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
+        
+        verifyMethodValid(m, false);
+        
+        // calling the strongMethod should have no effect
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+    }
+    
+    SECTION("object=null")
+    {
+        auto m = plainMethod((PlainMethodTestHelperNonBase*)nullptr, &PlainMethodTestHelperNonBase::ii);
+        
+        verifyMethodValid(m, false);
+        
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+    }
+    
+    SECTION("method=null")
+    {
+        void (PlainMethodTestHelperNonBase::* nullFunc)(int);
+        
+        nullFunc = nullptr;
+        
+        auto m = plainMethod(&helper, nullFunc);
+        
+        verifyMethodValid(m, false);
+        
+        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+    }
+        
+    
+    SECTION("copyConstructor")
+    {
+        SECTION("defaultInit")
+        {
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
+            
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2(m);
+            
+            verifyMethodValid(m2, false);
+            
+            // calling the strongMethod should have no effect
+            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+        }
+        
+        SECTION("ok")
+        {
+            {
+                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                verifyMethodValid(m, true);
+                
+                std::function<int(int)> m2(m);
+                verifyMethodValid(m2, true);
+                
+                int val = m(3);
+                REQUIRE( val==9 );
+                
+                REQUIRE( helper._lastCalled=="int(int)" );
+                helper._lastCalled = "";
+                
+                val = m2(3);
+                REQUIRE( val==9 );
+                
+                REQUIRE( helper._lastCalled=="int(int)" );
+            }
+        }
+    }
+    
+    
+    SECTION("assignment")
+    {
+        SECTION("defaultInit")
+        {
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
+            
+            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2;
+            
+            m2 = m;
+            
+            verifyMethodValid(m2, false);
+            
+            // calling the strongMethod should have no effect
+            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+        }
+        
+        SECTION("ok")
+        {
+            {
+                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                verifyMethodValid(m, true);
+                
+                std::function<int(int)> m2;
+                
+                m2 = m;
+                
+                verifyMethodValid(m2, true);
+                
+                int val = m(3);
+                REQUIRE( val==9 );
+                
+                REQUIRE( helper._lastCalled=="int(int)" );
+                helper._lastCalled = "";
+                
+                val = m2(3);
+                REQUIRE( val==9 );
+                
+                REQUIRE( helper._lastCalled=="int(int)" );
+            }            
+        }
+    }
+}
 
 
 
