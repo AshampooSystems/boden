@@ -2,6 +2,7 @@
 #define BDN_AsyncStdioReader_H_
 
 #include <bdn/AsyncOpRunnable.h>
+#include <bdn/ThreadPool.h>
 
 namespace bdn
 {
@@ -36,10 +37,13 @@ public:
         {
             MutexLock lock(_mutex);
 
-            // XXX need to instantiate singe thread thread pool here
-        }
+            // we need a thread with a queue that we can have execute our read jobs one by one.
+            // We can use a thread pool with a single thread for that.
+            if(_pOpExecutor==nullptr)
+                _pOpExecutor = newObj<ThreadPool>(1,1);
 
-        // need to add op to thread pool
+            _pOpExecutor->addJob( pOp );
+        }
 
         return pOp;
     }
@@ -86,6 +90,7 @@ private:
 
     Mutex       _mutex;
     std::basic_istream<CharType>* _pStream;
+    P<ThreadPool>                 _pOpExecutor;
 };
 
 
