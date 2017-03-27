@@ -8,165 +8,71 @@
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/Signal.h>
 
+#include <set>
+
 namespace bdn
 {
     
     
+/** Implements a pool of worker threads that can be used to execute jobs.
+
+    A thread pool is often used to minimize the amount of threads that are created and destroyed
+    for small tasks (since creating a new thread for each short job can be quite expensive).
+*/
 class ThreadPool : public Base
 {
 public:
-    ThreadPool(int minThreadCount, int maxThreadCount)
-        : _minThreadCount(minThreadCount)
-        , _maxThreadCount(maxThreadCount)
-    {
-    }
+    
+    /** Constructor.
+    
+        \param minThreadCount minimum number of threads to keep running at all times (even
+            if there are no jobs waiting).
+        \param maxThreadCount maximum number of threads to have running simultaneously.
+            If the pool has more jobs than this then they will be added to the waiting queue.
+            If maxThreadCount is bigger than minThreadCount then this can be thought of as extra
+            "burst" capacity. More threads than the minimum can be started when there is a lot to do,
+            but when this extra capacity is not needed anymore then then these extra threads can be
+            destroyed again.
+    */
+    ThreadPool(int minThreadCount, int maxThreadCount);
+    ~ThreadPool();
 
-    ~ThreadPool()
-    {
-        XXX should we stop busy runners or just detach them?
-        
-        XXX stop busy and idle runners?
 
-        // stop idle runners
-        for(auto& pRunner: _idleRunners)
-            pRunner->signalStop();
-        _idleRunners.clear();
-    }
+    /** Adds a job for the thread pool to execute. Note that if the pool currently
+        has no free capacity then the job will not start right away. Instead it 
+        will be added to a waiting queue and start later.*/
+    void addJob(IThreadRunnable* pRunnable);
+    
 
-    void addJob(IThreadRunnable* pRunnable)
-    {
-        MutexLock lock(_mutex);
+    /** Returns the number of threads that are currently busy. Note that this is number
+        can change at any time when jobs finish or get started, so it is only fully
+        reliable in rare cases (possibly during testing).*/
+    int getBusyThreadCount() const;
 
-        if(_idleRunners.empty())
-        {
-            // we have no idle runner waiting.
 
-            if(_busyRunners.size()>=_maxThreadCount)
-            {
-                // we cannot start a new thread. Add the job to the queue
-                _queuedJobs.push_back(pRunnable);
-            }
-            else
-            {
-                // start another thread.
-                P<PoolRunner> pRunner = newObj<PoolRunner>(this);
+    /** Returns the number of idle threads (threads that are waiting for new jobs).
+        Note that this is number can change at any time when jobs finish or are added,
+        so it is only fully reliable in rare cases (possibly during testing).*/
+    int getIdleThreadCount() const;
 
-                pRunner->setJob(pRunnable);
 
-                _busyRunners.add( pRunner );
-
-                try
-                {
-                    P<Thread> pThread = newObj<Thread>(pRunner);
-                    pThread->detach();
-                }
-                catch(...)
-                {
-                    // if there is an error starting the thread then we remove the runner again.
-                    _busyRunners.remove(pRunner);
-                }
-            }
-        }
-        else
-        {
-            // we have an idle runner waiting. Give it a new job
-            P<PoolRunner> pRunner = _idleRunners.front();
-            _idleRunners.pop_front();
-
-            _busyRunners.add( pRunner );
-
-            pRunner->startJob(pRunnable);
-        }
-    }
-
-protected:
+private:
     class PoolRunner : public Base, BDN_IMPLEMENTS IThreadRunnable
     {
     public:
-        PoolRunner()
+        PoolRunner(ThreadPool* pPool)
         {
+            _pPoolWeak = pPool;
         }
 
-        void signalStop() override
-        {
-            // this is called when the thread pool shuts down.
+        void signalStop() override;
+        void startJob(IThreadRunnable* pJob);
 
-            {
-                MutexLock lock(_mutex);
-
-                _shouldStop = true;
-
-                if(_pJob!=nullptr)
-                    _pJob->signalStop();
-            }
-
-            // make sure that we wake up if we are waiting for a runnable
-            _wakeSignal.set();
-        }
-
-        void setJob(IThreadRunnable* pJob)
-        {
-            if(_pJob!=null)
-                throw ProgrammingError("ThreadPool::PoolRunnable::startRunnable was called while the thread was still busy.");
-
-            _pJob = pJob;
-
-            _wakeSignal.set();
-        }
-
-        void run() override
-        {
-            while(true)
-            {
-                _wakeSignal.wait();
-                _wakeSignal.reset();
-
-                {
-                    MutexLock lock(_mutex);
-                    if(_shouldStop)
-                        break;
-
-                    if(_pJob)
-                }
-
-                try
-                {
-                    _pJob->run();
-                }
-                catch(...)
-                {
-                    // we treat this just like a top-level exception that happens
-                    // in a normal Thread. So we cann unhandledException.
-                    if( ! bdn::unhandledException(true) )
-                        std::terminate();
-
-                    // ignore exception and continue.
-                }
-
-                try
-                {
-                    _pJob = nullptr;
-                }
-                catch(...)
-                {
-                    // exception in runnable destructor.
-
-                    if( ! bdn::unhandledException(true) )
-                        std::terminate();
-
-                    // continue and do not delete the runnable object
-                    _pJob.detachPtr();
-                }
-                
-                if( ! _pPool->jobFinished(this) )
-                {
-                    // the pool wants us to end
-                    break;
-                }
-            }
-        }
+        void run() override;
 
     protected:
+        WeakP<ThreadPool> _pPoolWeak;
+
         Mutex           _mutex;
         Signal          _wakeSignal;
         volatile bool   _shouldStop = false;
@@ -176,52 +82,17 @@ protected:
     friend class PoolRunner;
 
 
-    bool jobFinished( PoolRunner* pRunner )
-    {
-        MutexLock lock(_mutex);
+    bool runnerFinishedJob( PoolRunner* pRunner );
 
-        if(!_queuedJobs.empty())
-        {
-            P<IThreadRunnable> pJob = _queuedJobs.front();
-            _queuedJobs.pop_front();
-
-            // give the runner a new job right away
-            pRunner->startJob(pJob);
-
-            // Note that the runner remains in _busyRunners
-
-            // runner should continue
-            return true;
-        }
-        else
-        {
-            // we do not currently have anything queued.
-
-            _busyRunners.remove( pRunner );
-
-            if(_busyRunners.size() >= _minThreadCount)
-            {
-                // we have more threads than necessary. Let this one die.
-                return false;
-            }
-            else
-            {
-                // add the runner to the idle list and let it go to sleep
-                _idleRunners.push_back(pRunner);
-
-                // runner should not end, but wait for the next job
-                return true;
-            }
-        }
-    }
-
-    Mutex                      _mutex;
+    mutable Mutex              _mutex;
 
     std::list< P<PoolRunner> > _idleRunners;
     std::set< P<PoolRunner> >  _busyRunners;
 
-    int _minThreadCount;
-    int _maxThreadCount;
+    std::list< P<IThreadRunnable> > _queuedJobs;
+
+    int                        _minThreadCount;
+    int                        _maxThreadCount;
 };
 	
 
@@ -230,3 +101,4 @@ protected:
 #endif // BDN_HAVE_THREADS
 
 #endif
+
