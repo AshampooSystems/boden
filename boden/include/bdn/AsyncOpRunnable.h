@@ -51,7 +51,7 @@ public:
         if(_error)
             std::rethrow_exception(_error);
 
-        return *_pResult;
+        return getResultValue<ResultType>();
     }       
     
     void signalStop() override
@@ -106,7 +106,7 @@ public:
 
         try
         {        
-            _pResult = new ResultType( doOp() );
+            doOpAndInitResult<ResultType>();
         }
         catch(...)
         {
@@ -141,6 +141,33 @@ protected:
 
 
 private:
+
+    template<class R>
+    void doOpAndInitResult()
+    {
+        _pResult = new R( doOp() );
+    }
+
+    template<>
+    void doOpAndInitResult<void>()
+    {
+        doOp();
+    }
+
+
+    template<class R>
+    R getResultValue() const
+    {
+        return *_pResult;
+    }
+
+    template<>
+    void getResultValue<void>() const
+    {
+        // nothing to do for void
+    }
+
+
     class DummySubControl : public Base, BDN_IMPLEMENTS INotifierSubControl
     {
     public:

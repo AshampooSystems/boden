@@ -214,61 +214,47 @@ public:
     
     
 
-    /** Calls all subscribed functions and passes the specified arguments to them.
+    /** Schedules a call to all subscribed functions with the specified arguments.
+        The call does not happen immediately. It is posted to the main thread and happens asynchronously.
+
+        The arguments passed to postNotification are copied, even if they are passed by reference.
+        This is important: if you pass a reference to an object then a copy is made and the subscribed functions
+        will get a reference to the copied object.
+        If you want to pass a specific object to the subscribed functions then you need to pass a pointer to it.
+        The objects referred to by pointers are not copied. However, it is the responsibility of the caller to
+        postNotification to ensure that the object is still valid at the time when the notification calls are actually made
+        from the main thread.
+
+        Note that the notification calls from the main thread will use the subscriber set at the time when the
+        calls are actually made, not the subscriber set at the time when postNotification() was called.
     */
-    virtual void notify(ArgTypes... args)
+    virtual void postNotification(ArgTypes... args)
     {
-        MutexLock lock(_pMutex);
+        // We have three problems here:
 
-        // we need to ensure that subscribers that are removed while our notification
-        // is running are not called after they are removed.
-        // Note that subscribers can ONLY be removed during a notification if a callback
-        // function does that. Other threads cannot remove subscribers because we keep
-        // our mutex locked.
-        // Note that multiple notify calls for the same notifier can be in progress at the same
-        // time, if a callback triggers another notification.
+        // postNotification can be called from any thread and in any context.
+        // In particular, an unknown set of mutexes might be locked at the time of the call.
+        // Subscribers to the notification have no good way of knowing what is locked and what isn't.
+        // If we were to call subscribers immediately then deadlocks will almost certainly occur
+        // in some places in a complex application, unless the subscriber is very careful what he locks.
         
-        // So to solve these issues we keep a list for each running notification. If subscribers
-        // are removed during a callback then unsubscribe() will add them to our list.
+        // Also, if subscribers are called from arbitrary threads then that makes programming with notifications
+        // very difficult for novice programmers. It can create hard to find sporadic bugs that are based on timings
+        // or event order and stuff like that.
 
-        typename std::list< NotificationState >::iterator notificationStateSlotIt = _inProgressNotificationStates.emplace( _inProgressNotificationStates.end() );
-        NotificationState&                       state = *notificationStateSlotIt;
-                
-        try
-        {
-            state.nextItemIt = _subMap.begin();
+        // A third problem is that we want to make sure that functions removed with unsubscribe are NOT called
+        // after unsubscribe returns. That is important because lingering notifications that happen after
+        // an unsubscribe can create complex situations and trigger rare sporadic bugs. It is something that can
+        // be surprisingly hard to solve. So we do not want any notifications to the unsubscribed function after
+        // unsubscribe returns. If a call is in progress then the unsubscribe call should wait until it is complete.
+        // That is only possible by having the call thread and the unsubscribe thread hold a mutex. And that in turn makes
+        // the deadlock problem described above even worse.
 
-            while(state.nextItemIt != _subMap.end())
-            {
-                std::pair< int64_t, Sub_ > item = *state.nextItemIt;
+        // We solve all these issues by posting the notification to the main thread. At that point we are certain
+        // that no mutexes are locked. And subscribers are also called from a well defined context of the main thread,
+        // reducing the complexity in all parts of the program.
 
-                // increase the iterator before we call the notification function. That is necessary
-                // for cases when the notification function removes the next item in our map.
-                // The unsubscribe function will update the iterator properly, to ensure that
-                // it remains valid.
-                state.nextItemIt++;
-            
-                try
-                {
-                    item.second.func( args... );
-                }
-                catch(DanglingFunctionError&)
-                {
-                    // this is a perfectly normal case. It means that the target function
-                    // was a weak reference and the target object has been destroyed.
-                    // Just remove it from our list and ignore the exception.
-
-                    unsubscribe(item.first);
-                }
-            }
-        }
-        catch(...)
-        {
-            _inProgressNotificationStates.erase( notificationStateSlotIt );
-            throw;
-        }
-
-        _inProgressNotificationStates.erase( notificationStateSlotIt );
+        callFromMainThread( std::bind<ArgTypes>( strongMethod(this, &Notifier::doNotifyFromMainThread) , std::forward<ArgTypes>(args)... );
     }
 
     /** Unsubscribes all currently subscribed functions.*/
@@ -298,6 +284,76 @@ protected:
 
     
 private:
+    
+    void doNotifyFromMainThread(ArgTypes... args)
+    {
+        // we keep a mutex locked here to ensure that subscribers that are removed with unsubscribe
+        // do not have a call in progress when unsubscribe returns. See comments in postNotification.
+        
+        MutexLock lock(_pMutex);
+
+        // there is usually only one notification call active at any given point in time.
+        // However, if events are handled somewhere in an inner function (e.g. by a modal dialog
+        // created by some other framework) then a second notification call might be executed
+        // before the first can finish. The mutex does not protect against this since both calls
+        // would happen in the same thread (the main thread).
+
+        // We also need to ensure that subscribers that are removed while our notification call
+        // is running are not called after they are removed.
+        // Note that subscribers can ONLY be removed during a notification if a callback
+        // function does that. Other threads cannot remove subscribers during this because we keep
+        // our mutex locked.
+        
+        // So we keep a list for each running notification. If subscribers
+        // are removed during a callback then unsubscribe() will update the notification structure accordingly.
+
+        typename std::list< NotificationState >::iterator notificationStateSlotIt = _inProgressNotificationStates.emplace( _inProgressNotificationStates.end() );
+        NotificationState&                       state = *notificationStateSlotIt;
+                
+        try
+        {
+            state.nextItemIt = _subMap.begin();
+
+            while(state.nextItemIt != _subMap.end())
+            {
+                std::pair< int64_t, Sub_ > item = *state.nextItemIt;
+
+                // increase the iterator before we call the notification function. That is necessary
+                // for cases when the notification function removes the next item in our map.
+                // The unsubscribe function will update the iterator properly, to ensure that
+                // it remains valid.
+                state.nextItemIt++;
+
+                // note that we have to keep the mutex locked during the call to ensure that
+                // an unsubscribe call in another thread will wait for the call to finish before it returns.
+                
+                // Having the mutex locked should not create the potential for deadlocks, since
+                // we are called directly from the main loop and thus no other mutexes can be locked
+                // by our thread. 
+                            
+                try
+                {
+                    item.second.func( args... );
+                }
+                catch(DanglingFunctionError&)
+                {
+                    // this is a perfectly normal case. It means that the target function
+                    // was a weak reference and the target object has been destroyed.
+                    // Just remove it from our list and ignore the exception.
+
+                    unsubscribe(item.first);
+                }
+            }
+        }
+        catch(...)
+        {
+            _inProgressNotificationStates.erase( notificationStateSlotIt );
+            throw;
+        }
+
+        _inProgressNotificationStates.erase( notificationStateSlotIt );
+    }
+
     class ParamlessFunctionAdapter
     {
     public:
