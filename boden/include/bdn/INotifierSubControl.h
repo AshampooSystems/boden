@@ -5,15 +5,21 @@
 namespace bdn
 {
 
-/** Can be used to control a notification subscription (see Notifier::subscribe()).*/
+/** Can be used to control a notification subscription (see INotifier::subscribe()).*/
 class INotifierSubControl : BDN_IMPLEMENTS IBase
 {
 public:
-    /** Unsubscribe. After this function returns the subscribed
-        function object will not be called by the Notifier anymore.
-            
-        This is safe to call even if the Notifier object that returned
-        this ISubControl object has already been deleted.            
+    /** Unsubscribe the notification function.
+
+        If this is called from the main thread then the notification function will not be called
+        again after unsubscribe returns.
+
+        BUT if this is called from another thread then there are cases when the unsubscribed function
+        may be called even after unsubscribe returns. This can happen if a notification is in progress
+        when unsubscribe is called.
+
+        unsubscribe() is safe to call even if the INotifier object that returned
+        this ISubControl object has already been deleted. In that case it will simply have no effect.
         */
     virtual void unsubscribe()=0;
 };

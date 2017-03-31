@@ -265,8 +265,11 @@ std::function<FuncType> strongMethod( const P<ObjectType>& pObject, FuncType Obj
 /** This is similar to strongMethod(), except that the returned callable will not keep the method's
     object alive.
 
+    IMPORTANT: weakMethod should only be used with objects that were allocated with newObj(). Using it with
+    objects that were not allocated with newObj can lead to crashes and should be avoided.
+    
     When the returned callable is called after the method's owning object was destroyed
-    then a DanglingFunctionError exception will be thrown. Note that bdn::Notifier objects
+    then a DanglingFunctionError exception will be thrown. Note that bdn::INotifier objects
     automatically handle this exception. They will remove the callable from their internal list
     and otherwise ignore the exception. So it is perfectly safe to use weak methods with Notifiers.
  

@@ -15,23 +15,15 @@ namespace bdn
 
 	*/
 template<class ValType>
-class DefaultProperty : public Property<ValType>
+class DefaultProperty : public RequireNewAlloc< Property<ValType>, DefaultProperty<ValType> >
 {
 public:
 	DefaultProperty(ValType value = ValType() )
 	{
+        _pOnChange = newObj< DefaultNotifier< P<const ReadProperty<ValType> > > > ();
 		_value = value;
 	}
-
-	~DefaultProperty()
-    {
-        if(_pBindSourceSubscriptionControl!=nullptr)
-        {
-            _pBindSourceSubscriptionControl->unsubscribe();
-            _pBindSourceSubscriptionControl = nullptr;
-        }
-    }
-
+    
 	ValType get() const override
 	{
 		MutexLock lock(_mutex);
@@ -55,7 +47,7 @@ public:
 		}
 
 		if(changed)
-			_onChange.notify(*this);
+			_pOnChange->postNotification(this);
 	}
 
 
@@ -73,30 +65,23 @@ public:
         return *this;
     }
 
-	Notifier<const ReadProperty<ValType>& >& onChange() const override
+	INotifier< P<const ReadProperty<ValType> > >& onChange() const override
 	{
-		return _onChange;
+		return *_pOnChange;
 	}
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        if(_pBindSourceSubscriptionControl!=nullptr)
-        {
-            _pBindSourceSubscriptionControl->unsubscribe();
-            _pBindSourceSubscriptionControl = nullptr;
-        }
-
-        // we can use plainMethod here because we explicitly unsubscribe when we are deleted.
-        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( plainMethod(this, &DefaultProperty::bindSourceChanged) );
+        sourceProperty.onChange() += weakMethod(this, &DefaultProperty::bindSourceChanged);
         
-        bindSourceChanged(sourceProperty);
+        bindSourceChanged(&sourceProperty);
     }
     
     
 protected:
-    virtual void bindSourceChanged(const ReadProperty<ValType>& prop)
+    virtual void bindSourceChanged( P<const ReadProperty<ValType> > pProp )
     {
-        set( prop.get() );
+        set( pProp->get() );
     }
 
 	virtual void onValueChanged()
@@ -107,8 +92,7 @@ protected:
 	mutable Mutex					_mutex;
 	ValType							_value;
     
-	mutable Notifier<const ReadProperty<ValType>&>		_onChange;
-	P<INotifierSubControl>						        _pBindSourceSubscriptionControl;
+    mutable P< DefaultNotifier< P<const ReadProperty<ValType> > >	> _pOnChange;
 };
 
 

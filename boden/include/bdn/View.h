@@ -695,7 +695,7 @@ protected:
     }
 
 	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType&), int propertyInfluences >	
-	void propertyChanged(const ReadProperty<ValueType>& prop )
+	void propertyChanged( P<const ReadProperty<ValueType> > pProp )
 	{
 		// note that our object is guaranteed to be fully alive during this function call.
 		// That is guaranteed because we delete the change subscriptions
@@ -720,9 +720,9 @@ protected:
             {		
 			    // now schedule an update to the core from the main thread.
 			    callFromMainThread(
-				    [pCore, pThis, &prop]()
+				    [pCore, pThis, pProp]()
 				    {	
-					    (pCore->*CoreFunc)( prop.get() );
+					    (pCore->*CoreFunc)( pProp->get() );
 
                         // after the core has been updated we need to handle the influences.
                         pThis->handlePropertyInfluences(propertyInfluences);

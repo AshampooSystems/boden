@@ -9,8 +9,8 @@ namespace bdn
 
 /** A weak pointer to an object that implements IBase. Weak pointers do not prevent the object to be deleted.
 
-    IMPORTANT: It can be dangerous to create weak pointers to objects that were NOT allocated with newObj. That can
-    lead to crashes and should be avoided.
+    IMPORTANT: weak pointers should only be used with objects that were allocated with newObj(). Using it with
+    objects that were not allocated with newObj can lead to crashes and should be avoided.
     
     Weak pointers cannot be used to access the object directly because the object they point to can be deleted at any time.
     To access the object, a (possibly temporary) strong pointer must be created first (see toStrong() ).

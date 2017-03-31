@@ -31,7 +31,7 @@ public:
 	}
 		
 
-	Notifier<const ClickEvent&>& onClick()
+	INotifier<const ClickEvent&>& onClick()
 	{
 		return _onClick;
 	}
@@ -58,7 +58,7 @@ protected:
 
 	DefaultProperty<String>		_label;
 
-	Notifier<const ClickEvent&> _onClick;
+	DefaultNotifier<const ClickEvent&> _onClick;
 };
 
 

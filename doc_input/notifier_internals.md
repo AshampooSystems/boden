@@ -27,14 +27,15 @@ posting these notifications might be inacceptable. In these cases the Notifier c
 and a different kind of notification mechanism should be used.
 
 
-Unsubscribe lag
----------------
+Unsubscribe
+-----------
 
-You might be wondering why the INotifierSubControl::unsubscribeSoon() method does not guarantee that the unsubscribed
-function will not be called after unsubscribe returns. Admittedly, having this guarantee would make it easier
-to implement subscribed functions for cases when a necessary resource is deleted. In particular, the lack of such 
-a guarantee means that one cannot simply unsubscribe a plain method in the destructor of a class (since the method might
-still be called after unsubscribing).
+You might be wondering why the INotifierSubControl::unsubscribe() method does not always guarantee that the unsubscribed
+function will not be called after unsubscribe returns. It is only guaranteed for cases when unsubscribe is called from
+the main thread. Admittedly, having this guarantee would make it easier to implement subscribed functions for cases when
+a necessary resource is deleted. In particular, the lack of such a guarantee means that one cannot simply unsubscribe
+a plain method in the destructor of a class (since the destructor could be called from a worker thread and the
+notification method might still be called after unsubscribing).
 
 The reasoning behind the implemented behaviour is pretty simple: a hard guarantee like the one mentioned above
 would require a mutex to be locked whenever a subscribed function is called and also when functions are unsubscribed.
@@ -58,22 +59,16 @@ or has any other kind of special property that could influence the timing.
 To avoid such potential deadlocks, the programmers that implement the subscribed functions and the unsubscribe call
 would have to be very careful and consider what resources the notification function accesses and in what context
 unsubscribe might be called. The latter in particular can be especially difficult if unsubscribe is called in a
-destructor of an object that is managed by smart pointers like bdn::P. The object might be deleted in some distant
+destructor of an object that is managed by smart pointers like \ref bdn::P. The object might be deleted in some distant
 program component at some arbitrary time point in time that has little to do with the original component where the code
 is implemented.
 
 So, as always, Boden tries to avoid such potential for disaster whenever possible. The only way to do this is to NOT
 hold a mutex when subscription functions are called. That makes implementing subscribed functions very easy,
-but it also means that no hard unsubscribe guarantee can be given.
+but it also means that no hard unsubscribe guarantee for worker threads can be given.
 
-So what can you do if you need a hard unsubscribe that is definitely done at a certain point in the code?
+So what can you do if you need a hard unsubscribe that is definitely finished at a certain point in the code?
 The best advice is to evaluate if you *really* need it. If you want to unsubscribe because
 a required object is deleted, consider simply keeping the object alive until the unsubscription has finished
-(using strongMethod(), for example). 
-
-If this workaround is not possible, consider wrapping your notification function in an object that ensures that the
-actual function is not called after a required resource is deleted. You "detach" the real function from
-your wrapper object when the required resource is deleted. You will need to lock a mutex when your wrapper calls th
-actual function and also when you "detach" it. Note that this creates the potential for deadlocks again, so can
-only use this is special cases when you are certain that no deadlock will occur in practice.
+(using \ref bdn::strongMethod() for your notification function, for example). 
 

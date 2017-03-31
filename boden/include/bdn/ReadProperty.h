@@ -1,7 +1,7 @@
 #ifndef BDN_ReadProperty_H_
 #define BDN_ReadProperty_H_
 
-#include <bdn/Notifier.h>
+#include <bdn/INotifier.h>
 
 namespace bdn
 {
@@ -29,13 +29,10 @@ public:
 
 	/** Returns a reference to a notifier object that can be used to
 		register for change notifications.
-		The notification will fire when the property value changes.
-
-		\important The notification call can potentially come from ANY thread.
-		The callback function you register here must be able to deal with that.
-		As an alternative, you can wrap your callback function with divertToMainThread().
+		The notification will fire when the property value changes. The parameter
+        is a pointer to the property object that changed.
 		*/
-	virtual Notifier< const ReadProperty<ValType>& >& onChange() const=0;
+	virtual INotifier< P<const ReadProperty<ValType> > >& onChange() const=0;
 
 
 

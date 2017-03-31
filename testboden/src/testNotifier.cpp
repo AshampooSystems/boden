@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/Notifier.h>
+#include <bdn/DefaultNotifier.h>
 #include <bdn/DanglingFunctionError.h>
 
 using namespace bdn;

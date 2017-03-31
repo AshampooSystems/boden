@@ -17,6 +17,7 @@ class TestProperty_ : public Property<ValType>
 public:	
 	TestProperty_()
 	{
+        _pOnChange = newObj<DefaultNotifier< P<const ReadProperty<ValType> > > >();
 	}
 
 	~TestProperty_()
@@ -56,7 +57,7 @@ public:
         return *this;
     }
 	
-	Notifier<const ReadProperty<ValType>&> & onChange() const override
+	INotifier<const ReadProperty<ValType>&> & onChange() const override
 	{
 		return _onChange;
 	}
@@ -78,8 +79,8 @@ public:
 protected:
 	ValType									_value;
     
-	mutable Notifier<const ReadProperty<ValType>&>	_onChange;
-	P<INotifierSubControl>							_pBindSourceSubscriptionControl;
+	mutable P< DefaultNotifier< P<const ReadProperty<ValType> > > >	_pOnChange;
+	P<INotifierSubControl>							                4_pBindSourceSubscriptionControl;
 
 	
 };

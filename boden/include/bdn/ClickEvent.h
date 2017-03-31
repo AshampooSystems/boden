@@ -14,13 +14,13 @@ public:
         _pView = pView;
     }
     
-    View* getView()
+    P<View> getView()
     {
         return _pView;
     }
     
 protected:
-    View* _pView;
+    P<View> _pView;
 };
     
 }
