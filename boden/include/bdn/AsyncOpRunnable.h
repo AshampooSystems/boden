@@ -3,6 +3,7 @@
 
 #include <bdn/IAsyncOp.h>
 #include <bdn/IThreadRunnable.h>
+#include <bdn/RequireNewAlloc.h>
 
 
 namespace bdn
@@ -10,6 +11,8 @@ namespace bdn
 
 
 /** A helper for implementing an asynchronous operation.
+
+    Instances of AsyncOpRunnable must be allocated with newObj or new.
 
     This creates a runnable object (IThreadRunnable) that implements the IAsyncOp interface.
     The runnable object can then be executed by a thread or thread pool.
@@ -29,7 +32,10 @@ namespace bdn
     when it returns true.
 */
 template<class ResultType>
-class AsyncOpRunnable : public Base, BDN_IMPLEMENTS IAsyncOp<ResultType>, BDN_IMPLEMENTS IThreadRunnable
+class AsyncOpRunnable : 
+    public RequireNewAlloc<Base, AsyncOpRunnable<ResultType> >
+    , BDN_IMPLEMENTS IAsyncOp<ResultType>
+    , BDN_IMPLEMENTS IThreadRunnable
 {
 public:
     AsyncOpRunnable()
@@ -75,14 +81,16 @@ public:
         }
 
         if(actuallyAborted)
-            _doneNotifier.notify( this );
+            setDone();
     }
 
 
 
     bool isDone() const override
     {
-        return _doneNotifier.didNotify();
+        MutexLock lock(_mutex);
+
+        return _done;
     }
 
 
@@ -113,11 +121,11 @@ public:
             _error = std::current_exception();
         }
 
-        _doneNotifier.notify( this );
+        setDone();
     }
 
 
-    OneShotStateNotifier<IAsyncOp<ResultType>*>& onDone() const override
+    INotifier< P<IAsyncOp<ResultType>> >& onDone() const override
     {
         return _doneNotifier;
     }
@@ -141,6 +149,16 @@ protected:
 
 
 private:
+
+    void setDone()
+    {
+        {
+            MutexLock lock(_mutex);
+            _done = true;
+        }        
+
+        _doneNotifier.postNotification( this );
+    }
 
     template<class R>
     void doOpAndInitResult()
@@ -179,11 +197,12 @@ private:
     };
 
     
-    Mutex                _mutex;
+    mutable Mutex        _mutex;
     bool                 _stopSignalled = false;
     bool                 _abortedBeforeStart = false;
     bool                 _started = false;
-    mutable OneShotStateNotifier<IAsyncOp<ResultType>*> _doneNotifier;
+    bool                 _done = false;
+    mutable OneShotStateNotifier< P<IAsyncOp<ResultType>> > _doneNotifier;
 
     std::exception_ptr   _error;
     ResultType*          _pResult = nullptr;

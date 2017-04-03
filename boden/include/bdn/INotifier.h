@@ -167,7 +167,7 @@ public:
    
 
     /** Same as subscribe(). Returns a reference to the notifier object.*/
-    virtual Notifier& operator+=(const std::function<void(ArgTypes...)>& func)=0;
+    virtual INotifier& operator+=(const std::function<void(ArgTypes...)>& func)=0;
 
 
 	/** Convenience function. Similar to subscribe(), except that this

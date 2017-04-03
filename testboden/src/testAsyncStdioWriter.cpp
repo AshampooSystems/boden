@@ -61,7 +61,7 @@ public:
 
             String expectedResult;
             for(int i=0;i<3;i++)
-            {ubscr
+            {
                 expectedResult += "line "+std::to_string(i);
                 if(_writeLine)
                     expectedResult += "\n";

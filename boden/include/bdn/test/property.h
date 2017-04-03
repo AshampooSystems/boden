@@ -12,7 +12,7 @@ namespace test
 {	
 
 template<class ValType>
-class TestProperty_ : public Property<ValType>
+class TestProperty_ : public RequireNewAlloc< Property<ValType>, TestProperty_<ValType> >
 {
 public:	
 	TestProperty_()
@@ -39,7 +39,7 @@ public:
 		if(_value!=val)
 		{
 			_value = val;
-			_onChange.notify(*this);
+			_pOnChange->postNotification(this);
 		}
 	}
 
@@ -57,32 +57,36 @@ public:
         return *this;
     }
 	
-	INotifier<const ReadProperty<ValType>&> & onChange() const override
+	INotifier< P<const ReadProperty<ValType>> > & onChange() const override
 	{
-		return _onChange;
+		return *_pOnChange;
 	}
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-         if(_pBindSourceSubscriptionControl!=nullptr)
+        if(_pBindSourceSubscriptionControl!=nullptr)
         {
             _pBindSourceSubscriptionControl->unsubscribe();
             _pBindSourceSubscriptionControl = nullptr;
         }
 
         // we can use plainMethod here because we explicitly unsubscribe when we are deleted.
-        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( plainMethod(this, &TestProperty_::set) );
+        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( weakMethod(this, &TestProperty_::bindSourceChanged) );
         
         set( sourceProperty.get() );
     }    
     
 protected:
+
+    void bindSourceChanged( P<const ReadProperty<ValType>> pProp)
+    {
+        set(pProp->get() );
+    }
+
 	ValType									_value;
     
 	mutable P< DefaultNotifier< P<const ReadProperty<ValType> > > >	_pOnChange;
-	P<INotifierSubControl>							                4_pBindSourceSubscriptionControl;
-
-	
+	P<INotifierSubControl>							                _pBindSourceSubscriptionControl;
 };
 
 template<class PropertyType, typename ValType>

@@ -47,11 +47,11 @@ public:
 
         It is guaranteed that each of the registered functions will be called.
         
-        If the operation has already finished when the callback is added then the callback
-        is called immediately.
+        If the operation has already finished when the callback function is added then the notification
+        call is scheduled immediately.
         
         */
-    virtual OneShotStateNotifier<IAsyncOp*>& onDone() const=0;
+    virtual INotifier< P<IAsyncOp> >& onDone() const=0;
 
 
 };

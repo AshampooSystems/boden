@@ -6,6 +6,7 @@
 #include <bdn/INotifier.h>
 #include <bdn/DanglingFunctionError.h>
 #include <bdn/RequireNewAlloc.h>
+#include <bdn/mainThread.h>
 
 #include <map>
 
@@ -18,7 +19,7 @@ namespace bdn
     DefaultNotifier objects MUST be allocated with newObj / new.
 */
 template<class... ArgTypes>
-class DefaultNotifier : public RequireNewAlloc<Base, Notifier<ArgTypes...> >
+class DefaultNotifier : public RequireNewAlloc<Base, DefaultNotifier<ArgTypes...> >
     , BDN_IMPLEMENTS INotifier<ArgTypes...>
 {
 public:

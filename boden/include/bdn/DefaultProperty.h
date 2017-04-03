@@ -4,6 +4,7 @@
 
 #include <bdn/Property.h>
 #include <bdn/func.h>
+#include <bdn/DefaultNotifier.h>
 
 namespace bdn
 {

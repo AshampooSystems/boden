@@ -1,7 +1,9 @@
 #ifndef BDN_OneShotStateNotifier_H_
 #define BDN_OneShotStateNotifier_H_
 
-#include <bdn/Notifier.h>
+#include <bdn/INotifier.h>
+#include <bdn/RequireNewAlloc.h>
+#include <bdn/mainThread.h>
 
 namespace bdn
 {
@@ -308,7 +310,7 @@ private:
     class SubControl_ : public Base, BDN_IMPLEMENTS INotifierSubControl
     {
     public:		
-        SubControl_(DefaultNotifier* pParent, int64_t subId)
+        SubControl_(OneShotStateNotifier* pParent, int64_t subId)
             : _pParentWeak( pParent )
             , _subId(subId)
         {
@@ -316,116 +318,31 @@ private:
         
         void unsubscribe() override
         {              
-            P<DefaultNotifier> pParent = _pParentWeak.toStrong();
+            P<OneShotStateNotifier> pParent = _pParentWeak.toStrong();
             if(pParent!=nullptr)
                 pParent->unsubscribe(_subId);
         }
 
 
     private:
-        WeakP<DefaultNotifier> 	_pParentWeak;
-        int64_t                 _subId;
+        WeakP<OneShotStateNotifier> 	_pParentWeak;
+        int64_t                         _subId;
         
-        friend class DefaultNotifier;
+        friend class OneShotStateNotifier;
     };
     friend class SubControl_;
-
-
-
 
     
     Mutex                               _mutex;
     int64_t                             _nextSubId = 1;
     std::map<int64_t,  Sub_>            _subMap;
+    bool                                _postNotificationCalled = false;
     bool                                _notificationPending = false;
-    NotificationState*                  _pFirstNotificationState = nullptr;
+    NotificationState*                  _pNotificationState = nullptr;
+    std::function< void(const std::function<void(ArgTypes...)>&) >  _subscribedFuncCaller;
 };
 
 
-
-    OneShotStateNotifier()
-    {            
-    }
-
-    P<INotifierSubControl> subscribe( const std::function<void(ArgTypes...)>& func) override
-    {
-        MutexLock lock( Notifier<ArgTypes...>::getMutex());
-
-        // call immediately if we are already done.
-        if(_notified)
-        {
-            _caller(func);
-
-            // return a dummy control object.
-            return newObj<DummySubControl>();
-        }
-        else
-            return Notifier<ArgTypes...>::subscribe(func);
-
-    }
-
-    void postNotification(ArgTypes... args) override
-    {
-        MutexLock lock(Notifier<ArgTypes...>::getMutex());
-
-        if(_notified)
-        {
-            // should not happen
-            programmingError("OneShotStateNotifier::postNotification was called multiple times. It should only be called once.");
-        }
-
-        _notified = true;
-
-        // bind the arguments to our static function callFunc, so that we can call newly
-        // added functions when they subscribe
-        _caller = std::bind(&OneShotStateNotifier::callFunc, std::placeholders::_1, args... );
-
-        Notifier<ArgTypes...>::postNotification(args...);
-        XXX cannot unsub here
-
-        
-    }
-
-
-    /** Returns true if notify() has already been called.*/
-    bool didNotify()
-    {
-        MutexLock lock(Notifier<ArgTypes...>::getMutex());
-
-        return _notified;
-    }
-
-protected:
-    void notificationFinished(ArgTypes... args) override
-    {
-        MutexLock lock(getMutex());
-
-        // unsubscribe all. Our notifications only happen once, so we can release the notification functions.
-        Notifier<ArgTypes...>::unsubscribeAll();
-
-
-    }
-
-private:
-    class DummySubControl : public Base, BDN_IMPLEMENTS INotifierSubControl
-    {
-    public:
-        
-        void unsubscribe() override
-        {
-            // do nothing
-        }
-    };
-
-
-    static void callFunc( const std::function<void(ArgTypes...)>& func, ArgTypes... args )
-    {
-        func(args...);
-    }
-
-    bool        _notified = false;
-    std::function<void( const std::function<void(ArgTypes...)>& ) > _caller;
-};
 
 
 }
