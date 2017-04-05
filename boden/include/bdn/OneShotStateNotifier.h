@@ -20,8 +20,11 @@ namespace bdn
     - Any functions that are subscribed after the single notify call happened will be called immediately, with the parameters
       of the original notify call. These parameters are copied, unless they are pointers (see below for details).
 
+
+    *IMPORTANT*: DefaultNotifier objects MUST be allocated with newObj / new.
+
     This kind of notifier is well suited for "finished" notifications. I.e. notifications
-    that indicate that some process is done.
+    that indicate that some process is done.    
     
     The fact that subscribed functions that are added after notify was already called will
     also be executed is a convenient property for "finished" notifications of background

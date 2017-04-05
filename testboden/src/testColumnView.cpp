@@ -155,9 +155,10 @@ TEST_CASE("ColumnView")
 
                 pColumnView->addChildView(pButton);
 
+                // let scheduled property updates propagate
                 CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
                 {
-                    // should cause a sizing update and a layout update
+                    // should cause a sizing update and a layout update.
                     REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
                     REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
 
@@ -174,7 +175,6 @@ TEST_CASE("ColumnView")
                     Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
 
                     REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
-
                 };            
             };
         }

@@ -2,8 +2,18 @@
 #include <bdn/test.h>
 
 #include <bdn/OneShotStateNotifier.h>
+#include <bdn/Signal.h>
 
 using namespace bdn;
+
+class OneShotNotifierTestData : public Base
+{
+public:
+
+    int     callCount1 = 0;
+
+    String  stringParam;
+};
 
 static void verifySame()
 {	
@@ -22,195 +32,231 @@ static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 	REQUIRE( a2==b2 );
 }
 
-template<class... ArgTypes>
-void testOneShotStateNotifier(ArgTypes... args)
+
+class OneShotStateNotifierDestructTest : public Base
 {
-	OneShotStateNotifier<ArgTypes...> notifier;
+public:
+    OneShotStateNotifierDestructTest(Signal* pSignal)
+    {
+        _pSignal = pSignal;
+    }
+
+    ~OneShotStateNotifierDestructTest()
+    {
+        _pSignal->set();
+    }
+
+    P<Signal> _pSignal;
+};
+
+template<class... ArgTypes>
+void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... args)
+{
+	P< OneShotStateNotifier<ArgTypes...> >  pNotifier = newObj< OneShotStateNotifier<ArgTypes...> >();
 
     SECTION("one call")
     {
-        REQUIRE( !notifier.didNotify() );
-
-        int callCount=0;
-        notifier += 
-			[&callCount, args...](ArgTypes... callArgs)
+        *pNotifier += 
+			[pTestData, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
 				
-				callCount++;
+				pTestData->callCount1++;
 			};
+        
+        pNotifier->postNotification(args...);
 
-        REQUIRE( !notifier.didNotify() );
-
-        notifier.notify(args...);
-
-        REQUIRE( notifier.didNotify() );
-
-        REQUIRE(callCount==1);
+        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+        {
+            REQUIRE(pTestData->callCount1==1);
+        };
     }
 
     SECTION("multiple calls")
     {
-        int callCount=0;
-        notifier += 
-			[&callCount, args...](ArgTypes... callArgs)
+        *pNotifier += 
+			[pTestData, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
 				
-				callCount++;
+				pTestData->callCount1++;
 			};
 
-        notifier.notify(args...);
+        pNotifier->postNotification(args...);
 
-        REQUIRE( !notifier.didNotify() );
+        
 
-        REQUIRE(callCount==1);
-
-        REQUIRE_THROWS_PROGRAMMING_ERROR( notifier.notify(args...) );
-
-        REQUIRE( !notifier.didNotify() );
+        CONTINUE_SECTION_WHEN_IDLE_WITH(
+            std::bind(
+                [pNotifier, pTestData](ArgTypes... args)
+                {
+                    REQUIRE(pTestData->callCount1==1);
+    
+                    REQUIRE_THROWS_PROGRAMMING_ERROR( pNotifier->postNotification(args...) );
+                },
+                std::forward<ArgTypes>(args)... ) );
     }
 
     SECTION("late subscription")
     {
-        notifier.notify(args...);
-
-        REQUIRE( !notifier.didNotify() );
-
-        int callCount=0;
-        notifier += 
-			[&callCount, args...](ArgTypes... callArgs)
+        pNotifier->postNotification(args...);
+        
+        *pNotifier += 
+			[pTestData, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
 				
-				callCount++;
+				pTestData->callCount1++;
 			};
 
-        // the subscription should have been called immediately.
-        REQUIRE(callCount==1);
+        
+        // the subscription should not have been called immediately.
+        REQUIRE(pTestData->callCount1==0);
 
-        REQUIRE( !notifier.didNotify() );
+        // but a call should have been scheduled
 
-        REQUIRE_THROWS_PROGRAMMING_ERROR( notifier.notify(args...) );
-
-        REQUIRE( !notifier.didNotify() );
+        CONTINUE_SECTION_WHEN_IDLE_WITH(
+            std::bind(
+                [pNotifier, pTestData](ArgTypes... args)
+                {
+                    REQUIRE(pTestData->callCount1==1);
+            
+                    REQUIRE_THROWS_PROGRAMMING_ERROR( pNotifier->postNotification(args...) );
+                },
+                std::forward<ArgTypes>(args)... ) );
     }
 
 
     SECTION("subscriptions are released after notify")
     {
-        P<Base> pDummy = newObj<Base>();
+        P<Signal>                           pDestructedSignal = newObj<Signal>();
+        P<OneShotStateNotifierDestructTest> pDestructTest = newObj<OneShotStateNotifierDestructTest>(pDestructedSignal);
 
-        int callCount=0;
-        notifier += 
-			[pDummy, &callCount, args...](ArgTypes... callArgs)
+        *pNotifier += 
+			[pDestructTest, pTestData, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
 				
-				callCount++;
+				pTestData->callCount1++;
 			};
 
-        REQUIRE(pDummy->getRefCount()==2);
+        REQUIRE( ! pDestructedSignal->isSet() );
 
-        notifier.notify(args...);
+        pNotifier->postNotification(args...);
 
-        REQUIRE(callCount==1);
+        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData, pDestructedSignal)
+        {
+            REQUIRE(pTestData->callCount1==1);
 
-        // the reference held by the lambda function should have been released.
-        REQUIRE(pDummy->getRefCount()==1);
-        
+            // the reference held by the lambda function should have been released.
+            REQUIRE(pDestructedSignal->isSet());
+        };        
     }
 }
 
 TEST_CASE("OneShotStateNotifier")
 {
+    P< OneShotNotifierTestData >            pTestData = newObj< OneShotNotifierTestData >();
+
     SECTION("oneArg-String")
 	{
-		testOneShotStateNotifier<String>(String("hello"));
+		testOneShotStateNotifier<String>(pTestData, String("hello"));
 	}
 
 	SECTION("noArgs")
 	{
-		testOneShotStateNotifier<>();
+		testOneShotStateNotifier<>(pTestData);
 	}
 
 	SECTION("oneArg-int")
 	{
-		testOneShotStateNotifier<int>(42);
+		testOneShotStateNotifier<int>(pTestData, 42);
 	}
 
    
 
 	SECTION("twoArgs")
 	{
-		testOneShotStateNotifier<int, String>(42, String("hello") );
+		testOneShotStateNotifier<int, String>(pTestData, 42, String("hello") );
 	}
 
 
     SECTION("paramIsReference")
 	{
-        String inputString("hello");
+        pTestData->stringParam = "hello";
 
         SECTION("standard tests")
         {
-		    testOneShotStateNotifier<String&>( inputString );
+		    testOneShotStateNotifier<String&>(pTestData, pTestData->stringParam );
         }
 
         SECTION("param changed between notify and late subscribe")
         {
-            OneShotStateNotifier<String&> notifier;
+            P< OneShotStateNotifier<String&> > pNotifier = newObj< OneShotStateNotifier<String&> >();
 
-            notifier.notify(inputString);
+            String inputString = "hello";
+
+            pNotifier->postNotification(inputString);
 
             inputString = "world";
 
-            int callCount=0;
-            notifier += 
-			    [&callCount](String& paramString)
+            *pNotifier += 
+			    [pTestData](String& paramString)
 			    {
                     // the object should have been copied. So it should still be the old value.
                     REQUIRE( paramString == "hello" );
 				
-				    callCount++;
+				    pTestData->callCount1++;
 			    };
 
-            // the subscription should have been called immediately.
-            REQUIRE(callCount==1);
+            // the subscription should not have been called immediately.
+            REQUIRE(pTestData->callCount1==0);
+
+            // but a call should have been scheduled
+            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier)
+            {
+                REQUIRE(pTestData->callCount1==1);
+            };
         }
 	}
 
     SECTION("paramIsPointer")
 	{
-        String inputString("hello");
+        pTestData->stringParam = "hello";
 
         SECTION("standard tests")
         {
-		    testOneShotStateNotifier<String*>( &inputString );
+		    testOneShotStateNotifier<String*>(pTestData, &pTestData->stringParam );
         }
 
         SECTION("param changed between notify and late subscribe")
         {
-            OneShotStateNotifier<String*> notifier;
+            P< OneShotStateNotifier<String*> > pNotifier = newObj< OneShotStateNotifier<String*> >();
 
-            notifier.notify(&inputString);
+            pNotifier->postNotification(&pTestData->stringParam);
 
-            inputString = "world";
+            pTestData->stringParam = "world";
 
-            int callCount=0;
-            notifier += 
-			    [&callCount, &inputString](String* pParamString)
+            *pNotifier += 
+			    [pTestData](String* pParamString)
 			    {
                     // the pointer should refer to the exact original object.
-                    REQUIRE( pParamString == &inputString );
+                    REQUIRE( pParamString == &pTestData->stringParam );
 
                     // and of course it should have the new valid
                     REQUIRE( *pParamString == "world" );
 				
-				    callCount++;
+				    pTestData->callCount1++;
 			    };
 
-            // the subscription should have been called immediately.
-            REQUIRE(callCount==1);
+            // the subscription should not have been called immediately.
+            REQUIRE(pTestData->callCount1==0);
+
+            // but a call should have been scheduled
+            CONTINUE_SECTION_WHEN_IDLE(pTestData, pNotifier)
+            {
+                REQUIRE(pTestData->callCount1==1);
+            };
         }
 	}
 

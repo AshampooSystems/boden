@@ -2,6 +2,7 @@
 #define BDN_ReadProperty_H_
 
 #include <bdn/INotifier.h>
+#include <bdn/IValueAccessor.h>
 
 namespace bdn
 {
@@ -12,7 +13,7 @@ namespace bdn
 	
 	*/
 template<class ValType>
-class ReadProperty : public Base
+class ReadProperty : public Base, BDN_IMPLEMENTS IValueAccessor<ValType>
 {
 public:
     
@@ -29,12 +30,16 @@ public:
 
 	/** Returns a reference to a notifier object that can be used to
 		register for change notifications.
-		The notification will fire when the property value changes. The parameter
-        is a pointer to the property object that changed.
+
+		The notification will fire when the property value changes. Note that
+        the functions that are subscribed to the returned notifier are called
+        asynchronously after the change has already happened. These calls always
+        happen from the main thread, even if the property was changed in another thread.
+        
+        The parameter of the notification call is a pointer to a value accessor object.
+        This object will return the property's value at the current time.
 		*/
-	virtual INotifier< P<const ReadProperty<ValType> > >& onChange() const=0;
-
-
+	virtual INotifier< P<const IValueAccessor<ValType>> >& onChange() const=0;
 
 };
 

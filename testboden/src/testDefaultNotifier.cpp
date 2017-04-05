@@ -6,6 +6,23 @@
 
 using namespace bdn;
 
+class DefaultNotifierTestData : public Base
+{
+public:
+    bool called1 = false;
+    bool called2 = false;
+
+    int  callCount1 = 0;
+    int  callCount2 = 0;
+    int  callCount3 = 0;
+
+    P<INotifierSubControl> pSub1;
+    P<INotifierSubControl> pSub2;
+    P<INotifierSubControl> pSub3;
+};
+
+
+
 static void verifySame()
 {	
 }
@@ -26,22 +43,25 @@ static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 template<class... ArgTypes>
 void testNotifier(ArgTypes... args)
 {
-	DefaultNotifier<ArgTypes...> notifier;
+	P< DefaultNotifier<ArgTypes...> >   pNotifier = newObj<DefaultNotifier<ArgTypes...>>();
+    P< DefaultNotifierTestData >        pTestData = newObj<DefaultNotifierTestData>();
 
-	bool	 called = false;
-	P<INotifierSubControl> pSub;
 
 	SECTION("subscribe")
-		pSub = notifier.subscribe(
-			[&called, args...](ArgTypes... callArgs)
+		pTestData->pSub1 = pNotifier->subscribe(
+			[pTestData, args...](ArgTypes... callArgs)
 			{
 				verifySame(callArgs..., args...);
 				
-				called = true;
+				pTestData->called1 = true;
 			} );
 
 	SECTION("subscribeParamless")
-		pSub = notifier.subscribeParamless([&called](){ called = true; } );
+		pTestData->pSub1 = pNotifier->subscribeParamless(
+            [pTestData]()
+            {
+                pTestData->called1 = true;
+            } );
 
 
 
@@ -49,9 +69,9 @@ void testNotifier(ArgTypes... args)
 	class Listener : public Base
 	{
 	public:
-		Listener(bool* pCalled, std::function<void(ArgTypes...)> argVerifier)
+		Listener(DefaultNotifierTestData* pTestData, std::function<void(ArgTypes...)> argVerifier)
 		{
-			_pCalled = pCalled;
+			_pTestData = pTestData;
 			_argVerifier = argVerifier;
 		}
 
@@ -59,57 +79,56 @@ void testNotifier(ArgTypes... args)
 		{
 			_argVerifier(args...);
 
-			*_pCalled = true;			
+			_pTestData->called1 = true;			
 		}
 			
 		void onNotifyVoid()
 		{
-			*_pCalled = true;
+			_pTestData->called1 = true;
 		}
 
-		bool* _pCalled;
-		std::function<void(ArgTypes...)> _argVerifier;
+		P<DefaultNotifierTestData>          _pTestData;
+		std::function<void(ArgTypes...)>    _argVerifier;
 	};
 
 	Listener l(
-		&called,
+		pTestData,
 		[args...](ArgTypes... callArgs)
 		{
 			verifySame(callArgs..., args...);		
 		});
 
-	notifier.notify(std::forward<ArgTypes>(args)...);
+	pNotifier->postNotification(std::forward<ArgTypes>(args)...);
 
-	REQUIRE(called);
+    CONTINUE_SECTION_WHEN_IDLE_WITH(
+        std::bind(
+            [pNotifier, pTestData](ArgTypes... args)
+            {
+	            REQUIRE(pTestData->called1);
 
-	pSub->unsubscribe();
-	called = false;
+	            pTestData->pSub1->unsubscribe();
+	            pTestData->called1 = false;
 
-	notifier.notify(std::forward<ArgTypes>(args)...);
+	            pNotifier->postNotification(std::forward<ArgTypes>(args)...);
 
-	// the subscription should have been deleted again
-	REQUIRE( !called );
+                CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+                {
+	                // the subscription should have been deleted again
+	                REQUIRE( !pTestData->called1 );
+                };
+            },
+            std::forward<ArgTypes>(args)... ) );
 }
-
-class DefaultNotifierTestData : public Base
-{
-public:
-    bool called1 = false;
-    bool called2 = false;
-
-    int  callCount1 = 0;
-    int  callCount2 = 0;
-    int  callCount3 = 0;
-
-    P<INotifierSubControl> pSub1;
-    P<INotifierSubControl> pSub2;
-    P<INotifierSubControl> pSub3;
-};
 
 
 TEST_CASE("DefaultNotifier")
 {
     P<DefaultNotifierTestData>  pTestData = newObj<DefaultNotifierTestData>();
+
+    SECTION("require new alloc")
+    {
+        REQUIRE_THROWS_PROGRAMMING_ERROR( {DefaultNotifier<> testNotifier;} );
+    }
 
 	SECTION("noArgs")
 	{
@@ -256,6 +275,25 @@ TEST_CASE("DefaultNotifier")
 
 		pSub = nullptr;		
 	}
+
+    
+    SECTION("Notifier deleted before notification func call")
+    {
+        P< DefaultNotifier<> > pNotifier = newObj< DefaultNotifier<> >();
+			
+        *pNotifier += [pTestData](){ pTestData->callCount1++; };
+
+        pNotifier->postNotification();
+
+        pNotifier = nullptr;
+
+        CONTINUE_SECTION_WHEN_IDLE( pTestData )
+        {
+            // notification should have been called, even though our last reference
+            // to the notifier was released.
+            REQUIRE( pTestData->callCount1==1 );
+        };
+    }
 
     SECTION("DanglingFunctionError")
     {
@@ -523,6 +561,7 @@ TEST_CASE("DefaultNotifier")
             pTestData->pSub1 = nullptr;
         };
     }
+
 }
 
 

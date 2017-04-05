@@ -14,6 +14,8 @@ class Button :	public View
 public:
 	Button()
 	{
+        _pOnClick = newObj< DefaultNotifier<const ClickEvent&> >();
+
 		initProperty<String, IButtonCore, &IButtonCore::setLabel, (int)PropertyInfluence_::preferredSize>(_label);
 	}
 
@@ -33,7 +35,7 @@ public:
 
 	INotifier<const ClickEvent&>& onClick()
 	{
-		return _onClick;
+		return *_pOnClick;
 	}
 
 
@@ -56,9 +58,9 @@ protected:
 	}
 
 
-	DefaultProperty<String>		_label;
+	DefaultProperty<String>		            _label;
 
-	DefaultNotifier<const ClickEvent&> _onClick;
+	P< DefaultNotifier<const ClickEvent&> > _pOnClick;
 };
 
 

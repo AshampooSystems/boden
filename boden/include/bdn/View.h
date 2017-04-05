@@ -695,12 +695,11 @@ protected:
     }
 
 	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType&), int propertyInfluences >	
-	void propertyChanged( P<const ReadProperty<ValueType> > pProp )
+	void propertyChanged( P<const IValueAccessor<ValueType> > pValue )
 	{
 		// note that our object is guaranteed to be fully alive during this function call.
-		// That is guaranteed because we delete the change subscriptions
-		// in deleteThis, before the object is deleted. And that deletion will block
-		// until this call has finished.
+		// That is guaranteed because we subscribed using a weak method. And during the call
+        // a weak method holds a strong reference.
 
         // get the core. Note that it is OK if the core object
 		// is replaced directly after this during this call.
@@ -709,40 +708,22 @@ protected:
 		// the property.
 		P<CoreInterfaceType>	pCore = cast<CoreInterfaceType>( _pCore );
 		if(pCore!=nullptr)
-		{
-			// keep the view object alive until the call has finished. Note that this works
-			// even if deleteThis has started in another thread and is currently waiting for this
-			// propertyChanged call to end. That is because we check the refCount after the subscriptions
-			// are deleted and if there is a new reference then we abort the deletion.
-			P<View>	pThis = this;
+		{			
+            // note that we can call the core functions directly. Notifiers always call the
+            // subscribed functions from the main thread. And they also guarantee that no
+            // mutexes are locked during the call. So there are no restrictions on what we can call here.
+			if(CoreFunc!=nullptr)
+                (pCore->*CoreFunc)( pValue->get() );
 
-            if(CoreFunc!=nullptr)
-            {		
-			    // now schedule an update to the core from the main thread.
-			    callFromMainThread(
-				    [pCore, pThis, pProp]()
-				    {	
-					    (pCore->*CoreFunc)( pProp->get() );
+            // after the core has been updated we need to handle the influences.
+            // Note that we still need to handle the influences, even if the core is not
+            // notified of the change (CoreFunc==null).
 
-                        // after the core has been updated we need to handle the influences.
-                        pThis->handlePropertyInfluences(propertyInfluences);
-				    } );
-            }
-            else
-            {
-                // we still need to handle the influences, even if the core is not
-                // notified of the change.
-                // The influences are only handled in the main thread to ensure that
-                // we have some time to batch together multiple updates. This also causes
-                // these property changes that are not forwarded to the core to happen
-                // in exactly the same way as the core updates - which must also be executed
-                // on the main thread (see above).
-                callFromMainThread(
-				    [pThis]()
-				    {	
-                        pThis->handlePropertyInfluences(propertyInfluences);
-				    } );                
-            }
+            // Also note that if multiple properties get changed then their change notifications
+            // will already be in the queue at the point when we are called. That means that
+            // layout updates that are triggered by these changes are automatically batched
+            // together, since the layout update is posted to the end of the queue.
+            handlePropertyInfluences(propertyInfluences);
 		}        
 	}
 

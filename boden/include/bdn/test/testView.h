@@ -151,17 +151,19 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// together with a single update.
 		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
 
-		verifyFunc();
-
-		// sizing info updates should never happen immediately. We want them
-		// to happen asynchronously, so that multiple changes can be handled
-		// together with a single update.
-		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
-
-
-        CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, opFunc, verifyFunc)
+        // the results of the change may depend on notification calls. Those are posted
+        // to the main event queue. So we need to process those now before we verify.
+        BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
         {
-            BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+		    verifyFunc();
+
+		    // sizing info updates also happen asynchronously. Process all events that were added in the initial
+            // notification round and then check them.
+		    
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            {
+                BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+            };
         };
 	};
 
@@ -184,9 +186,22 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// So do another async call. That one will be executed after the property
 		// changes.
 
-        CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
+        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
 		{
-			BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount+expectedSizingInfoUpdates );
+            // the results of the change may depend on notification calls. Those are posted
+            // to the main event queue. So we need to process those now before we verify.
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            {
+		        verifyFunc();
+
+		        // sizing info updates also happen asynchronously. Process all events that were added in the initial
+                // notification round and then check them.
+		    
+                BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+                {
+                    BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+                };
+            };
         };
 	};
 

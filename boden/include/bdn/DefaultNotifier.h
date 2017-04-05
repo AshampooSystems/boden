@@ -58,7 +58,7 @@ public:
         // see doc_input/notifier_internal.md for more information about why this has to redirect
         // to the main thread.
         
-        asyncCallFromMainThread( std::bind< std::function<void(ArgTypes...)>, ArgTypes...>( strongMethod(this, &DefaultNotifier::doNotifyFromMainThread) , std::forward<ArgTypes>(args)... ) );
+        asyncCallFromMainThread( std::bind<void, std::function<void(ArgTypes...)>, ArgTypes...>( strongMethod(this, &DefaultNotifier::doNotifyFromMainThread) , std::forward<ArgTypes>(args)... ) );
     }
 
    
@@ -149,7 +149,7 @@ private:
     {
         // we usually have only one notification state active
         if(pState==_pFirstNotificationState)
-            _pFirstNotificationState->pNext = pState->pNext;
+            _pFirstNotificationState = pState->pNext;
         else
         {
             NotificationState* pPrev = _pFirstNotificationState;

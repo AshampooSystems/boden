@@ -40,6 +40,7 @@ class AsyncOpRunnable :
 public:
     AsyncOpRunnable()
     {
+        _pDoneNotifier = newObj< OneShotStateNotifier< P<IAsyncOp<ResultType>> > >();
     }
 
     ~AsyncOpRunnable()
@@ -127,7 +128,7 @@ public:
 
     INotifier< P<IAsyncOp<ResultType>> >& onDone() const override
     {
-        return _doneNotifier;
+        return *_pDoneNotifier;
     }
 
     
@@ -157,7 +158,7 @@ private:
             _done = true;
         }        
 
-        _doneNotifier.postNotification( this );
+        _pDoneNotifier->postNotification( this );
     }
 
     template<class R>
@@ -202,7 +203,7 @@ private:
     bool                 _abortedBeforeStart = false;
     bool                 _started = false;
     bool                 _done = false;
-    mutable OneShotStateNotifier< P<IAsyncOp<ResultType>> > _doneNotifier;
+    P< OneShotStateNotifier< P<IAsyncOp<ResultType>> > > _pDoneNotifier;
 
     std::exception_ptr   _error;
     ResultType*          _pResult = nullptr;

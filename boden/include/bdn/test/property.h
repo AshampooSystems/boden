@@ -17,16 +17,11 @@ class TestProperty_ : public RequireNewAlloc< Property<ValType>, TestProperty_<V
 public:	
 	TestProperty_()
 	{
-        _pOnChange = newObj<DefaultNotifier< P<const ReadProperty<ValType> > > >();
+        _pOnChange = newObj<DefaultNotifier< P<const IValueAccessor<ValType> > > >();
 	}
 
 	~TestProperty_()
     {
-        if(_pBindSourceSubscriptionControl!=nullptr)
-        {
-            _pBindSourceSubscriptionControl->unsubscribe();
-            _pBindSourceSubscriptionControl = nullptr;
-        }
     }
 
 	ValType get() const override
@@ -57,36 +52,28 @@ public:
         return *this;
     }
 	
-	INotifier< P<const ReadProperty<ValType>> > & onChange() const override
+	INotifier< P<const IValueAccessor<ValType>> > & onChange() const override
 	{
 		return *_pOnChange;
 	}
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        if(_pBindSourceSubscriptionControl!=nullptr)
-        {
-            _pBindSourceSubscriptionControl->unsubscribe();
-            _pBindSourceSubscriptionControl = nullptr;
-        }
-
-        // we can use plainMethod here because we explicitly unsubscribe when we are deleted.
-        _pBindSourceSubscriptionControl = sourceProperty.onChange().subscribe( weakMethod(this, &TestProperty_::bindSourceChanged) );
+        sourceProperty.onChange().subscribe( weakMethod(this, &TestProperty_::bindSourceChanged) );
         
         set( sourceProperty.get() );
     }    
     
 protected:
 
-    void bindSourceChanged( P<const ReadProperty<ValType>> pProp)
+    void bindSourceChanged( P<const IValueAccessor<ValType>> pValue)
     {
-        set(pProp->get() );
+        set( pValue->get() );
     }
 
 	ValType									_value;
     
-	mutable P< DefaultNotifier< P<const ReadProperty<ValType> > > >	_pOnChange;
-	P<INotifierSubControl>							                _pBindSourceSubscriptionControl;
+	mutable P< DefaultNotifier< P<const IValueAccessor<ValType> > > >	_pOnChange;
 };
 
 template<class PropertyType, typename ValType>

@@ -16,39 +16,22 @@ namespace bdn
 
 	*/
 template<class ValType>
-class DefaultProperty : public RequireNewAlloc< Property<ValType>, DefaultProperty<ValType> >
+class DefaultProperty : public Property<ValType>
 {
 public:
 	DefaultProperty(ValType value = ValType() )
 	{
-        _pOnChange = newObj< DefaultNotifier< P<const ReadProperty<ValType> > > > ();
-		_value = value;
+        _pImpl = newObj<Impl>(value);
 	}
     
 	ValType get() const override
 	{
-		MutexLock lock(_mutex);
-
-		return _value;
+        return _pImpl->get();
 	}
 
 	void set(const ValType& val) override
 	{
-		bool changed = false;
-
-		{
-			MutexLock lock(_mutex);
-
-			if(_value!=val)
-			{
-				_value = val;
-				onValueChanged();
-				changed = true;
-			}
-		}
-
-		if(changed)
-			_pOnChange->postNotification(this);
+        _pImpl->set(val);
 	}
 
 
@@ -66,34 +49,89 @@ public:
         return *this;
     }
 
-	INotifier< P<const ReadProperty<ValType> > >& onChange() const override
+	INotifier< P<const IValueAccessor<ValType>> >& onChange() const override
 	{
-		return *_pOnChange;
+        return _pImpl->onChange();
 	}
     
     void bind(const ReadProperty<ValType>& sourceProperty) override
 	{
-        sourceProperty.onChange() += weakMethod(this, &DefaultProperty::bindSourceChanged);
+        _pImpl->bind(sourceProperty);
+    }
+    
+    
+private:    
+
+    /** We need the actual implementation to be allocated with new. At the same time,
+        we want ptoperties to be very convenient to use - they should be a drop-in replacement
+        for normal values. It is definitely more convenient to be able to allocate DefaultProperty
+        objects on the stack or as direct members.
+
+        To work around this problem we implement all the functionality in an internal Impl object.
+        DefaultProperty is only a wrapper for a pointer to this object.
+        */
+    class Impl : public Base, BDN_IMPLEMENTS IValueAccessor
+    {
+    public:
+        Impl(ValType value )
+	    {
+            _pOnChange = newObj< DefaultNotifier< P<const IValueAccessor<ValType>> > >();
+		    _value = value;
+	    }
+
+        ValType get() const override
+	    {
+		    MutexLock lock(_mutex);
+
+		    return _value;
+	    }
+
+	    void set(const ValType& val)
+	    {   
+		    bool changed = false;
+
+		    {
+			    MutexLock lock(_mutex);
+
+			    if(_value!=val)
+			    {
+				    _value = val;
+				    changed = true;
+			    }
+		    }
+
+		    if(changed)
+			    _pOnChange->postNotification(this);
+	    }
+
+
+	    INotifier< P<const IValueAccessor<ValType>> >& onChange() const
+	    {
+		    return *_pOnChange;
+	    }
+    
+        void bind(const ReadProperty<ValType>& sourceProperty)
+	    {
+            sourceProperty.onChange() += weakMethod(this, &Impl::bindSourceChanged);
         
-        bindSourceChanged(&sourceProperty);
-    }
+            bindSourceChanged( &sourceProperty );
+        }
+        
+    private:
+        void bindSourceChanged( P<const IValueAccessor<ValType>> pValue )
+        {
+            set( pValue->get() );
+        }
     
-    
-protected:
-    virtual void bindSourceChanged( P<const ReadProperty<ValType> > pProp )
-    {
-        set( pProp->get() );
-    }
 
-	virtual void onValueChanged()
-    {
-	    // do nothing by default.
-    }
-
-	mutable Mutex					_mutex;
-	ValType							_value;
+	    mutable Mutex					_mutex;
+	    ValType							_value;
     
-    mutable P< DefaultNotifier< P<const ReadProperty<ValType> > >	> _pOnChange;
+        mutable P< DefaultNotifier< P<const IValueAccessor<ValType>> >	> _pOnChange;
+    };
+
+
+    P<Impl> _pImpl;
 };
 
 
