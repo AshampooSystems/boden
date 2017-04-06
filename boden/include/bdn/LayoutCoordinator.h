@@ -18,8 +18,7 @@ namespace bdn
 
 	The coordinator collects these requests and tries to batch together
 	multiple consecutive changes that modify the layout into a single update operation.	
-	Note that the layout update will still happen almost immediately and the tiny
-	delay will usually not be noticeable for the user.
+	Note that the layout update will still happen almost immediately.
 	
 	The coordinator also optimizes the order of multiple update operations,
 	to ensure that no duplicate work is done.

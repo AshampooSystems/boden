@@ -143,6 +143,7 @@ void View::updateSizingInfo()
 
 			// AND, since our sizing info has changed the parent also needs
 			// to re-layout us and our siblings
+			
 			pParentView->needLayout();
 		}
 	}
