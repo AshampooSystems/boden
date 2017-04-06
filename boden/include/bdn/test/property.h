@@ -88,7 +88,7 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 	P<PropertyType>	pPropC = propertyCreatorFunc();
 	PropertyType&   propC = *pPropC;
 
-	TestProperty_<ValType> propDiffType;
+	P< TestProperty_<ValType> > pPropDiffType = newObj< TestProperty_<ValType> >();
 
 	ValType defaultConstructedVal = ValType();
 	ValType val1 = valueGeneratorFunc(0);
@@ -152,9 +152,9 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 
 			SECTION("otherType")
 			{
-				propDiffType = val1;
+				*pPropDiffType = val1;
 
-				prop.bind(propDiffType);
+				prop.bind(*pPropDiffType);
 
 				REQUIRE( prop==val1 );
 			}			
@@ -168,27 +168,42 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 
 				prop = val1;
 
-				REQUIRE( propB==val1 );
+				// propB will now be set to the value of prop.
+				// Note that this synchronization will happen asynchronously,
+				// so we have to handle queued events before we check.
+				CONTINUE_SECTION_WHEN_IDLE(=)
+				{
+					REQUIRE( (*pPropB)==val1 );
+				};
 			}
 
 			SECTION("otherType")
 			{
 				SECTION("to")
 				{
-					propDiffType.bind(prop);
+					pPropDiffType->bind(prop);
 
 					prop = val1;
 
-					REQUIRE( propDiffType==val1 );			
+					// *pPropDiffType will now be set to the value of prop.
+					// Note that this synchronization will happen asynchronously,
+					// so we have to handle queued events before we check.
+					CONTINUE_SECTION_WHEN_IDLE(=)
+					{
+						REQUIRE( (*pPropDiffType)==val1 );
+					};
 				}
 
 				SECTION("from")
 				{
-					prop.bind(propDiffType);
+					prop.bind(*pPropDiffType);
 
-					propDiffType = val1;
+					*pPropDiffType = val1;
 
-					REQUIRE( prop==val1 );			
+					CONTINUE_SECTION_WHEN_IDLE(=)
+					{
+						REQUIRE( (*pProp)==val1 );
+					};
 				}
 			}
 		}
@@ -231,8 +246,14 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 				REQUIRE( prop==val1);
 
 				prop = val2;
-				REQUIRE( propB==val2);
-				REQUIRE( prop==val2);
+
+				// the value synchronization happens asynchronously,
+				// so we must handle events before we check.
+				CONTINUE_SECTION_WHEN_IDLE(=)
+				{
+					REQUIRE( (*pPropB)==val2);
+					REQUIRE( (*pProp)==val2);
+				};
 			}
 
 			SECTION("3")
@@ -240,23 +261,34 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 				prop = val1;
 
 				propC.bind(propB);
-				propB.bind(prop);				
+				propB.bind(prop);	
 
-				REQUIRE( propC==val1);
-				REQUIRE( propB==val1);
-				REQUIRE( prop==val1);
+				// the value synchronization happens asynchronously,
+				// so we must handle events before we check.
+				CONTINUE_SECTION_WHEN_IDLE(=)
+				{
+					REQUIRE( (*pPropC)==val1);
+					REQUIRE( (*pPropB)==val1);
+					REQUIRE( (*pProp)==val1);
 
-				prop.bind(propC);
+					pProp->bind(*pPropC);
+									
+					CONTINUE_SECTION_WHEN_IDLE(=)
+					{
+						REQUIRE( (*pPropC)==val1);
+						REQUIRE( (*pPropB)==val1);
+						REQUIRE( (*pProp)==val1);
 
-				REQUIRE( propC==val1);
-				REQUIRE( propB==val1);
-				REQUIRE( prop==val1);
+						(*pProp) = val2;
 
-				prop = val2;
-				REQUIRE( propC==val2);
-				REQUIRE( propB==val2);
-				REQUIRE( prop==val2);
-				
+						CONTINUE_SECTION_WHEN_IDLE(=)
+						{
+							REQUIRE( (*pPropC)==val2);
+							REQUIRE( (*pPropB)==val2);
+							REQUIRE( (*pProp)==val2);
+						};
+					};
+				};
 			}
 		
 		}
@@ -265,30 +297,39 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 		SECTION("sourceDestroyed")
 		{
 			{
-				TestProperty_<ValType> tempProp;
+				P< TestProperty_<ValType> > pTempProp = newObj< TestProperty_<ValType> >();
 
-				prop.bind(tempProp);
-				tempProp = val2;
+				prop.bind(*pTempProp);
+				(*pTempProp) = val2;
 			}
 
-			REQUIRE( prop==val2);
+			CONTINUE_SECTION_WHEN_IDLE(=)
+			{
+				REQUIRE( (*pProp)==val2);
+			};
 		}
 
 		SECTION("destDestroyed")
 		{
-			{
-				TestProperty_<ValType> tempProp;
+			P< TestProperty_<ValType> > pTempProp = newObj< TestProperty_<ValType> >();
 				
-				tempProp.bind(prop);
-				prop = val2;
+			pTempProp->bind(prop);
+			prop = val2;
 
-				REQUIRE( tempProp==val2);
-			}
+			pTempProp = nullptr;
 
-			// the main thing we test here is that this does not crash because
-			// it tries to update non-existing property.
-			prop = val1;
-			REQUIRE( prop==val1);
+			// handle events to ensure that all pending actions have been handled
+			CONTINUE_SECTION_WHEN_IDLE(=)
+			{
+				// the main thing we test here is that this does not crash because
+				// it tries to update non-existing property.
+				(*pProp) = val1;
+
+				CONTINUE_SECTION_WHEN_IDLE(=)
+				{
+					REQUIRE( (*pProp)==val1);
+				};
+			};
 		}
 	}	
 
