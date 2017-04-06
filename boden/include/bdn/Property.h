@@ -131,7 +131,9 @@ public:
 
     
 	/** Binds the property to the value of another property. When the other property
-		changes then this property will be automatically updated to the same value.*/
+		changes then this property will be automatically updated to the same value.
+		This value update happens asynchronously via the main thread event queue, so the
+		value is not updated immediately when the other property changes.*/
     virtual void bind(const ReadProperty<ValType>& sourceProperty)=0;        
     
 
