@@ -6,7 +6,7 @@
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
 
-#import <bdn/ios/UIProvider.hh>
+#import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/util.hh>
 
 #include <bdn/PixelAligner.h>

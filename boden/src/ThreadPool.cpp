@@ -3,7 +3,7 @@
 
 #include <bdn/entry.h>
 
-#ifdef BDN_HAVE_THREADS
+#if BDN_HAVE_THREADS
 
 namespace bdn
 {

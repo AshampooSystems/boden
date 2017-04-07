@@ -66,7 +66,7 @@ public:
         {
             ClickEvent evt( pView );
             
-            cast<Button>(pView)->onClick().notify(evt);
+            cast<Button>(pView)->onClick().postNotification(evt);
         }
     }
 
