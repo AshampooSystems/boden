@@ -59,6 +59,8 @@ public:
     {
         P<ReadLineOp> pOp = newObj<ReadLineOp>(_pStream);
 
+#if BDN_HAVE_THREADS
+
         {
             MutexLock lock(_mutex);
 
@@ -69,6 +71,24 @@ public:
 
             _pOpExecutor->addJob( pOp );
         }
+#else
+
+        // if we do not have threading support then we must do the operation
+        // synchronously. We only read a single line, so a synchronous operation should be ok.
+        // However, in one case this can be problematic: if there is no enough data available
+        // to the stream to complete the line and eof is also not set then std::getline can
+        // potentially block indefinitely. Unfortunately there is no standard compliant way
+        // to prevent that, even if we were to read manually.
+        // So we have to trust here that we are only used with streams that have a fixed data
+        // set available to them and that will set the eof flag when that data is exceeded.
+        // For the only threadless platform that we currently support at the time of this writing
+        // (webems) this is true for all the stdio streams (since they are not connected to anything)
+        // and the "file" streams (those write to temporary local storage). The only case where
+        // we could potentially block for long is for custom stream implementations that manually get their
+        // data from somewhere, without setting eof when they reach the end. But there is no way
+        // around that.
+        pOp->run();
+#endif
 
         return pOp;
     }
@@ -86,9 +106,11 @@ private:
 
     protected:        
         String doOp() override
-        {           
+        {
             std::basic_string<CharType> l;
+
             std::getline(*_pStream, l);
+
             
             return AsyncStdioReaderEncodingHelper_<CharType>::decodeString(l, _pStream->getloc() );
         }
@@ -103,7 +125,10 @@ private:
 
     Mutex       _mutex;
     std::basic_istream<CharType>* _pStream;
+
+#if BDN_HAVE_THREADS
     P<ThreadPool>                 _pOpExecutor;
+#endif
 };
 
 

@@ -84,6 +84,7 @@ public:
     {
         P<WriteOp> pOp = newObj<WriteOp>(_pStream, s, false);
 
+#if BDN_HAVE_THREADS
         {
             MutexLock lock(_mutex);
 
@@ -94,6 +95,16 @@ public:
 
             _pOpExecutor->addJob( pOp );
         }
+#else
+        // we have to run the operation synchronously. We have to trust that this will not
+        // take too long (since we are on the only thread). However, on the only threadless platform
+        // that we support at the time of this writing (=webems) the operation should never take long.
+        // Actual I/O operations cannot be done synchronously there, so the stream implementation
+        // cannot do "real" I/O. It must be a "fake" file in the simulated webems file system
+        // or a RAM operation. And all of these should be fast enough.
+
+        pOp->run();
+#endif
 
         return pOp;
     }
@@ -122,6 +133,7 @@ public:
         // That makes our code work the same as pushing std::endl into the stream.
         P<WriteOp> pOp = newObj<WriteOp>(_pStream, s+"\n", true);
 
+#if BDN_HAVE_THREADS
         {
             MutexLock lock(_mutex);
 
@@ -132,6 +144,11 @@ public:
 
             _pOpExecutor->addJob( pOp );
         }
+#else
+        // see write() for information on why this is ok.
+        pOp->run();
+#endif
+
 
         return pOp;
     }
@@ -166,7 +183,10 @@ private:
 
     Mutex                           _mutex;
     std::basic_ostream<CharType>*   _pStream;
+
+#if BDN_HAVE_THREADS
     P<ThreadPool>                   _pOpExecutor;
+#endif
 };
 
 

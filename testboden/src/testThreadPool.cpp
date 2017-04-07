@@ -3,6 +3,8 @@
 
 #include <bdn/ThreadPool.h>
 
+#if BDN_HAVE_THREADS
+
 using namespace bdn;
 
 
@@ -321,3 +323,4 @@ TEST_CASE( "ThreadPool" )
     }
 }
     
+#endif
