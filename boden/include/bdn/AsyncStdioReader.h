@@ -7,8 +7,33 @@
 namespace bdn
 {
 	
+template<class CharType>
+class AsyncStdioReaderEncodingHelper_
+{
+public:
 
-/** Implements asynchronous reading from a std::basic_istream.   
+    static String decodeString( const std::basic_string<CharType>& s, std::locale loc )
+    {
+        // the locale is not needed for most string types. See below for char specialization.
+        return String(s);
+    }
+    
+};
+
+
+template<>
+class AsyncStdioReaderEncodingHelper_<char>
+{
+public:
+    
+    static String decodeString( const std::basic_string<char>& s, std::locale loc )
+    {
+        return String::fromLocaleEncoding( s.c_str(), loc );
+    }
+};
+
+
+/** Implements asynchronous reading from a std::basic_istream.
 */
 template<typename CharType>
 class AsyncStdioReader : public Base
@@ -65,24 +90,12 @@ private:
             std::basic_string<CharType> l;
             std::getline(*_pStream, l);
             
-            return decodeString(l, _pStream->getloc() );
+            return AsyncStdioReaderEncodingHelper_<CharType>::decodeString(l, _pStream->getloc() );
         }
 
     private:       
         
-        template<class EncodedStringType>
-        static String decodeString( const EncodedStringType& s, std::locale loc )
-        {
-            // the locale is not needed for most string types. See below for char specialization.
-            return String(s);
-        }
-
-        template<>
-        static String decodeString< std::basic_string<char> >( const std::basic_string<char>& s, std::locale loc )
-        {
-            return String::fromLocaleEncoding( s.c_str(), loc );
-        }
-
+      
     private:
         std::basic_istream<CharType>* _pStream;
     };

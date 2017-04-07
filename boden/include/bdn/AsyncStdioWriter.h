@@ -6,9 +6,58 @@
 
 namespace bdn
 {
+
+
+template<class CharType>
+class AsyncStdioWriterEncodingHelper_
+{
+public:
+    static std::basic_string<CharType> encodeString( const String& s, std::locale loc );
+};
+
+template<>
+class AsyncStdioWriterEncodingHelper_<char>
+{
+public:
+    static std::basic_string<char> encodeString( const String& s, std::locale loc )
+    {
+        return s.toLocaleEncoding( loc );
+    }
+};
+
+template<>
+class AsyncStdioWriterEncodingHelper_<wchar_t>
+{
+public:
+    static std::basic_string<wchar_t> encodeString( const String& s, std::locale loc )
+    {
+        return s.asWide();
+    }
+};
+
+template<>
+class AsyncStdioWriterEncodingHelper_<char16_t>
+{
+public:
+    static std::basic_string<char16_t> encodeString( const String& s, std::locale loc )
+    {
+        return s.asUtf16();
+    }
+};
+
+    
+template<>
+class AsyncStdioWriterEncodingHelper_<char32_t>
+{
+public:
+    static std::basic_string<char32_t> encodeString( const String& s, std::locale loc )
+    {
+        return s.asUtf32();
+    }
+};
 	
 
-/** Implements asynchronous writing to a std::basic_ostream.   
+/** Implements asynchronous writing to a std::basic_ostream.
 */
 template<typename CharType>
 class AsyncStdioWriter : public Base
@@ -103,38 +152,9 @@ private:
     protected:        
         void doOp() override
         {
-            (*_pStream) << encodeString<CharType>( _textToWrite, _pStream->getloc());
+            (*_pStream) << AsyncStdioWriterEncodingHelper_<CharType>::encodeString( _textToWrite, _pStream->getloc());
             if(_flush)
                 _pStream->flush();
-        }
-
-    private:       
-        
-        template<class CharType>
-        static std::basic_string<CharType> encodeString( const String& s, std::locale loc );
-
-        template<>
-        static std::basic_string<char> encodeString<char>( const String& s, std::locale loc )
-        {
-            return s.toLocaleEncoding( loc );
-        }
-
-        template<>
-        static std::basic_string<wchar_t> encodeString< wchar_t >( const String& s, std::locale loc )
-        {
-            return s.asWide();
-        }
-
-        template<>
-        static std::basic_string<char16_t> encodeString< char16_t >( const String& s, std::locale loc )
-        {
-            return s.asUtf16();
-        }
-
-        template<>
-        static std::basic_string<char32_t> encodeString< char32_t >( const String& s, std::locale loc )
-        {
-            return s.asUtf32();
         }
 
     private:

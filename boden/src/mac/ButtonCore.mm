@@ -87,7 +87,7 @@ void ButtonCore::generateClick()
 	{    
 		bdn::ClickEvent evt(pOuterButton);
     
-		pOuterButton->onClick().notify(evt);
+		pOuterButton->onClick().postNotification(evt);
 	}
 }
 

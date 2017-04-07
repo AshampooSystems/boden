@@ -21,8 +21,27 @@ protected:
     }
 };
 
+
+class IDummyInterfaceForLayoutCoordinatorTestView_ : BDN_IMPLEMENTS IBase
+{
+public:
+
+    // For functions like "autoSize" we have the problem that some base views
+    // have them and some don't. If we do not mark the autoSize implementation in
+    // LayoutCoordinatorTestView as override then we will get a warning if the base
+    // has the function. If we do mark it as override then we will get an error
+    // if the base does not have the function. This dummy interface ensures
+    // that one base class (the dummy interface) always has the function. So override
+    // is always correct and we do not need to do template specialization just for
+    // the override keyword.
+    
+    virtual void autoSize()=0;
+    virtual void center()=0;
+    
+};
+
 template<class BaseView>
-class LayoutCoordinatorTestView : public BaseView
+class LayoutCoordinatorTestView : public BaseView, BDN_IMPLEMENTS IDummyInterfaceForLayoutCoordinatorTestView_
 {
 public:
 	template<typename ... ArgTypes>

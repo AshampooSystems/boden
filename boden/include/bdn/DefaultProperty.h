@@ -70,7 +70,7 @@ private:
         To work around this problem we implement all the functionality in an internal Impl object.
         DefaultProperty is only a wrapper for a pointer to this object.
         */
-    class Impl : public Base, BDN_IMPLEMENTS IValueAccessor
+    class Impl : public Base, BDN_IMPLEMENTS IValueAccessor<ValType>
     {
     public:
         Impl(ValType value )

@@ -213,16 +213,6 @@ TEST_CASE("AsyncStdioWriter")
     {
         testAsyncStdioWriter<wchar_t>();
     }
-    
-    SECTION("char16_t")
-    {
-        testAsyncStdioWriter<char16_t>();
-    }
-
-    SECTION("char32_t")
-    {
-        testAsyncStdioWriter<char32_t>();
-    }
 }
 
 

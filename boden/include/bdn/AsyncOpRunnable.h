@@ -10,6 +10,52 @@ namespace bdn
 {
 
 
+    
+template<class ResultType>
+class AsyncOpResultHelper_ : public Base
+{
+public:
+    
+    static void doOpAndInitResult(ResultType*& pResult, std::function<ResultType()> opFunc)
+    {
+        pResult = new ResultType( opFunc() );
+    }
+    
+    static ResultType getResultValue(ResultType* pResult)
+    {
+        return *pResult;
+    }
+    
+    static void deleteResult(ResultType* pResult)
+    {
+        delete pResult;
+    }
+};
+
+
+template<>
+class AsyncOpResultHelper_<void> : public Base
+{
+public:
+    
+    static void doOpAndInitResult(void*& pResult, std::function<void()> opFunc)
+    {
+        opFunc();
+    }
+    
+    static void getResultValue(void* pResult)
+    {
+        // do nothing.
+    }
+    
+    static void deleteResult(void* pResult)
+    {
+        // do nothing
+    }
+};
+
+
+
 /** A helper for implementing an asynchronous operation.
 
     Instances of AsyncOpRunnable must be allocated with newObj or new.
@@ -46,7 +92,7 @@ public:
     ~AsyncOpRunnable()
     {
         if(_pResult!=nullptr)
-            delete _pResult;
+            AsyncOpResultHelper_<ResultType>::deleteResult(_pResult);
     }
 
 
@@ -58,7 +104,7 @@ public:
         if(_error)
             std::rethrow_exception(_error);
 
-        return getResultValue<ResultType>();
+        return AsyncOpResultHelper_<ResultType>::getResultValue(_pResult);
     }       
     
     void signalStop() override
@@ -115,7 +161,7 @@ public:
 
         try
         {        
-            doOpAndInitResult<ResultType>();
+            AsyncOpResultHelper_<ResultType>::doOpAndInitResult(_pResult, plainMethod(this, &AsyncOpRunnable::doOp));
         }
         catch(...)
         {
@@ -160,31 +206,9 @@ private:
 
         _pDoneNotifier->postNotification( this );
     }
+    
+    
 
-    template<class R>
-    void doOpAndInitResult()
-    {
-        _pResult = new R( doOp() );
-    }
-
-    template<>
-    void doOpAndInitResult<void>()
-    {
-        doOp();
-    }
-
-
-    template<class R>
-    R getResultValue() const
-    {
-        return *_pResult;
-    }
-
-    template<>
-    void getResultValue<void>() const
-    {
-        // nothing to do for void
-    }
 
 
     class DummySubControl : public Base, BDN_IMPLEMENTS INotifierSubControl
