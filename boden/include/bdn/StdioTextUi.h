@@ -5,9 +5,9 @@
 #include <bdn/AsyncStdioReader.h>
 #include <bdn/AsyncStdioWriter.h>
 
+
 namespace bdn
-{
-	
+{	
 
 /** ITextUi implementation that uses stdio streams (stdin, stdout, stderr).
 */
@@ -19,13 +19,17 @@ public:
     /** Constructor. The implementation does NOT take ownership of the specified streams, 
         i.e. it will not delete them. So it is ok to use std::cin, std::cout and/or std::cerr.*/
     StdioTextUi(
-        basic_istream<CharType>* pInStream,
-        basic_ostream<CharType>* pOutStream,
-        basic_ostream<CharType>* pErrStream)
+        std::basic_istream<CharType>* pInStream,
+        std::basic_ostream<CharType>* pOutStream,
+        std::basic_ostream<CharType>* pErrStream)
     {
-        _pInReader = newObj<AsyncStdioReader>(pInStream);
-        _pOutWriter = newObj<AsyncStdioWriter>(pOutStream);
-        _pErrWriter = newObj<AsyncStdioWriter>(pErrStream);
+        _pInReader = newObj< AsyncStdioReader<CharType> >(pInStream);
+        _pOutWriter = newObj< AsyncStdioWriter<CharType> >(pOutStream);
+
+        if(pErrStream==pOutStream)
+            _pErrWriter = _pOutWriter;
+        else
+            _pErrWriter = newObj< AsyncStdioWriter<CharType> >(pErrStream);
     }
 
 
@@ -35,20 +39,20 @@ public:
         You can use AsyncOp.onDone() to register a handler that is notified when
         the user has entered the text.
         */
-    P< IAsyncOp<String> > readLine()
+    P< IAsyncOp<String> > readLine() override
     {
         return _pInReader->readLine();
     }
 
     
 	/** Writes the specified text (without adding a linebreak).*/
-	P< IAsyncOp<void> > write(const String& s)
+	P< IAsyncOp<void> > write(const String& s) override
     {
         return _pOutWriter->write(s);
     }
 
 	/** Writes the specified line of text. A linebreak is automatically added.*/
-	P< IAsyncOp<void> > writeLine(const String& s)
+	P< IAsyncOp<void> > writeLine(const String& s) override
     {
         return _pOutWriter->writeLine(s);
     }
@@ -61,23 +65,23 @@ public:
     
         If the UI implementation works on stdio streams then writeError typically causes the
         text to be written to stderr. */
-	AsyncOp<void> writeError(const String& s)
+	P< IAsyncOp<void> > writeError(const String& s) override
     {
         return _pErrWriter->write(s);
     }
 	
     
 	/** Like writeError(), but also writes a line break after the text.*/
-	AsyncOp<void> writeErrorLine(const String& s)
+	P< IAsyncOp<void> > writeErrorLine(const String& s) override
     {
         return _pErrWriter->writeLine(s);
     }
 
 
 private:
-    P<AsyncStdioReader> _pInReader;
-    P<AsyncStdioWriter> _pOutWriter;
-    P<AsyncStdioWriter> _pErrWriter;
+    P< AsyncStdioReader<CharType> > _pInReader;
+    P< AsyncStdioWriter<CharType> > _pOutWriter;
+    P< AsyncStdioWriter<CharType> > _pErrWriter;
 };
 
 

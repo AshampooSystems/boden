@@ -1,6 +1,7 @@
 #ifndef BDN_ITextUi_H_
 #define BDN_ITextUi_H_
 
+#include <bdn/IAsyncOp.h>
 
 namespace bdn
 {
@@ -20,14 +21,14 @@ public:
         You can use AsyncOp.onDone() to register a handler that is notified when
         the user has entered the text.
         */
-    virtual AsyncOp<String> readLine()=0;
+    virtual P< IAsyncOp<String> > readLine()=0;
 
     
 	/** Writes the specified text (without adding a linebreak).*/
-	virtual AsyncOp<void> write(const String& s)=0;
+	virtual P< IAsyncOp<void> >  write(const String& s)=0;
 
 	/** Writes the specified line of text. A linebreak is automatically added.*/
-	virtual AsyncOp<void> writeLine(const String& s)=0;
+	virtual P< IAsyncOp<void> > writeLine(const String& s)=0;
 
 
 	/** Writes the specified text in a way that suggests an error.
@@ -37,11 +38,11 @@ public:
     
         If the UI implementation works on stdio streams then writeError typically causes the
         text to be written to stderr. */
-	virtual AsyncOp<void> writeError(const String& s)=0;
+	virtual P< IAsyncOp<void> > writeError(const String& s)=0;
 	
     
 	/** Like writeError(), but also writes a line break after the text.*/
-	virtual AsyncOp<void> writeErrorLine(const String& s)=0;	
+	virtual P< IAsyncOp<void> > writeErrorLine(const String& s)=0;	
 
 };
 
