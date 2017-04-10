@@ -21,6 +21,15 @@ public:
 
     void doTest()
     {
+        SECTION("hold op reference")
+            doTest(true);
+
+        SECTION("don't hold op reference")
+            doTest(false);
+    }
+
+    void doTest(bool holdOpReference)
+    {
         P<TestStdioTextUiFixture> pThis = this;
 
         SECTION("readLine")
@@ -29,30 +38,45 @@ public:
             {
                 P<IAsyncOp<String>> pOp = _pUi->readLine();
 
-                pOp->onDone() += [pOp, pThis]( P<IAsyncOp<String>> pParamOp )
+                P<IAsyncOp<String>> pCaptureOp = holdOpReference ? pOp : nullptr;
+
+                pOp->onDone() += [pCaptureOp, pThis, holdOpReference]( P<IAsyncOp<String>> pParamOp )
                 {
-                    String result = pOp->getResult();
-                    REQUIRE( result=="first line" );
-                    result = pParamOp->getResult();
-                    REQUIRE( result=="first line" );
+                    String result = pParamOp->getResult();
+                    REQUIRE( result=="first line" );                    
+                    if(pCaptureOp!=nullptr)
+                    {
+                        result = pCaptureOp->getResult();
+                        REQUIRE( result=="first line" );
+                    }
 
                     P<IAsyncOp<String>> pOp2 = pThis->_pUi->readLine();
 
-                    pOp2->onDone() += [pOp2, pThis]( P<IAsyncOp<String>> pParamOp)
+                    P<IAsyncOp<String>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
+
+                    pOp2->onDone() += [pCaptureOp2, pThis, holdOpReference]( P<IAsyncOp<String>> pParamOp)
                     {
-                        String result = pOp2->getResult();
+                        String result = pParamOp->getResult();
                         REQUIRE( result=="second line" );
-                        result = pParamOp->getResult();
-                        REQUIRE( result=="second line" );
+                        if(pCaptureOp2!=nullptr)
+                        {
+                            result = pCaptureOp2->getResult();
+                            REQUIRE( result=="second line" );
+                        }
 
                         P<IAsyncOp<String>> pOp3 = pThis->_pUi->readLine();
 
-                        pOp3->onDone() += [pOp3, pThis](P<IAsyncOp<String>> pParamOp)
+                        P<IAsyncOp<String>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
+
+                        pOp3->onDone() += [pCaptureOp3, pThis, holdOpReference](P<IAsyncOp<String>> pParamOp)
                         {
-                            String result = pOp3->getResult();
+                            String result = pParamOp->getResult();
                             REQUIRE( result=="third line" );
-                            result = pParamOp->getResult();
-                            REQUIRE( result=="third line" );
+                            if(pCaptureOp3!=nullptr)
+                            {
+                                result = pCaptureOp3->getResult();
+                                REQUIRE( result=="third line" );
+                            }
 
                             pThis->_finished = true;
                         };
@@ -68,34 +92,47 @@ public:
                 P<IAsyncOp<String>> pOp2 = _pUi->readLine();
                 P<IAsyncOp<String>> pOp3 = _pUi->readLine();
 
-                pOp->onDone() += [pOp, pThis](P<IAsyncOp<String>> pParamOp)
+                P<IAsyncOp<String>> pCaptureOp = holdOpReference ? pOp : nullptr;
+                P<IAsyncOp<String>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
+                P<IAsyncOp<String>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
+
+                pOp->onDone() += [pCaptureOp, pThis](P<IAsyncOp<String>> pParamOp)
                 {
-                    String result = pOp->getResult();
+                    String result = pParamOp->getResult();
                     REQUIRE( result=="first line" );
-                    result = pParamOp->getResult();
-                    REQUIRE( result=="first line" );
+                    if(pCaptureOp!=nullptr)
+                    {
+                        result = pCaptureOp->getResult();
+                        REQUIRE( result=="first line" );
+                    }
 
                     REQUIRE( pThis->_finishedOpCounter==0);
                     pThis->_finishedOpCounter++;
                 };
 
-                pOp2->onDone() += [pOp2, pThis](P<IAsyncOp<String>> pParamOp)
+                pOp2->onDone() += [pCaptureOp2, pThis](P<IAsyncOp<String>> pParamOp)
                 {
-                    String result2 = pOp2->getResult();
+                    String result2 = pParamOp->getResult();
                     REQUIRE( result2=="second line" );
-                    result2 = pParamOp->getResult();
-                    REQUIRE( result2=="second line" );
+                    if(pCaptureOp2!=nullptr)
+                    {
+                        result2 = pCaptureOp2->getResult();
+                        REQUIRE( result2=="second line" );
+                    }
 
                     REQUIRE( pThis->_finishedOpCounter==1);
                     pThis->_finishedOpCounter++;
                 };
 
-                pOp3->onDone() += [pOp3, pThis](P<IAsyncOp<String>> pParamOp)
+                pOp3->onDone() += [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp)
                 {
-                    String result3 = pOp3->getResult();
+                    String result3 = pParamOp->getResult();
                     REQUIRE( result3=="third line" );
-                    result3 = pParamOp->getResult();
-                    REQUIRE( result3=="third line" );
+                    if(pCaptureOp3!=nullptr)
+                    {
+                        result3 = pCaptureOp3->getResult();
+                        REQUIRE( result3=="third line" );
+                    }
 
                     REQUIRE( pThis->_finishedOpCounter==2);
                     pThis->_finishedOpCounter++;
@@ -108,27 +145,20 @@ public:
 
 
         SECTION("writeLine")
-        {
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n", &_outStream );
-        }
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n", &_outStream, holdOpReference );
 
         SECTION("write")
-        {
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "", &_outStream );
-        }
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "", &_outStream, holdOpReference );
 
         SECTION("writeErrorLine")
-        {
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n", &_errStream );
-        }
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n", &_errStream, holdOpReference );
 
         SECTION("writeError")
-        {
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "", &_errStream );
-        }
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "", &_errStream, holdOpReference );
     }
+    
 
-    void testWrite(std::function< P<IAsyncOp<void>>(String) > writeFunc, String expectedWriteSuffix, std::basic_stringstream<CharType>* pStream)
+    void testWrite(std::function< P<IAsyncOp<void>>(String) > writeFunc, String expectedWriteSuffix, std::basic_stringstream<CharType>* pStream, bool holdOpReference)
     {
         P<TestStdioTextUiFixture> pThis = this;
 
@@ -136,28 +166,37 @@ public:
         {
             P<IAsyncOp<void>> pOp = writeFunc("first");
 
-            pOp->onDone() += [pOp, pThis, writeFunc, pStream, expectedWriteSuffix]( P<IAsyncOp<void>> pParamOp )
+            P<IAsyncOp<void>> pCaptureOp = holdOpReference ? pOp : nullptr;
+
+            pOp->onDone() += [pCaptureOp, pThis, writeFunc, pStream, expectedWriteSuffix, holdOpReference]( P<IAsyncOp<void>> pParamOp )
             {
                 REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix );
-                pOp->getResult();
+                if(pCaptureOp!=nullptr)
+                    pCaptureOp->getResult();
                 pParamOp->getResult();
                 REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix );
 
                 P<IAsyncOp<void>> pOp2 = writeFunc("second");
 
-                pOp2->onDone() += [pOp2, pThis, writeFunc, pStream, expectedWriteSuffix]( P<IAsyncOp<void>> pParamOp)
+                P<IAsyncOp<void>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
+
+                pOp2->onDone() += [pCaptureOp2, pThis, writeFunc, pStream, expectedWriteSuffix, holdOpReference]( P<IAsyncOp<void>> pParamOp)
                 {
                     REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix );
-                    pOp2->getResult();
+                    if(pCaptureOp2!=nullptr)
+                        pCaptureOp2->getResult();
                     pParamOp->getResult();
                     REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix );
 
                     P<IAsyncOp<void>> pOp3 = writeFunc("third");
 
-                    pOp3->onDone() += [pOp3, pThis, writeFunc, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
+                    P<IAsyncOp<void>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
+
+                    pOp3->onDone() += [pCaptureOp3, pThis, writeFunc, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
                     {
                         REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-                        pOp3->getResult();
+                        if(pCaptureOp3!=nullptr)
+                            pCaptureOp3->getResult();
                         pParamOp->getResult();
                         REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
 
@@ -165,6 +204,7 @@ public:
                     };
                 };
             };
+
 
             scheduleFinishTest();
         }
@@ -175,37 +215,44 @@ public:
             P<IAsyncOp<void>> pOp2 = writeFunc("second");
             P<IAsyncOp<void>> pOp3 = writeFunc("third");
 
-            pOp->onDone() += [pOp, pThis, pStream](P<IAsyncOp<void>> pParamOp)
+            P<IAsyncOp<void>> pCaptureOp = holdOpReference ? pOp : nullptr;
+            P<IAsyncOp<void>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
+            P<IAsyncOp<void>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
+
+            pOp->onDone() += [pCaptureOp, pThis, pStream](P<IAsyncOp<void>> pParamOp)
             {
-                pOp->getResult();
+                if(pCaptureOp!=nullptr)
+                    pCaptureOp->getResult();
                 pParamOp->getResult();
 
                 REQUIRE( pThis->_finishedOpCounter==0);
                 pThis->_finishedOpCounter++;                    
             };
 
-            pOp2->onDone() += [pOp2, pThis, pStream](P<IAsyncOp<void>> pParamOp)
+            pOp2->onDone() += [pCaptureOp2, pThis, pStream](P<IAsyncOp<void>> pParamOp)
             {
-                pOp2->getResult();
+                if(pCaptureOp2!=nullptr)
+                    pCaptureOp2->getResult();
                 pParamOp->getResult();
 
                 REQUIRE( pThis->_finishedOpCounter==1);
                 pThis->_finishedOpCounter++;
             };
 
-            pOp3->onDone() += [pOp3, pThis, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
+            pOp3->onDone() += [pCaptureOp3, pThis, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
             {
                 REQUIRE( pThis->_finishedOpCounter==2);
 
                 REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-                pOp3->getResult();
+                if(pCaptureOp3!=nullptr)
+                    pCaptureOp3->getResult();
                 pParamOp->getResult();
                 REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
 
                 pThis->_finishedOpCounter++;
                 pThis->_finished = true;
             };
-
+            
             scheduleFinishTest();
         }
     }
