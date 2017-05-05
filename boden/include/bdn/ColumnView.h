@@ -27,7 +27,8 @@ public:
 
 	
 
-	Size	calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
+	Size calcPreferredSize( const Size& minSize = Size::none(),
+                            const Size& maxSize = Size::none() ) const;
 
 	
 protected:

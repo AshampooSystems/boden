@@ -383,55 +383,53 @@ public:
 
 
 
-    /** Sets a minimum size of the view (in DIP units).
+    /** Sets a lower size constraint for the preferred size of the view (in DIP units).
+    
+        The view will automatically apply this constraint when calculating its preferred size.
 
-        IMPORTANT: this property only influences the size that the view requests during layout
+        Width and/or height of the constraint can be set to -1 to indicate that the corresponding component should
+        be unconstrained.
+
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
         (see calcPreferredSize()).
-        Its parent view may decide to make it bigger than this because of other layout considerations.
-
-        If the width and/or height are UiLength::Unit::none then it means that there is no minimum.
-        
-        The minimum size affects the preferred size calculation (see #sizingInfo() and calcPreferredSize()).
-        If the internally calculated preferred size would be below the minimum size then it is increased
-        accordingly.
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
     */
-    virtual Property<UiSize>& minSize()
+    virtual Property<Size>& preferredSizeMinimum()
     {
-        return _minSize;
+        return _preferredSizeMinimum;
     }
 
-    virtual const ReadProperty<UiSize>& minSize() const
+    virtual const ReadProperty<Size>& preferredSizeMinimum() const
     {
-        return _minSize;
+        return _preferredSizeMinimum;
     }
 
 
-    /** Sets a maximum size of the view (in DIP units).
+    /** Sets an upper size constraint for the preferred size of the view (in DIP units).
+    
+        The view will automatically apply this constraint when calculating its preferred size.
 
-        IMPORTANT: this property only influences the size that the view requests during layout
+        Width and/or height of the constraint can be set to -1 to indicate that the corresponding component should
+        be unconstrained.
+
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
         (see calcPreferredSize()).
-        Its parent view may decide to make it smaller than this because of other layout considerations.
-
-        If the width and/or height are -1 then it means that there is no limit.
-        
-        The maximum size affects the preferred size calculation (see #sizingInfo() and calcPreferredSize()).
-        If the internally calculated preferred size would be bigger than the maximum size then it is decreased
-        accordingly.
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
     */
-    virtual Property<UiSize>& maxSize()
+    virtual Property<Size>& preferredSizeMaximum()
     {
-        return _maxSize;
+        return _preferredSizeMaximum;
     }
 
-    virtual const ReadProperty<UiSize>& maxSize() const
+    virtual const ReadProperty<Size>& preferredSizeMaximum() const
     {
-        return _maxSize;
+        return _preferredSizeMaximum;
     }
 
 
     
     /** Helper function that applies the size constraints that are configured in the view
-        (minSize(), maxSize, etc) so the specified size and returns the resulting
+        (preferredSizeMinimum(), preferredSizeMaximum, etc) so the specified size and returns the resulting
         constrained size.
         
         This function does not modify the view's own size. It only works on the specified size object.
@@ -506,11 +504,12 @@ public:
     /** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
         based on it current content	and properties.
         
-		availableWidth and availableHeight are used to indicate the maximum amount of available
-		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
+		availableSpace is used to indicate the maximum amount of available
+		space for the view (also in DIPs). If availableSpace is Size::none() (i.e. width and height equal Size::componentNone())
+        then that means that the available space should be considered to be unlimited.
 		I.e. the function should return the view's optimal size.
 
-		When one of the availableXYZ parameters is not -1 then it means that the available space is limited
+		When one of the availableSpace components (width or height) is not Size::componentNone() then it means that the available space is limited
 		in that dimension. The function should return the preferred size of the view within those constraints,
 		trying to not exceed the limited size component.
 		
@@ -522,19 +521,17 @@ public:
 		size the view to something smaller than the returned preferred size.
 
         IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
-        that is not adjusted for the constraints of the current display yet. I.e. it may not be roundedmi
-        to full physical pixels yet.
-        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
+        that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
+        to full physical pixels yet. The size will be adapted to the display properties in adjustAndSetBounds().        
 
-        calcPreferredSize will take the View::minSize and View::maxSize properties into account
-        and clip or extend the result accordingly. In rare cases, if the minSize and/or maxSize absolutely
-        do not make sense for the view implementation then the function may also return a preferred size that exceeds
-        these bounds. Implementors of calcPreferredSize can use the helper function
-        View::applySizeConstraints() to apply minSize and maxSize.
+        calcPreferredSize will take the View::preferredSizeMinimum() and View::preferredSizeMaximum() properties into account
+        and constrain the result accordingly. In cases when the preferredSizeMinimum and/or preferredSizeMaximum absolutely
+        do not make sense for the view implementation or the view contents cannot be displayed within those constraints
+        then the function may also return a preferred size that exceeds these bounds.
 
         IMPORTANT: This function must only called be called from the main thread.
 		*/		
-	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
+    virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
     
 
@@ -783,17 +780,17 @@ protected:
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;
 
-	P<IUiProvider>			_pUiProvider;
+	P<IUiProvider>			                _pUiProvider;
 		
 
 private:
-	View*					_pParentViewWeak = nullptr;
-	P<IViewCore>			_pCore;
+	View*					        _pParentViewWeak = nullptr;
+	P<IViewCore>			        _pCore;
     
 	DefaultProperty<SizingInfo>		_sizingInfo;
 
-    DefaultProperty<UiSize>         _minSize;
-    DefaultProperty<UiSize>         _maxSize;
+    DefaultProperty<Size>           _preferredSizeMinimum;
+    DefaultProperty<Size>           _preferredSizeMaximum;
 };
 
 }

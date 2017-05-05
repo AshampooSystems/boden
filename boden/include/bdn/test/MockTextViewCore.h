@@ -48,7 +48,8 @@ public:
 
 
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& minSize = Size::none(),
+                            const Size& maxSize = Size::none() ) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -59,8 +60,7 @@ public:
         if(pView!=nullptr && !pView->padding().get().isNull())
             size += uiMarginToDipMargin(pView->padding().get());
 
-        if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        size.applyConstraints(minSize, maxSize);
         
 		return size;
 	}

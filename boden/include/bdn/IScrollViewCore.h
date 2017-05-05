@@ -13,10 +13,10 @@ class IScrollViewCore : BDN_IMPLEMENTS IViewCore
 public:
 
 	/** Controls wether or not the view scrolls horizontally.*/
-	virtual void setHorizontalScrollingEnabled(bool enabled)=0;
+	virtual void setHorizontalScrollingEnabled(const bool& enabled)=0;
 
     /** Controls wether or not the view scrolls vertically.*/
-	virtual void setVerticalScrollingEnabled(bool enabled)=0;
+	virtual void setVerticalScrollingEnabled(const bool& enabled)=0;
     
 
     /** Sizes and positions the content view.*/

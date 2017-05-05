@@ -48,8 +48,8 @@ protected:
             // is used.
 
             REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize() );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(100, -1) );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(-1, 100) );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(Size::none(), Size(100, Size::componentNone()) ) );
+            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(Size::none(), Size(Size::componentNone(), 100) ) );
         }
     }
 

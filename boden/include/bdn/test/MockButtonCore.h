@@ -47,8 +47,8 @@ public:
 	}
 
 
-	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& minSize = Size::none(),
+                            const Size& maxSize = Size::none() ) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -62,8 +62,7 @@ public:
 		// add some space for the fake button border
 		size += Margin( 4, 5);
 
-        if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        size.applyConstraints(minSize, maxSize);
 
 		return size;
 	}

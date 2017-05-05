@@ -60,18 +60,18 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         Size prefSize = pObject->calcPreferredSize();
                     
-        Size prefSizeRestricted = pObject->calcPreferredSize( prefSize.width, prefSize.height);
+        Size prefSizeRestricted = pObject->calcPreferredSize( Size::none(), prefSize );
                     
         REQUIRE( prefSize == prefSizeRestricted);
     }
 
-    SECTION("minSize influence")	
+    SECTION("preferredSizeMinimum influence")	
     {
         Size prefSizeBefore = pObject->calcPreferredSize();
 
         SECTION("smaller than preferred size")
         {
-            pView->minSize() = UiSize( prefSizeBefore-Size(1,1) );
+            pView->preferredSizeMinimum() = prefSizeBefore-Size(1,1);
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -80,7 +80,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("same as preferred size")
         {
-            pView->minSize() = UiSize( prefSizeBefore );
+            pView->preferredSizeMinimum() = prefSizeBefore;
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -89,7 +89,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         SECTION("width bigger than preferred width")
         {
-            pView->minSize() = UiSize( prefSizeBefore.width+1, UiLength() );
+            pView->preferredSizeMinimum() = Size( prefSizeBefore.width+1, -1 );
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -98,7 +98,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("height bigger than preferred height")
         {
-            pView->minSize() = UiSize( UiLength(), prefSizeBefore.height+1 );
+            pView->preferredSizeMinimum() = Size( -1, prefSizeBefore.height+1 );
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -106,7 +106,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         }
     }
 
-    SECTION("maxSize influence")	
+    SECTION("preferredSizeMaximum influence")	
     {
         // some views (for example some top level windows) have an intrinsic minimum size.
         // The result of calcPreferredSize will not go below that.
@@ -120,7 +120,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("bigger than preferred size")
         {
-            pView->maxSize() = UiSize( prefSizeBefore+Size(1,1) );
+            pView->preferredSizeMaximum() = prefSizeBefore+Size(1,1);
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -129,7 +129,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("same as preferred size")
         {
-            pView->maxSize() = UiSize( prefSizeBefore );
+            pView->preferredSizeMaximum() = prefSizeBefore;
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -138,7 +138,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         SECTION("width smaller than preferred width")
         {
-            pView->maxSize() = UiSize( prefSizeBefore.width-1, UiLength() );
+            pView->preferredSizeMaximum() = Size( prefSizeBefore.width-1, -1 );
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -147,7 +147,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("height smaller than preferred height")
         {
-            pView->maxSize() = UiSize( UiLength(), prefSizeBefore.height-1 );
+            pView->preferredSizeMaximum() = Size( -1, prefSizeBefore.height-1 );
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -167,17 +167,17 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         SECTION("unconditionalWidth")
         {
             // When we specify exactly the unconditional preferred width then we should get exactly the unconditional preferred height
-            REQUIRE( pObject->calcPreferredSize(prefSize.width).height == prefSize.height );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(prefSize.width, Size::componentNone()) ).height == prefSize.height );
         }
 
         SECTION("unconditionalWidth/2")
         {
-            REQUIRE( pObject->calcPreferredSize(prefSize.width/2).height >= prefSize.height );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(prefSize.width/2, Size::componentNone()) ).height >= prefSize.height );
         }
 
         SECTION("zero")
         {
-            REQUIRE( pObject->calcPreferredSize(0).height >= prefSize.height );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(0, Size::componentNone()) ).height >= prefSize.height );
         }
     }
 
@@ -186,13 +186,13 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         Size prefSize = pObject->calcPreferredSize();
 
         SECTION("unconditionalHeight")
-            REQUIRE( pObject->calcPreferredSize(-1, prefSize.height).width == prefSize.width );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), prefSize.height) ).width == prefSize.width );
 
         SECTION("unconditionalHeight/2")
-            REQUIRE( pObject->calcPreferredSize(-1, prefSize.height/2).width >= prefSize.width );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), prefSize.height/2) ).width >= prefSize.width );
         
         SECTION("zero")
-            REQUIRE( pObject->calcPreferredSize(-1, 0).width >= prefSize.width );
+            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), 0) ).width >= prefSize.width );
     }
 }
 

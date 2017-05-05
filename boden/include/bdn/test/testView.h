@@ -276,8 +276,8 @@ inline void testView()
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
-            BDN_REQUIRE( pView->minSize() == UiSize(UiLength(), UiLength()) );
-            BDN_REQUIRE( pView->maxSize() == UiSize(UiLength(), UiLength()) );
+            BDN_REQUIRE( pView->preferredSizeMinimum() == Size(-1,-1) );
+            BDN_REQUIRE( pView->preferredSizeMaximum() == Size(-1,-1) );
 
 		    BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 
@@ -347,7 +347,7 @@ inline void testView()
 
             SECTION("minWidth")
             {
-                pView->minSize() = UiSize( limit, UiLength() );
+                pView->preferredSizeMinimum() = Size( limit, -1 );
 
                 REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(limit, below) );
                 REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
@@ -357,7 +357,7 @@ inline void testView()
 
             SECTION("minHeight")
             {
-                pView->minSize() = UiSize( UiLength(), limit );
+                pView->preferredSizeMinimum() = Size( -1, limit );
 
                 REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, limit) );
                 REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, limit) );
@@ -367,7 +367,7 @@ inline void testView()
 
             SECTION("maxWidth")
             {
-                pView->maxSize() = UiSize( limit, UiLength() );
+                pView->preferredSizeMaximum() = Size( limit, -1 );
 
                 REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
                 REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(limit, below) );
@@ -377,7 +377,7 @@ inline void testView()
 
             SECTION("maxHeight")
             {
-                pView->maxSize() = UiSize( UiLength(), limit );
+                pView->preferredSizeMaximum() = Size( -1, limit );
 
                 REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
                 REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );

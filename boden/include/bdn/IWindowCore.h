@@ -48,7 +48,7 @@ public:
 		are visible (close, maximize buttons, etc.).
         
         The function should NOT include the size constraints from the outer window object in its
-        calculation (i.e. View::minSize() should be ignored );
+        calculation (i.e. View::preferredSizeMinimum() should be ignored );
         */
 	virtual Size getMinimumSize() const=0;
     

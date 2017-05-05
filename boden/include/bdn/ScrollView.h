@@ -19,6 +19,7 @@ class ScrollView : public View
 {
 public:
 	ScrollView();
+    ~ScrollView();
 
     /** Controls wether or not the view scrolls vertically.
         Default: true*/

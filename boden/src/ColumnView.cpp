@@ -5,14 +5,14 @@
 namespace bdn
 {
 
-Size ColumnView::calcPreferredSize(double availableWidth, double availableHeight) const
+Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
 {
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
 
     std::list<Rect> childBounds;
 
-	Size usefulSize = calcChildBoundsForWidth(availableWidth, childViews, childBounds, true );
+	Size usefulSize = calcChildBoundsForWidth( availableSpace.width, childViews, childBounds, true );
 
 	return usefulSize;
 }
@@ -27,15 +27,31 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         myPadding = uiMarginToDipMargin( pad );
 
     double availableContentAreaWidth;
+
+    Size maxSize = _preferredSizeMaximum;
+
+    if( std::isfinite(maxSize.width) )
+    {
+        if( std::isfinite(availableWidth) )
+            availableWidth = std::min(availableWidth, maxSize.width);
+        else
+            availableWidth = maxSize.width;
+    }
+
+
+    bool widthConstrained = false;
     
-    if(availableWidth==-1)
-        availableContentAreaWidth = -1;
-    else
+    if( std::isfinite(availableWidth) )
     {
         availableContentAreaWidth = availableWidth - (myPadding.left + myPadding.right);
         if(availableContentAreaWidth<0)
             availableContentAreaWidth = 0;
+
+        widthConstrained = true;
     }
+    else
+        availableContentAreaWidth = Size::componentNone();
+    
 
     double currY = myPadding.top;
 
@@ -53,7 +69,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
         double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
 
-        if(availableContentAreaWidth>=0)
+        if( widthConstrained )
         {
             if(childWidthWithMargins > availableContentAreaWidth)
                 childWidthWithMargins = availableContentAreaWidth;
@@ -63,7 +79,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
         // when we measure the preferred size then we ignore the alignment.
         if(!forMeasuring
-            && availableContentAreaWidth>=0
+            && widthConstrained
             && horzAlign == HorizontalAlignment::expand
             && childWidthWithMargins<availableContentAreaWidth)
         {
@@ -101,7 +117,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         // the optimal size and the alignment interferes with the child positioning (and sizing
         // when expand alignment is used) because it adapts to the available size. We don't
         // want that during measuring
-        if(!forMeasuring)
+        if(!forMeasuring && widthConstrained)
         {
             double alignFactor;
 		    if(horzAlign == HorizontalAlignment::right)
@@ -110,7 +126,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 			    alignFactor = 0.5;
 		    else
 			    alignFactor = 0;
-        
+                    
             childX = (availableContentAreaWidth-childWidthWithMargins)*alignFactor;
         }
         
@@ -128,7 +144,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         // want the resulting size to be rounded down.
         // Exception: when we are measuring then we want the size that the child actually needs for its content,
         // so we should always round up in that case.
-        RoundType sizeRoundType  = (availableContentAreaWidth>=0 && childWidthWithMargins>=availableContentAreaWidth && !forMeasuring) ? RoundType::down : RoundType::up;
+        RoundType sizeRoundType  = (widthConstrained && childWidthWithMargins>=availableContentAreaWidth && !forMeasuring) ? RoundType::down : RoundType::up;
 
         // we use RoundType::up for positions to ensure that small margins do not disappear. Instead it is better
         // to round them up to 1 pixel, so that separate elements are always actually separate.

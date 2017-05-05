@@ -84,34 +84,31 @@ public:
 	/** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
         based on it current content	and properties.
         
-		availableWidth and availableHeight are used to indicate the maximum amount of available
-		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
+		maxSize is used to indicate the maximum amount of available space for the view (also in DIPs).
+        maxSize can equal Size::none(), in which case the available space should be considered to be unlimited.
 		I.e. the function should return the view's optimal size.
 
-		When one of the availableXYZ parameters is not -1 then it means that the available space is limited
-		in that dimension. The function should return the preferred size of the view within those constraints,
-		trying to not exceed the limited size component.
-		
-		For example, many views displaying text can handle a limited available width by wrapping the text into
+        It is also possible to have a limit for only one component (width or height). In that case that maxSize component
+        will have a normal finite value, while the other unrestricted component is set to Size::componentNone().
+
+        Analogous to maxSize, minSize represents a lower limit for the preferred size.       
+
+        The view core should try to adapt to the specified constraints in the best way possible for it.        
+        For example, many views displaying text can handle a limited available width by wrapping the text into
 		multiple lines (and thus increasing their height).
 
-		If the view cannot reduce its size to fit into the available space then it is valid for the function
+		If the view cannot reduce its size to fit into the limits indicated by minSize and maxSize then it is valid for the function
 		to return a size that exceeds the available space. However, the layout manager is free to
-		size the view to something smaller than the returned preferred size.
-
-        calcPreferredSize should take the View::minSize and View::maxSize properties of the outer view into account
-        and clip or extend the result accordingly. In rare cases, if the minSize and/or maxSize absolutely
-        do not make sense for the view implementation then the function may also return a preferred size that exceeds
-        these bounds. Implementors of calcPreferredSize can use the helper function
-        View::applySizeConstraints() to apply minSize and maxSize.
+		size the view to something smaller than the returned preferred size, potentially causing the content to be clipped.
 
         IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
-        that is not adjusted for the constraints of the current display yet. I.e. it may not be rounded
+        that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
         to full physical pixels yet.
-        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
+        The returned size may be adjusted to the display when it is actually assigned to the view with adjustAndSetBounds().
 
 		*/	
-	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const=0;
+	virtual Size calcPreferredSize( const Size& minSize = Size::none(),
+                                    const Size& maxSize = Size::none() ) const=0;
 
 	
 

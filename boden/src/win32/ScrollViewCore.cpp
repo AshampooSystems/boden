@@ -152,15 +152,35 @@ Size ScrollViewCore::calcPreferredSize(double availableWidth=-1, double availabl
         int     vertBarWidth = ::GetSystemMetrics(SM_CXVSCROLL);
         int     horzBarHeight = ::GetSystemMetrics(SM_CYHSCROLL);
 
+        bool    horzScrollActive = false;
+        bool    vertScrollActive = false;
+
         if(availableWidth!=-1 && prefSize.width>availableWidth && horzScrollEnabled)
         {
             // we need to scroll horizontally. Add the scroll bar height to our preferred height. Set the
             // preferred width to the available width
             prefSize.width = availableWidth;
             prefSize.height += horzBarHeight;
+            horzScrollActive = true;
         }
-        else if(horzScrollEnabled)
+        else if(availableWidth==-1 && horzScrollEnabled)
         {
+            // we have "unlimited" width available and horz scrolling is enabled.
+
+            // So in this case the question is what is our "preferred" width?
+            // If we set it to the full content width then we might request a huge size that
+            // exceeds the actual available space. Then other views might be shrunk together with us
+            // below their preferred size to make everything fit. That is not what we want, because
+            // we can shrink easily, without compromising our content.
+
+
+
+            // might end up enlarging everything
+            // to enormous sizes (e.g. creating a huge window, for example).
+            // 
+
+            // In this case we set our preferred size to a small value, because we CAN scroll
+            // and do not need a lot of 
         }
 
         if(availableHeight!=-1 && prefSize.height>availableHeight && vertScrollEnabled)
@@ -168,6 +188,7 @@ Size ScrollViewCore::calcPreferredSize(double availableWidth=-1, double availabl
             // we need to scroll vertically.
             prefSize.height = availableHeight;
             prefSize.width += vertBarWidth;
+            vertScrollActive = true;
         }
 
         

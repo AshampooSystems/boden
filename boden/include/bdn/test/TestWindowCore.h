@@ -156,16 +156,16 @@ protected:
                 REQUIRE( minSize.height>=0 );
             }
 
-            SECTION("not affected by View::minSize()")
+            SECTION("not affected by View::preferredSizeMinimum()")
             {
                 Size minSizeUnconstrained = _pWindowCore->getMinimumSize();
 
                 SECTION("smaller")
-                    _pWindow->minSize() = UiSize( minSizeUnconstrained-Size(1,1) );
+                    _pWindow->preferredSizeMinimum() = minSizeUnconstrained-Size(1,1);
                 SECTION("bigger")
-                    _pWindow->minSize() = UiSize( minSizeUnconstrained+Size(1,1) );
+                    _pWindow->preferredSizeMinimum() = minSizeUnconstrained+Size(1,1);
 
-                // View::minSize() should have no effect
+                // View::preferredSizeMinimum() should have no effect
                 Size minSize = _pWindowCore->getMinimumSize();
                 REQUIRE( minSize == minSizeUnconstrained );
             }

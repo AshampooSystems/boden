@@ -23,8 +23,8 @@ View::View()
     initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
     initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
 
-    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_minSize);
-    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_maxSize);
+    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
+    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
 }
 
 View::~View()
@@ -371,45 +371,23 @@ Size View::calcPreferredSize(double availableWidth, double availableHeight) cons
 }
 
 
-Size View::applySizeConstraints(const Size& inputSize) const
+Size View::applySizeConstraints(const Size& inputSize, const Size& minSize, const Size& maxSize) const
 {
     verifyInMainThread("View::applySizeConstraints");
 
-    UiSize minSize = _minSize.get();
-    UiSize maxSize = _maxSize.get();
     Size   resultSize( inputSize );
 
-    if(!minSize.width.isNone())
-    {
-        double minWidth = uiLengthToDips(minSize.width);
+    if( std::isfinite(minSize.width) && resultSize.width < minSize.width)
+        resultSize.width = minSize.width;            
 
-        if(resultSize.width < minWidth)
-            resultSize.width = minWidth;            
-    }
+    if( std::isfinite(minSize.height) && resultSize.height < minSize.height)
+        resultSize.height = minSize.height;            
 
-    if(!minSize.height.isNone())
-    {
-        double minHeight = uiLengthToDips(minSize.height);
+    if( std::isfinite(maxSize.width) && resultSize.width > maxSize.width)
+        resultSize.width = maxSize.width;  
 
-        if(resultSize.height < minHeight)
-            resultSize.height = minHeight;            
-    }
-
-    if(!maxSize.width.isNone())
-    {
-        double maxWidth = uiLengthToDips(maxSize.width);
-
-        if(resultSize.width > maxWidth)
-            resultSize.width = maxWidth;  
-    }
-
-    if(!maxSize.height.isNone())
-    {
-        double maxHeight = uiLengthToDips(maxSize.height);
-
-        if(resultSize.height > maxHeight)
-            resultSize.height = maxHeight;  
-    }
+    if( std::isfinite(maxSize.height) && resultSize.height > maxSize.height )
+        resultSize.height = maxSize.height;  
 
     return resultSize;
 }

@@ -92,7 +92,8 @@ public:
 		return Rect(100, 100, 800, 800);
 	}
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& minSize = Size::none(),
+                            const Size& maxSize = Size::none() ) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 

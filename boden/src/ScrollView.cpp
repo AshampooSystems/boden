@@ -2,14 +2,15 @@
 #include <bdn/ScrollView.h>
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/IScrollViewCore.h>
 
 namespace bdn
 {
 
 ScrollView::ScrollView()
 {
-	initProperty<bool, IScrollViewCore, &IWindowCore::setHorizontalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_horizontalScrollingEnabled);
-    initProperty<bool, IScrollViewCore, &IWindowCore::setVerticalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_verticalScrollingEnabled);
+	initProperty<bool, IScrollViewCore, &IScrollViewCore::setHorizontalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_horizontalScrollingEnabled);
+    initProperty<bool, IScrollViewCore, &IScrollViewCore::setVerticalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_verticalScrollingEnabled);
 }
 
 ScrollView::~ScrollView()
