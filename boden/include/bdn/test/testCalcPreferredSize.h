@@ -60,7 +60,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         Size prefSize = pObject->calcPreferredSize();
                     
-        Size prefSizeRestricted = pObject->calcPreferredSize( Size::none(), prefSize );
+        Size prefSizeRestricted = pObject->calcPreferredSize( prefSize );
                     
         REQUIRE( prefSize == prefSizeRestricted);
     }
@@ -167,17 +167,17 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         SECTION("unconditionalWidth")
         {
             // When we specify exactly the unconditional preferred width then we should get exactly the unconditional preferred height
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(prefSize.width, Size::componentNone()) ).height == prefSize.height );
+            REQUIRE( pObject->calcPreferredSize( Size(prefSize.width, Size::componentNone()) ).height == prefSize.height );
         }
 
         SECTION("unconditionalWidth/2")
         {
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(prefSize.width/2, Size::componentNone()) ).height >= prefSize.height );
+            REQUIRE( pObject->calcPreferredSize( Size(prefSize.width/2, Size::componentNone()) ).height >= prefSize.height );
         }
 
         SECTION("zero")
         {
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(0, Size::componentNone()) ).height >= prefSize.height );
+            REQUIRE( pObject->calcPreferredSize( Size(0, Size::componentNone()) ).height >= prefSize.height );
         }
     }
 
@@ -186,13 +186,13 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         Size prefSize = pObject->calcPreferredSize();
 
         SECTION("unconditionalHeight")
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), prefSize.height) ).width == prefSize.width );
+            REQUIRE( pObject->calcPreferredSize( Size(Size::componentNone(), prefSize.height) ).width == prefSize.width );
 
         SECTION("unconditionalHeight/2")
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), prefSize.height/2) ).width >= prefSize.width );
+            REQUIRE( pObject->calcPreferredSize( Size(Size::componentNone(), prefSize.height/2) ).width >= prefSize.width );
         
         SECTION("zero")
-            REQUIRE( pObject->calcPreferredSize(Size::none(), Size(Size::componentNone(), 0) ).width >= prefSize.width );
+            REQUIRE( pObject->calcPreferredSize( Size(Size::componentNone(), 0) ).width >= prefSize.width );
     }
 }
 

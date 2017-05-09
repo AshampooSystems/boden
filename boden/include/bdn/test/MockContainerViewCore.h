@@ -28,8 +28,7 @@ public:
 	}
     
 	
-    Size calcPreferredSize( const Size& minSize = Size::none(),
-                            const Size& maxSize = Size::none() ) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
 	    // this core function should never have been called.
 	    // The outer window is responsible for everything layout-related.

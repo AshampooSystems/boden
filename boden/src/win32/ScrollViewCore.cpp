@@ -20,13 +20,13 @@ ScrollViewCore::ScrollViewCore(ScrollView* pOuter)
 {
 }
         
-void ScrollViewCore::setHorizontalScrollingEnabled(bool enabled)
+void ScrollViewCore::setHorizontalScrollingEnabled(const bool& enabled)
 {
     // we don't care. The setting is only used in layout and there we get it from
     // the outer view directly.
 }
 
-void ScrollViewCore::setVerticalScrollingEnabled(bool enabled)
+void ScrollViewCore::setVerticalScrollingEnabled(const bool& enabled)
 {
     // we don't care. The setting is only used in layout and there we get it from
     // the outer view directly.
@@ -49,7 +49,15 @@ void ScrollViewCore::layout()
         {
             Size    actualContentSize = pContentView->sizingInfo().get().preferredSize;
             Margin  contentMargin = uiMarginToDipMargin(pContentView->margin());
-            Margin  ourPadding = uiMarginToDipMargin(pOuterView->padding());
+
+            
+            Margin  ourPadding;
+            {
+                Nullable<UiMargin> pad = pOuterView->padding();
+                if(!pad.isNull())
+                    ourPadding = uiMarginToDipMargin(pad);
+            }
+
             Size    contentSizeWithMarginAndPadding = actualContentSize + ourPadding + contentMargin;
 
             bool    horzScrollEnabled = pOuterView->horizontalScrollingEnabled();
@@ -74,8 +82,10 @@ void ScrollViewCore::layout()
             if(_showVerticalScrollBar)
                 clientRect.width += vertBarWidth;
             
-            // now we have the full client rect without scrollbars
+            // now we have the full client rect for the case where no scroll bars are shown
             Size viewPortSize = clientRect.getSize();
+
+            // now we calculate whether or not we need scroll bars
 
             _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > viewPortSize.width && horzScrollEnabled);
             if(_showHorizontalScrollBar)
@@ -88,7 +98,7 @@ void ScrollViewCore::layout()
                 if(!_showHorizontalScrollBar)
                 {                
                     // adding the vertical scroll bar might have decreased the viewport width enough so that we now
-                    // also need a horizontal scroll bar
+                    // also need a horizontal scroll bar. So check that again
                     _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > viewPortSize.width && horzScrollEnabled);
                     if(_showHorizontalScrollBar)
                         viewPortSize.height -= horzBarHeight;
@@ -115,7 +125,7 @@ void ScrollViewCore::layout()
     }
 }
 	
-Size ScrollViewCore::calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const
+Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
 {
     P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
     HWND          hwnd = getHwnd();
@@ -138,7 +148,18 @@ Size ScrollViewCore::calcPreferredSize(double availableWidth=-1, double availabl
             contentMargin = uiMarginToDipMargin(pContentView->margin());
         }
 
-        Margin  ourPadding = uiMarginToDipMargin(pOuterView->padding());
+        Margin  ourPadding;
+        {
+            Nullable<UiMargin> pad = pOuterView->padding();
+            if(!pad.isNull())
+                ourPadding = uiMarginToDipMargin(pad);
+        }
+
+        Size    maxSize = pOuterView->preferredSizeMaximum();
+        maxSize.applyMaximum(availableSpace);
+
+        bool    widthConstrained = std::isfinite(maxSize.width);
+        bool    heightConstrained = std::isfinite(maxSize.height);
 
         Size    contentSizeWithMarginAndPadding = contentSize + ourPadding + contentMargin;
 
@@ -155,62 +176,54 @@ Size ScrollViewCore::calcPreferredSize(double availableWidth=-1, double availabl
         bool    horzScrollActive = false;
         bool    vertScrollActive = false;
 
-        if(availableWidth!=-1 && prefSize.width>availableWidth && horzScrollEnabled)
+        if(widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
         {
             // we need to scroll horizontally. Add the scroll bar height to our preferred height. Set the
             // preferred width to the available width
-            prefSize.width = availableWidth;
+            prefSize.width = maxSize.width;
             prefSize.height += horzBarHeight;
             horzScrollActive = true;
         }
-        else if(availableWidth==-1 && horzScrollEnabled)
+        else
         {
-            // we have "unlimited" width available and horz scrolling is enabled.
+            // we either fit into the available space, or horizontal scrolling is disabled.
 
-            // So in this case the question is what is our "preferred" width?
-            // If we set it to the full content width then we might request a huge size that
-            // exceeds the actual available space. Then other views might be shrunk together with us
-            // below their preferred size to make everything fit. That is not what we want, because
-            // we can shrink easily, without compromising our content.
-
-
-
-            // might end up enlarging everything
-            // to enormous sizes (e.g. creating a huge window, for example).
-            // 
-
-            // In this case we set our preferred size to a small value, because we CAN scroll
-            // and do not need a lot of 
+            // Set the preferred width to the content width
+            prefSize.width = contentSizeWithMarginAndPadding.width;
+            
+            // Note that in the case that we have unlimited space available we also set
+            // the preferred size to the full content size, so that scrolling is not
+            // necessary (whether is is theoretically enabled or not).
+            // That way we ensure that the scroll view does not clip the content
+            // unnecessarily when enough space is available.
+            
+            // Note that scroll views have a high shrink priority, so if the total
+            // size of the scroll view and its siblings exceeds the available space then the
+            // scroll view will be shrunk first. So it is no problem to initially request a
+            // big preferred size.
         }
-
-        if(availableHeight!=-1 && prefSize.height>availableHeight && vertScrollEnabled)
+        
+        if(heightConstrained && prefSize.height>maxSize.height && vertScrollEnabled)
         {
-            // we need to scroll vertically.
-            prefSize.height = availableHeight;
+            prefSize.height = maxSize.height;
             prefSize.width += vertBarWidth;
             vertScrollActive = true;
+
+            // the vertical scrollbar increases our preferred width.
+            // This might cause us to need horizontal scrolling as well, if that is not yet active.
+
+            if(!horzScrollActive && widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
+            {
+                prefSize.width = maxSize.width;
+                horzScrollActive = true;
+            }
         }
 
-        
-        // make sure that we are at least big enough to show the scroll bars if we need
-        // them
-        if(horzScrollEnabled && prefSize.height<horzBarHeight)
-            prefSize.height = horzBarHeight;
-        if(vertScrollEnabled && prefSize.width<vertBarWidth)
-            prefSize.width = vertBarWidth;
+        // apply the minimum constraint
+        prefSize.applyMinimum( pOuterView->preferredSizeMinimum() );
 
-
-        
-
-
-        if(availableWidth==-1 || )
-            
-
-
-        }
-
-    if(_)
-
+        return prefSize;
+    }
 }
 
 
@@ -243,17 +256,19 @@ void ScrollViewCore::updateScrollInfo(bool horzScrollBar, bool vertScrollBar, co
 
         scrollInfo.nMin = 0;
 
+        double  uiScaleFactor = getUiScaleFactor();
+
         if(horzScrollBar)
         {
-            scrollInfo.nMax = fullContentSize.width;
-            scrollInfo.nPage = viewPortSize.width;
+            scrollInfo.nMax = std::lround(fullContentSize.width*uiScaleFactor);
+            scrollInfo.nPage = std::lround(viewPortSize.width*uiScaleFactor);
             ::SetScrollInfo(hwnd, SB_HORZ, &scrollInfo, TRUE);  // TRUE means redraw scrollbar
         }
 
         if(vertScrollBar)
         {
-            scrollInfo.nMax = fullContentSize.height;
-            scrollInfo.nPage = viewPortSize.height;
+            scrollInfo.nMax = std::lround(fullContentSize.height*uiScaleFactor);
+            scrollInfo.nPage = std::lround(viewPortSize.height*uiScaleFactor);
             ::SetScrollInfo(hwnd, SB_VERT, &scrollInfo, TRUE);  // TRUE means redraw scrollbar
         }
     }

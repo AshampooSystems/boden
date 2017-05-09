@@ -161,7 +161,7 @@ Size WindowCore::getMinimumSize() const
 	return minSize;
 }
 
-Size WindowCore::calcPreferredSize(double availableWidth, double availableHeight) const
+Size WindowCore::calcPreferredSize( const Size& availableSpace ) const
 {
 	// the implementation for this must be provided by the outer Window object.
 	throw NotImplementedError("WindowCore::calcPreferredSize");	

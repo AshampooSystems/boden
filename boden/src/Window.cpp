@@ -67,7 +67,7 @@ void Window::autoSize()
 		width = screenArea.width;
 
 		// and then adapt the height accordingly (height might increase if we reduce the width).
-		height = calcPreferredSize(width).height;	
+		height = calcPreferredSize( Size(width, Size::componentNone()) ).height;	
 
 		// if the height we calculated is bigger than the max height then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
@@ -81,7 +81,7 @@ void Window::autoSize()
 		height = screenArea.height;
 
 		// and then adapt the width accordingly.
-		width = calcPreferredSize(-1, height).width;	
+		width = calcPreferredSize( Size( Size::componentNone(), height) ).width;	
 
 		// if the width we calculated is bigger than the max width then we simply
 		// cannot achieve our preferred size. We will have to make do with the max available size.
@@ -123,7 +123,7 @@ void Window::center()
     adjustAndSetBounds(newBounds);
 }
 
-Size Window::calcPreferredSize(double availableWidth, double availableHeight) const
+Size Window::calcPreferredSize( const Size& availableSpace ) const
 {
 	// lock the mutex so that our child hierarchy or core does not change during measuring
 	MutexLock lock( getHierarchyAndCoreMutex() );
@@ -143,13 +143,20 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 
 	Margin myPadding = getDipPadding();
 
+    // combine maxSize with availableSpace
+    Size maxSize = preferredSizeMaximum();
+    maxSize.applyMaximum(availableSpace);
+
+    bool widthConstrained = std::isfinite(maxSize.width);
+    bool heightConstrained = std::isfinite(maxSize.height);
+
 	Size availableContentAreaSize(-1, -1);	
-	if(availableWidth!=-1 || availableHeight!=-1)
+	if(widthConstrained || heightConstrained)
 	{
 		// subtract size of window border, titlebar, etc.
 		availableContentAreaSize = pCore->calcContentAreaSizeFromWindowSize(
-			Size(availableWidth==-1 ? 10000 : availableWidth,
-				 availableHeight==-1 ? 10000 : availableHeight) );
+			Size(widthConstrained ? maxSize.width : 10000,
+				 heightConstrained ? maxSize.height : 10000) );
 
 		// subtract window padding
 		availableContentAreaSize-=myPadding;
@@ -161,26 +168,29 @@ Size Window::calcPreferredSize(double availableWidth, double availableHeight) co
 		if(availableContentAreaSize.height<0)
 			availableContentAreaSize.height = 0;
 
-		if(availableWidth==-1)
-			availableContentAreaSize.width = -1;
-		if(availableHeight==-1)
-			availableContentAreaSize.height = -1;
+		if(!widthConstrained)
+			availableContentAreaSize.width = Size::componentNone();
+		if(!heightConstrained)
+			availableContentAreaSize.height = Size::componentNone();
 	}
 		
 	Size contentSize;
 	if(pContentView!=nullptr)
-		contentSize = pContentView->calcPreferredSize( availableContentAreaSize.width, availableContentAreaSize.height );
+		contentSize = pContentView->calcPreferredSize( availableContentAreaSize );
 
 	Size contentAreaSize = contentSize + myPadding + contentMargin;
 	
     // the core will round up here if any adjustments for the current display are needed.
 	Size preferredSize = pCore->calcWindowSizeFromContentAreaSize( contentAreaSize );
 
-    preferredSize = applySizeConstraints(preferredSize);
 
-	Size minSize = pCore->getMinimumSize();
-	preferredSize.width = std::max( minSize.width, preferredSize.width );
-	preferredSize.height = std::max( minSize.height, preferredSize.height );    
+    // apply minimum size constraint (the maximum constraint has already been applied above)
+    preferredSize.applyMinimum( preferredSizeMinimum() );
+
+    // also apply the core's minimm size (the implementation defined minimum size that all windows
+    // must at least have)
+    preferredSize.applyMinimum( pCore->getMinimumSize() );
+
 
 	return preferredSize;
 }

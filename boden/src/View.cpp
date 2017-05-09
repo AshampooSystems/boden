@@ -358,39 +358,19 @@ void View::_initCore()
 
 
 
-Size View::calcPreferredSize(double availableWidth, double availableHeight) const
+Size View::calcPreferredSize( const Size& availableSpace ) const
 {
 	verifyInMainThread("View::calcPreferredSize");
 
 	P<IViewCore> pCore = getViewCore();
 
 	if(pCore!=nullptr)
-		return pCore->calcPreferredSize(availableWidth, availableHeight);
+		return pCore->calcPreferredSize( availableSpace );
 	else
 		return Size(0, 0);
 }
 
 
-Size View::applySizeConstraints(const Size& inputSize, const Size& minSize, const Size& maxSize) const
-{
-    verifyInMainThread("View::applySizeConstraints");
-
-    Size   resultSize( inputSize );
-
-    if( std::isfinite(minSize.width) && resultSize.width < minSize.width)
-        resultSize.width = minSize.width;            
-
-    if( std::isfinite(minSize.height) && resultSize.height < minSize.height)
-        resultSize.height = minSize.height;            
-
-    if( std::isfinite(maxSize.width) && resultSize.width > maxSize.width)
-        resultSize.width = maxSize.width;  
-
-    if( std::isfinite(maxSize.height) && resultSize.height > maxSize.height )
-        resultSize.height = maxSize.height;  
-
-    return resultSize;
-}
 
 
 

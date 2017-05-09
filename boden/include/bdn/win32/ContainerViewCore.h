@@ -15,7 +15,7 @@ class ContainerViewCore : public ViewCore
 public:
 	ContainerViewCore(ContainerView* pOuter);
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
 protected:
 	class ContainerViewCoreClass : public Win32WindowClass

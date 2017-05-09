@@ -24,63 +24,16 @@ void ScrollView::layout()
 	P<View>			    pContentView = getContentView();
 	P<IScrollViewCore>	pCore = cast<IScrollViewCore>( getViewCore() );
 
-	if(pContentView==nullptr || pCore==nullptr)
-	{
-		// nothing to do.
-		return;
-	}
-
-    bool scrollHorz = _horizontalScrollingEnabled;
-    bool scrollVert = _verticalScrollingEnabled;
-
-    Size prefSize = pContentView->sizingInfo().get().preferredSize;
-    Size viewPortSize = pCore->getViewPortSize();
-    Size contentSize;
-    
-    if(scrollHorz)
-        contentSize.width = prefSize.width;
-    else
-        contentSize.width = viewPortSize.width;
-
-    if(scrollVert)
-        contentSize.height = prefSize.height;
-    else
-        contentSize.height = viewPortSize.height;
-
-
-    
-	// just set our content window to content area (but taking margins and padding into account).
-	Rect contentBounds = pCore->getContentArea();
-    			
-	// subtract our padding
-	contentBounds -= getDipPadding();
-
-	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );
-    
-    pContentView->adjustAndSetBounds( contentBounds );
-
-	// note that we do not need to call layout on the content view.
-	// If it needs to update its layout then the bounds change should have caused
-	// it to schedule an update.
-}
-
-
-Margin ScrollView::getDipPadding() const
-{
-    Margin myPadding;
-    
-    P<IViewCore> pCore = getViewCore();
-    if(pCore!=nullptr)
+	if(pCore!=nullptr)
     {
-        // default padding is zero
-        Nullable<UiMargin> pad = padding();
-        if(!pad.isNull())
-            myPadding = getViewCore()->uiMarginToDipMargin( pad );
+        // the core takes care of the layout because this is highly implementation
+        // specific. The available space depends on things like the size of scroll bars,
+        // whether or not scroll bars are shown and similar things.
+        pCore->layout();
     }
-        
-    return myPadding;
 }
+
+
 
 
 

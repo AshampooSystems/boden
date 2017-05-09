@@ -240,7 +240,7 @@ TEST_CASE("ColumnView")
                     {
                         Size unrestrictedSize = pColumnView->calcPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width+1 );
+                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width+1, Size::componentNone()) );
                 
                         // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
@@ -253,7 +253,7 @@ TEST_CASE("ColumnView")
                     {
                         Size unrestrictedSize = pColumnView->calcPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width );
+                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width, Size::componentNone()) );
                 
 
                         // should be the same as the unresctricted size
@@ -266,7 +266,7 @@ TEST_CASE("ColumnView")
                     SECTION("availableWidth smaller than needed")
                     {
                         Size unrestrictedSize = pColumnView->calcPreferredSize();
-                        Size size = pColumnView->calcPreferredSize(unrestrictedSize.width / 2);
+                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width / 2, Size::componentNone()) );
 
                         // should still report almost the unrestricted size since none of the child views can be shrunk.
                         // However, the sizes will be rounded down to the 

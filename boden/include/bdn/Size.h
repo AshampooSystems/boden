@@ -131,33 +131,47 @@ public:
 	}
 
 
-    /** Applies a minimum and maximum size constraint to the Size object.
+    /** Applies a minimum size constraint to the Size object.
 
-        For example, minSize.width is a valid finite value (i.e. not componentNone(), infinity or NaN)
-        and the width than minSize.width then it is set to minSize.width.
+        minSize is a Size object that defines the constraint.
+        
+        width and/or height of minSize can have the special value inifity, NaN or Size::componentNone() to indicate
+        that this component should not be constrained.
+        That also means that if you pass Size::none() to the function then the function has no effect.
 
-        In the same way, maxSize specifies the upper limit. If one of the Size components
-        is bigger than the corresponding maxSize component then it is set to the maxSize value.
-
-        You can pass Size::none() to minSize and/or maxSize to indicate that there should be no
-        limit in that direction. You can also set individual components of the minSize and maxSize
-        to Size::componentNone() to indicate that only that limit component should be ignored and that for
-        the component there should be no limit in that direction.
+        If a minSize component has a normal finite value then that represents the desired minimum value for that component.
+        If the corresponding component of the Size object is below that then it is set to the minimum value.
 
         */
-    void applyConstraints(const Size& minSize, const Size& maxSize)
+    void applyMinimum(const Size& minSize)
     {
-        if( std::isfinite(minSize.width) && width < minSize.width)
+        if( std::isfinite(minSize.width) && (!std::isfinite(width) || width < minSize.width))
             width = minSize.width;            
 
-        if( std::isfinite(minSize.height) && height < minSize.height)
+        if( std::isfinite(minSize.height) && (!std::isfinite(height) || height < minSize.height))
             height = minSize.height;            
+    }
 
-        if( std::isfinite(maxSize.width) && width > maxSize.width)
-            width = maxSize.width;  
 
-        if( std::isfinite(maxSize.height) && height > maxSize.height )
-            height = maxSize.height;  
+    /** Applies a maximum size constraint to the Size object.
+
+        maxSize is a Size object that defines the constraint.
+        
+        width and/or height of maxSize can have the special value inifity, NaN or Size::componentNone() to indicate
+        that this component should not be constrained.
+        That also means that if you pass Size::none() to the function then the function has no effect.
+
+        If a maxSize component has a normal finite value then that represents the desired maximum value for that component.
+        If the corresponding component of the Size object is above that then it is set to the maximum value.
+
+        */
+    void applyMaximum(const Size& maxSize)
+    {
+        if( std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width))
+            width = maxSize.width;            
+
+        if( std::isfinite(maxSize.height) && (!std::isfinite(height) || height < maxSize.height))
+            height = maxSize.height;            
     }
 
 	

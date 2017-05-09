@@ -339,52 +339,6 @@ inline void testView()
             };
 	    }
 
-        SECTION("applySizeConstraints")
-        {
-            double limit = 11.7;
-            double below = 11.3;
-            double above = 12.5;
-
-            SECTION("minWidth")
-            {
-                pView->preferredSizeMinimum() = Size( limit, -1 );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(limit, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(limit, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
-            }
-
-            SECTION("minHeight")
-            {
-                pView->preferredSizeMinimum() = Size( -1, limit );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
-            }
-
-            SECTION("maxWidth")
-            {
-                pView->preferredSizeMaximum() = Size( limit, -1 );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(limit, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(limit, above) );
-            }
-
-            SECTION("maxHeight")
-            {
-                pView->preferredSizeMaximum() = Size( -1, limit );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, limit) );
-            }
-        }
 
 	    SECTION("changeViewProperty")
 	    {

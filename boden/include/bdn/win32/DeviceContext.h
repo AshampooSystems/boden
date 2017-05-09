@@ -35,12 +35,15 @@ public:
         This function handles linebreaks correctly (i.e. it returns the size
         of multiple lines of text if the string contains linebreaks)
 
-		If wrapWidth is not -1 then the text size is calculated for the case
+		If wrapWidth is a finite value then the text size is calculated for the case
 		in which the text wraps at the specified width (in pixels).
 		The wrapping occurs on word boundaries. If a word is wider than wrapWidth
 		then the returned text size can be bigger than wrapWidth.
+
+        wrapWidth can also be std::numeric_limits<double>::initity(), NaN
+        or Size::componentNone(),  in which case no wrapping will be done.
     */
-    Size getTextSize(const String& text, double wrapWidth=-1)
+    Size getTextSize(const String& text, double wrapWidth = std::numeric_limits<double>::infinity() )
     {
         // GetTextExtentPoint32W ignores linebreak and also does not
         // provide any way to calculate the height of multiple lines of text. So we use
@@ -57,8 +60,11 @@ public:
         double  scaleFactor = dpi / 96.0;
         
 
-		if(wrapWidth>=0)
+		if( std::isfinite(wrapWidth) )
 		{
+            if(wrapWidth<0)
+                wrapWidth=0;
+
             // we round DOWN to the next pixel here. It is to be expected that the wrapped
             // width might be less than the specified wrap width (because wrapping always only
             // occurs on word or character boundaries). However, the wrap width should only

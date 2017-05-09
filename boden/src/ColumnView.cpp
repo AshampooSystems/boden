@@ -12,12 +12,12 @@ Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
 
     std::list<Rect> childBounds;
 
-	Size usefulSize = calcChildBoundsForWidth( availableSpace.width, childViews, childBounds, true );
+	Size usefulSize = calcChildBounds( availableSpace, childViews, childBounds, true );
 
 	return usefulSize;
 }
 
-Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const
+Size ColumnView::calcChildBounds( const Size& availableSpace, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const
 {
 	Margin myPadding;
         
@@ -26,31 +26,24 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
     if(!pad.isNull())
         myPadding = uiMarginToDipMargin( pad );
 
-    double availableContentAreaWidth;
-
-    Size maxSize = _preferredSizeMaximum;
-
-    if( std::isfinite(maxSize.width) )
-    {
-        if( std::isfinite(availableWidth) )
-            availableWidth = std::min(availableWidth, maxSize.width);
-        else
-            availableWidth = maxSize.width;
-    }
-
-
-    bool widthConstrained = false;
+    // clip the max size to the available space.
+    Size maxSize = preferredSizeMaximum();
+    maxSize.applyMaximum( availableSpace );
     
-    if( std::isfinite(availableWidth) )
+
+
+    bool    widthConstrained = false;
+    double  contentAreaWidth = maxSize.width;
+    
+    if( std::isfinite(contentAreaWidth) )
     {
-        availableContentAreaWidth = availableWidth - (myPadding.left + myPadding.right);
-        if(availableContentAreaWidth<0)
-            availableContentAreaWidth = 0;
+        // if we have a limited width then we subtract our padding.
+        contentAreaWidth = contentAreaWidth - (myPadding.left + myPadding.right);
+        if(contentAreaWidth<0)
+            contentAreaWidth = 0;
 
         widthConstrained = true;
     }
-    else
-        availableContentAreaWidth = Size::componentNone();
     
 
     double currY = myPadding.top;
@@ -71,8 +64,8 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
         if( widthConstrained )
         {
-            if(childWidthWithMargins > availableContentAreaWidth)
-                childWidthWithMargins = availableContentAreaWidth;
+            if(childWidthWithMargins > contentAreaWidth)
+                childWidthWithMargins = contentAreaWidth;
         }
 
         bool widthExpanded = false;
@@ -81,9 +74,9 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         if(!forMeasuring
             && widthConstrained
             && horzAlign == HorizontalAlignment::expand
-            && childWidthWithMargins<availableContentAreaWidth)
+            && childWidthWithMargins<contentAreaWidth)
         {
-    		childWidthWithMargins = availableContentAreaWidth;                    
+    		childWidthWithMargins = contentAreaWidth;                    
             widthExpanded = true;
         }
 
@@ -95,7 +88,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 		{
 			// the child width is less than the child wanted. So we must get an up-to-date height for the new width.
             // Note that we might also get a new width in the process.
-            Size childSize = pChildView->calcPreferredSize(childWidth);
+            Size childSize = pChildView->calcPreferredSize( Size(childWidth, Size::componentNone()) );
             
             childHeight = childSize.height;
 
@@ -127,7 +120,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 		    else
 			    alignFactor = 0;
                     
-            childX = (availableContentAreaWidth-childWidthWithMargins)*alignFactor;
+            childX = (contentAreaWidth-childWidthWithMargins)*alignFactor;
         }
         
         childX += myPadding.left + childMargin.left;
@@ -144,7 +137,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         // want the resulting size to be rounded down.
         // Exception: when we are measuring then we want the size that the child actually needs for its content,
         // so we should always round up in that case.
-        RoundType sizeRoundType  = (widthConstrained && childWidthWithMargins>=availableContentAreaWidth && !forMeasuring) ? RoundType::down : RoundType::up;
+        RoundType sizeRoundType  = (widthConstrained && childWidthWithMargins>=contentAreaWidth && !forMeasuring) ? RoundType::down : RoundType::up;
 
         // we use RoundType::up for positions to ensure that small margins do not disappear. Instead it is better
         // to round them up to 1 pixel, so that separate elements are always actually separate.
@@ -163,7 +156,7 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
         // if the adjustment has modified the child width then we may need to re-calculate the preferred child height.
         if(adjustedChildBounds.width != rawChildBounds.width && adjustedChildBounds.width < childPreferredSize.width)
         {
-            double newHeight = pChildView->calcPreferredSize( adjustedChildBounds.width ).height;;
+            double newHeight = pChildView->calcPreferredSize( Size(adjustedChildBounds.width, Size::componentNone()) ).height;
             if(newHeight != adjustedChildBounds.height)
             {
                 adjustedChildBounds.height = newHeight;            
@@ -190,8 +183,8 @@ Size ColumnView::calcChildBoundsForWidth(double availableWidth, const std::list<
 
     Size prefSize( usefulWidth, currY );
 
-    // apply our own size constraints (minSize, maxSize)
-    prefSize = applySizeConstraints(prefSize);
+    // apply our minimum size constraint. The maximum constraint has already been applied above.
+    prefSize.applyMinimum( preferredSizeMinimum() );
     
     return prefSize;
 }
@@ -205,7 +198,7 @@ void ColumnView::layout()
 
 	std::list< Rect >	 childBounds;
 
-	Size usefulSize = calcChildBoundsForWidth( mySize.width, childViews, childBounds, false);
+	Size usefulSize = calcChildBounds( mySize, childViews, childBounds, false);
 
 	if( usefulSize.height > mySize.height )
 	{

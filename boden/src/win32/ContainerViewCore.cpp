@@ -17,7 +17,7 @@ ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 {
 }
 
-Size ContainerViewCore::calcPreferredSize(double availableWidth, double availableHeight) const
+Size ContainerViewCore::calcPreferredSize( const Size& availableSpace ) const
 {
 	// this core function should never have been called.
 	// The outer window is responsible for everything layout-related.

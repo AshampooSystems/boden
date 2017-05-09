@@ -48,8 +48,7 @@ public:
 
 
 	
-    Size calcPreferredSize( const Size& minSize = Size::none(),
-                            const Size& maxSize = Size::none() ) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -57,10 +56,19 @@ public:
 
         // add our padding
         P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr && !pView->padding().get().isNull())
-            size += uiMarginToDipMargin(pView->padding().get());
+        Size    minSize = Size::none();
+        Size    maxSize = availableSpace;
+        if(pView!=nullptr)
+        {
+            if(!pView->padding().get().isNull())
+                size += uiMarginToDipMargin(pView->padding().get());
 
-        size.applyConstraints(minSize, maxSize);
+            minSize = pView->preferredSizeMinimum();
+            maxSize.applyMaximum( pView->preferredSizeMaximum());
+        }
+        
+        size.applyMaximum(maxSize);
+        size.applyMinimum(minSize);
         
 		return size;
 	}

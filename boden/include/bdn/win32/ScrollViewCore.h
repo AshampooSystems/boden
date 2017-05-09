@@ -18,16 +18,16 @@ class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore
 public:
 	ScrollViewCore(ScrollView* pOuter);			
         
-	void setHorizontalScrollingEnabled(bool enabled) override;    
-	void setVerticalScrollingEnabled(bool enabled) override;    
+	void setHorizontalScrollingEnabled( const bool& enabled) override;    
+	void setVerticalScrollingEnabled( const bool& enabled) override;    
 
     void layout() override;
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;	
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;	
 
 private:
 
-    void updateStyle();
+    void updateScrollInfo(bool horzScrollBar, bool vertScrollBar, const Size& viewPortSize, const Size& fullContentSize);
 
     class ScrollViewCoreClass : public Win32WindowClass
 	{

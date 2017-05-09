@@ -427,17 +427,6 @@ public:
     }
 
 
-    
-    /** Helper function that applies the size constraints that are configured in the view
-        (preferredSizeMinimum(), preferredSizeMaximum, etc) so the specified size and returns the resulting
-        constrained size.
-        
-        This function does not modify the view's own size. It only works on the specified size object.
-
-        This function must only be called from the main thread.
-        */
-    virtual Size applySizeConstraints(const Size& size) const;
-
 
 
 	struct SizingInfo
@@ -501,10 +490,15 @@ public:
 
 
 
-    /** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
-        based on it current content	and properties.
+    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+        based on it current contents	and properties.
+
+        There are several constraints for the preferred size:
+
+        availableSpace
+        --------------
         
-		availableSpace is used to indicate the maximum amount of available
+		The availableSpace function parameter is used to indicate the maximum amount of available
 		space for the view (also in DIPs). If availableSpace is Size::none() (i.e. width and height equal Size::componentNone())
         then that means that the available space should be considered to be unlimited.
 		I.e. the function should return the view's optimal size.
@@ -520,18 +514,24 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
-        that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
-        to full physical pixels yet. The size will be adapted to the display properties in adjustAndSetBounds().        
+        preferredSizeMinimum and preferredSizeMaximum
+        ---------------------------------------------
 
-        calcPreferredSize will take the View::preferredSizeMinimum() and View::preferredSizeMaximum() properties into account
+        calcPreferredSize must also take the View::preferredSizeMinimum() and View::preferredSizeMaximum() properties into account
         and constrain the result accordingly. In cases when the preferredSizeMinimum and/or preferredSizeMaximum absolutely
         do not make sense for the view implementation or the view contents cannot be displayed within those constraints
         then the function may also return a preferred size that exceeds these bounds.
 
+        Important Notes
+        ---------------
+
+        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
+        that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
+        to full physical pixels yet. The size will be adapted to the display properties in adjustAndSetBounds().        
+
         IMPORTANT: This function must only called be called from the main thread.
 		*/		
-    virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+    virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
     
 
