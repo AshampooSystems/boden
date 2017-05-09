@@ -314,34 +314,34 @@ inline void verifyStreamIntegration()
         verifyStringFromStream<CharType>(s, U"world", stream.getloc());        
 	}
 
-	SECTION("getline-noDelim")
+	SECTION("getLineFromStream-noDelim")
 	{
 		String								in(U"\U00012345hello world\nbla gubbel");
 		std::basic_istringstream<CharType>	stream( makeInStreamData<CharType>(in)  );
 
 		String				s;
 
-		std::getline( stream, s);
+		getLineFromStream( stream, s);
 
 		verifyStringFromStream<CharType>(s, U"\U00012345hello world", stream.getloc() );
 
-		std::getline( stream, s);
+		getLineFromStream( stream, s);
 
 		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
 	}
 
-	SECTION("getline-delim")
+	SECTION("getLineFromStream-delim")
 	{
 		String								in(U"\U00012345hello world!bla gubbel");
 		std::basic_istringstream<CharType>	stream( makeInStreamData<CharType>(in) );
 
 		String				s;
 
-		std::getline( stream, s, '!');
+		getLineFromStream( stream, s, '!');
 
 		verifyStringFromStream<CharType>( s, U"\U00012345hello world", stream.getloc() );
 
-		std::getline( stream, s, '!');
+		getLineFromStream( stream, s, '!');
 
 		verifyStringFromStream<CharType>(s, U"bla gubbel", stream.getloc() );
 	}
