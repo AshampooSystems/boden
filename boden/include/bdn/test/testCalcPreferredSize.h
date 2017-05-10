@@ -138,7 +138,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         SECTION("width smaller than preferred width")
         {
-            pView->preferredSizeMaximum() = Size( prefSizeBefore.width-1, -1 );
+            pView->preferredSizeMaximum() = Size( prefSizeBefore.width-1, Size::componentNone() );
 
             Size prefSize = pObject->calcPreferredSize();
 
@@ -147,7 +147,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("height smaller than preferred height")
         {
-            pView->preferredSizeMaximum() = Size( -1, prefSizeBefore.height-1 );
+            pView->preferredSizeMaximum() = Size( Size::componentNone(), prefSizeBefore.height-1 );
 
             Size prefSize = pObject->calcPreferredSize();
 

@@ -170,7 +170,7 @@ public:
         if( std::isfinite(maxSize.width) && (!std::isfinite(width) || width > maxSize.width))
             width = maxSize.width;            
 
-        if( std::isfinite(maxSize.height) && (!std::isfinite(height) || height < maxSize.height))
+        if( std::isfinite(maxSize.height) && (!std::isfinite(height) || height > maxSize.height))
             height = maxSize.height;            
     }
 

@@ -222,6 +222,14 @@ Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
         // apply the minimum constraint
         prefSize.applyMinimum( pOuterView->preferredSizeMinimum() );
 
+        // also apply the preferredSizeMaximum. We already applied it at the start to
+        // take the constraint into account from the beginning, but it may be that prefSize
+        // is bigger than the max here because the content window does not fit.
+        // So we clip the result against the max here, because we never want it to be exceeded.
+        // Note that we do NOT clip against availableSpace, because we WANT that to be exceeded
+        // if the children do not fit.
+        prefSize.applyMaximum( pOuterView->preferredSizeMinimum() );
+
         return prefSize;
     }
 }

@@ -79,7 +79,12 @@ Size TextViewCore::calcPreferredSize( const Size& availableSpace ) const
 	prefSize += uiMarginToDipMargin( uiPadding );	
 
     if(pTextView!=nullptr)
+    {
         prefSize.applyMinimum(minSize);
+        // clip against the max size again. It may have been exceeded if the
+        // content did not fit, and we never want that.
+        prefSize.applyMaximum( pTextView->preferredSizeMaximum() );
+    }
     
 	return prefSize;
 }

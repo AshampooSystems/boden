@@ -150,7 +150,7 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
     bool widthConstrained = std::isfinite(maxSize.width);
     bool heightConstrained = std::isfinite(maxSize.height);
 
-	Size availableContentAreaSize(-1, -1);	
+	Size availableContentAreaSize( Size::none() );
 	if(widthConstrained || heightConstrained)
 	{
 		// subtract size of window border, titlebar, etc.
@@ -190,6 +190,15 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
     // also apply the core's minimm size (the implementation defined minimum size that all windows
     // must at least have)
     preferredSize.applyMinimum( pCore->getMinimumSize() );
+
+
+    // also apply the preferredSizeMaximum. We already applied it at the start to
+    // take the constraint into account from the beginning, but it may be that prefSize
+    // is bigger than the max here because the content window does not fit.
+    // So we clip the result against the max here, because we never want it to be exceeded.
+    // Note that we do NOT clip against availableSpace, because we WANT that to be exceeded
+    // if the children do not fit.
+    preferredSize.applyMaximum( preferredSizeMaximum() );
 
 
 	return preferredSize;

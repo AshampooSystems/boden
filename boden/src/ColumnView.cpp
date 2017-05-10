@@ -62,7 +62,7 @@ Size ColumnView::calcChildBounds( const Size& availableSpace, const std::list< P
 
         double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
 
-        if( widthConstrained )
+        if( !forMeasuring && widthConstrained )
         {
             if(childWidthWithMargins > contentAreaWidth)
                 childWidthWithMargins = contentAreaWidth;
@@ -183,8 +183,16 @@ Size ColumnView::calcChildBounds( const Size& availableSpace, const std::list< P
 
     Size prefSize( usefulWidth, currY );
 
-    // apply our minimum size constraint. The maximum constraint has already been applied above.
+    // apply our minimum size constraint.
     prefSize.applyMinimum( preferredSizeMinimum() );
+
+    // also apply the preferredSizeMaximum. We already tried to arrange our children
+    // according to the constrained size, but it may be that they did not fit. In that
+    // case prefSize will exceed preferredSizeMaximum and we need to clip it again.
+    // Note that we do NOT clip against availableSpace, because we WANT that to be exceeded
+    // if the children do not fit. But we never want preferredSizeMaximum to be exceeded.
+    prefSize.applyMaximum( preferredSizeMaximum() );
+
     
     return prefSize;
 }

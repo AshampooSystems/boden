@@ -276,8 +276,8 @@ inline void testView()
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
-            BDN_REQUIRE( pView->preferredSizeMinimum() == Size(-1,-1) );
-            BDN_REQUIRE( pView->preferredSizeMaximum() == Size(-1,-1) );
+            BDN_REQUIRE( pView->preferredSizeMinimum() == Size::none() );
+            BDN_REQUIRE( pView->preferredSizeMaximum() == Size::none() );
 
 		    BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 
