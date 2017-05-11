@@ -105,13 +105,19 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeMinimum and preferredSizeMaximum
+        preferredSizeHint(), preferredSizeMinimum() and preferredSizeMaximum()
         ---------------------------------------------
 
-        calcPreferredSize must also take the View::preferredSizeMinimum() and View::preferredSizeMaximum() properties into account
-        and constrain the result accordingly. In cases when the preferredSizeMinimum and/or preferredSizeMaximum absolutely
-        do not make sense for the view implementation or the view contents cannot be displayed within those constraints
-        then the function may also return a preferred size that exceeds these bounds.
+        calcPreferredSize must also take the View::preferredSizeHint(), View::preferredSizeMinimum() and View::preferredSizeMaximum()
+        properties into account and constrains the result accordingly.
+        
+        preferredSizeHint() can be used to provide an advisory hint to the view as to what the preferred width and/or height should
+        roughly be. The view is free to ignore this, however. Text views often use this to select the place where they wrap their
+        text into multiple lines, for example.
+
+        preferredSizeMinimum() and preferredSizeMaximum() are optional hard limits. calcPreferredSize should never
+        return a size that violates these limits, if they are set. Even if that means that the view's content does not fit into
+        the view.
 
         Important Notes
         ---------------

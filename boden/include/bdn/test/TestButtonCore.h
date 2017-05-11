@@ -11,7 +11,7 @@ namespace test
 
 
 /** Helper for tests that verify IButtonCore implementations.*/
-class TestButtonCore : public TestViewCore
+class TestButtonCore : public TestViewCore<Button>
 {
 
 protected:

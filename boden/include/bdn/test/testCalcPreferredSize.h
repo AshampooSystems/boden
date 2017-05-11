@@ -2,13 +2,39 @@
 #define BDN_TEST_testCalcPreferredSize_H_
 
 #include <bdn/View.h>
+#include <bdn/TextView.h>
 
 namespace bdn
 {
 namespace test
 {
 
-template<class ObjectType>
+
+template<class ViewType>
+inline bool shouldPrefererredWidthHintHaveAnEffect()
+{
+    // for most views the hint has no effect
+    return false;
+}
+
+template<>
+inline bool shouldPrefererredWidthHintHaveAnEffect<TextView>()
+{
+    // Text views can adjust their text wrapping. So the size hint should have an effect
+    return true;
+}
+
+
+template<class ViewType>
+inline bool shouldPrefererredHeightHintHaveAnEffect()
+{
+    // for most views the hint has no effect
+    return false;
+}
+
+
+
+template<class ViewType, class ObjectType>
 inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase> pKeepAliveDuringContinuations)
 {
 	SECTION("plausible")	
@@ -194,6 +220,81 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         SECTION("zero")
             REQUIRE( pObject->calcPreferredSize( Size(Size::componentNone(), 0) ).width >= prefSize.width );
     }
+
+
+
+
+
+    SECTION("preferredSizeHint influence")	
+    {
+        // some views (for example some top level windows) have an intrinsic minimum size.
+        // The result of calcPreferredSize will not go below that.
+        // So to ensure that we are in a position to verify maxSize, we first have to ensure
+        // that we are above that limit. We do that by artificially enlarging the preferred
+        // size with a big padding.
+
+        pView->padding() = UiMargin(300);
+
+        Size prefSizeBefore = pObject->calcPreferredSize();
+
+        SECTION("bigger than preferred size hint")
+        {
+            pView->preferredSizeHint() = prefSizeBefore+Size(1,1);
+
+            Size prefSize = pObject->calcPreferredSize();
+
+            REQUIRE( prefSize == prefSizeBefore);
+        }
+
+        SECTION("same as preferred size hint")
+        {
+            pView->preferredSizeHint() = prefSizeBefore;
+
+            Size prefSize = pObject->calcPreferredSize();
+
+            REQUIRE( prefSize == prefSizeBefore);
+        }
+                    
+        SECTION("width smaller than preferred width hint")
+        {
+            pView->preferredSizeHint() = Size( prefSizeBefore.width-1, Size::componentNone() );
+
+            Size prefSize = pObject->calcPreferredSize();
+
+            // it depends on the view whether or not the width hint has an effect
+            if(shouldPrefererredWidthHintHaveAnEffect<ViewType>() )
+            {
+                REQUIRE( prefSize.width < prefSizeBefore.width);
+                
+                // the height may have increase as a result of the width being reduced.
+                // It may also have shrunk (for example, if an image is shrunk as the result
+                // of the hint.
+                // So we cannot test anything here, other than that we get a height that
+                // is >0
+                REQUIRE( prefSize.height > 0);
+            }
+            else
+                REQUIRE( prefSize == prefSizeBefore );
+        }
+
+        SECTION("height smaller than preferred height hint")
+        {
+            pView->preferredSizeHint() = Size( Size::componentNone(), prefSizeBefore.height-1 );
+
+            Size prefSize = pObject->calcPreferredSize();
+
+            if( shouldPrefererredHeightHintHaveAnEffect<ViewType>() )
+            {
+                REQUIRE( prefSize.height < prefSizeBefore.height);
+                
+                REQUIRE( prefSize.width > 0);
+            }
+            else
+                REQUIRE( prefSize == prefSizeBefore );
+        }
+    }
+
+
 }
 
 

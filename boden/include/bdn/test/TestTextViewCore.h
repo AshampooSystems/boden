@@ -11,7 +11,7 @@ namespace test
 {
     
 /** Helper for tests that verify ITextViewCore implementations.*/
-class TestTextViewCore : public TestViewCore
+class TestTextViewCore : public TestViewCore<TextView>
 {
 
 protected:

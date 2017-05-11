@@ -10,6 +10,7 @@ BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 
 View::View()
 	: _visible(true) // most views are initially visible
+    , _preferredSizeHint( Size::none() )
     , _preferredSizeMinimum( Size::none() )
     , _preferredSizeMaximum( Size::none() )
 {

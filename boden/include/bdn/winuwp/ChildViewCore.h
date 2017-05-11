@@ -246,39 +246,55 @@ public:
 
 
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		// Unfortunately most views will clip the size returned by Measure to never
+        // Most views will clip the size returned by Measure to never
 		// exceed the specified max width or height (even though Measure is actually
 		// documented to return a bigger size if the view cannot be made small enough
-		// to fit). So to avoid this unwanted clipping we only pass the available
-		// size along to the control if the control can actually use it to adapt its size.
-		if(!canAdjustWidthToAvailableSpace())
-			availableWidth = -1;	// ignore availableWidth parameter
-		if(!canAdjustHeightToAvailableSpace())
-			availableHeight = -1;	// ignore availableHeight parameter
+		// to fit).
 
-		float availableWidthFloat;
-		float availableHeightFloat;
-
-		if(availableWidth==-1)
-			availableWidthFloat = std::numeric_limits<float>::infinity();
-		else
-			availableWidthFloat = doubleToUwpDimension(availableWidth );
-
-		if(availableHeight==-1)
-			availableHeightFloat = std::numeric_limits<float>::infinity();
-		else
-			availableHeightFloat = doubleToUwpDimension(availableHeight );
-
-		// tell the element that it has a huge available size.
-		// The docs say that one can pass Double::PositiveInifinity here as well, but apparently that constant
-		// is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
+        Size measureAvailSize( availableSpace );
 
         try
         {
+            Size preferredSizeHint( Size::none() );
+
+            P<View> pOuter = getOuterViewIfStillAttached();
+            if(pOuter!=nullptr)
+            {
+                // preferredSizeMaximum is a hard limit, which is exactly how most UWP controls
+                // interpret the available size. So we incorporate it.
+                measureAvailSize.applyMaximum( pOuter->preferredSizeMaximum() );
+
+                preferredSizeHint = pOuter->preferredSizeHint();
+            }
+
+            float measureAvailWidthFloat;
+		    float measureAvailHeightFloat;
+            		
+		    if( !std::isfinite(measureAvailSize.width) || !canAdjustWidthToAvailableSpace() )
+			    measureAvailWidthFloat = std::numeric_limits<float>::infinity();
+		    else
+			    measureAvailWidthFloat = doubleToUwpDimension( measureAvailSize.width );
+
+		    if( !std::isfinite(measureAvailSize.height) || !canAdjustHeightToAvailableSpace() )
+			    measureAvailHeightFloat = std::numeric_limits<float>::infinity();
+		    else
+			    measureAvailHeightFloat = doubleToUwpDimension( measureAvailSize.height );
+
+            if(measureAvailWidthFloat<0)
+			    measureAvailWidthFloat = 0;
+		    if(measureAvailHeightFloat<0)
+			    measureAvailHeightFloat = 0;
+            
+
+		    // tell the element that it has a huge available size.
+		    // The docs say that one can pass Double::PositiveInfinity here as well, but apparently that constant
+		    // is not available in C++. And std::numeric_limits<float>::infinity() does not seem to work.
+
+       
 		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 		    {
@@ -286,20 +302,23 @@ public:
 			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
 		    }
 
-		    if(availableWidthFloat<0)
-			    availableWidthFloat = 0;
-		    if(availableHeightFloat<0)
-			    availableHeightFloat = 0;
-
+		    
 		    // the Width and Height properties indicate to the layout process how big we want to be.
 		    // If they are set then they are incorporated into the DesiredSize measurements.
-		    // So we set them to "Auto" now, so that the size is only measured according to the content size.
-		    _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-		    _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+            // So they are analogous to our preferredSizeHint
+            if(std::isfinite( preferredSizeHint.width ))
+                _pFrameworkElement->Width = doubleToUwpDimension(preferredSizeHint.width);
+            else
+                _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
 
+            if(std::isfinite( preferredSizeHint.height ))
+                _pFrameworkElement->Height = doubleToUwpDimension(preferredSizeHint.height);
+            else
+                _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+            
             _pFrameworkElement->InvalidateMeasure();
 
-		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( availableWidthFloat, availableHeightFloat ) );
+		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 		
@@ -308,9 +327,14 @@ public:
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;
 
-            P<View> pOuter = getOuterViewIfStillAttached();
             if(pOuter!=nullptr)
-                size = pOuter->applySizeConstraints(size);
+            {
+                size.applyMinimum( pOuter->preferredSizeMinimum() );
+
+                // clip to the maximum again. We never want that to be exceeded, even
+                // if the content does not fit.
+                size.applyMaximum( pOuter->preferredSizeMaximum() );
+            }
 
             return size;
         }

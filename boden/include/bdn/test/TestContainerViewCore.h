@@ -12,7 +12,7 @@ namespace test
 
 
 /** Helper for tests that verify IContainerViewCore implementations.*/
-class TestContainerViewCore : public TestViewCore
+class TestContainerViewCore : public TestViewCore<ContainerView>
 {
 
 protected:

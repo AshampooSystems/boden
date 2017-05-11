@@ -16,7 +16,8 @@ namespace test
 
 
 /** Helper for tests that verify IViewCore implementations.*/
-class TestViewCore : public RequireNewAlloc<Base, TestViewCore>
+template<class ViewType>
+class TestViewCore : public RequireNewAlloc<Base, TestViewCore<ViewType> >
 {
 public:
 
@@ -62,7 +63,7 @@ public:
             _pView->visible() = true;
 
             // ensure that all pending initializations have finished.
-            P<TestViewCore> pThis = this;
+            P<TestViewCore<ViewType>> pThis = this;
 
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
@@ -222,7 +223,7 @@ protected:
         if(coreCanCalculatePreferredSize())
         {	
             SECTION("calcPreferredSize")
-                bdn::test::_testCalcPreferredSize<IViewCore>( _pView, _pCore, this );
+                bdn::test::_testCalcPreferredSize<ViewType, IViewCore>( _pView, _pCore, this );
         }
     
         SECTION("visibility")   
@@ -291,7 +292,7 @@ protected:
                     _pView->padding() = paddingBefore;
                     
                     // wait a little so that sizing info is updated.
-                    P<TestViewCore> pThis = this;
+                    P<TestViewCore<ViewType>> pThis = this;
                     CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
@@ -340,7 +341,7 @@ protected:
 
             Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
 
-            P<TestViewCore> pThis = this;
+            P<TestViewCore<ViewType>> pThis = this;
             
             // on some platform and with some view types (Linux / GTK with top level window)
             // waiting for idle is not enough to ensure that the position actually changed.

@@ -382,13 +382,45 @@ public:
 	void needLayout();
 
 
-
-    /** Sets a lower size constraint for the preferred size of the view (in DIP units).
+    /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to
+        influence the automatic sizing of the view.
     
-        The view will automatically apply this constraint when calculating its preferred size.
+        This does *not* set a hard limit like preferredSizeMinimum() or preferredSizeMaximum(). The view is
+        free to ignore this hint, if it does not make sense in the context of the view.
 
-        Width and/or height of the constraint can be set to -1 to indicate that the corresponding component should
-        be unconstrained.
+        But for some views the hint is used to influence the calculation of the preferred size. For example,
+        text views should use the hint width as a guideline as to where to automatically wrap their text.
+        
+        Width and/or height of the hint can be set to Size::componentNone() to indicate that there is no hint for that
+        component (i.e. the view should choose the preferred size completely on its own).
+
+        The default value is Size::none(), i.e. there is no size hint.
+
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
+        (see calcPreferredSize()).
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
+    */
+    virtual Property<Size>& preferredSizeHint()
+    {
+        return _preferredSizeHint;
+    }
+
+    virtual const ReadProperty<Size>& preferredSizeHint() const
+    {
+        return _preferredSizeHint;
+    }
+
+
+    /** An optional lower limit for the preferred size of the view (in DIP units). This can be used by the application
+        to influence the layout of the view and enforce special sizing.
+
+        Width and/or height of the constraint can be set to Size::componentNone() to indicate that the corresponding
+        component should not have a lower limit.
+
+        The default value is Size::none(), i.e. there is no minimum for either width or height.
+
+        The view will automatically apply this constraint when calculating its preferred size. It is a hard limit,
+        so the view will never report a preferred size below this minimum.        
 
         IMPORTANT: this property only influences the preferred size that the view requests during layout
         (see calcPreferredSize()).
@@ -405,12 +437,17 @@ public:
     }
 
 
-    /** Sets an upper size constraint for the preferred size of the view (in DIP units).
-    
-        The view will automatically apply this constraint when calculating its preferred size.
 
-        Width and/or height of the constraint can be set to -1 to indicate that the corresponding component should
-        be unconstrained.
+    /** An optional upper limit for the preferred size of the view (in DIP units). This can be used by the application
+        to influence the layout of the view and enforce special sizing.
+
+        Width and/or height of the constraint can be set to Size::componentNone() to indicate that the corresponding
+        component should not have an upper limit.
+
+        The default value is Size::none(), i.e. there is no maximum for either width or height.
+
+        The view will automatically apply this constraint when calculating its preferred size. It is a hard limit,
+        so the view will never report a preferred size that exceeds this maximum. 
 
         IMPORTANT: this property only influences the preferred size that the view requests during layout
         (see calcPreferredSize()).
@@ -514,13 +551,19 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeMinimum and preferredSizeMaximum
+        preferredSizeHint(), preferredSizeMinimum() and preferredSizeMaximum()
         ---------------------------------------------
 
-        calcPreferredSize must also take the View::preferredSizeMinimum() and View::preferredSizeMaximum() properties into account
-        and constrain the result accordingly. In cases when the preferredSizeMinimum and/or preferredSizeMaximum absolutely
-        do not make sense for the view implementation or the view contents cannot be displayed within those constraints
-        then the function may also return a preferred size that exceeds these bounds.
+        calcPreferredSize must also take the View::preferredSizeHint(), View::preferredSizeMinimum() and View::preferredSizeMaximum()
+        properties into account and constrains the result accordingly.
+        
+        preferredSizeHint() can be used to provide an advisory hint to the view as to what the preferred width and/or height should
+        roughly be. The view is free to ignore this, however. Text views often use this to select the place where they wrap their
+        text into multiple lines, for example.
+
+        preferredSizeMinimum() and preferredSizeMaximum() are optional hard limits. calcPreferredSize should never
+        return a size that violates these limits, if they are set. Even if that means that the view's content does not fit into
+        the view.
 
         Important Notes
         ---------------
@@ -789,6 +832,7 @@ private:
     
 	DefaultProperty<SizingInfo>		_sizingInfo;
 
+    DefaultProperty<Size>           _preferredSizeHint;
     DefaultProperty<Size>           _preferredSizeMinimum;
     DefaultProperty<Size>           _preferredSizeMaximum;
 };

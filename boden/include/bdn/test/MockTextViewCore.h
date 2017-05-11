@@ -56,19 +56,30 @@ public:
 
         // add our padding
         P<View> pView = getOuterViewIfStillAttached();
-        Size    minSize = Size::none();
-        Size    maxSize = availableSpace;
+        Size    preferredSizeHint(Size::none());
         if(pView!=nullptr)
         {
             if(!pView->padding().get().isNull())
                 size += uiMarginToDipMargin(pView->padding().get());
 
-            minSize = pView->preferredSizeMinimum();
-            maxSize.applyMaximum( pView->preferredSizeMaximum());
+            preferredSizeHint = pView->preferredSizeHint();
         }
-        
-        size.applyMaximum(maxSize);
-        size.applyMinimum(minSize);
+
+        // text views typically somewhat adhere to the available width.
+        // We do not do line breaking in this mock view - we simply clip the size.
+        size.applyMaximum( availableSpace );
+
+        // we also clip to the preferredSizeHint.width, since text views usually use
+        // that as an advisory value of where to clip
+        size.applyMaximum( Size(preferredSizeHint.width, Size::componentNone()) );
+
+        if(pView!=nullptr)
+        {   
+            // clip to min and max size
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
+
         
 		return size;
 	}

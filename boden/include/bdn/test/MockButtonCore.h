@@ -53,24 +53,27 @@ public:
 
 		Size size = _getTextSize(_label);
 
+        
+
         // add our padding
         P<View> pView = getOuterViewIfStillAttached();
-        Size    minSize = Size::none();
-        Size    maxSize = availableSpace;
         if(pView!=nullptr)
         {
             if(!pView->padding().get().isNull())
                 size += uiMarginToDipMargin(pView->padding().get());
-            
-            minSize = pView->preferredSizeMinimum();
-            maxSize.applyMaximum( pView->preferredSizeMaximum() );
         }
 
-		// add some space for the fake button border
+        // add some space for the fake button border
 		size += Margin( 4, 5);
+
+        // ignore available space. We have a fixed size.
         
-        size.applyMaximum(maxSize);
-        size.applyMinimum(minSize);
+        if(pView!=nullptr)
+        {            
+            // clip to min and max size
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
 
 		return size;
 	}

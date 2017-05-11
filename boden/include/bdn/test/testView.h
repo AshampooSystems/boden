@@ -120,6 +120,11 @@ inline bool shouldViewHaveParent<Window>()
 
 
 
+
+
+
+
+
 /** Helper function that performs an operation on a view object and verifies the result afterwards.
 
     The operation is performed twice: once from the main thread and once from another thread (if the target
@@ -276,6 +281,7 @@ inline void testView()
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
+            BDN_REQUIRE( pView->preferredSizeHint() == Size::none() );
             BDN_REQUIRE( pView->preferredSizeMinimum() == Size::none() );
             BDN_REQUIRE( pView->preferredSizeMaximum() == Size::none() );
 
@@ -539,7 +545,7 @@ inline void testView()
 	    }
 
         SECTION("preferredSize")
-            bdn::test::_testCalcPreferredSize<View>(pView, pView, pPreparer);
+            bdn::test::_testCalcPreferredSize<ViewType, View>(pView, pView, pPreparer);
 
 	    SECTION("multiplePropertyChangesThatInfluenceSizing")
 	    {

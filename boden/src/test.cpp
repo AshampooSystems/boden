@@ -8144,12 +8144,12 @@ protected:
 
         pColumnView->addChildView( _pStatusView );
 
-		// we want to see at least 3 lines in our status view. We also want to have
-        // a bit of a min size to show at least some text.
-		_pStatusView->preferredSizeMinimum() = Size( _pStatusView->uiLengthToDips(UiLength::em(20)),
+        // we want to see at least 3 lines in our status view.
+        // We also want a minimum width to that at least some text is visible.
+        _pStatusView->preferredSizeMinimum() = Size( _pStatusView->uiLengthToDips(UiLength::em(20)) ,
                                                      _pStatusView->uiLengthToDips(UiLength::em(3)) );
 
-		        
+
 		_pWindow->setContentView( pColumnView );
 	}
 

@@ -11,7 +11,7 @@ namespace test
     
 
 /** Helper for tests that verify IWindowCore implementations.*/
-class TestWindowCore : public TestViewCore
+class TestWindowCore : public TestViewCore<Window>
 {
 
 protected:
