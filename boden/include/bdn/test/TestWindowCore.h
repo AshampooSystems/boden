@@ -56,6 +56,8 @@ protected:
 
     void runPostInitTests() override
     {
+        P<TestWindowCore> pThis(this);
+    
         TestViewCore::runPostInitTests();
 
         SECTION("title")
@@ -63,7 +65,11 @@ protected:
             SECTION("value")
             {
                 _pWindow->title() = "hello world";
-                verifyCoreTitle();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreTitle();
+                };
             }
 
             SECTION("does not affect preferred size")
@@ -72,10 +78,13 @@ protected:
                 Size prefSizeBefore = _pWindow->calcPreferredSize();
 
                 _pWindow->title() = "this is a long long long long long long long long long long long long title";
-
-                Size prefSize = _pWindow->calcPreferredSize();
-
-                REQUIRE( prefSize == prefSizeBefore);
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                {
+                    Size prefSize = pThis->_pWindow->calcPreferredSize();
+                    
+                    REQUIRE( prefSize == prefSizeBefore);
+                };
             }
         }
 
@@ -86,8 +95,6 @@ protected:
             // Note that fullscreen windows may ignore this, but that is ok.
             // We only want to avoid cases where the window is tiny.
             _pWindow->adjustAndSetBounds( Rect(0, 0, 1000, 1000) );
-
-            P<TestWindowCore> pThis = this;
 
             // continue async to give the core a chance to correct / override
             // the new bounds.
@@ -164,10 +171,13 @@ protected:
                     _pWindow->preferredSizeMinimum() = minSizeUnconstrained-Size(1,1);
                 SECTION("bigger")
                     _pWindow->preferredSizeMinimum() = minSizeUnconstrained+Size(1,1);
-
-                // View::preferredSizeMinimum() should have no effect
-                Size minSize = _pWindowCore->getMinimumSize();
-                REQUIRE( minSize == minSizeUnconstrained );
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, minSizeUnconstrained)
+                {
+                    // View::preferredSizeMinimum() should have no effect
+                    Size minSize = pThis->_pWindowCore->getMinimumSize();
+                    REQUIRE( minSize == minSizeUnconstrained );
+                };
             }
         }
 
@@ -185,8 +195,6 @@ protected:
         {
             // there may be pending sizing info updates for the window, which keep it alive.
             // Ensure that those are done first.
-
-            P<TestWindowCore> pThis = this;
 
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {

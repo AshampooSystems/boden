@@ -45,6 +45,29 @@ public:
         _uiLabel.text = stringToIosString(text);
     }
     
+    
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
+    {
+        // we want the preferred width hint to act as the wrap width where
+        // the view wraps its text. To achieve that we incorporate it into
+        // the available width value.
+        Size          availableSpaceToUse(availableSpace);
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            Size hint = pView->preferredSizeHint();
+            
+            // ignore the height hint - the view cannot change its width
+            // to match a certain height, only the other way round.
+            hint.height = Size::componentNone();
+            
+            availableSpaceToUse.applyMaximum( hint );
+        }
+        
+        // now pass that to the base class implementation
+        return ViewCore::calcPreferredSize( availableSpaceToUse );
+    }
+    
 protected:
 
     double getFontSize() const override

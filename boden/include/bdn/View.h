@@ -564,6 +564,13 @@ public:
         preferredSizeMinimum() and preferredSizeMaximum() are optional hard limits. calcPreferredSize should never
         return a size that violates these limits, if they are set. Even if that means that the view's content does not fit into
         the view.
+     
+        If there is a conflict between the minimum and maximum and/or hint values then the values should
+        be prioritized in this ascending order: hint, minimum, maximum.
+        So the maximum value has the highest priority and the returned value should never exceed
+        it. For example, if a minimum is set that exceeds the maximum
+        then the maximum should "win" and the preferred size should not exceed the maximum.
+         
 
         Important Notes
         ---------------

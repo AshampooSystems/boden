@@ -52,7 +52,7 @@ public:
     }
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         // the bezel style influences the fitting size. To get consistent values here we have to
         // ensure that we use the same bezel style each time we calculate the size.
@@ -61,7 +61,7 @@ public:
         if(bezelStyle != NSRoundedBezelStyle)
             _nsButton.bezelStyle = NSRoundedBezelStyle;
         
-        Size size = ButtonCoreBase::calcPreferredSize(availableWidth, availableHeight);
+        Size size = ButtonCoreBase::calcPreferredSize( availableSpace );
         
         if(bezelStyle != NSRoundedBezelStyle)
             _nsButton.bezelStyle = bezelStyle;

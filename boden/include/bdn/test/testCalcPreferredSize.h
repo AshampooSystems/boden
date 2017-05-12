@@ -168,7 +168,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             Size prefSize = pObject->calcPreferredSize();
 
-            REQUIRE( prefSize == prefSizeBefore+Size(-1, 0));
+            REQUIRE( prefSize.width < prefSizeBefore.width);
         }
 
         SECTION("height smaller than preferred height")
@@ -177,7 +177,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             Size prefSize = pObject->calcPreferredSize();
 
-            REQUIRE( prefSize == prefSizeBefore+Size(0, -1));
+            REQUIRE( prefSize.height < prefSizeBefore.height );
         }
     }
                                 

@@ -70,7 +70,7 @@ WindowCore::WindowCore(View* pOuter)
     NSRect rect = rectToMacRect( Rect( pOuter->position(), pOuter->size() ), screen.frame.size.height );
     
     _nsWindow  = [[NSWindow alloc] initWithContentRect:rect
-                                             styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
+                                             styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                                backing:NSBackingStoreBuffered
                                                  defer:NO];
     

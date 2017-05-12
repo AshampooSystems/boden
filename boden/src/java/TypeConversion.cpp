@@ -24,7 +24,10 @@ jobject TypeConversionBase_::_createJString(const String& s, std::list<Reference
 
 String TypeConversionBase_::_getStringFromJava(const Reference& ref)
 {
-    return JString(ref).getValue_();
+    if(ref.isNull())
+        return "";
+    else
+        return JString(ref).getValue_();
 }
 
 }

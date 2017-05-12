@@ -133,7 +133,7 @@ public:
 
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
         
@@ -174,7 +174,10 @@ public:
             size.height = 0;
         
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
         
         
         return size;

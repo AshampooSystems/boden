@@ -4,6 +4,7 @@
 #include <bdn/Margin.h>
 
 #include <limits>
+#include <cmath>
 
 namespace bdn
 {

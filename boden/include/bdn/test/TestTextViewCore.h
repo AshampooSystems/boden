@@ -94,168 +94,217 @@ protected:
 	{
 		// note that the available height should have NO influence on the result,
 		// since the text cannot be made smaller in height (only in width by line-breaking)
+        P<TestTextViewCore> pThis = this;
 
 		SECTION("wider text causes wider preferred size")
 		{
             _pTextView->text() = "";
             
-			Size prefSizeBefore = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size prefSizeBefore = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			_pTextView->text() = "helloworld";
-                
-			Size prefSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
+                pThis->_pTextView->text() = "helloworld";
+            
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight)
+                {
+                    Size prefSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			// width must increase with a bigger text
-			REQUIRE( prefSize.width > prefSizeBefore.width );
+                    // width must increase with a bigger text
+                    REQUIRE( prefSize.width > prefSizeBefore.width );
 
-			// note that the height might or might not increase. But it cannot be smaller.
-			REQUIRE( prefSize.height >= prefSizeBefore.height );
+                    // note that the height might or might not increase. But it cannot be smaller.
+                    REQUIRE( prefSize.height >= prefSizeBefore.height );
 
-			// when we go back to the same text as before then the preferred size should
-			// also be the same again
-			_pTextView->text() = "";
-    
-			REQUIRE( _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) ) == prefSizeBefore );
+                    // when we go back to the same text as before then the preferred size should
+                    // also be the same again
+                    pThis->_pTextView->text() = "";
+                    
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight)
+                    {
+                        REQUIRE( pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) ) == prefSizeBefore );
+                    };
+                };
+            };
 		}
 
 		SECTION("linebreaks cause multiline")
 		{
             _pTextView->text() = "";
             
-			Size emptyTextPreferredSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size emptyTextPreferredSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			_pTextView->text() = "hello";
+                pThis->_pTextView->text() = "hello";
+            
+                CONTINUE_SECTION_WHEN_IDLE(pThis, emptyTextPreferredSize, availableHeight)
+                {
+                    Size prefSizeBefore = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			Size prefSizeBefore = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );                   
+                    // we put a little less text in the first line. On some systems the text view
+                    // will allocate space for the linebreak at the end of the first line, which
+                    // would cause our width test below to fail. So to avoid that we make the
+                    // first line considerably shorter, thus causing the whole width of the text view
+                    // to be measured according to the second line (which should have exactly the
+                    // same width as the single line above).
+                    pThis->_pTextView->text() = "he\nhello";
+                    
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight, emptyTextPreferredSize)
+                    {
+                        Size prefSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			// we put a little less text in the first line. On some systems the text view
-			// will allocate space for the linebreak at the end of the first line, which
-			// would cause our width test below to fail. So to avoid that we make the
-			// first line considerably shorter, thus causing the whole width of the text view
-			// to be measured according to the second line (which should have exactly the
-			// same width as the single line above).
-			_pTextView->text() = "he\nhello";
+                        // should have same width as before (since both lines have the same texts).
+                        REQUIRE( prefSize.width == prefSizeBefore.width);
 
-			Size prefSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );                   
+                        // should have roughly twice the height as before. Note that the exact height
+                        // can vary because the line spacing can be different.
 
-			// should have same width as before (since both lines have the same texts).
-			REQUIRE( prefSize.width == prefSizeBefore.width);
+                        REQUIRE( prefSize.height >= prefSizeBefore.height*1.8 );
+                        REQUIRE( prefSize.height < prefSizeBefore.height*3 );
 
-			// should have roughly twice the height as before. Note that the exact height
-			// can vary because the line spacing can be different.
-
-			REQUIRE( prefSize.height >= prefSizeBefore.height*1.8 );
-			REQUIRE( prefSize.height < prefSizeBefore.height*3 );
-
-			// when we go back to empty text then we should get the original size
-			_pTextView->text() = "";    
-			REQUIRE( _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) ) == emptyTextPreferredSize );
+                        // when we go back to empty text then we should get the original size
+                        pThis->_pTextView->text() = "";
+                        
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight, emptyTextPreferredSize)
+                        {
+                            REQUIRE( pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) ) == emptyTextPreferredSize );
+                        };
+                    };
+                };
+            };
 		}
 
 		SECTION("CRLF same as LF")
 		{
 			_pTextView->text() = "hello world\nbla";
+            
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size sizeLF = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			Size sizeLF = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );                   
+                pThis->_pTextView->text() = "hello world\r\nbla";
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, sizeLF, availableHeight)
+                {
+                    Size sizeCRLF = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			_pTextView->text() = "hello world\r\nbla";
-
-			Size sizeCRLF = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );                   
-
-			REQUIRE( sizeLF == sizeCRLF);
+                    REQUIRE( sizeLF == sizeCRLF);
+                };
+            };
 		}
 
 		SECTION("availableWidth has no effect if bigger than unconstrained width")
 		{
 			_pTextView->text() = "hello world";
+            
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size unconstrainedSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			Size unconstrainedSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
-
-			REQUIRE( _pTextView->calcPreferredSize( Size( unconstrainedSize.width+10, availableHeight) ) == unconstrainedSize );
+                REQUIRE( pThis->_pTextView->calcPreferredSize( Size( unconstrainedSize.width+10, availableHeight) ) == unconstrainedSize );
+            };
 		}
 
 		SECTION("availableWidth has no effect if equal to unconstrained width")
 		{
 			_pTextView->text() = "hello world";
+            
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size unconstrainedSize = pThis->_pTextView->calcPreferredSize( Size(Size::componentNone(), availableHeight) );
 
-			Size unconstrainedSize = _pTextView->calcPreferredSize( Size(Size::componentNone(), availableHeight) );
-
-			REQUIRE( _pTextView->calcPreferredSize( Size(unconstrainedSize.width, availableHeight) ) == unconstrainedSize );
+                REQUIRE( pThis->_pTextView->calcPreferredSize( Size(unconstrainedSize.width, availableHeight) ) == unconstrainedSize );
+            };
 		}		
 
 		SECTION("smaller availableWidth causes word wrap")
 		{
 			_pTextView->text() = "hellohello worldworld\nblabb";
-
-			Size wrappedAtSecondPositionSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
-
-			_pTextView->text() = "hellohello\nworldworld blabb";
-
-			Size wrappedAtFirstPositionSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
-
-			_pTextView->text() = "hellohello worldworld blabb";
-
-			Size fullSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
-
-			REQUIRE( fullSize.width > wrappedAtSecondPositionSize.width );
-			REQUIRE( fullSize.height < wrappedAtSecondPositionSize.height );
-			
-            // note that there might be some rounding errors with the width. So we accept 1 pixel difference
-			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( Size( wrappedAtSecondPositionSize.width+1, availableHeight) ), wrappedAtSecondPositionSize, Size(1,0) );
             
-			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width, availableHeight) ), wrappedAtSecondPositionSize, Size(1,0) );
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
+            {
+                Size wrappedAtSecondPositionSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			if(usesAllAvailableWidthWhenWrapped())
-			{
-				// the implementation will return exactly the available width when text is wrapped.
-				// Possibly with a small rounding difference.
-				REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width-1, availableHeight) ),
-								      Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height),
-								      Size(0.5, 0.5) );
-			}
-			else
-			{
-				REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width-1, availableHeight) ), wrappedAtFirstPositionSize, Size(1,0) );
-			}
+                pThis->_pTextView->text() = "hellohello\nworldworld blabb";
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, wrappedAtSecondPositionSize, availableHeight)
+                {
+                    Size wrappedAtFirstPositionSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
+                    
+                    pThis->_pTextView->text() = "hellohello worldworld blabb";
+                    
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, wrappedAtSecondPositionSize, wrappedAtFirstPositionSize, availableHeight)
+                    {
+                        Size fullSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-			REQUIRE_ALMOST_EQUAL( _pTextView->calcPreferredSize( Size(wrappedAtFirstPositionSize.width, availableHeight) ).width, wrappedAtFirstPositionSize.width, 1 );
+                        REQUIRE( fullSize.width > wrappedAtSecondPositionSize.width );
+                        REQUIRE( fullSize.height < wrappedAtSecondPositionSize.height );
+                        
+                        // note that there might be some rounding errors with the width. So we accept 1 pixel difference
+                        REQUIRE_ALMOST_EQUAL( pThis->_pTextView->calcPreferredSize( Size( wrappedAtSecondPositionSize.width+1, availableHeight) ), wrappedAtSecondPositionSize, Size(1,0) );
+                        
+                        REQUIRE_ALMOST_EQUAL( pThis->_pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width, availableHeight) ), wrappedAtSecondPositionSize, Size(1,0) );
+
+                        if(pThis->usesAllAvailableWidthWhenWrapped())
+                        {
+                            // the implementation will return exactly the available width when text is wrapped.
+                            // Possibly with a small rounding difference.
+                            REQUIRE_ALMOST_EQUAL( pThis->_pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width-1, availableHeight) ),
+                                                  Size(wrappedAtSecondPositionSize.width-1, wrappedAtFirstPositionSize.height),
+                                                  Size(0.5, 0.5) );
+                        }
+                        else
+                        {
+                            REQUIRE_ALMOST_EQUAL( pThis->_pTextView->calcPreferredSize( Size(wrappedAtSecondPositionSize.width-1, availableHeight) ), wrappedAtFirstPositionSize, Size(1,0) );
+                        }
+
+                        REQUIRE_ALMOST_EQUAL( pThis->_pTextView->calcPreferredSize( Size(wrappedAtFirstPositionSize.width, availableHeight) ).width, wrappedAtFirstPositionSize.width, 1 );
+                    };
+                };
+            };
 		}
 
 		SECTION("availableWidth below single word width")
 		{
 			_pTextView->text() = "hello";
-
-			Size unrestrictedSize = _pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
-
-			// specifying an available width that is smaller than the word should not reduce the
-			// preferred size.
-			if(clipsPreferredWidthToAvailableWidth())
-			{
-				// this implementation will restrict the preferred width to the available width.
-				// This is not optimal behaviour, but with some implementations it cannot be avoided.
-				// so we accept it.
-				REQUIRE_ALMOST_EQUAL(   _pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) ),
-                                        Size(unrestrictedSize.width-1, unrestrictedSize.height),
-                                        Size(1, 1) );   // the implementation might round to the nearest real pixel (which we assume is < 1 DIP)
-			}
-			else if(wrapsAtCharacterBoundariesIfWordDoesNotFit())
+            
+            CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
-                // the implementation will wrap at character boundaries.
-                Size size = _pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) );
-                
-                // width should be <= the specified width
-                REQUIRE( size.width <= unrestrictedSize.width-1 );
-                
-                // should have gotten higher since wrapping occurred
-                REQUIRE( size.height > unrestrictedSize.height);
-            }
-            else
-				REQUIRE( _pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) ) == unrestrictedSize);
+                Size unrestrictedSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
+
+                // specifying an available width that is smaller than the word should not reduce the
+                // preferred size.
+                if(pThis->clipsPreferredWidthToAvailableWidth())
+                {
+                    // this implementation will restrict the preferred width to the available width.
+                    // This is not optimal behaviour, but with some implementations it cannot be avoided.
+                    // so we accept it.
+                    REQUIRE_ALMOST_EQUAL(   pThis->_pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) ),
+                                            Size(unrestrictedSize.width-1, unrestrictedSize.height),
+                                            Size(1, 1) );   // the implementation might round to the nearest real pixel (which we assume is < 1 DIP)
+                }
+                else if(pThis->wrapsAtCharacterBoundariesIfWordDoesNotFit())
+                {
+                    // the implementation will wrap at character boundaries.
+                    Size size = pThis->_pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) );
+                    
+                    // width should be <= the specified width
+                    REQUIRE( size.width <= unrestrictedSize.width-1 );
+                    
+                    // should have gotten higher since wrapping occurred
+                    REQUIRE( size.height > unrestrictedSize.height);
+                }
+                else
+                    REQUIRE( pThis->_pTextView->calcPreferredSize( Size(unrestrictedSize.width-1, availableHeight) ) == unrestrictedSize);
+            };
 		}
 	}
 
     void runPostInitTests() override
     {
+        P<TestTextViewCore> pThis = this;
+    
         TestViewCore::runPostInitTests();
 
         SECTION("text")
@@ -263,7 +312,11 @@ protected:
             SECTION("value")
             {
                 _pTextView->text() = "helloworld";
-                verifyCoreText();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreText();
+                };
             }
         }
 

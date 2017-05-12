@@ -137,13 +137,23 @@ public:
 
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
+        Margin padding = getPaddingDips();
+    
         CGSize constraintSize = UILayoutFittingCompressedSize;
-        if(availableWidth!=-1)
-            constraintSize.width = availableWidth;
-        if(availableHeight!=-1)
-            constraintSize.height = availableHeight;
+        if( std::isfinite(availableSpace.width) )
+        {
+            constraintSize.width = availableSpace.width - (padding.left+padding.right);
+            if(constraintSize.width<0)
+                constraintSize.width=0;
+        }
+        if( std::isfinite(availableSpace.height) )
+        {
+            constraintSize.height = availableSpace.height - (padding.top+padding.bottom);
+            if(constraintSize.height<0)
+                constraintSize.height=0;
+        }
         
 		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
         
@@ -154,8 +164,6 @@ public:
         if(size.height<0)
             size.height = 0;
         
-        Margin padding = getPaddingDips();
-        
         size += padding;
         
         if(size.width<0)
@@ -165,7 +173,10 @@ public:
         
         P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
         
         return size;
     }

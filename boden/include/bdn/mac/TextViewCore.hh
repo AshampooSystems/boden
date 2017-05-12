@@ -127,7 +127,7 @@ public:
   
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         NSTextStorage*      textStorage = [[NSTextStorage alloc] initWithString:_nsTextView.string ];
         NSTextContainer*    textContainer = [[NSTextContainer alloc]
@@ -162,8 +162,20 @@ public:
         
         // note that we ignore availableHeight. There is nothing the implementation
         // can do to shrink in height anyway.
-        if(availableWidth!=-1)
-            textContainer.size = NSMakeSize( availableWidth - additionalSpace.width, textContainer.size.height);
+        // We also use the preferred size hint to define the wrapping width.
+        // Last but not least we also include the max width, if we have one, so that the wrapping will take
+        // that into account as well.
+        Size            wrapSize = availableSpace;
+
+        P<const View>   pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            wrapSize.applyMaximum( pView->preferredSizeHint() );
+            wrapSize.applyMaximum( pView->preferredSizeMaximum() );
+        }
+        
+        if( std::isfinite(wrapSize.width) )
+            textContainer.size = NSMakeSize( wrapSize.width - additionalSpace.width, textContainer.size.height);
         
         // force immediate layout
         (void) [layoutManager glyphRangeForTextContainer:textContainer];
@@ -180,9 +192,11 @@ public:
         
         size += additionalSpace;
         
-        P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
         
         return size;
     }

@@ -8138,7 +8138,8 @@ protected:
 
 		_pWindow->padding() = UiMargin( UiLength::sem(1) );
             
-		P<ColumnView> pColumnView = newObj<ColumnView>();            
+		P<ColumnView> pColumnView = newObj<ColumnView>();
+        _pWindow->setContentView( pColumnView );         
             
 		_pStatusView = newObj<TextView>();
 
@@ -8150,7 +8151,7 @@ protected:
                                                      _pStatusView->uiLengthToDips(UiLength::em(3)) );
 
 
-		_pWindow->setContentView( pColumnView );
+		
 	}
 
 	void deinitUi()  override

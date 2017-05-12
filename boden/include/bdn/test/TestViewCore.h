@@ -160,7 +160,9 @@ protected:
         The core is already created/initialized when this is function is called.
         */
     virtual void runPostInitTests()
-    {        
+    {
+        P<TestViewCore<ViewType>> pThis = this;
+    
         SECTION("uiLengthToDips")
         {
             REQUIRE( _pCore->uiLengthToDips( UiLength::none() ) == 0 );
@@ -231,13 +233,21 @@ protected:
             SECTION("visible")
             {
                 _pView->visible() = true;
-                verifyCoreVisibility();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreVisibility();
+                };
             }
 
             SECTION("invisible")
             {
                 _pView->visible() = false;
-                verifyCoreVisibility();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreVisibility();
+                };
             }
 
             if(coreCanCalculatePreferredSize())                
@@ -248,13 +258,24 @@ protected:
                     Size prefSizeBefore = _pCore->calcPreferredSize();
 
                     _pView->visible() = true;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                    {
+                        REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                    _pView->visible() = false;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                        pThis->_pView->visible() = false;
+                        
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                        {
+                            REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                    _pView->visible() = true;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                            pThis->_pView->visible() = true;
+                            
+                            CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                            {
+                                REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                            };
+                        };
+                    };
                 }
             }
         }
@@ -264,7 +285,11 @@ protected:
             SECTION("custom")
             {
                 _pView->padding() = UiMargin( 11, 22, 33, 44);
-                verifyCorePadding();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCorePadding();
+                };
             }
 
             SECTION("default after custom")
@@ -272,8 +297,11 @@ protected:
                 // set a non-default padding, then go back to default padding.
                 _pView->padding() = UiMargin( 11, 22, 33, 44);
                 _pView->padding() = nullptr;
-
-                verifyCorePadding();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCorePadding();
+                };
             }
 
             if(coreCanCalculatePreferredSize())
@@ -292,7 +320,6 @@ protected:
                     _pView->padding() = paddingBefore;
                     
                     // wait a little so that sizing info is updated.
-                    P<TestViewCore<ViewType>> pThis = this;
                     CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
@@ -340,8 +367,6 @@ protected:
                 bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
 
             Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
-
-            P<TestViewCore<ViewType>> pThis = this;
             
             // on some platform and with some view types (Linux / GTK with top level window)
             // waiting for idle is not enough to ensure that the position actually changed.
@@ -381,8 +406,11 @@ protected:
                 Size prefSizeBefore = _pCore->calcPreferredSize();
 
                 _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
-                    
-                REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                {
+                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                };
             }
         }
 

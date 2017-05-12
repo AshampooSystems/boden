@@ -186,7 +186,7 @@ public:
    
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
 		emscripten::val styleObj = _domObject["style"];
 
@@ -204,7 +204,15 @@ public:
         styleObj.set("width", std::string("auto") );
         styleObj.set("height", std::string("auto") );
 
-        if(availableWidth!=-1)
+        Size limit = availableSpace;
+
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            limit.applyMaximum( pView->preferredSizeMaximum() );        
+
+
+        bool maxWidthSet = false;
+        if( std::isfinite(limit.width) )
         {
             // how should we round here?
             // If we round up then we might cause the content to not fit in the final view size.
@@ -213,7 +221,8 @@ public:
             // will work with the preferred size we give it. And if we round THAT up then we will get the same
             // value in availableWidth if enough space is available. So that should be ok.
 
-            styleObj.set("max-width", std::to_string((int)std::floor(availableWidth))+"px" );
+            styleObj.set("max-width", std::to_string((int)std::floor(limit.width))+"px" );
+            maxWidthSet = true;
         }
         else
         {
@@ -264,8 +273,11 @@ public:
         styleObj.set("width", oldWidthStyle);
         styleObj.set("height", oldHeightStyle);
 
-        if(availableWidth!=-1)
+        if(maxWidthSet)
+        {
+            // clear the max width setting again
             styleObj.set("max-width", "initial");
+        }
 
         if(restoreWhitespaceStyle)
         {
@@ -284,9 +296,11 @@ public:
 
         Size prefSize(width, height );
 
-        P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            prefSize = pView->applySizeConstraints(prefSize);
+        {
+            prefSize.applyMinimum( pView->preferredSizeMinimum() );
+            prefSize.applyMaximum( pView->preferredSizeMaximum() );
+        }
 
         return prefSize;
     }

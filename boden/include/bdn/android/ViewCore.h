@@ -191,29 +191,30 @@ public:
     
 
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
 		int widthSpec;
         int heightSpec;
 
-        if(availableWidth<0 || !canAdjustWidthToAvailableSpace())
-            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
-        else
+        if( std::isfinite(availableSpace.width) && canAdjustWidthToAvailableSpace())
         {
             widthSpec = JView::MeasureSpec::makeMeasureSpec(
-                    std::lround( stableScaledRoundDown(availableWidth, _uiScaleFactor)*_uiScaleFactor ), // round DOWN to the closest pixel then scale up and round to the nearest integer
+                    std::lround( stableScaledRoundDown( availableSpace.width, _uiScaleFactor)*_uiScaleFactor ), // round DOWN to the closest pixel then scale up and round to the nearest integer
                     JView::MeasureSpec::atMost);
         }
-
-        if(availableHeight<0 || !canAdjustHeightToAvailableSpace())
-            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
         else
+            widthSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
+
+
+        if( std::isfinite(availableSpace.height) && canAdjustHeightToAvailableSpace())
         {
             heightSpec = JView::MeasureSpec::makeMeasureSpec(
-                    std::lround(stableScaledRoundDown(availableHeight, _uiScaleFactor) *
+                    std::lround(stableScaledRoundDown( availableSpace.height, _uiScaleFactor) *
                                 _uiScaleFactor), // round DOWN to the closest pixel then scale up and round to the nearest integer
                     JView::MeasureSpec::atMost);
         }
+        else
+            heightSpec = JView::MeasureSpec::makeMeasureSpec(0, JView::MeasureSpec::unspecified);
 
         _pJView->measure( widthSpec, heightSpec );
 
@@ -227,7 +228,10 @@ public:
 
         P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            prefSize = pView->applySizeConstraints(prefSize);
+        {
+            prefSize.applyMinimum(pView->preferredSizeMinimum());
+            prefSize.applyMaximum(pView->preferredSizeMaximum());
+        }
 
         return prefSize;
 	}
@@ -366,8 +370,8 @@ private:
 
     Margin          _defaultPixelPadding;
 
-    mutable double      _emDipsIfInitialized;
-    mutable double      _semDipsIfInitialized;
+    mutable double      _emDipsIfInitialized = -1;
+    mutable double      _semDipsIfInitialized = -1;
 };
 
 }

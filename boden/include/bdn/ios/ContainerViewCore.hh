@@ -25,7 +25,7 @@ public:
 	}
 
 		
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const
 	{
 		// this core function should never have been called.
 		// The outer window is responsible for everything layout-related.

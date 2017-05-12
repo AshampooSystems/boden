@@ -1,5 +1,5 @@
 #ifndef BDN_IScrollViewCore_H_
-#define BDN_IWindowCoreBDN_IScrollViewCore_H__H_
+#define BDN_IScrollViewCore_H_
 
 #include <bdn/IViewCore.h>
 
