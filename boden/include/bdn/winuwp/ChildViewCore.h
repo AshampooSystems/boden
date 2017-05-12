@@ -305,16 +305,15 @@ public:
 		    
 		    // the Width and Height properties indicate to the layout process how big we want to be.
 		    // If they are set then they are incorporated into the DesiredSize measurements.
-            // So they are analogous to our preferredSizeHint
-            if(std::isfinite( preferredSizeHint.width ))
-                _pFrameworkElement->Width = doubleToUwpDimension(preferredSizeHint.width);
-            else
-                _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-
-            if(std::isfinite( preferredSizeHint.height ))
-                _pFrameworkElement->Height = doubleToUwpDimension(preferredSizeHint.height);
-            else
-                _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+            // So it sounds like they are analogous to our preferredSizeHint.
+            // However, for many views the "hint size" is seen as an exact size that Measure
+            // will simply return unchanged. I.e. we will never get anything below this size if
+            // we set it. So we cannot generally use this as the hint.
+            // In the default case we do not pass the hint on to the control. The specific subclasses
+            // of view need to implement the hinting for their specific case with the knowledge what
+            // the specific control will do with this information.
+            _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+            _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
             
             _pFrameworkElement->InvalidateMeasure();
 

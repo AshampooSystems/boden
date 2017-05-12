@@ -27,46 +27,28 @@ Size TextViewCore::calcPreferredSize( const Size& availableSpace ) const
 	// note that we ignore availableHeight because there is no way for us to reduce
 	// the height of the text. We can only limit the width (by wrapping lines)
 
-    P<TextView> pTextView = cast<TextView>( getOuterViewIfStillAttached() );
-	String text;
-    Size   maxSize;
-    Size   minSize;
+    P<TextView>          pTextView = cast<TextView>( getOuterViewIfStillAttached() );
+	String               text;
+    Size                 maxSize;
+    Size                 minSize;
+    Size                 hintSize;
+    Nullable<UiMargin>   pad;
+
     if(pTextView!=nullptr)
     {
         maxSize = pTextView->preferredSizeMaximum();
         minSize = pTextView->preferredSizeMinimum();
+        hintSize = pTextView->preferredSizeHint();
         text = pTextView->text();
+        pad = pTextView->padding();
     }
     else
     {
         maxSize = Size::none();
         minSize = Size::none();
+        hintSize = Size::none();
     }
 
-    maxSize.applyMaximum(availableSpace);
-        
-    Size prefSize;
-
-    {
-        WindowDeviceContext dc( getHwnd() );
-
-        double wrapWidth = maxSize.width;
-
-        // if we are going to be bigger than the available space because of a
-        // minimum size constraint then we also want to wrap according to that
-        // bigger size.
-        if(std::isfinite(minSize.width) && std::isfinite(wrapWidth) && minSize.width>wrapWidth )
-            wrapWidth = minSize.width;
-
-        P<const Font> pFont = getFont();
-        if(pFont!=nullptr)
-		    dc.setFont( *pFont );
-        prefSize = dc.getTextSize( text, wrapWidth );
-    }
-
-    Nullable<UiMargin>  pad;
-    if(pTextView!=nullptr)
-        pad = pTextView->padding();
     UiMargin            uiPadding;
     if(pad.isNull())
     {
@@ -76,14 +58,40 @@ Size TextViewCore::calcPreferredSize( const Size& availableSpace ) const
     else
         uiPadding = pad;
 
-	prefSize += uiMarginToDipMargin( uiPadding );	
+    Margin dipPadding = uiMarginToDipMargin( uiPadding );
+
+    Size prefSize;
+
+    {
+        WindowDeviceContext dc( getHwnd() );
+
+        Size wrapSize(hintSize);
+
+        wrapSize.applyMaximum(availableSpace);
+        
+        // if we have a maximum and it is less than the hint then we wrap according
+        // to that.
+        wrapSize.applyMaximum(maxSize);
+
+        double wrapWidth = wrapSize.width;
+        if( std::isfinite(wrapWidth))
+            wrapWidth -= dipPadding.left + dipPadding.right;
+
+        P<const Font> pFont = getFont();
+        if(pFont!=nullptr)
+		    dc.setFont( *pFont );
+        prefSize = dc.getTextSize( text, wrapWidth );
+    }
+
+    
+	prefSize += dipPadding;
 
     if(pTextView!=nullptr)
     {
         prefSize.applyMinimum(minSize);
         // clip against the max size again. It may have been exceeded if the
         // content did not fit, and we never want that.
-        prefSize.applyMaximum( pTextView->preferredSizeMaximum() );
+        prefSize.applyMaximum( maxSize );
     }
     
 	return prefSize;
