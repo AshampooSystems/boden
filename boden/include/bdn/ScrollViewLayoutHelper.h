@@ -104,6 +104,13 @@ public:
         if(contentSizeWithMarginAndPadding.height < _viewPortSize.height)
             contentSizeWithMarginAndPadding.height = _viewPortSize.height;
 
+        // if the content is bigger than the viewport and we have scrolling disabled
+        // then we clip the content.
+        if(!horzScrollEnabled && contentSizeWithMarginAndPadding.width > _viewPortSize.width)
+            contentSizeWithMarginAndPadding.width = _viewPortSize.width;
+        if(!vertScrollEnabled && contentSizeWithMarginAndPadding.height > _viewPortSize.height)
+            contentSizeWithMarginAndPadding.height = _viewPortSize.height;
+        
         _contentViewBounds = Rect( Point(0,0), contentSizeWithMarginAndPadding);
         _contentViewBounds -= outerPadding;
         _contentViewBounds -= contentMargin;
@@ -209,48 +216,51 @@ public:
         bool    showHorizontalScrollBar = false;
         bool    showVerticalScrollBar = false;
 
-        if(widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
+        if(widthConstrained && prefSize.width>maxSize.width)
         {
-            // we need to scroll horizontally. Add the scroll bar height to our preferred height. Set the
-            // preferred width to the available width
             prefSize.width = maxSize.width;
-            prefSize.height += _horzBarHeight;
-            showHorizontalScrollBar = true;
+            
+            if(horzScrollEnabled)
+            {
+                // we need to scroll horizontally. Add the scroll bar height to our preferred height. Set the
+                // preferred width to the available width
+            
+                prefSize.height += _horzBarHeight;
+                showHorizontalScrollBar = true;
+            }
         }
-        else
-        {
-            // we either fit into the available space, or horizontal scrolling is disabled.
 
-            // Set the preferred width to the content width
-            prefSize.width = contentSizeWithMarginAndPadding.width;
+        // if width is not constrained then we request the full preferred size of the content view
+        // so that scrolling is notnecessary (whether is is theoretically enabled or not).
+        // That way we ensure that the scroll view does not clip the content
+        // unnecessarily when enough space is available.
             
-            // Note that in the case that we have unlimited space available we also set
-            // the preferred size to the full content size, so that scrolling is not
-            // necessary (whether is is theoretically enabled or not).
-            // That way we ensure that the scroll view does not clip the content
-            // unnecessarily when enough space is available.
-            
-            // Note that scroll views have a high shrink priority, so if the total
-            // size of the scroll view and its siblings exceeds the available space then the
-            // scroll view will be shrunk first. So it is no problem to initially request a
-            // big preferred size.
-        }
+        // Note that scroll views have a high shrink priority, so if the total
+        // size of the scroll view and its siblings exceeds the available space then the
+        // scroll view will be shrunk first. So it is no problem to initially request a
+        // big preferred size.
         
-        if(heightConstrained && prefSize.height>maxSize.height && vertScrollEnabled)
+        if(heightConstrained && prefSize.height>maxSize.height)
         {
             prefSize.height = maxSize.height;
-            prefSize.width += _vertBarWidth;
-            showVerticalScrollBar = true;
 
-            // the vertical scrollbar increases our preferred width.
-            // This might cause us to need horizontal scrolling as well, if that is not yet active.
-            // If we are already scrolling horizontally then we need to reduce the prefSize.width
-            // to maxSize.width again.
+            if(vertScrollEnabled)
+            {                
+                prefSize.width += _vertBarWidth;
+                showVerticalScrollBar = true;
 
-            if(widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
-            {
-                prefSize.width = maxSize.width;
-                showHorizontalScrollBar = true;
+                // the vertical scrollbar increases our preferred width.
+                // This might cause us to need horizontal scrolling as well, if that is not yet active.
+                // If we are already scrolling horizontally then we need to reduce the prefSize.width
+                // to maxSize.width again.
+
+                if(widthConstrained && prefSize.width>maxSize.width)
+                {
+                    prefSize.width = maxSize.width;
+
+                    if(horzScrollEnabled)
+                        showHorizontalScrollBar = true;
+                }
             }
         }
 
