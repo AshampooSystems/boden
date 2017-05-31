@@ -6,6 +6,7 @@
 #include <bdn/test/MockButtonCore.h>
 #include <bdn/test/MockTextViewCore.h>
 #include <bdn/test/MockContainerViewCore.h>
+#include <bdn/test/MockScrollViewCore.h>
 
 #include <bdn/test.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -102,6 +103,12 @@ public:
 			_coresCreated++;
 
 			return newObj<MockTextViewCore>( cast<TextView>(pView) );
+		}
+        else if(coreTypeName==ScrollView::getScrollViewCoreTypeName())
+		{
+			_coresCreated++;
+
+			return newObj<MockScrollViewCore>( cast<ScrollView>(pView) );
 		}
 		else
 			throw ViewCoreTypeNotSupportedError(coreTypeName);
