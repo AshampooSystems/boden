@@ -61,7 +61,7 @@ void ScrollViewCore::layout()
         if(_showVerticalScrollBar)
             clientRectWithoutScrollBars.width += vertBarWidth;
         
-        ScrollViewLayoutHelper helper(horzBarHeight, vertBarWidth);    
+        ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);    
 
         helper.calcLayout(pOuterView, clientRectWithoutScrollBars.getSize() );
 
@@ -96,7 +96,7 @@ Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
         int     horzBarHeight = ::GetSystemMetrics(SM_CYHSCROLL);
         int     vertBarWidth = ::GetSystemMetrics(SM_CXVSCROLL);
 
-        ScrollViewLayoutHelper helper(horzBarHeight, vertBarWidth);    
+        ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);    
 
         return helper.calcPreferredSize(pOuterView, availableSpace );
     }
