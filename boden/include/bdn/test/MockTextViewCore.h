@@ -66,8 +66,17 @@ public:
         }
 
         // text views typically somewhat adhere to the available width.
-        // We do not do line breaking in this mock view - we simply clip the size.
-        size.applyMaximum( availableSpace );
+        // We do not do real line breaking in this mock view - we simply clip the width
+        // and multiply the height with a corresponding factor.
+        if( std::isfinite(availableSpace.width) && size.width>availableSpace.width)
+        {
+            double factor = (availableSpace.width<=1) ? 100 : (size.width/availableSpace.width);
+            if(factor>100)
+                factor = 100;
+
+            size.width = availableSpace.width;
+            size.height *= factor;
+        }
 
         // we also clip to the preferredSizeHint.width, since text views usually use
         // that as an advisory value of where to clip
