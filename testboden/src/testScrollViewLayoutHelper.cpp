@@ -8,7 +8,8 @@
 
 using namespace bdn;
 
-class ScrollViewLayoutHelperTestContentView : public TextView
+template<class BaseClass>
+class ScrollViewLayoutHelperTestContentView : public BaseClass
 {
 public:
     
@@ -28,7 +29,7 @@ public:
         _lastCalcPreferredSizeAvailableSpace = availableSpace;
         _calcPreferredSizeCallCount++;
 
-        return TextView::calcPreferredSize(availableSpace);
+        return BaseClass::calcPreferredSize(availableSpace);
     }
 
 private:
@@ -279,7 +280,7 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
         SECTION("contentview calcPreferredSize usage")
         {
-            P<ScrollViewLayoutHelperTestContentView> pContentView = newObj<ScrollViewLayoutHelperTestContentView>();
+            P<ScrollViewLayoutHelperTestContentView<TextView> > pContentView = newObj<ScrollViewLayoutHelperTestContentView<TextView> >();
             pScrollView->setContentView(pContentView);
 
             // we want a content view whose width and height depend on each other. So we use a text view with
@@ -446,7 +447,7 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
 
     SECTION("contentview not null")
     {
-        P<Button> pButton = newObj<Button>();
+        P< ScrollViewLayoutHelperTestContentView<Button> > pButton = newObj< ScrollViewLayoutHelperTestContentView<Button> >();
         pScrollView->setContentView(pButton);
 
         pButton->margin() = UiMargin(1,2,3,4);
@@ -463,6 +464,8 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
 
             Rect optimalButtonBounds( Point(4+8, 1+5), buttonSize);
 
+            int initialCalcPreferredSizeCallCount = pButton->getCalcPreferredSizeCallCount();
+
             SECTION("huge viewport")
             {
                 Size viewPortSize = optimalSize+Size(1000, 1000);
@@ -475,6 +478,10 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
                 REQUIRE( helper.getContentViewBounds() == Rect(4+8, 1+5, viewPortSize.width - 2-4-6-8, viewPortSize.height -1-3-5-7) );
                 REQUIRE( helper.getScrolledAreaSize() == viewPortSize );
                 REQUIRE( helper.getViewPortSize() == viewPortSize );
+
+                // calcpreferredsize should not have been called since there is enough space available
+                REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
+
             }
         
             SECTION("viewport matches needed content size")
@@ -486,6 +493,9 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
                 REQUIRE( helper.getContentViewBounds() == optimalButtonBounds );
                 REQUIRE( helper.getScrolledAreaSize() == optimalSize );
                 REQUIRE( helper.getViewPortSize() == optimalSize );
+
+                // calcpreferredsize should not have been called since there is enough space available
+                REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
             }
 
             SECTION("less width than needed, more than enough height for scrollbar")
@@ -526,6 +536,34 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
                     // width is truncated.
                     REQUIRE( helper.getScrolledAreaSize() == Size(optimalSize.width-1, viewPortSize.height) );
                     REQUIRE( helper.getViewPortSize() == viewPortSize );
+                }
+
+                // calcpreferredsize should have been called since there is not enough space
+                REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
+
+                if(horzScrollingEnabled)
+                {
+                    // calcpreferredsize should not have been called since there is enough space available
+                    // in one direction and we can scroll in the other
+                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
+                }
+                else
+                {
+                    // there is not enough space, so the content view should have been asked how to deal with this.
+                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount+1 );
+
+                    if(vertScrollingEnabled)
+                    {
+                        // reported available space should have been unlimited height (since scrollable) and 1 DIP less
+                        // width than needed.
+                        REQUIRE( pButton->getLastCalcPreferredSizeAvailableSpace() == Size(buttonSize.width-1, Size::componentNone()) );
+                    }
+                    else
+                    {
+                        // reported available space should have been the available height height (since not scrollable) and 1 DIP less
+                        // width than needed.
+                        REQUIRE( pButton->getLastCalcPreferredSizeAvailableSpace() == buttonSize + Size(-1, 1000) );
+                    }
                 }
             }
 

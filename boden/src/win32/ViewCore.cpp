@@ -24,7 +24,7 @@ ViewCore::ViewCore(	View* pOuterView,
 					name,
 					style | (pOuterView->visible().get() ? WS_VISIBLE : 0),
 					exStyle,
-					ViewCore::getViewHwnd( pOuterView->getParentView() ),
+					ViewCore::getViewParentHwndForChildren( pOuterView->getParentView() ),
 					x,
 					y,
 					width,
@@ -188,7 +188,7 @@ bool ViewCore::tryChangeParentView(View* pNewParentView)
 	{
 		HWND currentParentHwnd = ::GetParent( ourHwnd );
 
-		if( getViewHwnd(pNewParentView)==currentParentHwnd )
+		if( getViewParentHwndForChildren(pNewParentView)==currentParentHwnd )
 		{
 			// the underlying win32 window is the same.
 			// Note that this case is quite common, since many View containers

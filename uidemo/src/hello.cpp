@@ -3,6 +3,7 @@
 #include <bdn/ColumnView.h>
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
+#include <bdn/ScrollView.h>
 
 #include <bdn/appInit.h>
 #include <bdn/AppControllerBase.h>
@@ -131,6 +132,21 @@ public:
         _pMorphingTextView->margin() = UiMargin(UiLength::sem(0), UiLength::sem(2), UiLength::sem(2), UiLength::sem(2) );
         pColumnView->addChildView( _pMorphingTextView );
 
+        _pScrollView = newObj<ScrollView>();
+
+        // limit the maximum size. We simply want the scroll view to fill the available width
+        // and have a height of 100 dips.
+        _pScrollView->preferredSizeMinimum() = Size( 0, 100);
+        _pScrollView->preferredSizeMaximum() = Size( 0, 100);
+        _pScrollView->horizontalAlignment() = View::HorizontalAlignment::expand;
+        
+        _pScrolledTextView = newObj<TextView>();        
+
+        _pScrolledTextView->text() = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+        _pScrollView->setContentView(_pScrolledTextView);
+
+        pColumnView->addChildView( _pScrollView );
+        
 		_pWindow->setContentView( pColumnView );
 
 		_pWindow->requestAutoSize();
@@ -157,8 +173,10 @@ protected:
     
     P<Window>   _pWindow;
     P<Button>	_pHelloMessageButton;
-
+    
     P<TextView> _pMorphingTextView;
+    P<ScrollView> _pScrollView;
+    P<TextView>   _pScrolledTextView;
 };
 
 

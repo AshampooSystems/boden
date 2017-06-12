@@ -49,73 +49,129 @@ public:
         P<View> pContentView;
         if(pScrollView!=nullptr)
             pContentView = pScrollView->getContentView();
-            
-        Size    actualContentSize;
-        Margin  contentMargin;
-        if(pContentView!=nullptr)
-        {
-            actualContentSize = pContentView->sizingInfo().get().preferredSize;                
-            contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
-        }
-                        
-        Margin  outerPadding;
-        if(pScrollView!=nullptr)
-        {
-            Nullable<UiMargin> pad = pScrollView->padding();
-            if(!pad.isNull())
-                outerPadding = pScrollView->uiMarginToDipMargin(pad);
-        }
-
-        Size    contentSizeWithMarginAndPadding = actualContentSize + contentMargin + outerPadding;
 
         bool    horzScrollEnabled = false;
         bool    vertScrollEnabled = false;
+        Margin  outerPadding;
 
         if(pScrollView!=nullptr)
         {
             horzScrollEnabled = pScrollView->horizontalScrollingEnabled();
             vertScrollEnabled = pScrollView->verticalScrollingEnabled();
-        }                                
-                                           
-        // now we calculate whether or not we need scroll bars
-        _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
-        if(_showHorizontalScrollBar)
-            _viewPortSize.height -= _horzBarHeight;
-        _showVerticalScrollBar = (contentSizeWithMarginAndPadding.height > _viewPortSize.height && vertScrollEnabled);                        
-        if(_showVerticalScrollBar)
-        {
-            _viewPortSize.width -= _vertBarWidth;
 
-            if(!_showHorizontalScrollBar)
-            {                
-                // adding the vertical scroll bar might have decreased the viewport width enough so that we now
-                // also need a horizontal scroll bar. So check that again
-                _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
-                if(_showHorizontalScrollBar)
-                    _viewPortSize.height -= _horzBarHeight;
-            }
+            Nullable<UiMargin> pad = pScrollView->padding();
+            if(!pad.isNull())
+                outerPadding = pScrollView->uiMarginToDipMargin(pad);
         }
-            
-        // If the content is smaller than the viewport then we enlarge it. If the
-        // developer does not want that then he can add an intermediate container
-        // and put the "real" content inside that.
-        if(contentSizeWithMarginAndPadding.width < _viewPortSize.width)
-            contentSizeWithMarginAndPadding.width = _viewPortSize.width;
-        if(contentSizeWithMarginAndPadding.height < _viewPortSize.height)
-            contentSizeWithMarginAndPadding.height = _viewPortSize.height;
 
-        // if the content is bigger than the viewport and we have scrolling disabled
-        // then we clip the content.
-        if(!horzScrollEnabled && contentSizeWithMarginAndPadding.width > _viewPortSize.width)
-            contentSizeWithMarginAndPadding.width = _viewPortSize.width;
-        if(!vertScrollEnabled && contentSizeWithMarginAndPadding.height > _viewPortSize.height)
-            contentSizeWithMarginAndPadding.height = _viewPortSize.height;
-        
-        _contentViewBounds = Rect( Point(0,0), contentSizeWithMarginAndPadding);
-        _contentViewBounds -= outerPadding;
-        _contentViewBounds -= contentMargin;
+        for(int itNum=0; ;itNum++)
+        {            
+            Size    actualContentSize;
+            Margin  contentMargin;
+            if(pContentView!=nullptr)
+            {
+                contentMargin = pScrollView->uiMarginToDipMargin(pContentView->margin());
+
+                // if the amount of available space for the content view is limited then we must
+                // ask the content view for a dynamic preferred size. Some view's (like text views)
+                // might want to adapt.
+
+                actualContentSize = pContentView->sizingInfo().get().preferredSize;                
+
+                // In the first iteration (itNum==0) _viewPortSize is the size with no scrollbars shown.
+                // In the second iteration the viewport size is smaller when scrollbars are shown.
+                // This is what we want, since the space that is available for the content depends
+                // on the effective viewport size (if scrolling is disabled in that direction)
+                Size contentAvailableSpace = _viewPortSize - outerPadding - contentMargin;
+
+                bool wideEnough = true;
+                bool highEnough = true;
+                if(horzScrollEnabled)
+                    contentAvailableSpace.width = Size::componentNone();
+                else
+                    wideEnough = (actualContentSize.width <= contentAvailableSpace.width);
                 
-        _scrolledAreaSize = contentSizeWithMarginAndPadding;
+                if(vertScrollEnabled)
+                    contentAvailableSpace.height = Size::componentNone();
+                else
+                    highEnough = (actualContentSize.height <= contentAvailableSpace.height);
+            
+                if(!wideEnough || !highEnough)
+                    actualContentSize = pContentView->calcPreferredSize(contentAvailableSpace);               
+            }
+
+            // reset the scrollbar booleans and viewport size.
+            // Usually these will end up the same as in the first iteration, but we nevertheless
+            // calculate them again.
+            _showHorizontalScrollBar = false;
+            _showVerticalScrollBar = false;
+            _viewPortSize = viewPortSizeWhenNotShowingScrollBars;
+
+            Size    contentSizeWithMarginAndPadding = actualContentSize + contentMargin + outerPadding;                        
+                                           
+            // now we calculate whether or not we need scroll bars
+            _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
+            if(_showHorizontalScrollBar)
+                _viewPortSize.height -= _horzBarHeight;
+            _showVerticalScrollBar = (contentSizeWithMarginAndPadding.height > _viewPortSize.height && vertScrollEnabled);                        
+            if(_showVerticalScrollBar)
+            {
+                _viewPortSize.width -= _vertBarWidth;
+
+                if(!_showHorizontalScrollBar)
+                {                
+                    // adding the vertical scroll bar might have decreased the viewport width enough so that we now
+                    // also need a horizontal scroll bar. So check that again
+                    _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
+                    if(_showHorizontalScrollBar)
+                        _viewPortSize.height -= _horzBarHeight;
+                }
+            }
+            
+            // If the content is smaller than the viewport then we enlarge it. If the
+            // developer does not want that then he can add an intermediate container
+            // and put the "real" content inside that.
+            if(contentSizeWithMarginAndPadding.width < _viewPortSize.width)
+                contentSizeWithMarginAndPadding.width = _viewPortSize.width;
+            if(contentSizeWithMarginAndPadding.height < _viewPortSize.height)
+                contentSizeWithMarginAndPadding.height = _viewPortSize.height;
+
+            // if the content is bigger than the viewport and we have scrolling disabled
+            // then we clip the content.
+            bool widthClipped = false;
+            bool heightClipped = false;
+            if(!horzScrollEnabled && contentSizeWithMarginAndPadding.width > _viewPortSize.width)
+            {
+                widthClipped = true;
+                contentSizeWithMarginAndPadding.width = _viewPortSize.width;
+            }
+            if(!vertScrollEnabled && contentSizeWithMarginAndPadding.height > _viewPortSize.height)
+            {
+                heightClipped = true;
+                contentSizeWithMarginAndPadding.height = _viewPortSize.height;
+            }
+        
+            _contentViewBounds = Rect( Point(0,0), contentSizeWithMarginAndPadding);
+            _contentViewBounds -= outerPadding;
+            _contentViewBounds -= contentMargin;
+                
+            _scrolledAreaSize = contentSizeWithMarginAndPadding;
+
+            if( itNum==0
+                && pContentView!=nullptr
+                && (    (widthClipped && _showVerticalScrollBar)
+                     || (heightClipped && _showHorizontalScrollBar) ) )
+            {
+                // we have shown a scrollbar on a side where the content was clipped.
+                // That means that the viewport size has changed in a way that is relevant for the content view.
+                // We need to do another iteration and give the content view a change to react to the
+                // new viewport size..                
+                continue;
+            }
+
+            // no further iteration necessary
+            break;
+        }
     }
 
 
