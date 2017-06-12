@@ -38,54 +38,81 @@ private:
 };
 
 
-
-static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, bool vertScrollingEnabled)
+class ScrollViewLayoutTesterBase : public Base
 {
-    SECTION("scrollview null")
-    {
-        ScrollViewLayoutHelper helper(13, 7);
+public:
+    ScrollViewLayoutTesterBase(bool horzScrollingEnabled, bool vertScrollingEnabled)
+        : _helper(13, 7)
+        , _horzScrollingEnabled(horzScrollingEnabled)
+        , _vertScrollingEnabled(vertScrollingEnabled)
+    {        
+        _pUiProvider = newObj<bdn::test::MockUiProvider>();
+        _pWindow = newObj<Window>( _pUiProvider );
 
-        Size prefSize = helper.calcPreferredSize(nullptr, Size::none());
-        REQUIRE( prefSize == Size(0,0) );
+        _pScrollView = newObj<ScrollView>();
+
+        _pScrollView->horizontalScrollingEnabled() = horzScrollingEnabled;
+        _pScrollView->verticalScrollingEnabled() = vertScrollingEnabled;
+
+        _pWindow->setContentView(_pScrollView);
     }
 
-    P<bdn::test::MockUiProvider> pUiProvider = newObj<bdn::test::MockUiProvider>();
-    P<Window>                    pWindow = newObj<Window>( pUiProvider );
+    P<bdn::test::MockUiProvider>    _pUiProvider;
+    P<Window>                       _pWindow;
+    P<ScrollView>                   _pScrollView;
 
-    P<ScrollView> pScrollView = newObj<ScrollView>();
+    bool                            _horzScrollingEnabled;
+    bool                            _vertScrollingEnabled;
 
-    pScrollView->horizontalScrollingEnabled() = horzScrollingEnabled;
-    pScrollView->verticalScrollingEnabled() = vertScrollingEnabled;
+    ScrollViewLayoutHelper          _helper;
+            
+    P<ScrollView> getScrollView()
+    {
+        return _pScrollView;
+    }
 
-    pWindow->setContentView(pScrollView);
+    Size callCalcPreferredSize( const Size& availableSpace = Size::none() )
+    {
+        return _helper.calcPreferredSize( _pScrollView, availableSpace );
+    }
 
-    CONTINUE_SECTION_WHEN_IDLE(pWindow, pScrollView, horzScrollingEnabled, vertScrollingEnabled)
-    {    
+    double getVertBarWidth()
+    {
+        return 13;
+    }
+
+    double getHorzBarHeight()
+    {
+        return 7;
+    }
+    
+    void testPreferredSize()
+    {
+        P<ScrollViewLayoutTesterBase> pThis = this;
+
         SECTION("contentview null")
         {
-            ScrollViewLayoutHelper helper(13, 7);
-
             SECTION("no padding")
             {
-                Size prefSize = helper.calcPreferredSize(pScrollView, Size::none());
+                Size prefSize = callCalcPreferredSize( Size::none() );
                 REQUIRE( prefSize == Size(0,0) );            
             }
 
             SECTION("with padding")
             {
-                pScrollView->padding() = UiMargin(5,6,7,8);
+                getScrollView()->padding() = UiMargin(5,6,7,8);
 
-                Size prefSize = helper.calcPreferredSize(pScrollView, Size::none());
+                Size prefSize = callCalcPreferredSize( Size::none() );
                 REQUIRE( prefSize == Size(6+8, 5+7) );
             }
 
             SECTION("with padding and scrollview margin")
             {
                 // the scrollview's own margin should not matter - only the margin of the content view
-                pScrollView->margin() = UiMargin(1,2,3,4);
-                pScrollView->padding() = UiMargin(5,6,7,8);
+                getScrollView()->margin() = UiMargin(1,2,3,4);
+                getScrollView()->padding() = UiMargin(5,6,7,8);
 
-                Size prefSize = helper.calcPreferredSize(pScrollView, Size::none());
+                Size prefSize = callCalcPreferredSize( Size::none() );
                 REQUIRE( prefSize == Size(6+8, 5+7) );
             }
         }
@@ -93,14 +120,13 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
         SECTION("contentview not null")
         {
             P<Button> pButton = newObj<Button>();
-            pScrollView->setContentView(pButton);
+            getScrollView()->setContentView(pButton);
 
             pButton->margin() = UiMargin(1,2,3,4);
-            pScrollView->padding() = UiMargin(5,6,7,8);
+            getScrollView()->padding() = UiMargin(5,6,7,8);
 
-            CONTINUE_SECTION_WHEN_IDLE( pButton, pScrollView, pWindow, horzScrollingEnabled, vertScrollingEnabled)
+            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton )
             {
-                ScrollViewLayoutHelper helper(13, 7);
 
                 Size buttonSize = pButton->calcPreferredSize();
 
@@ -110,31 +136,31 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                 {
                     // should request as much space as the content needs by default
         
-                    Size prefSize = helper.calcPreferredSize(pScrollView, Size::none());
+                    Size prefSize = pThis->callCalcPreferredSize( Size::none() );
                     REQUIRE( prefSize == optimalSize );
                 }
 
                 SECTION("more than enough space")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(100,100) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(100,100) );
                     REQUIRE( prefSize == optimalSize );
                 }
 
                 SECTION("exactly enough space")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize );
                     REQUIRE( prefSize == optimalSize );
                 }
 
                 SECTION("less width than needed, more than enough height for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(-1, 1000) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, 1000) );
 
-                    if(horzScrollingEnabled)
+                    if(pThis->_horzScrollingEnabled)
                     {
                         // preferred width should be the available width. preferred height should include
                         // the scrollbar
-                        REQUIRE( prefSize == optimalSize + Size(-1, 7) );
+                        REQUIRE( prefSize == optimalSize + Size(-1, pThis->getHorzBarHeight() ) );
                     }
                     else
                     {
@@ -147,13 +173,13 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less width than needed, enough height for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(-1, 7) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, pThis->getHorzBarHeight()) );
 
-                    if(horzScrollingEnabled)
+                    if(pThis->_horzScrollingEnabled)
                     {
                         // preferred width should be the available width. preferred height should include
                         // the scrollbar
-                        REQUIRE( prefSize == optimalSize + Size(-1, 7) );
+                        REQUIRE( prefSize == optimalSize + Size(-1, pThis->getHorzBarHeight()) );
                     }
                     else
                     {
@@ -166,19 +192,19 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less width than needed, not enough height for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(-1, 6) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, pThis->getHorzBarHeight()-1) );
 
-                    if(horzScrollingEnabled && vertScrollingEnabled)
+                    if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
                     {
                         // this should cause both scrollbars to be shown. We should use all the available space
-                        REQUIRE( prefSize == optimalSize + Size(-1, 6) );
+                        REQUIRE( prefSize == optimalSize + Size(-1, pThis->getHorzBarHeight()-1) );
                     }
-                    else if(horzScrollingEnabled)
+                    else if(pThis->_horzScrollingEnabled)
                     {
                         // no vertical scrolling. We will get a horizontal scrollbar, but no vertical scrollbar.
                         // Note that the height will exceed the available height, since the content view also reports
                         // a preferred size that exceeds the available height.
-                        REQUIRE( prefSize == optimalSize + Size(-1, 7) );
+                        REQUIRE( prefSize == optimalSize + Size(-1, pThis->getHorzBarHeight()) );
                     }
                     else
                     {
@@ -191,11 +217,11 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less height than needed, more than enough width for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(1000, -1) );
+                    Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(1000, -1) );
 
-                    if(vertScrollingEnabled)
+                    if(pThis->_vertScrollingEnabled)
                     {
-                        REQUIRE( prefSize == optimalSize + Size(13, -1) );
+                        REQUIRE( prefSize == optimalSize + Size( pThis->getVertBarWidth(), -1) );
                     }
                     else
                     {
@@ -209,11 +235,11 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less height than needed, enough width for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(13, -1) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(pThis->getVertBarWidth(), -1) );
 
-                    if(vertScrollingEnabled)
+                    if(pThis->_vertScrollingEnabled)
                     {
-                        REQUIRE( prefSize == optimalSize + Size(13, -1) );
+                        REQUIRE( prefSize == optimalSize + Size(pThis->getVertBarWidth(), -1) );
                     }
                     else
                     {
@@ -226,18 +252,18 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less height than needed, not enough width for scrollbar")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(12, -1) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size( pThis->getVertBarWidth()-1, -1) );
 
-                    if( vertScrollingEnabled && horzScrollingEnabled)
+                    if( pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled)
                     {
                         // we should fill the available space
-                        REQUIRE( prefSize == optimalSize + Size(12, -1) );
+                        REQUIRE( prefSize == optimalSize + Size( pThis->getVertBarWidth()-1 , -1) );
                     }
-                    else if(vertScrollingEnabled)
+                    else if(pThis->_vertScrollingEnabled)
                     {                        
                         // the width should exceed the available space, since the content cannot be shrunk
                         // down further. The available height should not be exceeded, since we can scroll
-                        REQUIRE( prefSize == optimalSize + Size(13, -1) );
+                        REQUIRE( prefSize == optimalSize + Size(pThis->getVertBarWidth(), -1) );
                     }
                     else
                     {
@@ -251,24 +277,24 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                 SECTION("less width and less height than needed")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(-1, -1) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, -1) );
 
-                    if(vertScrollingEnabled && horzScrollingEnabled)
+                    if(pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled)
                     {
                         // scroll view should simply use the available space
                         REQUIRE( prefSize == optimalSize + Size(-1, -1) );                    
                     }
-                    else if(vertScrollingEnabled)
+                    else if(pThis->_vertScrollingEnabled)
                     {
                         // preferred size should be full width plus the size of the scrollbar (since the content
                         // view cannot shrink below that). Height should be but available height
-                        REQUIRE( prefSize == optimalSize + Size(13, -1) );                    
+                        REQUIRE( prefSize == optimalSize + Size(pThis->getVertBarWidth(), -1) );                    
                     }
-                    else if(horzScrollingEnabled)
+                    else if(pThis->_horzScrollingEnabled)
                     {
                         // preferred size should be full height plus the size of the scrollbar (since the content
                         // view cannot shrink below that). Width should be but available width
-                        REQUIRE( prefSize == optimalSize + Size(-1, 7) );                    
+                        REQUIRE( prefSize == optimalSize + Size(-1, pThis->getHorzBarHeight()) );                    
                     }
                     else
                     {
@@ -283,30 +309,28 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
         SECTION("contentview calcPreferredSize usage")
         {
             P<ScrollViewLayoutHelperTestContentView<TextView> > pContentView = newObj<ScrollViewLayoutHelperTestContentView<TextView> >();
-            pScrollView->setContentView(pContentView);
+            getScrollView()->setContentView(pContentView);
 
             // we want a content view whose width and height depend on each other. So we use a text view with
             // multiline text.
             pContentView->text() = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nPraesent ultrices, nisi quis posuere viverra, arcu erat auctor tellus, sit amet tincidunt magna leo id velit.";
 
-            CONTINUE_SECTION_WHEN_IDLE(pWindow, pScrollView, pContentView, horzScrollingEnabled, vertScrollingEnabled)
+            CONTINUE_SECTION_WHEN_IDLE( pThis, pContentView )
             {
-                ScrollViewLayoutHelper helper(13, 7);
-
-                Size optimalSize = helper.calcPreferredSize(pScrollView);
+                Size optimalSize = pThis->callCalcPreferredSize();
 
                 int  initialCalcCount = pContentView->getCalcPreferredSizeCallCount();
 
                 SECTION("calcPreferredSize not called when available space unlimited")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView);
+                    Size prefSize = pThis->callCalcPreferredSize();
                     REQUIRE( prefSize==optimalSize );
                     REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount);
                 }
 
                 SECTION("calcPreferredSize not called when available space bigger or equal to needed size")
                 {
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize);
+                    Size prefSize = pThis->callCalcPreferredSize(  optimalSize);
                     REQUIRE( prefSize==optimalSize );
                     REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount);
                 }
@@ -315,9 +339,9 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                 {
                     Size optimalContentSize = pContentView->sizingInfo().get().preferredSize;
                     
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(-1, 1000) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, 1000) );
 
-                    if(horzScrollingEnabled)
+                    if(pThis->_horzScrollingEnabled)
                     {
                         // if horizontal scrolling is enabled then the width constraint
                         // should not have caused the scroll view to ask the content view
@@ -325,7 +349,7 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                         REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount );
 
                         // space for the scrollbar should have been added at bottom. Width is the available space.
-                        REQUIRE( prefSize == optimalSize+Size(-1, 7) );
+                        REQUIRE( prefSize == optimalSize+Size(-1, pThis->getHorzBarHeight()) );
                     }
                     else
                     {                    
@@ -336,7 +360,7 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
 
                         // available space should have been communicated to the content view
                         REQUIRE( contentAvailSpace.width < optimalContentSize.width);
-                        if(vertScrollingEnabled)
+                        if(pThis->_vertScrollingEnabled)
                             REQUIRE( !std::isfinite(contentAvailSpace.height) );
                         else
                             REQUIRE( contentAvailSpace.height == optimalContentSize.height+1000);
@@ -352,9 +376,9 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                 {
                     Size optimalContentSize = pContentView->sizingInfo().get().preferredSize;
 
-                    Size prefSize = helper.calcPreferredSize(pScrollView, optimalSize + Size(1000, -1) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(1000, -1) );
 
-                    if(vertScrollingEnabled)
+                    if(pThis->_vertScrollingEnabled)
                     {
                         // if horizontal scrolling is enabled then the height constraint
                         // should not have caused the scroll view to ask the content view
@@ -362,7 +386,7 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                         REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount );
 
                         // space for the scrollbar should have been added at the right side. Height is the available space.
-                        REQUIRE( prefSize == optimalSize+Size(13, -1) );
+                        REQUIRE( prefSize == optimalSize+Size(pThis->getVertBarWidth(), -1) );
                     }
                     else
                     {                    
@@ -372,7 +396,7 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                         REQUIRE( contentAvailSpace.height < optimalContentSize.height);
 
                         // available space should have been communicated to the content view
-                        if(horzScrollingEnabled)
+                        if(pThis->_horzScrollingEnabled)
                             REQUIRE( !std::isfinite(contentAvailSpace.width) );
                         else
                             REQUIRE( contentAvailSpace.width == optimalContentSize.width+1000);
@@ -383,7 +407,23 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
                 }
             };
         }
-    };
+    }
+
+};
+
+static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, bool vertScrollingEnabled)
+{
+    SECTION("scrollview null")
+    {
+        ScrollViewLayoutHelper helper(13, 7);
+
+        Size prefSize = helper.calcPreferredSize(nullptr, Size::none());
+        REQUIRE( prefSize == Size(0,0) );
+    }
+
+    P<ScrollViewLayoutTesterBase> pTester = newObj<ScrollViewLayoutTesterBase>(horzScrollingEnabled, vertScrollingEnabled);
+
+    pTester->testPreferredSize();
 }
 
 static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool vertScrollingEnabled)
