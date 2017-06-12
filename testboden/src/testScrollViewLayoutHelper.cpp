@@ -37,6 +37,8 @@ private:
     mutable Size    _lastCalcPreferredSizeAvailableSpace;
 };
 
+
+
 static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, bool vertScrollingEnabled)
 {
     SECTION("scrollview null")
@@ -537,9 +539,6 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
                     REQUIRE( helper.getScrolledAreaSize() == Size(optimalSize.width-1, viewPortSize.height) );
                     REQUIRE( helper.getViewPortSize() == viewPortSize );
                 }
-
-                // calcpreferredsize should have been called since there is not enough space
-                REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
 
                 if(horzScrollingEnabled)
                 {

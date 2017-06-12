@@ -139,6 +139,7 @@ public:
         _pScrollView->preferredSizeMinimum() = Size( 0, 100);
         _pScrollView->preferredSizeMaximum() = Size( 0, 100);
         _pScrollView->horizontalAlignment() = View::HorizontalAlignment::expand;
+
         
         _pScrolledTextView = newObj<TextView>();        
 
