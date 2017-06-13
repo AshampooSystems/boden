@@ -8,89 +8,91 @@
 
 using namespace bdn;
 
-template<class BaseClass>
-class ScrollViewLayoutHelperTestContentView : public BaseClass
-{
-public:
-    
-
-    int getCalcPreferredSizeCallCount() const
-    {
-        return _calcPreferredSizeCallCount;
-    }
-
-    Size getLastCalcPreferredSizeAvailableSpace() const
-    {
-        return _lastCalcPreferredSizeAvailableSpace;
-    }
-
-    Size calcPreferredSize(const Size& availableSpace = Size::none()) const override
-    {
-        _lastCalcPreferredSizeAvailableSpace = availableSpace;
-        _calcPreferredSizeCallCount++;
-
-        return BaseClass::calcPreferredSize(availableSpace);
-    }
-
-private:
-    mutable int     _calcPreferredSizeCallCount = 0;
-    mutable Size    _lastCalcPreferredSizeAvailableSpace;
-};
 
 
 class ScrollViewLayoutTesterBase : public Base
 {
 public:
     ScrollViewLayoutTesterBase(bool horzScrollingEnabled, bool vertScrollingEnabled)
-        : _helper(13, 7)
-        , _horzScrollingEnabled(horzScrollingEnabled)
+        : _horzScrollingEnabled(horzScrollingEnabled)
         , _vertScrollingEnabled(vertScrollingEnabled)
     {        
-        _pUiProvider = newObj<bdn::test::MockUiProvider>();
-        _pWindow = newObj<Window>( _pUiProvider );
-
-        _pScrollView = newObj<ScrollView>();
-
-        _pScrollView->horizontalScrollingEnabled() = horzScrollingEnabled;
-        _pScrollView->verticalScrollingEnabled() = vertScrollingEnabled;
-
-        _pWindow->setContentView(_pScrollView);
     }
 
-    P<bdn::test::MockUiProvider>    _pUiProvider;
-    P<Window>                       _pWindow;
-    P<ScrollView>                   _pScrollView;
+    bool _horzScrollingEnabled;
+    bool _vertScrollingEnabled;
 
-    bool                            _horzScrollingEnabled;
-    bool                            _vertScrollingEnabled;
+    /** Returns the scroll view to use for the tests.*/
+    virtual P<ScrollView> getScrollView()=0;
 
-    ScrollViewLayoutHelper          _helper;
-            
-    P<ScrollView> getScrollView()
-    {
-        return _pScrollView;
-    }
-
-    Size callCalcPreferredSize( const Size& availableSpace = Size::none() )
-    {
-        return _helper.calcPreferredSize( _pScrollView, availableSpace );
-    }
-
-    double getVertBarWidth()
-    {
-        return 13;
-    }
-
-    double getHorzBarHeight()
-    {
-        return 7;
-    }
-
-    void calcLayout(const Size& viewPortSize)
-    {
-        _helper.calcLayout(_pScrollView, viewPortSize );
-    }
+    /** Returns the width of the vertical scroll bar in DIPs.
     
+        If the vertical scroll bar is only shown on demand during scrolling
+        as an overlay (i.e. if no space is allocated for it) then this should return 0.
+    */
+    virtual double getVertBarWidth()=0;
+
+    /** Returns the height of the horizontal scroll bar in DIPs.
+    
+        If the horizontal scroll bar is only shown on demand during scrolling
+        as an overlay (i.e. if no space is allocated for it) then this should return 0.
+    */
+    virtual double getHorzBarHeight()=0;
+                
+
+    /** Calls calcPreferredSize on the object that is tested and returns the result. */
+    virtual Size callCalcPreferredSize( const Size& availableSpace = Size::none() )=0;   
+
+    
+    /** Calculates the scrollview layout for the specified viewport size.
+        This enables the layout verify functions 
+        (e.g. verifyHorzBarVisible() etc.) to be used afterwards.*/
+    virtual void calcLayout(const Size& viewPortSize)=0;
+
+
+    /** Called after calcLayout() to verify the horizontal visibility of the horizontal
+        scrollbar.
+
+        Should cause a test fail if the visibility is not correct.        
+        */
+    virtual void verifyHorzBarVisible( bool expectedVisible)=0;
+
+
+    /** Called after calcLayout() to verify the horizontal visibility of the vertical
+        scrollbar.
+        
+        Should cause a test fail if the visibility is not correct.
+        */
+    virtual void verifyVertBarVisible( bool expectedVisible)=0;
+
+
+     /** Called after calcLayout() to verify the bounding rectangle of the content view.
+        
+        expectedBounds contains the expected value, assuming  that the origin of the
+        scroll view's content coordinate system is (0,0). If that is not the case then
+        the implementation of verifyContentViewBounds must compensate accordingly. 
+        
+        Should cause a test fail if the content bounds are not correct.
+        */
+    virtual void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0)=0;
+
+    /** Called after calcLayout() to verify the size of the scrollable area (including
+        the scroll view padding and content view margins).
+        
+        Should cause a test fail if the visibility is not correct.
+        */
+    virtual void verifyScrolledAreaSize( const Size& expectedSize)=0;
+
+
+    /** Called after calcLayout() to verify the size of the view port after layout.
+        If scroll bars are shown then they are not part of the view port.
+        
+        Should cause a test fail if the view port size is not correct.
+        */
+    virtual void verifyViewPortSize( const Size& expectedSize)=0;                                
+    
+
+
     void testPreferredSize()
     {
         P<ScrollViewLayoutTesterBase> pThis = this;
@@ -415,44 +417,6 @@ public:
     }
 
 
-
-
-    virtual void verifyHorzBarVisible( bool expectedVisible)
-    {
-        REQUIRE( _helper.getHorizontalScrollBarVisible() == expectedVisible );
-    }
-
-    virtual void verifyVertBarVisible( bool expectedVisible)
-    {
-        REQUIRE( _helper.getVerticalScrollBarVisible() == expectedVisible );
-    }
-
-    virtual void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0)
-    {
-        if(maxDeviation==0)
-            REQUIRE( _helper.getContentViewBounds() == expectedBounds );
-        else
-        {
-            Rect contentViewBounds = _helper.getContentViewBounds();
-
-            REQUIRE_ALMOST_EQUAL(  contentViewBounds.x, expectedBounds.x, maxDeviation );
-            REQUIRE_ALMOST_EQUAL(  contentViewBounds.y, expectedBounds.y, maxDeviation );
-            REQUIRE_ALMOST_EQUAL(  contentViewBounds.width, expectedBounds.width, maxDeviation );
-            REQUIRE_ALMOST_EQUAL(  contentViewBounds.height, expectedBounds.height, maxDeviation );
-        }
-    }
-
-    virtual void verifyScrolledAreaSize( const Size& expectedSize)
-    {
-        REQUIRE( _helper.getScrolledAreaSize() == expectedSize );
-    }
-
-    virtual void verifyViewPortSize( const Size& expectedSize)
-    {
-        REQUIRE( _helper.getViewPortSize() == expectedSize );
-    }               
-                                
-                
 
 
     void testLayout()
@@ -851,7 +815,131 @@ public:
         }
     }
 
+private:
+        
+    template<class BaseClass>
+    class ScrollViewLayoutHelperTestContentView : public BaseClass
+    {
+    public:
+    
+
+        int getCalcPreferredSizeCallCount() const
+        {
+            return _calcPreferredSizeCallCount;
+        }
+
+        Size getLastCalcPreferredSizeAvailableSpace() const
+        {
+            return _lastCalcPreferredSizeAvailableSpace;
+        }
+
+        Size calcPreferredSize(const Size& availableSpace = Size::none()) const override
+        {
+            _lastCalcPreferredSizeAvailableSpace = availableSpace;
+            _calcPreferredSizeCallCount++;
+
+            return BaseClass::calcPreferredSize(availableSpace);
+        }
+
+    private:
+        mutable int     _calcPreferredSizeCallCount = 0;
+        mutable Size    _lastCalcPreferredSizeAvailableSpace;
+    };
+
 };
+
+
+
+
+class ScrollViewLayoutHelperTester : public ScrollViewLayoutTesterBase
+{
+public:
+    ScrollViewLayoutHelperTester(bool horzScrollingEnabled, bool vertScrollingEnabled)
+        : ScrollViewLayoutTesterBase(horzScrollingEnabled, vertScrollingEnabled)
+        , _helper(13, 7)
+    {        
+        _pUiProvider = newObj<bdn::test::MockUiProvider>();
+        _pWindow = newObj<Window>( _pUiProvider );
+
+        _pScrollView = newObj<ScrollView>();
+
+        _pScrollView->horizontalScrollingEnabled() = horzScrollingEnabled;
+        _pScrollView->verticalScrollingEnabled() = vertScrollingEnabled;
+
+        _pWindow->setContentView(_pScrollView);
+    }
+
+    P<bdn::test::MockUiProvider>    _pUiProvider;
+    P<Window>                       _pWindow;
+    P<ScrollView>                   _pScrollView;
+    
+    ScrollViewLayoutHelper          _helper;
+            
+    P<ScrollView> getScrollView() override
+    {
+        return _pScrollView;
+    }
+
+    double getVertBarWidth() override
+    {
+        return 13;
+    }
+     
+    double getHorzBarHeight() override
+    {
+        return 7;
+    }
+
+    Size callCalcPreferredSize( const Size& availableSpace = Size::none() ) override
+    {
+        return _helper.calcPreferredSize( _pScrollView, availableSpace );
+    }  
+
+    void calcLayout(const Size& viewPortSize) override
+    {
+        _helper.calcLayout(_pScrollView, viewPortSize );
+    }
+
+    
+
+    void verifyHorzBarVisible( bool expectedVisible) override
+    {
+        REQUIRE( _helper.getHorizontalScrollBarVisible() == expectedVisible );
+    }
+
+    void verifyVertBarVisible( bool expectedVisible) override
+    {
+        REQUIRE( _helper.getVerticalScrollBarVisible() == expectedVisible );
+    }
+
+    void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override
+    {
+        if(maxDeviation==0)
+            REQUIRE( _helper.getContentViewBounds() == expectedBounds );
+        else
+        {
+            Rect contentViewBounds = _helper.getContentViewBounds();
+
+            REQUIRE_ALMOST_EQUAL(  contentViewBounds.x, expectedBounds.x, maxDeviation );
+            REQUIRE_ALMOST_EQUAL(  contentViewBounds.y, expectedBounds.y, maxDeviation );
+            REQUIRE_ALMOST_EQUAL(  contentViewBounds.width, expectedBounds.width, maxDeviation );
+            REQUIRE_ALMOST_EQUAL(  contentViewBounds.height, expectedBounds.height, maxDeviation );
+        }
+    }
+
+    void verifyScrolledAreaSize( const Size& expectedSize) override
+    {
+        REQUIRE( _helper.getScrolledAreaSize() == expectedSize );
+    }
+
+    void verifyViewPortSize( const Size& expectedSize) override
+    {
+        REQUIRE( _helper.getViewPortSize() == expectedSize );
+    }               
+                                
+                
+};
+
 
 static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, bool vertScrollingEnabled)
 {
@@ -863,10 +951,16 @@ static void testScrollViewLayoutHelperPreferredSize(bool horzScrollingEnabled, b
         REQUIRE( prefSize == Size(0,0) );
     }
 
-    P<ScrollViewLayoutTesterBase> pTester = newObj<ScrollViewLayoutTesterBase>(horzScrollingEnabled, vertScrollingEnabled);
+    SECTION("tester")
+    {
+        P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>(horzScrollingEnabled, vertScrollingEnabled);
 
-    pTester->testPreferredSize();
+        pTester->testPreferredSize();
+    }
 }
+
+
+
 
 static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool vertScrollingEnabled)
 {
@@ -882,10 +976,13 @@ static void testScrollViewLayoutHelperLayout(bool horzScrollingEnabled, bool ver
         REQUIRE( helper.getScrolledAreaSize() == Size(1000, 1000) );
         REQUIRE( helper.getViewPortSize() == Size(1000, 1000) );
     }
-    
-    P<ScrollViewLayoutTesterBase> pTester = newObj<ScrollViewLayoutTesterBase>(horzScrollingEnabled, vertScrollingEnabled);
 
-    pTester->testLayout();
+    SECTION("tester")
+    {    
+        P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>(horzScrollingEnabled, vertScrollingEnabled);
+
+        pTester->testLayout();
+    }
 }
 
 
