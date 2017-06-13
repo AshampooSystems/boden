@@ -100,12 +100,12 @@ void ScrollViewCore::layout()
 
         // subtract the size of the border.
         clientSizeWithoutScrollbars.width -= _nonClientMargins.left + _nonClientMargins.right;
-        clientSizeWithoutScrollbars.width -= _nonClientMargins.top + _nonClientMargins.bottom;
+        clientSizeWithoutScrollbars.height -= _nonClientMargins.top + _nonClientMargins.bottom;
 
         if(clientSizeWithoutScrollbars.width<0)
             clientSizeWithoutScrollbars.width = 0;
-        if(clientSizeWithoutScrollbars.width<0)
-            clientSizeWithoutScrollbars.width = 0;
+        if(clientSizeWithoutScrollbars.height<0)
+            clientSizeWithoutScrollbars.height = 0;
         
         ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);    
 

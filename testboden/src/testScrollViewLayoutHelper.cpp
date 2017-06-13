@@ -12,20 +12,16 @@ using namespace bdn;
 
 
 
-class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBase
+class ScrollViewLayoutHelperTester : public bdn::test::ScrollViewLayoutTesterBase<Base>
 {
 public:
-    ScrollViewLayoutHelperTester(bool horzScrollingEnabled, bool vertScrollingEnabled)
-        : bdn::test::ScrollViewLayoutTesterBase(horzScrollingEnabled, vertScrollingEnabled)
-        , _helper(13, 7)
+    ScrollViewLayoutHelperTester()
+        : _helper(13, 7)
     {        
         _pUiProvider = newObj<bdn::test::MockUiProvider>();
         _pWindow = newObj<Window>( _pUiProvider );
 
         _pScrollView = newObj<ScrollView>();
-
-        _pScrollView->horizontalScrollingEnabled() = horzScrollingEnabled;
-        _pScrollView->verticalScrollingEnabled() = vertScrollingEnabled;
 
         _pWindow->setContentView(_pScrollView);
     }
@@ -97,55 +93,49 @@ public:
     {
         REQUIRE( _helper.getViewPortSize() == expectedSize );
     }               
-                                
+             
+
+
+    void doPreferredSizeAndLayoutTests() override
+    {
+        SECTION("scrollview null")
+        {
+            SECTION("preferred size")
+            {
+                ScrollViewLayoutHelper helper(13, 7);
+
+                Size prefSize = helper.calcPreferredSize(nullptr, Size::none());
+                REQUIRE( prefSize == Size(0,0) );
+            }
+
+            SECTION("layout")
+            {
+                ScrollViewLayoutHelper helper(13, 7);
+
+                helper.calcLayout(nullptr, Size(1000, 1000) );
+
+                REQUIRE( helper.getHorizontalScrollBarVisible() == false );
+                REQUIRE( helper.getVerticalScrollBarVisible() == false );
+                REQUIRE( helper.getContentViewBounds() == Rect(0, 0, 1000, 1000) );
+                REQUIRE( helper.getScrolledAreaSize() == Size(1000, 1000) );
+                REQUIRE( helper.getViewPortSize() == Size(1000, 1000) );
+            }
+        }
+
+        SECTION("scrollview not null")
+        {
+            ScrollViewLayoutTesterBase<Base>::doPreferredSizeAndLayoutTests();
+        }
+    }
                 
 };
 
 
 
-static void testScrollViewLayoutHelper(bool horzScrollingEnabled, bool vertScrollingEnabled)
-{
-    SECTION("scrollview null")
-    {
-        SECTION("preferred size")
-        {
-            ScrollViewLayoutHelper helper(13, 7);
-
-            Size prefSize = helper.calcPreferredSize(nullptr, Size::none());
-            REQUIRE( prefSize == Size(0,0) );
-        }
-
-        SECTION("layout")
-        {
-            ScrollViewLayoutHelper helper(13, 7);
-
-            helper.calcLayout(nullptr, Size(1000, 1000) );
-
-            REQUIRE( helper.getHorizontalScrollBarVisible() == false );
-            REQUIRE( helper.getVerticalScrollBarVisible() == false );
-            REQUIRE( helper.getContentViewBounds() == Rect(0, 0, 1000, 1000) );
-            REQUIRE( helper.getScrolledAreaSize() == Size(1000, 1000) );
-            REQUIRE( helper.getViewPortSize() == Size(1000, 1000) );
-        }
-    }
-
-    SECTION("scrollview not null")
-    {
-        P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>(horzScrollingEnabled, vertScrollingEnabled);
-
-        pTester->doTests();
-    }
-}
-
 TEST_CASE("ScrollViewLayoutHelper")
 {
-    SECTION("scrollable in both directions")
-        testScrollViewLayoutHelper(true, true);
-    SECTION("only horz scrolling")
-        testScrollViewLayoutHelper(true, false);
-    SECTION("only vert scrolling")
-        testScrollViewLayoutHelper(false, true);
-    SECTION("no scrolling")
-        testScrollViewLayoutHelper(false, false);
+    P<ScrollViewLayoutHelperTester> pTester = newObj<ScrollViewLayoutHelperTester>();
+
+    pTester->doPreferredSizeAndLayoutTests();
 }
 

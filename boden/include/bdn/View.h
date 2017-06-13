@@ -584,7 +584,6 @@ public:
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
     
-
 	/** Returns the global mutex object that is used to synchronize changes in the
 		UI hierarchy (parent-child relationships) and replacement of view core objects.
 
