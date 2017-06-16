@@ -53,7 +53,7 @@ public:
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
 
-		_doSizingInfoUpdateOnNextLayout = true;		
+		doSizingInfoUpdateOnNextLayout();
 
 		// UWP also uses DIPs => no conversion necessary
 
@@ -74,7 +74,7 @@ public:
 		// be outdated when the sizing happens.
 		// Instead we wait for the "layout updated" event that will happen soon after we set the
 		// content. That is when we update our sizing info.
-        _doSizingInfoUpdateOnNextLayout = true;		
+        doSizingInfoUpdateOnNextLayout();
         
 		_pTextBlock->Text = ref new ::Platform::String( text.asWidePtr() );
 
@@ -113,22 +113,9 @@ protected:
 	}
 	
 
-	void _layoutUpdated() override
-	{
-		if(_doSizingInfoUpdateOnNextLayout)
-		{
-			_doSizingInfoUpdateOnNextLayout = false;
-
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if(pOuterView!=nullptr)
-			    pOuterView->needSizingInfoUpdate();
-		}
-	}
     
 	::Windows::UI::Xaml::Controls::TextBlock^ _pTextBlock;
-
-	double      _doSizingInfoUpdateOnNextLayout = true;
-	
+    	
 };
 
 }

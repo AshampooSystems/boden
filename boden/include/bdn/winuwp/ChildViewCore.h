@@ -404,9 +404,17 @@ protected:
 	{
 		// Xaml has done a layout cycle. At this point all the controls should know their
 		// desired sizes. So this is when we schedule our layout updated
-        P<View> pView = _outerViewWeak.toStrong();
-        if(pView!=nullptr)
-		    pView->needLayout();
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+		    pOuterView->needLayout();
+
+        if(_doSizingInfoUpdateOnNextLayout)
+		{
+			_doSizingInfoUpdateOnNextLayout = false;
+
+            if(pOuterView!=nullptr)
+			    pOuterView->needSizingInfoUpdate();
+		}
 	}
 
 
@@ -444,6 +452,13 @@ protected:
         return _semSizeDipsIfInitialized;
     }
 
+
+protected:
+
+    void doSizingInfoUpdateOnNextLayout()
+    {
+        _doSizingInfoUpdateOnNextLayout = true;
+    }
     
 		
 private:
@@ -468,7 +483,6 @@ private:
 	}
 
 
-
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
 	WeakP<View> 			_outerViewWeak;	// weak by design
@@ -480,6 +494,9 @@ private:
 
     bool _currBoundsInitialized = false;
     Rect _currBounds;
+
+    
+	double      _doSizingInfoUpdateOnNextLayout = true;
 };
 
 

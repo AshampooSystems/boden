@@ -91,7 +91,7 @@ public:
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
 
-		_doSizingInfoUpdateOnNextLayout = true;		
+		doSizingInfoUpdateOnNextLayout();
 
         // UWP also uses DIPs => no conversion necessary
 
@@ -124,7 +124,7 @@ public:
 		// Instead we wait for the "layout updated" event that will happen soon after we set the
 		// content. That is when we update our sizing info.
 
-		_doSizingInfoUpdateOnNextLayout = true;		
+		doSizingInfoUpdateOnNextLayout();
 
         _pButton->Content = pLabel;		
 
@@ -148,26 +148,11 @@ protected:
         }
 	}
 
-	void _layoutUpdated() override
-	{
-		if(_doSizingInfoUpdateOnNextLayout)
-		{
-			_doSizingInfoUpdateOnNextLayout = false;
-
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if(pOuterView!=nullptr)
-			    pOuterView->needSizingInfoUpdate();
-		}
-	}
-
    
 	::Windows::UI::Xaml::Controls::Button^ _pButton;
 
     ::Windows::UI::Xaml::Thickness _contentPadding;
-    bool                           _applyContentPadding = false;
-
-	double      _doSizingInfoUpdateOnNextLayout = true;
-	
+    bool                           _applyContentPadding = false;	
 };
 
 }
