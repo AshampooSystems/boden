@@ -54,6 +54,16 @@ inline Size uwpSizeToSize(const ::Windows::Foundation::Size& size)
 				 uwpDimensionToDouble(size.Height) );
 }
 
+
+inline ::Windows::Foundation::Size sizeToUwpSize(const Size& size)
+{
+    // UWP also uses DIPs as their unit. So no conversion necessary
+
+	return ::Windows::Foundation::Size(
+		doubleToUwpDimension(size.width),
+		doubleToUwpDimension(size.height) );
+}
+
 		
 }
 }

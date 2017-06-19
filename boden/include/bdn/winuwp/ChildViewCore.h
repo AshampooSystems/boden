@@ -51,7 +51,7 @@ public:
 
 			ChildViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
-				pViewCore->_sizeChanged();
+				pViewCore->_uwpSizeChanged();
 
             BDN_WINUWP_TO_PLATFORMEXC_END
 		}
@@ -62,7 +62,7 @@ public:
 
 			ChildViewCore* pViewCore = getViewCoreIfAlive();
 			if(pViewCore!=nullptr)
-				pViewCore->_layoutUpdated();
+				pViewCore->_uwpLayoutUpdated();
 
             BDN_WINUWP_TO_PLATFORMEXC_END
 		}
@@ -117,6 +117,35 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
+
+    /** An internal helper class that will notify the core of the specified view that
+        it is currently being layouted by its parent.
+        
+        The flag will be set while the InUwpLayoutOperation object exists and
+        will be cleared when it is destroyed.
+        */
+    class InUwpLayoutOperation_
+    {
+    public:
+        InUwpLayoutOperation_(View* pView)
+        {
+            _pCore = cast<ChildViewCore>( pView->getViewCore() );
+
+            if(_pCore!=nullptr)
+                _pCore->setInUwpLayoutOperation(true);
+        }
+
+        ~InUwpLayoutOperation_()
+        {
+            if(_pCore!=nullptr)
+                _pCore->setInUwpLayoutOperation(false);
+        }
+
+    private:
+        P<ChildViewCore> _pCore;
+    };
+    friend class InUwpLayoutOperation;
+    
     
     /** Sets the view's position and size, after adjusting the specified values
         to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
@@ -159,17 +188,30 @@ public:
 		        ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, adjustedBounds.x );
 		        ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, adjustedBounds.y );
 
-                // The size is set by manipulating the Width and Height property.		
-		        _pFrameworkElement->Width = doubleToUwpDimension( adjustedBounds.width );
-		        _pFrameworkElement->Height = doubleToUwpDimension( adjustedBounds.height );            
+                if(_inUwpLayoutOperation)
+                {
+                    // we are currently in a UWP layout operation. This happens when the adjustAndSetBounds
+                    // call is called from inside a UWP UIElement::ArrangeOverride method (for example in a scrollview).
 
-                // ensure that the changes are reflected as soon as possible.
-                // Note that almost everything works well if we omit this, but the test code has a hard time
-                // verifying the results of the operations. So for the time being we do it this way.
-                // If this turns out to be too slow and inefficient then we can try to find a better way
-                // at that point in time.
+                    // In this case we can and should use the Arrange method to set our size and position.
+                    ::Windows::Foundation::Rect winBounds = rectToUwpRect(adjustedBounds);
 
-                _pFrameworkElement->UpdateLayout();
+                    _pFrameworkElement->Arrange(winBounds);
+                }
+                else
+                {
+                    // The size is set by manipulating the Width and Height property.		
+		            _pFrameworkElement->Width = doubleToUwpDimension( adjustedBounds.width );
+		            _pFrameworkElement->Height = doubleToUwpDimension( adjustedBounds.height );            
+
+                    // ensure that the changes are reflected as soon as possible.
+                    // Note that almost everything works well if we omit this, but the test code has a hard time
+                    // verifying the results of the operations. So for the time being we do it this way.
+                    // If this turns out to be too slow and inefficient then we can try to find a better way
+                    // at that point in time.
+
+                    _pFrameworkElement->UpdateLayout();
+                }
             }
             catch(::Platform::DisconnectedException^ e)
             {
@@ -395,22 +437,26 @@ protected:
 		return _pEventForwarder;
 	}
 
-	virtual void _sizeChanged()
+	virtual void _uwpSizeChanged()
 	{
-		// do not layout here. We do that in _layoutUpdated.		
+		// do not layout here. We do that in _uwpLayoutUpdated.		
 	}
 
-	virtual void _layoutUpdated()
+	virtual void _uwpLayoutUpdated()
 	{
-		// Xaml has done a layout cycle. At this point all the controls should know their
-		// desired sizes. So this is when we schedule our layout updated
         P<View> pOuterView = getOuterViewIfStillAttached();
-        if(pOuterView!=nullptr)
-		    pOuterView->needLayout();
+        
+        if(_uwpLayoutTriggersOurLayout)
+        {
+		    // Xaml has done a layout cycle. At this point all the controls should know their
+		    // desired sizes. So this is when we schedule our layout updated            
+            if(pOuterView!=nullptr)
+                pOuterView->needLayout();
+        }
 
-        if(_doSizingInfoUpdateOnNextLayout)
+        if(_updateSizingInfoAfterNextUwpLayout)
 		{
-			_doSizingInfoUpdateOnNextLayout = false;
+			_updateSizingInfoAfterNextUwpLayout = false;
 
             if(pOuterView!=nullptr)
 			    pOuterView->needSizingInfoUpdate();
@@ -455,9 +501,20 @@ protected:
 
 protected:
 
-    void doSizingInfoUpdateOnNextLayout()
+    void scheduleSizingInfoUpdateAfterNextUwpLayout()
     {
-        _doSizingInfoUpdateOnNextLayout = true;
+        _updateSizingInfoAfterNextUwpLayout = true;
+    }
+
+    /** Sets an internal parameter that controls whether or not a layout
+        of the view is automatically scheduled after a UWP layout operation
+        has finished for the view.
+        
+        The default is true.
+        */
+    void setUwpLayoutTriggersOurLayout(bool autoTrigger)
+    {
+        _uwpLayoutTriggersOurLayout = autoTrigger;
     }
     
 		
@@ -483,6 +540,11 @@ private:
 	}
 
 
+    void setInUwpLayoutOperation(bool inLayoutOp)
+    {
+        _inUwpLayoutOperation = inLayoutOp;
+    }
+
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
 	WeakP<View> 			_outerViewWeak;	// weak by design
@@ -494,9 +556,11 @@ private:
 
     bool _currBoundsInitialized = false;
     Rect _currBounds;
-
     
-	double      _doSizingInfoUpdateOnNextLayout = true;
+    bool _uwpLayoutTriggersOurLayout = true;
+    bool _updateSizingInfoAfterNextUwpLayout = true;
+
+    bool _inUwpLayoutOperation = false;
 };
 
 

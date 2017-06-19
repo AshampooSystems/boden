@@ -91,7 +91,7 @@ public:
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
 
-		doSizingInfoUpdateOnNextLayout();
+		scheduleSizingInfoUpdateAfterNextUwpLayout();
 
         // UWP also uses DIPs => no conversion necessary
 
@@ -124,7 +124,7 @@ public:
 		// Instead we wait for the "layout updated" event that will happen soon after we set the
 		// content. That is when we update our sizing info.
 
-		doSizingInfoUpdateOnNextLayout();
+		scheduleSizingInfoUpdateAfterNextUwpLayout();
 
         _pButton->Content = pLabel;		
 

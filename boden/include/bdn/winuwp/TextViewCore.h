@@ -53,7 +53,7 @@ public:
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
 
-		doSizingInfoUpdateOnNextLayout();
+		scheduleSizingInfoUpdateAfterNextUwpLayout();
 
 		// UWP also uses DIPs => no conversion necessary
 
@@ -74,7 +74,7 @@ public:
 		// be outdated when the sizing happens.
 		// Instead we wait for the "layout updated" event that will happen soon after we set the
 		// content. That is when we update our sizing info.
-        doSizingInfoUpdateOnNextLayout();
+        scheduleSizingInfoUpdateAfterNextUwpLayout();
         
 		_pTextBlock->Text = ref new ::Platform::String( text.asWidePtr() );
 
