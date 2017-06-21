@@ -5,6 +5,7 @@
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test/ViewWithTestExtensions.h>
 #include <bdn/test/testCalcPreferredSize.h>
+#include <bdn/test/MockViewCore.h>
 
 namespace bdn
 {

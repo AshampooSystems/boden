@@ -3,6 +3,7 @@
 
 #include <bdn/Button.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockButtonCore.h>
 
 using namespace bdn;
 

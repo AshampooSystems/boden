@@ -55,17 +55,8 @@ public:
 
 	/** Registers a top-level window for centering on the screen.*/
 	void windowNeedsCentering(Window* pWindow);
+    
 
-
-
-	/** Returns the global coordinator object.*/
-	static P<LayoutCoordinator> get()
-	{
-		static SafeInit<LayoutCoordinator> init;
-
-		return init.get();
-	}
-	
 protected:
 	void needUpdate();
 

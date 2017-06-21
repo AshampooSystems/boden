@@ -129,7 +129,6 @@ public:
     
 	
 
-protected:
 	void layout() override;	
     
 private:

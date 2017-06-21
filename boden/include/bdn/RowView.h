@@ -26,7 +26,7 @@ public:
 	}
 
 	
-	void layout()
+	void layout() override
 	{
 		
 	}

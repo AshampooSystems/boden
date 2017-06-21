@@ -2,7 +2,9 @@
 #include <bdn/test.h>
 
 #include <bdn/ColumnView.h>
+#include <bdn/Button.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockContainerViewCore.h>
 
 using namespace bdn;
 

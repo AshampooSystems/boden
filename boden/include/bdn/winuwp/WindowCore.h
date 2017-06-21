@@ -64,7 +64,8 @@ public:
 		_pWindowPanelParent = (Windows::UI::Xaml::Controls::Canvas^)_pXamlWindow->Content;
         if(_pWindowPanelParent==nullptr)
         {
-            _pWindowPanelParent = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
+            _pWindowPanelParent = UwpPanelWithCustomLayout::createInstance( newObj<WindowPanelParentLayoutDelegate>() );
+            
 		    _pWindowPanelParent->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
 		    _pXamlWindow->Content = _pWindowPanelParent;
         }
@@ -197,6 +198,57 @@ public:
 	{
 		// we don't care. The outer Window object will handle the layout.
 	}
+
+
+    
+    void needSizingInfoUpdate() override
+    {
+        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+        // this is.
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pWindowPanel->InvalidateMeasure();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+
+    void needLayout() override
+    {
+        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+        // this is.
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pWindowPanel->InvalidateArrange();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+
+    void requestAutoSize() override
+    {
+        // it is not possible to control the size of a UWP window from inside the app. So we ignore this request.
+    }
+
+	void requestCenter() override
+    {
+        // it is not possible to control the position of a UWP window from inside the app. So we ignore this request.
+    }
+
 
 	
 	Rect adjustAndSetBounds(const Rect& bounds) override
@@ -415,6 +467,58 @@ private:
 		WindowCore* _pParentWeak;
 	};
 
+
+    
+    class WindowPanelParentLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
+    {
+    public:
+        WindowPanelParentLayoutDelegate(Window* pWindow)
+            : _windowWeak(pView)
+        {
+        }
+
+        ::Windows::Foundation::Size measureOverride( ::Windows::Foundation::Size winAvailableSize ) override
+        {
+            P<ContainerView> pView = _viewWeak.toStrong();
+
+            if(pView!=nullptr)
+            {
+               // forward this to the outer view.
+              Size availableSpace = Size::none();
+
+                if( std::isfinite(winAvailableSize.Width) )
+                    availableSpace.width = winAvailableSize.Width;
+
+                if( std::isfinite(winAvailableSize.Height) )
+                    availableSpace.height = winAvailableSize.Height;
+
+                Size resultSize = pView->calcPreferredSize( availableSpace );
+
+                return sizeToUwpSize(resultSize);
+            }
+            else
+                return ::Windows::Foundation::Size(0, 0);
+        }
+        
+        ::Windows::Foundation::Size arrangeOverride( ::Windows::Foundation::Size finalSize ) override
+        {
+            P<ContainerView> pView = _viewWeak.toStrong();
+
+            if(pView!=nullptr)
+            {
+                // forward this to the outer view.
+                pView->_doLayout();
+            }            
+
+            return finalSize;
+        }
+
+    protected:
+        WeakP<ContainerView> _viewWeak;
+
+    };
+
+    
     
 	void _windowPanelParentLayoutUpdated()
 	{
@@ -467,7 +571,7 @@ private:
 	int												_appViewId;
 
 	::Windows::UI::Xaml::Window^			_pXamlWindow;
-	::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanelParent;
+	UwpPanelWithCustomLayout^	            _pWindowPanelParent;
 
     ::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanel;
         

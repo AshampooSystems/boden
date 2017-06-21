@@ -327,7 +327,7 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 						try
 						{
-							nextToDo.pView->layout();
+							nextToDo.pView->_doLayout();
 						}
 						catch(std::exception& e)
 						{

@@ -1,6 +1,9 @@
 #ifndef BDN_TEST_ScrollViewLayoutTesterBase_H_
 #define BDN_TEST_ScrollViewLayoutTesterBase_H_
 
+#include <bdn/Button.h>
+#include <bdn/TextView.h>
+
 
 namespace bdn
 {

@@ -102,6 +102,21 @@ public:
 	}
 
 
+    void requestAutoSize()
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            cast<MockUiProvider>(pWindow->getUiProvider())->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
+    }
+
+	void requestCenter()
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            cast<MockUiProvider>(pWindow->getUiProvider())->getLayoutCoordinator()->windowNeedsCentering(pWindow);
+    }
+
+
 protected:
 	String _title;
 	int    _titleChangeCount = 0;	

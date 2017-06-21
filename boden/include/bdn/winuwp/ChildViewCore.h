@@ -118,6 +118,46 @@ public:
 	}
 
 
+    void needSizingInfoUpdate() override
+    {
+        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+        // this is.
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pFrameworkElement->InvalidateMeasure();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+
+    void needLayout() override
+    {
+        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+        // this is.
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pFrameworkElement->InvalidateArrange();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+    
+
+
     /** An internal helper class that will notify the core of the specified view that
         it is currently being layouted by its parent.
         
@@ -146,6 +186,8 @@ public:
     };
     friend class InUwpLayoutOperation;
     
+
+   
     
     /** Sets the view's position and size, after adjusting the specified values
         to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
@@ -165,7 +207,7 @@ public:
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		// we can only control the position of a control indirectly. While there is the Arrange
-		// method, it does not actually work outside of a Layout call.
+		// method, it does not actually work outside of a UWP Layout cycle.
 		
 		// Positions can only be manually set for children of a Canvas container.
 		// We have structured our views in such a way that all child views have a Canvas
@@ -188,8 +230,8 @@ public:
 		        ::Windows::UI::Xaml::Controls::Canvas::SetLeft( _pFrameworkElement, adjustedBounds.x );
 		        ::Windows::UI::Xaml::Controls::Canvas::SetTop( _pFrameworkElement, adjustedBounds.y );
 
-                if(_inUwpLayoutOperation)
-                {
+                //XXX temp disabledif(_inUwpLayoutOperation)
+                //{
                     // we are currently in a UWP layout operation. This happens when the adjustAndSetBounds
                     // call is called from inside a UWP UIElement::ArrangeOverride method (for example in a scrollview).
 
@@ -197,7 +239,7 @@ public:
                     ::Windows::Foundation::Rect winBounds = rectToUwpRect(adjustedBounds);
 
                     _pFrameworkElement->Arrange(winBounds);
-                }
+                /*}
                 else
                 {
                     // The size is set by manipulating the Width and Height property.		
@@ -211,7 +253,7 @@ public:
                     // at that point in time.
 
                     _pFrameworkElement->UpdateLayout();
-                }
+                }*/
             }
             catch(::Platform::DisconnectedException^ e)
             {
@@ -354,10 +396,12 @@ public:
             // In the default case we do not pass the hint on to the control. The specific subclasses
             // of view need to implement the hinting for their specific case with the knowledge what
             // the specific control will do with this information.
-            _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
-            _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
             
-            _pFrameworkElement->InvalidateMeasure();
+            // XXX disabled to test out layout stuff
+            //_pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+            //_pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
+            
+            //_pFrameworkElement->InvalidateMeasure();
 
 		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
@@ -544,6 +588,50 @@ private:
     {
         _inUwpLayoutOperation = inLayoutOp;
     }
+
+
+
+    ref class UwpContainerView sealed : public ::Windows::UI::Xaml::Controls::Canvas
+    {
+    public:
+        UwpContainerView()
+        {
+        }
+
+    protected:
+        ::Windows::Foundation::Size MeasureOverride(::Windows::Foundation::Size availableSize) override
+        {
+            if(_pCore!=nullptr)
+            {
+                // forward to the core
+                return _pCore->uwpMeasureOverride(availableSize);
+            }
+            else
+                return ::Windows::UI::Xaml::Controls::Canvas::MeasureOverride(availableSize);
+        }
+
+
+        ::Windows::Foundation::Size ArrangeOverride(::Windows::Foundation::Size finalSize) override
+        {
+            if(_pCore!=nullptr)
+                return _pCore->uwpArrangeOverride(finalSize);
+            else
+                return ::Windows::UI::Xaml::Controls::Canvas::ArrangeOverride(finalSize);
+        }
+
+
+    private:
+        void setCore(ContainerViewCore* pCore)
+        {
+            _pCore = pCore;
+        }
+
+        // weak by design
+        ContainerViewCore* _pCore = nullptr;
+
+        friend class ContainerViewCore;
+    };
+    friend ref class UwpContainerView;
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 

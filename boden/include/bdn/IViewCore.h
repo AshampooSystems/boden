@@ -20,6 +20,27 @@ class IViewCore : BDN_IMPLEMENTS IBase
 {
 public:
 
+    /** Requests that the view updates its sizing information (preferred size, etc.).
+		The measuring does not happen immediately in this function - it is performed asynchronously.		
+
+        View core implementations may use their platform's native layout system
+        to schedule the update. They can also use the generic bdn::LayoutCoordinator class
+        or a custom implementation.
+		*/
+	virtual void needSizingInfoUpdate()=0;
+
+
+	/** Requests that the view updates the layout of its child view and contents.
+		
+		The layout operation does not happen immediately in this function - it is performed asynchronously.		
+
+        View core implementations may use their platform's native layout system
+        to schedule the update. They can also use the generic bdn::LayoutCoordinator class
+        or a custom implementation.
+		*/
+	virtual void needLayout()=0;
+
+
 
 	/** Shows/hides the view core.*/
 	virtual void setVisible(const bool& visible)=0;

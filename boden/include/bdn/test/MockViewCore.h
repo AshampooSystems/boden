@@ -3,6 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/PixelAligner.h>
+#include <bdn/test/MockUiProvider.h>
 
 #include <bdn/test.h>
 
@@ -39,6 +40,23 @@ public:
         BDN_REQUIRE_IN_MAIN_THREAD();
     }
 
+
+    
+  
+	void needSizingInfoUpdate() override
+    {
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsSizingInfoUpdate(pView);
+    }
+
+
+	void needLayout()
+    {
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
+    }
     
 
     /** Returns the outer view object that this core is embedded in.*/

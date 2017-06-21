@@ -583,6 +583,22 @@ public:
 		*/		
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
+
+
+    
+
+	/**	Updates the layout of the view's its contents and child views.
+
+        IMPORTANT: this function should never be called directly by the app. The
+        platform's layout system takes care of calling this function at optimized times.
+        Call needLayout() instead when you need to manually trigger a re-layout of the view.*/
+    void _doLayout()
+    {
+        layout();
+    }
+
+    
+
     
 	/** Returns the global mutex object that is used to synchronize changes in the
 		UI hierarchy (parent-child relationships) and replacement of view core objects.
@@ -626,28 +642,17 @@ public:
 
 
 protected:
-
-	/** Verifies that the current thread is the main thread.
-		Throws a ProgrammingError if that is not the case.
-		The methodName parameter should be the name of the method that was called
-		that should have been called from the main thread.*/
-	void verifyInMainThread(const String& methodName) const;
-
-
-	/** Tells the view to update its sizing info.
-	
-		IMPORTANT: This must only be called from the main thread.
-	*/
-	virtual void updateSizingInfo();
-
-
-
-	/**	Tells the view to update the layout of its child views. The
-		view should NOT update its OWN size or position during this - 
+    
+    /** Updates the layout of the view's its contents and child views.
+    
+        The view should NOT update its OWN size or position during this - 
 		it has to work with the size and position it currently has and
 		should ONLY update the size and position of its child views.
 
-        IMPORTANT: This function must only be called from the main thread.
+        IMPORTANT: This function should never be called manually. It should
+        only be called by the platform's layout coordinator.
+
+        This function must only be called from the main thread.
 
         Note to implementors
         --------------------
@@ -671,6 +676,22 @@ protected:
 
 		*/
 	virtual void layout()=0;
+
+
+	/** Verifies that the current thread is the main thread.
+		Throws a ProgrammingError if that is not the case.
+		The methodName parameter should be the name of the method that was called
+		that should have been called from the main thread.*/
+	void verifyInMainThread(const String& methodName) const;
+
+
+	/** Tells the view to update its sizing info.
+	
+		IMPORTANT: This must only be called from the main thread.
+	*/
+	virtual void updateSizingInfo();
+
+
 
 
 	// allow the coordinator to call the sizing info and layout functions.

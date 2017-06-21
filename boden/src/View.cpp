@@ -77,13 +77,25 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 void View::needSizingInfoUpdate()
 {
-	LayoutCoordinator::get()->viewNeedsSizingInfoUpdate(this);
+    P<IViewCore> pCore = getViewCore();
+
+    // forward the request to the core. Depending on the platform
+    // it may be that the UI uses a layout coordinator provided by the system,
+    // rather than our own.
+    if(pCore!=nullptr)
+        pCore->needSizingInfoUpdate();	
 }
 
 
 void View::needLayout()
 {
-	LayoutCoordinator::get()->viewNeedsLayout(this);
+    P<IViewCore> pCore = getViewCore();
+
+    // forward the request to the core. Depending on the platform
+    // it may be that the UI uses a layout coordinator provided by the system,
+    // rather than our own.
+    if(pCore!=nullptr)
+        pCore->needLayout();
 }
 
 

@@ -29,6 +29,8 @@ public:
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
+    void	layout() override;
+
 	
 protected:
 	
@@ -50,7 +52,7 @@ protected:
 	Size calcChildBounds(const Size& availableSpace, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const;
 
 
-	void	layout() override;
+	
 };
 
 

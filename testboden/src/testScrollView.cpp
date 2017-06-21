@@ -4,6 +4,7 @@
 #include <bdn/test.h>
 #include <bdn/test/testView.h>
 #include <bdn/test/MockScrollViewCore.h>
+#include <bdn/test/MockButtonCore.h>
 
 #include <bdn/Button.h>
 

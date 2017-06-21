@@ -26,15 +26,26 @@ Window::~Window()
 
 void Window::requestAutoSize()
 {
-	LayoutCoordinator::get()->windowNeedsAutoSizing(this);	
+    P<IWindowCore> pCore = cast<IWindowCore>( getViewCore() );
+
+    // forward the request to the core. Depending on the platform
+    // it may be that the UI uses a layout coordinator provided by the system,
+    // rather than our own.
+    if(pCore!=nullptr)
+        pCore->requestAutoSize();	
 }
 
 void Window::requestCenter()
 {
 	// Since autosizing is asynchronous, this must also be done via
-	// the LayoutCoordinator. Otherwise we might center with the old size
+	// the layout coordination system. Otherwise we might center with the old size
 	// and would then autoSize afterwards.
-	LayoutCoordinator::get()->windowNeedsCentering(this);
+    // So, also forward this to the core.
+
+    P<IWindowCore> pCore = cast<IWindowCore>( getViewCore() );
+
+    if(pCore!=nullptr)
+        pCore->requestCenter();	
 }
 
 void Window::autoSize()

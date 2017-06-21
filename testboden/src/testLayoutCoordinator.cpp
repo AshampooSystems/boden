@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/Button.h>
 
 #include <bdn/test/MockUiProvider.h>
 

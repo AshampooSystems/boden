@@ -2,13 +2,8 @@
 #define BDN_TEST_MockUiProvider_H_
 
 #include <bdn/IUiProvider.h>
-#include <bdn/test/MockWindowCore.h>
-#include <bdn/test/MockButtonCore.h>
-#include <bdn/test/MockTextViewCore.h>
-#include <bdn/test/MockContainerViewCore.h>
-#include <bdn/test/MockScrollViewCore.h>
+#include <bdn/LayoutCoordinator.h>
 
-#include <bdn/test.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
@@ -62,7 +57,11 @@ namespace test
 class MockUiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 {
 public:
-
+    MockUiProvider()
+    {
+        _pLayoutCoordinator = newObj<LayoutCoordinator>();
+    }
+    
 	String getName() const
 	{
 		return "mock";
@@ -74,48 +73,22 @@ public:
     {
         return _coresCreated;
     }
-        
+
+
+    /** Returns the layout coordinator object that all UI objects created by this
+        provider share.*/
+    P<LayoutCoordinator> getLayoutCoordinator()
+    {
+        return _pLayoutCoordinator;
+    }
+
     
-	P<IViewCore> createViewCore(const String& coreTypeName, View* pView)
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-        if(coreTypeName==ContainerView::getContainerViewCoreTypeName())
-		{
-			_coresCreated++;
-
-			return newObj<MockContainerViewCore>( cast<ContainerView>(pView) );
-		}
-		else if(coreTypeName==Window::getWindowCoreTypeName())
-		{
-			_coresCreated++;
-
-			return newObj<MockWindowCore>( cast<Window>(pView) );
-		}
-		else if(coreTypeName==Button::getButtonCoreTypeName())
-		{
-			_coresCreated++;
-
-			return newObj<MockButtonCore>( cast<Button>(pView) );
-		}
-        else if(coreTypeName==TextView::getTextViewCoreTypeName())
-		{
-			_coresCreated++;
-
-			return newObj<MockTextViewCore>( cast<TextView>(pView) );
-		}
-        else if(coreTypeName==ScrollView::getScrollViewCoreTypeName())
-		{
-			_coresCreated++;
-
-			return newObj<MockScrollViewCore>( cast<ScrollView>(pView) );
-		}
-		else
-			throw ViewCoreTypeNotSupportedError(coreTypeName);
-	}
+	P<IViewCore> createViewCore(const String& coreTypeName, View* pView);
     
 protected:
     int _coresCreated = 0;
+
+    P<LayoutCoordinator> _pLayoutCoordinator;
 };
 
 
