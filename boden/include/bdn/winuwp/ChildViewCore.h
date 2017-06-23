@@ -405,11 +405,44 @@ public:
 
             // The docs state that: "A Measure call will automatically invalidate any Arrange information. "
             // I.e. Measure causes an arrange call of the lower level control to be scheduled. That in turn means
-            // that we should not call this during a layout call.
+            // that we should not call this during a layout / Arrange call. Otherwise windows might detect a layout cycle
+            // and raise an exception.
+
+            // So the result of all this is that we can only return DesiredSize here, which is the cached result
+            // of the last Measure call. That would normally not be much of a problem, BUT if we simply use that
+            // then the value does not depend on the current availableSpace parameter.
 
             XXX
+                call layout in ContainerView::Measure??? Then it would be ok to call measure with whatever parameter
+                we want. We would have to cache the assigned sizes and positions and then use those in the arrange call.
+                    That is problematic, since the layout routine works on the outer view's properties. I.e. the early layout
+                    would have an externally visible effect, which would have to be rolled back after calcPreferredSize
 
-		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
+                another solution would be to assume that the container view will only make calcPreferredSize calls during
+                layout that it already made during its own calcPreferredSize. So we could cache the parameters and the results.
+                
+                However, that assumes that the container view is implemented in a specific way. And since we support custom
+                user provided layouts, we cannot guarantee that with the current layout interface.
+
+                Maybe if we changed the interface in containerview?
+
+                If we gave the container view ONLY a layout function. One that calculates the full layout, including sizes
+                and positions of child views, depending on a given input size. The layout function would not modify the
+                views directly but deliver a list of views and their desired rect. Then we could use that in UWP to calculate
+                the whole layout in Measure, cache the result and then assign the values in Arrange.
+
+                However, then we still have a problem if the size passed to measure happens to not match the size that
+                is assigned to the container afterwards. What do we do then? Can that even happen?
+                We have to note that we have full control over the view tree. We have our own view at the root, so we
+                could make sure that we call measure with the correct available space. Then there might be several
+                user-defined containers in between, but those would not even get called after the measure step (since their
+                layout is already finished and cached). So when could the availableSpace from the measure call not match the
+                final size of the control???? It seems like something that cannot actually happen.
+
+
+
+
+            _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 		
