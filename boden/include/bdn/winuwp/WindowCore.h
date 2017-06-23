@@ -5,11 +5,14 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/log.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/ContainerView.h>
 
 #include <bdn/winuwp/IViewCoreParent.h>
 #include <bdn/winuwp/IFrameworkElementOwner.h>
 #include <bdn/winuwp/util.h>
 #include <bdn/winuwp/UiProvider.h>
+#include <bdn/winuwp/IUwpLayoutDelegate.h>
+#include <bdn/winuwp/UwpPanelWithCustomLayout.h>
 
 #include <limits>
 #include <atomic>
@@ -58,13 +61,13 @@ public:
 		_pEventForwarder = ref new EventForwarder(this);
 
 		// we want full control over the placement of our "window" panel.
-		// Unfortunately Xaml automatically arranges our content view of the top level window.
+		// Unfortunately Xaml automatically arranges the content view of the top level window.
 		// To work around that we add a canvas as the content view and then
 		// add the real content view to the canvas.
-		_pWindowPanelParent = (Windows::UI::Xaml::Controls::Canvas^)_pXamlWindow->Content;
+		_pWindowPanelParent = (UwpPanelWithCustomLayout^)_pXamlWindow->Content;
         if(_pWindowPanelParent==nullptr)
         {
-            _pWindowPanelParent = UwpPanelWithCustomLayout::createInstance( newObj<WindowPanelParentLayoutDelegate>() );
+            _pWindowPanelParent = UwpPanelWithCustomLayoutFactory::createInstance( newObj<WindowPanelParentLayoutDelegate>() );
             
 		    _pWindowPanelParent->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
 		    _pXamlWindow->Content = _pWindowPanelParent;
@@ -75,15 +78,21 @@ public:
         // to the top level container) because we need a way to represent the window's own properties
         // (like visible/hidden) without modifying the content panel. So we add a panel for the window
         // to get this intermediate control.
-        _pWindowPanel = ref new ::Windows::UI::Xaml::Controls::Canvas();		    
+        _pWindowPanel = UwpPanelWithCustomLayoutFactory::createInstance( newObj<WindowPanelLayoutDelegate>(pOuterWindow) );
 		_pWindowPanel->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
         _pWindowPanelParent->Children->Append(_pWindowPanel);
 
         // make sure that we are initialized with the current size
-        _windowPanelParentLayoutUpdated();
+        // XXX _windowPanelParentLayoutUpdated();
         
-        _pWindowPanelParent->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
-				    ( _pEventForwarder, &EventForwarder::windowPanelParentLayoutUpdated );
+        //_pWindowPanelParent->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
+		//		    ( _pEventForwarder, &EventForwarder::windowPanelParentLayoutUpdated );
+
+        _pXamlWindow->SizeChanged += ref new ::Windows::UI::Xaml::WindowSizeChangedEventHandler
+				    ( _pEventForwarder, &EventForwarder::windowSizeChanged );
+
+        _pWindowPanelParent->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler
+				    ( _pEventForwarder, &EventForwarder::windowPanelParentSizeChanged );
 
         // update the position and size property of the outer window to reflect the current bounds
 		_scheduleUpdateOuterPositionAndSizeProperty();				
@@ -329,6 +338,30 @@ public:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
+
+
+
+    void layout()
+    {
+        // The XAML window is managed and instantiated by the system. So we cannot subclass it
+        // or override its layout function.
+        // Instead we added a custom panel as the Window content view. We have overridden
+        // the layout routines for that, and that is what triggers this layout function to be called.
+        // So we actually need to lay out _pWindowPanelParent here, not the window itself.
+
+        // That means that we only need to arrange our content view inside _pWindowPanelParent.
+        // For that we can use the default layout routine provided by Window.
+
+        P<Window> pOuter = _outerWindowWeak.toStrong();
+        if(pOuter!=nullptr)
+        {
+            Size contentSize = _getContentSize();
+            Rect contentArea(0, 0, contentSize.width, contentSize.height );
+
+            pOuter->defaultLayout(contentArea);
+        }
+    }
+    
 	
 
 private:
@@ -453,12 +486,22 @@ private:
 			_pParentWeak = nullptr;
 		}
         
-		void windowPanelParentLayoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
+		void windowSizeChanged( Platform::Object^ pSender, ::Windows::UI::Core::WindowSizeChangedEventArgs^ pArgs )
 		{
             BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
 			if(_pParentWeak!=nullptr)
-				_pParentWeak->_windowPanelParentLayoutUpdated();
+				_pParentWeak->_windowSizeChanged();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
+		}
+
+        void windowPanelParentSizeChanged( Platform::Object^ pSender, ::Windows::UI::Xaml::SizeChangedEventArgs^ pArgs )
+		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
+			if(_pParentWeak!=nullptr)
+				_pParentWeak->_windowPanelParentSizeChanged();
 
             BDN_WINUWP_TO_PLATFORMEXC_END
 		}
@@ -468,23 +511,63 @@ private:
 	};
 
 
+
+
     
+
+    /** Layout delegate for the window panel parent. Simply sizes the child to fill the entire space.*/
     class WindowPanelParentLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
     public:
-        WindowPanelParentLayoutDelegate(Window* pWindow)
-            : _windowWeak(pView)
+        WindowPanelParentLayoutDelegate()
         {
         }
 
-        ::Windows::Foundation::Size measureOverride( ::Windows::Foundation::Size winAvailableSize ) override
+        ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
         {
-            P<ContainerView> pView = _viewWeak.toStrong();
+            auto childIt = pPanel->Children->First();
+            if(childIt->HasCurrent)
+            {
+                childIt->Current->Measure(winAvailableSize);
+                return childIt->Current->DesiredSize;
+            }
+            else
+                return ::Windows::Foundation::Size(0,0);
+        }
+        
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
+        {
+            auto childIt = pPanel->Children->First();
+            if(childIt->HasCurrent)
+                childIt->Current->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), finalSize ) );
 
-            if(pView!=nullptr)
+            return finalSize;
+        }
+
+    protected:
+        WeakP<Window> _windowWeak;
+
+    };
+
+
+
+    /** Layout delegate for the window panel. Forwards the calls to the Window object.*/
+    class WindowPanelLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
+    {
+    public:
+        WindowPanelLayoutDelegate(Window* pWindow)
+            : _windowWeak(pWindow)
+        {
+        }
+
+        ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
+        {
+            P<Window> pWindow = _windowWeak.toStrong();
+
+            if(pWindow!=nullptr)
             {
                // forward this to the outer view.
-              Size availableSpace = Size::none();
+               Size availableSpace = Size::none();
 
                 if( std::isfinite(winAvailableSize.Width) )
                     availableSpace.width = winAvailableSize.Width;
@@ -492,7 +575,7 @@ private:
                 if( std::isfinite(winAvailableSize.Height) )
                     availableSpace.height = winAvailableSize.Height;
 
-                Size resultSize = pView->calcPreferredSize( availableSpace );
+                Size resultSize = pWindow->calcPreferredSize( availableSpace );
 
                 return sizeToUwpSize(resultSize);
             }
@@ -500,26 +583,104 @@ private:
                 return ::Windows::Foundation::Size(0, 0);
         }
         
-        ::Windows::Foundation::Size arrangeOverride( ::Windows::Foundation::Size finalSize ) override
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
         {
-            P<ContainerView> pView = _viewWeak.toStrong();
+            P<Window> pWindow = _windowWeak.toStrong();
 
-            if(pView!=nullptr)
+            if(pWindow!=nullptr)
             {
-                // forward this to the outer view.
-                pView->_doLayout();
+                // forward this to the outer view. This will call our core's layout() function.
+                pWindow->_doLayout();
             }            
 
             return finalSize;
         }
 
     protected:
-        WeakP<ContainerView> _viewWeak;
+        WeakP<Window> _windowWeak;
 
     };
 
+
+
+    void _windowSizeChanged()
+	{
+        // the size of the xaml window has changed
+
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+        
+        try
+        {        
+            P<View> pOuterView = _outerWindowWeak.toStrong();
+            if(pOuterView!=nullptr)
+            {
+                /*
+                double width = _pXamlWindow->Bounds.Width;
+                double height = _pXamlWindow->Bounds.Height;
+                
+                // Update our window panel to the same size as the outer window.
+                if(_pWindowPanelParent->Width != width
+                    || _pWindowPanelParent->Height != height)
+                {                    
+                    _pWindowPanelParent->Width = width;
+                    _pWindowPanelParent->Height = height;
+                }
+                
+                // Update our window panel to the same size as the outer window.
+                if(_pWindowPanel->Width != width
+                    || _pWindowPanel->Height != height)
+                {                    
+                    _pWindowPanel->Width = width;
+                    _pWindowPanel->Height = height;
+                }*/
+
+
+                // we need to update the outer view's size property.
+                // We do that by calling View::adjustAndSetBounds. That will
+                // call our adjustAndSetBounds, which will do nothing and
+                // only return the current bounnds. And then the view will store
+                // that in its properties, which is what we want.
+
+                pOuterView->adjustAndSetBounds( _getBounds() );
+            }
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // window is already destroyed. Ignore this.
+        }
+        
+        BDN_WINUWP_TO_STDEXC_END;
+	}
+
+    void _windowPanelParentSizeChanged()
+	{
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+        /*
+
+        try
+        {        
+            double width = _pWindowPanelParent->ActualWidth;
+            double height = _pWindowPanelParent->ActualHeight;
+                
+            // Update our window panel to the same size as the outer window.
+            if(_pWindowPanel->Width != width
+                || _pWindowPanel->Height != height)
+            {                    
+                _pWindowPanel->Width = width;
+                _pWindowPanel->Height = height;
+            }
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // window is already destroyed. Ignore this.
+        }
+        */
+        
+        BDN_WINUWP_TO_STDEXC_END;
+	}
+
     
-    
+    /*
 	void _windowPanelParentLayoutUpdated()
 	{
 		// Xaml has done a layout cycle on the window panel parent.
@@ -560,7 +721,7 @@ private:
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
-
+    */
 
 	P<UiProvider>	_pUiProvider;
 	WeakP<Window>   _outerWindowWeak;
@@ -572,8 +733,7 @@ private:
 
 	::Windows::UI::Xaml::Window^			_pXamlWindow;
 	UwpPanelWithCustomLayout^	            _pWindowPanelParent;
-
-    ::Windows::UI::Xaml::Controls::Canvas^	_pWindowPanel;
+    UwpPanelWithCustomLayout^	            _pWindowPanel;
         
 	EventForwarder^ _pEventForwarder;
 

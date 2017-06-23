@@ -14,11 +14,11 @@ class IUwpLayoutDelegate : BDN_IMPLEMENTS IBase
 public:
 
     /** Implementation for the MeasureOverride UWP function.*/
-    virtual ::Windows::Foundation::Size measureOverride( ::Windows::Foundation::Size availableSize )=0;
+    virtual ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size availableSize )=0;
 
 
     /** Implementation for the ArrangeOverride UWP function.*/
-    virtual ::Windows::Foundation::Size arrangeOverride( ::Windows::Foundation::Size finalSize )=0;
+    virtual ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize )=0;
 };
 
 }

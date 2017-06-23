@@ -18,7 +18,7 @@ public:
 	ContainerViewCore(	ContainerView* pOuter)
 		: ChildViewCore(
             pOuter,
-            UwpPanelWithCustomLayout::createInstance( newObj<LayoutDelegate>(pOuter) ),
+            UwpPanelWithCustomLayoutFactory::createInstance( newObj<LayoutDelegate>(pOuter) ),
             ref new ViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -61,7 +61,7 @@ private:
         {
         }
 
-        ::Windows::Foundation::Size measureOverride( ::Windows::Foundation::Size winAvailableSize ) override
+        ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
         {
             P<ContainerView> pView = _viewWeak.toStrong();
 
@@ -84,7 +84,7 @@ private:
                 return ::Windows::Foundation::Size(0, 0);
         }
         
-        ::Windows::Foundation::Size arrangeOverride( ::Windows::Foundation::Size finalSize ) override
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
         {
             P<ContainerView> pView = _viewWeak.toStrong();
 

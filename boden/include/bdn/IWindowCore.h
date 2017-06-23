@@ -96,6 +96,14 @@ public:
      
         */
 	virtual Rect getScreenWorkArea() const=0;
+
+
+    /** Lays out the interior of the window (see View::layout()). Note that the outer Window
+        object provides the method Window::defaultLayout(), which provides a default implementation
+        for this. It can be called by the core if it does not need any special processing and
+        only wants to arrange the content view.*/
+    virtual void layout()=0;
+    
 	
 };
 

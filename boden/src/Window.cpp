@@ -217,18 +217,25 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
 
 void Window::layout()
 {
-	P<View>			pContentView = getContentView();
-	P<IWindowCore>	pCore = cast<IWindowCore>( getViewCore() );
+    // forward the call to the core
+    P<IWindowCore>	pCore = cast<IWindowCore>( getViewCore() );
 
-	if(pContentView==nullptr || pCore==nullptr)
+	if(pCore!=nullptr)
+        pCore->layout();
+}
+
+void Window::defaultLayout(const Rect& contentArea)
+{
+	P<View>			pContentView = getContentView();
+
+	if(pContentView==nullptr)
 	{
 		// nothing to do.
 		return;
 	}
     
 	// just set our content window to content area (but taking margins and padding into account).
-
-	Rect contentBounds = pCore->getContentArea();
+    Rect contentBounds( contentArea );
     			
 	// subtract our padding
 	contentBounds -= getDipPadding();

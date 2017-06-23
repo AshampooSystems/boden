@@ -117,6 +117,16 @@ public:
     }
 
 
+    void layout()
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            pWindow->defaultLayout( getContentArea() );
+    }
+    
+	
+
+
 protected:
 	String _title;
 	int    _titleChangeCount = 0;	

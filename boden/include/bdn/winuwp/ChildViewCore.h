@@ -403,6 +403,12 @@ public:
             
             //_pFrameworkElement->InvalidateMeasure();
 
+            // The docs state that: "A Measure call will automatically invalidate any Arrange information. "
+            // I.e. Measure causes an arrange call of the lower level control to be scheduled. That in turn means
+            // that we should not call this during a layout call.
+
+            XXX
+
 		    _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
@@ -590,48 +596,6 @@ private:
     }
 
 
-
-    ref class UwpContainerView sealed : public ::Windows::UI::Xaml::Controls::Canvas
-    {
-    public:
-        UwpContainerView()
-        {
-        }
-
-    protected:
-        ::Windows::Foundation::Size MeasureOverride(::Windows::Foundation::Size availableSize) override
-        {
-            if(_pCore!=nullptr)
-            {
-                // forward to the core
-                return _pCore->uwpMeasureOverride(availableSize);
-            }
-            else
-                return ::Windows::UI::Xaml::Controls::Canvas::MeasureOverride(availableSize);
-        }
-
-
-        ::Windows::Foundation::Size ArrangeOverride(::Windows::Foundation::Size finalSize) override
-        {
-            if(_pCore!=nullptr)
-                return _pCore->uwpArrangeOverride(finalSize);
-            else
-                return ::Windows::UI::Xaml::Controls::Canvas::ArrangeOverride(finalSize);
-        }
-
-
-    private:
-        void setCore(ContainerViewCore* pCore)
-        {
-            _pCore = pCore;
-        }
-
-        // weak by design
-        ContainerViewCore* _pCore = nullptr;
-
-        friend class ContainerViewCore;
-    };
-    friend ref class UwpContainerView;
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
