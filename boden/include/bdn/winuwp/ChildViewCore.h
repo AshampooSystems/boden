@@ -439,6 +439,57 @@ public:
                 layout is already finished and cached). So when could the availableSpace from the measure call not match the
                 final size of the control???? It seems like something that cannot actually happen.
 
+                It is important to note that it is possible to call measure from outside the layout functions.
+                The only thing that should not happen is to call Measure from inside Arrange, since Measure causes a re-layout
+                of the child view. So it is not a problem to have calcPreferredSize as a public function in View (assuming
+                that it is not called too often). We only have to prevent it during Arrange.
+                The only way to do that is to not have user code executed during arrange. That means that the layout
+                has to be finished at that point in time.
+                Could we not simply pre-determine the layout in Measure of the container view (WITHOUT assigning it) and
+                then assign these values in Arrange?
+
+                Again, here it would be important that the availableSpace passed to MEasure matches the final size.
+                BUT this problem also exists for all other UWP containers. They only use the DesiredSize property during their
+                Arrange call. Which is the result of the last measure call. If the availableSpace parameter of measure
+                does not match the final size then all of these desired sizes would potentially be false.
+
+                We could also detect the case when the sizes do not match and then cause a re-layout (possibly forcing a layout
+                using the final size to be made). I think that would be the best solution.
+
+                So, this is the plan for UWP:
+
+                    1) Make a full layout in Measure
+                    2) Cache the availableSpace parameter and layout results somewhere
+                    3) In Arrange, assign the layout values to the child views
+                    4) If finalSize in Arrange does not match the Measure parameter, store finalSize and cause another layout.
+                        4b) in the following Measure call force the creation of a layout for the previous final size
+                    5) Clear the cached layouts after Arrange.
+
+                Can we achieve that with the current API?
+
+                    We could call layout inside Measure. The adjustAndSetBounds method of the view core could simply
+                    cache the value, but not call Arrange yet.
+                    Then we could copy the values after the layout call.
+                    However, this would again modify the view objects, possibly causing property change handlers to be called.
+
+                    We could also modify how View::adjustAndSetBounds works. The bounds could be passed to the core and the core
+                    could have the responsibility to notify the view when these new values become active. That could be
+                    something that might also be worthwhile in other cases (for example when the change takes a certain
+                    time due to an animation).
+                    However, it seems wrong to mix these two issues. Using any kind of setPosition function to store a layout
+                    position for later seems quite hackish. It would be much better if that were done separately.
+
+                    So, it would be much better if the container views simply filled a layout object with the new coordinates and bounds
+                    of their children. Then we could easily calculate layouts for different sizes, without changing anything in the
+                    view tree. That seems useful. And it might also be closer to what the actual implementation of the containers does.
+                    In ColumnView we actually had an internal function that calculated the layout and that function was called from
+                    both calcPreferredSize and layout, since both needed to do very similar things.
+
+
+
+
+                
+
 
 
 
