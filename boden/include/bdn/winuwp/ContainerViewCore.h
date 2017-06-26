@@ -51,6 +51,9 @@ public:
 		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
 	}
 
+
+
+
 private:
 
     class LayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
@@ -67,8 +70,8 @@ private:
 
             if(pView!=nullptr)
             {
-               // forward this to the outer view.
-              Size availableSpace = Size::none();
+                // forward this to the outer view.
+                Size availableSpace = Size::none();
 
                 if( std::isfinite(winAvailableSize.Width) )
                     availableSpace.width = winAvailableSize.Width;
@@ -90,8 +93,13 @@ private:
 
             if(pView!=nullptr)
             {
-                // forward this to the outer view.
-                pView->_doLayout();
+                P<ContainerViewCore> pCore = tryCast<ContainerViewCore>( pView->getViewCore() );
+
+                if(pCore!=nullptr)
+                {
+                    // forward this to the outer view.
+                    pView->_doLayout();
+                }
             }            
 
             return finalSize;
@@ -99,8 +107,8 @@ private:
 
     protected:
         WeakP<ContainerView> _viewWeak;
-
     };
+    friend class LayoutDelegate;
 
     
 	UwpPanelWithCustomLayout^ _pUwpView;

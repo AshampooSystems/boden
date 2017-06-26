@@ -84,23 +84,23 @@ public:
 
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-        Size availableSpaceToUse(availableSpace);
-
         P<View> pOuter = getOuterViewIfStillAttached();
         if(pOuter!=nullptr)
         {
             // the hint width is used to indicate where the view should word break.
-            // We incorporate the width into the available space - that has the desired effect.
 
             Size hint = pOuter->preferredSizeHint();
 
-            // ignore the hint height
-            hint.height = Size::componentNone();
-
-            availableSpaceToUse.applyMaximum( hint );
+            // set the Width property. This serves as the "should probably have this Width"
+            // input to the control.
+            double width = hint.width;
+            if( !std::isfinite(width))
+                width = std::numeric_limits<double>::quiet_NaN();
+            if(_pTextBlock->Width != width)
+                _pTextBlock->Width = width;
         }
 
-        return ChildViewCore::calcPreferredSize(availableSpaceToUse);
+        return ChildViewCore::calcPreferredSize(availableSpace);
     }
 
 protected:
