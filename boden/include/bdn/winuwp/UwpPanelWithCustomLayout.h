@@ -8,8 +8,6 @@ namespace bdn
 namespace winuwp
 {
 
-class UwpPanelWithCustomLayoutFactory;
-
 
 /** UWP panel class that delegates layout functionality to an external object.
 
@@ -17,7 +15,7 @@ class UwpPanelWithCustomLayoutFactory;
 */
 ref class UwpPanelWithCustomLayout sealed : public ::Windows::UI::Xaml::Controls::Panel
 {
-private:
+internal:
     /** This constructor has to be protected because it uses non-UWP classes. Use UwpPanelWithCustomLayoutFactory::createInstance
         to create an instance of this class.
     
@@ -27,10 +25,6 @@ private:
     {
         _pLayoutDelegate = pLayoutDelegate;
     }
-
-    friend class UwpPanelWithCustomLayoutFactory;
-
-    
 
 protected:
     ::Windows::Foundation::Size MeasureOverride(::Windows::Foundation::Size availableSize) override
@@ -55,21 +49,6 @@ protected:
 
 private:
     P<IUwpLayoutDelegate> _pLayoutDelegate;
-};
-
-
-
-/** Helper class to create instances of UwpPanelWithCustomLayout.*/
-class UwpPanelWithCustomLayoutFactory
-{
-public:
-    
-
-    /** Creates an instance of UwpPanelWithCustomLayout with the specified layout delegate.*/
-    static UwpPanelWithCustomLayout^ createInstance( IUwpLayoutDelegate* pDelegate )
-    {
-        return ref new UwpPanelWithCustomLayout( pDelegate );
-    }
 };
 
 

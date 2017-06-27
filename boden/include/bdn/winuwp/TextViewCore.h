@@ -52,9 +52,7 @@ public:
             uiPadding = pad;
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
-
-		scheduleSizingInfoUpdateAfterNextUwpLayout();
-
+        
 		// UWP also uses DIPs => no conversion necessary
 
 		_pTextBlock->Padding = ::Windows::UI::Xaml::Thickness(
@@ -69,13 +67,7 @@ public:
 	void setText(const String& text)
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        // we cannot simply schedule a sizing info update here. The desired size of the control will still
-		// be outdated when the sizing happens.
-		// Instead we wait for the "layout updated" event that will happen soon after we set the
-		// content. That is when we update our sizing info.
-        scheduleSizingInfoUpdateAfterNextUwpLayout();
-        
+                
 		_pTextBlock->Text = ref new ::Platform::String( text.asWidePtr() );
 
         BDN_WINUWP_TO_STDEXC_END;

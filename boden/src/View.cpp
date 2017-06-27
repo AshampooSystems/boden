@@ -154,6 +154,8 @@ void View::updateSizingInfo()
 
 		if(pParentView!=nullptr)
 		{
+            XXX must not do this on UWP, since on UWP Windows takes care of propagating these events
+
 			// our parent needs to update its own sizing
 			pParentView->needSizingInfoUpdate();
 

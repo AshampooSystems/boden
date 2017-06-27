@@ -67,7 +67,7 @@ public:
 		_pWindowPanelParent = (UwpPanelWithCustomLayout^)_pXamlWindow->Content;
         if(_pWindowPanelParent==nullptr)
         {
-            _pWindowPanelParent = UwpPanelWithCustomLayoutFactory::createInstance( newObj<WindowPanelParentLayoutDelegate>() );
+            _pWindowPanelParent = ref new UwpPanelWithCustomLayout( newObj<WindowPanelParentLayoutDelegate>() );
             
 		    _pWindowPanelParent->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
 		    _pXamlWindow->Content = _pWindowPanelParent;
@@ -78,7 +78,7 @@ public:
         // to the top level container) because we need a way to represent the window's own properties
         // (like visible/hidden) without modifying the content panel. So we add a panel for the window
         // to get this intermediate control.
-        _pWindowPanel = UwpPanelWithCustomLayoutFactory::createInstance( newObj<WindowPanelLayoutDelegate>(pOuterWindow) );
+        _pWindowPanel = ref new UwpPanelWithCustomLayout( newObj<WindowPanelLayoutDelegate>(pOuterWindow) );
 		_pWindowPanel->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
         _pWindowPanelParent->Children->Append(_pWindowPanel);
 
@@ -566,8 +566,14 @@ private:
 
             if(pWindow!=nullptr)
             {
-               // forward this to the outer view.
-               Size availableSpace = Size::none();
+                // update the preferredSize property of the content view, to ensure that it is correct.
+                std::list< P<View> > childViews;
+                pWindow->getChildViews( childViews );
+                for( auto& pChildView: childViews)
+                    pChildView->_doUpdateSizingInfo();
+
+                // forward this to the outer view.
+                Size availableSpace = Size::none();
 
                 if( std::isfinite(winAvailableSize.Width) )
                     availableSpace.width = winAvailableSize.Width;

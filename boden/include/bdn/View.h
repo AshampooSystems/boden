@@ -597,6 +597,13 @@ public:
         layout();
     }
 
+
+    /**	Internal function that calls updateSizingInfo. Should only be called by the view implementation.*/
+    void _doUpdateSizingInfo()
+    {
+        updateSizingInfo();
+    }
+
     
 
     

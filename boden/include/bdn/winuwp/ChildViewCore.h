@@ -56,16 +56,6 @@ public:
             BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
-		void layoutUpdated( Platform::Object^ pSender, Platform::Object^ pArgs )
-		{
-            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
-
-			ChildViewCore* pViewCore = getViewCoreIfAlive();
-			if(pViewCore!=nullptr)
-				pViewCore->_uwpLayoutUpdated();
-
-            BDN_WINUWP_TO_PLATFORMEXC_END
-		}
 
 	private:
 		ChildViewCore* _pParentWeak;
@@ -85,9 +75,6 @@ public:
 		// when windows updates the size of the content canvas then that
 		// means that we have to update our layout.
 		_pFrameworkElement->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler( _pEventForwarder, &ViewCoreEventForwarder::sizeChanged );
-
-		_pFrameworkElement->LayoutUpdated += ref new Windows::Foundation::EventHandler<Platform::Object^>
-				( _pEventForwarder, &ViewCoreEventForwarder::layoutUpdated );
 
 		setVisible( pOuterView->visible() );
 				
@@ -120,6 +107,9 @@ public:
 
     void needSizingInfoUpdate() override
     {
+        // XXX
+        OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
+
         // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
         // this is.
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -139,6 +129,9 @@ public:
 
     void needLayout() override
     {
+        // XXX
+        OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
+
         // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
         // this is.
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -282,6 +275,9 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        // XXX
+        OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
         // Most views will clip the size returned by Measure to never
@@ -300,7 +296,7 @@ public:
             {
                 // preferredSizeMaximum is a hard limit, which is exactly how most UWP controls
                 // interpret the available size. So we incorporate it.
-                measureAvailSize.applyMaximum( pOuter->preferredSizeMaximum() );
+                // XXX measureAvailSize.applyMaximum( pOuter->preferredSizeMaximum() );
 
                 preferredSizeHint = pOuter->preferredSizeHint();
             }
@@ -422,28 +418,7 @@ protected:
 
 	virtual void _uwpSizeChanged()
 	{
-		// do not layout here. We do that in _uwpLayoutUpdated.
-	}
-
-	virtual void _uwpLayoutUpdated()
-	{
-        P<View> pOuterView = getOuterViewIfStillAttached();
-        
-        if(_uwpLayoutTriggersOurLayout)
-        {
-		    // Xaml has done a layout cycle. At this point all the controls should know their
-		    // desired sizes. So this is when we schedule our layout updated            
-            if(pOuterView!=nullptr)
-                pOuterView->needLayout();
-        }
-
-        if(_updateSizingInfoAfterNextUwpLayout)
-		{
-			_updateSizingInfoAfterNextUwpLayout = false;
-
-            if(pOuterView!=nullptr)
-			    pOuterView->needSizingInfoUpdate();
-		}
+        // nothing to do here. Windows takes care of updating our layout.
 	}
 
 
@@ -482,23 +457,6 @@ protected:
     }
 
 
-protected:
-
-    void scheduleSizingInfoUpdateAfterNextUwpLayout()
-    {
-        _updateSizingInfoAfterNextUwpLayout = true;
-    }
-
-    /** Sets an internal parameter that controls whether or not a layout
-        of the view is automatically scheduled after a UWP layout operation
-        has finished for the view.
-        
-        The default is true.
-        */
-    void setUwpLayoutTriggersOurLayout(bool autoTrigger)
-    {
-        _uwpLayoutTriggersOurLayout = autoTrigger;
-    }
     
 		
 private:
@@ -542,9 +500,6 @@ private:
     bool _currBoundsInitialized = false;
     Rect _currBounds;
     
-    bool _uwpLayoutTriggersOurLayout = true;
-    bool _updateSizingInfoAfterNextUwpLayout = true;
-
     bool _inUwpLayoutOperation = false;
 };
 

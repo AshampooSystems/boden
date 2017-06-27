@@ -32,19 +32,16 @@ public:
 		: ChildViewCore(pOuter, _createScrollViewer(pOuter), ref new ViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        // our layout is completely controlled by Windows. So we do not want to cause
-        // a boden layout after each UWP layout
-        setUwpLayoutTriggersOurLayout(false);
-
+                
 		_pScrollViewer = dynamic_cast< ::Windows::UI::Xaml::Controls::ScrollViewer^ >( getFrameworkElement() );
 
         // we want to let the scroll viewer handle the scroll bars and layouting automatically.
         // It is compatible with our own layout system.
-        // However, we still want to handle the layout ourselves within the content.
+        // However, we still want to handle the layout ourselves within the viewport (padding, margin
+        // of the content view).
         // To achieve that we have to give the scroll viewer has an UWP content panel
         // that wraps the actual content view and forwards layout and measure calls accordingly.
-        _pContentWrapper = ref new ScrollViewContentViewWrapper(this);
+        _pContentWrapper = ref new UwpPanelWithCustomLayout( newObj<ContentWrapperLayoutDelegate>(pOuter) );
 
         _pScrollViewer->Content = _pContentWrapper;
 
@@ -54,16 +51,6 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-    ~ScrollViewCore()
-    {
-        if(_pScrollViewer!=nullptr)
-        {
-            ScrollViewContentViewWrapper^ pContentWrapper = dynamic_cast<ScrollViewContentViewWrapper^>(_pScrollViewer->Content);
-
-            if(pContentWrapper!=nullptr)
-                pContentWrapper->detachFromScrollViewCore();
-        }
-    }
 
     
 
@@ -77,9 +64,7 @@ public:
             uiPadding = pad;
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
-
-		scheduleSizingInfoUpdateAfterNextUwpLayout();
-
+        
 		// UWP also uses DIPs => no conversion necessary
 
 		_pScrollViewer->Padding = ::Windows::UI::Xaml::Thickness(
@@ -96,8 +81,11 @@ public:
 	void addChildUiElement( ::Windows::UI::Xaml::UIElement^ pUiElement ) override
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
+        
+        // we have only one child (our own content view).
+        _pContentWrapper->Children->Clear();
 
-        _pContentWrapper->Content = pUiElement;
+		_pContentWrapper->Children->Append(pUiElement);
 
         BDN_WINUWP_TO_STDEXC_END;
 	}
@@ -119,16 +107,59 @@ public:
     {
         // cause a UWP layout. That will cause our ArrangeOverride method to be called,
         // which in turn will arrange the content view.
-
-        // note that a UWP layout operation triggers a delayed layoutUpdated event for the view.
-        // That would normally cause a Boden layout to follow. However, we have used
-        // setUwpLayoutTriggersOurLayout in our constructor to disable that completely, since
-        // we need the layout operations to happen during the normal Windows layout cycle
-        // (so that scroll bars etc are adapted accordingly).
-
+        
         _pScrollViewer->UpdateLayout();
     }
 
+
+    
+
+    void needSizingInfoUpdate() override
+    {
+        ChildViewCore::needSizingInfoUpdate();
+
+
+        // also invalidate the measurements of the content wrapper
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pContentWrapper->InvalidateMeasure();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+
+    
+    void needLayout() override
+    {
+        ChildViewCore::needSizingInfoUpdate();
+
+
+        // also invalidate the layout of the content wrapper
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pContentWrapper->InvalidateArrange();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
+
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
+	{
+        return ChildViewCore::calcPreferredSize(availableSpace);
+    }
 
 protected:
     virtual bool canAdjustWidthToAvailableSpace() const
@@ -141,89 +172,125 @@ protected:
 		return true;
 	}
 
-private:    
 
-    ref class ScrollViewContentViewWrapper sealed : public ::Windows::UI::Xaml::Controls::ContentControl
+    void _uwpSizeChanged() override
+	{
+        // XXX
+        OutputDebugString( L"ScrollViewCore._uwpSizeChanged()\n" );
+
+        ChildViewCore::_uwpSizeChanged();
+
+        // the scroll viewer's size has changed. Ensurethat we update the DesiredSize that the content
+        // reports, because the desired size may depend on the size and/or shape of the viewport.
+        
+        _pContentWrapper->InvalidateMeasure();
+	}
+
+private:
+    
+    class ContentWrapperLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
-    private:
-        ScrollViewContentViewWrapper(ScrollViewCore* pScrollViewCore)
-        {
-            _pScrollViewCore = pScrollViewCore;
-        }
-
     public:
-
-        void detachFromScrollViewCore()
+        ContentWrapperLayoutDelegate( ScrollView* pView)
+            : _viewWeak(pView)
         {
-            _pScrollViewCore = nullptr;
         }
-       
+
+        ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
+        {
+            // XXX
+            OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride("+std::to_string(winAvailableSize.Width)+", "+std::to_string(winAvailableSize.Height)+"\n" ).asWidePtr() );
+
+            P<ScrollView> pView = _viewWeak.toStrong();
+
+            if(pView!=nullptr)
+            {
+                P<View> pContentView = pView->getContentView();
+                if(pContentView!=nullptr)
+                {
+                    pContentView->_doUpdateSizingInfo();
+                                        
+                    Margin padding;                    
+                    Nullable<UiMargin> pad = pView->padding();
+                    if(!pad.isNull())
+                        padding = pView->uiMarginToDipMargin(pad);            
+
+                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
+
+                    Size nonContentSize = Size(0,0) + contentMargin + padding;
+
+                    // forward this to the outer view.
+                    Size availableSpace = Size::none();
+
+                    if( std::isfinite(winAvailableSize.Width) )
+                    {
+                        availableSpace.width = winAvailableSize.Width - nonContentSize.width;
+                        if(availableSpace.width<0)
+                            availableSpace.width = 0;
+                    }
+
+                    if( std::isfinite(winAvailableSize.Height) )
+                    {
+                        availableSpace.height = winAvailableSize.Height - nonContentSize.height;
+                        if(availableSpace.height<0)
+                            availableSpace.height = 0;
+                    }
+
+                    Size resultSize = pContentView->calcPreferredSize( availableSpace );
+
+                    resultSize += nonContentSize;
+
+                    OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
+
+                    return sizeToUwpSize(resultSize);
+                }
+            }
+
+            OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
+            
+            return ::Windows::Foundation::Size(0, 0);
+        }
+        
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
+        {
+            // XXX
+            OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+
+            P<ScrollView> pView = _viewWeak.toStrong();
+
+            if(pView!=nullptr)
+            {
+                P<View> pContentView = pView->getContentView();
+                if(pContentView!=nullptr)
+                {
+                    // make the content view the same size as us
+                    Rect contentRect( Point(0,0), uwpSizeToSize(winFinalSize) );
+
+                    Margin padding;                    
+                    Nullable<UiMargin> pad = pView->padding();
+                    if(!pad.isNull())
+                        padding = pView->uiMarginToDipMargin(pad);            
+
+                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
+
+                    contentRect -= padding;
+                    contentRect -= contentMargin;
+                    
+                    pContentView->adjustAndSetBounds(contentRect);
+                }
+            }            
+
+            return winFinalSize;
+        }
+
     protected:
-
-        virtual ::Windows::Foundation::Size MeasureOverride(::Windows::Foundation::Size winAvailableSize) override
-        {
-            P<View> pContentView = getWrappedContentView();
-            if(pContentView!=nullptr)
-            {
-                Size availableSpace = Size::none();
-
-                if(std::isfinite(winAvailableSize.Width))
-                    availableSpace.width = winAvailableSize.Width;
-                
-                if(std::isfinite(winAvailableSize.Height))
-                    availableSpace.height = winAvailableSize.Height;
-
-                Size size = pContentView->calcPreferredSize(availableSpace);
-
-                return sizeToUwpSize( size );
-            }
-            else
-                return ::Windows::Foundation::Size(0,0);
-        }
-
-        virtual ::Windows::Foundation::Size ArrangeOverride(::Windows::Foundation::Size winFinalSize) override
-        {
-            // make the content view the same size as us
-            Rect contentRect( Point(0,0), uwpSizeToSize(winFinalSize) );
-            
-            P<View> pContentView = getWrappedContentView();
-            if(pContentView!=nullptr)
-            {
-                // It is important to let the child view know that we are currently in a UWP layout operation.
-                // That means that it can use Arrange directly.
-                ChildViewCore::InUwpLayoutOperation_ inOp(pContentView);
-
-                // now assign the new content rect to the view
-                Rect adjustedContentRect = pContentView->adjustAndSetBounds(contentRect);
-            
-                return sizeToUwpSize( adjustedContentRect.getSize() );
-            }
-            else
-                return winFinalSize;
-        }
-
-    private:
-        P<View> getWrappedContentView()
-        {
-            if(_pScrollViewCore!=nullptr)
-            {
-                P<ScrollView> pScrollView = cast<ScrollView>( _pScrollViewCore->getOuterViewIfStillAttached() );
-                if(pScrollView!=nullptr)
-                    return pScrollView->getContentView();
-            }
-
-            return nullptr;
-        }
-
-
-        // weak by design
-        ScrollViewCore* _pScrollViewCore;
-
-        friend class ScrollViewCore;
+        WeakP<ScrollView> _viewWeak;
     };
+    friend class ContentWrapperLayoutDelegate;
+
 
     ::Windows::UI::Xaml::Controls::ScrollViewer^ _pScrollViewer;
-    ScrollViewContentViewWrapper^                _pContentWrapper;
+    UwpPanelWithCustomLayout^                    _pContentWrapper;
     bool                                         _ignoreUwpLayoutUpdated = false;
 };
 

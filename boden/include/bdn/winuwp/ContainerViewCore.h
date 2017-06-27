@@ -18,7 +18,7 @@ public:
 	ContainerViewCore(	ContainerView* pOuter)
 		: ChildViewCore(
             pOuter,
-            UwpPanelWithCustomLayoutFactory::createInstance( newObj<LayoutDelegate>(pOuter) ),
+            ref new UwpPanelWithCustomLayout( newObj<LayoutDelegate>(pOuter) ),
             ref new ViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -70,6 +70,13 @@ private:
 
             if(pView!=nullptr)
             {
+                // tell all child views to validate their preferredSize property. That ensures that
+                // our calcPreferredSize gets up-to-date results.
+                std::list< P<View> > childViews;
+                pView->getChildViews( childViews );
+                for( auto& pChildView: childViews)
+                    pChildView->_doUpdateSizingInfo();
+
                 // forward this to the outer view.
                 Size availableSpace = Size::none();
 
