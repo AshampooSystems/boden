@@ -19,17 +19,19 @@ text into lines). Even in availableSize is set, this still sets the normal Desir
 
 So, DesiredSize depends on the input parameter to the last Measure call. And the documentation states that
 Arrange should use that property to size the child. If one does it that way then this implicitly assumes
-that the availableSize parameter of the latest Measure call accurately reflects the available space in Arrange.
+that the availableSize parameter of the latest Measure call accurately reflects the final size in Arrange.
 
-And that can be a problem, since Arrange also has an "available size" parameter (called finalSize). It is perfectly
-ok for that finalSize to not match the last availableSize parameter, especially in cases when there is not enough
-space to give every panel their desired size. So final layout depends on a property (DesiredSize) that may have been calculated
-for a completely different availableSize. That means that the child cannot adjust properly to the actual final available
-space.
+Apparently it is possible for finalSize in Arrange to not match the last availableSize from Measure parameter,
+especially in cases when there is not enough space to give every panel their desired size. So the final layout
+depends on a property (DesiredSize) that may have been calculated for a completely different availableSize.
+That means that the child cannot reliably adjust properly to the actual final available space.
 
-This problem occurs when one follows the recommended layout procedure. Of course, one could call Measure for the child
-views in Arrange if the finalSize in Arrange does not match the last availableSize from Measure. This would yield
-the correct layout, but it does not conform to the recommended approach.
+One could call Measure again in Arrange and calculate an accurate DesiredSize for the actual space that is available
+in layout. However, that often causes layout cycles in the Windows layout system and Windows will generate
+an error when it detects such a cycle. So we one should NEVER call Measure in Arrange.
+
+So, for controls that adapt to the available space (e.g. TextBlock) one has to ensure by other means that the availableSpace from
+the last Measure call matches the final size during Arrange. Otherwise the control will not adapt correctly.
 
 
 Arranging and sizing UWP views
@@ -63,7 +65,7 @@ use controls that were already created at runtime. That is a pretty harsh restri
 So, the "magic" has to happen in the Arrange function of the layout container. That function has to assign the actual
 size that we want the view to have and pretty much ignore the DesiredSize property.
 
-So we have to use custom panels with overloaded layout function.
+So we have to use custom panels with an overloaded layout function.
 There we have to overload MeasureOverride to provide our own desired size. And we have to overload ArrangeOverride
 to arrange and size the controls according to our own layout routines.
 
@@ -117,19 +119,25 @@ We could also simply do the sizing and layout on demand when Windows calls our L
 It seems that the Windows layout system is quite reliable with these calls and they are also optimized to reduce
 duplicate operations to a minimum.
 
+However, there is a big problem: one must never call Measure (=calcPreferredSize) from inside the Arrange
+routine (see above). Since Boden allows layout containers to call calcPreferredSize during layout,
+that means that the Boden layout phase cannot happen in Arrange. Instead, it has to be done in Measure.
+
+We then also have to ensure that the availableSpace from the last Measure call matches the finalSize in Arrange.
+For our containers that can be guaranteed, since the final size is actually assigned in Measure.
+For the top level Window we cannot ensure that, since there the size is controlled by Windows. However, Windows
+does not dynamically re-size the Window during the layout cycle, so we should never have a case when the available
+space does not match the final size.
+
+So, in summary:
+
 - needLayout and needSizingInfoUpdate simply call Windows InvalidateMeasure and InvalidateArrange methods
 
-- In Measure we update our own preferredSize property
+- In Measure we update our own preferredSize property. Containers calculate the whole layout there
+  and store it in a cache.
 
-- In Arrange we call layout. Note that this will call Measure again on the child views, but this is actually
-  necessary to ensure that the layout is correct (since finalSize from Arrange does not necessarily match
-  the availableSize from Measure). This should not cause any problems, even though it invalidates the child's
-  layout - the child always needs to be re-layouted after its parent, since its final size is not known
-  before that.
+- In Arrange we simply arrange the UWP controls according to the precached layout
 
-We could also optimize this even more by calculating our full layout in Measure and then simply
-applying it in arrange if finalSize matches availableSize. However, since that cannot be guaranteed, this
-additional complexity does not seem to be worth it.
 
 
 ### Layout coordinator choice
