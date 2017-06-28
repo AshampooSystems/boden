@@ -136,6 +136,9 @@ void Window::center()
 
 Size Window::calcPreferredSize( const Size& availableSpace ) const
 {
+    // XXX
+    OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+
 	// lock the mutex so that our child hierarchy or core does not change during measuring
 	MutexLock lock( getHierarchyAndCoreMutex() );
 	
@@ -211,6 +214,9 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
     // if the children do not fit.
     preferredSize.applyMaximum( preferredSizeMaximum() );
 
+
+    // XXX
+    OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
 
 	return preferredSize;
 }

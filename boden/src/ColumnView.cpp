@@ -7,12 +7,19 @@ namespace bdn
 
 Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
 {
+    // XXX
+    OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+
 	std::list< P<View> > childViews;
 	getChildViews(childViews);
 
     std::list<Rect> childBounds;
 
 	Size usefulSize = calcChildBounds( availableSpace, childViews, childBounds, true );
+
+
+    // XXX
+            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
 
 	return usefulSize;
 }
@@ -199,6 +206,9 @@ Size ColumnView::calcChildBounds( const Size& availableSpace, const std::list< P
 
 void ColumnView::layout()
 {
+    // XXX
+    OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
+
     Size mySize( size() );
 
 	std::list< P<View> > childViews;
@@ -226,6 +236,10 @@ void ColumnView::layout()
 
 		++childBoundsIt;
 	}
+
+
+    // XXX
+            OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n" ).asWidePtr() );
 }
 
 

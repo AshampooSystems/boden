@@ -127,6 +127,12 @@ public:
     }
 
 
+    void childSizingInfoChanged(View* pChild) override
+    {
+        // we do not do anything here. Windows takes care of propagating the sizing info changes
+        // to the parent views.
+    }
+
     void needLayout() override
     {
         // XXX
@@ -285,6 +291,7 @@ public:
 		// documented to return a bigger size if the view cannot be made small enough
 		// to fit).
 
+       
         Size measureAvailSize( availableSpace );
 
         try
@@ -338,7 +345,8 @@ public:
             // of view need to implement the hinting for their specific case with the knowledge what
             // the specific control will do with this information.
             
-            _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
+            // XXX
+                _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 		
@@ -355,6 +363,10 @@ public:
                 // if the content does not fit.
                 size.applyMaximum( pOuter->preferredSizeMaximum() );
             }
+            
+
+            // XXX
+            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
 
             return size;
         }
@@ -363,6 +375,8 @@ public:
             // view was already destroyed. Ignore this and return zero size
             return Size();
         }
+
+
         
         BDN_WINUWP_TO_STDEXC_END;
 	}

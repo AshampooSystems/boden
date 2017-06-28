@@ -66,7 +66,12 @@ private:
 
         ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
         {
+            // XXX
+            OutputDebugString( String( "Container-LayoutDelegate.measureOverride("+std::to_string(winAvailableSize.Width)+", "+std::to_string(winAvailableSize.Height)+"\n" ).asWidePtr() );
+
             P<ContainerView> pView = _viewWeak.toStrong();
+
+            ::Windows::Foundation::Size winResultSize(0,0);
 
             if(pView!=nullptr)
             {
@@ -88,14 +93,20 @@ private:
 
                 Size resultSize = pView->calcPreferredSize( availableSpace );
 
-                return sizeToUwpSize(resultSize);
+                winResultSize = sizeToUwpSize(resultSize);
             }
-            else
-                return ::Windows::Foundation::Size(0, 0);
+
+            // XXX
+            OutputDebugString( String( "/Container-LayoutDelegate.measureOverride.measureOverride()\n" ).asWidePtr() );
+
+            return winResultSize;
         }
         
-        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
         {
+            // XXX
+            OutputDebugString( String( "Container-LayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+
             P<ContainerView> pView = _viewWeak.toStrong();
 
             if(pView!=nullptr)
@@ -109,7 +120,10 @@ private:
                 }
             }            
 
-            return finalSize;
+            // XXX
+            OutputDebugString( String( "/Container-LayoutDelegate()\n" ).asWidePtr() );
+
+            return winFinalSize;
         }
 
     protected:

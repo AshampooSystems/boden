@@ -149,24 +149,23 @@ void View::updateSizingInfo()
 	if(info!=_sizingInfo)
 	{
 		_sizingInfo = info;
-		
+        		
 		P<View> pParentView = getParentView();
 
 		if(pParentView!=nullptr)
-		{
-            XXX must not do this on UWP, since on UWP Windows takes care of propagating these events
-
-			// our parent needs to update its own sizing
-			pParentView->needSizingInfoUpdate();
-
-			// AND, since our sizing info has changed the parent also needs
-			// to re-layout us and our siblings
-			
-			pParentView->needLayout();
-		}
+            pParentView->childSizingInfoChanged(this);
+		
 	}
 }
 
+
+void View::childSizingInfoChanged(View* pChild)
+{
+    P<IViewCore> pCore = getViewCore();
+
+    if(pCore!=nullptr)
+        pCore->childSizingInfoChanged(pChild);
+}
 
 void View::_setParentView(View* pParentView)
 {

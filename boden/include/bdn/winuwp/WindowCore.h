@@ -212,6 +212,9 @@ public:
     
     void needSizingInfoUpdate() override
     {
+        // XXX
+        OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
+
         // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
         // this is.
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -231,6 +234,9 @@ public:
 
     void needLayout() override
     {
+        // XXX
+        OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
+
         // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
         // this is.
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -245,6 +251,13 @@ public:
         }
 
         BDN_WINUWP_TO_STDEXC_END;
+    }
+
+
+    void childSizingInfoChanged(View* pChild) override
+    {
+        // we do not do anything here. Windows takes care of propagating the sizing info changes
+        // to the parent views.
     }
 
 
@@ -343,6 +356,9 @@ public:
 
     void layout()
     {
+        // XXX
+    OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
+
         // The XAML window is managed and instantiated by the system. So we cannot subclass it
         // or override its layout function.
         // Instead we added a custom panel as the Window content view. We have overridden
@@ -360,6 +376,10 @@ public:
 
             pOuter->defaultLayout(contentArea);
         }
+
+
+        // XXX
+    OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
     }
     
 	
@@ -525,23 +545,36 @@ private:
 
         ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
         {
+            // XXX
+            OutputDebugString( String( "WindowPanelParentLayoutDelegate.measureOverride("+std::to_string(winAvailableSize.Width)+", "+std::to_string(winAvailableSize.Height)+"\n" ).asWidePtr() );
+            
+            ::Windows::Foundation::Size resultSize(0,0);
+
             auto childIt = pPanel->Children->First();
             if(childIt->HasCurrent)
             {
                 childIt->Current->Measure(winAvailableSize);
-                return childIt->Current->DesiredSize;
+                resultSize = childIt->Current->DesiredSize;
             }
-            else
-                return ::Windows::Foundation::Size(0,0);
+
+            OutputDebugString( String( "/WindowPanelParentLayoutDelegate.measureOverride\n" ).asWidePtr() );
+
+            return resultSize;
         }
         
-        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
         {
+            // XXX
+            OutputDebugString( String( "WindowPanelParentLayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+
             auto childIt = pPanel->Children->First();
             if(childIt->HasCurrent)
-                childIt->Current->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), finalSize ) );
+                childIt->Current->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), winFinalSize ) );
 
-            return finalSize;
+            // XXX
+            OutputDebugString( String( "/WindowPanelParentLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
+
+            return winFinalSize;
         }
 
     protected:
@@ -562,7 +595,12 @@ private:
 
         ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
         {
+            // XXX
+            OutputDebugString( String( "WindowPanelLayoutDelegate.measureOverride("+std::to_string(winAvailableSize.Width)+", "+std::to_string(winAvailableSize.Height)+"\n" ).asWidePtr() );
+
             P<Window> pWindow = _windowWeak.toStrong();
+
+            ::Windows::Foundation::Size winResultSize(0,0);
 
             if(pWindow!=nullptr)
             {
@@ -583,14 +621,21 @@ private:
 
                 Size resultSize = pWindow->calcPreferredSize( availableSpace );
 
-                return sizeToUwpSize(resultSize);
+                winResultSize = sizeToUwpSize(resultSize);
             }
-            else
-                return ::Windows::Foundation::Size(0, 0);
+
+            // XXX
+            OutputDebugString( String( "/WindowPanelLayoutDelegate.measureOverride()\n" ).asWidePtr() );
+
+            return winResultSize;
+            
         }
         
-        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize ) override
+        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
         {
+            // XXX
+            OutputDebugString( String( "WindowPanelLayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+
             P<Window> pWindow = _windowWeak.toStrong();
 
             if(pWindow!=nullptr)
@@ -599,7 +644,10 @@ private:
                 pWindow->_doLayout();
             }            
 
-            return finalSize;
+            // XXX
+            OutputDebugString( String( "/WindowPanelLayoutDelegate()\n" ).asWidePtr() );
+
+            return winFinalSize;
         }
 
     protected:

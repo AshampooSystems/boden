@@ -57,6 +57,17 @@ public:
         if(pView!=nullptr)
             cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
     }
+
+
+    void childSizingInfoChanged(View* pChild)
+    {
+        P<View> pParent = getOuterViewIfStillAttached();
+        if(pParent!=nullptr)
+        {
+            pParent->needSizingInfoUpdate();
+            pParent->needLayout();
+        }
+    }
     
 
     /** Returns the outer view object that this core is embedded in.*/

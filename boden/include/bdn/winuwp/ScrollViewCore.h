@@ -105,10 +105,8 @@ public:
 
     void layout()
     {
-        // cause a UWP layout. That will cause our ArrangeOverride method to be called,
-        // which in turn will arrange the content view.
-        
-        _pScrollViewer->UpdateLayout();
+        // Windows takes care of the layout of the scroll viewer.
+        // Nothing to do here.
     }
 
 
@@ -138,10 +136,10 @@ public:
     
     void needLayout() override
     {
-        ChildViewCore::needSizingInfoUpdate();
+        ChildViewCore::needLayout();
 
-
-        // also invalidate the layout of the content wrapper
+        // also invalidate the layout of the content wrapper.
+        // The default implementation (called above) invalidates the scroll viewer itself.
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
         try
@@ -278,7 +276,11 @@ private:
                     
                     pContentView->adjustAndSetBounds(contentRect);
                 }
-            }            
+            }     
+
+
+            // XXX
+            OutputDebugString( String( "/ContentWrapperLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
 
             return winFinalSize;
         }

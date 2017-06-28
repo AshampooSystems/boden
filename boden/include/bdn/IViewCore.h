@@ -42,6 +42,13 @@ public:
 
 
 
+    /** This is called when the sizing information of a child view has changed.
+        Usually this will prompt this view (the parent view) to also schedule an update to
+        its own sizing information and an update to its layout.*/
+    virtual void childSizingInfoChanged(View* pChild)=0;
+
+
+
 	/** Shows/hides the view core.*/
 	virtual void setVisible(const bool& visible)=0;
 	
