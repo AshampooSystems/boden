@@ -2,6 +2,7 @@
 #define BDN_ContainerView_H_
 
 #include <bdn/View.h>
+#include <bdn/ViewLayout.h>
 
 namespace bdn
 {
@@ -140,6 +141,41 @@ public:
 		if(it!=_childViews.end())
 			_childViews.erase(it);
 	}
+
+
+    /** Calculates the layout for the container based on the specified total container size.
+
+        The sizes and positions of the child views are calculated and stored in the returned
+        layout object.
+        
+        The layout can then be applied later by calling applyLayout().
+
+        calcLayout may be called multiple times to create multiple layout objects.
+        Any of the created layouts may be applied later with applyLayout(). It is
+        also valid to apply none of them and throw them away, or to apply them 
+        at different times in the future.
+
+        */
+    virtual P<ViewLayout> calcLayout(const Size& containerSize)=0;
+
+
+    /** Applies a previously calculated layout (see calcLayout()).
+
+        This actually modifies the child views.
+
+        If the layout does not have data for a child view then that view simply keeps
+        its current state.
+
+        If the layout has data for a view that is not a child view of the container
+        then that data is ignored and the view not be updated.
+        */
+    virtual void applyLayout(ViewLayout* pLayout)
+    {
+        pLayout->applyTo(this);
+    }
+
+
+
 
 protected:
 	std::list< P<View> > _childViews;

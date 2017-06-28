@@ -93,6 +93,8 @@ private:
 
                 Size resultSize = pView->calcPreferredSize( availableSpace );
 
+
+
                 winResultSize = sizeToUwpSize(resultSize);
             }
 
