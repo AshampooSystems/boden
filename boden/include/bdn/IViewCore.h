@@ -164,6 +164,59 @@ public:
         IMPORTANT: This function must only called be called from the main thread.
 		*/		
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const=0;
+	
+
+	
+    /** Updates the layout of the view's contents and child views.
+	
+        The view should NOT update its OWN size or position during this - 
+		it has to work with the size and position it currently has and
+		should ONLY update the size and position of its child views.
+
+        IMPORTANT: This function should never be called manually. It should
+        only be called by the platform's layout coordinator.
+
+		Implementation tips
+		---------------------
+
+		In general, the core is free to implement this function in any way that works best
+		for the target platform. It is also ok to perform the actual layout asynchronously
+		after layout() has returned.
+
+		If the target platform does not need special handling for the layout then the view core
+		can often simply call a layout function from the outer view to get a default implementation:
+
+		- ContainerView cores can call ContainerView::calcLayout
+		  and then ViewLayout::applyTo to calculate and then apply the layout.
+
+		- View classes with a single content view child (like Window) often have a function called
+		  defaultLayout that provides a default implementation for this function and can be called by the core.
+
+		- Simple controls without children often do nothing in layout.
+				
+
+        Note to implementors
+        --------------------
+
+        Depending on the UI implementation backend, 
+        the sizes and positions of child views may have some constraints. For example,
+        with many implementations the sizes and positions must be rounded to full physical
+        pixel boundaries. The layout() function should be aware of this and use
+        adjustBounds() to calculate a bounds rect that meets these constraints.
+        
+        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
+        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
+        disappearing completely.
+        
+        Child view sizes should usually be rounded with RoundType::up when enough space is available
+        and RoundType::down when not enough space is available.
+
+        The rounding policies noted above are merely guidelines: layout implementations are free to
+        ignore them if there are other considerations that cause other rounding types to be better for
+        for the particular case.
+
+		*/
+	virtual void layout()=0;
 
 	
 

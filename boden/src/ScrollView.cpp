@@ -20,19 +20,6 @@ ScrollView::~ScrollView()
     setContentView(nullptr);
 }
 
-void ScrollView::layout()
-{
-	P<View>			    pContentView = getContentView();
-	P<IScrollViewCore>	pCore = cast<IScrollViewCore>( getViewCore() );
-
-	if(pCore!=nullptr)
-    {
-        // the core takes care of the layout because this is highly implementation
-        // specific. The available space depends on things like the size of scroll bars,
-        // whether or not scroll bars are shown and similar things.
-        pCore->layout();
-    }
-}
 
 
 }

@@ -166,7 +166,8 @@ public:
 
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
-    /** A default implementation for layout(), intended for use by the window's core object.
+
+    /** A default implementation for IViewCore::layout(), intended for use by the window's core object.
         This function can be called by the core if no special layout procedure is needed and the
         only task to perform is to arrange the content view.
 
@@ -179,8 +180,6 @@ public:
 	
 
 protected:
-    void layout() override;
-    
 
 	virtual void autoSize();
 	virtual void center();

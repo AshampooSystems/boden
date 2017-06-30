@@ -127,10 +127,6 @@ public:
 			_pContentView = nullptr;
 	}
     
-	
-
-	void layout() override;	
-    
 private:
     P<View>					_pContentView;
 

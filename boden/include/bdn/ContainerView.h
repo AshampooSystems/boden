@@ -142,41 +142,21 @@ public:
 			_childViews.erase(it);
 	}
 
-
+	
     /** Calculates the layout for the container based on the specified total container size.
-
         The sizes and positions of the child views are calculated and stored in the returned
-        layout object.
-        
-        The layout can then be applied later by calling applyLayout().
+        layout object. The layout can then be applied later by calling ViewLayout::applyTo().
 
-        calcLayout may be called multiple times to create multiple layout objects.
-        Any of the created layouts may be applied later with applyLayout(). It is
-        also valid to apply none of them and throw them away, or to apply them 
-        at different times in the future.
+        calcLayout may be called multiple times to create multiple layout objects
+		for different sizes.
+        Any of the created layouts may be applied later with ViewLayout::applyTo(). It is
+        also valid to apply none of them and throw them away.
 
+		\param containerSize the size of the container view to use as the basis for the layout.
+			This does not have to match the current size of the container view.			
         */
-    virtual P<ViewLayout> calcLayout(const Size& containerSize)=0;
-
-
-    /** Applies a previously calculated layout (see calcLayout()).
-
-        This actually modifies the child views.
-
-        If the layout does not have data for a child view then that view simply keeps
-        its current state.
-
-        If the layout has data for a view that is not a child view of the container
-        then that data is ignored and the view not be updated.
-        */
-    virtual void applyLayout(ViewLayout* pLayout)
-    {
-        pLayout->applyTo(this);
-    }
-
-
-
-
+    virtual P<ViewLayout> calcLayout(const Size& containerSize) const=0;
+	
 protected:
 	std::list< P<View> > _childViews;
 };

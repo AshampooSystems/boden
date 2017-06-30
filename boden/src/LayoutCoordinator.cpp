@@ -327,15 +327,17 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 						try
 						{
-							nextToDo.pView->_doLayout();
+							P<IViewCore> pCore = nextToDo.pView->getViewCore();
+							if(pCore!=nullptr)
+								pCore->layout();
 						}
 						catch(std::exception& e)
 						{
-							handleException(&e, "View::layout");                    
+							handleException(&e, "IViewCore::layout");                    
 						}
 						catch(...)
 						{
-							handleException(nullptr, "View::layout");                    
+							handleException(nullptr, "IViewCore::layout");                    
 						}									
 					}
 				}

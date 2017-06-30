@@ -24,32 +24,30 @@ public:
 	ColumnView()
 	{		
 	}
-
 	
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
-
-    void	layout() override;
-
 	
-protected:
+	P<ViewLayout> calcLayout(const Size& containerSize) const override;
+	
+private:
 	
 	/** Calculates the positions and sizes (in DIPs - see UILength::Unit::dip) of the child views for the case that the ColumnView
 		has the specified width.
 
-        forMeasuring indicates that the call is not intended for arranging the children, but to measure the preferred size
-        of the container. If this is true then it forces all children to be left-aligned, ignoring their actual alignment values.
-        It also influences how the child bounds are rounded to full pixels.
+		availableSpace indicates the amount of space that is available for the client views inside the parent.
 
-        availableSpace indicates the amount of space that is available for the client views inside the parent.
-        width and/or height of availableSpace can be Size::componentNone(), which means that the space is unlimited - i.e.
-        the bounds should be measured for the case when any preferred size is acceptable.
+        forMeasuring indicates that the call is not intended for arranging the children, but to measure the preferred size
+        of the container. In this case availableSpace is interpreted as in calcPreferredSize as a "recommended upper limit".
+		The size limits for preferred sizes (View::preferredSizeMaximum, View::preferredSizeMinimum) are also factored in.
+		If forMeasuring is false then availableSpace is interpreted as the fixed predetermined container size        
+
+		If forMeasuring is true then width and/or height of availableSpace can be Size::componentNone(), which
+		means that the space is unlimited - i.e. the bounds should be measured for the case when any preferred size is acceptable.
         
-		Returns the "useful" Size for the container contents (including padding and margins) in DIPs. Note that if the \c availableWidth parameter
-        is bigger than the size needed to accomodate the widest child then the returned width will be smaller than the \c availableWidth
-        parameter.        
+		Returns the total size of the layout (i.e. the used amount of space that is covered by the layout).
         */
-	Size calcChildBounds(const Size& availableSpace, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const;
+	Size calcLayoutImpl(ViewLayout* pLayout, const Size& availableSpace, bool forMeasuring) const;
 
 
 	

@@ -36,6 +36,14 @@ public:
         return Size();
     }
 
+	void layout() override
+	{
+		P<ContainerView> pView = cast<ContainerView>( getOuterViewIfStillAttached() );
+		
+		P<ViewLayout> pLayout = pView->calcLayout( pView->size() );
+		pLayout->applyTo( pView );
+	}
+
 
 };
 

@@ -584,20 +584,7 @@ public:
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
 
-
-    
-
-	/**	Updates the layout of the view's its contents and child views.
-
-        IMPORTANT: this function should never be called directly by the app. The
-        platform's layout system takes care of calling this function at optimized times.
-        Call needLayout() instead when you need to manually trigger a re-layout of the view.*/
-    void _doLayout()
-    {
-        layout();
-    }
-
-
+	
     /**	Internal function that calls updateSizingInfo. Should only be called by the view implementation.*/
     void _doUpdateSizingInfo()
     {
@@ -650,40 +637,6 @@ public:
 
 protected:
     
-    /** Updates the layout of the view's its contents and child views.
-    
-        The view should NOT update its OWN size or position during this - 
-		it has to work with the size and position it currently has and
-		should ONLY update the size and position of its child views.
-
-        IMPORTANT: This function should never be called manually. It should
-        only be called by the platform's layout coordinator.
-
-        This function must only be called from the main thread.
-
-        Note to implementors
-        --------------------
-
-        Depending on the UI implementation backend, 
-        the sizes and positions of child views may have some constraints. For example,
-        with many implementations the sizes and positions must be rounded to full physical
-        pixel boundaries. The layout() function should be aware of this and use
-        adjustBounds() to calculate a bounds rect that meets these constraints.
-        
-        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
-        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
-        disappearing completely.
-        
-        Child view sizes should usually be rounded with RoundType::up when enough space is available
-        and RoundType::down when not enough space is available.
-
-        The rounding policies noted above are merely guidelines: layout implementations are free to
-        ignore them if there are other considerations that cause other rounding types to be better for
-        for the particular case.
-
-		*/
-	virtual void layout()=0;
-
 
 	/** Verifies that the current thread is the main thread.
 		Throws a ProgrammingError if that is not the case.

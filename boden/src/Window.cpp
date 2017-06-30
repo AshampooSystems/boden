@@ -221,15 +221,6 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
 	return preferredSize;
 }
 
-void Window::layout()
-{
-    // forward the call to the core
-    P<IWindowCore>	pCore = cast<IWindowCore>( getViewCore() );
-
-	if(pCore!=nullptr)
-        pCore->layout();
-}
-
 void Window::defaultLayout(const Rect& contentArea)
 {
 	P<View>			pContentView = getContentView();

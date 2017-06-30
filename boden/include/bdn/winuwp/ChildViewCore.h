@@ -382,6 +382,16 @@ public:
 	}
 
 
+	
+	void layout() override
+	{
+		// this should never be called, since needLayout does not use the generic layout coordinator.
+		// However, if it is called then we simply assert and ignore that otherwise.
+		assert(false);
+	}
+
+
+
 	/** Returns the XAML FrameworkElement object for this view.*/
 	::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement() override
 	{

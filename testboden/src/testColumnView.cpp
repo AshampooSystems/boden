@@ -4,6 +4,7 @@
 #include <bdn/ColumnView.h>
 #include <bdn/Button.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockViewCore.h>
 #include <bdn/test/MockContainerViewCore.h>
 
 using namespace bdn;
@@ -40,7 +41,7 @@ void testChildAlignment(
     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
     {
         int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
-        int layoutCountBefore = pColumnView->getLayoutCount();
+        int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
         SECTION("horizontal")
         {
@@ -52,7 +53,7 @@ void testChildAlignment(
                 REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
 
                 // but layout should have happened
-                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+                REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
                 Rect bounds = Rect( pButton->position(), pButton->size() );
                 Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
@@ -93,7 +94,7 @@ void testChildAlignment(
                 REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
 
                 // but layout should have
-                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+                REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
                 // vertical alignment should have NO effect in a column view.
                 Rect bounds = Rect( pButton->position(), pButton->size() );
@@ -153,7 +154,7 @@ TEST_CASE("ColumnView")
             CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
             {
                 int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
-                int layoutCountBefore = pColumnView->getLayoutCount();
+                int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
                 pColumnView->addChildView(pButton);
 
@@ -162,7 +163,7 @@ TEST_CASE("ColumnView")
                 {
                     // should cause a sizing update and a layout update.
                     REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
-                    REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
+                    REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
                     Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
 
@@ -193,7 +194,7 @@ TEST_CASE("ColumnView")
                 {
                     Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
                     int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
-                    int layoutCountBefore = pColumnView->getLayoutCount();
+                    int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
                     pButton->margin() = UiMargin(1, 2, 3, 4);
 
@@ -201,7 +202,7 @@ TEST_CASE("ColumnView")
                     {
                         // should cause a sizing update for the column view, followed by a layout update
                         REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
-                        REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
+                        REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
                         Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
 

@@ -85,10 +85,6 @@ public:
 	}
 
 protected:	
-	void layout() override
-	{
-		// nothing to do. The text view does not have child views.
-	}
 
 
 	DefaultProperty<String>		_text;

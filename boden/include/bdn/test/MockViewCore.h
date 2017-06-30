@@ -235,6 +235,19 @@ public:
 		return true;
 	}
 
+	
+    /** Returns the number of times that the view's layout was updated.*/
+    int getLayoutCount() const
+    {
+        return _layoutCount;
+    }
+
+	void layout() override
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_layoutCount++;
+	}	
      
 
 protected:    
@@ -250,6 +263,8 @@ protected:
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;
+
+	int			_layoutCount = 0;
     
 	WeakP<View>	 _outerViewWeak = nullptr;
 

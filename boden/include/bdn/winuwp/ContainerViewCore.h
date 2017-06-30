@@ -53,9 +53,8 @@ public:
 
 
 
-
 private:
-
+	
     class LayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
     public:
@@ -73,6 +72,8 @@ private:
 
             ::Windows::Foundation::Size winResultSize(0,0);
 
+			_cachedLayouts.clear();
+
             if(pView!=nullptr)
             {
                 // tell all child views to validate their preferredSize property. That ensures that
@@ -82,20 +83,37 @@ private:
                 for( auto& pChildView: childViews)
                     pChildView->_doUpdateSizingInfo();
 
-                // forward this to the outer view.
-                Size availableSpace = Size::none();
+				Size availableSpace = Size::none();
 
-                if( std::isfinite(winAvailableSize.Width) )
-                    availableSpace.width = winAvailableSize.Width;
+				if( std::isfinite(winAvailableSize.Width) )
+					availableSpace.width = winAvailableSize.Width;
 
-                if( std::isfinite(winAvailableSize.Height) )
-                    availableSpace.height = winAvailableSize.Height;
+				if( std::isfinite(winAvailableSize.Height) )
+					availableSpace.height = winAvailableSize.Height;
 
-                Size resultSize = pView->calcPreferredSize( availableSpace );
+				// first calculate our preferred size for the specified amount of available space.
+				Size preferredSize = pView->calcPreferredSize(availableSpace); 
 
+				// we cannot calculate layouts during Arrange, since calling calcPreferredSize/Measure
+				// on child views should not be done in Arrange (it can cause layout cycles).
+				// So we calculate the layout in measure and store it. Then in arrange we simply apply
+				// the layout.
+				// We calc the layout for the case that we end up with our preferred size
+				P<ViewLayout> pPreferredSizeLayout = pView->calcLayout(preferredSize);
+				
+				_cachedLayouts.push_back( CachedLayout{preferredSize, pPreferredSizeLayout} );
+				
+				// so now we have the layout for the case that we get our preferred size.
+				// If we do not end up with that size then we set _additionalLayoutSize
+				// and schedule a re-measure. So if this is set then we also need to cache
+				// the layout for that.
+				if(_additionalLayoutSizeEnabled)
+				{
+					P<ViewLayout> pAdditionalLayout = pView->calcLayout( _additionalLayoutSize );
+					_cachedLayouts.push_back( CachedLayout{_additionalLayoutSize, pAdditionalLayout} );
+				}
 
-
-                winResultSize = sizeToUwpSize(resultSize);
+				winResultSize = sizeToUwpSize(preferredSize);
             }
 
             // XXX
@@ -113,14 +131,53 @@ private:
 
             if(pView!=nullptr)
             {
-                P<ContainerViewCore> pCore = tryCast<ContainerViewCore>( pView->getViewCore() );
+				Size containerSize = uwpSizeToSize(winFinalSize);
 
-                if(pCore!=nullptr)
-                {
-                    // forward this to the outer view.
-                    pView->_doLayout();
-                }
-            }            
+				// if the container size does not match the additional layout size
+				// anymore then we disable the additional measuring.
+				if(_additionalLayoutSizeEnabled && containerSize!=_additionalLayoutSize)
+					_additionalLayoutSizeEnabled = false;
+				
+				P<ViewLayout> pSelectedLayout;
+
+				for( auto& cachedLayout: _cachedLayouts)
+				{
+					Size sizeDiff = cachedLayout.forSize - containerSize;
+
+					// if the container size is close to the size of the cached layout then we use that
+					if( fabs(sizeDiff.width)<0.1 && fabs(sizeDiff.height<0.1) )
+					{
+						// matches
+						pSelectedLayout = cachedLayout.pLayout;
+						break;
+					}
+				}
+
+				if(pSelectedLayout==nullptr)
+				{
+					// none of the cached layouts match. So we HAVE to calculate a new layout for the current
+					// size.
+
+					_additionalLayoutSizeEnabled = true;
+					_additionalLayoutSize = containerSize;
+
+					// schedule a remeasure asynchronously. That will cause windows to call our measureOverride and
+					// then rearrange us.
+					
+					// We can either call calcLayout directly or we can call InvalidateMeasure.
+					// It is probably safer to schedule this asynchronously instead of calling calcLayout directly.
+					// The re-measuring of the child views that happens in calcLayout will trigger another
+					// Arrange of ourselves and it is uncertain how windows will handle it if that happens
+					// while Arrange is executing. Better not risk it.
+
+					pPanel->InvalidateMeasure();
+				}
+				else
+				{
+					// apply the layout
+					pSelectedLayout->applyTo( pView );
+				}
+            }
 
             // XXX
             OutputDebugString( String( "/Container-LayoutDelegate()\n" ).asWidePtr() );
@@ -130,10 +187,20 @@ private:
 
     protected:
         WeakP<ContainerView> _viewWeak;
+
+		struct CachedLayout
+		{
+			Size			forSize;
+			P<ViewLayout>	pLayout;
+		};
+
+		std::list< CachedLayout >  _cachedLayouts;
+
+		bool					   _additionalLayoutSizeEnabled = false;
+		Size					   _additionalLayoutSize;
     };
     friend class LayoutDelegate;
-
-    
+	    
 	UwpPanelWithCustomLayout^ _pUwpView;
 	
 };

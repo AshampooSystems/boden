@@ -21,6 +21,9 @@ namespace bdn
 class ViewLayout : public Base
 {
 public:
+
+
+
     
     /** Applies the layout to the children of the specified parent view.
         
@@ -36,38 +39,12 @@ public:
         {
             P<const ViewLayoutData> pData = getViewLayoutData(pChildView);
             if(pData!=nullptr)
-                pData->applyToView(pChildView);
+                pData->applyTo(pChildView);
         }
     }
 
 
-    /** Sets the layout data for the view. If the layout already has data for the specified
-        view then it is replaced.*/
-    void              setViewLayoutData(View* pView, ViewLayoutData* pData)
-    {
-        _dataMap[pView] = pData;
-    }
-
-    /** Returns the layout data for the specified view, or null if no data has been set for
-        the view.*/
-    P<ViewLayoutData> getViewLayoutData(View* pView)
-    {
-        auto it = _dataMap.find(pView);
-        if(it!=_dataMap.end())
-            return it->second;
-        else
-            return nullptr;
-    }
-
-    P<const ViewLayoutData> getViewLayoutData(View* pView) const
-    {
-        auto it = _dataMap.find(pView);
-        if(it!=_dataMap.end())
-            return it->second;
-        else
-            return nullptr;
-    }
-
+	
 
     /** Stores the layout information for one View object.*/
     class ViewLayoutData : public Base
@@ -78,7 +55,11 @@ public:
             
             Subclasses that store modification information for custom
             properties should override this and apply the custom modifications.*/
-        virtual void applyToView(View* pView);
+        virtual void applyTo(View* pView) const
+		{
+			if(_boundsInitialized)
+				pView->adjustAndSetBounds( _bounds );
+		}
         
 
         /** Sets the view's bounds.*/
@@ -110,8 +91,40 @@ public:
         bool _boundsInitialized = false;
     };
 
+
+    /** Sets the layout data for the view. If the layout already has data for the specified
+        view then it is replaced.*/
+    void              setViewLayoutData(View* pView, ViewLayoutData* pData)
+    {
+        _dataMap[pView] = pData;
+    }
+
+
+    /** Returns the layout data for the specified view, or null if no data has been set for
+        the view.*/
+    P<ViewLayoutData> getViewLayoutData(View* pView)
+    {
+        auto it = _dataMap.find(pView);
+        if(it!=_dataMap.end())
+            return it->second;
+        else
+            return nullptr;
+    }
+
+
+    P<const ViewLayoutData> getViewLayoutData(View* pView) const
+    {
+        auto it = _dataMap.find(pView);
+        if(it!=_dataMap.end())
+            return it->second;
+        else
+            return nullptr;
+    }
+
+
 private:
-    std::map< View*, P<ViewData> > _dataMap;
+	Size									_size;
+    std::map< View*, P<ViewLayoutData> >	_dataMap;
 };
   		
 

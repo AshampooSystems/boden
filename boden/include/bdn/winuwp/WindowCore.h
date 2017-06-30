@@ -627,8 +627,7 @@ private:
             // XXX
             OutputDebugString( String( "/WindowPanelLayoutDelegate.measureOverride()\n" ).asWidePtr() );
 
-            return winResultSize;
-            
+            return winResultSize;            
         }
         
         ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
@@ -640,8 +639,11 @@ private:
 
             if(pWindow!=nullptr)
             {
+				Size finalSize = uwpSizeToSize(winFinalSize);
+
                 // forward this to the outer view. This will call our core's layout() function.
-                pWindow->_doLayout();
+
+                pWindow->defaultLayout( Rect( Point(0,0), finalSize) );
             }            
 
             // XXX
