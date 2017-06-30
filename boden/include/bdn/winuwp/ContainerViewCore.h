@@ -102,10 +102,17 @@ private:
 				P<ViewLayout> pPreferredSizeLayout = pView->calcLayout(preferredSize);
 				
 				_cachedLayouts.push_back( CachedLayout{preferredSize, pPreferredSizeLayout} );
+
+				if( std::isfinite(availableSpace.width) && std::isfinite(availableSpace.height) )
+				{
+					// we also calculate the layout for the case that we end up covering the whole
+					// availableSpace.
+					P<ViewLayout> pFullLayout = pView->calcLayout(availableSpace);
+					_cachedLayouts.push_back( CachedLayout{availableSpace, pFullLayout} );
+				}
 				
-				// so now we have the layout for the case that we get our preferred size.
-				// If we do not end up with that size then we set _additionalLayoutSize
-				// and schedule a re-measure. So if this is set then we also need to cache
+				// If we do not end up with any of the two sizes above then we willset _additionalLayoutSize
+				// in arrangeOverride and schedule a re-measure. So if this is set then we also need to cache
 				// the layout for that.
 				if(_additionalLayoutSizeEnabled)
 				{
@@ -145,7 +152,7 @@ private:
 					Size sizeDiff = cachedLayout.forSize - containerSize;
 
 					// if the container size is close to the size of the cached layout then we use that
-					if( fabs(sizeDiff.width)<0.1 && fabs(sizeDiff.height<0.1) )
+					if( fabs(sizeDiff.width)<0.1 && fabs(sizeDiff.height)<0.1 )
 					{
 						// matches
 						pSelectedLayout = cachedLayout.pLayout;
