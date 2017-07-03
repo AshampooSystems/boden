@@ -190,6 +190,9 @@ public:
     {        
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
+		// XXX
+        OutputDebugString( (String(typeid(*this).name())+".adjustAndSetBounds("+std::to_string(requestedBounds.width)+", "+std::to_string(requestedBounds.height)+"\n" ).asWidePtr() );
+
 		// we can only control the position of a control indirectly. There is the Arrange
 		// method, but it does not actually work outside of a UWP Layout cycle.
 
@@ -349,7 +352,7 @@ public:
                 _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
 
 		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
-		
+
 		    Size size = uwpSizeToSize(desiredSize);
 
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
@@ -366,7 +369,7 @@ public:
             
 
             // XXX
-            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
+            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize() -> desiredSize= "+std::to_string(desiredSize.Width)+", "+std::to_string(desiredSize.Height)+"\n" ).asWidePtr() );
 
             return size;
         }

@@ -33,6 +33,13 @@ an error when it detects such a cycle. So we one should NEVER call Measure in Ar
 So, for controls that adapt to the available space (e.g. TextBlock) one has to ensure by other means that the availableSpace from
 the last Measure call matches the final size during Arrange. Otherwise the control will not adapt correctly.
 
+###Important Note
+
+The implementation of Arrange for Panels and other controls (including ScrollViewer!) does not behave as documented.
+Apparently Arrange will ignore sizes that are smaller than DesiredSize and use DesiredSize instead. ArrangeOverride already
+gets the enlarged size parameter.
+So that means that one has to make sure that DesiredSize is smaller than any possible size we want to assign to the control.
+
 
 Arranging and sizing UWP views
 ------------------------------

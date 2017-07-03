@@ -1,9 +1,10 @@
-#ifndef BDN_WINUWP_ScrollViewCore_H_
+﻿#ifndef BDN_WINUWP_ScrollViewCore_H_
 #define BDN_WINUWP_ScrollViewCore_H_
 
 #include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
 #include <bdn/winuwp/ChildViewCore.h>
+#include <bdn/ScrollViewLayoutHelper.h>
 
 namespace bdn
 {
@@ -43,8 +44,15 @@ public:
         // that wraps the actual content view and forwards layout and measure calls accordingly.
         _pContentWrapper = ref new UwpPanelWithCustomLayout( newObj<ContentWrapperLayoutDelegate>(pOuter) );
 
-        _pScrollViewer->Content = _pContentWrapper;
+		_pScrollViewer->Content = _pContentWrapper;
 
+		/*::Windows::UI::Xaml::Controls::ScrollContentPresenter^ pPresenter = ref new ::Windows::UI::Xaml::Controls::ScrollContentPresenter;
+
+		_pScrollViewer->Content = pPresenter;
+		pPresenter->ScrollOwner = _pScrollViewer;
+
+		pPresenter->Content = _pContentWrapper;*/
+						
         setHorizontalScrollingEnabled( pOuter->horizontalScrollingEnabled() );
         setVerticalScrollingEnabled( pOuter->verticalScrollingEnabled() );
         
@@ -156,7 +164,70 @@ public:
 
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-        return ChildViewCore::calcPreferredSize(availableSpace);
+		// Note that we cannot call ChildViewCore::calcPreferredSize here to get
+		// our desired size, since that uses Measure.
+		// And for us Measure will always return 0. That is by design, since Windows does
+		// not allow controls to be sized smaller than their DesiredSize. So to allow us
+		// to have full control over the size we force the DesiredSize to be zero.
+
+		// So we have to calculate our preferred size ourselves by looking at the
+		// content view. We can use the layout helper for that.
+				
+		// note that we still have to call Measure on the control to ensure that
+		// DesiredSize is initialized and to ensure that it participates in the layout
+		// (Windows only includes controls that have Measure called on them).
+		// And we have to do that first, since the scroll viewer's measure method calls
+		// Measure on the content view and will thus initialize the content view's desired size. And we have to make
+		// sure that we overwrite that afterwards.
+		::Windows::Foundation::Size winAvailSpace(
+			std::isfinite(availableSpace.width) ? (float)availableSpace.width : std::numeric_limits<float>::infinity(),
+			std::isfinite(availableSpace.height) ? (float)availableSpace.height : std::numeric_limits<float>::infinity() );
+            		
+        if(winAvailSpace.Width<0)
+			winAvailSpace.Width = 0;
+		if(winAvailSpace.Height<0)
+			winAvailSpace.Height = 0;   
+
+		winAvailSpace.Height = 100;
+
+		_pScrollViewer->Measure( winAvailSpace );
+
+
+		//winAvailSpace.Height = std::numeric_limits<float>::infinity();
+		//_pContentWrapper->Measure( winAvailSpace );
+
+
+		::Windows::Foundation::Size scrollViewerDesiredSize = _pScrollViewer->DesiredSize;
+		//::Windows::Foundation::Size presenterDesiredSize = dynamic_cast<::Windows::UI::Xaml::UIElement^>(_pScrollViewer->Content)->DesiredSize;
+		::Windows::Foundation::Size contentWrapperDesiredSize = _pContentWrapper->DesiredSize;
+
+
+        P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );		
+
+		Size prefSize;
+        if(pOuter!=nullptr)
+        {
+			// scroll bars are overlays that only appear when they are used.
+			// So they do not take up any space.		
+			ScrollViewLayoutHelper layoutHelper(0,0);
+
+			// XXX
+			Size contentAvailableSpace = availableSpace;
+			contentAvailableSpace.height = std::numeric_limits<double>::infinity();
+
+			prefSize = layoutHelper.calcPreferredSize(pOuter, contentAvailableSpace);
+		}
+
+
+		
+
+
+		scrollViewerDesiredSize = _pScrollViewer->DesiredSize;
+		//presenterDesiredSize = dynamic_cast<::Windows::UI::Xaml::UIElement^>(_pScrollViewer->Content)->DesiredSize;
+		contentWrapperDesiredSize = _pContentWrapper->DesiredSize;
+		
+
+		return prefSize;
     }
 
 protected:
@@ -276,8 +347,13 @@ private:
                     
                     pContentView->adjustAndSetBounds(contentRect);
                 }
-            }     
 
+				
+				P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
+
+				if(pCore!=nullptr)
+					pCore->_pScrollViewer->InvalidateScrollInfo();
+            }     
 
             // XXX
             OutputDebugString( String( "/ContentWrapperLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );

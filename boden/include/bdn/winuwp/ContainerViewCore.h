@@ -120,7 +120,15 @@ private:
 					_cachedLayouts.push_back( CachedLayout{_additionalLayoutSize, pAdditionalLayout} );
 				}
 
-				winResultSize = sizeToUwpSize(preferredSize);
+				// IMPORTANT: Windows Bug Note (as of Windows 10 from 2017-07-03)
+				// In contrast to the documentation, Panel objects apparently cannot
+				// be made smaller than their DesiredSize. Their Arrange method will always
+				// enlarge the size we pass to it and make the panel at least as big as the desired size.
+				// Since we absolutely do not want that we need to ensure that the DesiredSize is (0,0).
+				// That does not interfere with our own layout, since we do not use DesiredSize to
+				// size this window panel - instead we always make it the same size as the window.
+				winResultSize.Width = 0;
+				winResultSize.Height = 0;
             }
 
             // XXX

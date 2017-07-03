@@ -13,7 +13,7 @@ namespace winuwp
 
     Use the UwpPanelWithCustomLayoutFactory::createInstance() static function to create an instance of this class.
 */
-ref class UwpPanelWithCustomLayout sealed : public ::Windows::UI::Xaml::Controls::Panel
+public ref class UwpPanelWithCustomLayout sealed : public ::Windows::UI::Xaml::Controls::Panel
 {
 internal:
     /** This constructor has to be protected because it uses non-UWP classes. Use UwpPanelWithCustomLayoutFactory::createInstance

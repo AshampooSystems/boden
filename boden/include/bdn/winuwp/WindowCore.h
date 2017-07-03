@@ -356,6 +356,7 @@ public:
 
     void layout()
     {
+		/*
         // XXX
     OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
 
@@ -380,6 +381,7 @@ public:
 
         // XXX
     OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
+	*/
     }
     
 	
@@ -557,6 +559,16 @@ private:
                 resultSize = childIt->Current->DesiredSize;
             }
 
+			// IMPORTANT: Windows Bug Note (as of Windows 10 from 2017-07-03)
+			// In contrast to the documentation, Panel objects apparently cannot
+			// be made smaller than their DesiredSize. Their Arrange method will always
+			// enlarge the size we pass to it and make the panel at least as big as the desired size.
+			// Since we absolutely do not want that we need to ensure that the DesiredSize is (0,0).
+			// That does not interfere with our own layout, since we do not use DesiredSize to
+			// size this window panel - instead we always make it the same size as the window.
+			resultSize.Width = 0;
+			resultSize.Height = 0;
+
             OutputDebugString( String( "/WindowPanelParentLayoutDelegate.measureOverride\n" ).asWidePtr() );
 
             return resultSize;
@@ -569,7 +581,11 @@ private:
 
             auto childIt = pPanel->Children->First();
             if(childIt->HasCurrent)
-                childIt->Current->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), winFinalSize ) );
+			{
+				::Windows::UI::Xaml::UIElement^ pChild = childIt->Current;
+				
+                pChild->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), winFinalSize ) );
+			}
 
             // XXX
             OutputDebugString( String( "/WindowPanelParentLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
@@ -610,7 +626,7 @@ private:
                 for( auto& pChildView: childViews)
                     pChildView->_doUpdateSizingInfo();
 
-                // forward this to the outer view.
+				// forward this to the outer view.
                 Size availableSpace = Size::none();
 
                 if( std::isfinite(winAvailableSize.Width) )
@@ -621,11 +637,21 @@ private:
 
                 Size resultSize = pWindow->calcPreferredSize( availableSpace );
 
-                winResultSize = sizeToUwpSize(resultSize);
+				// the window panel will always end up having the same size as the window.
+				
+				// IMPORTANT: Windows Bug Note (as of Windows 10 from 2017-07-03)
+				// In contrast to the documentation, Panel objects apparently cannot
+				// be made smaller than their DesiredSize. Their Arrange method will always
+				// enlarge the size we pass to it and make the panel at least as big as the desired size.
+				// Since we absolutely do not want that we need to ensure that the DesiredSize is (0,0).
+				// That does not interfere with our own layout, since we do not use DesiredSize to
+				// size this window panel - instead we always make it the same size as the window.
+				winResultSize.Width = 0;
+				winResultSize.Height = 0;
             }
 
             // XXX
-            OutputDebugString( String( "/WindowPanelLayoutDelegate.measureOverride()\n" ).asWidePtr() );
+            OutputDebugString( String( "/WindowPanelLayoutDelegate.measureOverride() -> "+std::to_string(winResultSize.Width)+", "+std::to_string(winResultSize.Height)+"\n" ).asWidePtr() );
 
             return winResultSize;            
         }
