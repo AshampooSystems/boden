@@ -12,33 +12,48 @@ The result is cached in the DesiredSize property.
 Arrange arranges child views. Usually the children are sized according to their DesiredSize property, i.e.
 the result of the last Measure call.
 
-There are some special cases for this process. For one thing, Measure has a parameter called availableSize,
+### Last Measure result restricts size
+
+It is a little more complicated than that, though. Measure has a parameter called availableSize,
 which indicates how much space the parent has assigned to the child view. The child view can then return
 a DesiredSize that tries to fit into that space (possibly adjusting the internal content layout, like breaking
-text into lines). Even in availableSize is set, this still sets the normal DesiredSize property.
+text into lines). The DesiredSize property is initialized with the last Measure result, whether availableSize
+was set or not. So it is always the last Measure result.
 
-So, DesiredSize depends on the input parameter to the last Measure call. And the documentation states that
-Arrange should use that property to size the child. If one does it that way then this implicitly assumes
-that the availableSize parameter of the latest Measure call accurately reflects the final size in Arrange.
+There are some restrictions for the final size a control can get in Arrange. A UI element can never be assigned
+a size that is smaller than its DesiredSize. When a smaller size is passed to the element's Arrange function
+then the element ends up having its DesiredSize. A control can be made bigger than its desired size, though.
+Note that this behaviour of DesiredSize being a lower limit for the final size is not documented. In fact,
+the documentation states explicitly that the parent container can ignore the DesiredSize and another size.
+So the documentation is - as of 2017-07-03 - incorrect, since only bigger sizes can be used.
 
-Apparently it is possible for finalSize in Arrange to not match the last availableSize from Measure parameter,
-especially in cases when there is not enough space to give every panel their desired size. So the final layout
-depends on a property (DesiredSize) that may have been calculated for a completely different availableSize.
-That means that the child cannot reliably adjust properly to the actual final available space.
+Since the last Measure result imposes such restrictions on the sizes, that basically means that all sizes have to
+be finalized in Measure. Otherwise controls whose width and height are interdependent (like TextBlock)
+might not be sized correctly.
 
-One could call Measure again in Arrange and calculate an accurate DesiredSize for the actual space that is available
-in layout. However, that often causes layout cycles in the Windows layout system and Windows will generate
-an error when it detects such a cycle. So we one should NEVER call Measure in Arrange.
+In general, it is most helpful to think of a container's Measure call as a function that calculates the actual
+final size of the container AND also calculates the layout. One can think of a container's Arrange function as the function that
+finalizes and activates the last layout from Measure.
 
-So, for controls that adapt to the available space (e.g. TextBlock) one has to ensure by other means that the availableSpace from
-the last Measure call matches the final size during Arrange. Otherwise the control will not adapt correctly.
+Obviously this is not quite correct, since Windows does not guarantee that the final size of the container will
+match the last availableSize parameter from Measure. However, in practice that seems to always be the case.
+Also, due to the restrictions that the last DesiredSize imposes on the final size, one can be certain that
+the container will be at least as big as the DesiredSize. So the last layout will always work.
 
-###Important Note
+### ScrollViewer and availableSize
 
-The implementation of Arrange for Panels and other controls (including ScrollViewer!) does not behave as documented.
-Apparently Arrange will ignore sizes that are smaller than DesiredSize and use DesiredSize instead. ArrangeOverride already
-gets the enlarged size parameter.
-So that means that one has to make sure that DesiredSize is smaller than any possible size we want to assign to the control.
+Some controls (like ScrollViewer) will only work correctly if the availableSize they get in their
+last Measure call matches the final size of the control. If the availableSize is infinite then
+the scroll viewer will report a DesiredSize that matches its content size. And that means that
+the scroll viewer cannot be made smaller than that anymore - i.e. it will never scroll.
+
+So, the final Measure call for a control should always get its final assigned size as availableSize.
+
+### Do not call Measure from Arrange
+
+One more caveat is that Measure invalidates Arrange information. I.e. calling Measure will initiate
+a new layout cycle. That means that one should usually not call Measure from within Arrange, otherwise
+a layout cycle might be detected by Windows and a error might be raised.
 
 
 Arranging and sizing UWP views
