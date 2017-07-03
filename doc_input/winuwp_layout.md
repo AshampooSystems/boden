@@ -55,22 +55,49 @@ One more caveat is that Measure invalidates Arrange information. I.e. calling Me
 a new layout cycle. That means that one should usually not call Measure from within Arrange, otherwise
 a layout cycle might be detected by Windows and a error might be raised.
 
+### Top level Window layout
 
-Arranging and sizing UWP views
-------------------------------
+Our tests have shown that the content element of a Window always gets the Window's size as the availableSize
+parameter in Measure. So the top level measure call apparently never gets called with infinite available space.
+That means that we only get infinities if one of the containers in our layout hierarchy introduces them.
+
+Scroll viewers obviously should use infinite available space for their content if they can scroll in that
+direction. Other containers might use infinite space in an initial step to find out the optimal size of
+a control.
+
+
+Measuring views outside the layout cycle
+----------------------------------------
+
+As mentioned above, the result of Measure imposes restrictions on the size a control can have. Thus it
+is important that it has the correct value when Arrange is called.
+
+What happens when our calcPreferredSize method is called at other times? calcPreferredSize obviously
+has to call Measure, thus it will overwrite the cached DesiredSize. A Measure call also invalidates the arrange,
+information, so an Arrange call will follow automatically sometime after that. So the last measure result
+will become active automatically and modify the layout.
+
+So when calcPreferredSize is called outside the layout cycle we have to make sure that we restore the
+previous DesiredSize. We can do that by caching the availableSpace parameter from the last layout Measure and
+then calling Measure again with that after the non-layout Measure was done. It is inefficient, but
+apparently there is no way around it.
+
+
+Canvas or Panel?
+----------------
 
 There are two ways to provide a custom layout in UWP: to provide a custom panel class which overrides the layout
 functions, or to use a Canvas and arrange the child views by setting their properties.
 
 Canvas has custom properties to define the desired position of the child views. The size of the child views
-is the view's preferred size by default. It can be overridden by setting the Width and Height property. The Width
-and Height property influence the child's desired that it reports and thus the end result is usually that the view
+is the view's DesiredSize by default. It can be overridden by setting the Width and Height property. The Width
+and Height property influence the child's desiredSize and thus the end result is usually that the view
 ends up with the size defined by Width and Height.
 
 But setting Width and Height for size control has three problems:
 
 1) They influence the result of Measure. So one cannot get accurate desired size information from the control
-   when Width and Height are set.
+   when Width and Height are already set.
 
 2) Changing them invalidates the child's cached measurements and triggers a re-layout of the parent. So temporarily
    clearing the values for measuring can cause additional layout cycles, and even endless layout loops.
@@ -85,9 +112,9 @@ would mean that we have to subclass all controls and override their measure func
 use controls that were already created at runtime. That is a pretty harsh restriction, which we do not have.
 
 So, the "magic" has to happen in the Arrange function of the layout container. That function has to assign the actual
-size that we want the view to have and pretty much ignore the DesiredSize property.
+size that we want the view to have.
 
-So we have to use custom panels with an overloaded layout function.
+So we have to use custom panels with an overloaded Arrange function.
 There we have to overload MeasureOverride to provide our own desired size. And we have to overload ArrangeOverride
 to arrange and size the controls according to our own layout routines.
 
@@ -120,16 +147,17 @@ to update the layout after each Windows layout cycle.
 This is what we need to do:
 
 - When the container's Measure method is called we need to invalidate the preferred size of the container and of the
-  children. The update will happen asynchronously. We do not measure anything here and simply return the old desired size.
+  children. The preferred size will be updated asynchronously. We do not measure anything in Measure
+  and simply return the old desired size.
 
 - When the container's Arrange method is called we need to arrange the children according to the bounds of Boden's View
   objects.
 
-- When the sizing update happens we will update the view's peferred size property. This will cause our parent layout
+- When the Boden sizing update happens we will update the view's peferred size property. This will cause our parent layout
   to be invalidated.
 
 - When our own layout happens we update the Boden view's size and position properties. Then we need to invalidate the
-  Windows layout, causing Arrange to be called again, to make these changes active.
+  Windows layout, causing Measure and Arrange to be called again, to make these changes active.
 
 So, all in all the Windows Arrange pass may happen twice when the layout changes, depending on wether or not Windows
 does it before our own layout is done. However, it is very fast, since Arrange only applies the precalculated
@@ -141,15 +169,24 @@ We could also simply do the sizing and layout on demand when Windows calls our L
 It seems that the Windows layout system is quite reliable with these calls and they are also optimized to reduce
 duplicate operations to a minimum.
 
-However, there is a big problem: one must never call Measure (=calcPreferredSize) from inside the Arrange
-routine (see above). Since Boden allows layout containers to call calcPreferredSize during layout,
-that means that the Boden layout phase cannot happen in Arrange. Instead, it has to be done in Measure.
+However, there are several restrictions:
 
-We then also have to ensure that the availableSpace from the last Measure call matches the finalSize in Arrange.
-For our containers that can be guaranteed, since the final size is actually assigned in Measure.
-For the top level Window we cannot ensure that, since there the size is controlled by Windows. However, Windows
-does not dynamically re-size the Window during the layout cycle, so we should never have a case when the available
-space does not match the final size.
+1) One must never call Measure (=calcPreferredSize) from inside the Arrange
+   routine (see above).
+
+2) One basically has to assign the final size of the views in Measure (since Measure sets up restrictions for
+   the final size.
+
+Since Boden allows layout containers to call calcPreferredSize during layout, and calcPreferredSize has to call
+Measure, the first restriction means that the Boden layout phase cannot happen in Arrange.
+Instead, it has to be done in Measure.
+
+The second restriction also means that we have to do the whole layout in Measure.
+
+The good news is that the restrictions Measure places on the final size of the control pretty much enforce that
+the availableSpace from the last Measure call reflects the final size of the control. Since we use our own layout
+containers we can also enforce that fact. So that means that we can simply calculate the final layout in Measure
+and then simply activate it in Arrange.
 
 So, in summary:
 
@@ -167,28 +204,6 @@ So, in summary:
 We use the Windows layout coordinator. While it might cause some inconsistencies with other platforms, it
 makes us a better behaved citizen in the Windows ecosystem and will likely reduce strange bugs and race conditions.
 It should also be faster.
-
-
-Container Views
----------------
-
-The boden container views are custom panels that override the layout functionality.
-
-When the boden layout system does a layout cycle it eventually calls View::adjustAndSetBounds on the child views.
-The child view should update its size and position in that call. The view core will simply caches this information
-and not update the UWP view at that point in time.
-The actual update happens asynchronously in the background, soon after the change.
-
-Scroll Views
-------------
-
-We want to use the normal ScrollViewer implementation of UWP for our scroll views. The ScrollViewer
-automatically handles the sizing and arranging of its content view, so we cannot do this ourselves like we did with the
-Panel-derived container views.
-
-We add a custom panel as the content view of the ScrollViewer. This panel acts as a bridge between the Windows ScrollViewer
-and the Boden content view. It ensures that we report the correct desired size to the scroll viewer, so that the scrolling
-functionality is updated correctly.
 
 
 
