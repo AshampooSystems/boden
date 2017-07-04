@@ -11,27 +11,38 @@ namespace winuwp
 
 /** UWP panel class that delegates layout functionality to an external object.
 
-    Use the UwpPanelWithCustomLayoutFactory::createInstance() static function to create an instance of this class.
+	Use setLayoutDelegateWeak to set the delegate.
 */
 public ref class UwpPanelWithCustomLayout sealed : public ::Windows::UI::Xaml::Controls::Panel
 {
 internal:
-    /** This constructor has to be protected because it uses non-UWP classes. Use UwpPanelWithCustomLayoutFactory::createInstance
-        to create an instance of this class.
     
-        \param measureDelegate the function that is called for the MeasureOverride UWP function.
-        \param arrangeDelegate the function that is called for the ArrangeOverride UWP function.*/
-    UwpPanelWithCustomLayout( IUwpLayoutDelegate* pLayoutDelegate )
+    UwpPanelWithCustomLayout( )
     {
-        _pLayoutDelegate = pLayoutDelegate;
     }
+
+
+	/** Sets the layout delegate that this panel forwards its layout calls to.
+
+		The panel only holds a weak reference to the delegate. I.e. it does not keep the delegate alive.
+		When the delegate is deleted then the layout functions will fall back to default implementations
+		(returning a zero desired size and doing nothing in arrange).
+	*/
+	void setLayoutDelegateWeak(IUwpLayoutDelegate* pDelegate)
+	{
+		_layoutDelegateWeak = pDelegate;
+	}
 
 protected:
     ::Windows::Foundation::Size MeasureOverride(::Windows::Foundation::Size availableSize) override
     {
         BDN_WINUWP_TO_PLATFORMEXC_BEGIN;
 
-        return _pLayoutDelegate->measureOverride(this, availableSize);
+		P<IUwpLayoutDelegate> pDelegate = _layoutDelegateWeak.toStrong();
+		if(pDelegate!=nullptr)
+			return pDelegate->measureOverride(this, availableSize);
+		else
+			return ::Windows::Foundation::Size(0,0);
 
         BDN_WINUWP_TO_PLATFORMEXC_END;
     }
@@ -41,14 +52,18 @@ protected:
     {
         BDN_WINUWP_TO_PLATFORMEXC_BEGIN;
 
-        return _pLayoutDelegate->arrangeOverride(this, finalSize);
-
+		P<IUwpLayoutDelegate> pDelegate = _layoutDelegateWeak.toStrong();
+		if(pDelegate!=nullptr)
+			return pDelegate->arrangeOverride(this, finalSize);
+		else
+			return ::Windows::Foundation::Size(0,0);
+		
         BDN_WINUWP_TO_PLATFORMEXC_END;
     }
 
 
 private:
-    P<IUwpLayoutDelegate> _pLayoutDelegate;
+    WeakP<IUwpLayoutDelegate> _layoutDelegateWeak;
 };
 
 

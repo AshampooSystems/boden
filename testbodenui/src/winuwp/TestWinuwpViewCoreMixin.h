@@ -5,7 +5,7 @@
 #include <bdn/test/TestViewCore.h>
 
 #include <bdn/View.h>
-#include <bdn/winuwp/IFrameworkElementOwner.h>
+#include <bdn/winuwp/IUwpViewCore.h>
 
 namespace bdn
 {
@@ -25,7 +25,7 @@ protected:
     {
         BaseClass::initCore();
 
-        P<bdn::winuwp::IFrameworkElementOwner> pOwner = cast<bdn::winuwp::IFrameworkElementOwner>( _pView->getViewCore() );
+        P<bdn::winuwp::IUwpViewCore> pOwner = cast<bdn::winuwp::IUwpViewCore>( _pView->getViewCore() );
         REQUIRE( pOwner!=nullptr );
 
         _pWinFrameworkElement = pOwner->getFrameworkElement();

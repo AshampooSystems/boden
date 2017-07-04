@@ -6,7 +6,7 @@
 #include <bdn/winuwp/util.h>
 #include <bdn/winuwp/IViewCoreParent.h>
 #include <bdn/winuwp/UiProvider.h>
-#include <bdn/winuwp/IFrameworkElementOwner.h>
+#include <bdn/winuwp/IUwpViewCore.h>
 
 #include <bdn/PixelAligner.h>
 
@@ -22,7 +22,7 @@ namespace winuwp
 	Note that top level windows do not derive from this - they provider their own
 	implementation of IViewCore.	
 */
-class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IFrameworkElementOwner
+class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IUwpViewCore
 {
 public:	
 	/** Used internally.*/
@@ -199,20 +199,12 @@ public:
         // first adjust the bounds
         Rect adjustedBounds = adjustBounds( requestedBounds, RoundType::nearest, RoundType::nearest);
 
-        if(adjustedBounds!=_currBounds || !_currBoundsInitialized)
-        {
-            _currBounds = adjustedBounds;
-            _currBoundsInitialized = true;            
-        }
+		// Layout is performed in Measure, not Arrange (see doc_input/winuwp_layout.md for more information).
+		// So what we do here is simply store the new bounds. The bounds are made active in the next arrange call.
 
-        // we assume that we are called during a parent layout cycle and that Arrange actually works.
-        if(_pFrameworkElement!=nullptr)
-        {
-            ::Windows::Foundation::Rect winRect = rectToUwpRect(_currBounds);
-
-            _pFrameworkElement->Arrange( winRect );
-        }
-
+        _currBounds = adjustedBounds;
+        _currBoundsInitialized = true;
+				
         return adjustedBounds;
 
         BDN_WINUWP_TO_STDEXC_END;
@@ -484,7 +476,9 @@ protected:
     }
 
 
-    
+protected:
+	
+
 		
 private:
 	void _addToParent(View* pParentView)
@@ -514,6 +508,10 @@ private:
     }
 
 
+				
+				
+
+
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
@@ -528,6 +526,7 @@ private:
     Rect _currBounds;
     
     bool _inUwpLayoutOperation = false;
+
 };
 
 

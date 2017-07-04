@@ -8,7 +8,7 @@
 #include <bdn/ContainerView.h>
 
 #include <bdn/winuwp/IViewCoreParent.h>
-#include <bdn/winuwp/IFrameworkElementOwner.h>
+#include <bdn/winuwp/IUwpViewCore.h>
 #include <bdn/winuwp/util.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/IUwpLayoutDelegate.h>
@@ -25,7 +25,7 @@ namespace winuwp
 class WindowCore : public Base,
                     BDN_IMPLEMENTS IWindowCore,
                     BDN_IMPLEMENTS IViewCoreParent,
-                    BDN_IMPLEMENTS IFrameworkElementOwner
+                    BDN_IMPLEMENTS IUwpViewCore
 {
 public:
 	WindowCore(UiProvider* pUiProvider, Window* pOuterWindow)
