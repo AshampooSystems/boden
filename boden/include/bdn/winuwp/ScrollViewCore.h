@@ -42,7 +42,7 @@ public:
         // of the content view).
         // To achieve that we have to give the scroll viewer has an UWP content panel
         // that wraps the actual content view and forwards layout and measure calls accordingly.
-        _pContentWrapper = ref new UwpPanelWithCustomLayout( newObj<ContentWrapperLayoutDelegate>(pOuter) );
+        _pContentWrapper = ref new UwpViewWithLayoutDelegate<>( newObj<ContentWrapperLayoutDelegate>(pOuter) );
 
 		_pScrollViewer->Content = _pContentWrapper;
 
@@ -368,7 +368,7 @@ private:
 
 
     ::Windows::UI::Xaml::Controls::ScrollViewer^ _pScrollViewer;
-    UwpPanelWithCustomLayout^                    _pContentWrapper;
+    UwpViewWithLayoutDelegate<>^                    _pContentWrapper;
     bool                                         _ignoreUwpLayoutUpdated = false;
 };
 

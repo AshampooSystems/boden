@@ -1,6 +1,7 @@
 #ifndef BDN_WINUWP_IUwpLayoutDelegate_H_
 #define BDN_WINUWP_IUwpLayoutDelegate_H_
 
+#include <bdn/Size.h>
 
 namespace bdn
 {
@@ -14,20 +15,18 @@ class IUwpLayoutDelegate : BDN_IMPLEMENTS IBase
 public:
 
     /** Implementation for the MeasureOverride UWP function.
-	
-		It is recommended that implementations use UwpMeasureFinalizer in their implementation
-		to cause finalizeUwpMeasure to be called automatically when the measure phase ends.
+
+        The caller should use instantiate UwpMeasureFinalizer BEFORE calling this function
+        to ensure that finalizeUwpMeasure is called automatically.
 	*/
-    virtual ::Windows::Foundation::Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size availableSize )=0;
+    virtual Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& availableSize )=0;
 
 
     /** Implementation for the ArrangeOverride UWP function.	
 	*/
-    virtual ::Windows::Foundation::Size uwpArrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize )=0;
+    virtual Size uwpArrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& finalSize )=0;
 
 
-	
-protected:
 	/** Finalizes the measure data step.
 
 		If the measure function implementation uses UwpMeasureFinalizer then
@@ -48,15 +47,12 @@ protected:
 	virtual void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace)=0;
 
 	
-
-
-public:	
 	/** Helper class that ensures that calls finalizeUwpMeasure
 		when the top level Measure call finishes.
 
-		Instantiate this as a local variable at the start of your measure function,
-		so that it is destroyed at the end of your measure function.		
-
+        The finalizer should be instantiated by the CALLER of IUwpLayoutDelegate::uwpMeasureOverride.
+        The IUwpLayoutDelegate implementations do not use it.
+        
 		The finalizer objects track how many recursive measure calls are running.
 		When the last one finishes at the top level then the finalizers call finalizeUwpMeasure
 		on that top level delegate.
@@ -87,8 +83,6 @@ public:
 		IUwpLayoutDelegate*	_pDelegate;
 		Size				_measureAvailableSpace;
 	};
-	friend class UwpMeasureFinalizer;
-
 
 };
 

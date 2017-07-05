@@ -4,7 +4,7 @@
 #include <bdn/ContainerView.h>
 #include <bdn/winuwp/ChildViewCore.h>
 #include <bdn/winuwp/IViewCoreParent.h>
-#include <bdn/winuwp/UwpPanelWithCustomLayout.h>
+#include <bdn/winuwp/UwpViewWithLayoutDelegate.h>
 
 namespace bdn
 {
@@ -18,13 +18,13 @@ public:
 	ContainerViewCore(	ContainerView* pOuter)
 		: ChildViewCore(
             pOuter,
-            ref new UwpPanelWithCustomLayout(),
+            ref new UwpViewWithLayoutDelegate<>(),
             ref new ViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
 		// note that 
-		_pUwpView = dynamic_cast< UwpPanelWithCustomLayout^ >( getFrameworkElement() );
+		_pUwpView = dynamic_cast< UwpViewWithLayoutDelegate<>^ >( getFrameworkElement() );
 
 		// it is ok to set this as the delegate, since the panel only holds a weak reference
 		// to the delegate. I.e. there will not be a reference cycle.
@@ -59,18 +59,8 @@ public:
 
 
 	
-    ::Windows::Foundation::Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
+    Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& availableSpace ) override
 	{
-		Size availableSpace = Size::none();
-
-		if( std::isfinite(winAvailableSize.Width) )
-			availableSpace.width = winAvailableSize.Width;
-
-		if( std::isfinite(winAvailableSize.Height) )
-			availableSpace.height = winAvailableSize.Height;
-
-		UwpMeasureFinalizer finalizer(this, availableSpace);
-
 		P<View> pOuterView = getOuterViewIfStillAttached();
 
 		if(pOuterView!=nullptr)
@@ -82,6 +72,12 @@ public:
 			// Note that this will sometimes call Measure on some child views, but that is not guaranteed.
 			// It depends on the container implementation, as the container might also simply use the cached
 			// View::preferredSize() property.
+
+            // Because of this issue we need to explicitly call measure on all our child views to ensure
+            // that windows will recognize that they are part of the layout. Otherwise we won't be able to
+            // arrange them afterwards.
+                XXX
+
 			Size preferredSize = pOuterView->calcPreferredSize(availableSpace); 
 
 			return sizeToUwpSize(preferredSize);
@@ -90,12 +86,30 @@ public:
 			return ::Windows::Foundation::Size(0,0);
 	}
 
+    void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
+    {
+        // size ourselves according to the last measure call. See doc_input/winuwp_layout.md for more information
+        // about this.
+
+        P<View> pOuterView = getOuterViewIfStillAttached();
+
+		if(pOuterView!=nullptr)
+        {
+            Rect newBounds( pOuterView->position(), lastMeasureAvailableSpace);
+
+            pOuterView->adjustAndSetBounds(newBounds);
+            
+            // then layout to ensure that the child windows are sized correctly.
+            pOuterView->layout();
+        }
+    }
+
 
     /** Implementation for the ArrangeOverride UWP function.*/
-    virtual ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size finalSize )
+    Size uwpArrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& finalSize ) override
 	{
 		// The layout was already done at the end of the measure phase.
-		// All we need to do here is call Activate on our child views.
+		// All we need to do here is call Arrange on our child views to activate the layout changes.
 
 		P<View> pOuterView = getOuterViewIfStillAttached();
 
@@ -121,55 +135,6 @@ public:
 		}		
 	}
 	
-	
-	/** Called at the end of a measure operation when it has fully finished.
-		The view should finalize the layout of its children in this call.
-		
-		The default implementation changes its own view size to the
-		availableSpace parameter from the last Measure call and
-		then calls layout().
-		*/
-	virtual void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
-	{
-		P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
-
-		if(pOuterView!=nullptr)
-		{
-			Rect newBounds( pOuterView->position(), lastMeasureAvailableSpace );
-			Rect adjustedNewBounds = pOuterView->adjustAndSetBounds( newBounds );
-
-			// layout will arrange and automatically also layout all children. So this also "finalizes"
-			// the measure for the children as well.
-			
-			pOuterView->layout();
-		}
-	}
-
-
-
-
-	::Windows::Foundation::Size uwpMeasure(::Windows::Foundation::Size winAvailableSize, ContainerView* pOuterView)
-	{
-		Size availableSpace;
-		
-		if(std::isfinite(winAvailableSize.Width))
-			availableSpace.width = winAvailableSize.Width;
-		else
-			availableSpace.width = std::numeric_limits<double>::infinity();
-
-		if(std::isfinite(winAvailableSize.Height))
-			availableSpace.height = winAvailableSize.Height;
-		else
-			availableSpace.height = std::numeric_limits<double>::infinity();
-
-		// ensure that we and our children are marked as "in measure".
-		UwpMeasureFinalizer finalizer(this, availableSpace);
-
-		Size preferredSize = pOuterView->calcPreferredSize( availableSpace );
-		
-		return sizeToUwpSize( preferredSize );
-	}
-
 
 	void finalizeUwpMeasure() override
 	{
@@ -247,7 +212,7 @@ public:
 
 			
 	    
-	UwpPanelWithCustomLayout^ _pUwpView;
+	UwpViewWithLayoutDelegate<>^ _pUwpView;
 
 	P<ViewLayout>			  _pCurrLayout;
 	
