@@ -1,6 +1,7 @@
 #ifndef BDN_WINUWP_UwpViewWithLayoutDelegate_H_
 #define BDN_WINUWP_UwpViewWithLayoutDelegate_H_
 
+#include <bdn/winuwp/IUwpLayoutDelegate.h>
 
 namespace bdn
 {
@@ -49,7 +50,7 @@ protected:
 
             IUwpLayoutDelegate::UwpMeasureFinalizer finalizer(pDelegate, availableSpace);
 
-			Size resultSize = pDelegate->measureOverride(this, availableSpace);
+			Size resultSize = pDelegate->uwpMeasureOverride(availableSpace);
 
             return sizeToUwpSize(resultSize);
         }
@@ -69,9 +70,9 @@ protected:
         {
             Size finalSize = uwpSizeToSize(winFinalSize);
         
-			Size resultSize = pDelegate->arrangeOverride(this, finalSize);
+			Size resultSize = pDelegate->uwpArrangeOverride(finalSize);
 
-            return uwpSizeToSize(resultSize);
+            return sizeToUwpSize(resultSize);
         }
 		else
 			return ::Windows::Foundation::Size(0,0);

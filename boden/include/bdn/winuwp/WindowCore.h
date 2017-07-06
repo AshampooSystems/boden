@@ -67,7 +67,9 @@ public:
 		_pTopContainer = (UwpViewWithLayoutDelegate<>^)_pXamlWindow->Content;
         if(_pTopContainer==nullptr)
         {
-            _pTopContainer = ref new UwpViewWithLayoutDelegate<>( newObj<TopContainerLayoutDelegate>() );
+            _pTopContainer = ref new UwpViewWithLayoutDelegate<>();
+            _pTopContainerLayoutDelegate = newObj<TopContainerLayoutDelegate>( pOuterWindow );
+            _pTopContainer->setLayoutDelegateWeak( _pTopContainerLayoutDelegate );
             
 		    _pTopContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
 		    _pXamlWindow->Content = _pTopContainer;
@@ -78,7 +80,11 @@ public:
         // to the top level container) because we need a way to represent the window's own properties
         // (like visible/hidden) without modifying the content panel. So we add a panel for the window
         // to get this intermediate control.
-        _pContentContainer = ref new UwpViewWithLayoutDelegate<>( newObj<WindowPanelLayoutDelegate>(pOuterWindow) );
+        _pContentContainer = ref new UwpViewWithLayoutDelegate<>();
+        _pContentContainerLayoutDelegate = newObj<ContentContainerLayoutDelegate>(pOuterWindow);
+        _pContentContainer->setLayoutDelegateWeak( _pContentContainerLayoutDelegate );
+
+
 		_pContentContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
         _pTopContainer->Children->Append(_pContentContainer);
 
@@ -347,6 +353,8 @@ public:
 
     void layout()
     {
+
+
 		/*
         // XXX
     OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
@@ -523,21 +531,26 @@ private:
     class TopContainerLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
     public:
-        TopContainerLayoutDelegate()
+        TopContainerLayoutDelegate(Window* pWindow)
+            : _windowWeak(pWindow)
         {
         }
 
-        Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& availableSpace ) override
+        Size uwpMeasureOverride(const Size& availableSpace ) override
         {
             // XXX
             OutputDebugString( String( "Window.TopContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
             
-
-            auto childIt = pPanel->Children->First();
-            if(childIt->HasCurrent)
+            // call Measure on the content container to ensure that it participates in the layout.
+            P<Window> pWindow = _windowWeak.toStrong();
+            if(pWindow!=nullptr)
             {
-                childIt->Current->Measure( sizeToUwpSize(availableSpace) );
-                childIt->Current->DesiredSize;
+                P<WindowCore> pCore = tryCast<WindowCore>( pWindow->getViewCore() );
+                if(pCore!=nullptr)
+                {
+                    if(pCore->_pContentContainer!=nullptr)
+                        pCore->_pContentContainer->Measure( sizeToUwpSize(availableSpace) );                
+                }
             }
 
             OutputDebugString( String( "/Window.TopContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );
@@ -551,37 +564,47 @@ private:
             // the same size as itself.
             return Size(0,0);
         }
+
         
-        Size uwpArrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& finalSize ) override
+        void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
+        {
+            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
+            
+            P<Window> pWindow = _windowWeak.toStrong();
+            if(pWindow!=nullptr)
+                defaultFinalizeUwpMeasure(pWindow, lastMeasureAvailableSpace);
+        }
+        
+        Size uwpArrangeOverride(const Size& finalSize ) override
         {
             // XXX
-            OutputDebugString( String( "Window.TopContainerLayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+            OutputDebugString( String( "Window.TopContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
-            auto childIt = pPanel->Children->First();
-            if(childIt->HasCurrent)
-			{
-				::Windows::UI::Xaml::UIElement^ pChild = childIt->Current;
-				
-                pChild->Arrange( ::Windows::Foundation::Rect( ::Windows::Foundation::Point(0,0), sizeToUwpSize(finalSize) ) );
-			}
+            P<Window> pWindow = _windowWeak.toStrong();
+            if(pWindow!=nullptr)
+            {
+                P<WindowCore> pCore = tryCast<WindowCore>( pWindow->getViewCore() );
+                if(pCore!=nullptr)
+                {
+                    // arrange the content container
+                    Rect contentContainerRect( Point(0,0), finalSize);
+
+                    pCore->_pContentContainer->Arrange( rectToUwpRect(contentContainerRect) );
+                }
+            }
 
             // XXX
             OutputDebugString( String( "/Window.TopContainerLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
 
-            return winFinalSize;
+            return finalSize;
         }
 
-        void finalizeUwpMeasure(const Size& lastMeasureAvailableSize) override
-        {
-            P<Window> pWindow = _windowWeak.toStrong();
-            if(pWindow!=nullptr)
-                pWindow->layout();
-        }
 
     protected:
         WeakP<Window> _windowWeak;
 
     };
+    friend class TopContainerLayoutDelegate;
 
 
 
@@ -594,44 +617,29 @@ private:
         {
         }
 
-        Size uwpMeasureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& availableSpace ) override
+        Size uwpMeasureOverride(const Size& availableSpace ) override
         {
-            // XXX
-            OutputDebugString( String( "Window.ContentContainer.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
-
-            P<Window> pWindow = _windowWeak.toStrong();
-
-            Size resultSize;
-
-            if(pWindow!=nullptr)
-            {
-                // update the preferredSize property of the content view, to ensure that it is correct.
-                std::list< P<View> > childViews;
-                pWindow->getChildViews( childViews );
-                for( auto& pChildView: childViews)
-                    pChildView->_doUpdateSizingInfo();
-
-				// Call calcPreferredSize on the window, even though we do not need the value.
-                // It ensures that Measure is called for all child views, which is important. Windows
-                // uses that fact to determine which views are part of the layout cycle.
-                Size preferredSize = pWindow->calcPreferredSize( availableSpace );
-            }
-
-            // XXX
-            OutputDebugString( String( "/WindowPanelLayoutDelegate.measureOverride() -> "+std::to_string(resultSize.width)+", "+std::to_string(resultSize.height)+"\n" ).asWidePtr() );
-
-            // IMPORTANT:
-			// In contrast to the documentation, UI elements cannot be made smaller than their DesiredSize
-            // (see doc_input/winuwp_layout.md for more information). Their Arrange method will always
-			// enlarge the size we pass to it and make the panel at least as big as the desired size.
-			// Since we absolutely do not want that we always return a desired size of 0.
-			// That does not interfere with our own layout, since the Window will always make this panel
-            // the same size as itself.
+             // XXX
+            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
+            
+            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );            
 
             return Size(0,0);
         }
+
         
-        Size uwpArrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, const Size& finalSize ) override
+	    void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
+        {            
+            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
+            
+            P<Window> pWindow = _windowWeak.toStrong();
+            if(pWindow!=nullptr)
+                defaultFinalizeUwpMeasure(pWindow, lastMeasureAvailableSpace);
+                        
+            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.finalizeUwpMeasure\n" ).asWidePtr() );            
+        }
+        
+        Size uwpArrangeOverride(const Size& finalSize ) override
         {
             // XXX
             OutputDebugString( String( "WindowPanelLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
@@ -640,10 +648,9 @@ private:
 
             if(pWindow!=nullptr)
             {
-                // forward this to the outer view. This will call our core's layout() function.
-
-                pWindow->defaultLayout( Rect( Point(0,0), finalSize) );
-            }            
+                // arrange the content view. The default implementation for uwpArrangeOverride does that.
+                defaultArrangeOverride( pWindow, finalSize);
+            }
 
             // XXX
             OutputDebugString( String( "/WindowPanelLayoutDelegate()\n" ).asWidePtr() );
@@ -652,18 +659,10 @@ private:
         }
 
                 
-	    void finalizeUwpMeasure(const Size& lastMeasureAvailableSize) override
-        {
-            P<Window> pWindow = _windowWeak.toStrong();
-            if(pWindow!=nullptr)
-                pWindow->layout();
-        }
-
-	
+        	
 
     protected:
         WeakP<Window> _windowWeak;
-
     };
 
 
@@ -729,7 +728,9 @@ private:
 
 	::Windows::UI::Xaml::Window^			_pXamlWindow;
 	UwpViewWithLayoutDelegate<>^	        _pTopContainer;
+    P<TopContainerLayoutDelegate>           _pTopContainerLayoutDelegate;
     UwpViewWithLayoutDelegate<>^	        _pContentContainer;
+    P<ContentContainerLayoutDelegate>       _pContentContainerLayoutDelegate;
         
 	EventForwarder^ _pEventForwarder;
 

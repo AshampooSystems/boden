@@ -42,7 +42,9 @@ public:
         // of the content view).
         // To achieve that we have to give the scroll viewer has an UWP content panel
         // that wraps the actual content view and forwards layout and measure calls accordingly.
-        _pContentWrapper = ref new UwpViewWithLayoutDelegate<>( newObj<ContentWrapperLayoutDelegate>(pOuter) );
+        _pContentWrapper = ref new UwpViewWithLayoutDelegate<>();
+        _pContentWrapperLayoutDelegate = newObj<ContentWrapperLayoutDelegate>(pOuter);
+        _pContentWrapper->setLayoutDelegateWeak( _pContentWrapperLayoutDelegate );
 
 		_pScrollViewer->Content = _pContentWrapper;
 
@@ -179,27 +181,12 @@ public:
 		// And we have to do that first, since the scroll viewer's measure method calls
 		// Measure on the content view and will thus initialize the content view's desired size. And we have to make
 		// sure that we overwrite that afterwards.
-		::Windows::Foundation::Size winAvailSpace(
-			std::isfinite(availableSpace.width) ? (float)availableSpace.width : std::numeric_limits<float>::infinity(),
-			std::isfinite(availableSpace.height) ? (float)availableSpace.height : std::numeric_limits<float>::infinity() );
+		::Windows::Foundation::Size winAvailSpace = sizeToUwpSize(availableSpace);
             		
-        if(winAvailSpace.Width<0)
-			winAvailSpace.Width = 0;
-		if(winAvailSpace.Height<0)
-			winAvailSpace.Height = 0;   
-
+        // XXX
 		winAvailSpace.Height = 100;
 
 		_pScrollViewer->Measure( winAvailSpace );
-
-
-		//winAvailSpace.Height = std::numeric_limits<float>::infinity();
-		//_pContentWrapper->Measure( winAvailSpace );
-
-
-		::Windows::Foundation::Size scrollViewerDesiredSize = _pScrollViewer->DesiredSize;
-		//::Windows::Foundation::Size presenterDesiredSize = dynamic_cast<::Windows::UI::Xaml::UIElement^>(_pScrollViewer->Content)->DesiredSize;
-		::Windows::Foundation::Size contentWrapperDesiredSize = _pContentWrapper->DesiredSize;
 
 
         P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );		
@@ -210,22 +197,9 @@ public:
 			// scroll bars are overlays that only appear when they are used.
 			// So they do not take up any space.		
 			ScrollViewLayoutHelper layoutHelper(0,0);
-
-			// XXX
-			Size contentAvailableSpace = availableSpace;
-			contentAvailableSpace.height = std::numeric_limits<double>::infinity();
-
-			prefSize = layoutHelper.calcPreferredSize(pOuter, contentAvailableSpace);
+            
+			prefSize = layoutHelper.calcPreferredSize(pOuter, availableSpace);
 		}
-
-
-		
-
-
-		scrollViewerDesiredSize = _pScrollViewer->DesiredSize;
-		//presenterDesiredSize = dynamic_cast<::Windows::UI::Xaml::UIElement^>(_pScrollViewer->Content)->DesiredSize;
-		contentWrapperDesiredSize = _pContentWrapper->DesiredSize;
-		
 
 		return prefSize;
     }
@@ -265,20 +239,19 @@ private:
         {
         }
 
-        ::Windows::Foundation::Size measureOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winAvailableSize ) override
+        Size uwpMeasureOverride(const Size& availableSpace ) override
         {
             // XXX
-            OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride("+std::to_string(winAvailableSize.Width)+", "+std::to_string(winAvailableSize.Height)+"\n" ).asWidePtr() );
+            OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
 
             P<ScrollView> pView = _viewWeak.toStrong();
 
+            Size resultSize;
             if(pView!=nullptr)
             {
                 P<View> pContentView = pView->getContentView();
                 if(pContentView!=nullptr)
                 {
-                    pContentView->_doUpdateSizingInfo();
-                                        
                     Margin padding;                    
                     Nullable<UiMargin> pad = pView->padding();
                     if(!pad.isNull())
@@ -286,71 +259,73 @@ private:
 
                     Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
 
-                    Size nonContentSize = Size(0,0) + contentMargin + padding;
+                    resultSize = pContentView->calcPreferredSize( availableSpace );
 
-                    // forward this to the outer view.
-                    Size availableSpace = Size::none();
-
-                    if( std::isfinite(winAvailableSize.Width) )
-                    {
-                        availableSpace.width = winAvailableSize.Width - nonContentSize.width;
-                        if(availableSpace.width<0)
-                            availableSpace.width = 0;
-                    }
-
-                    if( std::isfinite(winAvailableSize.Height) )
-                    {
-                        availableSpace.height = winAvailableSize.Height - nonContentSize.height;
-                        if(availableSpace.height<0)
-                            availableSpace.height = 0;
-                    }
-
-                    Size resultSize = pContentView->calcPreferredSize( availableSpace );
-
-                    resultSize += nonContentSize;
-
-                    OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
-
-                    return sizeToUwpSize(resultSize);
+                    resultSize += contentMargin + padding;
                 }
             }
 
             OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
             
-            return ::Windows::Foundation::Size(0, 0);
+            return resultSize;
+        }
+
+        void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
+        {
+            // we need to do the finalization on the content view.
+
+            P<ScrollView> pView = _viewWeak.toStrong();
+            
+            if(pView!=nullptr)
+            {            
+                P<View> pContentView = pView->getContentView();
+                if(pContentView!=nullptr)
+                {
+                    Margin padding;                    
+                    Nullable<UiMargin> pad = pView->padding();
+                    if(!pad.isNull())
+                        padding = pView->uiMarginToDipMargin(pad);            
+                    
+                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
+
+                    // use the DesiredSize of the wrapper as the basis here. It reflects the final size
+                    // the content area will get.
+                    // infinite then it should match the DesiredSize. If i
+                    // we cannot properly arrange our content view if the wrapper got an "infinite" amount of available
+                    // space. That should not happen
+
+                    P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
+                    if(pCore!=nullptr)
+                    {
+                        Rect contentBounds( Point(0,0), uwpSizeToSize( pCore->_pContentWrapper->DesiredSize) );
+
+                        // subtract padding and margin
+                        contentBounds -= padding;
+                        contentBounds -= contentMargin;
+
+                        pContentView->adjustAndSetBounds(contentBounds);
+
+                        // layout the content view                        
+                        P<IViewCore> pContentCore = pContentView->getViewCore();
+                        if(pContentCore!=nullptr)
+                            pContentCore->layout();
+                    }
+                }
+            }
         }
         
-        ::Windows::Foundation::Size arrangeOverride(::Windows::UI::Xaml::Controls::Panel^ pPanel, ::Windows::Foundation::Size winFinalSize ) override
+        Size uwpArrangeOverride(const Size& finalSize ) override
         {
             // XXX
-            OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(winFinalSize.Width)+", "+std::to_string(winFinalSize.Height)+"\n" ).asWidePtr() );
+            OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             P<ScrollView> pView = _viewWeak.toStrong();
 
             if(pView!=nullptr)
             {
-                P<View> pContentView = pView->getContentView();
-                if(pContentView!=nullptr)
-                {
-                    // make the content view the same size as us
-                    Rect contentRect( Point(0,0), uwpSizeToSize(winFinalSize) );
-
-                    Margin padding;                    
-                    Nullable<UiMargin> pad = pView->padding();
-                    if(!pad.isNull())
-                        padding = pView->uiMarginToDipMargin(pad);            
-
-                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
-
-                    contentRect -= padding;
-                    contentRect -= contentMargin;
-                    
-                    pContentView->adjustAndSetBounds(contentRect);
-                }
-
-				
+                defaultArrangeOverride(pView, finalSize);
+                				
 				P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
-
 				if(pCore!=nullptr)
 					pCore->_pScrollViewer->InvalidateScrollInfo();
             }     
@@ -358,7 +333,7 @@ private:
             // XXX
             OutputDebugString( String( "/ContentWrapperLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
 
-            return winFinalSize;
+            return finalSize;
         }
 
     protected:
@@ -368,8 +343,8 @@ private:
 
 
     ::Windows::UI::Xaml::Controls::ScrollViewer^ _pScrollViewer;
-    UwpViewWithLayoutDelegate<>^                    _pContentWrapper;
-    bool                                         _ignoreUwpLayoutUpdated = false;
+    UwpViewWithLayoutDelegate<>^                 _pContentWrapper;
+    P<ContentWrapperLayoutDelegate>              _pContentWrapperLayoutDelegate;
 };
 
 }

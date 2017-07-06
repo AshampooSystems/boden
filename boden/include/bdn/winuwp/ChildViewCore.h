@@ -193,18 +193,47 @@ public:
 		// XXX
         OutputDebugString( (String(typeid(*this).name())+".adjustAndSetBounds("+std::to_string(requestedBounds.width)+", "+std::to_string(requestedBounds.height)+"\n" ).asWidePtr() );
 
-		// we can only control the position of a control indirectly. There is the Arrange
-		// method, but it does not actually work outside of a UWP Layout cycle.
-
         // first adjust the bounds
         Rect adjustedBounds = adjustBounds( requestedBounds, RoundType::nearest, RoundType::nearest);
 
-		// Layout is performed in Measure, not Arrange (see doc_input/winuwp_layout.md for more information).
-		// So what we do here is simply store the new bounds. The bounds are made active in the next arrange call.
-
+		// Layout is performed at the end of the Measure phase in uwpMeasureFinalize, not in the Arrange phase (see doc_input/winuwp_layout.md for more information).
+		// Since adjustAndSetBounds is called from layout, we are currently at the end of the Measure phase.
+        // So what we do here is simply store the new bounds. The bounds are made active in the next arrange call.
         _currBounds = adjustedBounds;
         _currBoundsInitialized = true;
-				
+
+        
+        Size assignedSize = adjustedBounds.getSize();
+
+        // we MUST also call Measure here with the final size of the view as available space.
+        // This has two effects:
+        // 1) it ensures that the UWP element's DesiredSize is smaller or equal to the new view size.
+        //    This is important because Windows will not allow us to make the view smaller than its DesiredSize.
+        // 2) We need to ensure that Measure is called on all views that participate in the layout cycle.
+        //    Otherwise windows will ignore subsequent Arrange call and we cannot modify this view.
+
+        // since we need to measure anyway we use the opportunity to update our "unlimited space" sizing info as well, if that is needed.
+        bool    manuallyCallMeasure = true;
+        P<View> pOuterView = getOuterViewIfStillAttached();        
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->_doUpdateSizingInfo();
+            Size preferredSize = pOuterView->sizingInfo().get().preferredSize;
+
+            // if the preferredSize for unlimited space is already <= the new size then we do not need to call Measure again.
+            // Otherwise we need to make sure the element knows of the restricted space and ensure that
+            // the DesiredSize property is not too big (as explained above).
+            if( preferredSize <= assignedSize )
+                manuallyCallMeasure = false;
+        }
+
+        if(manuallyCallMeasure)
+        {
+            ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
+            if(pElement!=nullptr)
+                pElement->Measure( sizeToUwpSize(assignedSize) );
+        }
+
         return adjustedBounds;
 
         BDN_WINUWP_TO_STDEXC_END;
@@ -287,8 +316,6 @@ public:
 		// to fit).
 
        
-        Size measureAvailSize( availableSpace );
-
         try
         {
             Size preferredSizeHint( Size::none() );
@@ -303,24 +330,19 @@ public:
                 preferredSizeHint = pOuter->preferredSizeHint();
             }
 
-            float measureAvailWidthFloat;
-		    float measureAvailHeightFloat;
-            		
-		    if( !std::isfinite(measureAvailSize.width) || !canAdjustWidthToAvailableSpace() )
-			    measureAvailWidthFloat = std::numeric_limits<float>::infinity();
-		    else
-			    measureAvailWidthFloat = doubleToUwpDimension( measureAvailSize.width );
 
-		    if( !std::isfinite(measureAvailSize.height) || !canAdjustHeightToAvailableSpace() )
-			    measureAvailHeightFloat = std::numeric_limits<float>::infinity();
-		    else
-			    measureAvailHeightFloat = doubleToUwpDimension( measureAvailSize.height );
+            ::Windows::Foundation::Size winAvailableSpace = sizeToUwpSize(availableSpace);
 
-            if(measureAvailWidthFloat<0)
-			    measureAvailWidthFloat = 0;
-		    if(measureAvailHeightFloat<0)
-			    measureAvailHeightFloat = 0;
-            
+            // if the control cannot adjust its width to the available space then
+            // we always report unlimited available size.
+            // The reason is that Windows will otherwise clip the DesiredSize to the available space.
+            // But for the Boden system we want do not want to clip here - we want to report the bigger
+            // size need to our parent and leave the decision to clip or not clip to the parent.
+		    if( !canAdjustWidthToAvailableSpace() )
+			    winAvailableSpace.Width = std::numeric_limits<float>::infinity();
+
+		    if( !canAdjustHeightToAvailableSpace() )
+                winAvailableSpace.Height = std::numeric_limits<float>::infinity();
 
 		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
@@ -330,7 +352,7 @@ public:
 		    }
 
 		    
-		    // the Width and Height properties indicate to the layout process how big we want to be.
+		    // the Width and Height UIElement properties indicate to the layout process how big we want to be.
 		    // If they are set then they are incorporated into the DesiredSize measurements.
             // So it sounds like they are analogous to our preferredSizeHint.
             // However, for many views the "hint size" is seen as an exact size that Measure
@@ -340,30 +362,42 @@ public:
             // of view need to implement the hinting for their specific case with the knowledge what
             // the specific control will do with this information.
             
-            // XXX
-                _pFrameworkElement->Measure( ::Windows::Foundation::Size( measureAvailWidthFloat, measureAvailHeightFloat ) );
+            _pFrameworkElement->Measure( winAvailableSpace );
+            Size preferredSize = uwpSizeToSize( _pFrameworkElement->DesiredSize );
 
-		    ::Windows::Foundation::Size desiredSize = _pFrameworkElement->DesiredSize;
 
-		    Size size = uwpSizeToSize(desiredSize);
+            // Windows does not allow UIElements to be smaller than their DesiredSize.
+            
+            // if we are currently in a Measure cycle then our parent will make sure that
+            // we end up with the correct DesiredSize at the end of the Measure phase.
 
+            // If we are not in a measure cycle (i.e. if the app called calcPreferredSize
+            // manually, then we now have a DesiredSize that may not fit our assigned size.
+            // We could call Measure again here and ensure that DesiredSize reverts back to the
+            // old value. However, DesiredSize has no effect outside the layout cycle, so it
+            // does not hurt to leave it at the current value. And when the next layout cycle starts
+            // then our layout implementations will make sure that DesiredSize is set correctly.
+            
+            // So there is no need to revert to the old DesiredSize here.
+
+            // But we do have to restore the old visibility information.
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
 			    _pFrameworkElement->Visibility = oldVisibility;
 
             if(pOuter!=nullptr)
             {
-                size.applyMinimum( pOuter->preferredSizeMinimum() );
+                preferredSize.applyMinimum( pOuter->preferredSizeMinimum() );
 
                 // clip to the maximum again. We never want that to be exceeded, even
                 // if the content does not fit.
-                size.applyMaximum( pOuter->preferredSizeMaximum() );
+                preferredSize.applyMaximum( pOuter->preferredSizeMaximum() );
             }
             
 
             // XXX
-            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize() -> desiredSize= "+std::to_string(desiredSize.Width)+", "+std::to_string(desiredSize.Height)+"\n" ).asWidePtr() );
+            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize() -> desiredSize= "+std::to_string(preferredSize.width)+", "+std::to_string(preferredSize.height)+"\n" ).asWidePtr() );
 
-            return size;
+            return preferredSize;
         }
         catch(::Platform::DisconnectedException^ e)
         {
@@ -380,9 +414,7 @@ public:
 	
 	void layout() override
 	{
-		// this should never be called, since needLayout does not use the generic layout coordinator.
-		// However, if it is called then we simply assert and ignore that otherwise.
-		assert(false);
+        // do nothing by default. Normal controls without children do not do anything here.
 	}
 
 

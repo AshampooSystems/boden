@@ -20,7 +20,7 @@ inline double uwpDimensionToDouble(float val)
     if(std::isfinite(val))
         return static_cast<double>(val);
 	else if( std::isnan(val) )
-        return std::numeric_limits<double>::quiet_nan();
+        return std::numeric_limits<double>::quiet_NaN();
     else
         return std::numeric_limits<double>::infinity();
 }
@@ -35,7 +35,7 @@ inline float doubleToUwpDimension(double val)
             return static_cast<float>(val);
     }
 	else if( std::isnan(val) )
-        return std::numeric_limits<float>::quiet_nan();
+        return std::numeric_limits<float>::quiet_NaN();
     else
         return std::numeric_limits<float>::infinity();
 }
