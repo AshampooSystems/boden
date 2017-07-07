@@ -73,7 +73,7 @@ public:
         
         Custom implementation should do the following:
 	
-		The view should finalize the layout of child objects in this call.
+		The view should finalize the layout of direct and indirect child objects in this call.
 		The core should assume that the availableSpace parameter from its last Measure
 		call will be its final size (see doc_input/winuwp_layout.md for more information
 		on why this is correct).
@@ -102,14 +102,17 @@ public:
         Rect newBounds( pView->position(), lastMeasureAvailableSpace);
 
         pView->adjustAndSetBounds(newBounds);
-            
+
         // then call layout. This will arrange the child windows and assign them
         // their final sizes and positions. Note that these changes do not modify the sizes
         // and positions of the UWP UI elements. The changes only change the outer view properties.
         // The new values will be transferred to the UWP elements during the Arrange call.
-        P<IViewCore> pCore = pView->getViewCore();
-        if(pCore!=nullptr)
-            pCore->layout();
+
+        // Note that it is necessary to go through the whole
+        // tree because our layout calls are not recursive. Each call only lays out
+        // its direct children.
+        layoutViewTree( pView );
+            
         
         // Note that adjustAndSetBounds (called during layout for all children in the tree)
         // will automatically call Measure on the framework element. So it is ensured that
@@ -161,7 +164,7 @@ public:
                 // finalization. We set _activeFinalizers to a dummy number to prevent that.
                 _activeFinalizers = 0x10000000;
 
-                OutputDebugString( (String(typeid(*_pDelegate).name()) +" finalizeUwpMeasure("+std::to_string(_measureAvailableSpace.width)+"x"+std::to_string(_measureAvailableSpace.height)+")").asWidePtr() );
+                OutputDebugString( (String(typeid(*_pDelegate).name()) +" finalizeUwpMeasure("+std::to_string(_measureAvailableSpace.width)+", "+std::to_string(_measureAvailableSpace.height)+")\n").asWidePtr() );
 
                 try
                 {

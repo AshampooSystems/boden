@@ -76,7 +76,8 @@ public:
 		// means that we have to update our layout.
 		_pFrameworkElement->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler( _pEventForwarder, &ViewCoreEventForwarder::sizeChanged );
 
-		setVisible( pOuterView->visible() );
+		setVisible( pOuterView->visible() );        
+        setPreferredSizeHint( pOuterView->preferredSizeHint() );
 				
 		_addToParent( pOuterView->getParentView() );
 
@@ -104,6 +105,11 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
+
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // most views do not use the hint. So do nothing by default.
+    }
 
     void needSizingInfoUpdate(View::UpdateReason reason) override
     {

@@ -4,6 +4,7 @@
 #include <limits>
 
 #include <bdn/Rect.h>
+#include <bdn/View.h>
 
 namespace bdn
 {
@@ -76,6 +77,10 @@ inline ::Windows::Foundation::Size sizeToUwpSize(const Size& size)
 		doubleToUwpDimension(size.width),
 		doubleToUwpDimension(size.height) );
 }
+
+
+void layoutViewTree(View* pView);
+
 
 		
 }

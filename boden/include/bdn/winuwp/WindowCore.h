@@ -205,6 +205,11 @@ public:
 		// we don't care. The outer Window object will handle the layout.
 	}
 
+    
+    void setPreferredSizeHint(const Size& hint)
+    {
+        // we do not use the hínt
+    }
 
     
     void needSizingInfoUpdate( View::UpdateReason reason ) override

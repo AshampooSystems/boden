@@ -228,7 +228,7 @@ protected:
 
         ChildViewCore::_uwpSizeChanged();
 
-        // the scroll viewer's size has changed. Ensurethat we update the DesiredSize that the content
+        // the scroll viewer's size has changed. Ensure that we update the DesiredSize that the content
         // reports, because the desired size may depend on the size and/or shape of the viewport.
         
         _pContentWrapper->InvalidateMeasure();
@@ -311,9 +311,7 @@ private:
                         pContentView->adjustAndSetBounds(contentBounds);
 
                         // layout the content view                        
-                        P<IViewCore> pContentCore = pContentView->getViewCore();
-                        if(pContentCore!=nullptr)
-                            pContentCore->layout();
+                        layoutViewTree(pContentView);
                     }
                 }
             }

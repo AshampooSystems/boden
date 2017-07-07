@@ -73,16 +73,17 @@ public:
 	
     Size uwpMeasureOverride(const Size& availableSpace ) override
 	{
+        OutputDebugString( String( "ContainerViewCore.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
+            
 		P<View> pOuterView = getOuterViewIfStillAttached();
 
+        Size resultSize;
 		if(pOuterView!=nullptr)
-		{
-			Size preferredSize = pOuterView->calcPreferredSize(availableSpace);
+			resultSize = pOuterView->calcPreferredSize(availableSpace);
 
-			return preferredSize;
-		}
-		else
-			return Size(0,0);
+        OutputDebugString( String( "/ContainerViewCore.measureOverride -> "+std::to_string(resultSize.width)+", "+std::to_string(resultSize.height)+"\n" ).asWidePtr() );            
+
+        return resultSize;
 	}
 
     void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override

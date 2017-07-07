@@ -28,7 +28,7 @@ View::View()
 
     initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
     initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
-    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeHint, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
 }
 
 View::~View()

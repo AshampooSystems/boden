@@ -65,7 +65,8 @@ public:
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
 
-    
+    /** Sets the view's preferred size hint (see View::preferredSizeHint() ).*/
+    virtual void setPreferredSizeHint(const Size& hint)=0;
 
 
     /** Sets the view's position and size, after adjusting the specified values

@@ -30,6 +30,7 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
+        _preferredSizeHint = pView->preferredSizeHint();
         _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
@@ -165,6 +166,14 @@ public:
 	}
 
 
+    void setPreferredSizeHint(const Size& hint)
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeHint = hint;
+		_preferredSizeHintChangeCount++;
+    }
+
 
 
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
@@ -257,6 +266,9 @@ protected:
 
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
+
+    Size        _preferredSizeHint;
+    int         _preferredSizeHintChangeCount = 0;
 
 	Rect        _bounds;
 	int			_boundsChangeCount = 0;

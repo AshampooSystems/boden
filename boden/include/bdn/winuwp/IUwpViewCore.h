@@ -15,10 +15,7 @@ public:
     /** Returns the Windows.UI.Xaml.FrameworkElement associated with this object.
     */
     virtual ::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement()=0;
-
-	
-
-
+    
 
 };
 

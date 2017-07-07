@@ -241,7 +241,7 @@ void Window::defaultLayout(const Rect& contentArea)
 	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );
     
     pContentView->adjustAndSetBounds( contentBounds );
-
+    
 	// note that we do not need to call layout on the content view.
 	// If it needs to update its layout then the bounds change should have caused
 	// it to schedule an update.

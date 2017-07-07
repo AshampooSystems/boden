@@ -64,6 +64,20 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+                
+        // the Width property indicates to the control "should probably have this width".
+        // That matches the definition of our preferredSizeHint property.
+        if(std::isfinite(hint.width))
+		    _pTextBlock->Width = hint.width;
+        else
+            _pTextBlock->Width = std::numeric_limits<double>().quiet_NaN();
+        
+        BDN_WINUWP_TO_STDEXC_END;
+	}
+
 	void setText(const String& text)
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -73,27 +87,6 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 	
-
-    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
-	{
-        P<View> pOuter = getOuterViewIfStillAttached();
-        if(pOuter!=nullptr)
-        {
-            // the hint width is used to indicate where the view should word break.
-
-            Size hint = pOuter->preferredSizeHint();
-
-            // set the Width property. This serves as the "should probably have this Width"
-            // input to the control.
-            double width = hint.width;
-            if( !std::isfinite(width))
-                width = std::numeric_limits<double>::quiet_NaN();
-            if(_pTextBlock->Width != width)
-                _pTextBlock->Width = width;
-        }
-
-        return ChildViewCore::calcPreferredSize(availableSpace);
-    }
 
 protected:
 
