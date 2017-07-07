@@ -52,6 +52,8 @@ public:
 				{
 					Rect						childBounds(pChildView->position(), pChildView->size());
 					::Windows::Foundation::Rect winChildBounds = rectToUwpRect( childBounds );
+
+                    ::Windows::Foundation::Size desiredSize = pChildElement->DesiredSize;
 				
 					pChildElement->Arrange(winChildBounds);
 				}
@@ -117,15 +119,16 @@ public:
     }
 
 	
-	/** Helper class that ensures that calls finalizeUwpMeasure
-		when the top level Measure call finishes.
+	/** Helper class that calls finalizeUwpMeasure when the top level Measure call finishes.
 
         The finalizer should be instantiated by the CALLER of IUwpLayoutDelegate::uwpMeasureOverride.
-        The IUwpLayoutDelegate implementations do not use it.
+        The IUwpLayoutDelegate implementations themselves do not use UwpMeasureFinalizer.
         
 		The finalizer objects track how many recursive measure calls are running.
-		When the last one finishes at the top level then the finalizers call finalizeUwpMeasure
-		on that top level delegate.
+
+        You should call finalizeIfTopLevel() at the end of the measure call. It will call
+        call finalizeUwpMeasure if the Measure call is at the top level (i.e. if the finalizer
+        object is the only one that still exists).
 		*/
 	class UwpMeasureFinalizer
 	{
@@ -138,15 +141,27 @@ public:
 			_activeFinalizers++;
 		}
 
-		~UwpMeasureFinalizer()
-		{
-			_activeFinalizers--;
+        /** This should be called at the end of the Measure call.
+            It calls finalizeUwpMeasure on the delegate if the current finalizer is the
+            only one that exists (i.e. if the current Measure call is at the top level).           
+            
+            */
+        void finalizeIfTopLevel()
+        {
+            // Implementation note: One might think that finalizeIfTopLevel could be called
+            // automatically from the finalizer destructor. While that would work in most cases,
+            // it does not work if the finalizeUwpMeasure function throws an exception (since
+            // destructors should not throw any exceptions).
+            // So to avoid this problem we do not do this stuff in the destructor but in a separate
+            // function.
 
-			if(_activeFinalizers==0)
+            if(_activeFinalizers==1)
             {            
                 // measure calls that occur during finalize should not trigger another
                 // finalization. We set _activeFinalizers to a dummy number to prevent that.
                 _activeFinalizers = 0x10000000;
+
+                OutputDebugString( (String(typeid(*_pDelegate).name()) +" finalizeUwpMeasure("+std::to_string(_measureAvailableSpace.width)+"x"+std::to_string(_measureAvailableSpace.height)+")").asWidePtr() );
 
                 try
                 {
@@ -154,12 +169,21 @@ public:
                 }
                 catch(...)
                 {
-                    _activeFinalizers = 0;
+                    _activeFinalizers = 1;
                     throw;
                 }
 
-                _activeFinalizers = 0;
+                OutputDebugString( ("/"+String(typeid(*_pDelegate).name()) +" finalizeUwpMeasure()\n").asWidePtr() );
+
+                _activeFinalizers = 1;
             }
+        }
+
+		~UwpMeasureFinalizer()
+		{
+			_activeFinalizers--;
+
+			
 		}
         
 	private:

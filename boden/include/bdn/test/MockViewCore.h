@@ -43,7 +43,7 @@ public:
 
     
   
-	void needSizingInfoUpdate() override
+	void needSizingInfoUpdate(View::UpdateReason reason) override
     {
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
@@ -51,7 +51,7 @@ public:
     }
 
 
-	void needLayout()
+	void needLayout(View::UpdateReason reason) override
     {
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
@@ -64,8 +64,8 @@ public:
         P<View> pParent = getOuterViewIfStillAttached();
         if(pParent!=nullptr)
         {
-            pParent->needSizingInfoUpdate();
-            pParent->needLayout();
+            pParent->needSizingInfoUpdate( View::UpdateReason::standardChildPropertyChange );
+            pParent->needLayout( View::UpdateReason::standardChildPropertyChange );
         }
     }
     

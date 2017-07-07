@@ -254,7 +254,7 @@ TEST_CASE("LayoutCoordinator")
 			// up events in the dispatch queue have been executed. And if new sizing info requests
 			// are added during those events then those must also be executed before the pending layout.
 			
-			pView1->needSizingInfoUpdate();
+			pView1->needSizingInfoUpdate( View::UpdateReason::customChange );
 			
 			pView1->updateSizingInfoFunc =
 				[pView1, pView2, pView3, pCoord]()
@@ -274,10 +274,10 @@ TEST_CASE("LayoutCoordinator")
 					asyncCallFromMainThread(
 						[pView1, pView2, pView3, pCoord]()
 						{
-							pView1->needLayout();
+							pView1->needLayout( View::UpdateReason::customChange );
 
 							// schedule another sizing info update for view 2
-							pView2->needSizingInfoUpdate();
+							pView2->needSizingInfoUpdate( View::UpdateReason::customChange  );
 
 							pView2->updateSizingInfoFunc = 
 								[pView1, pView2, pView3, pCoord]()
@@ -295,15 +295,15 @@ TEST_CASE("LayoutCoordinator")
 									asyncCallFromMainThread(
 										[pView1, pView2, pView3, pCoord]()
 										{
-											pView2->needLayout();
+											pView2->needLayout( View::UpdateReason::customChange  );
 
 											// schedule another sizing info update for view 3
-											pView3->needSizingInfoUpdate();
+											pView3->needSizingInfoUpdate( View::UpdateReason::customChange  );
 
 											pView3->updateSizingInfoFunc = 
 												[pView1, pView2, pView3, pCoord]()
 												{
-													pView3->needLayout();
+													pView3->needLayout( View::UpdateReason::customChange  );
 
 													// no layout calls yet
 													REQUIRE( pView1->layoutCalls==0);
@@ -362,8 +362,8 @@ TEST_CASE("LayoutCoordinator")
 
 			pView3->setContentView(pView4);
 
-			pView1->needLayout();
-			pView4->needLayout();
+			pView1->needLayout( View::UpdateReason::customChange );
+			pView4->needLayout( View::UpdateReason::customChange );
 
 			// layout order is parent-first, so view1 will always be layouted before view4
 

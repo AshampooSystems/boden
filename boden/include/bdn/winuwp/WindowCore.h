@@ -207,47 +207,55 @@ public:
 
 
     
-    void needSizingInfoUpdate() override
+    void needSizingInfoUpdate( View::UpdateReason reason ) override
     {
-        // XXX
-        OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
-
-        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
-        // this is.
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
+        // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pContentContainer->InvalidateMeasure();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // XXX
+            OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
 
-        BDN_WINUWP_TO_STDEXC_END;
+            // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+            // this is.
+            BDN_WINUWP_TO_STDEXC_BEGIN;
+
+            try
+            {
+		        _pContentContainer->InvalidateMeasure();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
 
-    void needLayout() override
+    void needLayout( View::UpdateReason reason ) override
     {
-        // XXX
-        OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
-
-        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
-        // this is.
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
+        // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pContentContainer->InvalidateArrange();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // XXX
+            OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
 
-        BDN_WINUWP_TO_STDEXC_END;
+            // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+            // this is.
+            BDN_WINUWP_TO_STDEXC_BEGIN;
+
+            try
+            {
+		        _pContentContainer->InvalidateArrange();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
 
@@ -353,21 +361,10 @@ public:
 
     void layout()
     {
-
-
-		/*
-        // XXX
-    OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
-
-        // The XAML window is managed and instantiated by the system. So we cannot subclass it
-        // or override its layout function.
-        // Instead we added a custom panel as the Window content view. We have overridden
-        // the layout routines for that, and that is what triggers this layout function to be called.
-        // So we actually need to lay out _pTopContainer here, not the window itself.
-
-        // That means that we only need to arrange our content view inside _pTopContainer.
-        // For that we can use the default layout routine provided by Window.
-
+        // this is called from uwpMeasureFinalize. Just call the default layout for the window.
+        
+        OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
+        
         P<Window> pOuter = _outerWindowWeak.toStrong();
         if(pOuter!=nullptr)
         {
@@ -377,10 +374,8 @@ public:
             pOuter->defaultLayout(contentArea);
         }
 
-
         // XXX
-    OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
-	*/
+        OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
     }
     
 	
@@ -642,7 +637,7 @@ private:
         Size uwpArrangeOverride(const Size& finalSize ) override
         {
             // XXX
-            OutputDebugString( String( "WindowPanelLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
+            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             P<Window> pWindow = _windowWeak.toStrong();
 
@@ -653,7 +648,7 @@ private:
             }
 
             // XXX
-            OutputDebugString( String( "/WindowPanelLayoutDelegate()\n" ).asWidePtr() );
+            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate()\n" ).asWidePtr() );
 
             return finalSize;
         }

@@ -13,7 +13,7 @@ Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
 	Size totalSize = calcLayoutImpl( nullptr, availableSpace, true);
 
     // XXX
-            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
+            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" ).asWidePtr() );
 
 	return totalSize;
 }

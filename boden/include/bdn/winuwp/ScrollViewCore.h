@@ -122,46 +122,51 @@ public:
 
     
 
-    void needSizingInfoUpdate() override
+    void needSizingInfoUpdate( View::UpdateReason reason ) override
     {
-        ChildViewCore::needSizingInfoUpdate();
+        ChildViewCore::needSizingInfoUpdate(reason );
 
-
-        // also invalidate the measurements of the content wrapper
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pContentWrapper->InvalidateMeasure();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // also invalidate the measurements of the content wrapper
+            BDN_WINUWP_TO_STDEXC_BEGIN;
 
-        BDN_WINUWP_TO_STDEXC_END;
+            try
+            {
+		        _pContentWrapper->InvalidateMeasure();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
 
     
-    void needLayout() override
+    void needLayout(View::UpdateReason reason) override
     {
-        ChildViewCore::needLayout();
+        ChildViewCore::needLayout(reason);
 
-        // also invalidate the layout of the content wrapper.
-        // The default implementation (called above) invalidates the scroll viewer itself.
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pContentWrapper->InvalidateArrange();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // also invalidate the layout of the content wrapper.
+            // The default implementation (called above) invalidates the scroll viewer itself.
+            BDN_WINUWP_TO_STDEXC_BEGIN;
 
-        BDN_WINUWP_TO_STDEXC_END;
+            try
+            {
+		        _pContentWrapper->InvalidateArrange();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override

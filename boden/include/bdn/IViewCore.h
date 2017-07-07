@@ -20,14 +20,19 @@ class IViewCore : BDN_IMPLEMENTS IBase
 {
 public:
 
+
     /** Requests that the view updates its sizing information (preferred size, etc.).
 		The measuring does not happen immediately in this function - it is performed asynchronously.		
 
         View core implementations may use their platform's native layout system
         to schedule the update. They can also use the generic bdn::LayoutCoordinator class
         or a custom implementation.
+
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::UpdateReason::customChange
 		*/
-	virtual void needSizingInfoUpdate()=0;
+	virtual void needSizingInfoUpdate(View::UpdateReason reason)=0;
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -37,8 +42,12 @@ public:
         View core implementations may use their platform's native layout system
         to schedule the update. They can also use the generic bdn::LayoutCoordinator class
         or a custom implementation.
+
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::UpdateReason::customChange
 		*/
-	virtual void needLayout()=0;
+	virtual void needLayout(View::UpdateReason reason)=0;
 
 
 

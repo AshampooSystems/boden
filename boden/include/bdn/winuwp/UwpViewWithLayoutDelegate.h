@@ -52,6 +52,8 @@ protected:
 
 			Size resultSize = pDelegate->uwpMeasureOverride(availableSpace);
 
+            finalizer.finalizeIfTopLevel();
+
             return sizeToUwpSize(resultSize);
         }
 		else

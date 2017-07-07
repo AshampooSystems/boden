@@ -362,14 +362,40 @@ public:
         // do nothing by default
 	}
 
+    
+
+    enum class UpdateReason
+    {
+        /** The layout needs to be updated because a standard property of the view
+            (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardPropertyChange,
+
+        /** The layout needs to be updated because a standard child property
+            (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardChildPropertyChange,
+
+        /** The view needs to be updated because some custom data associated with the
+            view has changed that influences sizing or layout.
+            
+            This is usually used when the application overloaded layout or sizing functionality
+            of the view. When some internal custom data changes that influences the layout
+            then the application should use this update reason.
+            */
+        customChange,
+    };
+
 
 	/** Requests that the view updates its sizing information (preferred size, etc.).
 		The measuring does not happen immediately in this function - it is performed asynchronously.
 		
 		Note that it is usually NOT necessary to call this as a user of a view object. The view object
 		will automatically schedule re-measuring when its parameters and properties change.
+
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::UpdateReason::customChange
 		*/
-	void needSizingInfoUpdate();
+	void needSizingInfoUpdate(UpdateReason reason);
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -378,8 +404,12 @@ public:
 		
 		Note that it is usually NOT necessary to call this as a user of a view object. The view object
 		will automatically schedule re-layout operations when its layout parameters or child views change.
+
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::UpdateReason::customChange
 		*/
-	void needLayout();
+	void needLayout(UpdateReason reason);
 
 
     /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to
@@ -702,27 +732,27 @@ protected:
         {
             // update the sizing information. If that changes then the parent
             // layout will automatically be updated.
-            needSizingInfoUpdate();
+            needSizingInfoUpdate( UpdateReason::standardPropertyChange );
         }    
         
         if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
         {
             // the layout of our children is influenced by this
-            needLayout();
+            needLayout( UpdateReason::standardPropertyChange );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needSizingInfoUpdate();
+                pParent->needSizingInfoUpdate( UpdateReason::standardChildPropertyChange );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needLayout();
+                pParent->needLayout( UpdateReason::standardChildPropertyChange );
         }
     }
 

@@ -105,25 +105,29 @@ public:
 	}
 
 
-    void needSizingInfoUpdate() override
+    void needSizingInfoUpdate(View::UpdateReason reason) override
     {
-        // XXX
-        OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
-
-        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
-        // this is.
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
+        // see needLayout for an explanation about why we ignore standard property changes.
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pFrameworkElement->InvalidateMeasure();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // XXX
+            OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
 
-        BDN_WINUWP_TO_STDEXC_END;
+            // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+            // this is.
+            BDN_WINUWP_TO_STDEXC_BEGIN;
+
+            try
+            {
+		        _pFrameworkElement->InvalidateMeasure();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
 
@@ -133,25 +137,40 @@ public:
         // to the parent views.
     }
 
-    void needLayout() override
+    void needLayout( View::UpdateReason reason ) override
     {
-        // XXX
-        OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
+        // we ignore layout requests that were made because a standard property changed.
+        
+        // That is very important because otherwise we would invalidate the layout when, for example,
+        // the View::size() property changes. However, since the size only changes during the layout cycle
+        // and windows automatically ensures that the layout of child views is updated that means that
+        // we HAVE to ignore such changes -- otherwise we end up scheduling a re-layout in every layout
+        // and end up in a cycle.
 
-        // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
-        // this is.
-        BDN_WINUWP_TO_STDEXC_BEGIN;
+        // For the standard properties one of our core functions is called and we handle the
+        // changes directly there. Usually Windows takes care of the invalidation automatically and if not
+        // then the core setXYZ function must schedule the update.
 
-        try
+        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
         {
-		    _pFrameworkElement->InvalidateArrange();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
+            // XXX
+            OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 
 
-        BDN_WINUWP_TO_STDEXC_END;
+            // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
+            // this is.
+            BDN_WINUWP_TO_STDEXC_BEGIN;
+
+            try
+            {
+		        _pFrameworkElement->InvalidateArrange();
+            }
+            catch(::Platform::DisconnectedException^ e)
+            {
+                // view was already destroyed. Ignore this.
+            }
+
+            BDN_WINUWP_TO_STDEXC_END;
+        }
     }
 
     
@@ -227,12 +246,16 @@ public:
                 manuallyCallMeasure = false;
         }
 
-        if(manuallyCallMeasure)
+        // XXX if(manuallyCallMeasure)
         {
             ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
             if(pElement!=nullptr)
                 pElement->Measure( sizeToUwpSize(assignedSize) );
         }
+
+        // XXX
+        OutputDebugString( ("/"+String(typeid(*this).name())+".adjustAndSetBounds()\n" ).asWidePtr() );
+
 
         return adjustedBounds;
 

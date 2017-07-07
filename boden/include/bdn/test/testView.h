@@ -310,8 +310,8 @@ inline void testView()
         {
             int updateCountBefore = pView->getSizingInfoUpdateCount();
 
-            pView->needSizingInfoUpdate();
-            pView->needSizingInfoUpdate();
+            pView->needSizingInfoUpdate( View::UpdateReason::customChange );
+            pView->needSizingInfoUpdate( View::UpdateReason::customChange  );
 
             CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, updateCountBefore)
             {

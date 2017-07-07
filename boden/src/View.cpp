@@ -76,7 +76,7 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 
 
-void View::needSizingInfoUpdate()
+void View::needSizingInfoUpdate( UpdateReason reason )
 {
     P<IViewCore> pCore = getViewCore();
 
@@ -84,11 +84,11 @@ void View::needSizingInfoUpdate()
     // it may be that the UI uses a layout coordinator provided by the system,
     // rather than our own.
     if(pCore!=nullptr)
-        pCore->needSizingInfoUpdate();	
+        pCore->needSizingInfoUpdate(reason);	
 }
 
 
-void View::needLayout()
+void View::needLayout( UpdateReason reason )
 {
     P<IViewCore> pCore = getViewCore();
 
@@ -96,7 +96,7 @@ void View::needLayout()
     // it may be that the UI uses a layout coordinator provided by the system,
     // rather than our own.
     if(pCore!=nullptr)
-        pCore->needLayout();
+        pCore->needLayout(reason);
 }
 
 
@@ -368,7 +368,7 @@ void View::_initCore()
 				pChildView->_initCore();
 
 			// our old sizing info is obsolete when the core has changed.
-			needSizingInfoUpdate();
+			needSizingInfoUpdate( View::UpdateReason::standardPropertyChange );
 		}		
 	}
 }
