@@ -56,7 +56,7 @@ public:
                 
 
     /** Calls calcPreferredSize on the object that is tested and returns the result. */
-    virtual Size callCalcPreferredSize( const Size& availableSpace = Size::none() )=0;   
+    virtual Size callGetPreferredSize( const Size& availableSpace = Size::none() )=0;   
 
     
     /** Calculates the scrollview layout for the specified viewport size.

@@ -16,6 +16,7 @@ namespace bdn
 #include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
+#include <bdn/PreferredViewSizeManager.h>
 
 
 namespace bdn
@@ -493,147 +494,7 @@ public:
         return _preferredSizeMaximum;
     }
 
-
-
-
-	struct SizingInfo
-	{
-        /** The preferred size of the view (in DIP units), assuming that unlimited space is available.
-        
-            Note that this size is not yet adjusted to meet the constraints of the physical display
-            that the view is rendered to. For example, it is NOT rounded to full pixel boundaries.
-            As a result, the size might be adjusted when it is assigned to the view with
-            adjustAndSetSize(). You can also call adjustSize() ahead of time to adjust it manually,
-            if you need to.
-            */
-		Size preferredSize;
-        
-		bool operator==(const SizingInfo& o) const
-		{
-			return preferredSize == o.preferredSize;
-		}
-
-		bool operator!=(const SizingInfo& o) const
-		{
-			return !operator==(o);
-		}
-	};
-
-
-    XXX remove this? Basically a cache for "unlimited space" size - but that caching could also happen
-    in core::calcPreferredSize.
-
-        But it also caches aggregates preferred sizes for whole view trees. Could a core do that?
-        Yes a container core could also cache the aggregated size.
-
-        What happens when a child deep in the tree changes?
-        Its sizing info is marked as updated. When that changes the preferred size then the
-        sizing info of the parent is updated. And so on.
-        If any update does not change the size of a parent then the chain stops there and layout
-        starts at that point only.
-
-        BUT this behaviour also has its problems. It assumes that if the unlimited size does not change
-        then restricted preferred sizes also remain the same. That is not true, in general. For example,
-        look at a text control. Old text:
-        """
-        hello world
-        bla
-        """
-            
-        new text:
-        """
-        hello world
-        bla blub
-        """
-
-        the control will have the same unlimited preferred size. But if the available width is smaller then
-        the new text is bigger:
-
-        """
-        hello
-        world
-        bla
-        """
-
-        vs
-
-        """
-        hello
-        world
-        bla
-        blub
-        """
-
-        So stopping the sizing updates at a point when the unlimited preferred size does not change
-        is only correct if the view's size was not restricted by available space.
-
-        But we can find out if that is the case. We could cache the availablespace somehow and then
-        see if the change results in a changed result.
-
-        maybe available space should not be a parameter but something more permanent? Maybe we should set
-        it in a previous function?
-
-        That would mean that calcPreferredSize would only be useful for layouts. Any other use in the app
-        would need to use a different function.
-
-        setLayoutSpace
-            layoutSizeValid = false
-        calcLayoutSize()
-        calcPreferredSizeOutsideLayout()
-
-        childSizeUpdated()
-        if( calcPreferredSize(layoutspace) != _layoutSIze )
-                parent->childSizeUpdated
-
-        the result would be that when a change happens we would usually recalculate the size at every level,
-        only to then go one level up and do the same again. in the worst case we would get n! (n being the depth of
-        the view tree) size calculations, if the layout space changes at every level. And all this for an optimization
-        that tries to NOT update the whole view tree from the root. Since n < n! the optimization is obviously counterproductive.
-
-        So, if anything changes in the tree then we should recalculate the sizes of the whole tree. Some branches can
-        and should still used cached sizes from the last pass if their layout space did not change in the new pass.
-        But we should always start from the root.
-
-        So:
-            property changed
-            invalidate cached sizes and layout for all parents
-            re-layout of invalidated containers (top down)
-                during layout: views from other branches with valid size caches can use cached sizes
-                often a container will try to use unlimited size first
-                then, in a second step, the container might restrict the size. Then the container might
-                adjust the resulting size for the display and then pass the adjusted size again to the
-                view in a third step.
-                so, even in this example we might have three size calculations that we should cache.
-                Should we maybe cache ALL calculated sizes, until they are invalidated??? Or at least a lot (like 10 or so?)
-                The view could do that automatically.
-                
-                another optimization would be that calcPreferredSize already returns sizes that are adjusted for the display.
-                Probably a good idea.
-                The view could take care of adjusting for the core
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/** Returns the sizing information of the view (to use during layout).
-	*/
-	const ReadProperty<SizingInfo>& sizingInfo() const
-	{
-		return _sizingInfo;
-	}
-
+		
 
 
     /** Converts a UiLength object to DIPs.
@@ -665,7 +526,10 @@ public:
 
 
     /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
-        based on it current contents	and properties.
+        based on it current contents and properties.
+
+		Note that the View object will cache the result of the call. Calling this multiple
+		times with the same availableSpace parameter is a fast operation.
 
         There are several constraints for the preferred size:
 
@@ -958,12 +822,12 @@ protected:
 private:
 	View*					        _pParentViewWeak = nullptr;
 	P<IViewCore>			        _pCore;
-    
-	DefaultProperty<SizingInfo>		_sizingInfo;
 
     DefaultProperty<Size>           _preferredSizeHint;
     DefaultProperty<Size>           _preferredSizeMinimum;
     DefaultProperty<Size>           _preferredSizeMaximum;
+
+	mutable PreferredViewSizeManager	_preferredSizeManager;
 };
 
 }

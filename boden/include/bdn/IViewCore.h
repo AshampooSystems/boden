@@ -147,7 +147,7 @@ public:
         ---------------------------------------------
 
         calcPreferredSize must also take the View::preferredSizeHint(), View::preferredSizeMinimum() and View::preferredSizeMaximum()
-        properties into account and constrains the result accordingly.
+        properties into account and constrain the result accordingly.
         
         preferredSizeHint() can be used to provide an advisory hint to the view as to what the preferred width and/or height should
         roughly be. The view is free to ignore this, however. Text views often use this to select the place where they wrap their

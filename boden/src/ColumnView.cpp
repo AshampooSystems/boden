@@ -55,10 +55,8 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 		// when we are measuring then we simply use max(childWidths) as the content area width.
 
 		for(const P<View>& pChildView: childViews)
-		{
-			SizingInfo	childSizingInfo = pChildView->sizingInfo();
-        
-			Size		childPreferredSize = childSizingInfo.preferredSize;
+		{        
+			Size		childPreferredSize = pChildView->calcPreferredSize();
 
 			Margin	    childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
 			

@@ -378,13 +378,20 @@ void View::_initCore()
 Size View::calcPreferredSize( const Size& availableSpace ) const
 {
 	verifyInMainThread("View::calcPreferredSize");
+	
+	Size preferredSize;
+	if( ! _preferredSizeCache.get(availableSpace, preferredSize) )
+	{
+		P<IViewCore> pCore = getViewCore();
 
-	P<IViewCore> pCore = getViewCore();
+		if(pCore!=nullptr)
+		{
+			preferredSize = pCore->calcPreferredSize( availableSpace );
+			_preferredSizeCache.set( availableSpace, preferredSize );
+		}
+	}
 
-	if(pCore!=nullptr)
-		return pCore->calcPreferredSize( availableSpace );
-	else
-		return Size(0, 0);
+	return preferredSize;
 }
 
 

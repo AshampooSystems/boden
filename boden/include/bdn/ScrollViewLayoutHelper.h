@@ -76,7 +76,7 @@ public:
                 // ask the content view for a dynamic preferred size. Some view's (like text views)
                 // might want to adapt.
 
-                actualContentSize = pContentView->sizingInfo().get().preferredSize;                
+                actualContentSize = pContentView->calcPreferredSize();                
 
                 // In the first iteration (itNum==0) _viewPortSize is the size with no scrollbars shown.
                 // In the second iteration the viewport size is smaller when scrollbars are shown.
