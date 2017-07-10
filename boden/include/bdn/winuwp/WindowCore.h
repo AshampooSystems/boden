@@ -212,10 +212,10 @@ public:
     }
 
     
-    void needSizingInfoUpdate( View::UpdateReason reason ) override
+    void invalidateSizingInfo( View::InvalidateReason reason ) override
     {
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
-        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
@@ -238,10 +238,10 @@ public:
     }
 
 
-    void needLayout( View::UpdateReason reason ) override
+    void needLayout( View::InvalidateReason reason ) override
     {
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
-        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
@@ -264,7 +264,7 @@ public:
     }
 
 
-    void childSizingInfoChanged(View* pChild) override
+    void childSizingInfoInvalidated(View* pChild) override
     {
         // we do not do anything here. Windows takes care of propagating the sizing info changes
         // to the parent views.

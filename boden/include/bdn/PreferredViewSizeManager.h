@@ -25,6 +25,15 @@ public:
 	}
 
 
+    /** Clears the internal cache data.*/
+    void clear()
+    {        
+	    _entryMap.clear();
+	    _haveInfiniteSpacePreferredSize = false;
+	    _infiniteSpacePreferredSize = Size(0,0);
+    }
+
+
 	/** Stores a preferred size value for a given amount of available space.*/
 	void set(const Size& availableSpace, const Size& preferredSize)
 	{

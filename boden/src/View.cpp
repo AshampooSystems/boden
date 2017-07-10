@@ -76,19 +76,20 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 
 
-void View::needSizingInfoUpdate( UpdateReason reason )
+void View::invalidateSizingInfo( InvalidateReason reason )
 {
-    P<IViewCore> pCore = getViewCore();
+    // clear cached sizing data
+    _preferredSizeManager.clear();
 
-    // forward the request to the core. Depending on the platform
-    // it may be that the UI uses a layout coordinator provided by the system,
-    // rather than our own.
+    // pass the operation to the core. The core will take care
+    // of invalidating the layout, if necessary
+    P<IViewCore> pCore = getViewCore();
     if(pCore!=nullptr)
-        pCore->needSizingInfoUpdate(reason);	
+        pCore->invalidateSizingInfo(reason);	
 }
 
 
-void View::needLayout( UpdateReason reason )
+void View::needLayout( InvalidateReason reason )
 {
     P<IViewCore> pCore = getViewCore();
 
@@ -140,31 +141,13 @@ Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
 		return Margin();	
 }
 
-void View::updateSizingInfo()
-{
-	SizingInfo info;
 
-	info.preferredSize = calcPreferredSize();
-
-	if(info!=_sizingInfo)
-	{
-		_sizingInfo = info;
-        		
-		P<View> pParentView = getParentView();
-
-		if(pParentView!=nullptr)
-            pParentView->childSizingInfoChanged(this);
-		
-	}
-}
-
-
-void View::childSizingInfoChanged(View* pChild)
+void View::childSizingInfoInvalidated(View* pChild)
 {
     P<IViewCore> pCore = getViewCore();
 
     if(pCore!=nullptr)
-        pCore->childSizingInfoChanged(pChild);
+        pCore->childSizingInfoInvalidated(pChild);
 }
 
 void View::_setParentView(View* pParentView)
@@ -368,7 +351,7 @@ void View::_initCore()
 				pChildView->_initCore();
 
 			// our old sizing info is obsolete when the core has changed.
-			needSizingInfoUpdate( View::UpdateReason::standardPropertyChange );
+			invalidateSizingInfo( View::InvalidateReason::standardPropertyChange );
 		}		
 	}
 }
@@ -380,14 +363,14 @@ Size View::calcPreferredSize( const Size& availableSpace ) const
 	verifyInMainThread("View::calcPreferredSize");
 	
 	Size preferredSize;
-	if( ! _preferredSizeCache.get(availableSpace, preferredSize) )
+	if( ! _preferredSizeManager.get(availableSpace, preferredSize) )
 	{
 		P<IViewCore> pCore = getViewCore();
 
 		if(pCore!=nullptr)
 		{
 			preferredSize = pCore->calcPreferredSize( availableSpace );
-			_preferredSizeCache.set( availableSpace, preferredSize );
+			_preferredSizeManager.set( availableSpace, preferredSize );
 		}
 	}
 

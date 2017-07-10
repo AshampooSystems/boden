@@ -2,6 +2,7 @@
 #include <bdn/Window.h>
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/debug.h>
 
 namespace bdn
 {
@@ -64,12 +65,12 @@ void Window::autoSize()
 		return;
 	}
 
-	SizingInfo mySizingInfo = sizingInfo();
+	Size myPreferredSize = calcPreferredSize();
 
 	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
     	
-	double width = mySizingInfo.preferredSize.width;
-	double height = mySizingInfo.preferredSize.height;
+	double width = myPreferredSize.width;
+	double height = myPreferredSize.height;
     
 	if(width > screenArea.width)
 	{
@@ -137,7 +138,7 @@ void Window::center()
 Size Window::calcPreferredSize( const Size& availableSpace ) const
 {
     // XXX
-    OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+    BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
 
 	// lock the mutex so that our child hierarchy or core does not change during measuring
 	MutexLock lock( getHierarchyAndCoreMutex() );
@@ -216,7 +217,7 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
 
 
     // XXX
-    OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize()\n" ).asWidePtr() );
+    BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcPreferredSize()\n" );
 
 	return preferredSize;
 }

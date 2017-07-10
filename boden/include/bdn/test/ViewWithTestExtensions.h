@@ -21,25 +21,6 @@ public:
 	{		
 	}
 
-
-    /** Returns the number of times that the sizing information has been updated.*/
-    int getSizingInfoUpdateCount() const
-    {
-        return _sizingInfoUpdateCount;
-    }
-
-	void updateSizingInfo() override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-		
-		_sizingInfoUpdateCount++;
-		BaseViewClass::updateSizingInfo();		
-	}	
-
-
-
-protected:    
-	int _sizingInfoUpdateCount = 0;
 };
 
 

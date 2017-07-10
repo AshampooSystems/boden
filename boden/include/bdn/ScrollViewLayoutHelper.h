@@ -301,19 +301,10 @@ public:
                         contentAvailableSpace.width = 0;
                 }
 
-                contentSize = pContentView->sizingInfo().get().preferredSize;
-                
-                Size clippedContentSize = contentSize;
-                clippedContentSize.applyMaximum(contentAvailableSpace);
-
-                if(clippedContentSize != contentSize)
-                {
-                    // the available space is limited and the content does not fit into it.
-                    // So instead of using the static preferred size we ask the content view
-                    // for an updated preferred size that might be adapted to the available space.
-                    contentSize = pContentView->calcPreferredSize( contentAvailableSpace );
-                }
+                contentSize = pContentView->calcPreferredSize( contentAvailableSpace );                
             }
+            else
+                contentSize = Size(0,0);
 
             prefSize = contentSize + contentMargin + outerPadding;
         

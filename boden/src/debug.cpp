@@ -69,6 +69,28 @@
 #endif
 
 
+#if BDN_PLATFORM_WIN32 || BDN_PLATFORM_WINUWP
+    
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            OutputDebugStringW( text.asWidePtr() );
+        }
+    }
+
+#else
+
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            // do nothing
+        }
+    }
+
+#endif
+
 
 
 

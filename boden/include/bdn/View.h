@@ -365,17 +365,23 @@ public:
 
     
 
-    enum class UpdateReason
+    enum class InvalidateReason
     {
-        /** The layout needs to be updated because a standard property of the view
+        /** The data was invalidated because a standard property of the view
             (i.e. a property that is defined by the Boden framework) has been changed.*/
         standardPropertyChange,
 
-        /** The layout needs to be updated because a standard child property
+        /** The data was invalidated because a standard child property
             (i.e. a property that is defined by the Boden framework) has been changed.*/
         standardChildPropertyChange,
 
-        /** The view needs to be updated because some custom data associated with the
+
+        /** The sizing information of a child view has been invalidated. The child size
+            must be recalculated.*/
+        childSizingInfoInvalidated,
+
+
+        /** The data was invalidated because some custom data associated with the
             view has changed that influences sizing or layout.
             
             This is usually used when the application overloaded layout or sizing functionality
@@ -386,17 +392,19 @@ public:
     };
 
 
-	/** Requests that the view updates its sizing information (preferred size, etc.).
-		The measuring does not happen immediately in this function - it is performed asynchronously.
-		
-		Note that it is usually NOT necessary to call this as a user of a view object. The view object
-		will automatically schedule re-measuring when its parameters and properties change.
+	/** Invalidates the cached sizing information of the view (see calcPreferredSize()).
 
+        It is usually not necessary to call this manually. The view will automatically invalidate
+        the sizing info when relevant internal data or properties change.
+
+        Invalidating the sizing info also invalidates the layout and sizing info of any direct
+        or indirect parent view(s).
+        
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::UpdateReason::customChange
+            View::InvalidateReason::customChange
 		*/
-	void needSizingInfoUpdate(UpdateReason reason);
+	void invalidateSizingInfo(InvalidateReason reason);
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -408,9 +416,9 @@ public:
 
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::UpdateReason::customChange
+            View::InvalidateReason::customChange
 		*/
-	void needLayout(UpdateReason reason);
+	void needLayout(InvalidateReason reason);
 
 
     /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to
@@ -584,16 +592,7 @@ public:
 		*/		
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
-
-	
-    /**	Internal function that calls updateSizingInfo. Should only be called by the view implementation.*/
-    void _doUpdateSizingInfo()
-    {
-        updateSizingInfo();
-    }
-
     
-
     
 	/** Returns the global mutex object that is used to synchronize changes in the
 		UI hierarchy (parent-child relationships) and replacement of view core objects.
@@ -646,17 +645,10 @@ protected:
 	void verifyInMainThread(const String& methodName) const;
 
 
-	/** Tells the view to update its sizing info.
-	
-		IMPORTANT: This must only be called from the main thread.
-	*/
-	virtual void updateSizingInfo();
-
-
     /** This is called when the sizing information of a child view has changed.
         Usually this will prompt this view (the parent view) to also schedule an update to
         its own sizing information and an update to its layout.*/
-    virtual void childSizingInfoChanged(View* pChild);
+    virtual void childSizingInfoInvalidated(View* pChild);
 
 
 
@@ -703,27 +695,27 @@ protected:
         {
             // update the sizing information. If that changes then the parent
             // layout will automatically be updated.
-            needSizingInfoUpdate( UpdateReason::standardPropertyChange );
+            invalidateSizingInfo( InvalidateReason::standardPropertyChange );
         }    
         
         if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
         {
             // the layout of our children is influenced by this
-            needLayout( UpdateReason::standardPropertyChange );
+            needLayout( InvalidateReason::standardPropertyChange );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needSizingInfoUpdate( UpdateReason::standardChildPropertyChange );
+                pParent->invalidateSizingInfo( InvalidateReason::standardChildPropertyChange );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needLayout( UpdateReason::standardChildPropertyChange );
+                pParent->needLayout( InvalidateReason::standardChildPropertyChange );
         }
     }
 

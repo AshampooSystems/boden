@@ -56,7 +56,7 @@ public:
                 
 
     /** Calls calcPreferredSize on the object that is tested and returns the result. */
-    virtual Size callGetPreferredSize( const Size& availableSpace = Size::none() )=0;   
+    virtual Size callCalcPreferredSize( const Size& availableSpace = Size::none() )=0;   
 
     
     /** Calculates the scrollview layout for the specified viewport size.
@@ -407,7 +407,7 @@ public:
 
                 SECTION("calcPreferredSize called when width less than needed")
                 {
-                    Size optimalContentSize = pContentView->sizingInfo().get().preferredSize;
+                    Size optimalContentSize = pContentView->calcPreferredSize();
                     
                     Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, 1000) );
 
@@ -444,7 +444,7 @@ public:
 
                 SECTION("calcPreferredSize called when height less than needed")
                 {
-                    Size optimalContentSize = pContentView->sizingInfo().get().preferredSize;
+                    Size optimalContentSize = pContentView->calcPreferredSize();
 
                     Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(1000, -1) );
 

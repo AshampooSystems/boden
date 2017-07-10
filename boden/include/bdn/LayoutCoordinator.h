@@ -32,24 +32,13 @@ class LayoutCoordinator : public Base
 public:
 	LayoutCoordinator();
 
-	/** Registers a view for a size information update. This should be called when sizing
-		parameters (like padding, etc) or the view contents change and the preferred/minimum/maximum
-		sizes of the view may have changed.
-
-		For view containers this should also be called when child views change in
-		a way that could influence the container's preferred/minimum/maximum size.
-	*/
-	void viewNeedsSizingInfoUpdate(View* pView);
-
 
 	/** Registers a view for re-layout. This should be called when any of the child
 		views have changed their size or any of the parameters that affect their layout
 		(like margins, alignment, etc.)
 		*/
 	void viewNeedsLayout(View* pView);
-
-
-
+    
 	/** Registers a top level window for auto-sizing.*/
 	void windowNeedsAutoSizing(Window* pWindow);
 
@@ -76,7 +65,6 @@ protected:
 
 	Mutex				_mutex;
 	
-	std::set< P<View> > _sizingInfoSet;
 	std::set< P<View> > _layoutSet;
 
 	std::set< P<Window> > _windowAutoSizeSet;

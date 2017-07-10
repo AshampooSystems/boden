@@ -111,10 +111,10 @@ public:
         // most views do not use the hint. So do nothing by default.
     }
 
-    void needSizingInfoUpdate(View::UpdateReason reason) override
+    void invalidateSizingInfo(View::InvalidateReason reason) override
     {
         // see needLayout for an explanation about why we ignore standard property changes.
-        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
@@ -137,13 +137,13 @@ public:
     }
 
 
-    void childSizingInfoChanged(View* pChild) override
+    void childSizingInfoInvalidated(View* pChild) override
     {
         // we do not do anything here. Windows takes care of propagating the sizing info changes
         // to the parent views.
     }
 
-    void needLayout( View::UpdateReason reason ) override
+    void needLayout( View::InvalidateReason reason ) override
     {
         // we ignore layout requests that were made because a standard property changed.
         
@@ -157,7 +157,7 @@ public:
         // changes directly there. Usually Windows takes care of the invalidation automatically and if not
         // then the core setXYZ function must schedule the update.
 
-        if(reason!=View::UpdateReason::standardPropertyChange && reason!=View::UpdateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 
@@ -235,29 +235,10 @@ public:
         // 1) it ensures that the UWP element's DesiredSize is smaller or equal to the new view size.
         //    This is important because Windows will not allow us to make the view smaller than its DesiredSize.
         // 2) We need to ensure that Measure is called on all views that participate in the layout cycle.
-        //    Otherwise windows will ignore subsequent Arrange call and we cannot modify this view.
-
-        // since we need to measure anyway we use the opportunity to update our "unlimited space" sizing info as well, if that is needed.
-        bool    manuallyCallMeasure = true;
-        P<View> pOuterView = getOuterViewIfStillAttached();        
-        if(pOuterView!=nullptr)
-        {
-            pOuterView->_doUpdateSizingInfo();
-            Size preferredSize = pOuterView->sizingInfo().get().preferredSize;
-
-            // if the preferredSize for unlimited space is already <= the new size then we do not need to call Measure again.
-            // Otherwise we need to make sure the element knows of the restricted space and ensure that
-            // the DesiredSize property is not too big (as explained above).
-            if( preferredSize <= assignedSize )
-                manuallyCallMeasure = false;
-        }
-
-        // XXX if(manuallyCallMeasure)
-        {
-            ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
-            if(pElement!=nullptr)
-                pElement->Measure( sizeToUwpSize(assignedSize) );
-        }
+        //    Otherwise windows will ignore subsequent Arrange call and we cannot modify this view.        
+        ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
+        if(pElement!=nullptr)
+            pElement->Measure( sizeToUwpSize( assignedSize ) );
 
         // XXX
         OutputDebugString( ("/"+String(typeid(*this).name())+".adjustAndSetBounds()\n" ).asWidePtr() );

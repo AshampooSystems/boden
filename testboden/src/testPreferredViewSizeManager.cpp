@@ -11,7 +11,7 @@ static void verifyGet(PreferredViewSizeManager& man, const Size& availableSpace,
 	bool succeeded = man.get(availableSpace, resultSize);
 
 	REQUIRE( resultSize == expectedResultSize );
-	REQUIRE( succeeded == (expectedResultSize!=Size::none() );
+	REQUIRE( succeeded == (expectedResultSize != Size::none()) );
 }
 
 
@@ -95,16 +95,16 @@ TEST_CASE("PreferredViewSizeManager")
 
 
 		SECTION("available width > infinite preferred size, height smaller")
-			verifyGetFail(man, Size(5100, 5999) );			
+			verifyGetFails(man, Size(5100, 5999) );			
 
 		SECTION("available height > infinite preferred size, width smaller")
-			verifyGetFail(man, Size(4999, 6100) );			
+			verifyGetFails(man, Size(4999, 6100) );			
 
 		SECTION("available width infinite, height smaller")
-			verifyGetFail(man, Size( Size::componentNone(), 5999) );			
+			verifyGetFails(man, Size( Size::componentNone(), 5999) );			
 
 		SECTION("available height infinite, width smaller")
-			verifyGetFail(man, Size(4999, Size::componentNone) );			
+			verifyGetFails(man, Size(4999, Size::componentNone()) );			
 	}
 
 }

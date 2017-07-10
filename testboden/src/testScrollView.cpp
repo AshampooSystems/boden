@@ -169,27 +169,12 @@ TEST_CASE("ScrollView", "[ui]")
 			        SECTION("calcPreferredSize")
 				        REQUIRE( pScrollView->calcPreferredSize()==Size(0,0) );
 
-			        SECTION("sizingInfo")
-			        {
-
-				        // sizing info is updated asynchronously. So we need to check async as well.
-                        CONTINUE_SECTION_WHEN_IDLE(pScrollView)
-                        {
-                            View::SizingInfo sizingInfo = pScrollView->sizingInfo();
-
-                            REQUIRE( sizingInfo.preferredSize == Size(0,0) );
-                
-                        };				
-			        }
 		        }
 
 		        SECTION("with contentView")
 		        {
 			        SECTION("calcPreferredSize")
 				        testSizingWithContentView( pScrollView, pPreparer->getUiProvider(), [pScrollView](){ return pScrollView->calcPreferredSize(); } );
-
-			        SECTION("sizingInfo")
-				        testSizingWithContentView( pScrollView, pPreparer->getUiProvider(), [pScrollView](){ return pScrollView->sizingInfo().get().preferredSize; } );
 		        }
 	        }
             

@@ -134,52 +134,51 @@ inline bool shouldViewHaveParent<Window>()
     @param pView the view to perform the operation on
     @param opFunc a function object that performs the action on the view
     @param verifyFunc a function object that verifies that the view is in the expected state after the action.
-    @param expectedSizingInfoUpdates the number of sizing info updates the operation should trigger. This is usually
-        either 0 (sizing info should not be updated) or 1 (sizing info should be updated).
+    @param expectedLayoutUpdates the number of layout updates the operation should trigger. This is usually
+        either 0 (layout should not be updated) or 1 (layout should be updated).
 */
 template<class ViewType>
 inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
                 std::function<void()> opFunc,
                 std::function<void()> verifyFunc,
-                int expectedSizingInfoUpdates )
+                int expectedLayoutUpdates )
 {
     // schedule the test asynchronously, so that the initial sizing
 	// info update from the view construction is already done.
 
-	ASYNC_SECTION("mainThread", pView, opFunc, verifyFunc, expectedSizingInfoUpdates)
+	ASYNC_SECTION("mainThread", pView, opFunc, verifyFunc, expectedLayoutUpdates)
 	{
-        int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
+        int initialLayoutCount = cast<MockViewCore>(pView->getViewCore())->getLayoutCount();
 
 		opFunc();
 
-        // sizing info updates should never happen immediately. We want them
+        // layout updates should never happen immediately. We want them
 		// to happen asynchronously, so that multiple changes can be handled
 		// together with a single update.
-		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
+		BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getLayoutCount() == initialLayoutCount );	
 
         // the results of the change may depend on notification calls. Those are posted
         // to the main event queue. So we need to process those now before we verify.
-        BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+        BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialLayoutCount, expectedLayoutUpdates, verifyFunc)
         {
 		    verifyFunc();
 
-		    // sizing info updates also happen asynchronously. Process all events that were added in the initial
+		    // layout also happen asynchronously. Process all events that were added in the initial
             // notification round and then check them.
 		    
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialLayoutCount, expectedLayoutUpdates, verifyFunc)
             {
-                BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+                BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getLayoutCount() == initialLayoutCount + expectedLayoutUpdates );
             };
         };
 	};
 
 #if BDN_HAVE_THREADS
 
-    // schedule the test asynchronously, so that the initial sizing
-	// info update from the view construction is already done.
-	ASYNC_SECTION("otherThread", pView, opFunc, verifyFunc, expectedSizingInfoUpdates)
+    // schedule the test asynchronously, so that the layout update from the view construction is already done.
+	ASYNC_SECTION("otherThread", pView, opFunc, verifyFunc, expectedLayoutUpdates)
 	{
-        int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
+        int initialLayoutCount = cast<MockViewCore>(pView->getViewCore())->getLayoutCount();
 
 		// note that we call get on the future object, so that we wait until the
 		// other thread has finished (so that any changes have been scheduled)
@@ -192,20 +191,20 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// So do another async call. That one will be executed after the property
 		// changes.
 
-        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
+        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialLayoutCount, expectedLayoutUpdates )
 		{
             // the results of the change may depend on notification calls. Those are posted
             // to the main event queue. So we need to process those now before we verify.
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialLayoutCount, expectedLayoutUpdates, verifyFunc)
             {
 		        verifyFunc();
 
-		        // sizing info updates also happen asynchronously. Process all events that were added in the initial
+		        // layout updates also happen asynchronously. Process all events that were added in the initial
                 // notification round and then check them.
 		    
-                BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+                BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialLayoutCount, expectedLayoutUpdates, verifyFunc)
                 {
-                    BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
+                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getLayoutCount() == initialLayoutCount + expectedLayoutUpdates );
                 };
             };
         };
@@ -246,10 +245,7 @@ inline void testView()
 
     P<Window> pWindow = pPreparer->getWindow();
 
-    // when the view core is created then the view schedules a sizing info update.
-    // We wait until that is done before we continue.
-    REQUIRE( pView->getSizingInfoUpdateCount()==0 );
-
+    
     // Normally the default for a view's visible property is true.
     // But for top level Windows, for example, the default is false. This is a change that is done in the constructor
     // of the Window object. At that point there are no subscribers for the property's change event, BUT a notification
@@ -261,10 +257,7 @@ inline void testView()
     int initialVisibleChangeCount = shouldViewBeInitiallyVisible<ViewType>() ? 0 : 1;
     
     BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore, initialVisibleChangeCount )
-    {
-        // the pending updates should have happened now
-        REQUIRE( pView->getSizingInfoUpdateCount()==1 );
-        
+    {        
 	    SECTION("initialViewState")
 	    {
             // the core should initialize its properties from the outer window when it is created.
@@ -299,23 +292,20 @@ inline void testView()
             // the view should not have any child views
 		    std::list< P<View> > childViews;
 		    pView->getChildViews(childViews);
-		    BDN_REQUIRE( childViews.empty() );
-		
+		    BDN_REQUIRE( childViews.empty() );	
 
-		    // sizing info should have been updated now.
-		    BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);        
 	    }
 
-        SECTION("multiple needSizingInfoUpdate calls cause single update")
+        SECTION("multiple invalidateSizingInfo calls cause single layout")
         {
-            int updateCountBefore = pView->getSizingInfoUpdateCount();
+            int layoutCountBefore = pCore->getLayoutCount();
 
-            pView->needSizingInfoUpdate( View::UpdateReason::customChange );
-            pView->needSizingInfoUpdate( View::UpdateReason::customChange  );
+            pView->invalidateSizingInfo( View::InvalidateReason::customChange );
+            pView->invalidateSizingInfo( View::InvalidateReason::customChange  );
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, updateCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, pCore, layoutCountBefore)
             {
-                REQUIRE( pView->getSizingInfoUpdateCount() == updateCountBefore+1 );
+                REQUIRE( pCore->getLayoutCount() == layoutCountBefore+1 );
             };
         }
     

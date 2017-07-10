@@ -22,7 +22,7 @@ public:
 		new size yet when the function returns.
 
         Usually the auto-sizing is done by the same layout system that also
-        processes IViewCore::needLayout() and IViewCore::needSizingInfoUpdate() requests.
+        processes IViewCore::needLayout() requests.
         
         The auto sizing should happen at a point in time when all pending sizing info updates
         have already been processed.
@@ -37,7 +37,7 @@ public:
 
 
         Usually the centering is done by the same layout system that also
-        processes IViewCore::needLayout() and IViewCore::needSizingInfoUpdate() requests.
+        processes IViewCore::needLayout() requests.
         
         The centering should happen at a point in time when all pending sizing info updates
         and auto sizing requests have already been processed.

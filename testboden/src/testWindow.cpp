@@ -197,28 +197,12 @@ TEST_CASE("Window", "[ui]")
 
 			    SECTION("calcPreferredSize")
 				    REQUIRE( pWindow->calcPreferredSize()==expectedSize );
-
-			    SECTION("sizingInfo")
-			    {
-
-				    // sizing info is updated asynchronously. So we need to check async as well.
-                    CONTINUE_SECTION_WHEN_IDLE(pWindow, expectedSize)
-                    {
-                        View::SizingInfo sizingInfo = pWindow->sizingInfo();
-
-                        REQUIRE( sizingInfo.preferredSize == expectedSize );
-                
-                    };				
-			    }
 		    }
 
 		    SECTION("withContentView")
 		    {
 			    SECTION("calcPreferredSize")
 				    testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->calcPreferredSize(); } );
-
-			    SECTION("sizingInfo")
-				    testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->sizingInfo().get().preferredSize; } );
 		    }
 	    }
 

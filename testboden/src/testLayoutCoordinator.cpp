@@ -53,28 +53,11 @@ public:
 
     void resetCalls()
     {
-        updateSizingInfoCalls=0;        
         layoutCalls=0;
         autoSizeCalls=0;
         centerCalls=0;
     }
-
-    int updateSizingInfoCalls = 0;
-    bool updateSizingInfoThrowsException = false;
-
-	std::function<void()> updateSizingInfoFunc;
-
-    void updateSizingInfo() override
-    {
-        updateSizingInfoCalls++;
-
-		if(updateSizingInfoFunc)
-			updateSizingInfoFunc();
-
-        if(updateSizingInfoThrowsException)
-            throw InvalidArgumentError("bla");
-    }
-
+    
 
     int layoutCalls = 0;
     bool layoutThrowsException = false;
@@ -145,28 +128,6 @@ TEST_CASE("LayoutCoordinator")
 			// causes as abort.
 			pCoord->windowNeedsCentering( pCenterWindow );    
 
-			SECTION("updateSizingInfo throws exception")
-			{
-				pView2->updateSizingInfoThrowsException = true;
-
-				// the ordering of the coordinator is random. So we add one before and one after
-				// to make it more likely that there is one more in the queue after the exception happens
-				pCoord->viewNeedsSizingInfoUpdate( pView1 );
-				pCoord->viewNeedsSizingInfoUpdate( pView2 );
-				pCoord->viewNeedsSizingInfoUpdate( pView3 );
-
-				CONTINUE_SECTION_WHEN_IDLE(pCoord, pView1, pView2, pView3, pCenterWindow)
-				{
-					REQUIRE( pView1->updateSizingInfoCalls==1 );
-					REQUIRE( pView2->updateSizingInfoCalls==1 );
-					REQUIRE( pView3->updateSizingInfoCalls==1 );
-
-					REQUIRE( pCenterWindow->centerCalls==1 );
-
-					REQUIRE( pCoord->exceptionCount==1 );
-				};
-			}
-
 			SECTION("layout throws exception")
 			{
 				pView2->layoutThrowsException = true;
@@ -226,118 +187,6 @@ TEST_CASE("LayoutCoordinator")
 			}
 		}
 
-		SECTION("recursive sizing info updates take priority over layout")
-		{
-			// sizing info updates of an inner window can often cause subsequent
-			// updates of outer windows. The event often travels up the hierarchy.
-			// Since these updates propagate via the "onChange" event of the sizing info
-			// property that means that the change notifications are posted asynchronously
-			// to the normal dispatch queue. This means that special care needs to
-			// be taken when both sizing info updates and layout are scheduled.
-			// If both requests were to be executed with the same priority then the
-			// inner window would update its sizing info, triggering the onChange notification
-			// of its property. These notifications would be queued up and would end up being
-			// executed after an already scheduled layout request. Then the parent would
-			// update its sizing info, probably also resulting in a layout request for itself
-			// and its children. Then these re-layouts would also be executed before the property
-			// change notifications for its parent is executed. Then another cycle would occur
-			// and another and another, on each level until the top is reached.
-			// This means that if layout requests and sizing info updates have the same priority
-			// then each inner sizing info update at depth n in the hierarchy could potentially
-			// trigger n factorial re-layouts (sum of the layout of the inner window and its parents).
-			
-			// Also note that at the point in time after the initial sizing info update the sizing
-			// info updates of the parent's will not yet be known to the layout coordinator. Those
-			// are only requested when the queued up property change notifications have been executed.
-			// So right after the sizing info update the coordinator will only have a layout request
-			// in its queue. It is important that it does not execute that request until all queued
-			// up events in the dispatch queue have been executed. And if new sizing info requests
-			// are added during those events then those must also be executed before the pending layout.
-			
-			pView1->needSizingInfoUpdate( View::UpdateReason::customChange );
-			
-			pView1->updateSizingInfoFunc =
-				[pView1, pView2, pView3, pCoord]()
-				{
-					// no layouts should have happened yet
-					REQUIRE( pView1->layoutCalls==0);
-					REQUIRE( pView2->layoutCalls==0);
-					REQUIRE( pView3->layoutCalls==0);
-
-					// and only this sizing update call
-					REQUIRE( pView1->updateSizingInfoCalls==1 );
-					REQUIRE( pView2->updateSizingInfoCalls==0 );
-					REQUIRE( pView3->updateSizingInfoCalls==0 );
-
-					// we now simulare that a property is changed during the sizing info update
-					// and a change notification is posted.
-					asyncCallFromMainThread(
-						[pView1, pView2, pView3, pCoord]()
-						{
-							pView1->needLayout( View::UpdateReason::customChange );
-
-							// schedule another sizing info update for view 2
-							pView2->needSizingInfoUpdate( View::UpdateReason::customChange  );
-
-							pView2->updateSizingInfoFunc = 
-								[pView1, pView2, pView3, pCoord]()
-								{
-									// no layout calls yet
-									REQUIRE( pView1->layoutCalls==0);
-									REQUIRE( pView2->layoutCalls==0);
-									REQUIRE( pView3->layoutCalls==0);
-
-									REQUIRE( pView1->updateSizingInfoCalls==1 );
-									REQUIRE( pView2->updateSizingInfoCalls==1 );
-									REQUIRE( pView3->updateSizingInfoCalls==0 );
-
-									// do the same again
-									asyncCallFromMainThread(
-										[pView1, pView2, pView3, pCoord]()
-										{
-											pView2->needLayout( View::UpdateReason::customChange  );
-
-											// schedule another sizing info update for view 3
-											pView3->needSizingInfoUpdate( View::UpdateReason::customChange  );
-
-											pView3->updateSizingInfoFunc = 
-												[pView1, pView2, pView3, pCoord]()
-												{
-													pView3->needLayout( View::UpdateReason::customChange  );
-
-													// no layout calls yet
-													REQUIRE( pView1->layoutCalls==0);
-													REQUIRE( pView2->layoutCalls==0);
-													REQUIRE( pView3->layoutCalls==0);
-
-													REQUIRE( pView1->updateSizingInfoCalls==1 );
-													REQUIRE( pView2->updateSizingInfoCalls==1 );
-													REQUIRE( pView3->updateSizingInfoCalls==1 );
-
-													// now, after this one the layouts should happen.
-													// we check that in the test continuation.
-												};
-										} );													
-								};
-						});
-				};
-
-			CONTINUE_SECTION_WHEN_IDLE(pView1, pView2, pView3, pCoord)
-			{
-				// all the update sizing info calls and layout calls should have been
-				// done when we arrive here.
-
-				// sanity check. If these fail then the test continuation ran before we were idle.
-				REQUIRE( pView1->updateSizingInfoCalls==1 );
-				REQUIRE( pView2->updateSizingInfoCalls==1 );
-				REQUIRE( pView3->updateSizingInfoCalls==1 );
-
-				// now all three views should have been layouted.
-				REQUIRE( pView1->layoutCalls==1);
-				REQUIRE( pView2->layoutCalls==1);
-				REQUIRE( pView3->layoutCalls==1);
-			};
-		}
 
 		SECTION("Pending events are handled between layouts")
 		{
@@ -362,8 +211,8 @@ TEST_CASE("LayoutCoordinator")
 
 			pView3->setContentView(pView4);
 
-			pView1->needLayout( View::UpdateReason::customChange );
-			pView4->needLayout( View::UpdateReason::customChange );
+			pView1->needLayout( View::InvalidateReason::customChange );
+			pView4->needLayout( View::InvalidateReason::customChange );
 
 			// layout order is parent-first, so view1 will always be layouted before view4
 

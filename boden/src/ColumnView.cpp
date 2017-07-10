@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #include <bdn/ColumnView.h>
 
+#include <bdn/debug.h>
+
 
 namespace bdn
 {
@@ -8,12 +10,12 @@ namespace bdn
 Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
 {
     // XXX
-    OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+    BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
 
 	Size totalSize = calcLayoutImpl( nullptr, availableSpace, true);
 
     // XXX
-            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" ).asWidePtr() );
+            BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" );
 
 	return totalSize;
 }
@@ -40,100 +42,85 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 
     // clip the max size to the available space.
 	Size prefSizeMax = preferredSizeMaximum();
-     
-	    
-	std::list< P<View> > childViews;
+
+    Size effectiveAvailableSpace(availableSpace);
+
+    if(forMeasuring)
+    {
+        // when we are measuring then we restrict the available space to the
+        // preferred size maximum.
+        effectiveAvailableSpace.applyMaximum( prefSizeMax );
+    }
+
+    std::list< P<View> > childViews;
 	getChildViews(childViews);
-	
-	// First we have to calculate the final width of the container.
-	// Otherwise we cannot size our child views properly (since
-	// their height might depend on their width).
-	double contentAreaWidth = 0;
 
-	if(forMeasuring)
-	{
-		// when we are measuring then we simply use max(childWidths) as the content area width.
+    double contentAvailableWidth = effectiveAvailableSpace.width;
+    bool   widthLimited = std::isfinite(contentAvailableWidth);
+    if(widthLimited)
+    {        
+        contentAvailableWidth -= myPadding.left + myPadding.right;
+        if(contentAvailableWidth<0)
+            contentAvailableWidth = 0;
+    }
 
-		for(const P<View>& pChildView: childViews)
-		{        
-			Size		childPreferredSize = pChildView->calcPreferredSize();
+    double contentAvailableHeight = effectiveAvailableSpace.height;
+    bool   heightLimited = std::isfinite(contentAvailableHeight);
+    if(heightLimited)
+    {
+        contentAvailableHeight -= myPadding.top + myPadding.bottom;
+        if(contentAvailableHeight<0)
+            contentAvailableHeight = 0;
+    }
 
-			Margin	    childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
-			
-			double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
-
-			if( childWidthWithMargins>contentAreaWidth)
-				contentAreaWidth = childWidthWithMargins;
-		}
-
-		// the content width can (and should) exceed the available space if our children are bigger.
-		// But it cannot exceed the preferred size maximum.
-		if( std::isfinite(prefSizeMax.width) )
-		{
-			double maxContentWidth = prefSizeMax.width - (myPadding.left + myPadding.right);
-
-			if(contentAreaWidth>maxContentWidth)
-				contentAreaWidth = maxContentWidth;
-		}
-	}
-	else
-	{
-		// when we are not measuring the the content area width
-		// is already fixed (determined by the size of the container).
-		contentAreaWidth = availableSpace.width - (myPadding.left + myPadding.right);        
-	}
-
-	if(contentAreaWidth<0)
-		contentAreaWidth = 0;
-
+        
 	// now we know the width of our content area. We can now proceed to arrange the child views.
 	double currY = myPadding.top;
 
-	for(const P<View>& pChildView: childViews)
-	{
-		SizingInfo	childSizingInfo = pChildView->sizingInfo();
-        
-		Size		childPreferredSize = childSizingInfo.preferredSize;
-		Margin	    childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
+    double endY;
+    if(heightLimited)
+        endY = currY + contentAvailableHeight;
+    else
+        endY = std::numeric_limits<double>::infinity();
 
+
+	for(const P<View>& pChildView: childViews)
+	{   
+        Margin	    childMargin = pChildView->uiMarginToDipMargin( pChildView->margin() );
+
+        Size        childAvailableSpace( contentAvailableWidth, heightLeft)
+        if(widthLimited)
+        {
+            childAvailableSpace.width -= childMargin.left + childMargin.right;
+            if(childAvailableSpace.width<0)
+                childAvailableSpace.width = 0;
+        }
+        if(heightLimited)
+        {
+            childAvailableSpace.height -= childMargin.top + childMargin.bottom;
+            if(childAvailableSpace.height<0)
+                childAvailableSpace.height = 0;
+        }
+
+		Size		childPreferredSize = pChildView->calcPreferredSize( childAvailableSpace );
+                		
 		HorizontalAlignment horzAlign = pChildView->horizontalAlignment();
 
-		double childWidthWithMargins = childMargin.left + childPreferredSize.width + childMargin.right;
-				
-		// clip to the content area width
-        if(childWidthWithMargins > contentAreaWidth)
-            childWidthWithMargins = contentAreaWidth;
+        Size        childSizeWithMargins = childPreferredSize + childMargin;
 
-		if(horzAlign == HorizontalAlignment::expand)
+		// If we are not measuring then the children cannot be bigger than the available space.
+        // So, clip in that case.
+        if(!forMeasuring)
+            childSizeWithMargins.applyMaximum( childAvailableSpace );
+
+		if(horzAlign == HorizontalAlignment::expand && widthLimited && childSizeWithMargins.width < childAvailableSpace.width)
 		{
 			// expand to the full content area width
-			childWidthWithMargins = contentAreaWidth;
+			childSizeWithMargins.width = childAvailableSpace.width;
 		}
 
-		double childWidth = childWidthWithMargins - childMargin.left - childMargin.right;                
-		double childHeight;
-
-		if( fabs(childWidth-childPreferredSize.width) > 0.01 )
-		{
-			// the child width is not what the child wanted. So we must get an up-to-date height for the new width.
-            // Note that we might also get a new width in the process.
-            Size childSize = pChildView->calcPreferredSize( Size(childWidth, Size::componentNone()) );
-            
-            childHeight = childSize.height;
-
-            // we usually want to use the width we got from preferred size.
-            // Exception: if alignment is "expand" then we always keep the expanded width.
-			if(horzAlign != HorizontalAlignment::expand)
-                childWidth = childSize.width;
-		}
-		else
-		{
-			// the child has its preferred width. So it will also get its preferred height.
-			childHeight = childPreferredSize.height;
-		}
-
-		childWidthWithMargins = childWidth + childMargin.left + childMargin.right;
-
+        Size childSize = childSizeWithMargins - childMargin;
+        
         double childX = 0;
 
         double alignFactor;
@@ -143,14 +130,15 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 			alignFactor = 0.5;
 		else
 			alignFactor = 0;
-                    
-		childX = (contentAreaWidth-childWidthWithMargins)*alignFactor;        
+
+        if(widthLimited)
+		    childX = (childAvailableSpace.width - childSizeWithMargins.width) * alignFactor;        
         childX += myPadding.left + childMargin.left;
         
         // must round Y up, so that the this child cannot overlap with the previous child
 		currY += childMargin.top;
 		
-        Rect rawChildBounds( childX, currY, childWidth, childHeight );
+        Rect rawChildBounds( Point(childX, currY), childSize );
 
         // let the child adjust its bounds to valid values, according to its internal constraints.
 
@@ -172,32 +160,48 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
             RoundType::up,
             sizeRoundType );
 
-		// if the adjusted width makes the control larger than the content area size then we need to round the size down instead.
-		childWidthWithMargins = adjustedChildBounds.width + childMargin.left + childMargin.right;
-		if(childWidthWithMargins>contentAreaWidth)
-		{
-			// adjusting the child bounds has put the child size slightly over the content area width.
+		// if the adjusted size makes the control larger than the content area size then we need to round the size down instead.
+        childSizeWithMargins = ( adjustedChildBounds + childMargin ).getSize();
+
+        if( widthLimited && childSizeWithMargins.width-childAvailableSpace.width > 0.01 )
+        {
+            // adjusting the child bounds has put the child size slightly over the content area width.
 			if(forMeasuring)
 			{
 				// we can increase the content area width
-				contentAreaWidth = childWidthWithMargins;
+				contentAvailableWidth = childSizeWithMargins.width;
 			}
 			else
 			{
-				// if we are significantly bigger than the content area width then we have to adjust again and this time round the
-				// size down.
-				if( (childWidthWithMargins - contentAreaWidth) > 0.01 )
-				{
-					sizeRoundType = RoundType::down;
+				// adjust again and this time round the size down.
+                sizeRoundType = RoundType::down;
 
-					adjustedChildBounds = pChildView->adjustBounds(
-						rawChildBounds,
-						RoundType::up,
-						sizeRoundType );
-				}
+				adjustedChildBounds = pChildView->adjustBounds(
+					rawChildBounds,
+					RoundType::up,
+					sizeRoundType );
+
+                childSizeWithMargins = ( adjustedChildBounds + childMargin ).getSize();
 			}
 		}
-		
+
+        if( heightLimited && childSizeWithMargins.height>childAvailableSpace.height )
+        {
+            // the height of the child has exceeded the available space.
+            if(forMeasuring)
+            {
+                // we will increase the total height we want to have. However, since we already
+                // used up all available space, we do not need to do that here. All following children
+                // will always get 0 available height, whether we adjust immediately or not.
+                // So we do nothing here - it makes the loop less complex.
+            }
+            else
+            {
+                // we need to clip to the available space.
+                childSizeWithMargins.height = childAvailableSpace.height;
+            }
+        }
+
         // if the adjustment has modified the child width then we may need to re-calculate the preferred child height.
         if( fabs(adjustedChildBounds.width-rawChildBounds.width)>0.01 && adjustedChildBounds.width < childPreferredSize.width)
         {

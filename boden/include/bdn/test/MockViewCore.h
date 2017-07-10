@@ -44,15 +44,13 @@ public:
 
     
   
-	void needSizingInfoUpdate(View::UpdateReason reason) override
+	void invalidateSizingInfo(View::InvalidateReason reason) override
     {
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsSizingInfoUpdate(pView);
+        // nothing to do
     }
 
 
-	void needLayout(View::UpdateReason reason) override
+	void needLayout(View::InvalidateReason reason) override
     {
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
@@ -60,13 +58,13 @@ public:
     }
 
 
-    void childSizingInfoChanged(View* pChild)
+    void childSizingInfoInvalidated(View* pChild)
     {
         P<View> pParent = getOuterViewIfStillAttached();
         if(pParent!=nullptr)
         {
-            pParent->needSizingInfoUpdate( View::UpdateReason::standardChildPropertyChange );
-            pParent->needLayout( View::UpdateReason::standardChildPropertyChange );
+            pParent->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pParent->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
         }
     }
     

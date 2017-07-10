@@ -115,9 +115,7 @@ public:
 
         _pWindow = newObj<Window>();
 		_pWindow->title() = "hello";
-
-		_pWindow->sizingInfo().onChange().subscribeParamless( weakMethod(this, &MainViewController::windowSizingInfoChanged) );
-
+        
 		P<ColumnView> pColumnView = newObj<ColumnView>();
 
 		_pHelloMessageButton = newObj<Button>();
@@ -159,15 +157,12 @@ public:
     
 protected:
 	
-	void windowSizingInfoChanged()
-	{
-		_pWindow->requestAutoSize();
-	}
-
     void buttonClicked()
     {
         _pViewModel->increaseHelloCounter();
         _pViewModel->changeMorphingText();
+
+        _pWindow->requestAutoSize();
     }
 
     P<ViewModel> _pViewModel;

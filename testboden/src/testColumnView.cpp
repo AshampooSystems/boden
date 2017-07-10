@@ -40,18 +40,14 @@ void testChildAlignment(
 
     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
     {
-        int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
         int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
         SECTION("horizontal")
         {
             pButton->horizontalAlignment() = horzAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, layoutCountBefore)
             {
-                // sizing info should NOT have been updated
-                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
-
                 // but layout should have happened
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
@@ -88,11 +84,8 @@ void testChildAlignment(
         {
             pButton->verticalAlignment() = vertAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, layoutCountBefore)
             {
-                // sizing info should NOT have been updated
-                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
-
                 // but layout should have
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
@@ -153,21 +146,19 @@ TEST_CASE("ColumnView")
         {
             CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
             {
-                int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
                 int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
                 pColumnView->addChildView(pButton);
 
                 // let scheduled property updates propagate
-                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, layoutCountBefore)
                 {
-                    // should cause a sizing update and a layout update.
-                    REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
+                    // should cause a layout update.
                     REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
-                    Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
+                    Size preferredSize = pColumnView->calcPreferredSize();
 
-                    Size buttonPreferredSize = pButton->sizingInfo().get().preferredSize;
+                    Size buttonPreferredSize = pButton->calcPreferredSize();
 
                     REQUIRE( preferredSize!=Size(0,0) );
 
@@ -192,19 +183,17 @@ TEST_CASE("ColumnView")
             {
                 SECTION("child margins")
                 {
-                    Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
-                    int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
+                    Size preferredSizeBefore = pColumnView->calcPreferredSize();
                     int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
                     pButton->margin() = UiMargin(1, 2, 3, 4);
 
-                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, layoutCountBefore)
                     {
-                        // should cause a sizing update for the column view, followed by a layout update
-                        REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
+                        // should cause a layout update for the column view
                         REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
-                        Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
+                        Size preferredSize = pColumnView->calcPreferredSize();
 
                         REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
                     };         
@@ -320,13 +309,13 @@ TEST_CASE("ColumnView")
                     REQUIRE( bounds.y == m.top);
                     // width and height should have been rounded up to full pixels.
                     // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
-                    REQUIRE( bounds.width == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.width, 3) );
-                    REQUIRE( bounds.height == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.height,3) );
+                    REQUIRE( bounds.width == stableScaledRoundUp(pButton->calcPreferredSize().width, 3) );
+                    REQUIRE( bounds.height == stableScaledRoundUp(pButton->calcPreferredSize().height,3) );
 
                     REQUIRE( bounds2.x == m2.left );
                     REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
-                    REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.width, 3) );
-                    REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.height, 3) );
+                    REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->calcPreferredSize().width, 3) );
+                    REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->calcPreferredSize().height, 3) );
                 }
             };
         }
