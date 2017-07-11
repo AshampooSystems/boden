@@ -74,6 +74,9 @@ UiProvider::UiProvider()
 	// add the font to our map
 	FontSpec spec;
 	_fontMap[spec] = _pDefaultUiFont;
+
+    // we use the generic layout coordinator
+    _pLayoutCoordinator = newObj<LayoutCoordinator>();
 }
 
 

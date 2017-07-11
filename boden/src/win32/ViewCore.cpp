@@ -108,7 +108,33 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }
 
+void ViewCore::invalidateSizingInfo(View::InvalidateReason reason)
+{
+    // nothing to do here in the core. We do not cache sizing info.
+}
 
+void ViewCore::needLayout(View::InvalidateReason reason)
+{    
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+    {
+        P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+        if(pProvider!=nullptr)
+            pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+    }
+}
+
+void ViewCore::childSizingInfoInvalidated(View* pChild)
+{
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+        pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+}
+
+void ViewCore::layout()
+{
+    // do nothing in the base implementation. Most views do not have child views.
+}
 
 
 Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
@@ -144,6 +170,10 @@ void ViewCore::setVerticalAlignment(const View::VerticalAlignment& align)
     // do nothing. The parent handles this.
 }
 
+void ViewCore::setPreferredSizeHint(const Size& hint)
+{
+    // do nothing in the base implementation. Most views do not use the size hint.
+}
 
 void ViewCore::updateOrderAmongSiblings()
 {
@@ -226,11 +256,6 @@ void ViewCore::handleMessage(MessageContext& context, HWND windowHandle, UINT me
 
 	if(message==WM_SIZE)
 	{
-		// whenever our size changes it means that we have to update our layout
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-		    pView->needLayout();
-
         // we invalidate the window contents whenever the size changes. Otherwise
         // we have found that some controls (e.g. static text) are only partially updated (seen on Windows 10).
         ::InvalidateRect(windowHandle, NULL, NULL);

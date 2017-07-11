@@ -4,6 +4,7 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/UiMargin.h>
 #include <bdn/Margin.h>
+#include <bdn/LayoutCoordinator.h>
 
 #include <bdn/View.h>
 
@@ -56,6 +57,13 @@ public:
         return _semSizeDips;
     }
 
+
+    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
+    P<LayoutCoordinator> getLayoutCoordinator()
+    {
+        return _pLayoutCoordinator;
+    }
+
     
 	static UiProvider& get();
 
@@ -83,6 +91,8 @@ protected:
 
 	double						_defaultUiFontSizeAtScaleFactor1;
 	double						_semSizeDips;
+
+    P<LayoutCoordinator>        _pLayoutCoordinator;
 
 	std::map< FontSpec, P<Font> > _fontMap;	
 };

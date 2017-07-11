@@ -296,17 +296,92 @@ inline void testView()
 
 	    }
 
-        SECTION("multiple invalidateSizingInfo calls cause single layout")
+        SECTION("invalidateSizingInfo calls core")
         {
-            int layoutCountBefore = pCore->getLayoutCount();
+            int callCountBefore = pCore->getInvalidateSizingInfoCount();
 
             pView->invalidateSizingInfo( View::InvalidateReason::customChange );
-            pView->invalidateSizingInfo( View::InvalidateReason::customChange  );
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, pCore, layoutCountBefore)
+            REQUIRE( pCore->getInvalidateSizingInfoCount() == callCountBefore + 1);
+        }
+
+        SECTION("preferred size caching (finite space)")
+        {
+            // fill cache
+            Size prefSize = pView->calcPreferredSize( Size(1000, 2000) );
+
+            int calcCountBefore = pCore->getCalcPreferredSizeCount();
+
+            // sanity check - should not call view's calcPreferredSize
+            Size prefSize2 = pView->calcPreferredSize( Size(1000, 2000) );
+            REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+            REQUIRE( prefSize2 == prefSize );
+
+            SECTION("invalidateSizingInfo")
             {
-                REQUIRE( pCore->getLayoutCount() == layoutCountBefore+1 );
-            };
+                pView->invalidateSizingInfo( View::InvalidateReason::customChange );
+
+                // now call calc again. This time the size should be freshly calculated again
+                Size prefSize3 = pView->calcPreferredSize( Size(1000, 2000) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+                REQUIRE( prefSize3 == prefSize);
+            }
+
+            SECTION("different available space")
+            {
+                pView->calcPreferredSize( Size(1001, 2000) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+                pView->calcPreferredSize( Size(1000, 2001) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+2 );
+            }
+        }
+
+        SECTION("preferred size caching (infinite space)")
+        {
+            // fill cache
+            Size prefSize = pView->calcPreferredSize( Size::none() );
+
+            int calcCountBefore = pCore->getCalcPreferredSizeCount();
+
+            SECTION("same infinite space")
+            {
+                Size prefSize2 = pView->calcPreferredSize( Size::none() );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+                REQUIRE( prefSize2 == prefSize );
+            }
+
+            SECTION("prefSize")
+            {
+                // specifying an available space > prefSize should return prefSize from the cache
+                Size prefSize2 = pView->calcPreferredSize( prefSize );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+                REQUIRE( prefSize2 == prefSize );
+            }
+
+            SECTION("width smaller than prefSize")
+            {
+                pView->calcPreferredSize( prefSize - Size(1,0) );
+                // should calculate a new preferred size
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+            }
+
+            SECTION("height smaller than prefSize")
+            {
+                pView->calcPreferredSize( prefSize - Size(0,1) );
+                // should calculate a new preferred size
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+            }
+
+        }
+
+
+        SECTION("needLayout calls core")
+        {
+            int callCountBefore = pCore->getNeedLayoutCount();
+
+            pView->needLayout( View::InvalidateReason::customChange );
+
+            REQUIRE( pCore->getNeedLayoutCount() == callCountBefore + 1);
         }
     
         SECTION("parentViewNullAfterParentDestroyed")

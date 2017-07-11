@@ -7,6 +7,8 @@
 #include <bdn/win32/util.h>
 #include <bdn/PixelAligner.h>
 
+#include <bdn/win32/UiProvider.h>
+
 #include <ShellScalingApi.h>
 
 namespace bdn
@@ -73,6 +75,14 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
         if(pView!=nullptr)
 		    pView->adjustAndSetBounds( newRect );
 	}
+}
+
+void WindowCore::sizeChanged(int changeType )
+{
+	// whenever our size changes it means that we have to update our layout
+    P<View> pView = getOuterViewIfStillAttached();
+    if(pView!=nullptr)
+		pView->needLayout( View::InvalidateReason::standardPropertyChange );
 }
 
 void	WindowCore::setTitle(const String& title)
@@ -167,7 +177,27 @@ Size WindowCore::calcPreferredSize( const Size& availableSpace ) const
 	throw NotImplementedError("WindowCore::calcPreferredSize");	
 }
 
-	
+void WindowCore::requestAutoSize()
+{
+    P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+        if(pProvider!=nullptr)
+            pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pOuterView );
+    }
+}
+
+void WindowCore::requestCenter()
+{
+    P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+        if(pProvider!=nullptr)
+            pProvider->getLayoutCoordinator()->windowNeedsCentering( pOuterView );
+    }
+}
 	
 
 Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
@@ -256,6 +286,16 @@ void WindowCore::handleMessage(MessageContext& context, HWND windowHandle, UINT 
 	{
 		WindowCore::dpiChanged( HIWORD(wParam), (const RECT*)lParam );
 	}
+
+    else if(message==WM_SIZE)
+	{
+        WindowCore::sizeChanged(wParam);
+
+        // we invalidate the window contents whenever the size changes. Otherwise
+        // we have found that some controls (e.g. static text) are only partially updated (seen on Windows 10).
+        ::InvalidateRect(windowHandle, NULL, NULL);
+	}
+	
 
 	ViewCore::handleMessage(context, windowHandle, message, wParam, lParam);
 }

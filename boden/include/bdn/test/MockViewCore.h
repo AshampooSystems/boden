@@ -43,30 +43,6 @@ public:
 
 
     
-  
-	void invalidateSizingInfo(View::InvalidateReason reason) override
-    {
-        // nothing to do
-    }
-
-
-	void needLayout(View::InvalidateReason reason) override
-    {
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
-    }
-
-
-    void childSizingInfoInvalidated(View* pChild)
-    {
-        P<View> pParent = getOuterViewIfStillAttached();
-        if(pParent!=nullptr)
-        {
-            pParent->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
-            pParent->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
-        }
-    }
     
 
     /** Returns the outer view object that this core is embedded in.*/
@@ -242,6 +218,21 @@ public:
 		return true;
 	}
 
+
+    int getCalcPreferredSizeCount() const
+    {
+        return _calcPreferredSizeCount;
+    }
+
+    Size calcPreferredSize( const Size& availableSpace ) const override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+        _calcPreferredSizeCount++;
+
+        // return a dummy size here. Derived classes need to override this
+        return Size(0,0);
+    }
 	
     /** Returns the number of times that the view's layout was updated.*/
     int getLayoutCount() const
@@ -256,6 +247,56 @@ public:
 		_layoutCount++;
 	}	
      
+
+
+    int getInvalidateSizingInfoCount() const
+    {
+        return _invalidateSizingInfoCount;
+    }    
+  
+	void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_invalidateSizingInfoCount++;
+    }
+
+    int getNeedLayoutCount() const
+    {
+        return _needLayoutCount;
+    }   
+
+	void needLayout(View::InvalidateReason reason) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_needLayoutCount++;
+
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
+    }
+
+
+    int getChildSizingInfoInvalidatedCount() const
+    {
+        return _childSizingInfoInvalidatedCount;
+    }   
+
+    void childSizingInfoInvalidated(View* pChild)
+    {
+         BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_childSizingInfoInvalidatedCount++;
+
+
+        P<View> pParent = getOuterViewIfStillAttached();
+        if(pParent!=nullptr)
+        {
+            pParent->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pParent->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
 
 protected:    
 	bool		_visible = false;
@@ -275,6 +316,10 @@ protected:
 	int			_parentViewChangeCount = 0;
 
 	int			_layoutCount = 0;
+    int         _invalidateSizingInfoCount = 0;
+    int         _childSizingInfoInvalidatedCount = 0;
+    int         _needLayoutCount = 0;
+    mutable int _calcPreferredSizeCount = 0;
     
 	WeakP<View>	 _outerViewWeak = nullptr;
 

@@ -33,6 +33,10 @@ public:
 	Size getMinimumSize() const;
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+
+	void requestAutoSize();
+    void requestCenter();
+
 	
 protected:
 	class WindowCoreClass : public Win32WindowClass
@@ -53,6 +57,7 @@ protected:
 	void setWindowsDpiValue(int dpi);
 
 	void dpiChanged(int newDpi, const RECT* pSuggestedNewRect );
+    void sizeChanged(int changeType);
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 };

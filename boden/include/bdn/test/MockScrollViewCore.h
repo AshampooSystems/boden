@@ -92,6 +92,8 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        MockViewCore::calcPreferredSize(availableSpace);
+
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
         P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );

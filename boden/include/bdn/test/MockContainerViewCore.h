@@ -30,6 +30,8 @@ public:
 	
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
+        MockViewCore::calcPreferredSize(availableSpace);
+
 	    // this core function should never have been called.
 	    // The outer window is responsible for everything layout-related.
 	    programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");

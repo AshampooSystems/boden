@@ -50,6 +50,8 @@ public:
 	
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        MockViewCore::calcPreferredSize(availableSpace);
+
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		Size size = _getTextSize(_text);

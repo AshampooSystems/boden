@@ -59,7 +59,7 @@ public:
 
 	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
 	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
+        BDN_REQUIRE_IN_MAIN_THREAD();
 
 		return contentSize + Margin(20, 11, 12, 13);
 	}
@@ -94,6 +94,8 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        MockViewCore::calcPreferredSize(availableSpace);
+
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		// should not be called. The outer window should calculate the size

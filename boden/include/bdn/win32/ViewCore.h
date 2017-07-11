@@ -43,6 +43,11 @@ public:
 	}
 
 
+	void invalidateSizingInfo(View::InvalidateReason reason) override;
+    void needLayout(View::InvalidateReason reason) override;
+    void childSizingInfoInvalidated(View* pChild) override;
+    void layout() override;
+
     Rect adjustAndSetBounds(const Rect& requestedBounds) override;
     Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override;
 		
@@ -53,6 +58,7 @@ public:
     void setHorizontalAlignment(const View::HorizontalAlignment& align);
     void setVerticalAlignment(const View::VerticalAlignment& align);
 
+    void setPreferredSizeHint(const Size& hint);
 
 	double uiLengthToDips(const UiLength& uiLength) const override;
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override;
