@@ -187,10 +187,7 @@ public:
 		// Measure on the content view and will thus initialize the content view's desired size. And we have to make
 		// sure that we overwrite that afterwards.
 		::Windows::Foundation::Size winAvailSpace = sizeToUwpSize(availableSpace);
-            		
-        // XXX
-		winAvailSpace.Height = 100;
-
+            
 		_pScrollViewer->Measure( winAvailSpace );
 
 

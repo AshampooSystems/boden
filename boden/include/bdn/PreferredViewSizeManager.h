@@ -101,7 +101,7 @@ private:
 			// equal to itself so we do not have to check this in a special case.
 
 
-			return ( availableSpace.width<0
+			return ( availableSpace.width < o.availableSpace.width
 					|| (availableSpace.width == o.availableSpace.width
 						&& availableSpace.height < o.availableSpace.height) );
 		}

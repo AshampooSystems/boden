@@ -328,31 +328,28 @@ public:
        
         try
         {
-            Size preferredSizeHint( Size::none() );
+            Size effectiveAvailableSpace( availableSpace );
+
+             // if the control cannot adjust its width to the available space then
+            // we always report unlimited available space.
+            // The reason is that Windows will otherwise clip the DesiredSize to the available space.
+            // But for the Boden system we want do not want to clip here - we want to report the bigger
+            // size need to our parent and leave the decision to clip or not clip to the parent.
+		    if( !canAdjustWidthToAvailableSpace() )
+			    effectiveAvailableSpace.width = Size::componentNone();
+
+		    if( !canAdjustHeightToAvailableSpace() )
+                effectiveAvailableSpace.height = Size::componentNone();
 
             P<View> pOuter = getOuterViewIfStillAttached();
             if(pOuter!=nullptr)
             {
                 // preferredSizeMaximum is a hard limit, which is exactly how most UWP controls
                 // interpret the available size. So we incorporate it.
-                // XXX measureAvailSize.applyMaximum( pOuter->preferredSizeMaximum() );
-
-                preferredSizeHint = pOuter->preferredSizeHint();
+                effectiveAvailableSpace.applyMaximum( pOuter->preferredSizeMaximum() );
             }
-
-
-            ::Windows::Foundation::Size winAvailableSpace = sizeToUwpSize(availableSpace);
-
-            // if the control cannot adjust its width to the available space then
-            // we always report unlimited available size.
-            // The reason is that Windows will otherwise clip the DesiredSize to the available space.
-            // But for the Boden system we want do not want to clip here - we want to report the bigger
-            // size need to our parent and leave the decision to clip or not clip to the parent.
-		    if( !canAdjustWidthToAvailableSpace() )
-			    winAvailableSpace.Width = std::numeric_limits<float>::infinity();
-
-		    if( !canAdjustHeightToAvailableSpace() )
-                winAvailableSpace.Height = std::numeric_limits<float>::infinity();
+            
+            ::Windows::Foundation::Size winAvailableSpace = sizeToUwpSize(effectiveAvailableSpace);
 
 		    ::Windows::UI::Xaml::Visibility oldVisibility = _pFrameworkElement->Visibility;
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
