@@ -26,6 +26,9 @@ public:
         
         The auto sizing should happen at a point in time when all pending sizing info updates
         have already been processed.
+
+        defaultWindowAutoSizeImpl() provides a default implementation for auto sizing the window.
+        IWindowCore implementations can use this to implement the actual centering.
 		*/
 	virtual void requestAutoSize()=0;
 
@@ -41,6 +44,9 @@ public:
         
         The centering should happen at a point in time when all pending sizing info updates
         and auto sizing requests have already been processed.
+
+        defaultWindowCenterImpl() provides a default implementation for centering a window.
+        IWindowCore implementations can use this to implement the centering.
 	*/
 	virtual void requestCenter()=0;
 
@@ -86,19 +92,6 @@ public:
 	virtual Size getMinimumSize() const=0;
     
 
-	/** Returns the area of the screen that can be used by windows.
-		That excludes taskbars, sidebars and the like (if they are always visible).
-		The returned rect applies only to the screen that the window is currently on.
-		Other screens can have different window areas.
-        
-        Note that the work area position may have negative coordinates on systems
-        with multiple monitors. That can be normal.
-     
-        */
-	virtual Rect getScreenWorkArea() const=0;
-
-
-    
 	
 };
 

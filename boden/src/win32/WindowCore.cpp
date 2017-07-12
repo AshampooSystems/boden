@@ -6,6 +6,7 @@
 #include <bdn/NotImplementedError.h>
 #include <bdn/win32/util.h>
 #include <bdn/PixelAligner.h>
+#include <bdn/windowCoreUtil.h>
 
 #include <bdn/win32/UiProvider.h>
 
@@ -82,7 +83,7 @@ void WindowCore::sizeChanged(int changeType )
 	// whenever our size changes it means that we have to update our layout
     P<View> pView = getOuterViewIfStillAttached();
     if(pView!=nullptr)
-		pView->needLayout( View::InvalidateReason::standardPropertyChange );
+		pView->needLayout( View::InvalidateReason::standardPropertyChanged );
 }
 
 void	WindowCore::setTitle(const String& title)
@@ -199,6 +200,20 @@ void WindowCore::requestCenter()
     }
 }
 	
+
+void WindowCore::autoSize()
+{
+    P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+        defaultWindowAutoSizeImpl( pOuterView, getScreenWorkArea().getSize() );
+}
+
+void WindowCore::center()
+{
+    P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+        defaultWindowCenterImpl( pOuterView, getScreenWorkArea() );
+}
 
 Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
 {

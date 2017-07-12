@@ -46,7 +46,8 @@ TEST_CASE("Button")
 						REQUIRE( pCore->getLabel()=="hello" );					
 						REQUIRE( pCore->getLabelChangeCount()==1 );					
 					},
-					1 // should cause a sizing update.
+					1, // should cause a sizing update.
+                    1  // and the sizing update should automatically invalidate the parent layout
 					);
 			}        
 		}

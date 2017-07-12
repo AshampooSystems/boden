@@ -13,6 +13,9 @@ namespace bdn
 
 /** Coordinates the updating of the layout for user interface components.
 
+    The coordinator can be used by IViewCore implementations to implement coordination
+    of layout functions.
+
 	Whenever an event happens that might require a re-layout, the corresponding component
 	notifies the layout coordinator.
 
@@ -25,11 +28,15 @@ namespace bdn
 
 	Usually the global coordinator object should be used (see LayoutCoordinator::get()).
 
+    The view core objects that use the layout coordinator need to implement IViewCoreExtension.
+    or IWindowCoreExtension (depending on the the type of core object).
+
 	This class is thread-safe.
 */
 class LayoutCoordinator : public Base
 {
 public:
+
 	LayoutCoordinator();
 
 
@@ -45,6 +52,28 @@ public:
 	/** Registers a top-level window for centering on the screen.*/
 	void windowNeedsCentering(Window* pWindow);
     
+
+    
+    /** Interface that IViewCore objects which use the LayoutCoordinator should implement.*/
+    class IViewCoreExtension : BDN_IMPLEMENTS IBase
+    {
+    public:        
+        /** Updates the layout of the view's contents (see View::needLayout()).*/
+	    virtual void layout()=0;
+    };
+
+
+    /** Interfaces that IWindowCore objects which use the LayoutCoordinator should implement.*/
+    class IWindowCoreExtension : BDN_IMPLEMENTS IViewCoreExtension
+    {
+    public:        
+        /** Autosizes the window. See Window::requestAutoSize().*/
+	    virtual void autoSize()=0;
+
+        /** Centers the window on the screen. See Window::requestCenter()*/
+	    virtual void center()=0;    
+    };
+
 
 protected:
 	void needUpdate();

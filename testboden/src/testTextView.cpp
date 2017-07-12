@@ -46,7 +46,8 @@ TEST_CASE("TextView")
 						REQUIRE( pCore->getText()=="hello" );					
 						REQUIRE( pCore->getTextChangeCount()==1 );					
 					},
-					1 // should cause a sizing update.
+					1, // should cause a sizing update.
+                    1 // should cause parent layout update, since sizing info changed
 					);
 			}        
 		}

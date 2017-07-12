@@ -3,6 +3,7 @@
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
+#include <bdn/windowCoreUtil.h>
 
 #include <bdn/test/MockViewCore.h>
 
@@ -17,7 +18,7 @@ namespace test
     
     See MockUiProvider.
     */
-class MockWindowCore : public MockViewCore, BDN_IMPLEMENTS IWindowCore
+class MockWindowCore : public MockViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
 	MockWindowCore(Window* pWindow)
@@ -85,7 +86,7 @@ public:
 	}
 
 	
-	Rect getScreenWorkArea() const override
+	Rect getScreenWorkArea() const
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -118,20 +119,61 @@ public:
             cast<MockUiProvider>(pWindow->getUiProvider())->getLayoutCoordinator()->windowNeedsCentering(pWindow);
     }
 
-
+    
     void layout()
     {
-        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
-        if(pWindow!=nullptr)
-            pWindow->defaultLayout( getContentArea() );
+        MockViewCore::layout();
+
+        // if _overrideLayoutFunc is set then MockViewCore::layout has already called it
+        if(!_overrideLayoutFunc)
+        {
+            P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+            if(pWindow!=nullptr)
+                defaultWindowLayoutImpl( pWindow, getContentArea() );
+        }
     }
     
-	
+	void autoSize() override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_autoSizeCount++;
+
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowAutoSizeImpl( pWindow, getScreenWorkArea().getSize() );
+    }
+
+    /** Returns the number of times that autoSize() was called.*/
+    int getAutoSizeCount() const
+    {
+        return _autoSizeCount;
+    }
+
+    void center() override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_centerCount++;
+
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowCenterImpl( pWindow, getScreenWorkArea() );
+    }
+
+    /** Returns the number of times that center() was called.*/
+    int getCenterCount() const
+    {
+        return _centerCount;
+    }
 
 
 protected:
-	String _title;
-	int    _titleChangeCount = 0;	
+	String  _title;
+	int     _titleChangeCount = 0;	
+
+    int     _autoSizeCount = 0;
+    int     _centerCount = 0;
 };
 
 

@@ -180,16 +180,7 @@ protected:
                 };
             }
         }
-
-        SECTION("getScreenWorkArea")
-        {
-            Rect area = _pWindowCore->getScreenWorkArea();
-
-            // note that the work area may have negative coordinates.
-            REQUIRE( area.width>0 );
-            REQUIRE( area.height>0 );
-        }
-
+        
         
         SECTION("Ui element destroyed when object destroyed")
         {

@@ -26,9 +26,9 @@ public:
 	}
 	
 
-	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+	Size calcContainerPreferredSize( const Size& availableSpace = Size::none() ) const override;
 	
-	P<ViewLayout> calcLayout(const Size& containerSize) const override;
+	P<ViewLayout> calcContainerLayout(const Size& containerSize) const override;
 	
 private:
 	

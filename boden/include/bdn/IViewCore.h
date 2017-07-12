@@ -31,7 +31,7 @@ public:
         
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::InvalidateReason::customChange
+            View::InvalidateReason::customDataChanged
 		*/
 	virtual void invalidateSizingInfo(View::InvalidateReason reason)=0;
 
@@ -44,9 +44,46 @@ public:
         to schedule the update. They can also use the generic bdn::LayoutCoordinator class
         or a custom implementation.
 
+        The view should NOT update its OWN size or position during the layout operation - 
+		it has to work with the size and position it currently has and
+		should ONLY update the size and position of its child views.
+        
+		Implementation tips for specific view types
+		-------------------------------------------------
+                
+		- ContainerView cores should call ContainerView::calcContainerLayout
+		  and then ViewLayout::applyTo to calculate and then apply the layout.
+
+        - Window cores can use the global function defaultWindowLayoutImpl()
+          for a default implementation, if they do not need special handling.
+
+		- Simple controls without children often do nothing in layout and can ignore
+          the needLayout() call.
+				
+
+        Note to layout implementors
+        --------------------
+
+        Depending on the UI implementation backend, 
+        the sizes and positions of child views may have some constraints. For example,
+        with many implementations the sizes and positions must be rounded to full physical
+        pixel boundaries. The layout function should be aware of this and use
+        adjustBounds() to calculate a bounds rect that meets these constraints.
+        
+        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
+        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
+        disappearing completely.
+        
+        Child view sizes should usually be rounded with RoundType::up when enough space is available
+        and RoundType::down when not enough space is available.
+
+        The rounding policies noted above are merely guidelines: layout implementations are free to
+        ignore them if there are other considerations that cause other rounding types to be better for
+        for the particular case.
+
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::UpdateReason::customChange
+            View::UpdateReason::customDataChanged
 		*/
 	virtual void needLayout(View::InvalidateReason reason)=0;
 
@@ -58,6 +95,12 @@ public:
     virtual void childSizingInfoInvalidated(View* pChild)=0;
 
 
+    /** Sets the view core's horizontal alignment. See View::horizontalAlignment() */
+    virtual void setHorizontalAlignment(const View::HorizontalAlignment& align)=0;
+
+    /** Sets the view core's vertical alignment. See View::verticalAlignment() */
+    virtual void setVerticalAlignment(const View::VerticalAlignment& align)=0;
+
 
 	/** Shows/hides the view core.*/
 	virtual void setVisible(const bool& visible)=0;
@@ -66,8 +109,15 @@ public:
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
 
-    /** Sets the view's preferred size hint (see View::preferredSizeHint() ).*/
+    /** Sets the view core's preferred size hint (see View::preferredSizeHint() ).*/
     virtual void setPreferredSizeHint(const Size& hint)=0;
+
+
+    /** Sets the view core's preferred size minimum (see View::preferredSizeMinimum() ).*/
+    virtual void setPreferredSizeMinimum(const Size& limit)=0;
+
+    /** Sets the view core's preferred size maximum (see View::preferredSizeMaximum() ).*/
+    virtual void setPreferredSizeMaximum(const Size& limit)=0;
 
 
     /** Sets the view's position and size, after adjusting the specified values
@@ -144,19 +194,21 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeHint(), preferredSizeMinimum() and preferredSizeMaximum()
-        ---------------------------------------------
+        preferredSizeHint()
+        -------------------
 
-        calcPreferredSize must also take the View::preferredSizeHint(), View::preferredSizeMinimum() and View::preferredSizeMaximum()
-        properties into account and constrain the result accordingly.
-        
-        preferredSizeHint() can be used to provide an advisory hint to the view as to what the preferred width and/or height should
-        roughly be. The view is free to ignore this, however. Text views often use this to select the place where they wrap their
-        text into multiple lines, for example.
+        preferredSizeHint() is an optional advisory hint to the view as to what the preferred width and/or height should
+        roughly be. The calcPreferredSize implementation may ignore this if it does not make sense for the view type.
+        In fact the value is unused by most views. One example where the parameter can be useful are text views which can dynamically
+        wrap text into multiple lines. These kinds of views can use the hint width to determine the place where the text should
+        wrap by default
 
-        preferredSizeMinimum() and preferredSizeMaximum() are optional hard limits. calcPreferredSize should never
-        return a size that violates these limits, if they are set. Even if that means that the view's content does not fit into
-        the view.
+        preferredSizeMinimum() and preferredSizeMaximum()
+        -------------------------------------------------
+
+        preferredSizeMinimum() and preferredSizeMaximum() are hard limits for the preferred size. 
+        The calcPreferredSize implementation should never return a size that violates these limits, if they are set.
+        Even if that means that the view's content does not fit into the view.
         
         If there is a conflict between the minimum and maximum and/or hint values then the values should
         be prioritized in this ascending order: hint, minimum, maximum.
@@ -178,53 +230,7 @@ public:
 	
 
 	
-    /** Updates the layout of the view's contents and child views.
-	
-        The view should NOT update its OWN size or position during this - 
-		it has to work with the size and position it currently has and
-		should ONLY update the size and position of its child views.
-
-        IMPORTANT: This function should never be called manually. It should
-        only be called by the platform's layout coordinator.
-
-		Implementation tips
-		---------------------
-
-		In general, the core is free to implement this function in any way that works best
-		for the target platform. It is also ok to perform the actual layout asynchronously
-		after layout() has returned.
-
-		If the target platform does not need special handling for the layout then the view core
-		can often simply call a layout function from the outer view to get a default implementation:
-
-		- ContainerView cores can call ContainerView::calcLayout
-		  and then ViewLayout::applyTo to calculate and then apply the layout.
-
-		- View classes with a single content view child (like Window) often have a function called
-		  defaultLayout that provides a default implementation for this function and can be called by the core.
-
-		- Simple controls without children often do nothing in layout.
-				
-
-        Note to implementors
-        --------------------
-
-        Depending on the UI implementation backend, 
-        the sizes and positions of child views may have some constraints. For example,
-        with many implementations the sizes and positions must be rounded to full physical
-        pixel boundaries. The layout() function should be aware of this and use
-        adjustBounds() to calculate a bounds rect that meets these constraints.
-        
-        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
-        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
-        disappearing completely.
-        
-        Child view sizes should usually be rounded with RoundType::up when enough space is available
-        and RoundType::down when not enough space is available.
-
-        The rounding policies noted above are merely guidelines: layout implementations are free to
-        ignore them if there are other considerations that cause other rounding types to be better for
-        for the particular case.
+    /** 
 
 		*/
 	virtual void layout()=0;

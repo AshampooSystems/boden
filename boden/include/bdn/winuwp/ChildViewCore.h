@@ -114,7 +114,7 @@ public:
     void invalidateSizingInfo(View::InvalidateReason reason) override
     {
         // see needLayout for an explanation about why we ignore standard property changes.
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
@@ -157,7 +157,7 @@ public:
         // changes directly there. Usually Windows takes care of the invalidation automatically and if not
         // then the core setXYZ function must schedule the update.
 
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 

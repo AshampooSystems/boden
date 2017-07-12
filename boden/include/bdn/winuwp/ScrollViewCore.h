@@ -126,7 +126,7 @@ public:
     {
         ChildViewCore::invalidateSizingInfo(reason );
 
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // also invalidate the measurements of the content wrapper
             BDN_WINUWP_TO_STDEXC_BEGIN;
@@ -150,7 +150,7 @@ public:
     {
         ChildViewCore::needLayout(reason);
 
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // also invalidate the layout of the content wrapper.
             // The default implementation (called above) invalidates the scroll viewer itself.

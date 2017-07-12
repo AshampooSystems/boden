@@ -17,6 +17,8 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
+    void layout() override;
+
 protected:
 	class ContainerViewCoreClass : public Win32WindowClass
 	{

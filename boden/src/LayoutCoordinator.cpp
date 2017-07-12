@@ -153,18 +153,22 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 				anyWindowsAutoSized = true;
 
-				try
-				{
-					pWindow->autoSize();
-				}
-				catch(std::exception& e)
-				{
-					handleException(&e, "Window::autoSize");
-				}
-				catch(...)
-				{
-					handleException(nullptr, "Window::autoSize::layout");                    
-				}		
+                P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>( pWindow->getViewCore() );
+                if(pCore!=nullptr)
+                {
+				    try
+				    {					
+                        pCore->autoSize();
+				    }
+				    catch(std::exception& e)
+				    {
+					    handleException(&e, "LayoutCoordinator::IWindowCoreExtension::autoSize");
+				    }
+				    catch(...)
+				    {
+					    handleException(nullptr, "LayoutCoordinator::IWindowCoreExtension::autoSize");                    
+				    }		
+                }
 			}	
 		}		
 
@@ -217,17 +221,17 @@ void LayoutCoordinator::mainThreadUpdateNow()
 
 					try
 					{
-						P<IViewCore> pCore = nextToDo.pView->getViewCore();
+						P<IViewCoreExtension> pCore = tryCast<IViewCoreExtension>( nextToDo.pView->getViewCore() );
 						if(pCore!=nullptr)
 							pCore->layout();
 					}
 					catch(std::exception& e)
 					{
-						handleException(&e, "IViewCore::layout");                    
+						handleException(&e, "LayoutCoordinator::IViewCoreExtension::layout");                    
 					}
 					catch(...)
 					{
-						handleException(nullptr, "IViewCore::layout");                    
+						handleException(nullptr, "LayoutCoordinator::IViewCoreExtension::layout");                    
 					}									
 				}
 			}
@@ -269,18 +273,22 @@ void LayoutCoordinator::mainThreadUpdateNow()
 						P<Window> pWindow = *toDoSet.begin();
 						toDoSet.erase(toDoSet.begin());
 
-						try
-						{
-							pWindow->center();
-						}
-						catch(std::exception& e)
-						{
-							handleException(&e, "Window::center");
-						}
-						catch(...)
-						{
-							handleException(nullptr, "Window::center");                    
-						}		
+                        P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>( pWindow->getViewCore() );
+                        if(pCore!=nullptr)
+                        {
+						    try
+						    {
+							    pCore->center();
+						    }
+						    catch(std::exception& e)
+						    {
+							    handleException(&e, "LayoutCoordinator::IWindowCoreExtension::center");
+						    }
+						    catch(...)
+						    {
+							    handleException(nullptr, "LayoutCoordinator::IWindowCoreExtension::center");                    
+						    }		
+                        }
 					}	
 				}		
 			}

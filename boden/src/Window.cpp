@@ -49,91 +49,6 @@ void Window::requestCenter()
         pCore->requestCenter();	
 }
 
-void Window::autoSize()
-{
-	verifyInMainThread("Window::autoSize");
-
-	// lock the mutex so that our core does not change during measuring
-
-	Rect newBounds;
-
-	P<IViewCore> pCore = getViewCore();
-
-	if(pCore==nullptr)
-	{
-		// cannot size without a core. Nothing to do.
-		return;
-	}
-
-	Size myPreferredSize = calcPreferredSize();
-
-	Rect screenArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
-    	
-	double width = myPreferredSize.width;
-	double height = myPreferredSize.height;
-    
-	if(width > screenArea.width)
-	{
-		// we do not fit on the screen at our preferred width.
-		// So we reduce the width to the maximum allowed width.
-		width = screenArea.width;
-
-		// and then adapt the height accordingly (height might increase if we reduce the width).
-		height = calcPreferredSize( Size(width, Size::componentNone()) ).height;	
-
-		// if the height we calculated is bigger than the max height then we simply
-		// cannot achieve our preferred size. We will have to make do with the max available size.
-		if(height > screenArea.height)
-			height = screenArea.height;
-	}
-
-	if(height > screenArea.height)
-	{
-		// height does not fit. Reduce it so that it fits.
-		height = screenArea.height;
-
-		// and then adapt the width accordingly.
-		width = calcPreferredSize( Size( Size::componentNone(), height) ).width;	
-
-		// if the width we calculated is bigger than the max width then we simply
-		// cannot achieve our preferred size. We will have to make do with the max available size.
-		if(width > screenArea.width)
-			width = screenArea.width;
-	}
-
-    // we want to round the size up always. If the window does not exceed the screen size
-    // then we want all our content to fit guaranteed. And if the window size previously exceeded the screen size
-    // then it has been clipped to the screen size. And we assume that the screen size is a valid size
-    // for the display and rounding does not matter in that case. So round up.
-
-    // Position is always rounded to nearest.
-
-    Rect adjustedBounds = adjustBounds( Rect( position(), Size(width, height) ), RoundType::nearest, RoundType::up );
-
-    adjustAndSetBounds(adjustedBounds);
-}
-
-void Window::center()
-{
-	Size mySize = size();
-
-	P<IViewCore> pCore = getViewCore();
-
-	if(pCore==nullptr)
-	{
-		// cannot size without a core. Nothing to do.
-		return;
-	}
-
-	Rect screenWorkArea = cast<IWindowCore>(pCore)->getScreenWorkArea();
-
-    double x = screenWorkArea.x + (screenWorkArea.width - mySize.width)/2;
-	double y = screenWorkArea.y + (screenWorkArea.height - mySize.height)/2;
-
-    Rect newBounds( Point(x, y), size() );
-
-    adjustAndSetBounds(newBounds);
-}
 
 Size Window::calcPreferredSize( const Size& availableSpace ) const
 {
@@ -222,31 +137,6 @@ Size Window::calcPreferredSize( const Size& availableSpace ) const
 	return preferredSize;
 }
 
-void Window::defaultLayout(const Rect& contentArea)
-{
-	P<View>			pContentView = getContentView();
-
-	if(pContentView==nullptr)
-	{
-		// nothing to do.
-		return;
-	}
-    
-	// just set our content window to content area (but taking margins and padding into account).
-    Rect contentBounds( contentArea );
-    			
-	// subtract our padding
-	contentBounds -= getDipPadding();
-
-	// subtract the content view's margins
-	contentBounds -= pContentView->uiMarginToDipMargin( pContentView->margin() );
-    
-    pContentView->adjustAndSetBounds( contentBounds );
-    
-	// note that we do not need to call layout on the content view.
-	// If it needs to update its layout then the bounds change should have caused
-	// it to schedule an update.
-}
 
 
 Margin Window::getDipPadding() const

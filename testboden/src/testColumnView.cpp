@@ -130,7 +130,7 @@ TEST_CASE("ColumnView")
     SECTION("View-base")
         bdn::test::testView<ColumnView>();
 
-	SECTION("ColumnView-specific")
+    SECTION("ColumnView-specific")
 	{
 		P<bdn::test::ViewTestPreparer<ColumnView> >         pPreparer = newObj< bdn::test::ViewTestPreparer<ColumnView> >();
 		P< bdn::test::ViewWithTestExtensions<ColumnView> >  pColumnView = pPreparer->createView();
@@ -212,60 +212,48 @@ TEST_CASE("ColumnView")
                 }
                 
                 
-                SECTION("aligned on pixel multiples")
+                SECTION("position and size pixel aligned")
                 {
                     // add a weird margin to the button to bring everything out of pixel alignment
                     pButton->margin() = UiMargin( 0.1234567 );
 
-                    SECTION("availableWidth = -1")
+                    CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pCore )
                     {
-                        // note that the container's preferred size does not have to be a pixel
-                        // multiple.
-
-                        // But the sizes of the child views have to be.
-
                         verifyPixelMultiple( pButton->position() );
                         verifyPixelMultiple( pButton->size() );
-                    }
+                    };
+                }
 
+                
+                SECTION("calcContainerPreferredSize")
+                {
                     SECTION("availableWidth bigger than needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width+1, Size::componentNone()) );
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width+1, Size::componentNone()) );
                 
                         // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
                     }
 
                     SECTION("availableWidth exactly same as needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width, Size::componentNone()) );
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width, Size::componentNone()) );
                 
-
                         // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
                     }
 
                     SECTION("availableWidth smaller than needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
-                        Size size = pColumnView->calcPreferredSize( Size(unrestrictedSize.width / 2, Size::componentNone()) );
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width / 2, Size::componentNone()) );
 
                         // should still report almost the unrestricted size since none of the child views can be shrunk.
-                        // However, the sizes will be rounded down to the 
-                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-                        
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
+                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );                        
                     }        
                 }
             };

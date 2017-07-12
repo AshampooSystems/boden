@@ -7,21 +7,21 @@
 namespace bdn
 {
 
-Size ColumnView::calcPreferredSize( const Size& availableSpace ) const
+Size ColumnView::calcContainerPreferredSize( const Size& availableSpace ) const
 {
     // XXX
-    BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
+    BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcContainerPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
 
 	Size totalSize = calcLayoutImpl( nullptr, availableSpace, true);
 
     // XXX
-            BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" );
+            BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcContainerPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" );
 
 	return totalSize;
 }
 
 
-P<ViewLayout> ColumnView::calcLayout(const Size& containerSize) const
+P<ViewLayout> ColumnView::calcContainerLayout(const Size& containerSize) const
 {
 	P<ViewLayout> pLayout = newObj<ViewLayout>();
 

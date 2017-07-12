@@ -369,11 +369,11 @@ public:
     {
         /** The data was invalidated because a standard property of the view
             (i.e. a property that is defined by the Boden framework) has been changed.*/
-        standardPropertyChange,
+        standardPropertyChanged,
 
         /** The data was invalidated because a standard child property
             (i.e. a property that is defined by the Boden framework) has been changed.*/
-        standardChildPropertyChange,
+        standardChildPropertyChanged,
 
 
         /** The sizing information of a child view has been invalidated. The child size
@@ -388,7 +388,7 @@ public:
             of the view. When some internal custom data changes that influences the layout
             then the application should use this update reason.
             */
-        customChange,
+        customDataChanged,
     };
 
 
@@ -402,7 +402,7 @@ public:
         
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::InvalidateReason::customChange
+            View::InvalidateReason::customDataChanged
 		*/
 	void invalidateSizingInfo(InvalidateReason reason);
 
@@ -416,7 +416,7 @@ public:
 
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
-            View::InvalidateReason::customChange
+            View::InvalidateReason::customDataChanged
 		*/
 	void needLayout(InvalidateReason reason);
 
@@ -560,20 +560,22 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeHint(), preferredSizeMinimum() and preferredSizeMaximum()
-        ---------------------------------------------
+        preferredSizeHint()
+        -------------------
 
-        calcPreferredSize must also take the View::preferredSizeHint(), View::preferredSizeMinimum() and View::preferredSizeMaximum()
-        properties into account and constrains the result accordingly.
+        preferredSizeHint() is an optional advisory hint to the view as to what the preferred width and/or height should
+        roughly be. The calcPreferredSize implementation may ignore this if it does not make sense for the view type.
+        In fact the value is unused by most views. One example where the parameter can be useful are text views which can dynamically
+        wrap text into multiple lines. These kinds of views can use the hint width to determine the place where the text should
+        wrap by default
+
+        preferredSizeMinimum() and preferredSizeMaximum()
+        -------------------------------------------------
+
+        preferredSizeMinimum() and preferredSizeMaximum() are hard limits for the preferred size. 
+        The calcPreferredSize implementation should never return a size that violates these limits, if they are set.
+        Even if that means that the view's content does not fit into the view.
         
-        preferredSizeHint() can be used to provide an advisory hint to the view as to what the preferred width and/or height should
-        roughly be. The view is free to ignore this, however. Text views often use this to select the place where they wrap their
-        text into multiple lines, for example.
-
-        preferredSizeMinimum() and preferredSizeMaximum() are optional hard limits. calcPreferredSize should never
-        return a size that violates these limits, if they are set. Even if that means that the view's content does not fit into
-        the view.
-     
         If there is a conflict between the minimum and maximum and/or hint values then the values should
         be prioritized in this ascending order: hint, minimum, maximum.
         So the maximum value has the highest priority and the returned value should never exceed
@@ -695,27 +697,27 @@ protected:
         {
             // update the sizing information. If that changes then the parent
             // layout will automatically be updated.
-            invalidateSizingInfo( InvalidateReason::standardPropertyChange );
+            invalidateSizingInfo( InvalidateReason::standardPropertyChanged );
         }    
         
         if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
         {
             // the layout of our children is influenced by this
-            needLayout( InvalidateReason::standardPropertyChange );
+            needLayout( InvalidateReason::standardPropertyChanged );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->invalidateSizingInfo( InvalidateReason::standardChildPropertyChange );
+                pParent->invalidateSizingInfo( InvalidateReason::standardChildPropertyChanged );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needLayout( InvalidateReason::standardChildPropertyChange );
+                pParent->needLayout( InvalidateReason::standardChildPropertyChanged );
         }
     }
 

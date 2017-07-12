@@ -167,39 +167,18 @@ public:
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
 
 
-    /** A default implementation for IViewCore::layout(), intended for use by the window's core object.
-        This function can be called by the core if no special layout procedure is needed and the
-        only task to perform is to arrange the content view.
-
-        The specified contentArea must be the area inside the window that is used to display the contents.
-
-        The default implementation will arrange the content view inside this area, according to the
-        applicable margins and padding.
-        */
-	void defaultLayout(const Rect& contentArea);
-	
-
 protected:
-
-	virtual void autoSize();
-	virtual void center();
-	
-	// allow the coordinator to call our protected functions like autoSize.
-	friend class LayoutCoordinator;
-
-
 	P<IUiProvider> determineUiProvider() override
 	{
 		// our Ui provider never changes. Just return the current one.
 		return _pUiProvider;
-	}
-
-	DefaultProperty<String> _title;
+	}	
 
 private:
     Margin getDipPadding() const;
     
 	P<View>					_pContentView;
+    DefaultProperty<String> _title;
 };
 
 }

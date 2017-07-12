@@ -105,8 +105,9 @@ TEST_CASE("Window", "[ui]")
 					    REQUIRE( pCore->getTitleChangeCount()==1 );
 					    REQUIRE( pCore->getTitle()=="hello" );					
 				    },
-				    0	// should NOT cause a sizing info update, since the
-					    // title is not part of the "preferred size" calculation
+				    0,	// should NOT cause a sizing info update, since the
+					        // title is not part of the "preferred size" calculation
+                    0   // should also not cause a parent layout update
 				    );
 		    }
 
@@ -125,7 +126,8 @@ TEST_CASE("Window", "[ui]")
 				        {
                             REQUIRE( pWindow->getContentView() == cast<View>(pButton) );
 				        },
-				        1	// should have caused a sizing info update
+				        1,	// should have caused a sizing info update
+                        0   // should not cause a parent layout update, since there is no parent
 				    );		        
 		        }
 
@@ -144,7 +146,8 @@ TEST_CASE("Window", "[ui]")
 				        {
                             REQUIRE( pWindow->getContentView() == nullptr);
 				        },
-				        0	// should not have caused a sizing info update
+				        0,	// should not have caused a sizing info update
+                        0   // should not cause a parent layout update, since there is no parent
 				    );		        
 		        }
 		    }

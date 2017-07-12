@@ -101,13 +101,17 @@ TEST_CASE("ScrollView", "[ui]")
 				            {
                                 REQUIRE( pScrollView->getContentView() == cast<View>(pButton) );
 				            },
-				            1	// should have caused a sizing info update
+				            1,	// should have caused a sizing info update
+                            1    // should update parent layout since sizing info changed
 				        );		        
 		            }
 
 
-                    SECTION("null")
+                    SECTION("null (was already null)")
 		            {
+                        // check if the intended precondition for the test is actually true
+                        REQUIRE( pScrollView->getContentView()==nullptr );
+
                         // basically we only test here that there is no crash when the content view is set to null
                         // and that it does not result in a sizing info update.
                         bdn::test::testViewOp( 
@@ -120,7 +124,31 @@ TEST_CASE("ScrollView", "[ui]")
 				            {
                                 REQUIRE( pScrollView->getContentView() == nullptr);
 				            },
-				            0	// should not have caused a sizing info update
+				            0, 	// should not have caused a sizing info update (since there was no change)
+                            0    // should not have caused parent layout update
+				        );		        
+		            }
+
+
+                    SECTION("null (was not null)")
+		            {
+                        P<Button> pButton = newObj<Button>();
+                        pScrollView->setContentView( pButton );
+
+                        // basically we only test here that there is no crash when the content view is set to null
+                        // and that it does not result in a sizing info update.
+                        bdn::test::testViewOp( 
+				            pScrollView,
+				            [pScrollView]()
+				            {
+					            pScrollView->setContentView(nullptr);
+				            },
+				            [pScrollView]
+				            {
+                                REQUIRE( pScrollView->getContentView() == nullptr);
+				            },
+				            1, 	// should have caused a sizing info update
+                            1    // should update parent layout, sinze sizing info changed
 				        );		        
 		            }
 		        }

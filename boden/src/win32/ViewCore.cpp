@@ -175,6 +175,16 @@ void ViewCore::setPreferredSizeHint(const Size& hint)
     // do nothing in the base implementation. Most views do not use the size hint.
 }
 
+void ViewCore::setPreferredSizeMinimum(const Size& limit)
+{
+    // do nothing here. We use the property from the view directly when we need it.
+}
+
+void ViewCore::setPreferredSizeMaximum(const Size& limit)
+{
+    // do nothing here. We use the property from the view directly when we need it.
+}
+
 void ViewCore::updateOrderAmongSiblings()
 {
     P<View> pOuter = getOuterViewIfStillAttached();

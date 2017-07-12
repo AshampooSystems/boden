@@ -23,11 +23,11 @@ View::View()
 	initProperty<Point, IViewCore, nullptr, (int)PropertyInfluence_::none>(_position);
     initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::childLayout>(_size);
 
-    initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
-    initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
+    initProperty<HorizontalAlignment, IViewCore, &IViewCore::setHorizontalAlignment, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
+    initProperty<VerticalAlignment, IViewCore, &IViewCore::setVerticalAlignment, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
 
-    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
-    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMinimum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMaximum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
     initProperty<Size, IViewCore, &IViewCore::setPreferredSizeHint, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
 }
 
@@ -351,7 +351,7 @@ void View::_initCore()
 				pChildView->_initCore();
 
 			// our old sizing info is obsolete when the core has changed.
-			invalidateSizingInfo( View::InvalidateReason::standardPropertyChange );
+			invalidateSizingInfo( View::InvalidateReason::standardPropertyChanged );
 		}		
 	}
 }

@@ -2,6 +2,7 @@
 #define BDN_WIN32_ViewCore_H_
 
 #include <bdn/View.h>
+#include <bdn/LayoutCoordinator.h>
 #include <bdn/win32/Win32Window.h>
 #include <bdn/win32/Font.h>
 
@@ -12,7 +13,7 @@ namespace win32
 
 /** Base implementation for win32 view cores (see IViewCore).
 */
-class ViewCore : public Win32Window, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Win32Window, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
 	ViewCore(	View* pOuterView,
@@ -46,6 +47,7 @@ public:
 	void invalidateSizingInfo(View::InvalidateReason reason) override;
     void needLayout(View::InvalidateReason reason) override;
     void childSizingInfoInvalidated(View* pChild) override;
+    
     void layout() override;
 
     Rect adjustAndSetBounds(const Rect& requestedBounds) override;
@@ -55,10 +57,12 @@ public:
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
             
-    void setHorizontalAlignment(const View::HorizontalAlignment& align);
-    void setVerticalAlignment(const View::VerticalAlignment& align);
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override;
+    void setVerticalAlignment(const View::VerticalAlignment& align) override;
 
-    void setPreferredSizeHint(const Size& hint);
+    void setPreferredSizeHint(const Size& hint) override;
+    void setPreferredSizeMinimum(const Size& limit) override;
+    void setPreferredSizeMaximum(const Size& limit) override;
 
 	double uiLengthToDips(const UiLength& uiLength) const override;
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override;

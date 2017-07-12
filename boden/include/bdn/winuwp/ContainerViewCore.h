@@ -65,7 +65,7 @@ public:
         P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
         if(pOuterView!=nullptr)
         {        
-            P<ViewLayout> pLayout = pOuterView->calcLayout( pOuterView->size() );
+            P<ViewLayout> pLayout = pOuterView->calcContainerLayout( pOuterView->size() );
             pLayout->applyTo(pOuterView);
         }
 	}

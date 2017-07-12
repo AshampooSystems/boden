@@ -18,7 +18,7 @@ namespace test
     
     See MockUiProvider.
     */
-class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
 	explicit MockViewCore(View* pView)
@@ -30,7 +30,11 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
+        _horizontalAlignment = pView->horizontalAlignment();
+        _verticalAlignment = pView->verticalAlignment();
         _preferredSizeHint = pView->preferredSizeHint();
+        _preferredSizeMinimum = pView->preferredSizeMinimum();
+        _preferredSizeMaximum = pView->preferredSizeMaximum();
         _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
@@ -140,12 +144,101 @@ public:
 	}
 
 
-    void setPreferredSizeHint(const Size& hint)
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_horizontalAlignment = align;
+		_horizontalAlignmentChangeCount++;
+    }
+
+    View::HorizontalAlignment getHorizontalAlignment() const
+    {
+        return _horizontalAlignment;
+    }
+
+    int getHorizontalAlignmentChangeCount() const
+    {
+        return _horizontalAlignmentChangeCount;
+    }
+
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_verticalAlignment = align;
+		_verticalAlignmentChangeCount++;
+    }
+
+    View::VerticalAlignment getVerticalAlignment() const
+    {
+        return _verticalAlignment;
+    }
+
+    int getVerticalAlignmentChangeCount() const
+    {
+        return _verticalAlignmentChangeCount;
+    }
+
+
+
+    void setPreferredSizeHint(const Size& hint) override
     {
         BDN_REQUIRE_IN_MAIN_THREAD();
 
 		_preferredSizeHint = hint;
 		_preferredSizeHintChangeCount++;
+    }
+
+    Size getPreferredSizeHint() const
+    {
+        return _preferredSizeHint;
+    }
+
+    int getPreferredSizeHintChangeCount() const
+    {
+        return _preferredSizeHintChangeCount;
+    }
+
+
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeMinimum = limit;
+		_preferredSizeMinimumChangeCount++;
+    }
+
+    Size getPreferredSizeMinimum() const
+    {
+        return _preferredSizeMinimum;
+    }
+
+    int getPreferredSizeMinimumChangeCount() const
+    {
+        return _preferredSizeMinimumChangeCount;
+    }
+
+
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeMaximum = limit;
+		_preferredSizeMaximumChangeCount++;
+    }
+
+    Size getPreferredSizeMaximum() const
+    {
+        return _preferredSizeMaximum;
+    }
+
+    int getPreferredSizeMaximumChangeCount() const
+    {
+        return _preferredSizeMaximumChangeCount;
     }
 
 
@@ -245,7 +338,17 @@ public:
 		BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_layoutCount++;
+
+        if( _overrideLayoutFunc )
+            _overrideLayoutFunc();            
 	}	
+
+
+    /** Sets a function that is called instead of the normal layout function.*/
+    void setOverrideLayoutFunc( const std::function<void()> func )
+    {
+        _overrideLayoutFunc = func;
+    }
      
 
 
@@ -259,6 +362,17 @@ public:
         BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_invalidateSizingInfoCount++;
+
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<View> pParentView = pOuterView->getParentView();
+            if(pParentView!=nullptr)
+            {
+                pParentView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+                pParentView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+            }
+        }
     }
 
     int getNeedLayoutCount() const
@@ -306,8 +420,21 @@ protected:
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
+
+    View::HorizontalAlignment   _horizontalAlignment;
+    int                         _horizontalAlignmentChangeCount = 0;
+
+    View::VerticalAlignment     _verticalAlignment;
+    int                         _verticalAlignmentChangeCount = 0;
+
     Size        _preferredSizeHint;
     int         _preferredSizeHintChangeCount = 0;
+
+    Size        _preferredSizeMinimum;
+    int         _preferredSizeMinimumChangeCount = 0;
+
+    Size        _preferredSizeMaximum;
+    int         _preferredSizeMaximumChangeCount = 0;
 
 	Rect        _bounds;
 	int			_boundsChangeCount = 0;
@@ -316,6 +443,8 @@ protected:
 	int			_parentViewChangeCount = 0;
 
 	int			_layoutCount = 0;
+    std::function<void()> _overrideLayoutFunc;
+
     int         _invalidateSizingInfoCount = 0;
     int         _childSizingInfoInvalidatedCount = 0;
     int         _needLayoutCount = 0;

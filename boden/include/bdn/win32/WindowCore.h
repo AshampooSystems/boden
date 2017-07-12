@@ -13,7 +13,7 @@ namespace bdn
 namespace win32
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
 	WindowCore(Window* pWindow);			
@@ -28,7 +28,16 @@ public:
 
 	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override;
 	
-	Rect getScreenWorkArea() const override;	
+    /** Returns the area of the screen that can be used by windows.
+		That excludes taskbars, sidebars and the like (if they are always visible).
+		The returned rect applies only to the screen that the window is currently on.
+		Other screens can have different window areas.
+        
+        Note that the work area position may have negative coordinates on systems
+        with multiple monitors. That can be normal.
+     
+        */
+	Rect getScreenWorkArea() const;	
 
 	Size getMinimumSize() const;
 
@@ -36,6 +45,9 @@ public:
 
 	void requestAutoSize();
     void requestCenter();
+
+    void center() override;
+    void autoSize() override;
 
 	
 protected:

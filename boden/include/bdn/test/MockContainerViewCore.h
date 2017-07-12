@@ -27,23 +27,33 @@ public:
 	{
 	}
     
-	
+
+   
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         MockViewCore::calcPreferredSize(availableSpace);
 
-	    // this core function should never have been called.
-	    // The outer window is responsible for everything layout-related.
-	    programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
-        return Size();
+        // call the outer container's preferred size calculation
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+            return pOuterView->calcContainerPreferredSize( availableSpace );
+        else
+            return Size(0,0);
     }
+
 
 	void layout() override
 	{
-		P<ContainerView> pView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        MockViewCore::layout();
+
+        // if _overrideLayoutFunc is set then MockViewCore::layout has already called it
+        if(!_overrideLayoutFunc)
+        {
+		    P<ContainerView> pView = cast<ContainerView>( getOuterViewIfStillAttached() );
 		
-		P<ViewLayout> pLayout = pView->calcLayout( pView->size() );
-		pLayout->applyTo( pView );
+		    P<ViewLayout> pLayout = pView->calcContainerLayout( pView->size() );
+		    pLayout->applyTo( pView );
+        }
 	}
 
 

@@ -9,6 +9,10 @@ namespace bdn
 	
 
 /** Base class for views that contains multiple child views.	
+
+    Derived classes must override the calcContainerLayout() and calcContainerPreferredSize()
+    methods.
+
 	*/
 class ContainerView : public View
 {
@@ -155,7 +159,18 @@ public:
 		\param containerSize the size of the container view to use as the basis for the layout.
 			This does not have to match the current size of the container view.			
         */
-    virtual P<ViewLayout> calcLayout(const Size& containerSize) const=0;
+    virtual P<ViewLayout> calcContainerLayout(const Size& containerSize) const=0;
+
+
+    /** Calculates the preferred size for the container. Container implementations must override
+        this to implement their custom size calculation.
+
+        calcContainerPreferredSize is automatically called from View::calcPreferredSize()
+        and has the same behaviour.        
+
+        */
+    virtual Size calcContainerPreferredSize( const Size& availableSpace = Size::none() ) const=0;
+
 	
 protected:
 	std::list< P<View> > _childViews;

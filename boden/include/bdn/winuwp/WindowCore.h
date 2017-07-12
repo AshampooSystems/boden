@@ -6,6 +6,7 @@
 #include <bdn/log.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/ContainerView.h>
+#include <bdn/windowCoreUtil.h>
 
 #include <bdn/winuwp/IViewCoreParent.h>
 #include <bdn/winuwp/IUwpViewCore.h>
@@ -180,11 +181,6 @@ public:
 	}
 
 
-	Rect getScreenWorkArea() const override
-	{
-		return _pUiProvider->getScreenWorkArea();
-	}
-
 
 	void	setVisible(const bool& visible) override
 	{
@@ -215,7 +211,7 @@ public:
     void invalidateSizingInfo( View::InvalidateReason reason ) override
     {
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
@@ -241,7 +237,7 @@ public:
     void needLayout( View::InvalidateReason reason ) override
     {
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
-        if(reason!=View::InvalidateReason::standardPropertyChange && reason!=View::InvalidateReason::standardChildPropertyChange )
+        if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
@@ -376,7 +372,7 @@ public:
             Size contentSize = _getContentSize();
             Rect contentArea(0, 0, contentSize.width, contentSize.height );
 
-            pOuter->defaultLayout(contentArea);
+            defaultWindowLayoutImpl(pOuter, contentArea);
         }
 
         // XXX
@@ -386,6 +382,12 @@ public:
 	
 
 private:
+        
+
+	Rect _getScreenWorkArea() const
+	{
+		return _pUiProvider->getScreenWorkArea();
+	}
     
 	Size _getContentSize() const
 	{
