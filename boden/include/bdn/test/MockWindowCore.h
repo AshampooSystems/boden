@@ -139,9 +139,20 @@ public:
 		
 		_autoSizeCount++;
 
-        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
-        if(pWindow!=nullptr)
-            defaultWindowAutoSizeImpl( pWindow, getScreenWorkArea().getSize() );
+        if( _overrideAutoSizeFunc )
+            _overrideAutoSizeFunc();         
+        else
+        {
+            P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+            if(pWindow!=nullptr)
+                defaultWindowAutoSizeImpl( pWindow, getScreenWorkArea().getSize() );
+        }
+	}	
+
+    /** Sets a function that is executed instead of the normal autoSiuze() function implementation.*/
+    void setOverrideAutoSizeFunc( const std::function<void()> func )
+    {
+        _overrideAutoSizeFunc = func;
     }
 
     /** Returns the number of times that autoSize() was called.*/
@@ -150,15 +161,29 @@ public:
         return _autoSizeCount;
     }
 
+
+
     void center() override
     {
         BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_centerCount++;
 
-        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
-        if(pWindow!=nullptr)
-            defaultWindowCenterImpl( pWindow, getScreenWorkArea() );
+        if( _overrideCenterFunc )
+            _overrideCenterFunc();         
+        else
+        {
+            P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+            if(pWindow!=nullptr)
+                defaultWindowCenterImpl( pWindow, getScreenWorkArea() );
+        }
+	}	
+
+
+    /** Sets a function that is executed instead of the normal center() function implementation.*/
+    void setOverrideCenterFunc( const std::function<void()> func )
+    {
+        _overrideCenterFunc = func;
     }
 
     /** Returns the number of times that center() was called.*/
@@ -174,6 +199,9 @@ protected:
 
     int     _autoSizeCount = 0;
     int     _centerCount = 0;
+
+    std::function<void()> _overrideCenterFunc;
+    std::function<void()> _overrideAutoSizeFunc;
 };
 
 
