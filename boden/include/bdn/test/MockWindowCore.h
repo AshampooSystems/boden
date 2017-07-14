@@ -122,12 +122,13 @@ public:
     
     void layout()
     {
-        MockViewCore::layout();
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_layoutCount++;
 
-        // if _overrideLayoutFunc is set then MockViewCore::layout has already called it
-        if(!_overrideLayoutFunc)
+        if( !_overrideLayoutFunc || !_overrideLayoutFunc() )
         {
-            P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+		    P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
             if(pWindow!=nullptr)
                 defaultWindowLayoutImpl( pWindow, getContentArea() );
         }
@@ -139,9 +140,7 @@ public:
 		
 		_autoSizeCount++;
 
-        if( _overrideAutoSizeFunc )
-            _overrideAutoSizeFunc();         
-        else
+        if( !_overrideAutoSizeFunc || !_overrideAutoSizeFunc() )
         {
             P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
             if(pWindow!=nullptr)
@@ -149,8 +148,13 @@ public:
         }
 	}	
 
-    /** Sets a function that is executed instead of the normal autoSiuze() function implementation.*/
-    void setOverrideAutoSizeFunc( const std::function<void()> func )
+    /** Sets a function that is executed instead of the normal autoSiuze() function implementation.
+    
+        If the return value of the override function is false then the normal
+        autosize function implementation runs after the override function. If the
+        return value is true then the normal implementation is not run.
+        */
+    void setOverrideAutoSizeFunc( const std::function<bool()> func )
     {
         _overrideAutoSizeFunc = func;
     }
@@ -169,9 +173,7 @@ public:
 		
 		_centerCount++;
 
-        if( _overrideCenterFunc )
-            _overrideCenterFunc();         
-        else
+        if( !_overrideCenterFunc  || !_overrideCenterFunc() )
         {
             P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
             if(pWindow!=nullptr)
@@ -180,8 +182,13 @@ public:
 	}	
 
 
-    /** Sets a function that is executed instead of the normal center() function implementation.*/
-    void setOverrideCenterFunc( const std::function<void()> func )
+    /** Sets a function that is executed instead of the normal center() function implementation.
+    
+        If the return value of the override function is false then the normal
+        center function implementation runs after the override function. If the
+        return value is true then the normal implementation is not run.
+        */
+    void setOverrideCenterFunc( const std::function<bool()> func )
     {
         _overrideCenterFunc = func;
     }
@@ -200,8 +207,8 @@ protected:
     int     _autoSizeCount = 0;
     int     _centerCount = 0;
 
-    std::function<void()> _overrideCenterFunc;
-    std::function<void()> _overrideAutoSizeFunc;
+    std::function<bool()> _overrideCenterFunc;
+    std::function<bool()> _overrideAutoSizeFunc;
 };
 
 

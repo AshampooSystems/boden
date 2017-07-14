@@ -57,6 +57,7 @@ TEST_CASE("LayoutCoordinator")
                     []()
                     {
                         throw std::exception();
+                        return false;
                     } );
 
                 int initialCount1 = cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount();
@@ -91,6 +92,7 @@ TEST_CASE("LayoutCoordinator")
                     []()
                     {
                         throw std::exception();
+                        return false;
                     } );
 
 				pCoord->windowNeedsAutoSizing( pView1 );
@@ -121,6 +123,7 @@ TEST_CASE("LayoutCoordinator")
                     []()
                     {
                         throw std::exception();
+                        return false;
                     } );
                 
 				pCoord->windowNeedsCentering( pView1 );
@@ -163,42 +166,49 @@ TEST_CASE("LayoutCoordinator")
 
 			pView3->setContentView(pView4);
 
-            int initialLayoutCount1 = cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount();
-            int initialLayoutCount4 = cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount();
-
-			pView1->needLayout( View::InvalidateReason::customDataChanged );
-			pView4->needLayout( View::InvalidateReason::customDataChanged );
-
-			// layout order is parent-first, so view1 will always be layouted before view4
-
-			cast<bdn::test::MockViewCore>(pView1->getViewCore())->setOverrideLayoutFunc(
-				[pView1, pView2, pView3, pView4, pCoord, initialLayoutCount1, initialLayoutCount4]()
-				{
-					// view 4 should not have been layouted yet
-					REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount() == initialLayoutCount4);
-
-					// and view 1 only once (the current call)
-					REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount() == initialLayoutCount1+1);
-
-					// now schedule something to the event queue.
-					// This simulates the property change notification.
-					asyncCallFromMainThread(
-						[pView1, pView2, pView3, pView4, pCoord, initialLayoutCount1, initialLayoutCount4]()
-						{
-							// view4 should still not have been layouted yet
-							REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount()==initialLayoutCount4);
-
-							// and view1 still only once
-							REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount()==initialLayoutCount1+1);
-						});
-				} );
-
-			CONTINUE_SECTION_WHEN_IDLE(pView1, pView2, pView3, pView4, initialLayoutCount1, initialLayoutCount4, pCoord)
+            // wait until the changes scheduled by adding the content view have all been handled.
+            CONTINUE_SECTION_WHEN_IDLE(pView1, pView2, pView3, pView4, pCoord)
 			{
-				// verify that now all layout requests have been handled.
-				REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount() == initialLayoutCount1+1);
-				REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount() == initialLayoutCount4+1);
-			};
+                int initialLayoutCount1 = cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount();
+                int initialLayoutCount4 = cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount();
+
+			    pView1->needLayout( View::InvalidateReason::customDataChanged );
+			    pView4->needLayout( View::InvalidateReason::customDataChanged );
+
+			    // layout order is parent-first, so view1 will always be layouted before view4
+
+			    cast<bdn::test::MockViewCore>(pView1->getViewCore())->setOverrideLayoutFunc(
+				    [pView1, pView2, pView3, pView4, pCoord, initialLayoutCount1, initialLayoutCount4]()
+				    {
+					    // view 4 should not have been layouted yet
+					    REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount() == initialLayoutCount4);
+
+					    // and view 1 only once (the current call)
+					    REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount() == initialLayoutCount1+1);
+
+					    // now schedule something to the event queue.
+					    // This simulates the property change notification.
+					    asyncCallFromMainThread(
+						    [pView1, pView2, pView3, pView4, pCoord, initialLayoutCount1, initialLayoutCount4]()
+						    {
+							    // view4 should still not have been layouted yet
+							    REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount()==initialLayoutCount4);
+
+							    // and view1 still only once
+							    REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount()==initialLayoutCount1+1);
+						    });
+
+                        // execute the normal layout implementation
+                        return false;
+				    } );
+
+			    CONTINUE_SECTION_WHEN_IDLE(pView1, pView2, pView3, pView4, initialLayoutCount1, initialLayoutCount4, pCoord)
+			    {
+				    // verify that now all layout requests have been handled.
+				    REQUIRE( cast<bdn::test::MockViewCore>(pView1->getViewCore())->getLayoutCount() == initialLayoutCount1+1);
+				    REQUIRE( cast<bdn::test::MockViewCore>(pView4->getViewCore())->getLayoutCount() == initialLayoutCount4+1);
+			    };
+            };
 		}
     };
 

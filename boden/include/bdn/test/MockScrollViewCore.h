@@ -70,20 +70,23 @@ public:
     {
         BDN_REQUIRE_IN_MAIN_THREAD();
 
-        P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
-
-        ScrollViewLayoutHelper helper(10, 10);
-        helper.calcLayout( pOuterView, _bounds.getSize() );
-        
-        if(pOuterView!=nullptr)
+        if( !_overrideLayoutFunc || !_overrideLayoutFunc() )
         {
-            P<View> pContentView = pOuterView->getContentView();
-            if(pContentView!=nullptr)
-                pContentView->adjustAndSetBounds( helper.getContentViewBounds() );
-        }
+            P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
 
-        _horizontalScrollBarVisible = helper.getHorizontalScrollBarVisible();
-        _verticalScrollBarVisible = helper.getVerticalScrollBarVisible();
+            ScrollViewLayoutHelper helper(10, 10);
+            helper.calcLayout( pOuterView, _bounds.getSize() );
+        
+            if(pOuterView!=nullptr)
+            {
+                P<View> pContentView = pOuterView->getContentView();
+                if(pContentView!=nullptr)
+                    pContentView->adjustAndSetBounds( helper.getContentViewBounds() );
+            }
+
+            _horizontalScrollBarVisible = helper.getHorizontalScrollBarVisible();
+            _verticalScrollBarVisible = helper.getVerticalScrollBarVisible();
+        }
     }
 
 

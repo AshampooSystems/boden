@@ -80,10 +80,6 @@ public:
 		return size;
 	}
 	
-	void layout() override
-	{
-		// nothing to do
-	}
 	
 	void generateClick()
 	{

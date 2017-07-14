@@ -344,8 +344,13 @@ public:
 	}	
 
 
-    /** Sets a function that is called instead of the normal layout function.*/
-    void setOverrideLayoutFunc( const std::function<void()> func )
+    /** Sets a function that is called instead of the normal layout function.
+    
+        If the return value of the override function is false then the normal
+        layout function implementation runs after the override function. If the
+        return value is true then the normal implementation is not run.
+    */
+    void setOverrideLayoutFunc( const std::function<bool()> func )
     {
         _overrideLayoutFunc = func;
     }
@@ -443,7 +448,7 @@ protected:
 	int			_parentViewChangeCount = 0;
 
 	int			_layoutCount = 0;
-    std::function<void()> _overrideLayoutFunc;
+    std::function<bool()> _overrideLayoutFunc;
 
     int         _invalidateSizingInfoCount = 0;
     int         _childSizingInfoInvalidatedCount = 0;

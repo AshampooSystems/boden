@@ -44,10 +44,11 @@ public:
 
 	void layout() override
 	{
-        MockViewCore::layout();
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_layoutCount++;
 
-        // if _overrideLayoutFunc is set then MockViewCore::layout has already called it
-        if(!_overrideLayoutFunc)
+        if( !_overrideLayoutFunc || !_overrideLayoutFunc() )
         {
 		    P<ContainerView> pView = cast<ContainerView>( getOuterViewIfStillAttached() );
 		
