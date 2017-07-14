@@ -65,6 +65,9 @@ public:
 
             if(_pContentView!=nullptr)
 			    _pContentView->_setParentView(this);
+            
+            invalidateSizingInfo( View::InvalidateReason::childAddedOrRemoved );
+            needLayout( View::InvalidateReason::childAddedOrRemoved );
 		}
 	}
 

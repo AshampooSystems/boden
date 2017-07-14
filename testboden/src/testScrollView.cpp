@@ -11,7 +11,7 @@
 using namespace bdn;
 
 
-void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> > pScrollView, P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
+void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> > pScrollView, P<IBase> pKeepAliveInContinuations, P<bdn::test::MockUiProvider> pUiProvider, std::function<Size()> getSizeFunc)
 {	
 	// we add a button as a content view
 	P<Button> pButton = newObj<Button>();
@@ -51,7 +51,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, buttonSize, buttonMargin)
+	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, buttonSize, buttonMargin, pKeepAliveInContinuations)
 	{
 		Size size = getSizeFunc();
 
@@ -91,18 +91,20 @@ TEST_CASE("ScrollView", "[ui]")
                     SECTION("!=null")
 		            {
                         P<Button> pButton = newObj<Button>();
-                        bdn::test::testViewOp( 
+                        bdn::test::_testViewOp( 
 				            pScrollView,
-				            [pScrollView, pButton]()
+                            pPreparer,
+				            [pScrollView, pButton, pPreparer]()
 				            {
 					            pScrollView->setContentView(pButton);
 				            },
-				            [pScrollView, pButton]
+				            [pScrollView, pButton, pPreparer]
 				            {
                                 REQUIRE( pScrollView->getContentView() == cast<View>(pButton) );
 				            },
-				            1,	// should have caused a sizing info update
-                            1    // should update parent layout since sizing info changed
+                            bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                            | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+                            | bdn::test::ExpectedSideEffect_::invalidateLayout  // should have caused a layout invalidation
 				        );		        
 		            }
 
@@ -114,8 +116,9 @@ TEST_CASE("ScrollView", "[ui]")
 
                         // basically we only test here that there is no crash when the content view is set to null
                         // and that it does not result in a sizing info update.
-                        bdn::test::testViewOp( 
+                        bdn::test::_testViewOp( 
 				            pScrollView,
+                            pPreparer,
 				            [pScrollView]()
 				            {
 					            pScrollView->setContentView(nullptr);
@@ -124,8 +127,8 @@ TEST_CASE("ScrollView", "[ui]")
 				            {
                                 REQUIRE( pScrollView->getContentView() == nullptr);
 				            },
-				            0, 	// should not have caused a sizing info update (since there was no change)
-                            0    // should not have caused parent layout update
+				            0 	// should not have caused a sizing info update (since there was no change)
+                                // should not have caused parent layout update
 				        );		        
 		            }
 
@@ -137,18 +140,20 @@ TEST_CASE("ScrollView", "[ui]")
 
                         // basically we only test here that there is no crash when the content view is set to null
                         // and that it does not result in a sizing info update.
-                        bdn::test::testViewOp( 
+                        bdn::test::_testViewOp( 
 				            pScrollView,
+                            pPreparer,
 				            [pScrollView]()
 				            {
 					            pScrollView->setContentView(nullptr);
 				            },
-				            [pScrollView]
+				            [pScrollView]()
 				            {
                                 REQUIRE( pScrollView->getContentView() == nullptr);
 				            },
-				            1, 	// should have caused a sizing info update
-                            1    // should update parent layout, sinze sizing info changed
+                            bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                            | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated				            
+                            | bdn::test::ExpectedSideEffect_::invalidateLayout  // should have caused a layout invalidation
 				        );		        
 		            }
 		        }
@@ -202,7 +207,14 @@ TEST_CASE("ScrollView", "[ui]")
 		        SECTION("with contentView")
 		        {
 			        SECTION("calcPreferredSize")
-				        testSizingWithContentView( pScrollView, pPreparer->getUiProvider(), [pScrollView](){ return pScrollView->calcPreferredSize(); } );
+				        testSizingWithContentView(
+                            pScrollView,
+                            pPreparer,
+                            pPreparer->getUiProvider(),
+                            [pScrollView]()
+                            {
+                                return pScrollView->calcPreferredSize();
+                            } );
 		        }
 	        }
             

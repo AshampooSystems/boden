@@ -78,26 +78,54 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 void View::invalidateSizingInfo( InvalidateReason reason )
 {
-    // clear cached sizing data
-    _preferredSizeManager.clear();
+    if( Thread::isCurrentMain() )
+    {
+        // clear cached sizing data
+        _preferredSizeManager.clear();
 
-    // pass the operation to the core. The core will take care
-    // of invalidating the layout, if necessary
-    P<IViewCore> pCore = getViewCore();
-    if(pCore!=nullptr)
-        pCore->invalidateSizingInfo(reason);	
+        // pass the operation to the core. The core will take care
+        // of invalidating the layout, if necessary
+        P<IViewCore> pCore = getViewCore();
+        if(pCore!=nullptr)
+            pCore->invalidateSizingInfo(reason);	
+    }
+    else
+    {
+        // schedule the invalidation to be done from the main thread.
+        P<View>			pThis = this;
+
+        asyncCallFromMainThread(
+            [pThis, reason]()
+            {
+                pThis->invalidateSizingInfo(reason);
+            } );
+    }
 }
 
 
 void View::needLayout( InvalidateReason reason )
 {
-    P<IViewCore> pCore = getViewCore();
+    if( Thread::isCurrentMain() )
+    {
+        P<IViewCore> pCore = getViewCore();
 
-    // forward the request to the core. Depending on the platform
-    // it may be that the UI uses a layout coordinator provided by the system,
-    // rather than our own.
-    if(pCore!=nullptr)
-        pCore->needLayout(reason);
+        // forward the request to the core. Depending on the platform
+        // it may be that the UI uses a layout coordinator provided by the system,
+        // rather than our own.
+        if(pCore!=nullptr)
+            pCore->needLayout(reason);
+    }
+    else
+    {
+        // schedule the invalidation to be done from the main thread.
+        P<View>			pThis = this;
+
+        asyncCallFromMainThread(
+            [pThis, reason]()
+            {
+                pThis->needLayout(reason);
+            } );
+    }
 }
 
 

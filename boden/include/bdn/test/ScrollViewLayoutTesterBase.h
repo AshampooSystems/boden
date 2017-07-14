@@ -391,41 +391,36 @@ public:
 
                 double horzBarHeight = pThis->getHorzBarHeight();
 
-                SECTION("calcPreferredSize not called when available space unlimited")
+                SECTION("available space unlimited")
                 {
                     Size prefSize = pThis->callCalcPreferredSize();
                     REQUIRE( prefSize==optimalSize );
-                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount);
+                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount+1);
                 }
 
-                SECTION("calcPreferredSize not called when available space bigger or equal to needed size")
+                SECTION("space bigger or equal to needed size")
                 {
                     Size prefSize = pThis->callCalcPreferredSize(  optimalSize);
                     REQUIRE( prefSize==optimalSize );
-                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount);
+                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount+1);
                 }
 
-                SECTION("calcPreferredSize called when width less than needed")
+                SECTION("width less than needed")
                 {
                     Size optimalContentSize = pContentView->calcPreferredSize();
                     
                     Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-1, 1000) );
 
+                    // content view should have been asked for its preferred sizeat least once
+                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() > initialCalcCount  );
+
                     if(pThis->_horzScrollingEnabled)
                     {
-                        // if horizontal scrolling is enabled then the width constraint
-                        // should not have caused the scroll view to ask the content view
-                        // for an updated preferred size
-                        REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount );
-
                         // space for the scrollbar should have been added at bottom. Width is the available space.
                         REQUIRE( prefSize == optimalSize+Size(-1, horzBarHeight) );
                     }
                     else
-                    {                    
-                        // content view should have been asked for an updated preferred size based on the
-                        // available space.
-                        REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount + 1 );
+                    {                                            
                         Size contentAvailSpace = pContentView->getLastCalcPreferredSizeAvailableSpace();
 
                         // available space should have been communicated to the content view
@@ -442,25 +437,22 @@ public:
                     }
                 }
 
-                SECTION("calcPreferredSize called when height less than needed")
+                SECTION("height less than needed")
                 {
                     Size optimalContentSize = pContentView->calcPreferredSize();
 
                     Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(1000, -1) );
 
+                    // content view should have been asked for its preferred sizeat least once
+                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() > initialCalcCount  );
+
                     if(pThis->_vertScrollingEnabled)
                     {
-                        // if horizontal scrolling is enabled then the height constraint
-                        // should not have caused the scroll view to ask the content view
-                        // for an updated preferred size
-                        REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount );
-
                         // space for the scrollbar should have been added at the right side. Height is the available space.
                         REQUIRE( prefSize == optimalSize+Size(pThis->getVertBarWidth(), -1) );
                     }
                     else
                     {                    
-                        REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount+1);
                         Size contentAvailSpace = pContentView->getLastCalcPreferredSizeAvailableSpace();
 
                         REQUIRE( contentAvailSpace.height < optimalContentSize.height);
@@ -561,8 +553,8 @@ public:
                     pThis->verifyScrolledAreaSize( viewPortSize  );
                     pThis->verifyViewPortSize( viewPortSize );
                     
-                    // calcpreferredsize should not have been called since there is enough space available
-                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
+                    // calcpreferredsize should have been called once
+                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount+1 );
 
                 }
         
@@ -576,8 +568,8 @@ public:
                     pThis->verifyScrolledAreaSize( optimalSize  );
                     pThis->verifyViewPortSize( optimalSize );
                     
-                    // calcpreferredsize should not have been called since there is enough space available
-                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
+                    // calcpreferredsize should have been called once
+                    REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount+1 );
                 }
 
                 SECTION("less width than needed, more than enough height for scrollbar")
@@ -617,17 +609,11 @@ public:
                         pThis->verifyViewPortSize( viewPortSize );
                     }
 
-                    if(pThis->_horzScrollingEnabled)
-                    {
-                        // calcpreferredsize should not have been called since there is enough space available
-                        // in one direction and we can scroll in the other
-                        REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount );
-                    }
-                    else
-                    {
-                        // there is not enough space, so the content view should have been asked how to deal with this.
-                        REQUIRE( pButton->getCalcPreferredSizeCallCount() == initialCalcPreferredSizeCallCount+1 );
+                    // calcpreferredsize should have been called at least once
+                    REQUIRE( pButton->getCalcPreferredSizeCallCount() > initialCalcPreferredSizeCallCount );
 
+                    if(!pThis->_horzScrollingEnabled)
+                    {
                         if(pThis->_vertScrollingEnabled)
                         {
                             // reported available space should have been unlimited height (since scrollable) and 1 DIP less

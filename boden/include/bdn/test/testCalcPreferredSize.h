@@ -273,56 +273,68 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         {
             pView->preferredSizeHint() = prefSizeBefore+Size(1,1);
 
-            Size prefSize = pObject->calcPreferredSize();
+            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
+            {
+                Size prefSize = pObject->calcPreferredSize();
 
-            REQUIRE( prefSize == prefSizeBefore);
+                REQUIRE( prefSize == prefSizeBefore);
+            };
         }
 
         SECTION("same as preferred size hint")
         {
             pView->preferredSizeHint() = prefSizeBefore;
 
-            Size prefSize = pObject->calcPreferredSize();
+            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
+            {
+                Size prefSize = pObject->calcPreferredSize();
 
-            REQUIRE( prefSize == prefSizeBefore);
+                REQUIRE( prefSize == prefSizeBefore);
+            };
         }
                     
         SECTION("width smaller than preferred width hint")
         {
             pView->preferredSizeHint() = Size( prefSizeBefore.width-1, Size::componentNone() );
 
-            Size prefSize = pObject->calcPreferredSize();
-
-            // it depends on the view whether or not the width hint has an effect
-            if(shouldPrefererredWidthHintHaveAnEffect<ViewType>() )
+            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
             {
-                REQUIRE( prefSize.width < prefSizeBefore.width);
+                Size prefSize = pObject->calcPreferredSize();
+
+                // it depends on the view whether or not the width hint has an effect
+                if(shouldPrefererredWidthHintHaveAnEffect<ViewType>() )
+                {
+                    REQUIRE( prefSize.width < prefSizeBefore.width);
                 
-                // the height may have increase as a result of the width being reduced.
-                // It may also have shrunk (for example, if an image is shrunk as the result
-                // of the hint.
-                // So we cannot test anything here, other than that we get a height that
-                // is >0
-                REQUIRE( prefSize.height > 0);
-            }
-            else
-                REQUIRE( prefSize == prefSizeBefore );
+                    // the height may have increase as a result of the width being reduced.
+                    // It may also have shrunk (for example, if an image is shrunk as the result
+                    // of the hint.
+                    // So we cannot test anything here, other than that we get a height that
+                    // is >0
+                    REQUIRE( prefSize.height > 0);
+                }
+                else
+                    REQUIRE( prefSize == prefSizeBefore );
+            };
         }
 
         SECTION("height smaller than preferred height hint")
         {
             pView->preferredSizeHint() = Size( Size::componentNone(), prefSizeBefore.height-1 );
 
-            Size prefSize = pObject->calcPreferredSize();
-
-            if( shouldPrefererredHeightHintHaveAnEffect<ViewType>() )
+            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
             {
-                REQUIRE( prefSize.height < prefSizeBefore.height);
+                Size prefSize = pObject->calcPreferredSize();
+
+                if( shouldPrefererredHeightHintHaveAnEffect<ViewType>() )
+                {
+                    REQUIRE( prefSize.height < prefSizeBefore.height);
                 
-                REQUIRE( prefSize.width > 0);
-            }
-            else
-                REQUIRE( prefSize == prefSizeBefore );
+                    REQUIRE( prefSize.width > 0);
+                }
+                else
+                    REQUIRE( prefSize == prefSizeBefore );
+            };
         }
     }
 

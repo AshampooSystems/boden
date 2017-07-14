@@ -375,6 +375,9 @@ public:
             (i.e. a property that is defined by the Boden framework) has been changed.*/
         standardChildPropertyChanged,
 
+        /** A child view was added or removed.*/
+        childAddedOrRemoved,
+
 
         /** The sizing information of a child view has been invalidated. The child size
             must be recalculated.*/
@@ -399,6 +402,8 @@ public:
 
         Invalidating the sizing info also invalidates the layout and sizing info of any direct
         or indirect parent view(s).
+
+        It is safe to call this from any thread.
         
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
@@ -413,6 +418,8 @@ public:
 		
 		Note that it is usually NOT necessary to call this as a user of a view object. The view object
 		will automatically schedule re-layout operations when its layout parameters or child views change.
+
+        It is safe to call this from any thread.
 
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
