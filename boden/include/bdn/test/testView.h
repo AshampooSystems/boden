@@ -208,14 +208,25 @@ inline void _testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
         {
 		    verifyFunc();
 
-            bool expectSizingInfoInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateSizingInfo)!=0;
-            bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
+            bool expectSizingInfoInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateSizingInfo)!=0;            
             bool expectParentLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateParentLayout)!=0;
+            bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
+
+            // if the parent layout is being invalidated then that can cause the view's size to change, which can also trigger
+            // a child layout invalidation. So if the parent layout is invalidated then we allow (but do not require)
+            // the child layout to be invalidated as wenn.
+            bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
 
             BDN_REQUIRE( (cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount) == expectSizingInfoInvalidation );
-            BDN_REQUIRE( (cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount) == expectLayoutInvalidation );
 
-            if(expectParentLayoutInvalidation)
+            if( expectLayoutInvalidation )
+                BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount );
+            else if(!mightInvalidateLayout)
+                BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() == initialNeedLayoutCount );
+
+            // if the parent should be invalidated and the view is not a top level
+            // window then it MUST have a parent.
+            if(expectParentLayoutInvalidation && tryCast<Window>(pView)==nullptr )
                 REQUIRE( pParent!=nullptr );
 
             if(pParent!=nullptr)
@@ -268,10 +279,22 @@ inline void _testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
                 bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
                 bool expectParentLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateParentLayout)!=0;
 
-		        BDN_REQUIRE( ( cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount ) == expectSizingInfoInvalidation );
-                BDN_REQUIRE( (cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount) == expectLayoutInvalidation );
+                 // if the parent layout is being invalidated then that can cause the view's size to change, which can also trigger
+                // a child layout invalidation. So if the parent layout is invalidated then we allow (but do not require)
+                // the child layout to be invalidated as wenn.
+                bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
 
-                if(expectParentLayoutInvalidation)
+		        BDN_REQUIRE( ( cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount ) == expectSizingInfoInvalidation );
+
+                if( expectLayoutInvalidation )
+                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount );
+                else if(!mightInvalidateLayout)
+                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() == initialNeedLayoutCount );
+
+
+                // if the parent should be invalidated and the view is not a top level
+                // window then it MUST have a parent.
+                if(expectParentLayoutInvalidation && tryCast<Window>(pView)==nullptr )
                     REQUIRE( pParent!=nullptr );
 
                 if(pParent!=nullptr)
@@ -550,10 +573,8 @@ inline void testView()
                         // margin should still have the value we set
                         REQUIRE( pView->margin().get() == m );
 				    },
-				    ExpectedSideEffect_::invalidateParentLayout
-                        | ExpectedSideEffect_::invalidateLayout 
+				    0 | ExpectedSideEffect_::invalidateParentLayout
                         // should NOT have caused a sizing info update
-                        // should cause a layout update, since the parent layout update will change the view's size
 				    );
 		    }
 

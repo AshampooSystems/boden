@@ -92,72 +92,6 @@ void	WindowCore::setTitle(const String& title)
 }
 
 
-/*
-void WindowCore::autoSize()
-{
-	// lock the hierarchy mutex, so that no changes can occur to the hierarchy during this
-	MutexLock lock( View::getHierarchyAndCoreMutex() );
-
-	P<View> pContentView = cast<Window>(_pOuterViewWeak)->getContentView();
-
-	RECT windowRect;
-	::GetWindowRect(_hwnd, &windowRect);
-	HANDLE hMonitor = MonitorFromRect(windowRect, MONITOR_DEFAULTTONEAREST);
-
-	MONITORINFO monitorInfo = {0};
-
-	monitorInfo.cbSize = sizeof(monitorInfo);
-	::GetMonitorInfo(hMonitor, &monitorInfo);
-
-	RECT screenWorkRect = monitorInfo.rcWork;
-
-	int screenWidth = screenWorkRect.right - screenWorkRect.left;
-	int screenHeight = screenWorkRect.bottom - screenWorkRect.top;
-
-	SIZE maxContentSize = inverseofAdjustWindowRect(screenSize);
-	int maxContentWidth = maxContentSize.cx;
-	int maxContentHeight = maxContentSize.cy;
-	
-	// start with the preferred size
-	Size size = pContentView->getPreferredSize();
-
-	// clip width
-	if(contentSize.width>maxContentWidth)
-	{
-		contentSize.width = maxContentWidth;
-
-		// we must readjust the height, since it might depend on the width
-		contentSize.height = pContentView->calcMinHeightFromWidth(contentSize.width);
-	}
-
-	if(contentSize.height>maxContentHeight)
-	{
-		contentSize.height = maxContentHeight;
-
-		contentSize.width = pContentView->calcMinWidthFromHeight(contentSize.height);
-
-		if(contentSize.width>maxContentWidth)
-		{
-			// the content simply does not fit into the available space.
-			// Just set it to the maximum.
-			contentSize.width = maxContentWidth;
-		}
-	}
-
-	Size windowSize = windowSizeFromContentSize(contentSize);
-
-	setSize(windowSize);	
-}*/
-
-
-Rect WindowCore::getContentArea()
-{
-	RECT clientRect;
-	::GetClientRect(getHwnd(), &clientRect);
-
-	return win32RectToRect(clientRect, getUiScaleFactor() );
-}
-
 
 Size WindowCore::getMinimumSize() const
 {
@@ -172,10 +106,47 @@ Size WindowCore::getMinimumSize() const
 	return minSize;
 }
 
+Margin WindowCore::getNonClientMargin() const
+{
+    // In Win32 there is AdjustWindowRect to get the window size from the content area size,
+    // given a set of style flags.
+
+    // We use that to extract the size of the non-client border. Note that this will give
+    // an incorrect result if Windows ever decides to adapt the border size to the client area size
+    // (i.e. if bigger windows get a bigger border, for example). If something like that happens
+    // then we will have to adapt calcPreferredSize and adjustAndSetBounds accordingly.
+    
+    RECT contentRect{500, 500, 800, 600};
+	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
+	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
+
+	HMENU menuHandle = ::GetMenu( getHwnd() );
+
+    RECT windowRect = contentRect;
+
+	if(!::AdjustWindowRectEx( &windowRect, style, (menuHandle!=NULL) ? TRUE : FALSE, exStyle ) )
+	{
+		BDN_WIN32_throwLastError( ErrorFields().add("func", "AdjustWindowRectEx")
+											.add("action", "WindowCore::getNonClientMargin") );
+	}
+
+    // the resulting rect is for an unspecified display, i.e. windows will assume
+    // that the display's scale factor is 1. I.e. it is in DIPs.
+
+    return Margin(
+        contentRect.left-windowRect.left,
+        contentRect.top-windowRect.top,
+        windowRect.right-contentRect.right,
+        windowRect.bottom-contentRect.bottom );
+}
+    
 Size WindowCore::calcPreferredSize( const Size& availableSpace ) const
 {
-	// the implementation for this must be provided by the outer Window object.
-	throw NotImplementedError("WindowCore::calcPreferredSize");	
+    P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+    if(pWindow!=nullptr)
+        return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, getNonClientMargin(), getMinimumSize() );
+    else
+        return getMinimumSize();
 }
 
 void WindowCore::requestAutoSize()
@@ -213,63 +184,6 @@ void WindowCore::center()
     P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );
     if(pOuterView!=nullptr)
         defaultWindowCenterImpl( pOuterView, getScreenWorkArea() );
-}
-
-Size WindowCore::calcWindowSizeFromContentAreaSize(const Size& contentAreaSize)
-{
-    // we need to calculate this in real pixels.
-
-    // round the content area size UP to the next pixel here. Having a window that is 1 pixel "too large"
-    // is usually preferable to having one in which the content does not fit.
-    double scaleFactor = getUiScaleFactor();
-    Rect contentArea( Point(), contentAreaSize);
-    contentArea = PixelAligner( scaleFactor ).alignRect( contentArea, RoundType::nearest, RoundType::up);
-
-    RECT rect = rectToWin32Rect(contentArea, scaleFactor );
-
-	DWORD style = ::GetWindowLongW(getHwnd(), GWL_STYLE);
-	DWORD exStyle = ::GetWindowLongW(getHwnd(), GWL_EXSTYLE);
-
-	HMENU menuHandle = ::GetMenu( getHwnd() );
-
-	if(!::AdjustWindowRectEx( &rect, style, (menuHandle!=NULL) ? TRUE : FALSE, exStyle ) )
-	{
-		BDN_WIN32_throwLastError( ErrorFields().add("func", "AdjustWindowRectEx")
-											.add("action", "WindowCore::calcWindowSizeFromContentAreaSize")
-											.add("contentAreaSize", std::to_string(contentAreaSize.width)+"x"+std::to_string(contentAreaSize.height) ));
-	}
-
-    Rect windowRect = win32RectToRect( rect, scaleFactor );
-
-    return windowRect.getSize();
-}
-
-
-Size WindowCore::calcContentAreaSizeFromWindowSize(const Size& windowSize)
-{
-	// there isn't an inverse function of AdjustWindowRect in the Win32 api.
-
-	// Thankfully, on windows we can assume that the size of the decoration around
-	// the content area (border, title bar, etc.) is the same for any content area size.
-	// Note that STRICTLY speaking that is not actually true, since at some point
-	// a window menu can become multiline (if the window is not wide enough). But AdjustWindowRect
-	// doesn't handle that anyway, so for the time being we also ignore it.
-
-	// So we use a fairly large fake content area size
-	Size dummyContentAreaSize(10000, 10000);
-
-	Size dummyWindowSize = calcWindowSizeFromContentAreaSize(dummyContentAreaSize);
-
-	Size diffSize = dummyWindowSize - dummyContentAreaSize;
-
-	Size contentAreaSize = windowSize - diffSize;
-
-	if(contentAreaSize.width<0)
-		contentAreaSize.width=0;
-	if(contentAreaSize.height<0)
-		contentAreaSize.height=0;
-
-	return contentAreaSize;
 }
 
 Rect WindowCore::getScreenWorkArea() const

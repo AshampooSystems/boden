@@ -6,6 +6,18 @@
 namespace bdn
 {
 
+    
+/** A default implementation for the IViewCore::calcPreferredSize method for a window.
+
+    \param pWindow the window for which the preferred size is to be calculated
+    \param availableSpace the available space for the whole window (including its border)
+    \param border the size of the Window's non-client border (including the title bar). There are platforms where
+        windows to platforms where windows do not have a border or a title bar - on those platforms border should
+        simply be a zero Margin object.
+    \param minWindowSize the minimum size a window can have on the platform (including the border and title bar).
+        This can be Size(0,0) if the platform does not impose a minimum size limit.
+    */
+Size defaultWindowCalcPreferredSizeImpl(Window* pWindow, const Size& availableSpace, const Margin& border, const Size& minWindowSize );
 
 
 /** A default implementation for implementing the layout of a Window object (see IViewCore::layout() ),

@@ -7,6 +7,70 @@
 namespace bdn
 {
 
+Size defaultWindowCalcPreferredSizeImpl(Window* pWindow, const Size& availableSpace, const Margin& border, const Size& minWindowSize )
+{
+    Margin contentMargin;
+	P<const View>	pContentView = pWindow->getContentView();
+	if(pContentView!=nullptr)
+		contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
+
+    Margin padding;    
+    // default padding is zero
+    Nullable<UiMargin> pad = pWindow->padding();
+    if(!pad.isNull())            
+        padding = pWindow->uiMarginToDipMargin( pad );
+
+
+    // combine maxSize with availableSpace
+    Size maxSize = pWindow->preferredSizeMaximum();
+    maxSize.applyMaximum(availableSpace);
+
+    bool widthConstrained = std::isfinite(maxSize.width);
+    bool heightConstrained = std::isfinite(maxSize.height);
+
+	Size availableContentSpace( maxSize );
+
+    // subtract the nonclient border, padding and the content view margin
+    if(std::isfinite( availableContentSpace.width ) )
+    {        
+        availableContentSpace.width -= border.left + border.right + padding.left + padding.right + contentMargin.left + contentMargin.right;
+        if(availableContentSpace.width < 0)
+            availableContentSpace.width = 0;
+    }
+    if(std::isfinite( availableContentSpace.height ) )
+    {    
+        availableContentSpace.height -= border.top + border.bottom + padding.top + padding.bottom + contentMargin.top + contentMargin.bottom;
+        if(availableContentSpace.height < 0)
+            availableContentSpace.height = 0;
+    }
+
+		
+	Size contentSize;
+	if(pContentView!=nullptr)
+		contentSize = pContentView->calcPreferredSize( availableContentSpace );
+
+	Size preferredSize = contentSize + contentMargin + padding + border;
+    
+    // apply minimum size constraint (the maximum constraint has already been applied above)
+    preferredSize.applyMinimum( pWindow->preferredSizeMinimum() );
+
+    // also apply the platform's minimm window size
+    preferredSize.applyMinimum( minWindowSize );
+
+
+    // also apply the preferredSizeMaximum. We already applied it at the start to
+    // take the constraint into account from the beginning, but it may be that prefSize
+    // is bigger than the max here because the content window does not fit.
+    // So we clip the result against the max here, because we never want it to be exceeded.
+    // Note that we do NOT clip against availableSpace, because we WANT that to be exceeded
+    // if the children do not fit.
+    preferredSize.applyMaximum( pWindow->preferredSizeMaximum() );
+
+	return preferredSize;
+}
+
+
+
 
 void defaultWindowLayoutImpl(Window* pWindow, const Rect& contentArea)
 {

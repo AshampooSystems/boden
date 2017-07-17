@@ -47,21 +47,7 @@ public:
 		Note that windows can only have a single child content view. If one is already
 		set then it will be replaced.
 		See #Window class documentation for more information.*/
-	void setContentView(View* pContentView)
-	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
-		if(pContentView!=_pContentView)
-		{
-			if(_pContentView!=nullptr)
-				_pContentView->_setParentView(nullptr);
-
-			_pContentView = pContentView;
-
-            if(_pContentView!=nullptr)
-			    _pContentView->_setParentView(this);
-		}
-	}
+	void setContentView(View* pContentView);
 
 
 	/** Returns the window's content view (see #getContentView()).
@@ -164,8 +150,6 @@ public:
 	}
 
 
-    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
-
 
 protected:
 	P<IUiProvider> determineUiProvider() override
@@ -174,9 +158,7 @@ protected:
 		return _pUiProvider;
 	}	
 
-private:
-    Margin getDipPadding() const;
-    
+private:    
 	P<View>					_pContentView;
     DefaultProperty<String> _title;
 };

@@ -22,11 +22,6 @@ public:
 	
 	void	setTitle(const String& title) override;
 
-	Rect getContentArea() override;
-
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override;
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override;
 	
     /** Returns the area of the screen that can be used by windows.
 		That excludes taskbars, sidebars and the like (if they are always visible).
@@ -48,6 +43,7 @@ public:
 
     void center() override;
     void autoSize() override;
+       
 
 	
 protected:
@@ -72,6 +68,12 @@ protected:
     void sizeChanged(int changeType);
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+
+private:
+    /** Returns the size of the non-client area around the window.
+        This includes the window border, titlebar, etc.*/
+    Margin getNonClientMargin() const;
+
 };
 
 }

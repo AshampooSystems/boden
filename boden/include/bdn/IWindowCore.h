@@ -55,43 +55,6 @@ public:
 	virtual void setTitle(const String& title)=0;
 
 
-	/** Returns the area where the Window's content window
-		should be.*/
-	virtual Rect getContentArea()=0;
-
-
-	/** Calculates the size that the whole window from the size of the content area.
-		This usually adds sizes for the window border (if it has any), title bar, menu bar
-		and the like.
-
-        If the content viewport has constraints for the current display that make adjustments
-        to the specified contentSize necessary then the function will round up the contentSize
-        to a representable size and then return the corresponding window size.
-	*/
-	virtual Size calcWindowSizeFromContentAreaSize(const Size& contentSize)=0;
-
-
-	/** Calculates the size of the content area from the size of the whole window.
-	
-		This is the inverse of calcWindowSizeFromContentAreaSize().	
-        
-        The returned size should never be negative. If the specified window size
-        is smaller than the size needed for the window frame, titlebar, etc and a
-        size with a negative component would be the result of the calculation then
-        that component should be set to zero.
-	*/
-	virtual Size calcContentAreaSizeFromWindowSize(const Size& windowSize)=0;
-
-
-	/** Returns the minimum size of the window, so that all the essential window controls
-		are visible (close, maximize buttons, etc.).
-        
-        The function should NOT include the size constraints from the outer window object in its
-        calculation (i.e. View::preferredSizeMinimum() should be ignored );
-        */
-	virtual Size getMinimumSize() const=0;
-    
-
 	
 };
 

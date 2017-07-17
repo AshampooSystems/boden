@@ -215,6 +215,13 @@ public:
         So the maximum value has the highest priority and the returned value should never exceed
         it. For example, if a minimum is set that exceeds the maximum
         then the maximum should "win" and the preferred size should not exceed the maximum.
+
+
+        Implementation tips for specific view types
+		-------------------------------------------------                
+
+        - Window cores can use the global function defaultWindowCalcPreferredSizeImpl()
+          for a default implementation, if they do not need special handling.
      
 
         Important Notes

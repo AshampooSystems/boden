@@ -114,7 +114,7 @@ TEST_CASE("Window", "[ui]")
 
             SECTION("contentView")
 		    {
-                SECTION("!=null")
+                SECTION("set to !=null")
 		        {
                     P<Button> pButton = newObj<Button>();
                     bdn::test::_testViewOp( 
@@ -128,32 +128,63 @@ TEST_CASE("Window", "[ui]")
 				        {
                             REQUIRE( pWindow->getContentView() == cast<View>(pButton) );
 				        },
-                        0 | bdn::test::ExpectedSideEffect_::invalidateSizingInfo
-				        // should have caused a sizing info update
+                        bdn::test::ExpectedSideEffect_::invalidateSizingInfo
+                            | bdn::test::ExpectedSideEffect_::invalidateLayout
+				        // should have caused a sizing info update and a layout update
                         // should not cause a parent layout update, since there is no parent
 				    );		        
 		        }
 
 
-                SECTION("null")
+                SECTION("set to null")
 		        {
-                    // basically we only test here that there is no crash when the content view is set to null
-                    // and that it does not result in a sizing info update.
-                    bdn::test::_testViewOp( 
-				        pWindow,
-                        pPreparer,
-				        [pWindow]()
-				        {
-					        pWindow->setContentView(nullptr);
-				        },
-				        [pWindow]
-				        {
-                            REQUIRE( pWindow->getContentView() == nullptr);
-				        },
-				        0 | bdn::test::ExpectedSideEffect_::invalidateSizingInfo
-				        // should have caused a sizing info update
-                        // should not cause a parent layout update, since there is no parent
-				    );		        
+                    SECTION("was null")
+                    {
+                        // sanity check
+                        REQUIRE( pWindow->getContentView() == nullptr);
+
+                        
+                        bdn::test::_testViewOp( 
+				            pWindow,
+                            pPreparer,
+				            [pWindow]()
+				            {
+					            pWindow->setContentView(nullptr);
+				            },
+				            [pWindow]
+				            {
+                                REQUIRE( pWindow->getContentView() == nullptr);
+				            },
+				            0 // this should not invalidate anything since the property does not actually change
+				        );		   
+                    }
+                    else
+                    {   
+                        // first make sure that there is a content view attached before the test runs
+                        P<Button> pButton = newObj<Button>();
+
+                        pWindow->setContentView( pButton );
+
+                        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow, pCore)
+                        {
+                            // basically we only test here that there is no crash when the content view is set to null
+                            // and that it does result in a sizing info update.
+                            bdn::test::_testViewOp( 
+				                pWindow,
+                                pPreparer,
+				                [pWindow]()
+				                {
+					                pWindow->setContentView(nullptr);
+				                },
+				                [pWindow]
+				                {
+                                    REQUIRE( pWindow->getContentView() == nullptr);
+				                },
+				                bdn::test::ExpectedSideEffect_::invalidateSizingInfo
+                                    | bdn::test::ExpectedSideEffect_::invalidateLayout
+				            );		        
+                        };
+                    }
 		        }
 		    }
 	    }

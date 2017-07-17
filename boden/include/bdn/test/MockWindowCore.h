@@ -50,35 +50,8 @@ public:
 	}
 
 
-	Rect getContentArea() override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		return Rect(0, 0, _bounds.width-10-10, _bounds.height-20-10);
-	}
-
-
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
-	{
-        BDN_REQUIRE_IN_MAIN_THREAD();
-
-		return contentSize + Margin(20, 11, 12, 13);
-	}
-
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-        
-        Size contentSize = windowSize - Margin(20, 11, 12, 13);
-        contentSize.width = std::max(contentSize.width, 0.0);
-        contentSize.height = std::max(contentSize.height, 0.0);
-        
-        return contentSize;
-	}
-
-
-	Size getMinimumSize() const override
+	Size getMinimumSize() const
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -97,11 +70,11 @@ public:
 	{
         MockViewCore::calcPreferredSize(availableSpace);
 
-		BDN_REQUIRE_IN_MAIN_THREAD();
-
-		// should not be called. The outer window should calculate the size
-		REQUIRE(false);		
-		return Size(0,0);
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, getBorder(), getMinimumSize() );
+        else
+            return getMinimumSize();
 	}
 
 
@@ -200,7 +173,25 @@ public:
     }
 
 
+    Margin getBorder() const
+    {
+        return Margin(20, 11, 12, 13);
+    }
+
+
+    Rect getContentArea() const
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+
+		return Rect( Point(0, 0), _bounds.getSize() - getBorder() );
+	}
+
+    
+
+
+
 protected:
+    
 	String  _title;
 	int     _titleChangeCount = 0;	
 
