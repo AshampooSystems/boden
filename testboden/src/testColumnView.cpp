@@ -42,6 +42,8 @@ void testChildAlignment(
     {
         int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
+        Rect buttonBoundsBefore = Rect( pButton->position(), pButton->size() );
+
         SECTION("horizontal")
         {
             pButton->horizontalAlignment() = horzAlign;
@@ -84,18 +86,15 @@ void testChildAlignment(
         {
             pButton->verticalAlignment() = vertAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, layoutCountBefore, buttonBoundsBefore)
             {
-                // but layout should have
+                // layout should have been invalidated
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
                 // vertical alignment should have NO effect in a column view.
                 Rect bounds = Rect( pButton->position(), pButton->size() );
-                Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
 
-                REQUIRE( bounds.y==0 );
-                REQUIRE( bounds.height < containerBounds.height );
-
+                REQUIRE( bounds == buttonBoundsBefore );
             };
         }
     };
