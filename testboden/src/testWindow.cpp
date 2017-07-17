@@ -319,7 +319,8 @@ TEST_CASE("Window", "[ui]")
 
                 REQUIRE( pWindow->size() == Size(200, 200) );
 			};
-	    }		        
+	    }	
+
 
         SECTION("contentView aligned on full pixels")
         {

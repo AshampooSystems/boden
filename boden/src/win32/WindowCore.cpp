@@ -149,6 +149,18 @@ Size WindowCore::calcPreferredSize( const Size& availableSpace ) const
         return getMinimumSize();
 }
 
+void WindowCore::layout()
+{
+    P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+    if(pWindow!=nullptr)
+    {    
+        RECT clientRect;
+        ::GetClientRect( getHwnd(), &clientRect);
+
+        defaultWindowLayoutImpl( pWindow, win32RectToRect(clientRect, getUiScaleFactor() ) );
+    }
+}
+
 void WindowCore::requestAutoSize()
 {
     P<Window> pOuterView = cast<Window>( getOuterViewIfStillAttached() );

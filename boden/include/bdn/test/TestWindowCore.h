@@ -87,6 +87,51 @@ protected:
                 };
             }
         }
+
+        
+        SECTION("layout arranges content view")
+        {
+            P<Button> pChild = newObj<Button>();
+
+            _pWindow->setContentView(pChild);
+
+            // set a left/top margin for the child so that it is moved to the bottom right
+            Margin margin( 11, 0, 0, 22 );
+            pChild->margin() = UiMargin( margin.top, margin.right, margin.bottom, margin.left );
+
+            // then autosize the window
+            _pWindow->requestAutoSize();
+
+            P<TestWindowCore> pThis = this;
+
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, pChild, margin)
+            {
+                Point oldPos = pChild->position();
+                Size  oldSize = pChild->size();
+
+                // then invert the margin and make the top margin a bottom margin and the
+                // left margin a right margin
+                pChild->margin() = UiMargin( 0, margin.left, margin.top, 0);
+                
+
+                // this should cause a layout. We know the layout happens (we test that in another case).
+                // Here we only verify that the layout actually updates the content view.
+                BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, pChild, oldPos, oldSize, margin)
+                {
+                    // if a layout was done then the child position should now be moved to the left and up
+                    // by the amount of the removed margin.
+                    // The position might not match exactly, since it is rounded to full pixels
+                    Point expectedPos(oldPos.x - margin.left, oldPos.y - margin.top);
+                    Point pos = pChild->position();
+                    REQUIRE_ALMOST_EQUAL( pos.x, expectedPos.x, 2);
+                    REQUIRE_ALMOST_EQUAL( pos.y, expectedPos.y, 2);
+                    
+                    // size should not have changed
+                    REQUIRE( pChild->size().get() == oldSize );
+                };
+                
+            };
+        }
                 
         
         SECTION("Ui element destroyed when object destroyed")

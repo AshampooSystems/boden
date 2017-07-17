@@ -37,6 +37,7 @@ public:
 	Size getMinimumSize() const;
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+    void layout() override;
 
 	void requestAutoSize();
     void requestCenter();
