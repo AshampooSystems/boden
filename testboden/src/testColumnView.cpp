@@ -53,6 +53,8 @@ void testChildAlignment(
                 // but layout should have happened
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
+                Margin margin = pButton->uiMarginToDipMargin( pButton->margin());
+
                 Rect bounds = Rect( pButton->position(), pButton->size() );
                 Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
 
@@ -64,20 +66,20 @@ void testChildAlignment(
                 // and the view should now be aligned accordingly.
                 if(horzAlign==View::HorizontalAlignment::left)
                 {
-                    REQUIRE( bounds.x==0 );
+                    REQUIRE( bounds.x==margin.left );
                 }
                 else if(horzAlign==View::HorizontalAlignment::center)
                 {
-                    REQUIRE( bounds.x == (containerBounds.width-bounds.width)/2  );
+                    REQUIRE( bounds.x == margin.left + (containerBounds.width - (bounds.width+margin.left+margin.right) )/2  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::right)
                 {
-                    REQUIRE( bounds.x == containerBounds.width-bounds.width  );
+                    REQUIRE( bounds.x == containerBounds.width - margin.right - bounds.width  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::expand)
                 {
-                    REQUIRE( bounds.x == 0);
-                    REQUIRE( bounds.width == containerBounds.width );
+                    REQUIRE( bounds.x == margin.left);
+                    REQUIRE( bounds.width == containerBounds.width - margin.left - margin.right );
                 }
             };
         }
@@ -205,7 +207,17 @@ TEST_CASE("ColumnView")
                         for(int vertAlign = (int)View::VerticalAlignment::top; vertAlign<=(int)View::VerticalAlignment::expand; vertAlign++)
                         {
                             SECTION( toString(horzAlign)+", "+toString(vertAlign) )
-                                testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+                            {
+                                SECTION("no margin")
+                                    testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+
+                                SECTION("with margin")
+                                {
+                                    pButton->margin() = UiMargin( 10, 20, 30, 40);
+
+                                    testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+                                }
+                            }
                         }
                     }
                 }

@@ -97,12 +97,15 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 
 		Size		childPreferredSize = pChildView->calcPreferredSize( childAvailableSpace );
 
+        Size        childSize = childPreferredSize;
+
         // If we are not measuring then the children cannot be bigger than the available space.
         // So, clip in that case.
         if(!forMeasuring)
-            childPreferredSize.applyMaximum( childAvailableSpace );
+            childSize.applyMaximum( childAvailableSpace );
         		
-		Size        childSizeWithMargins = childPreferredSize + childMargin;
+        
+		Size        childSizeWithMargins = childSize + childMargin;
 		
         // When we are measuring we do not expand the view to the available space if expand alignment is set.
         // Otherwise a container with an expand child would ALWAYS use up all available space, which is not
@@ -122,13 +125,12 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 		if(!forMeasuring
             && horzAlign == HorizontalAlignment::expand
             && widthLimited
-            && childSizeWithMargins.width < childAvailableSpace.width)
+            && childSize.width < childAvailableSpace.width)
 		{
 			// expand to the full content area width
-			childSizeWithMargins.width = childAvailableSpace.width;
+			childSize.width = childAvailableSpace.width;
+            childSizeWithMargins = childSize + childMargin;
 		}
-
-        Size childSize = childSizeWithMargins - childMargin;
         
         double childX = 0;
 
@@ -145,7 +147,9 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
 		    else
     			alignFactor = 0;
 
-            childX = (childAvailableSpace.width - childSizeWithMargins.width) * alignFactor;        
+            // childAvailableSpace is the space that is available with the child margins subtracted.
+            // So we must childSize inside that space, not childSizeWithMargins
+            childX = (childAvailableSpace.width - childSize.width) * alignFactor;        
         }
 		    
         childX += myPadding.left + childMargin.left;
