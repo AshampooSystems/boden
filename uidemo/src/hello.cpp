@@ -165,10 +165,10 @@ protected:
         // wait until the model changes have propagated to the UI, then autosize
         P<Window> pWindow = _pWindow;
         asyncCallFromMainThreadWhenIdle(
-        [pWindow]()
-        {
-            pWindow->requestAutoSize();
-        } );
+            [pWindow]()
+            {
+                pWindow->requestAutoSize();
+            } );
 
     }
 
