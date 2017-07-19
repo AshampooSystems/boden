@@ -87,7 +87,11 @@ void View::invalidateSizingInfo( InvalidateReason reason )
         // of invalidating the layout, if necessary
         P<IViewCore> pCore = getViewCore();
         if(pCore!=nullptr)
-            pCore->invalidateSizingInfo(reason);	
+            pCore->invalidateSizingInfo(reason);
+
+        P<View> pParentView = getParentView();
+        if(pParentView!=nullptr)
+            pParentView->childSizingInfoInvalidated( this );
     }
     else
     {

@@ -3,6 +3,7 @@
 
 #include <bdn/ScrollViewLayoutHelper.h>
 #include <bdn/ScrollView.h>
+#include <bdn/Dip.h>
 
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test/ScrollViewLayoutTesterBase.h>
@@ -71,6 +72,8 @@ public:
 
     void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override
     {
+        maxDeviation += Dip::significanceBoundary();
+
         if(maxDeviation==0)
             REQUIRE( _helper.getContentViewBounds() == expectedBounds );
         else
@@ -86,12 +89,12 @@ public:
 
     void verifyScrolledAreaSize( const Size& expectedSize) override
     {
-        REQUIRE( _helper.getScrolledAreaSize() == expectedSize );
+        REQUIRE( Dip::equal(_helper.getScrolledAreaSize(), expectedSize) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
     {
-        REQUIRE( _helper.getViewPortSize() == expectedSize );
+        REQUIRE( Dip::equal(_helper.getViewPortSize(), expectedSize) );
     }               
              
 

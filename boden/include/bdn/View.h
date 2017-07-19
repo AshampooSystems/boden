@@ -409,7 +409,7 @@ public:
             (rather than the framework itself) then this should usually be set to
             View::InvalidateReason::customDataChanged
 		*/
-	void invalidateSizingInfo(InvalidateReason reason);
+	virtual void invalidateSizingInfo(InvalidateReason reason);
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -425,7 +425,7 @@ public:
             (rather than the framework itself) then this should usually be set to
             View::InvalidateReason::customDataChanged
 		*/
-	void needLayout(InvalidateReason reason);
+	virtual void needLayout(InvalidateReason reason);
 
 
     /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to

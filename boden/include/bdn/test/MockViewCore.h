@@ -113,16 +113,15 @@ public:
 	}
 
 
-
-    
-
-
-
-
 	Size _getTextSize(const String& s) const
 	{
-		// our fake font has a size of 9.75 x 19.60 DIPs for each character.
-		return Size( s.getLength()*9.75, 19.60);
+		// our fake font has a size of 9.75 x 19 2/3 DIPs for each character.
+
+        // round width to the next "pixel"
+        double width = std::ceil( s.getLength()*9.75 * 3 ) / 3;
+        double height = 19 + 2.0/3;
+
+		return Size( width, height );
 	}
 
 	void	setVisible(const bool& visible) override
@@ -367,17 +366,6 @@ public:
         BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_invalidateSizingInfoCount++;
-
-        P<View> pOuterView = getOuterViewIfStillAttached();
-        if(pOuterView!=nullptr)
-        {
-            P<View> pParentView = pOuterView->getParentView();
-            if(pParentView!=nullptr)
-            {
-                pParentView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
-                pParentView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
-            }
-        }
     }
 
     int getNeedLayoutCount() const
@@ -407,13 +395,12 @@ public:
          BDN_REQUIRE_IN_MAIN_THREAD();
 		
 		_childSizingInfoInvalidatedCount++;
-
-
-        P<View> pParent = getOuterViewIfStillAttached();
-        if(pParent!=nullptr)
+        
+        P<View> pOuter = getOuterViewIfStillAttached();
+        if(pOuter!=nullptr)
         {
-            pParent->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
-            pParent->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuter->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuter->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
         }
     }
 

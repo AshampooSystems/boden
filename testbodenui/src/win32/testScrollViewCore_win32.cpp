@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/Window.h>
+#include <bdn/Dip.h>
 #include <bdn/test/TestScrollViewCore.h>
 #include <bdn/win32/UiProvider.h>
 #include <bdn/win32/ScrollViewCore.h>
@@ -66,6 +67,8 @@ protected:
 
     void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override
     {
+        maxDeviation += Dip::significanceBoundary();
+
         P<View> pContentView =  _pScrollView->getContentView();
 
         if(pContentView!=nullptr)
@@ -75,11 +78,7 @@ protected:
             // the bounds are rounded to pixel boundaries, so there can always be some deviation.
             // At most 1 pixel. Add that to maxDeviation
             maxDeviation += 1.0/_pWin32Core->getUiScaleFactor();
-
-            // add a little more to account for floating point rounding problems.
-            maxDeviation += 0.0001;
-
-
+            
             if(maxDeviation==0)
                 REQUIRE( bounds == expectedBounds );
             else

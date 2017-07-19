@@ -403,6 +403,26 @@ inline void testView()
             REQUIRE( pCore->getInvalidateSizingInfoCount() == callCountBefore + 1);
         }
 
+        SECTION("invalidateSizingInfo notifies parent")
+        {
+            P<View>         pParent = pView->getParentView();
+            if(pParent!=nullptr)
+            {
+                P<MockViewCore> pParentCore = cast<MockViewCore>( pParent->getViewCore() );
+
+                int childSizingInfoInvalidatedCount = pParentCore->getChildSizingInfoInvalidatedCount();
+                int parentSizingInvalidatedCount = pParentCore->getInvalidateSizingInfoCount();
+                int parentNeedLayoutCount = pParentCore->getNeedLayoutCount();
+
+                pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
+
+                // should have invalidated the parent sizing info and layout via a childSizingInfoInvalidated call.
+                REQUIRE( pParentCore->getChildSizingInfoInvalidatedCount() == childSizingInfoInvalidatedCount+1 );
+                REQUIRE( pParentCore->getInvalidateSizingInfoCount() == parentSizingInvalidatedCount+1 );
+                REQUIRE( pParentCore->getNeedLayoutCount() == parentNeedLayoutCount+1 );
+            }
+        }
+
         SECTION("preferred size caching (finite space)")
         {
             // fill cache
@@ -841,6 +861,7 @@ inline void testView()
                         }
                     }
                 }
+
             }
 	    }
 

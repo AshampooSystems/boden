@@ -24,7 +24,7 @@ public:
     /** Performs the tests.*/
     virtual void runTests()
     {
-        _pWindow = newObj<Window>( &getUiProvider() );
+        _pWindow = newObj<WindowForTest>( &getUiProvider() );
 
         _pWindow->visible() = true;
 
@@ -509,6 +509,15 @@ protected:
                 }
             }
         }        
+
+        SECTION("invalidateSizingInfo invalidates parent sizing info")
+        {
+            int invalidateCountBefore = _pWindow->getInvalidateSizingInfoCount();
+
+            _pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
+
+            REQUIRE( _pWindow->getInvalidateSizingInfoCount() > invalidateCountBefore );
+        }
     }
 
 
@@ -573,11 +582,38 @@ protected:
         return true;
     }
 
-    
-    P<Window> _pWindow;
-    P<View>   _pView;
 
-    P<IViewCore> _pCore;
+protected:
+
+    class WindowForTest : public Window
+    {
+    public:
+        WindowForTest(IUiProvider* pUiProvider = nullptr)
+            : Window(pUiProvider)
+        {
+        }
+
+        void invalidateSizingInfo(InvalidateReason reason) override
+        {
+            _invalidateSizingInfoCount++;
+
+            Window::invalidateSizingInfo(reason);
+        }
+
+        int getInvalidateSizingInfoCount() const
+        {
+            return _invalidateSizingInfoCount;
+        }
+
+    private:
+        int _invalidateSizingInfoCount = 0;
+    };
+
+   
+    P<WindowForTest>    _pWindow;
+    P<View>             _pView;
+
+    P<IViewCore>        _pCore;
 };
 
 

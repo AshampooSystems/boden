@@ -2,6 +2,7 @@
 #define BDN_ScrollViewLayoutHelper_H_
 
 #include <bdn/ScrollView.h>
+#include <bdn/Dip.h>
 
 namespace bdn
 {
@@ -89,12 +90,12 @@ public:
                 if(horzScrollEnabled)
                     contentAvailableSpace.width = Size::componentNone();
                 else
-                    wideEnough = (actualContentSize.width <= contentAvailableSpace.width);
+                    wideEnough = ( Dip(actualContentSize.width) <= contentAvailableSpace.width);
                 
                 if(vertScrollEnabled)
                     contentAvailableSpace.height = Size::componentNone();
                 else
-                    highEnough = (actualContentSize.height <= contentAvailableSpace.height);
+                    highEnough = ( Dip(actualContentSize.height) <= contentAvailableSpace.height);
             
                 if(!wideEnough || !highEnough)
                     actualContentSize = pContentView->calcPreferredSize(contentAvailableSpace);               
@@ -110,10 +111,10 @@ public:
             Size    contentSizeWithMarginAndPadding = actualContentSize + contentMargin + outerPadding;                        
                                            
             // now we calculate whether or not we need scroll bars
-            _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
+            _showHorizontalScrollBar = ( Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width && horzScrollEnabled);
             if(_showHorizontalScrollBar)
                 _viewPortSize.height -= _horzBarHeight;
-            _showVerticalScrollBar = (contentSizeWithMarginAndPadding.height > _viewPortSize.height && vertScrollEnabled);                        
+            _showVerticalScrollBar = ( Dip(contentSizeWithMarginAndPadding.height) > _viewPortSize.height && vertScrollEnabled);                        
             if(_showVerticalScrollBar)
             {
                 _viewPortSize.width -= _vertBarWidth;
@@ -122,7 +123,7 @@ public:
                 {                
                     // adding the vertical scroll bar might have decreased the viewport width enough so that we now
                     // also need a horizontal scroll bar. So check that again
-                    _showHorizontalScrollBar = (contentSizeWithMarginAndPadding.width > _viewPortSize.width && horzScrollEnabled);
+                    _showHorizontalScrollBar = ( Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width && horzScrollEnabled);
                     if(_showHorizontalScrollBar)
                         _viewPortSize.height -= _horzBarHeight;
                 }
@@ -140,12 +141,12 @@ public:
             // then we clip the content.
             bool widthClipped = false;
             bool heightClipped = false;
-            if(!horzScrollEnabled && contentSizeWithMarginAndPadding.width > _viewPortSize.width)
+            if(!horzScrollEnabled && Dip(contentSizeWithMarginAndPadding.width) > _viewPortSize.width)
             {
                 widthClipped = true;
                 contentSizeWithMarginAndPadding.width = _viewPortSize.width;
             }
-            if(!vertScrollEnabled && contentSizeWithMarginAndPadding.height > _viewPortSize.height)
+            if(!vertScrollEnabled && Dip(contentSizeWithMarginAndPadding.height) > _viewPortSize.height)
             {
                 heightClipped = true;
                 contentSizeWithMarginAndPadding.height = _viewPortSize.height;
@@ -317,7 +318,7 @@ public:
             // scroll then that is because its content cannot fit into that size. In that case
             // we should also report the bigger size and not clip it.
             // So we only do clipping if horz scrolling is enabled.
-            if(widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
+            if(widthConstrained && Dip(prefSize.width) > maxSize.width && horzScrollEnabled)
             {
                 prefSize.width = maxSize.width;
                     
@@ -338,7 +339,7 @@ public:
             // scroll view will be shrunk first. So it is no problem to initially request a
             // big preferred size.
         
-            if(heightConstrained && prefSize.height>maxSize.height && vertScrollEnabled)
+            if(heightConstrained && Dip(prefSize.height) > maxSize.height && vertScrollEnabled)
             {
                 prefSize.height = maxSize.height;
 
@@ -350,7 +351,7 @@ public:
                 // If we are already scrolling horizontally then we need to reduce the prefSize.width
                 // to maxSize.width again.
 
-                if(widthConstrained && prefSize.width>maxSize.width && horzScrollEnabled)
+                if(widthConstrained && Dip(prefSize.width) > maxSize.width && horzScrollEnabled)
                 {
                     prefSize.width = maxSize.width;
 
@@ -375,8 +376,8 @@ public:
         
             Size contentSizeAtPrefSizeWithoutScrolling = prefSize - outerPadding - contentMargin;
 
-            bool widthClipped = !showHorizontalScrollBar && contentSizeAtPrefSizeWithoutScrolling.width < contentSize.width;
-            bool heightClipped = !showVerticalScrollBar && contentSizeAtPrefSizeWithoutScrolling.height < contentSize.height;
+            bool widthClipped = !showHorizontalScrollBar && Dip(contentSizeAtPrefSizeWithoutScrolling.width) < contentSize.width;
+            bool heightClipped = !showVerticalScrollBar && Dip(contentSizeAtPrefSizeWithoutScrolling.height) < contentSize.height;
 
             // if we have limited space then we already communicated that to the content view
             // when we retrieved its preferred size. So if the content view got clipped then

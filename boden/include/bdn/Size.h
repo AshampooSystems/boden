@@ -67,7 +67,7 @@ public:
 	{		
 	}
 
-
+    
 	/** Subtracts the size of the specified margin from the size.*/
 	Size operator-(const Margin& margin) const
 	{

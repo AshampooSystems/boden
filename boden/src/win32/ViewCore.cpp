@@ -110,7 +110,8 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 
 void ViewCore::invalidateSizingInfo(View::InvalidateReason reason)
 {
-    // nothing to do here in the core. We do not cache sizing info.
+    // nothing to invalidate for ourselves (since we do not cache anything
+    // in the core)
 }
 
 void ViewCore::needLayout(View::InvalidateReason reason)
@@ -128,7 +129,10 @@ void ViewCore::childSizingInfoInvalidated(View* pChild)
 {
     P<View> pOuterView = getOuterViewIfStillAttached();
     if(pOuterView!=nullptr)
+    {
         pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+        pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+    }
 }
 
 void ViewCore::layout()

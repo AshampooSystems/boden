@@ -21,13 +21,13 @@ class IViewCore : BDN_IMPLEMENTS IBase
 public:
 
 
-    /** Invalidates the cached sizing information of the view (see calcPreferredSize()).
-
-        It is usually not necessary to call this manually. The view will automatically invalidate
-        the sizing info when relevant internal data or properties change.
-
-        Invalidating the sizing info also invalidates the layout and sizing info of any direct
-        or indirect parent view(s).
+    /** Invalidates the any cached sizing information of the view (see calcPreferredSize()).
+    
+        The outer View object automatically invalidates its own sizing info cache and 
+        also notifies the parent view, that a child's sizing info has been invalidated.
+        
+        So this IViewCore version of the function only has to invalidate any cached sizing
+        information that it keeps itself.
         
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
@@ -90,8 +90,11 @@ public:
 
 
     /** This is called when the sizing information of a child view was invalidated.
-        Usually this will prompt this view (the parent view) to also schedule an update to
-        its own sizing information and an update to its layout.*/
+
+        The normal implementation for this is that this invalidates the view's own sizing
+        info and layout. But the core has full control over this and can use an optimized implementation
+        if it wants to.
+        */
     virtual void childSizingInfoInvalidated(View* pChild)=0;
 
 

@@ -19,6 +19,8 @@ namespace bdn
     the resulting floating point numbers might be slightly different. This class makes
     it easy to ignore such insignificant differences.
 
+    The Dip class can handle infinity double values. The comparisons work as expected.
+
     Dip values can be implicitly converted to double values.
 */
 class Dip : public Base
@@ -36,17 +38,76 @@ public:
 	}
     
     /** Compares two DIP values while ignoring insignificant differences. Returns -1 if a is significantly
-        smaller, 0 if the two values are not significantly different, 1 if a is significantly bigger.*/
-    static int compare( double a, double b)
+        smaller, 0 if the two values are not significantly different, 1 if a is significantly bigger.
+
+        The function also works with infinity double values. The comparisons work as expected.
+        
+        If any of the parameters is the special NaN value then the return value is NaN
+        */
+    static double compare( double a, double b)
     {
-        double diff = a-b;
-        if(diff < - significanceBoundary() )
-            return -1;
-        else if(diff > significanceBoundary() )
-            return 1;
+        if(std::isfinite(a) && std::isfinite(b))
+        {
+            double diff = a-b;
+            if(diff < - significanceBoundary() )
+                return -1;
+            else if(diff > significanceBoundary() )
+                return 1;
+            else
+                return 0;
+        }
         else
-            return 0;
+        {
+            if(a<b)
+                return -1;
+            else if(a>b)
+                return 1;
+            else if(std::isnan(a) || std::isnan(b) )
+                return std::numeric_limits<double>::quiet_NaN();
+            else
+                return 0;
+        }
     }
+
+
+    /** Returns true if the specified two DIP values are "equal" in the sense that
+        their differences are insignificant.*/
+    static bool equal( double a, double b)
+    {
+        if(std::isfinite(a) && std::isfinite(b))
+            return fabs(a-b) <= significanceBoundary();
+        else
+        {
+            // when infinities are involved then slight differences do affect the outcome
+            return (a==b);
+        }
+    }
+    
+
+    /** Returns true if the specified Size objects with Dip values are "equal" in the sense that
+        their differences are insignificant.*/
+    static bool equal(const Size& a, const Size& b)
+    {
+        return ( equal(a.width, b.width) && equal(a.height, b.height) );
+    }
+
+    /** Returns true if the specified Point objects with Dip values are "equal" in the sense that
+        their differences are insignificant.*/
+    static bool equal(const Point& a, const Point& b)
+    {
+        return ( equal(a.x, b.x) && equal(a.y, b.y) );
+    }
+
+    /** Returns true if the specified Rect objects with Dip values are "equal" in the sense that
+        their differences are insignificant.*/
+    static bool equal(const Rect& a, const Rect& b)
+    {
+        return ( equal(a.x, b.x)
+                && equal(a.y, b.y)
+                && equal(a.width, b.width)
+                && equal(a.height, b.height) );
+    }
+
 
     double getValue() const
     {
@@ -132,7 +193,6 @@ public:
     }
     
 
-private:
     /** Returns the minimum difference between two DIP values that is considered significant.*/
     static constexpr double significanceBoundary()
     {
@@ -162,42 +222,45 @@ private:
         return 0.0001;
     }
 
+private:
+
     double _value;
 };
 
 
-inline bool operator==(double a, const Dip& b)
+}
+
+
+
+inline bool operator==(double a, const bdn::Dip& b)
 {
     return b==a;
 }
 
-inline bool operator!=(double a, const Dip& b)
+inline bool operator!=(double a, const bdn::Dip& b)
 {
     return b!=a;
 }
 
-inline bool operator<(double a, const Dip& b)
+inline bool operator<(double a, const bdn::Dip& b)
 {
     return b>a;
 }
 
-inline bool operator>(double a, const Dip& b)
+inline bool operator>(double a, const bdn::Dip& b)
 {
     return b<a;
 }
 
-inline bool operator<=(double a, const Dip& b)
+inline bool operator<=(double a, const bdn::Dip& b)
 {
     return b>=a;
 }
 
-inline bool operator>=(double a, const Dip& b)
+inline bool operator>=(double a, const bdn::Dip& b)
 {
     return b<=a;
 }
 
-	
-
-}
 
 #endif
