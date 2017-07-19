@@ -134,10 +134,10 @@ Margin WindowCore::getNonClientMargin() const
     // that the display's scale factor is 1. I.e. it is in DIPs.
 
     return Margin(
-        contentRect.left-windowRect.left,
         contentRect.top-windowRect.top,
         windowRect.right-contentRect.right,
-        windowRect.bottom-contentRect.bottom );
+        windowRect.bottom-contentRect.bottom,
+        contentRect.left-windowRect.left );
 }
     
 Size WindowCore::calcPreferredSize( const Size& availableSpace ) const
