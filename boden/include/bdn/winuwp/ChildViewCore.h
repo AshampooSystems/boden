@@ -111,6 +111,39 @@ public:
         // most views do not use the hint. So do nothing by default.
     }
 
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // we must validate our arrange info manually, since we ignore needLayout calls
+        // that occur because of standard property changes
+        invalidateArrange();
+    }
+
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // we must validate our arrange info manually, since we ignore needLayout calls
+        // that occur because of standard property changes
+        invalidateArrange();
+    }
+
+
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // we must validate our measure info manually, since we ignore invalidateSizingInfo calls
+        // that occur because of standard property changes
+        invalidateMeasure();
+    }
+
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // we must validate our measure info manually, since we ignore invalidateSizingInfo calls
+        // that occur because of standard property changes
+        invalidateMeasure();
+    }
+
+
+
+
     void invalidateSizingInfo(View::InvalidateReason reason) override
     {
         // see needLayout for an explanation about why we ignore standard property changes.
@@ -121,18 +154,7 @@ public:
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
-            BDN_WINUWP_TO_STDEXC_BEGIN;
-
-            try
-            {
-		        _pFrameworkElement->InvalidateMeasure();
-            }
-            catch(::Platform::DisconnectedException^ e)
-            {
-                // view was already destroyed. Ignore this.
-            }
-
-            BDN_WINUWP_TO_STDEXC_END;
+            invalidateMeasure();
         }
     }
 
@@ -164,18 +186,7 @@ public:
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
-            BDN_WINUWP_TO_STDEXC_BEGIN;
-
-            try
-            {
-		        _pFrameworkElement->InvalidateArrange();
-            }
-            catch(::Platform::DisconnectedException^ e)
-            {
-                // view was already destroyed. Ignore this.
-            }
-
-            BDN_WINUWP_TO_STDEXC_END;
+            invalidateArrange();
         }
     }
 
@@ -546,11 +557,37 @@ private:
         _inUwpLayoutOperation = inLayoutOp;
     }
 
+    void invalidateMeasure()
+    {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
 
-				
-				
+        try
+        {
+		    _pFrameworkElement->InvalidateMeasure();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
 
+        BDN_WINUWP_TO_STDEXC_END;
+    }
 
+    void invalidateArrange()
+    {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        try
+        {
+		    _pFrameworkElement->InvalidateArrange();
+        }
+        catch(::Platform::DisconnectedException^ e)
+        {
+            // view was already destroyed. Ignore this.
+        }
+
+        BDN_WINUWP_TO_STDEXC_END;
+    }
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 

@@ -154,33 +154,6 @@ public:
 	}
 
 
-	/** Returns the area where the Window's content window
-		should be.*/
-	Rect getContentArea() override
-	{
-		Size contentSize = _getContentSize();
-		return Rect(0, 0, contentSize.width, contentSize.height );
-	}
-
-
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
-	{
-		return contentSize + _getNonContentSize();
-	}
-
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-	{
-		return windowSize - _getNonContentSize();
-	}
-
-
-	Size getMinimumSize() const override
-	{
-		return _getNonContentSize();
-	}
-
-
 
 	void	setVisible(const bool& visible) override
 	{
@@ -202,11 +175,32 @@ public:
 	}
 
     
-    void setPreferredSizeHint(const Size& hint)
+    void setPreferredSizeHint(const Size& hint) override
     {
         // we do not use the hínt
     }
 
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // don't care - it does not affect anything
+    }
+
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // don't care - it does not affect anything
+    }
+        
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // our preferred size does not matter for the layout, since we cannot adapt the window size anyway
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // our preferred size does not matter for the layout, since we cannot adapt the window size anyway
+    }
+    
     
     void invalidateSizingInfo( View::InvalidateReason reason ) override
     {
@@ -332,8 +326,11 @@ public:
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-		// the implementation for this must be provided by the outer Window object.
-		throw NotImplementedError("WindowCore::calcPreferredSize");	
+        P<Window> pWindow = _outerWindowWeak.toStrong();
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size() );
+        else
+            return Size(0,0);
 	}
 
 	
@@ -434,12 +431,7 @@ private:
         BDN_WINUWP_TO_STDEXC_END
 	}
 
-	Size _getNonContentSize() const
-	{
-		// Windows hides the sizes of the non-content area from us. So they are
-		// 0 as far as we need to be concerned.
-		return Size(0, 0);
-	}
+
 
     double getEmSizeDips() const
     {

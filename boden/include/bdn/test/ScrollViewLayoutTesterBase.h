@@ -3,6 +3,7 @@
 
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
+#include <bdn/Dip.h>
 
 
 namespace bdn

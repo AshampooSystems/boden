@@ -54,9 +54,13 @@ public:
     		
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
+        // call the outer container's preferred size calculation
+
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+            return pOuterView->calcContainerPreferredSize( availableSpace );
+        else
+            return Size(0,0);
 	}
 
         
