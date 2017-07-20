@@ -41,6 +41,8 @@ protected:
     void runPostInitTests() override
     {
         TestViewCore::runPostInitTests();
+        
+        P<TestContainerViewCore> pThis = this;
 
         SECTION("calcPreferredSize forwarded to outer")
         {
@@ -68,11 +70,14 @@ protected:
         SECTION("layout forwarded to outer")
         {
             int initialCount = _pContainerView->getCalcContainerLayoutCount();
-
-            _pCore->layout();
-
-            REQUIRE( _pContainerView->getCalcContainerLayoutCount() == initialCount+1 );
-            REQUIRE( _pContainerView->getLastCalcContainerLayoutContainerSize() == _pContainerView->size() );
+            
+            _pContainerView->needLayout( View::InvalidateReason::customDataChanged );
+            
+            CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
+            {
+                REQUIRE( pThis->_pContainerView->getCalcContainerLayoutCount() == initialCount+1 );
+                REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
+            };
         }
     }
 

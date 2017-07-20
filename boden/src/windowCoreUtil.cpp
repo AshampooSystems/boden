@@ -25,9 +25,6 @@ Size defaultWindowCalcPreferredSizeImpl(Window* pWindow, const Size& availableSp
     Size maxSize = pWindow->preferredSizeMaximum();
     maxSize.applyMaximum(availableSpace);
 
-    bool widthConstrained = std::isfinite(maxSize.width);
-    bool heightConstrained = std::isfinite(maxSize.height);
-
 	Size availableContentSpace( maxSize );
 
     // subtract the nonclient border, padding and the content view margin

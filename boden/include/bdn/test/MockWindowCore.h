@@ -78,14 +78,14 @@ public:
 	}
 
 
-    void requestAutoSize()
+    void requestAutoSize() override
     {
         P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
         if(pWindow!=nullptr)
             cast<MockUiProvider>(pWindow->getUiProvider())->getLayoutCoordinator()->windowNeedsAutoSizing(pWindow);
     }
 
-	void requestCenter()
+	void requestCenter() override
     {
         P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
         if(pWindow!=nullptr)
@@ -93,7 +93,7 @@ public:
     }
 
     
-    void layout()
+    void layout() override
     {
         BDN_REQUIRE_IN_MAIN_THREAD();
 		

@@ -25,7 +25,7 @@ P<ViewLayout> ColumnView::calcContainerLayout(const Size& containerSize) const
 {
 	P<ViewLayout> pLayout = newObj<ViewLayout>();
 
-	Size resultSize = calcLayoutImpl(pLayout, containerSize, false);
+    calcLayoutImpl(pLayout, containerSize, false);
 
 	return pLayout;
 }

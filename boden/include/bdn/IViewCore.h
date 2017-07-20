@@ -240,13 +240,6 @@ public:
 	
 
 	
-    /** 
-
-		*/
-	virtual void layout()=0;
-
-	
-
 
 	/** Called when the outer view's parent has changed.
 		

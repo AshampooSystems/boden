@@ -366,11 +366,11 @@ protected:
             SECTION("need adjustments")
                 bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
 
-            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
-            
+            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);
+                        
             // on some platform and with some view types (Linux / GTK with top level window)
             // waiting for idle is not enough to ensure that the position actually changed.
-            // So instead we first wait for idle and then wait 2 additional seconds to ensure
+            // So instead we first wait for idle and then wait some additional seconds to ensure
             // that our changes have been applied
             CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {

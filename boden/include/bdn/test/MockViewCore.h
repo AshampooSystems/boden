@@ -390,7 +390,7 @@ public:
         return _childSizingInfoInvalidatedCount;
     }   
 
-    void childSizingInfoInvalidated(View* pChild)
+    void childSizingInfoInvalidated(View* pChild) override
     {
          BDN_REQUIRE_IN_MAIN_THREAD();
 		

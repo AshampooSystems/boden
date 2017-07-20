@@ -931,8 +931,8 @@ public:
 
 private:
         
-    template<class BaseClass>
-    class ScrollViewLayoutHelperTestContentView : public BaseClass
+    template<class HelperBaseClass>
+    class ScrollViewLayoutHelperTestContentView : public HelperBaseClass
     {
     public:
     
@@ -952,7 +952,7 @@ private:
             _lastCalcPreferredSizeAvailableSpace = availableSpace;
             _calcPreferredSizeCallCount++;
 
-            return BaseClass::calcPreferredSize(availableSpace);
+            return HelperBaseClass::calcPreferredSize(availableSpace);
         }
 
     private:

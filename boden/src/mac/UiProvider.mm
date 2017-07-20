@@ -34,6 +34,8 @@ UiProvider::UiProvider()
 {
     // mac uses DIPs natively. So no conversion necessary
     _semDips = NSFont.systemFontSize;
+    
+    _pLayoutCoordinator = newObj<LayoutCoordinator>();
 }
 
 String UiProvider::getName() const

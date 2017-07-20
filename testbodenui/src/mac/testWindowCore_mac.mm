@@ -63,7 +63,10 @@ protected:
         if(screen==nil) // happens when window is not visible
             screen = [NSScreen mainScreen];
         
-        return bdn::mac::macRectToRect( _pNSWindow.frame, screen.frame.size.height);
+        bdn::Rect resultRect = bdn::mac::macRectToRect( _pNSWindow.frame, screen.frame.size.height);
+        
+        return resultRect;
+
     }
     
     void verifyInitialDummyCorePosition() override
