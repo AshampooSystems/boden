@@ -166,12 +166,12 @@ Rect ViewCore::adjustBounds(const Rect& requestedBounds, RoundType positionRound
 
 void ViewCore::setHorizontalAlignment(const View::HorizontalAlignment& align)
 {
-    // do nothing. The parent handles this.
+    // do nothing. The View handles this.
 }
 
 void ViewCore::setVerticalAlignment(const View::VerticalAlignment& align)
 {
-    // do nothing. The parent handles this.
+    // do nothing. The View handles this.
 }
 
 void ViewCore::setPreferredSizeHint(const Size& hint)

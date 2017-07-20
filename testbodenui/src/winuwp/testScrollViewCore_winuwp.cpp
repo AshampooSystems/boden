@@ -17,13 +17,13 @@ protected:
   
     double getVertBarWidth()
     {
-        return -1;
+        return 0;
     }
 
 
     double getHorzBarHeight()
     {
-        return -1;
+        return 0;
     }
                 
 

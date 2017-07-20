@@ -257,14 +257,14 @@ public:
                     {
                         // preferred width should be the available width. preferred height should include
                         // the scrollbar
-                        REQUIRE( prefSize == optimalSize + Size(-pixelSize.width,  horzBarHeight) );
+                        REQUIRE( Dip::equal(prefSize, optimalSize + Size(-pixelSize.width,  horzBarHeight)) );
                     }
                     else
                     {
                         // no horz scrolling => no additional scrollbar at bottom.
                         // Also, the content cannot shrink down to the available space so
                         // the returned width should exceed it and be the optimal width
-                        REQUIRE( prefSize == optimalSize + Size(0, 0) );
+                        REQUIRE( Dip::equal(prefSize, optimalSize + Size(0, 0) ) );
                     }
                 }
 
@@ -431,7 +431,9 @@ public:
                 {
                     Size prefSize = pThis->callCalcPreferredSize(  optimalSize);
                     REQUIRE( prefSize==optimalSize );
-                    REQUIRE( pContentView->getCalcPreferredSizeCallCount() == initialCalcCount+1);
+
+                    int calcPrefSizeCount = pContentView->getCalcPreferredSizeCallCount();
+                    REQUIRE( calcPrefSizeCount > initialCalcCount);
                 }
 
                 SECTION("width less than needed")

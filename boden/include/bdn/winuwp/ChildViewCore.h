@@ -161,8 +161,15 @@ public:
 
     void childSizingInfoInvalidated(View* pChild) override
     {
-        // we do not do anything here. Windows takes care of propagating the sizing info changes
-        // to the parent views.
+        // While windows takes care of propagating the "invalidateMeasure" request to parents automatically,
+        // we still HAVE to propagate this event upwards to our parent, since the outer view objects cache sizing info
+        // and these caches must be invalidated for all parents.
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
     }
 
     void needLayout( View::InvalidateReason reason ) override
