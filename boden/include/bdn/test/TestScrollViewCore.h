@@ -77,7 +77,7 @@ protected:
         resizeScrollViewToViewPortSize(viewPortSize);
 
         // then we call layout
-        return _pScrollViewCore->layout();
+        return _pScrollView->needLayout( View::InvalidateReason::customDataChanged );
     }
 
     

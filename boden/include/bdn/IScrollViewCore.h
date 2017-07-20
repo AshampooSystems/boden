@@ -18,9 +18,6 @@ public:
     /** Controls wether or not the view scrolls vertically.*/
 	virtual void setVerticalScrollingEnabled(const bool& enabled)=0;
     
-
-    /** Sizes and positions the content view.*/
-    virtual void layout()=0;
 	
 };
 
