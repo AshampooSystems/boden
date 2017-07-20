@@ -130,7 +130,7 @@ public:
         _pMorphingTextView->margin() = UiMargin(UiLength::sem(0), UiLength::sem(2), UiLength::sem(2), UiLength::sem(2) );
         pColumnView->addChildView( _pMorphingTextView );
 
-        /* XXX _pScrollView = newObj<ScrollView>();
+        _pScrollView = newObj<ScrollView>();
 
         // limit the maximum size. We simply want the scroll view to fill the available width
         // and have a height of 100 dips.
@@ -144,7 +144,7 @@ public:
         _pScrolledTextView->text() = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
         _pScrollView->setContentView(_pScrolledTextView);
 
-        pColumnView->addChildView( _pScrollView );*/
+        pColumnView->addChildView( _pScrollView );
         
 		_pWindow->setContentView( pColumnView );
 
