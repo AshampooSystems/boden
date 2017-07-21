@@ -190,10 +190,6 @@ void ScrollViewCore::layout()
             NSSize wrapperSize = sizeToMacSize(scrolledAreaSize);
             
             [_nsScrollView.documentView setFrameSize:wrapperSize];
-            
-            NSSize contentSize = _nsScrollView.contentSize;
-            
-            contentSize = contentSize;
         }
     }
 }
