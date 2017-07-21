@@ -60,14 +60,14 @@ public:
 
     
 
-    void verifyHorzBarVisible( bool expectedVisible) override
+    void verifyScrollsHorizontally( bool expectedScrolls) override
     {
-        REQUIRE( _helper.getHorizontalScrollBarVisible() == expectedVisible );
+        REQUIRE( _helper.getHorizontalScrollBarVisible() == expectedScrolls );
     }
 
-    void verifyVertBarVisible( bool expectedVisible) override
+    void verifyVertBarVisible( bool expectedScrolls) override
     {
-        REQUIRE( _helper.getVerticalScrollBarVisible() == expectedVisible );
+        REQUIRE( _helper.getVerticalScrollBarVisible() == expectedScrolls );
     }
 
     void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override

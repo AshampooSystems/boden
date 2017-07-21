@@ -62,24 +62,28 @@ public:
     
     /** Calculates the scrollview layout for the specified viewport size.
         This enables the layout verify functions 
-        (e.g. verifyHorzBarVisible() etc.) to be used afterwards.*/
+        (e.g. verifyScrollsHorizontally() etc.) to be used afterwards.*/
     virtual void calcLayout(const Size& viewPortSize)=0;
 
 
-    /** Called after calcLayout() to verify the horizontal visibility of the horizontal
-        scrollbar.
+    /** Called after calcLayout() to verify whether the view scrolls horizontally.
+    
+        "Scrolls horizontally" means that the user can actually scroll the contents,
+        i.e. the content does not fit into the viewport.
 
-        Should cause a test fail if the visibility is not correct.        
+        Should cause a test fail if the value is not correct.
         */
-    virtual void verifyHorzBarVisible( bool expectedVisible)=0;
+    virtual void verifyScrollsHorizontally( bool expectedScrolls)=0;
 
 
-    /** Called after calcLayout() to verify the horizontal visibility of the vertical
-        scrollbar.
+    /** Called after calcLayout() to verify whether the view scrolls vertically.
         
+        "Scrolls vertically" means that the user can actually scroll the contents,
+        i.e. the content does not fit into the viewport.
+     
         Should cause a test fail if the visibility is not correct.
         */
-    virtual void verifyVertBarVisible( bool expectedVisible)=0;
+    virtual void verifyScrollsVertically( bool expectedScrolls)=0;
 
 
      /** Called after calcLayout() to verify the bounding rectangle of the content view.
@@ -519,8 +523,8 @@ public:
                 
                 BDN_CONTINUE_SECTION_WHEN_IDLE( pThis )
                 {
-                    pThis->verifyHorzBarVisible( false );
-                    pThis->verifyVertBarVisible( false );
+                    pThis->verifyScrollsHorizontally( false );
+                    pThis->verifyScrollsVertically( false );
                     pThis->verifyContentViewBounds( Rect(0, 0, 1000, 1000) );
                     pThis->verifyScrolledAreaSize( Size(1000, 1000)  );
                     pThis->verifyViewPortSize( Size(1000, 1000) );
@@ -540,8 +544,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis )
                     {
-                        pThis->verifyHorzBarVisible( false );
-                        pThis->verifyVertBarVisible( false );
+                        pThis->verifyScrollsHorizontally( false );
+                        pThis->verifyScrollsVertically( false );
                         pThis->verifyContentViewBounds( Rect(4, 1, 1000-2-4, 1000-1-3) );
                         pThis->verifyScrolledAreaSize( Size(1000, 1000)  );
                         pThis->verifyViewPortSize( Size(1000, 1000) );
@@ -605,8 +609,8 @@ public:
                     CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount )
                     {
                         // content view should be stretched to fill whole viewport
-                        pThis->verifyHorzBarVisible( false );
-                        pThis->verifyVertBarVisible( false );
+                        pThis->verifyScrollsHorizontally( false );
+                        pThis->verifyScrollsVertically( false );
                         pThis->verifyContentViewBounds( Rect(4+8, 1+5, viewPortSize.width - 2-4-6-8, viewPortSize.height -1-3-5-7) );
                         pThis->verifyScrolledAreaSize( viewPortSize  );
                         pThis->verifyViewPortSize( viewPortSize );
@@ -622,8 +626,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds )
                     {
-                        pThis->verifyHorzBarVisible( false );
-                        pThis->verifyVertBarVisible( false );
+                        pThis->verifyScrollsHorizontally( false );
+                        pThis->verifyScrollsVertically( false );
                         pThis->verifyContentViewBounds( optimalButtonBounds );
                         pThis->verifyScrolledAreaSize( optimalSize  );
                         pThis->verifyViewPortSize( optimalSize );
@@ -641,8 +645,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, pixelSize, horzBarHeight, viewPortSize, optimalButtonSize )
                     {
-                        pThis->verifyHorzBarVisible( pThis->_horzScrollingEnabled );
-                        pThis->verifyVertBarVisible( false );
+                        pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
+                        pThis->verifyScrollsVertically( false );
 
                         Rect expectedContentViewBounds;
 
@@ -706,8 +710,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, horzBarHeight, pixelSize )
                     {
-                        pThis->verifyHorzBarVisible( pThis->_horzScrollingEnabled );
-                        pThis->verifyVertBarVisible( false );
+                        pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
+                        pThis->verifyScrollsVertically( false );
                         
                         if(pThis->_horzScrollingEnabled)
                         {
@@ -739,8 +743,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
                     {
-                        pThis->verifyHorzBarVisible( pThis->_horzScrollingEnabled );
-                        pThis->verifyVertBarVisible( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
+                        pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
+                        pThis->verifyScrollsVertically( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
                         
                         if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
                         {
@@ -790,8 +794,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, pixelSize )
                     {
-                        pThis->verifyHorzBarVisible( false );
-                        pThis->verifyVertBarVisible( pThis->_vertScrollingEnabled );
+                        pThis->verifyScrollsHorizontally( false );
+                        pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
 
 
                         if(pThis->_vertScrollingEnabled)
@@ -828,8 +832,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth )
                     {
-                        pThis->verifyHorzBarVisible( false );
-                        pThis->verifyVertBarVisible( pThis->_vertScrollingEnabled );
+                        pThis->verifyScrollsHorizontally( false );
+                        pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
 
 
                         if(pThis->_vertScrollingEnabled)
@@ -865,8 +869,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                     {
-                        pThis->verifyHorzBarVisible( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
-                        pThis->verifyVertBarVisible( pThis->_vertScrollingEnabled );
+                        pThis->verifyScrollsHorizontally( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
+                        pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
                         
                         if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
                         {
@@ -914,8 +918,8 @@ public:
                     
                     CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                     {
-                        pThis->verifyHorzBarVisible( pThis->_horzScrollingEnabled );
-                        pThis->verifyVertBarVisible( pThis->_vertScrollingEnabled );
+                        pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
+                        pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
 
 
                         if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)

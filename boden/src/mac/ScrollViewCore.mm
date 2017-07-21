@@ -1,6 +1,8 @@
 #include <bdn/init.h>
 #import <bdn/mac/ScrollViewCore.hh>
 
+#include <bdn/ScrollViewLayoutHelper.h>
+
 #import <Cocoa/Cocoa.h>
 
 /** NSView implementation that is used internally by bdn::mac::ScrollViewCore.
@@ -23,41 +25,177 @@
 @end
 
 
+@interface BdnMacScrollViewContentViewParent_ : NSView
+
+@end
+
+@implementation BdnMacScrollViewContentViewParent_
+
+- (BOOL) isFlipped
+{
+    return YES;
+}
+
+@end
+
+
 namespace bdn
 {
 namespace mac
 {
 
+ScrollViewCore::ScrollViewCore(	ScrollView* pOuter)
+    : ChildViewCore(pOuter, _createScrollView(pOuter) )
+{
+    _nsScrollView = (NSScrollView*)getNSView();
+    
+
+    // we add a custom view as the document view so that we have better control over the positioning
+    // of the content view
+    _nsContentViewParent = [[BdnMacScrollViewContentViewParent_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    
+    _nsScrollView.documentView = _nsContentViewParent;
+    
+    _nsScrollView.autohidesScrollers = YES;
+    
+    setHorizontalScrollingEnabled( pOuter->horizontalScrollingEnabled() );
+    setVerticalScrollingEnabled( pOuter->verticalScrollingEnabled() );
+    
+    
+    setPadding( pOuter->padding() );
+}
 
 NSScrollView* ScrollViewCore::_createScrollView(ScrollView* pOuter)
 {
-    return [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    NSScrollView* scrollView = [[BdnMacScrollView_ alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+
+    return scrollView;
 }
 
 void ScrollViewCore::addChildNsView( NSView* childView )
 {
-    _nsScrollView.documentView = childView;
+    // replace any previous subview
+    
+    for( id oldViewObject in _nsScrollView.documentView.subviews)
+    {
+        NSView* oldView = (NSView*)oldViewObject;
+        
+        [oldView removeFromSuperview];
+    }
+    
+    [_nsScrollView.documentView addSubview:childView];
 }
+
+void ScrollViewCore::setPadding(const Nullable<UiMargin>& padding)
+{
+    // nothing to do
+}
+
 
 void ScrollViewCore::setHorizontalScrollingEnabled(const bool& enabled)
 {
-    
+    _nsScrollView.hasHorizontalScroller = enabled ? YES : NO;
 }
 
 void ScrollViewCore::setVerticalScrollingEnabled(const bool& enabled)
 {
-    
+    _nsScrollView.hasVerticalScroller = enabled ? YES : NO;
 }
 
+
+
+P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size* pBorderSize) const
+{
+    // first we need to find out the size of the border around the
+    // scroll view and the space needed for scrollbars.
+    double vertBarWidth = 0;
+    double horzBarHeight = 0;
+    Size   borderSize;
+    
+    // first we need to find out the size of the border around the
+    // scroll view and the space needed for scrollbars.
+    
+    // Note that the "content size" for NSScrollView is the size of the visible
+    // content inside the scroll view, not the whole content size. NSScrollView
+    // calls the whole content size the document size.
+    Size   dummyVisibleContentSize(500, 500);
+    NSSize dummyMacVisibleContentSize = sizeToMacSize( dummyVisibleContentSize );
+    
+    NSSize macSizeWithScrollers = [NSScrollView frameSizeForContentSize: dummyMacVisibleContentSize
+                                                horizontalScrollerClass: [NSScroller class]
+                                                  verticalScrollerClass: [NSScroller class]
+                                                             borderType: _nsScrollView.borderType
+                                                            controlSize: NSControlSizeRegular
+                                                          scrollerStyle: _nsScrollView.scrollerStyle ];
+    
+    NSSize macSizeWithoutScrollers = [NSScrollView frameSizeForContentSize: dummyMacVisibleContentSize
+                                                   horizontalScrollerClass: nil
+                                                     verticalScrollerClass: nil
+                                                                borderType: _nsScrollView.borderType
+                                                               controlSize: NSControlSizeRegular
+                                                             scrollerStyle: _nsScrollView.scrollerStyle ];
+    
+    Size sizeWithScrollers = macSizeToSize(macSizeWithScrollers);
+    Size sizeWithoutScrollers = macSizeToSize(macSizeWithoutScrollers);
+    
+    borderSize = sizeWithoutScrollers - dummyVisibleContentSize;
+    
+    Size scrollerOverhead = sizeWithScrollers - sizeWithoutScrollers;
+    vertBarWidth = scrollerOverhead.width;
+    horzBarHeight = scrollerOverhead.height;
+    
+    if(pBorderSize!=nullptr)
+        *pBorderSize = borderSize;
+    
+    return newObj<ScrollViewLayoutHelper>(vertBarWidth, horzBarHeight);
+}
     
 Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
 {
-    return ChildViewCore::calcPreferredSize(availableSpace);
+    Size preferredSize;
+
+    P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        P<ScrollViewLayoutHelper> pHelper = createLayoutHelper();
+        
+        preferredSize = pHelper->calcPreferredSize( pOuterView, availableSpace);
+    }
+    
+    return preferredSize;
 }
 
 void ScrollViewCore::layout()
 {
-    // nothing to do - macOS takes care of arranging the document view.
+    P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        Size borderSize;
+        P<ScrollViewLayoutHelper> pHelper = createLayoutHelper(&borderSize);
+        
+        Size viewPortSizeWithoutScrollbars = pOuterView->size().get() - borderSize;
+        
+        pHelper->calcLayout(pOuterView, viewPortSizeWithoutScrollbars);
+        
+        P<View> pContentView = pOuterView->getContentView();
+        if(pContentView!=nullptr)
+        {
+            Rect contentBounds = pHelper->getContentViewBounds();
+            
+            pContentView->adjustAndSetBounds( contentBounds );
+            
+            // we must also resize our content view parent accordingly.
+            Size scrolledAreaSize = pHelper->getScrolledAreaSize();
+            
+            NSSize wrapperSize = sizeToMacSize(scrolledAreaSize);
+            
+            [_nsScrollView.documentView setFrameSize:wrapperSize];
+            
+            NSSize contentSize = _nsScrollView.contentSize;
+            
+            contentSize = contentSize;
+        }
+    }
 }
 
 
