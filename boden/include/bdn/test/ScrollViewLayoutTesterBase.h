@@ -290,30 +290,33 @@ public:
                         REQUIRE( prefSize == optimalSize + Size(0, 0) );
                     }
                 }
-
-                SECTION("less width than needed, not enough height for scrollbar")
+                
+                if(horzBarHeight>0)
                 {
-                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height) );
+                    SECTION("less width than needed, not enough height for scrollbar")
+                    {
+                        Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height) );
 
-                    if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
-                    {
-                        // this should cause both scrollbars to be shown. We should use all the available space
-                        REQUIRE( prefSize == optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height) );
+                        if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
+                        {
+                            // this should cause both scrollbars to be shown. We should use all the available space
+                            REQUIRE( prefSize == optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height) );
+                        }
+                        else if(pThis->_horzScrollingEnabled)
+                        {
+                            // no vertical scrolling. We will get a horizontal scrollbar, but no vertical scrollbar.
+                            // Note that the height will exceed the available height, since the content view also reports
+                            // a preferred size that exceeds the available height.
+                            REQUIRE( prefSize == optimalSize + Size(-pixelSize.width, horzBarHeight) );
+                        }
+                        else
+                        {
+                            // no horz scrolling => no additional scrollbar at bottom
+                            // Also, the content cannot shrink down to the available space so
+                            // the returned width should exceed it and be the optimal width
+                            REQUIRE( prefSize == optimalSize + Size(0, 0) );
+                        }                    
                     }
-                    else if(pThis->_horzScrollingEnabled)
-                    {
-                        // no vertical scrolling. We will get a horizontal scrollbar, but no vertical scrollbar.
-                        // Note that the height will exceed the available height, since the content view also reports
-                        // a preferred size that exceeds the available height.
-                        REQUIRE( prefSize == optimalSize + Size(-pixelSize.width, horzBarHeight) );
-                    }
-                    else
-                    {
-                        // no horz scrolling => no additional scrollbar at bottom
-                        // Also, the content cannot shrink down to the available space so
-                        // the returned width should exceed it and be the optimal width
-                        REQUIRE( prefSize == optimalSize + Size(0, 0) );
-                    }                    
                 }
 
                 SECTION("less height than needed, more than enough width for scrollbar")
@@ -350,30 +353,32 @@ public:
                         REQUIRE( prefSize == optimalSize + Size(0, 0) );
                     }
                 }
-
-                SECTION("less height than needed, not enough width for scrollbar")
+                
+                if(vertBarWidth>0)
                 {
-                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size( vertBarWidth-pixelSize.width, -pixelSize.height) );
+                    SECTION("less height than needed, not enough width for scrollbar")
+                    {
+                        Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size( vertBarWidth-pixelSize.width, -pixelSize.height) );
 
-                    if( pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled)
-                    {
-                        // we should fill the available space
-                        REQUIRE( prefSize == optimalSize + Size( vertBarWidth-pixelSize.width , -pixelSize.height) );
+                        if( pThis->_vertScrollingEnabled && pThis->_horzScrollingEnabled)
+                        {
+                            // we should fill the available space
+                            REQUIRE( prefSize == optimalSize + Size( vertBarWidth-pixelSize.width , -pixelSize.height) );
+                        }
+                        else if(pThis->_vertScrollingEnabled)
+                        {                        
+                            // the width should exceed the available space, since the content cannot be shrunk
+                            // down further. The available height should not be exceeded, since we can scroll
+                            REQUIRE( prefSize == optimalSize + Size(vertBarWidth, -pixelSize.height) );
+                        }
+                        else
+                        {
+                            // no vert scrolling => no scrollbar added. Note that the reported preferred
+                            // height should exceed the available space since the content view cannot shrink
+                            // further.
+                            REQUIRE( prefSize == optimalSize + Size(0, 0) );
+                        }
                     }
-                    else if(pThis->_vertScrollingEnabled)
-                    {                        
-                        // the width should exceed the available space, since the content cannot be shrunk
-                        // down further. The available height should not be exceeded, since we can scroll
-                        REQUIRE( prefSize == optimalSize + Size(vertBarWidth, -pixelSize.height) );
-                    }
-                    else
-                    {
-                        // no vert scrolling => no scrollbar added. Note that the reported preferred
-                        // height should exceed the available space since the content view cannot shrink
-                        // further.
-                        REQUIRE( prefSize == optimalSize + Size(0, 0) );
-                    }
-                    
                 }
 
                 SECTION("less width and less height than needed")
@@ -734,56 +739,59 @@ public:
                         }
                     };
                 }
-
-                SECTION("less width than needed, not enough height for scrollbar")
+                
+                if(horzBarHeight>0)
                 {
-                    Size viewPortSize = optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height);
-
-                    pThis->calcLayout( viewPortSize );
-                    
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
+                    SECTION("less width than needed, not enough height for scrollbar")
                     {
-                        pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
-                        pThis->verifyScrollsVertically( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
+                        Size viewPortSize = optimalSize + Size(-pixelSize.width, horzBarHeight-pixelSize.height);
+
+                        pThis->calcLayout( viewPortSize );
                         
-                        if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
                         {
-                            // the horizontal scroll bar does not fit. So we should also get a vertical scrollbar                
-                            pThis->verifyContentViewBounds( optimalButtonBounds );
-                
-                            // scrollable area is the optimal size
-                            pThis->verifyScrolledAreaSize( optimalSize  );
+                            pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
+                            pThis->verifyScrollsVertically( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
+                            
+                            if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
+                            {
+                                // the horizontal scroll bar does not fit. So we should also get a vertical scrollbar                
+                                pThis->verifyContentViewBounds( optimalButtonBounds );
+                    
+                                // scrollable area is the optimal size
+                                pThis->verifyScrolledAreaSize( optimalSize  );
 
-                            // both scroll bars are visible, so the final viewport size should be smaller by that amount
-                            pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, horzBarHeight) );
-                        }
-                        else if(pThis->_horzScrollingEnabled)
-                        {
-                            // the viewport height is reduced due to the horizontal scroll bar. But vert scrolling is not allowed, so we won't
-                            // get a vertical scrollbar. So the content height will be truncated to one less than what is needed.
-                            pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(0,-pixelSize.height)) );
-                                        
-                            // scrollable area is the optimal width, since we can scroll. The height is optimal-pixelsize, since we need to truncate
-                            pThis->verifyScrolledAreaSize( optimalSize+Size(0,-pixelSize.height)  );
+                                // both scroll bars are visible, so the final viewport size should be smaller by that amount
+                                pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, horzBarHeight) );
+                            }
+                            else if(pThis->_horzScrollingEnabled)
+                            {
+                                // the viewport height is reduced due to the horizontal scroll bar. But vert scrolling is not allowed, so we won't
+                                // get a vertical scrollbar. So the content height will be truncated to one less than what is needed.
+                                pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(0,-pixelSize.height)) );
+                                            
+                                // scrollable area is the optimal width, since we can scroll. The height is optimal-pixelsize, since we need to truncate
+                                pThis->verifyScrolledAreaSize( optimalSize+Size(0,-pixelSize.height)  );
 
-                            // only one scroll bar is visible
-                            pThis->verifyViewPortSize( viewPortSize-Size(0, horzBarHeight) );
-                        }
-                        else
-                        {
-                            // horizontal scrolling is disabled. vert scrolling is not needed, since without the horz scrollbar
-                            // we have enough height. So there will be no scrolling. So it does not matter if vert scrolling is enabled or not.
+                                // only one scroll bar is visible
+                                pThis->verifyViewPortSize( viewPortSize-Size(0, horzBarHeight) );
+                            }
+                            else
+                            {
+                                // horizontal scrolling is disabled. vert scrolling is not needed, since without the horz scrollbar
+                                // we have enough height. So there will be no scrolling. So it does not matter if vert scrolling is enabled or not.
 
-                            // content fills the available space
-                            pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width, horzBarHeight-pixelSize.height )) );
-                
-                            // scrolled area is extended / truncated to fit the available space
-                            pThis->verifyScrolledAreaSize( optimalSize+Size(-pixelSize.height, horzBarHeight-pixelSize.height )  );
+                                // content fills the available space
+                                pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width, horzBarHeight-pixelSize.height )) );
+                    
+                                // scrolled area is extended / truncated to fit the available space
+                                pThis->verifyScrolledAreaSize( optimalSize+Size(-pixelSize.height, horzBarHeight-pixelSize.height )  );
 
-                            // viewport stays the same
-                            pThis->verifyViewPortSize( viewPortSize );
-                        }
-                    };
+                                // viewport stays the same
+                                pThis->verifyViewPortSize( viewPortSize );
+                            }
+                        };
+                    }
                 }
 
                 SECTION("less height than needed, more than enough width for scrollbar")
@@ -860,54 +868,57 @@ public:
                         }
                     };
                 }
-
-                SECTION("less height than needed, not enough width for scrollbar")
+                
+                if(vertBarWidth>0)
                 {
-                    Size viewPortSize = optimalSize + Size(vertBarWidth-pixelSize.width, -pixelSize.height);
-
-                    pThis->calcLayout( viewPortSize );
-                    
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
+                    SECTION("less height than needed, not enough width for scrollbar")
                     {
-                        pThis->verifyScrollsHorizontally( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
-                        pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
+                        Size viewPortSize = optimalSize + Size(vertBarWidth-pixelSize.width, -pixelSize.height);
+
+                        pThis->calcLayout( viewPortSize );
                         
-                        if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                         {
-                            pThis->verifyContentViewBounds( optimalButtonBounds );
-                
-                            // scrollable area size is the optimal size
-                            pThis->verifyScrolledAreaSize( optimalSize );
-                            // both scroll bars are visible, so the final viewport size should be smaller by that amount
-                            pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, horzBarHeight) );
-                        }
-                        else if(pThis->_vertScrollingEnabled)
-                        {
-                            // the viewport width is reduced due to the vertical scroll bar. But horz scrolling is not allowed, so we won't
-                            // get a horizontal scrollbar. So the content width will be truncated to one less than what is needed.
-                            pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width,0)) );
-                
-                            // scrollable area is the optimal height, since we can scroll. The width is optimal-pixelSize, since we need to truncate
-                            pThis->verifyScrolledAreaSize( optimalSize+Size(-pixelSize.width,0) );
+                            pThis->verifyScrollsHorizontally( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
+                            pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
+                            
+                            if(pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled)
+                            {
+                                pThis->verifyContentViewBounds( optimalButtonBounds );
+                    
+                                // scrollable area size is the optimal size
+                                pThis->verifyScrolledAreaSize( optimalSize );
+                                // both scroll bars are visible, so the final viewport size should be smaller by that amount
+                                pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, horzBarHeight) );
+                            }
+                            else if(pThis->_vertScrollingEnabled)
+                            {
+                                // the viewport width is reduced due to the vertical scroll bar. But horz scrolling is not allowed, so we won't
+                                // get a horizontal scrollbar. So the content width will be truncated to one less than what is needed.
+                                pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width,0)) );
+                    
+                                // scrollable area is the optimal height, since we can scroll. The width is optimal-pixelSize, since we need to truncate
+                                pThis->verifyScrolledAreaSize( optimalSize+Size(-pixelSize.width,0) );
 
-                            // only one scroll bar is visible
-                            pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, 0) );
-                        }
-                        else
-                        {
-                            // vertical scrolling is disabled. horizontal scrolling is not needed, since without the vertical scrollbar
-                            // we have enough width. So there will be no scrolling. So it does not matter if horz scrolling is enabled or not.
+                                // only one scroll bar is visible
+                                pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, 0) );
+                            }
+                            else
+                            {
+                                // vertical scrolling is disabled. horizontal scrolling is not needed, since without the vertical scrollbar
+                                // we have enough width. So there will be no scrolling. So it does not matter if horz scrolling is enabled or not.
 
-                            // content fills the available space
-                            pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(vertBarWidth-pixelSize.width, -pixelSize.height)) );
-                
-                            // scrolled area is extended / truncated to fit the available space
-                            pThis->verifyScrolledAreaSize( optimalSize+Size(vertBarWidth-pixelSize.width, -pixelSize.height) );
+                                // content fills the available space
+                                pThis->verifyContentViewBounds( Rect(optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(vertBarWidth-pixelSize.width, -pixelSize.height)) );
+                    
+                                // scrolled area is extended / truncated to fit the available space
+                                pThis->verifyScrolledAreaSize( optimalSize+Size(vertBarWidth-pixelSize.width, -pixelSize.height) );
 
-                            // viewport stays the same
-                            pThis->verifyViewPortSize( viewPortSize );
-                        }
-                    };
+                                // viewport stays the same
+                                pThis->verifyViewPortSize( viewPortSize );
+                            }
+                        };
+                    }
                 }
 
                 SECTION("less width and less height than needed")

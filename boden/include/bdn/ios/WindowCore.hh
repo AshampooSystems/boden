@@ -7,6 +7,8 @@
 #include <bdn/Window.h>
 #include <bdn/NotImplementedError.h>
 
+#include <bdn/windowCoreUtil.h>
+
 #import <bdn/ios/util.hh>
 #import <bdn/ios/ViewCore.hh>
 
@@ -15,7 +17,7 @@ namespace bdn
 namespace ios
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 private:
     UIWindow* _createUIWindow(Window* pOuterWindow);
@@ -78,7 +80,100 @@ public:
     }
     
     
-    Rect getContentArea() override
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+    
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+    
+
+    
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size() );
+        else
+            return Size(0,0);
+    }
+    
+    void layout() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowLayoutImpl( pWindow, getContentArea() );
+    }
+    
+    
+    
+    
+    void requestAutoSize() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pWindow );
+        }
+    }
+    
+    void requestCenter() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsCentering( pWindow );
+        }
+    }
+    
+    
+    void autoSize() override
+    {
+        // we cannot change our size. So, do nothing
+    }
+    
+    void center() override
+    {
+        // we cannot change our position. So, do nothing.
+    }
+
+    
+    
+    bool tryChangeParentView(View* pNewParent) override
+    {
+        // we don't have a parent. Report that we cannot do this.
+        return false;
+    }
+    
+    
+private:
+    
+    Rect getContentArea()
     {
         // Same size as bounds. There is no border or title bar on ios.
         P<View> pView = getOuterViewIfStillAttached();
@@ -107,53 +202,15 @@ public:
     }
     
     
-    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
-    {
-        // no border or title bar. So window size = content size
-        return contentSize;
-    }
-    
-    
-    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-    {
-        // no border or title bar. So window size = content size
-        return windowSize;
-    }
-    
-    
-    Size getMinimumSize() const override
-    {
-        // no border or title bar => no minimum size.
-        return Size(0,0);
-    }
-    
-    
-    
-    
-    Rect getScreenWorkArea() const override
+    Rect getScreenWorkArea() const
     {
         UIScreen* screen = _getUIScreen();
         
         return iosRectToRect(screen.nativeBounds);
     }
-    
-    
-    
-    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredSize");
-    }
-    
-    
-    bool tryChangeParentView(View* pNewParent) override
-    {
-        // we don't have a parent. Report that we cannot do this.
-        return false;
-    }
-    
-    
-private:
+
+
+
     UIScreen* _getUIScreen() const
     {
         return _window.screen;

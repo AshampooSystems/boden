@@ -65,7 +65,7 @@ public:
         REQUIRE( _helper.getHorizontalScrollBarVisible() == expectedScrolls );
     }
 
-    void verifyVertBarVisible( bool expectedScrolls) override
+    void verifyScrollsVertically( bool expectedScrolls) override
     {
         REQUIRE( _helper.getVerticalScrollBarVisible() == expectedScrolls );
     }

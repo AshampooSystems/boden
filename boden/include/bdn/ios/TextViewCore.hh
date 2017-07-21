@@ -75,6 +75,11 @@ protected:
         return _uiLabel.font.pointSize;
     }
     
+    bool canAdjustToAvailableWidth() const override
+    {
+        return true;
+    }
+    
     
 private:
     UILabel*    _uiLabel;

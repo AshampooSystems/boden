@@ -6,6 +6,7 @@
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ButtonCore.hh>
 #import <bdn/ios/TextViewCore.hh>
+#import <bdn/ios/ScrollViewCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
@@ -36,6 +37,8 @@ UiProvider::UiProvider()
     // So no conversion necessary
     
     _semDips = UIFont.systemFontSize;
+    
+    _pLayoutCoordinator = newObj<LayoutCoordinator>();
 }
 
 String UiProvider::getName() const
@@ -53,6 +56,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+    
+    else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
+        return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );

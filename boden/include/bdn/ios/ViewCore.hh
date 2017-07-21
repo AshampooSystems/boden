@@ -5,6 +5,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/LayoutCoordinator.h>
 
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/util.hh>
@@ -17,7 +18,7 @@ namespace bdn
 namespace ios
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ViewCore(View* pOuterView, UIView* view)
@@ -37,15 +38,11 @@ public:
         _view = nil;        
     }
     
-    P<const View> getOuterViewIfStillAttached() const
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
     }
     
-    P<View> getOuterViewIfStillAttached()
-    {
-        return _outerViewWeak.toStrong();
-    }
     
     UIView* getUIView() const
     {
@@ -64,6 +61,67 @@ public:
     {
     }
     
+    
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+    
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+    
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+    
+    
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    
+
     
     
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
@@ -140,22 +198,26 @@ public:
     Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         Margin padding = getPaddingDips();
-    
+        
         CGSize constraintSize = UILayoutFittingCompressedSize;
-        if( std::isfinite(availableSpace.width) )
+        
+        // systemLayoutSizeFittingSize will clip the return value to the constraint size.
+        // So we only pass the available space if the view can actually adjust itself to the
+        // available space.
+        if( std::isfinite(availableSpace.width) && canAdjustToAvailableWidth() )
         {
             constraintSize.width = availableSpace.width - (padding.left+padding.right);
             if(constraintSize.width<0)
                 constraintSize.width=0;
         }
-        if( std::isfinite(availableSpace.height) )
+        if( std::isfinite(availableSpace.height) && canAdjustToAvailableHeight() )
         {
             constraintSize.height = availableSpace.height - (padding.top+padding.bottom);
             if(constraintSize.height<0)
                 constraintSize.height=0;
         }
         
-		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
+		CGSize iosSize = [_view systemLayoutSizeFittingSize: constraintSize];
         
         Size size = iosSizeToSize(iosSize);
         
@@ -181,6 +243,11 @@ public:
         return size;
     }
     
+    
+    void layout() override
+    {
+        // do nothing by default. Most views do not have subviews.
+    }
     
     bool tryChangeParentView(View* pNewParent) override
     {
@@ -223,6 +290,26 @@ protected:
         return padding;
     }
     
+    
+    
+    /** Returns true if the view can adjust its size to fit into a given
+        width.
+        The default return value is false. Derived view classes can override
+        this to indicate that they can adapt.*/
+    virtual bool canAdjustToAvailableWidth() const
+    {
+        return false;
+    }
+    
+    
+    /** Returns true if the view can adjust its size to fit into a given
+        height.
+        The default return value is false. Derived view classes can override
+        this to indicate that they can adapt.*/
+    virtual bool canAdjustToAvailableHeight() const
+    {
+        return false;
+    }
 
     
     

@@ -2,6 +2,7 @@
 #define BDN_IOS_UiProvider_HH_
 
 #include <bdn/IUiProvider.h>
+#include <bdn/LayoutCoordinator.h>
 
 namespace bdn
 {
@@ -28,9 +29,17 @@ public:
         return _semDips;    
     }
     
+    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
+    P<LayoutCoordinator> getLayoutCoordinator()
+    {
+        return _pLayoutCoordinator;
+    }
+    
 
 private:
     double _semDips;
+    
+    P<LayoutCoordinator> _pLayoutCoordinator;
 };
 
 }
