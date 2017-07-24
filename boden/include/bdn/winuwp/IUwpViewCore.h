@@ -17,6 +17,9 @@ public:
     virtual ::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement()=0;
     
 
+    /** Lays out the view. This is called during the Arrange phase.*/
+    virtual void layout()=0;
+
 };
 
 

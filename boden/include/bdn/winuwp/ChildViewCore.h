@@ -330,6 +330,11 @@ public:
 	}
 
 
+    void layout() override
+    {
+        // do nothing by default
+    }
+
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
@@ -437,12 +442,6 @@ public:
 
 
 	
-	void layout() override
-	{
-        // do nothing by default. Normal controls without children do not do anything here.
-	}
-
-
 
 	/** Returns the XAML FrameworkElement object for this view.*/
 	::Windows::UI::Xaml::FrameworkElement^ getFrameworkElement() override
