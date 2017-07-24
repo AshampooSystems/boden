@@ -29,30 +29,37 @@ protected:
 
     void resizeScrollViewToViewPortSize( const Size& viewPortSize)
     {
+        // XXX
     }
     
-    void verifyHorzBarVisible( bool expectedVisible) override
+    void verifyScrollsHorizontally( bool expectedVisible) override
     {
+        // XXX
     }
 
-    void verifyVertBarVisible( bool expectedVisible) override
+    void verifyScrollsVertically( bool expectedVisible) override
     {
+        // XXX
     }
 
     void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override
     {
+        // XXX
     }
 
     void verifyScrolledAreaSize( const Size& expectedSize) override
     {
+        // XXX
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
     {
+        // XXX
     }               
              
     void verifyCorePadding() override
     {
+        // XXX
     }
 
 
