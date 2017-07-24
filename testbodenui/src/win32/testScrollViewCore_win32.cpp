@@ -47,7 +47,7 @@ protected:
         _pScrollView->adjustAndSetBounds(newBounds);
     }
     
-    void verifyHorzBarVisible( bool expectedVisible) override
+    void verifyScrollsHorizontally( bool expectedVisible) override
     {
         int style = ::GetWindowLongPtr( _hwnd, GWL_STYLE);
 
@@ -56,7 +56,7 @@ protected:
         REQUIRE( horzBarVisible == expectedVisible );
     }
 
-    void verifyVertBarVisible( bool expectedVisible) override
+    void verifyScrollsVertically( bool expectedVisible) override
     {
         int style = ::GetWindowLongPtr( _hwnd, GWL_STYLE);
 
