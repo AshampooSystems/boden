@@ -37,7 +37,6 @@ public:
     }
 
 
-
     /** Returns the JClass object for this class.
      *
      *  Note that the returned class object is not necessarily unique for the whole

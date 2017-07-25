@@ -42,6 +42,29 @@ double ViewCore::getSemSizeDips() const
 }
 
 
+
+void ViewCore::needLayout(View::InvalidateReason reason)
+{
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+    {
+        P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+        if(pProvider!=nullptr)
+            pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+    }
+}
+
+void ViewCore::childSizingInfoInvalidated(View* pChild)
+{
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+    {
+        pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+        pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+    }
+}
+
+
 }
 }
 

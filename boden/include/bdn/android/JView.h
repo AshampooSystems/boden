@@ -5,6 +5,8 @@
 #include <bdn/android/JContext.h>
 #include <bdn/android/JViewParent.h>
 
+#include <bdn/android/JViewGroup__JLayoutParams.h>
+
 namespace bdn
 {
 namespace android
@@ -359,6 +361,23 @@ public:
 
         invoke_<void>(getStaticClass_(), methodId, "addOnLayoutChangeListener", listener );
     }
+
+
+
+    /** Set the layout parameters associated with this view. These supply
+     *  parameters to the parent of this view specifying how it should be arranged. There are many
+     *  subclasses of ViewGroup.LayoutParams, and these correspond to the different subclasses of
+     *  ViewGroup that are responsible for arranging their children.*/
+    void setLayoutParams( JViewGroup__JLayoutParams params )
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "setLayoutParams", params );
+    }
+
+
+
+
 
 };
 

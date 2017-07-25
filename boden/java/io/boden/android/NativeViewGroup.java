@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 public class NativeViewGroup extends ViewGroup
 {
@@ -105,10 +107,11 @@ public class NativeViewGroup extends ViewGroup
     {
         final int childCount = getChildCount();
 
+        String myParams = Integer.toString(left)+", "+Integer.toString(top)+", "+Integer.toString(right)+", "+Integer.toString(bottom);
         if(childCount==0)
-            Log.i("boden", getClass().getName()+".onLayout with zero children.");
+            Log.i("boden", getClass().getName()+".onLayout("+myParams+") with zero children.");
         else
-            Log.i("boden", getClass().getName()+".onLayout "+toString()+" started.");
+            Log.i("boden", getClass().getName()+".onLayout("+myParams+") "+toString()+" started.");
 
         for(int i=0; i<childCount; i++)
         {
@@ -121,6 +124,35 @@ public class NativeViewGroup extends ViewGroup
                 Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
 
                 child.layout( params.x, params.y, params.x+params.width, params.y+params.height );
+
+                if( child instanceof ScrollView)
+                {
+                    int subChildCount = ((ScrollView) child).getChildCount();
+                    if(subChildCount>0)
+                    {
+                        View subChild  = ((ScrollView) child).getChildAt(0);
+
+                        {
+                            int width = subChild.getWidth();
+                            int height = subChild.getHeight();
+
+                            Log.i("boden", "Subchild " + Integer.toString(width) + "x" + Integer.toString(height));
+                        }
+
+                        int subSubChildCount = ((HorizontalScrollView) subChild).getChildCount();
+                        if(subSubChildCount>0) {
+                            View subSubChild = ((HorizontalScrollView) subChild).getChildAt(0);
+
+                            {
+                                int width = subSubChild.getWidth();
+                                int height = subSubChild.getHeight();
+
+                                Log.i("boden", "SubSubchild " + Integer.toString(width) + "x" + Integer.toString(height));
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }

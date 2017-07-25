@@ -14,6 +14,7 @@ class ViewCore;
 
 #include <bdn/IViewCore.h>
 #include <bdn/PixelAligner.h>
+#include <bdn/LayoutCoordinator.h>
 
 #include <bdn/java/NativeWeakPointer.h>
 
@@ -21,6 +22,7 @@ class ViewCore;
 #include <bdn/android/JView.h>
 #include <bdn/android/JNativeViewGroup.h>
 #include <bdn/android/UIProvider.h>
+#include <bdn/android/IParentViewCore.h>
 
 #include <bdn/log.h>
 
@@ -30,7 +32,7 @@ namespace bdn
 namespace android
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ViewCore(View* pOuterView, JView* pJView)
@@ -90,12 +92,7 @@ public:
 
     /** Returns a pointer to the outer View object, if this core is still attached to it
         or null otherwise.*/
-    P<const View> getOuterViewIfStillAttached() const
-    {
-        return _outerViewWeak.toStrong();
-    }
-    
-    P<View> getOuterViewIfStillAttached()
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
     }
@@ -132,6 +129,51 @@ public:
 
         _pJView->setPadding(pixelPadding.left, pixelPadding.top, pixelPadding.right, pixelPadding.bottom);
     }
+
+
+
+
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+
+
+    void needLayout(View::InvalidateReason reason) override;
+
+    void childSizingInfoInvalidated(View* pChild) override;
+
+
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+
+
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+
+
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+
+
+
+
 
 
     /** Returns the view core associated with this view's parent view.
@@ -235,8 +277,14 @@ public:
 
         return prefSize;
 	}
-    
-    
+
+
+    void layout() override
+    {
+        // do nothing by default. Most views do not have subviews.
+    }
+
+
     bool tryChangeParentView(View* pNewParent) override
     {
         _addToParent(pNewParent);
@@ -350,13 +398,11 @@ private:
     {
         if(pParent!=nullptr)
         {
-            P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
+            P<IParentViewCore> pParentCore = cast<IParentViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
-                throw ProgrammingError("Internal error: parent of bdn::android::ViewCore does not have a core.");
+                throw ProgrammingError("Internal error: parent of bdn::android::ViewCore either does not have a core, or its core does not support child views.");
 
-            JNativeViewGroup parentGroup( pParentCore->getJView().getRef_() );
-
-            parentGroup.addView( *_pJView );
+            pParentCore->addChildJView( *_pJView );
 
             setUiScaleFactor( pParentCore->getUiScaleFactor() );
         }

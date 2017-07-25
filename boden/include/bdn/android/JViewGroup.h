@@ -2,6 +2,8 @@
 #define BDN_ANDROID_JViewGroup_H_
 
 #include <bdn/android/JView.h>
+#include <bdn/android/JViewGroup__JLayoutParams.h>
+#include <bdn/android/JViewGroup__JMarginLayoutParams.h>
 
 namespace bdn
 {
@@ -77,6 +79,11 @@ public:
 
         return invoke_<JView>(getStaticClass_(), methodId, "getChildAt", index);
     }
+
+
+
+    typedef JViewGroup__JLayoutParams JLayoutParams;
+    typedef JViewGroup__JMarginLayoutParams JMarginLayoutParams;
 
 
 

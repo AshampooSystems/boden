@@ -13,6 +13,7 @@ class UiProvider;
 
 
 #include <bdn/IUiProvider.h>
+#include <bdn/LayoutCoordinator.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
@@ -30,6 +31,7 @@ public:
     UiProvider()
     {
         _semDips = -1;
+        _pLayoutCoordinator = newObj<LayoutCoordinator>();
     }   
 
     
@@ -40,11 +42,22 @@ public:
 
     double getSemSizeDips(ViewCore& viewCore);
 
+
+
+    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
+    P<LayoutCoordinator> getLayoutCoordinator()
+    {
+        return _pLayoutCoordinator;
+    }
+
+
+
     static UiProvider& get();
 
 
 private:
     double _semDips;
+    P<LayoutCoordinator> _pLayoutCoordinator;
 
 };
 

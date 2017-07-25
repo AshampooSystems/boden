@@ -15,7 +15,6 @@ namespace test
 {
 
 
-
 P<IViewCore> MockUiProvider::createViewCore(const String& coreTypeName, View* pView)
 {
 	BDN_REQUIRE_IN_MAIN_THREAD();
