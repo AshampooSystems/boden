@@ -75,7 +75,8 @@ protected:
             
             CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
             {
-                REQUIRE( pThis->_pContainerView->getCalcContainerLayoutCount() == initialCount+1 );
+                int currLayoutCount = pThis->_pContainerView->getCalcContainerLayoutCount();
+                REQUIRE( currLayoutCount == initialCount+1 );
                 REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
             };
         }

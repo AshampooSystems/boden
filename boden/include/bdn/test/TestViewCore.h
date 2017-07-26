@@ -148,8 +148,7 @@ protected:
         {
             _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
 
-            initCore();
-            verifyInitialDummyCorePosition();
+            initCore();            
             verifyInitialDummyCoreSize();
         }
     }
@@ -539,12 +538,7 @@ protected:
     /** Verifies that the core's padding property matches that of the outer view.*/
     virtual void verifyCorePadding()=0;
 
-
-    /** Verifies that the core's position property has the initial dummy value used
-        directly after initialization.*/
-    virtual void verifyInitialDummyCorePosition()=0;
-
-
+    
     /** Verifies that the core's size property has the initial dummy value used
         directly after initialization.*/
     virtual void verifyInitialDummyCoreSize()=0;

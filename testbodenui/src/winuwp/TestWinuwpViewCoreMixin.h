@@ -67,19 +67,6 @@ protected:
     }
 
 
-    void verifyInitialDummyCorePosition() override
-    {        
-        double x = ::Windows::UI::Xaml::Controls::Canvas::GetLeft(_pWinFrameworkElement);
-        double y = ::Windows::UI::Xaml::Controls::Canvas::GetTop(_pWinFrameworkElement);
-
-        // the bounds should NEVER be initialized upon construction.
-        // Instead they must be updated by a layout cycle after construction.
-        // So at this point in time the bounds should be zero
-            
-        REQUIRE( x == 0 );
-        REQUIRE( y == 0 );
-    }
-
     void verifyInitialDummyCoreSize() override
     {        
         double width = _pWinFrameworkElement->Width;
