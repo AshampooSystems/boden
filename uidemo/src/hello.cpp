@@ -122,13 +122,13 @@ public:
         _pHelloMessageButton->label().bind( _pViewModel->helloMessage() );
 		_pHelloMessageButton->margin() = UiMargin( UiLength::sem(2) );
 		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
-		// XXX pColumnView->addChildView( _pHelloMessageButton );
+		pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 
         _pMorphingTextView = newObj<TextView>();
         _pMorphingTextView->text().bind( _pViewModel->morphingText() );
         _pMorphingTextView->margin() = UiMargin(UiLength::sem(0), UiLength::sem(2), UiLength::sem(2), UiLength::sem(2) );
-        // XXX pColumnView->addChildView( _pMorphingTextView );
+        pColumnView->addChildView( _pMorphingTextView );
 
         _pScrollView = newObj<ScrollView>();
 

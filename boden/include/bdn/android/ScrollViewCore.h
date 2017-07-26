@@ -104,39 +104,19 @@ public:
 
 			double uiScaleFactor = getUiScaleFactor();
 
-			// resize the horizontal panel accordingly. It should get the width of the
-			// scroll view and the height of the scrolled area.
-			_pHorzScrollView->setLayoutParams(
-					JFrameLayout::JLayoutParams(
-							std::lround( scrollViewSize.width * uiScaleFactor),
-							std::lround( scrolledAreaSize.height * uiScaleFactor) ) );
-
 			// resize the content parent to the scrolled area size.
 			// That causes the content parent to get that size the next time
 			// and android layout happens.
 			_pContentParent->setSize( std::lround( scrolledAreaSize.width * uiScaleFactor),
 									std::lround( scrolledAreaSize.height * uiScaleFactor)
 									);
-			_pContentParent->setLayoutParams(
-					JFrameLayout::JLayoutParams(
-							std::lround( scrolledAreaSize.width * uiScaleFactor),
-							std::lround( scrolledAreaSize.height * uiScaleFactor) ) );
-
-
-
 
 			// now arrange the content view inside the content parent
-
 			Rect contentBounds = helper.getContentViewBounds();
 
 			P<View> pContentView = pOuterView->getContentView();
 			if(pContentView!=nullptr)
 				pContentView->adjustAndSetBounds( contentBounds );
-
-			// the horizontal and vertical scroll views will update their scroll
-			// information the next time an android layout happens. Request that now.
-			_pVertScrollView->requestLayout();
-			_pHorzScrollView->requestLayout();
 
 			// we must call _pContentParent->requestLayout because we have to clear
 			// its measure cache. Otherwise the changes might not take effect.

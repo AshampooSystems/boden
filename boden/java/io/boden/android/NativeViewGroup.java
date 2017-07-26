@@ -98,7 +98,7 @@ public class NativeViewGroup extends ViewGroup
                 resolveSize(mWidth, widthMeasureSpec),
                 resolveSize(mHeight, heightMeasureSpec));
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
 
@@ -148,6 +148,19 @@ public class NativeViewGroup extends ViewGroup
                                 int height = subSubChild.getHeight();
 
                                 Log.i("boden", "SubSubchild " + Integer.toString(width) + "x" + Integer.toString(height));
+
+                                //subSubChild.requestLayout();
+
+                                width = subSubChild.getWidth();
+                                height = subSubChild.getHeight();
+
+                                ViewGroup.LayoutParams subsubparams = subSubChild.getLayoutParams();
+
+                                width = subsubparams.width;
+                                height = subsubparams.height;
+
+
+
                             }
                         }
                     }
