@@ -6,7 +6,7 @@ namespace bdn
 {
     
 /** Stores the layout for a set of views. This is usually created by 
-    ContainerView::calcLayout().
+    ContainerView::calcContainerLayout().
 
     The "layout" may consist of values for several properties of the view, including
     size and position.

@@ -13,10 +13,7 @@ namespace winuwp
 class Dispatcher : public Base, BDN_IMPLEMENTS IDispatcher
 {
 public:
-	Dispatcher(Windows::UI::Core::CoreDispatcher^ pCoreDispatcher)
-	{
-        _pCoreDispatcher = pCoreDispatcher;
-    }
+	Dispatcher(Windows::UI::Core::CoreDispatcher^ pCoreDispatcher);
 
 
     Windows::UI::Core::CoreDispatcher^ getCoreDispatcher() const
@@ -44,6 +41,8 @@ public:
     void dispose();
     
 private:
+    void idleHandler(::Windows::UI::Core::IdleDispatchedHandlerArgs^ e);
+
     template<typename FuncReturnType>
     struct TimedItem : public Base
     {   

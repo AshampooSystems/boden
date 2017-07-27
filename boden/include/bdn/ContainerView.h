@@ -151,7 +151,7 @@ public:
         The sizes and positions of the child views are calculated and stored in the returned
         layout object. The layout can then be applied later by calling ViewLayout::applyTo().
 
-        calcLayout may be called multiple times to create multiple layout objects
+        calcContainerLayout may be called multiple times to create multiple layout objects
 		for different sizes.
         Any of the created layouts may be applied later with ViewLayout::applyTo(). It is
         also valid to apply none of them and throw them away.

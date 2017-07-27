@@ -11,6 +11,34 @@ namespace winuwp
 {
 
 
+Dispatcher::Dispatcher(Windows::UI::Core::CoreDispatcher^ pCoreDispatcher)
+{
+    _pCoreDispatcher = pCoreDispatcher;
+}
+
+void Dispatcher::idleHandler(::Windows::UI::Core::IdleDispatchedHandlerArgs^ e)
+{
+    // sometimes the method is called even though there are currently
+    // other events in the queue. But luckily we can check for that
+    // and re-schedule if needed.
+    if( ! e->IsDispatcherIdle )
+    {
+        // not idle => reschedule
+        _pCoreDispatcher->RunIdleAsync(
+		    ref new Windows::UI::Core::IdleDispatchedHandler(
+                strongMethod(this, &Dispatcher::idleHandler) ) );
+    }
+    else
+    {
+        // ok, we are actually idle
+        BDN_ENTRY_BEGIN;
+
+        executeItem(Priority::idle);
+
+		BDN_ENTRY_END(true);
+    }
+}
+
 
 void Dispatcher::enqueue(
 	std::function< void() > func,
@@ -33,14 +61,7 @@ void Dispatcher::enqueue(
     {    
         _pCoreDispatcher->RunIdleAsync(
 		    ref new Windows::UI::Core::IdleDispatchedHandler(
-			    [pThis, priority](::Windows::UI::Core::IdleDispatchedHandlerArgs^ e)
-			    {
-				    BDN_ENTRY_BEGIN;
-
-                    pThis->executeItem(priority);
-
-				    BDN_ENTRY_END(true);
-			    } ) );	    
+                strongMethod(this, &Dispatcher::idleHandler) ) );
     }
     else
     {

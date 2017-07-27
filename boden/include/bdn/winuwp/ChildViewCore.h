@@ -191,8 +191,10 @@ public:
             // XXX
             OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 
 
-            // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
-            // this is.
+            // a full relayout only happens if another measure cycle is done (since we actually
+            // do our own layout at the end of measure, not in arrange).
+            // So we use invalidateMeasure instead of invalidateArrange.
+            invalidateMeasure();
             invalidateArrange();
         }
     }

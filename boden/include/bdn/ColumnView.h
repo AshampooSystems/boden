@@ -21,10 +21,7 @@ namespace bdn
 class ColumnView : public ContainerView
 {
 public:
-	ColumnView()
-	{		
-	}
-	
+	ColumnView();
 
 	Size calcContainerPreferredSize( const Size& availableSpace = Size::none() ) const override;
 	

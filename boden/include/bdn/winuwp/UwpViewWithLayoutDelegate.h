@@ -34,6 +34,10 @@ internal:
 		_layoutDelegateWeak = pDelegate;
 	}
 
+    P<IUwpLayoutDelegate> getLayoutDelegate()
+    {
+        return _layoutDelegateWeak.toStrong();
+    }
 
 
 

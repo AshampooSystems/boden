@@ -65,29 +65,39 @@ public:
 		// Unfortunately Xaml automatically arranges the content view of the top level window.
 		// To work around that we add a canvas as the content view and then
 		// add the real content view to the canvas.
-		_pTopContainer = (UwpViewWithLayoutDelegate<>^)_pXamlWindow->Content;
-        if(_pTopContainer==nullptr)
+		_pSharedTopContainer = (UwpViewWithLayoutDelegate<>^)_pXamlWindow->Content;
+        if(_pSharedTopContainer==nullptr)
         {
-            _pTopContainer = ref new UwpViewWithLayoutDelegate<>();
-            _pTopContainerLayoutDelegate = newObj<TopContainerLayoutDelegate>( pOuterWindow );
-            _pTopContainer->setLayoutDelegateWeak( _pTopContainerLayoutDelegate );
+            _pSharedTopContainer = ref new UwpViewWithLayoutDelegate<>();
             
-		    _pTopContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
-		    _pXamlWindow->Content = _pTopContainer;
+            _pSharedTopContainerLayoutDelegate = newObj<TopContainerLayoutDelegate>();
+            _pSharedTopContainer->setLayoutDelegateWeak( _pSharedTopContainerLayoutDelegate );
+            
+		    _pSharedTopContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
+		    _pXamlWindow->Content = _pSharedTopContainer;
         }
+        else
+        {
+            // we already created the top container. Fetch the existing layout delegate.
+            _pSharedTopContainerLayoutDelegate = cast<TopContainerLayoutDelegate>( _pSharedTopContainer->getLayoutDelegate() );
+        }
+
+        // add the window to the delegate's list
+        _pSharedTopContainerLayoutDelegate->addWindowWeak( pOuterWindow );
 
         // now add the panel that should represent this "window". Note that we need
         // a separate panel for the window (as opposed to directly adding our content view
         // to the top level container) because we need a way to represent the window's own properties
         // (like visible/hidden) without modifying the content panel. So we add a panel for the window
-        // to get this intermediate control.
+        // to get this intermediate control. Note that the top container is shared by all Window objects,
+        // so we cannot use that to represent the window visibility.
         _pContentContainer = ref new UwpViewWithLayoutDelegate<>();
         _pContentContainerLayoutDelegate = newObj<ContentContainerLayoutDelegate>(pOuterWindow);
         _pContentContainer->setLayoutDelegateWeak( _pContentContainerLayoutDelegate );
 
 
 		_pContentContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
-        _pTopContainer->Children->Append(_pContentContainer);
+        _pSharedTopContainer->Children->Append(_pContentContainer);
 
         _pXamlWindow->SizeChanged += ref new ::Windows::UI::Xaml::WindowSizeChangedEventHandler
 				    ( _pEventForwarder, &EventForwarder::windowSizeChanged );
@@ -112,13 +122,13 @@ public:
         if(_pContentContainer!=nullptr)
         {
             // remove our content container from the top container
-            if(_pTopContainer!=nullptr)
+            if(_pSharedTopContainer!=nullptr)
             {
                 try
                 {
                     unsigned index=0;
-                    if(_pTopContainer->Children->IndexOf(_pContentContainer, &index))
-                        _pTopContainer->Children->RemoveAt(index);
+                    if(_pSharedTopContainer->Children->IndexOf(_pContentContainer, &index))
+                        _pSharedTopContainer->Children->RemoveAt(index);
                 }
                 catch(::Platform::DisconnectedException^ e)
                 {
@@ -128,7 +138,7 @@ public:
             _pContentContainer = nullptr;
         }
 
-        _pTopContainer = nullptr;
+        _pSharedTopContainer = nullptr;
 
         BDN_WINUWP_TO_STDEXC_END;
 
@@ -532,19 +542,55 @@ private:
     class TopContainerLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
     public:
-        TopContainerLayoutDelegate(Window* pWindow)
-            : _windowWeak(pWindow)
+        TopContainerLayoutDelegate()
         {
         }
+
+        void addWindowWeak(Window* pWindow)
+        {
+            _windowWeakList.push_back(pWindow);
+        }
+
+        class AutoCleaningWindowIterator
+        {
+        public:
+            AutoCleaningWindowIterator( std::list< WeakP<Window> >& weakList )
+                : _weakList(weakList)
+            {
+                _nextElementIt = _weakList.begin();
+            }
+
+            bool next( P<Window>& pWindow )
+            {
+                while(_nextElementIt != _weakList.end() )
+                {
+                    pWindow = _nextElementIt->toStrong();
+                    if(pWindow!=nullptr)
+                    {
+                        ++_nextElementIt;
+                        return true;
+                    }
+                     
+                    // window has been deleted. Remove it from the list
+                    _nextElementIt = _weakList.erase( _nextElementIt );
+                }
+
+                return false;
+            }
+
+        protected:
+            std::list< WeakP<Window> >&             _weakList;
+            std::list< WeakP<Window> >::iterator    _nextElementIt;
+        };
 
         Size uwpMeasureOverride(const Size& availableSpace ) override
         {
             // XXX
             OutputDebugString( String( "Window.TopContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
-            
-            // call Measure on the content container to ensure that it participates in the layout.
-            P<Window> pWindow = _windowWeak.toStrong();
-            if(pWindow!=nullptr)
+
+            AutoCleaningWindowIterator it( _windowWeakList );
+            P<Window> pWindow;
+            while( it.next(pWindow) )
             {
                 P<WindowCore> pCore = tryCast<WindowCore>( pWindow->getViewCore() );
                 if(pCore!=nullptr)
@@ -570,10 +616,11 @@ private:
         void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
         {
             OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
-            
-            P<Window> pWindow = _windowWeak.toStrong();
-            if(pWindow!=nullptr)
-                defaultFinalizeUwpMeasure(pWindow, lastMeasureAvailableSpace);
+
+            AutoCleaningWindowIterator it( _windowWeakList );
+            P<Window> pWindow;
+            while( it.next(pWindow) )
+                defaultFinalizeUwpMeasure(pWindow, lastMeasureAvailableSpace);                           
         }
         
         Size uwpArrangeOverride(const Size& finalSize ) override
@@ -581,15 +628,16 @@ private:
             // XXX
             OutputDebugString( String( "Window.TopContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
-            P<Window> pWindow = _windowWeak.toStrong();
-            if(pWindow!=nullptr)
+            Rect contentContainerRect( Point(0,0), finalSize);
+
+            AutoCleaningWindowIterator it( _windowWeakList );
+            P<Window> pWindow;
+            while( it.next(pWindow) )
             {
                 P<WindowCore> pCore = tryCast<WindowCore>( pWindow->getViewCore() );
                 if(pCore!=nullptr)
                 {
                     // arrange the content container
-                    Rect contentContainerRect( Point(0,0), finalSize);
-
                     pCore->_pContentContainer->Arrange( rectToUwpRect(contentContainerRect) );
                 }
             }
@@ -602,8 +650,7 @@ private:
 
 
     protected:
-        WeakP<Window> _windowWeak;
-
+        std::list< WeakP<Window> > _windowWeakList;
     };
     friend class TopContainerLayoutDelegate;
 
@@ -684,11 +731,11 @@ private:
                 double height = _pXamlWindow->Bounds.Height;
                 
                 // Update our window panel to the same size as the outer window.
-                if(_pTopContainer->Width != width
-                    || _pTopContainer->Height != height)
+                if(_pSharedTopContainer->Width != width
+                    || _pSharedTopContainer->Height != height)
                 {                    
-                    _pTopContainer->Width = width;
-                    _pTopContainer->Height = height;
+                    _pSharedTopContainer->Width = width;
+                    _pSharedTopContainer->Height = height;
                 }
                 
                 // Update our window panel to the same size as the outer window.
@@ -728,8 +775,8 @@ private:
 	int												_appViewId;
 
 	::Windows::UI::Xaml::Window^			_pXamlWindow;
-	UwpViewWithLayoutDelegate<>^	        _pTopContainer;
-    P<TopContainerLayoutDelegate>           _pTopContainerLayoutDelegate;
+	UwpViewWithLayoutDelegate<>^	        _pSharedTopContainer;
+    P<TopContainerLayoutDelegate>           _pSharedTopContainerLayoutDelegate;
     UwpViewWithLayoutDelegate<>^	        _pContentContainer;
     P<ContentContainerLayoutDelegate>       _pContentContainerLayoutDelegate;
         
