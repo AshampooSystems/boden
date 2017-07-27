@@ -53,9 +53,14 @@ public:
         return _helper.calcPreferredSize( _pScrollView, availableSpace );
     }  
 
-    void calcLayout(const Size& viewPortSize) override
+    void prepareCalcLayout(const Size& viewPortSize) override
     {
-        _helper.calcLayout(_pScrollView, viewPortSize );
+        _prepareCalcLayoutViewPortSize = viewPortSize;
+    }
+
+    void calcLayoutAfterPreparation() override
+    {
+        _helper.calcLayout(_pScrollView, _prepareCalcLayoutViewPortSize );
     }
 
     
@@ -130,6 +135,9 @@ public:
             ScrollViewLayoutTesterBase<Base>::doPreferredSizeAndLayoutTests();
         }
     }
+
+private:
+    Size _prepareCalcLayoutViewPortSize;
                 
 };
 

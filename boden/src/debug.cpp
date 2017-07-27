@@ -75,7 +75,7 @@
     {
         void debuggerPrint(const String& text)
         {
-            OutputDebugStringW( text.asWidePtr() );
+            OutputDebugStringW( (text+"\n").asWidePtr() );
         }
     }
 

@@ -34,23 +34,39 @@ protected:
     }
                 
 
-    void resizeScrollViewToViewPortSize( const Size& viewPortSize)
+    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
     {        
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize );
+        // we cannot resize the scroll view directly with adjustAndSetBounds.
+        // That would not have any effect outside of a layout cycle.
+        // Instead we set the preferred size min and max to force the outer view
+        // to resize it to the specified size.
 
-        _pScrollView->adjustAndSetBounds(newBounds);
+        _pScrollView->preferredSizeMinimum() = viewPortSize;
+        _pScrollView->preferredSizeMaximum() = viewPortSize;
+
+        // also request a re-layout here. With the normal propagation of the property changes
+        // it would take two event cycles until the layout happens. But we want it to happen
+        // immediately after the properties have been changed.
+        _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );
     }
     
     void verifyScrollsHorizontally( bool expectedScrolls) override
     {
-        bool scrolls = (_pWinScrollViewer->ComputedVerticalScrollBarVisibility == ::Windows::UI::Xaml::Visibility::Visible );
+        // the view will scroll when the scrolled area view is bigger than the scroll view.
+        double scrolledAreaWidth = _pWinScrollViewer->ExtentWidth;        
+        double viewWidth = _pWinScrollViewer->ActualWidth;
+
+        bool scrolls = (scrolledAreaWidth > viewWidth);
 
         REQUIRE( scrolls == expectedScrolls);
     }
 
     void verifyScrollsVertically( bool expectedScrolls) override
     {
-        bool scrolls = (_pWinScrollViewer->ComputedHorizontalScrollBarVisibility == ::Windows::UI::Xaml::Visibility::Visible );
+        double scrolledAreaHeight = _pWinScrollViewer->ExtentHeight;        
+        double viewHeight = _pWinScrollViewer->ActualHeight;
+
+        bool scrolls = (scrolledAreaHeight > viewHeight);
 
         REQUIRE( scrolls == expectedScrolls);
     }

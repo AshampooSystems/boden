@@ -69,12 +69,6 @@ protected:
         return bdn::win32::win32RectToRect(winRect, _pWin32Core->getUiScaleFactor() );
     }
 
-    void verifyInitialDummyCorePosition() override
-    {        
-        Rect rect = getWindowRectInParent();
-
-        REQUIRE( rect.getPosition() == Point() );
-    }
 
     void verifyInitialDummyCoreSize() override
     {        

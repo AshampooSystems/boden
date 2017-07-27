@@ -8,6 +8,7 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/Button.h>
+#include <bdn/ColumnView.h>
 
 namespace bdn
 {
@@ -525,7 +526,15 @@ protected:
     virtual void initCore()
     {
         if(_pView!=cast<View>(_pWindow))
-            _pWindow->setContentView( _pView );
+        {
+            // the view might need control over its size to be able to do some of its test.
+            // Because of this we cannot add it to the window directly.
+            // Instead we add an intermediate ColumnView.
+            P<ColumnView> pContainer = newObj<ColumnView>();
+            _pWindow->setContentView(pContainer);
+
+            pContainer->addChildView( _pView );
+        }
 
         _pCore = _pView->getViewCore();
 

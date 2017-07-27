@@ -409,6 +409,8 @@ namespace bdn {
         bool operator == ( SourceLineInfo const& other ) const;
         bool operator < ( SourceLineInfo const& other ) const;
 
+        std::string toString() const;
+
         std::string file;
         std::size_t line;
     };

@@ -72,12 +72,16 @@ protected:
             int initialCount = _pContainerView->getCalcContainerLayoutCount();
             
             _pContainerView->needLayout( View::InvalidateReason::customDataChanged );
-            
-            CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
-            {
-                int currLayoutCount = pThis->_pContainerView->getCalcContainerLayoutCount();
-                REQUIRE( currLayoutCount == initialCount+1 );
-                REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
+
+            // XXX
+            CONTINUE_SECTION_AFTER_SECONDS( 2, pThis, initialCount)
+            {            
+                CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
+                {
+                    int currLayoutCount = pThis->_pContainerView->getCalcContainerLayoutCount();
+                    REQUIRE( currLayoutCount == initialCount+1 );
+                    REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
+                };
             };
         }
     }

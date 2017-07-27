@@ -47,6 +47,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/ColumnView.h>
 #include <bdn/TextView.h>
 #include <bdn/mainThread.h>
+#include <bdn/debug.h>
 #include <bdn/NotImplementedError.h>
 
 
@@ -463,7 +464,7 @@ struct ConfigData {
 		listReporters( false ),
 		listTestNamesOnly( false ),
 		showSuccessfulTests( false ),
-        printLevel( 0 ),
+        printLevel( 5 ),
 		doNotDebugBreak( false ),
 		noThrow( false ),
 		showHelp( false ),
@@ -517,7 +518,7 @@ public:
 
 	Config()
 	{}
-
+     
 	Config( ConfigData const& data )
 		:   m_data( data ),
 		m_stream( openStream() )
@@ -1540,7 +1541,7 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 		.bind( &ConfigData::showSuccessfulTests );
 
     cli["--print-level"]
-        .describe( "prints information about test cases and sections being run.\n0 no printing (default)\n1 print test cases\n2 also print first level sections\n3 second level sections\n etc." )
+        .describe( "prints information about test cases and sections being run.\n0 no printing \n1 print test cases\n2 also print first level sections\n3 second level sections\n etc.\nDefault ist 5" )
         .bind( &printLevel, "print level" );
 
 	cli["--no-break"]
@@ -2776,6 +2777,14 @@ public:
     }
 };
 
+void printTestStatus(const std::string& s)
+{
+    std::cout << s << std::endl;
+
+    BDN_DEBUGGER_PRINT( s );
+}
+
+
 class RunContext : public IResultCapture, public IRunner {
 
 	RunContext( RunContext const& );
@@ -2835,7 +2844,7 @@ public:
         _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
 
         if(m_printLevel>=1)
-            std::cerr << "Test case: "+getCurrentTestName() << std::endl;
+            printTestStatus( "Test case: "+getCurrentTestName() );            
 
 		_testDoneCallback = doneCallback;
 
@@ -2986,13 +2995,16 @@ private: // IResultCapture
             // out the subsequent enters.
             if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
             {
+                std::string statusText;
                 for(size_t i=0; i<m_activeSections.size(); i++)
-                    std::cout << " ";
+                    statusText += " ";
+
                 if(sectionInfo.name.empty())
-                    std::cout << "@" << sectionInfo.lineInfo;
+                    statusText += "@" + sectionInfo.lineInfo.toString();
                 else
-                    std::cout << sectionInfo.name;
-                std::cout << std::endl;
+                    statusText += sectionInfo.name;
+
+                printTestStatus(statusText);
             }
 
 		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
@@ -5485,6 +5497,15 @@ bool SourceLineInfo::operator < ( SourceLineInfo const& other ) const {
 	return line < other.line || ( line == other.line  && file < other.file );
 }
 
+std::string SourceLineInfo::toString() const
+{
+#ifndef __GNUG__
+	return file + "(" + std::to_string(line) + ")";
+#else
+    return file + ":" + std::to_string(line);
+#endif
+}
+
 void seedRng( IConfig const& config ) {
 	if( config.rngSeed() != 0 )
 		std::srand( config.rngSeed() );
@@ -5493,12 +5514,11 @@ unsigned int rngSeed() {
 	return getCurrentContext().getConfig()->rngSeed();
 }
 
-std::ostream& operator << ( std::ostream& os, SourceLineInfo const& info ) {
-#ifndef __GNUG__
-	os << info.file << "(" << info.line << ")";
-#else
-	os << info.file << ":" << info.line;
-#endif
+
+
+std::ostream& operator << ( std::ostream& os, SourceLineInfo const& info )
+{
+	os << info.toString();
 	return os;
 }
 

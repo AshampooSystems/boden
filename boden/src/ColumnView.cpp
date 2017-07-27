@@ -7,6 +7,11 @@
 namespace bdn
 {
 
+ColumnView::ColumnView()
+{
+}
+
+
 Size ColumnView::calcContainerPreferredSize( const Size& availableSpace ) const
 {
     // XXX

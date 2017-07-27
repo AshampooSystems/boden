@@ -27,7 +27,7 @@ inline void debugBreakDummy()
 
     Where exactly the text ends up depends on the target platform.
 
-    Each debugPrint text entry is separated automatically from other debugPrint text entries,
+    Each debuggerPrint text entry is separated automatically from other debuggerPrint text entries,
     so that the entries can be distringuished from each other. For example, if the output channel
     is simply a text stream then a linebreak is automatically added after each entry.    
     
