@@ -70,10 +70,20 @@ public:
                 
         // the Width property indicates to the control "should probably have this width".
         // That matches the definition of our preferredSizeHint property.
+        double val;
         if(std::isfinite(hint.width))
-		    _pTextBlock->Width = hint.width;
+		    val = hint.width;
         else
-            _pTextBlock->Width = std::numeric_limits<double>().quiet_NaN();
+            val = std::numeric_limits<double>().quiet_NaN();
+
+        // we modify the Width in adjustAndSetBounds, so it is important that
+        // we know which value we want it to have during calcPreferredSize.
+        setWidthForCalcPreferredSize( val );
+
+        // we also set the property here, so that a new measure pass is triggered.
+        // Other than triggering the measure pass this does not have any lasting
+        // effect since the value will be overwritten in adjustAndSetBounds.
+        _pTextBlock->Width = val;
         
         BDN_WINUWP_TO_STDEXC_END;
 	}

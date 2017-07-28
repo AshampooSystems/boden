@@ -274,7 +274,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         {
             Size prefSizeBefore = pObject->calcPreferredSize();
 
-            SECTION("bigger than preferred size hint")
+            SECTION("bigger than preferred size")
             {
                 pView->preferredSizeHint() = prefSizeBefore+Size(1,1);
 
@@ -286,7 +286,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                 };
             }
 
-            SECTION("same as preferred size hint")
+            SECTION("same as preferred size")
             {
                 pView->preferredSizeHint() = prefSizeBefore;
 
@@ -298,7 +298,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                 };
             }
                     
-            SECTION("width smaller than preferred width hint")
+            SECTION("width smaller than preferred width")
             {
                 pView->preferredSizeHint() = Size( prefSizeBefore.width-1, Size::componentNone() );
 
@@ -323,7 +323,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                 };
             }
 
-            SECTION("height smaller than preferred height hint")
+            SECTION("height smaller than preferred height")
             {
                 pView->preferredSizeHint() = Size( Size::componentNone(), prefSizeBefore.height-1 );
 

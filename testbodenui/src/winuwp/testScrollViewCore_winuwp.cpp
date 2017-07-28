@@ -57,7 +57,9 @@ protected:
         double scrolledAreaWidth = _pWinContentWrapper->ActualWidth;        
         double viewWidth = _pWinScrollViewer->ActualWidth;
 
-        bool scrolls = (scrolledAreaWidth > viewWidth);
+        bool enabled = (_pWinScrollViewer->HorizontalScrollMode!= ::Windows::UI::Xaml::Controls::ScrollMode::Disabled);
+
+        bool scrolls = (scrolledAreaWidth > viewWidth && enabled );
 
         REQUIRE( scrolls == expectedScrolls);
     }
@@ -67,7 +69,9 @@ protected:
         double scrolledAreaHeight = _pWinContentWrapper->ActualHeight;        
         double viewHeight = _pWinScrollViewer->ActualHeight;
 
-        bool scrolls = (scrolledAreaHeight > viewHeight);
+        bool enabled = (_pWinScrollViewer->VerticalScrollMode!= ::Windows::UI::Xaml::Controls::ScrollMode::Disabled);
+
+        bool scrolls = (scrolledAreaHeight > viewHeight && enabled);
 
         REQUIRE( scrolls == expectedScrolls);
     }
@@ -90,6 +94,8 @@ protected:
             double width = pCoreEl->ActualWidth;
             double height = pCoreEl->ActualHeight;
 
+            maxDeviation += Dip::significanceBoundary();
+
             REQUIRE_ALMOST_EQUAL( width, expectedBounds.width, maxDeviation );
             REQUIRE_ALMOST_EQUAL( height, expectedBounds.height, maxDeviation );
         }
@@ -100,7 +106,18 @@ protected:
         double width = _pWinContentWrapper->ActualWidth;
         double height = _pWinContentWrapper->ActualHeight;
 
-        REQUIRE( Size(width, height) == expectedSize );
+        // the content wrapper does not represent the scrolled area exactly.
+        // If scrolling is disabled then the wrapper will have the size dictated by the content view.
+        // That might exceed the bounds of the scroll view if the content cannot be made to fit.
+        // In that case the "scrolled area" is the size of the viewport, not the size of the content wrapper.
+
+        if(_pWinScrollViewer->HorizontalScrollMode==::Windows::UI::Xaml::Controls::ScrollMode::Disabled && width>_pWinScrollViewer->ViewportWidth)
+            width = _pWinScrollViewer->ViewportWidth;
+
+        if(_pWinScrollViewer->VerticalScrollMode==::Windows::UI::Xaml::Controls::ScrollMode::Disabled && height>_pWinScrollViewer->ViewportHeight)
+            height = _pWinScrollViewer->ViewportHeight;
+
+        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -108,7 +125,7 @@ protected:
         double width = _pWinScrollViewer->ViewportWidth;
         double height = _pWinScrollViewer->ViewportHeight;
 
-        REQUIRE( Size(width, height) == expectedSize );
+        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
     }               
              
     void verifyCorePadding() override

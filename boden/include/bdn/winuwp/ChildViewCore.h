@@ -68,6 +68,9 @@ public:
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
+        _widthForCalcPreferredSize = std::numeric_limits<double>::quiet_NaN();
+        _heightForCalcPreferredSize = std::numeric_limits<double>::quiet_NaN();
+
 		_outerViewWeak = pOuterView;
 		_pFrameworkElement = pFrameworkElement;
 
@@ -261,7 +264,18 @@ public:
         if(pElement!=nullptr)
         {
             OutputDebugString( (String(typeid(*this).name())+" Measure("+std::to_string(assignedSize.width)+", "+std::to_string(assignedSize.height)+"\n" ).asWidePtr() );
-            pElement->Measure( sizeToUwpSize( assignedSize ) );
+            
+            ::Windows::Foundation::Size winAssignedSize = sizeToUwpSize( assignedSize );
+
+            // Windows will actually size the control exactly to the desired size.
+            // We cannot make it bigger if it does not want it to be.
+            // So to force the element to have the size we want it to have we set the Width
+            // and Height properties.
+
+            pElement->Width = winAssignedSize.Width;
+            pElement->Height = winAssignedSize.Height;
+
+            pElement->Measure( winAssignedSize );
         }
 
         // XXX
@@ -387,6 +401,22 @@ public:
 			    _pFrameworkElement->Visibility = ::Windows::UI::Xaml::Visibility::Visible;			
 		    }
 
+            
+            // We use the Width and Height property to force the view to have exactly the size we want it to have.
+            // If we leave them set then Measure will simply return those values back to us.
+            // So we must clear these values - usually we set them to NaN.
+            // However, some controls also want to set a specific Width or Height during calcPreferredSize,
+            // for example, TextViews need to set the width to the preferred size hint so that the text will
+            // auto-wrap. So instead of setting Width and Height to NaN directly, we set them to the value of a special
+            // member variable. Usually that is NaN, but for TextViews, for example, it contains the hint width.
+
+            // Note that we do not need to restore the old values after merasure. See the comments below
+            // for an explanation.
+
+            if( _pFrameworkElement->Width != _widthForCalcPreferredSize)
+                _pFrameworkElement->Width = _widthForCalcPreferredSize;
+            if( _pFrameworkElement->Height != _heightForCalcPreferredSize )
+                _pFrameworkElement->Height = _heightForCalcPreferredSize;
 		    
 		    // the Width and Height UIElement properties indicate to the layout process how big we want to be.
 		    // If they are set then they are incorporated into the DesiredSize measurements.
@@ -400,8 +430,7 @@ public:
             
             _pFrameworkElement->Measure( winAvailableSpace );
             Size preferredSize = uwpSizeToSize( _pFrameworkElement->DesiredSize );
-
-
+            
             // Windows does not allow UIElements to be smaller than their DesiredSize.
             
             // if we are currently in a Measure cycle then our parent will make sure that
@@ -413,8 +442,11 @@ public:
             // old value. However, DesiredSize has no effect outside the layout cycle, so it
             // does not hurt to leave it at the current value. And when the next layout cycle starts
             // then our layout implementations will make sure that DesiredSize is set correctly.
-            
+
             // So there is no need to revert to the old DesiredSize here.
+
+            // For the same reason we do not need to reset the Width and Height properties to their
+            // previous values.                      
 
             // But we do have to restore the old visibility information.
 		    if(oldVisibility != ::Windows::UI::Xaml::Visibility::Visible)
@@ -540,6 +572,15 @@ protected:
 
 protected:
 	
+    void setWidthForCalcPreferredSize(double value)
+    {
+        _widthForCalcPreferredSize = value;
+    }
+
+    void setHeightForCalcPreferredSize(double value)
+    {
+        _heightForCalcPreferredSize = value;
+    }
 
 		
 private:
@@ -592,6 +633,9 @@ private:
     Rect _currBounds;
     
     bool _inUwpLayoutOperation = false;
+
+    double _widthForCalcPreferredSize;
+    double _heightForCalcPreferredSize;
 
 };
 
