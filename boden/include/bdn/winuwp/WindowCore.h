@@ -13,6 +13,7 @@
 #include <bdn/winuwp/util.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/IUwpLayoutDelegate.h>
+#include <bdn/winuwp/UwpLayoutBridge.h>
 #include <bdn/winuwp/UwpViewWithLayoutDelegate.h>
 
 #include <limits>
@@ -75,6 +76,9 @@ public:
             
 		    _pSharedTopContainer->Visibility = ::Windows::UI::Xaml::Visibility::Visible;		
 		    _pXamlWindow->Content = _pSharedTopContainer;
+
+            _pSharedTopContainer->LayoutUpdated += ref new ::Windows::Foundation::EventHandler<::Platform::Object^>
+				    ( _pEventForwarder, &EventForwarder::layoutUpdated );
         }
         else
         {
@@ -102,6 +106,7 @@ public:
         _pXamlWindow->SizeChanged += ref new ::Windows::UI::Xaml::WindowSizeChangedEventHandler
 				    ( _pEventForwarder, &EventForwarder::windowSizeChanged );
 
+        
         // update the position and size property of the outer window to reflect the current bounds
 		_scheduleUpdateOuterPositionAndSizeProperty();				
 
@@ -222,18 +227,8 @@ public:
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
-            BDN_WINUWP_TO_STDEXC_BEGIN;
+            UwpLayoutBridge::get().invalidateMeasure( _pContentContainer );
 
-            try
-            {
-		        _pContentContainer->InvalidateMeasure();
-            }
-            catch(::Platform::DisconnectedException^ e)
-            {
-                // view was already destroyed. Ignore this.
-            }
-
-            BDN_WINUWP_TO_STDEXC_END;
         }
     }
 
@@ -528,6 +523,16 @@ private:
             BDN_WINUWP_TO_PLATFORMEXC_END
 		}
 
+        void layoutUpdated( Platform::Object^ pSender, ::Platform::Object^ pArgs )
+		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
+			if(_pParentWeak!=nullptr)
+				_pParentWeak->_layoutUpdated();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
+		}
+
 
 	private:
 		WindowCore* _pParentWeak;
@@ -764,7 +769,10 @@ private:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
-
+    void _layoutUpdated()
+	{
+        UwpLayoutBridge::get().layoutUpdated();
+    }
     
 	P<UiProvider>	_pUiProvider;
 	WeakP<Window>   _outerWindowWeak;

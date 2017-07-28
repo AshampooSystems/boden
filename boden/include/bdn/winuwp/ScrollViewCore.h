@@ -66,24 +66,13 @@ public:
 
 	void setPadding(const Nullable<UiMargin>& pad) override
 	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
+        // we do not pass the padding on to the scroll view. We control it manually
+        // when we lay out the content wrapper.
 
-		// Apply the padding to the control, so that the content is positioned accordingly.
-        UiMargin uiPadding;
-        if(!pad.isNull())
-            uiPadding = pad;
-
-		Margin padding = uiMarginToDipMargin(uiPadding);
-        
-		// UWP also uses DIPs => no conversion necessary
-
-		_pScrollViewer->Padding = ::Windows::UI::Xaml::Thickness(
-			padding.left,
-			padding.top,
-			padding.right,
-			padding.bottom );
-        
-        BDN_WINUWP_TO_STDEXC_END;
+        // But we must invalidate the measure and arrange info of the
+        // content wrapper
+        UwpLayoutBridge::get().invalidateMeasure(_pContentWrapper);
+        UwpLayoutBridge::get().invalidateArrange(_pContentWrapper);
 	}
 
 
@@ -115,8 +104,28 @@ public:
 
     void layout()
     {
-        // Windows takes care of the layout of the scroll viewer.
-        // Nothing to do here.
+        // Windows takes care of the layout of the scroll viewer. But we still need
+        // to lay out the content view inside of our content wrapper.
+
+        // layout is called at the end of the measure phase. I.e. at a point in time
+        // when the content wrapper does not have its final size yet.
+        // BUT the viewport size (i.e. the size of the scrollview) is known, since View::size()
+        // is already up-to-date. So we simply use the ScrolViewLayoutHelper here.
+
+        P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );		
+
+        if(pOuter!=nullptr)
+        {
+            ScrollViewLayoutHelper helper( 0, 0);
+
+            helper.calcLayout(pOuter, pOuter->size() );
+
+            Rect contentBounds = helper.getContentViewBounds();
+
+            P<View> pContentView = pOuter->getContentView();
+            if(pContentView!=nullptr)
+                pContentView->adjustAndSetBounds(contentBounds);
+        }
     }
 
 
@@ -129,18 +138,7 @@ public:
         if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
             // also invalidate the measurements of the content wrapper
-            BDN_WINUWP_TO_STDEXC_BEGIN;
-
-            try
-            {
-		        _pContentWrapper->InvalidateMeasure();
-            }
-            catch(::Platform::DisconnectedException^ e)
-            {
-                // view was already destroyed. Ignore this.
-            }
-
-            BDN_WINUWP_TO_STDEXC_END;
+            UwpLayoutBridge::get().invalidateMeasure( _pContentWrapper );
         }
     }
 
@@ -154,18 +152,8 @@ public:
         {
             // also invalidate the layout of the content wrapper.
             // The default implementation (called above) invalidates the scroll viewer itself.
-            BDN_WINUWP_TO_STDEXC_BEGIN;
-
-            try
-            {
-		        _pContentWrapper->InvalidateArrange();
-            }
-            catch(::Platform::DisconnectedException^ e)
-            {
-                // view was already destroyed. Ignore this.
-            }
-
-            BDN_WINUWP_TO_STDEXC_END;
+            UwpLayoutBridge::get().invalidateMeasure( _pContentWrapper );
+            UwpLayoutBridge::get().invalidateArrange( _pContentWrapper );
         }
     }
 
@@ -190,7 +178,8 @@ public:
             
 		_pScrollViewer->Measure( winAvailSpace );
 
-
+        // calling Measure on the scroll viewer will automatically call measure on the content wrapper.
+        
         P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );		
 
 		Size prefSize;
@@ -227,8 +216,8 @@ protected:
 
         // the scroll viewer's size has changed. Ensure that we update the DesiredSize that the content
         // reports, because the desired size may depend on the size and/or shape of the viewport.
-        
-        _pContentWrapper->InvalidateMeasure();
+
+        UwpLayoutBridge::get().invalidateMeasure( _pContentWrapper );
 	}
 
 private:
@@ -251,6 +240,9 @@ private:
             Size resultSize;
             if(pView!=nullptr)
             {
+                // we cannot use the scrollview layouthelper here because we need to calculate the
+                // desired size of the content wrapper, not the entire scrollview.
+
                 P<View> pContentView = pView->getContentView();
                 if(pContentView!=nullptr)
                 {
@@ -261,8 +253,22 @@ private:
 
                     Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
 
-                    resultSize = pContentView->calcPreferredSize( availableSpace );
+                    Size availableContentSpace = availableSpace;
 
+                    if(pView->horizontalScrollingEnabled() )
+                        availableContentSpace.width = Size::componentNone();
+
+                    if(pView->verticalScrollingEnabled() )
+                        availableContentSpace.height = Size::componentNone();
+
+                    if(std::isfinite( availableContentSpace.width ) )
+                        availableContentSpace.width -= padding.left + padding.right + contentMargin.left + contentMargin.right;
+
+                    if(std::isfinite( availableContentSpace.height ) )
+                        availableContentSpace.height -= padding.top + padding.bottom + contentMargin.top + contentMargin.bottom;
+
+                    resultSize = pContentView->calcPreferredSize( availableContentSpace );
+                    
                     resultSize += contentMargin + padding;
                 }
             }
@@ -274,44 +280,16 @@ private:
 
         void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
         {
-            // we need to do the finalization on the content view.
+            // we need to do the finalization on the content wrapper.
 
-            P<ScrollView> pView = _viewWeak.toStrong();
-            
+            // the content wrapper will automatically sized by the ScrollViewer, so we do not
+            // need to adjust its own size.
+            // But we do need to size the content view and update its layout.
+
+            // our scrollview layout function will take care of that.
+            P<ScrollView> pView = _viewWeak.toStrong();            
             if(pView!=nullptr)
-            {            
-                P<View> pContentView = pView->getContentView();
-                if(pContentView!=nullptr)
-                {
-                    Margin padding;                    
-                    Nullable<UiMargin> pad = pView->padding();
-                    if(!pad.isNull())
-                        padding = pView->uiMarginToDipMargin(pad);            
-                    
-                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
-
-                    // use the DesiredSize of the wrapper as the basis here. It reflects the final size
-                    // the content area will get.
-                    // infinite then it should match the DesiredSize. If i
-                    // we cannot properly arrange our content view if the wrapper got an "infinite" amount of available
-                    // space. That should not happen
-
-                    P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
-                    if(pCore!=nullptr)
-                    {
-                        Rect contentBounds( Point(0,0), uwpSizeToSize( pCore->_pContentWrapper->DesiredSize) );
-
-                        // subtract padding and margin
-                        contentBounds -= padding;
-                        contentBounds -= contentMargin;
-
-                        pContentView->adjustAndSetBounds(contentBounds);
-
-                        // layout the content view                        
-                        layoutViewTree(pContentView);
-                    }
-                }
-            }
+                layoutViewTree( pView );
         }
         
         Size uwpArrangeOverride(const Size& finalSize ) override
@@ -323,9 +301,34 @@ private:
 
             if(pView!=nullptr)
             {
-                defaultArrangeOverride(pView, finalSize);
-                				
-				P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
+                // we simply need to arrange the content view to the rect we calculated earlier.
+                P<View> pContentView = pView->getContentView();
+                if(pContentView!=nullptr)
+                {
+                    P<ChildViewCore> pContentCore = tryCast<ChildViewCore>( pContentView->getViewCore() );
+                    if(pContentCore!=nullptr)
+                    {
+                        ::Windows::UI::Xaml::FrameworkElement^ pContentElement = pContentCore->getFrameworkElement();
+                        if(pContentElement!=nullptr)
+                        {
+					        Rect						contentBounds(pContentView->position(), pContentView->size());
+
+                            OutputDebugString( String( "ScrollView content view "+String(pContentElement->GetType()->ToString()->Data())+" arrange: "+std::to_string(contentBounds.x)+", "+std::to_string(contentBounds.y)+", "+std::to_string(contentBounds.width)+", "+std::to_string(contentBounds.height)+"\n" ).asWidePtr() );
+                            
+					        ::Windows::Foundation::Rect winContentBounds = rectToUwpRect( contentBounds );
+                            				
+					        pContentElement->Arrange(winContentBounds);
+
+                            // XXX
+                            double width = pContentElement->ActualWidth;
+                            double height = pContentElement->ActualHeight;
+
+                            OutputDebugString( String( "Resulting size: "+std::to_string(width)+" x "+std::to_string(height)+"\n" ).asWidePtr() );
+				        }
+                    }
+                }
+                
+                P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
 				if(pCore!=nullptr)
 					pCore->_pScrollViewer->InvalidateScrollInfo();
             }     

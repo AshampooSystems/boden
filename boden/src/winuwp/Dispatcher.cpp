@@ -2,6 +2,7 @@
 #include <bdn/winuwp/Dispatcher.h>
 
 #include <bdn/winuwp/platformError.h>
+#include <bdn/winuwp/UwpLayoutBridge.h>
 #include <bdn/entry.h>
 #include <bdn/log.h>
 
@@ -21,7 +22,17 @@ void Dispatcher::idleHandler(::Windows::UI::Core::IdleDispatchedHandlerArgs^ e)
     // sometimes the method is called even though there are currently
     // other events in the queue. But luckily we can check for that
     // and re-schedule if needed.
-    if( ! e->IsDispatcherIdle )
+
+    // The method might also be called even though a layout update is still pending.
+    // This is sometimes timing sensitive - sometimes the update event is posted
+    // immediately, sometimes UWP seems to wait a few milliseconds before the update
+    // is scheduled.
+    // Luckily our UWP layout bridge knows when our own layout events are still pending.
+    // So if that is the case then we also reschedule the idle call, since the event
+    // is imminent.
+    UwpLayoutBridge& layoutBridge = UwpLayoutBridge::get();
+
+    if( ! e->IsDispatcherIdle || layoutBridge.isMeasurePending() || layoutBridge.isArrangePending()  )
     {
         // not idle => reschedule
         _pCoreDispatcher->RunIdleAsync(

@@ -121,7 +121,7 @@ public:
 		_pHelloMessageButton = newObj<Button>();
         _pHelloMessageButton->label().bind( _pViewModel->helloMessage() );
 		_pHelloMessageButton->margin() = UiMargin( UiLength::sem(2) );
-		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
+		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::expand;    // XXX
 		pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 

@@ -52,13 +52,9 @@ protected:
         {
             Size availableSpace = uwpSizeToSize(winAvailableSize);
 
-            IUwpLayoutDelegate::UwpMeasureFinalizer finalizer(pDelegate, availableSpace);
+            Size resultSize = UwpLayoutBridge::get().doMeasure( pDelegate, availableSpace );
 
-			Size resultSize = pDelegate->uwpMeasureOverride(availableSpace);
-
-            finalizer.finalizeIfTopLevel();
-
-            return sizeToUwpSize(resultSize);
+            return sizeToUwpSize( resultSize );
         }
 		else
 			return ::Windows::Foundation::Size(0,0);
@@ -75,10 +71,10 @@ protected:
 		if(pDelegate!=nullptr)
         {
             Size finalSize = uwpSizeToSize(winFinalSize);
-        
-			Size resultSize = pDelegate->uwpArrangeOverride(finalSize);
 
-            return sizeToUwpSize(resultSize);
+            Size resultSize = UwpLayoutBridge::get().doArrange( pDelegate, finalSize );
+
+            return sizeToUwpSize( resultSize );
         }
 		else
 			return ::Windows::Foundation::Size(0,0);

@@ -8,9 +8,6 @@ namespace winuwp
 {
 
 
-int		IUwpLayoutDelegate::UwpMeasureFinalizer::_activeFinalizers = 0;
-
-
 }
 }
 

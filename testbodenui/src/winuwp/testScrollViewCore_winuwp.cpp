@@ -19,6 +19,7 @@ protected:
         bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestScrollViewCore >::initCore();
 
         _pWinScrollViewer = (::Windows::UI::Xaml::Controls::ScrollViewer^) _pWinFrameworkElement;
+        _pWinContentWrapper = (::Windows::UI::Xaml::Controls::Panel^)_pWinScrollViewer->Content;
     }
     
   
@@ -53,7 +54,7 @@ protected:
     void verifyScrollsHorizontally( bool expectedScrolls) override
     {
         // the view will scroll when the scrolled area view is bigger than the scroll view.
-        double scrolledAreaWidth = _pWinScrollViewer->ExtentWidth;        
+        double scrolledAreaWidth = _pWinContentWrapper->ActualWidth;        
         double viewWidth = _pWinScrollViewer->ActualWidth;
 
         bool scrolls = (scrolledAreaWidth > viewWidth);
@@ -63,7 +64,7 @@ protected:
 
     void verifyScrollsVertically( bool expectedScrolls) override
     {
-        double scrolledAreaHeight = _pWinScrollViewer->ExtentHeight;        
+        double scrolledAreaHeight = _pWinContentWrapper->ActualHeight;        
         double viewHeight = _pWinScrollViewer->ActualHeight;
 
         bool scrolls = (scrolledAreaHeight > viewHeight);
@@ -75,26 +76,29 @@ protected:
     {
         P<View> pContentView = cast<ScrollView>(_pView)->getContentView();
 
-        REQUIRE( pContentView!=nullptr );
+        if(pContentView!=nullptr)
+        {
+            REQUIRE( pContentView!=nullptr );
         
-        P<bdn::winuwp::IUwpViewCore> pContentViewCore = cast<bdn::winuwp::IUwpViewCore>( pContentView->getViewCore() );
+            P<bdn::winuwp::IUwpViewCore> pContentViewCore = cast<bdn::winuwp::IUwpViewCore>( pContentView->getViewCore() );
 
-        ::Windows::UI::Xaml::FrameworkElement^ pCoreEl = pContentViewCore->getFrameworkElement();
+            ::Windows::UI::Xaml::FrameworkElement^ pCoreEl = pContentViewCore->getFrameworkElement();
 
-        // we cannot verify the position of the framework element because UWP does not expose it.
-        // So we only verify the size
+            // we cannot verify the position of the framework element because UWP does not expose it.
+            // So we only verify the size
 
-        double width = pCoreEl->ActualWidth;
-        double height = pCoreEl->ActualHeight;
+            double width = pCoreEl->ActualWidth;
+            double height = pCoreEl->ActualHeight;
 
-        REQUIRE_ALMOST_EQUAL( width, expectedBounds.width, maxDeviation );
-        REQUIRE_ALMOST_EQUAL( height, expectedBounds.height, maxDeviation );
+            REQUIRE_ALMOST_EQUAL( width, expectedBounds.width, maxDeviation );
+            REQUIRE_ALMOST_EQUAL( height, expectedBounds.height, maxDeviation );
+        }
     }
 
     void verifyScrolledAreaSize( const Size& expectedSize) override
     {
-        double width = _pWinScrollViewer->ExtentWidth;
-        double height = _pWinScrollViewer->ExtentHeight;
+        double width = _pWinContentWrapper->ActualWidth;
+        double height = _pWinContentWrapper->ActualHeight;
 
         REQUIRE( Size(width, height) == expectedSize );
     }
@@ -115,6 +119,7 @@ protected:
 
 
     ::Windows::UI::Xaml::Controls::ScrollViewer^ _pWinScrollViewer;
+    ::Windows::UI::Xaml::Controls::Panel^        _pWinContentWrapper;
 
 
 };

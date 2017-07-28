@@ -7,6 +7,7 @@
 #include <bdn/winuwp/IViewCoreParent.h>
 #include <bdn/winuwp/UiProvider.h>
 #include <bdn/winuwp/IUwpViewCore.h>
+#include <bdn/winuwp/UwpLayoutBridge.h>
 
 #include <bdn/PixelAligner.h>
 
@@ -258,7 +259,10 @@ public:
         //    Otherwise windows will ignore subsequent Arrange call and we cannot modify this view.        
         ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
         if(pElement!=nullptr)
+        {
+            OutputDebugString( (String(typeid(*this).name())+" Measure("+std::to_string(assignedSize.width)+", "+std::to_string(assignedSize.height)+"\n" ).asWidePtr() );
             pElement->Measure( sizeToUwpSize( assignedSize ) );
+        }
 
         // XXX
         OutputDebugString( ("/"+String(typeid(*this).name())+".adjustAndSetBounds()\n" ).asWidePtr() );
@@ -567,34 +571,12 @@ private:
 
     void invalidateMeasure()
     {
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
-        {
-		    _pFrameworkElement->InvalidateMeasure();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
-
-        BDN_WINUWP_TO_STDEXC_END;
+        UwpLayoutBridge::get().invalidateMeasure( _pFrameworkElement);
     }
 
     void invalidateArrange()
     {
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        try
-        {
-		    _pFrameworkElement->InvalidateArrange();
-        }
-        catch(::Platform::DisconnectedException^ e)
-        {
-            // view was already destroyed. Ignore this.
-        }
-
-        BDN_WINUWP_TO_STDEXC_END;
+        UwpLayoutBridge::get().invalidateArrange( _pFrameworkElement);
     }
 
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;

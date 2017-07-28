@@ -28,6 +28,9 @@ Note that this behaviour of DesiredSize being a lower limit for the final size i
 the documentation states explicitly that the parent container can ignore the DesiredSize and another size.
 So the documentation is - as of 2017-07-03 - incorrect, since only bigger sizes can be used.
 
+For some controls (like Button) Windows will not even allow the control to be BIGGER than its desired size
+either. No matter what size the parent view passes to Arrange, the control will ALWAYS be sized to its DesiredSize.
+
 This restriction does make sense in a way. It forces the parent container to call Measure again with a smaller
 availableSpace if it cannot deliver the original DesiredSize. So this rule ensures that each control gets
 a chance to adapt to a smaller size.
