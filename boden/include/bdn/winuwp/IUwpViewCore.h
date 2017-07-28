@@ -20,6 +20,15 @@ public:
     /** Lays out the view. This is called during the Arrange phase.*/
     virtual void layout()=0;
 
+
+    
+    /** Calls FrameworkElement.InvalidateMeasure.*/
+    virtual void invalidateMeasure()=0;
+    
+    /** Calls FrameworkElement.InvalidateArrange.*/
+    virtual void invalidateArrange()=0;
+
+
 };
 
 

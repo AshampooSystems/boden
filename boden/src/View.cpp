@@ -16,7 +16,7 @@ View::View()
 {
 	initProperty<bool, IViewCore, &IViewCore::setVisible, (int)PropertyInfluence_::none>(_visible);
 
-	initProperty<UiMargin, IViewCore, nullptr, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
+	initProperty<UiMargin, IViewCore,  &IViewCore::setMargin, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
 
 	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
 

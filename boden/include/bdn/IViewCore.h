@@ -111,6 +111,9 @@ public:
 	/** Sets the view core's padding. See View::padding() */
 	virtual void setPadding(const Nullable<UiMargin>& padding)=0;
 
+    /** Sets the view core's margin. See View::margin() */
+	virtual void setMargin(const UiMargin& margin)=0;
+
 
     /** Sets the view core's preferred size hint (see View::preferredSizeHint() ).*/
     virtual void setPreferredSizeHint(const Size& hint)=0;

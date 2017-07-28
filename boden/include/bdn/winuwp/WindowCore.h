@@ -190,6 +190,11 @@ public:
 	}
 
     
+	void setMargin(const UiMargin& margin)
+    {
+        // we don't care. The window's margin has no effect
+    }
+    
     void setPreferredSizeHint(const Size& hint) override
     {
         // we do not use the hínt
@@ -388,7 +393,18 @@ public:
         OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
     }
     
-	
+    
+    void invalidateMeasure() override
+    {
+        UwpLayoutBridge::get().invalidateMeasure( _pContentContainer);
+    }
+
+    void invalidateArrange() override
+    {
+        UwpLayoutBridge::get().invalidateArrange( _pContentContainer);
+    }
+
+
 
 private:
         

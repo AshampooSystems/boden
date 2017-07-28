@@ -30,6 +30,7 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
+        _margin = pView->margin();
         _horizontalAlignment = pView->horizontalAlignment();
         _verticalAlignment = pView->verticalAlignment();
         _preferredSizeHint = pView->preferredSizeHint();
@@ -81,6 +82,19 @@ public:
 	    return _paddingChangeCount;
 	}
 
+
+    
+    /** Returns the margin that is currently configured.*/
+    UiMargin getMargin() const
+	{
+	    return _margin;
+	}
+
+    /** Returns the number of times the view's margin has changed.*/
+    int getMarginChangeCount() const
+	{
+	    return _marginChangeCount;
+	}
 
 
     /** Returns the current view bounds.*/
@@ -142,6 +156,13 @@ public:
 		_paddingChangeCount++;
 	}
 
+    void setMargin(const UiMargin& margin) override
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_margin = margin;
+        _marginChangeCount++;
+	}
 
     
     
@@ -411,6 +432,9 @@ protected:
 
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
+
+    UiMargin	_margin;
+	int			_marginChangeCount = 0;
 
 
     View::HorizontalAlignment   _horizontalAlignment;

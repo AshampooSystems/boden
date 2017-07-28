@@ -590,11 +590,15 @@ inline void testView()
 				    },
 				    [pCore, m, pView, pWindow]()
 				    {
-                        // margin should still have the value we set
+                        BDN_REQUIRE( pCore->getMarginChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getMargin() == m);
+
+                        // margin property should still have the value we set
                         REQUIRE( pView->margin().get() == m );
 				    },
 				    0 | ExpectedSideEffect_::invalidateParentLayout
-                        // should NOT have caused a sizing info update
+                        // should NOT have caused a sizing info update, since the view's
+                        // preferred size does not depend on its margin
 				    );
 		    }
 

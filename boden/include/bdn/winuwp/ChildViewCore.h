@@ -114,6 +114,34 @@ public:
         // most views do not use the hint. So do nothing by default.
     }
 
+
+    
+    void setMargin(const UiMargin& margin)
+    {
+        // this must trigger a layout in the parent view.
+        // Note that needLayout(childPropertyChanged) will have already been called 
+        // on the outer parent by the View object. BUT the parent will ignore that,
+        // since it is an update that was triggered by a standard property.
+        // But in this case we actually do need the update, so we must cause it
+        // explicitly.
+        
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<View> pParentView = pOuterView->getParentView();
+            if(pParentView!=nullptr)
+            {
+                P<IUwpViewCore> pParentCore = tryCast<IUwpViewCore>( pParentView->getViewCore() );
+                if(pParentCore!=nullptr)
+                {
+                    pParentCore->invalidateMeasure();
+                    pParentCore->invalidateArrange();
+                }
+            }
+        }
+    }
+
+
     
     void setHorizontalAlignment(const View::HorizontalAlignment& align) override
     {
@@ -558,12 +586,12 @@ protected:
 
     
 
-    virtual void invalidateMeasure()
+    void invalidateMeasure() override
     {
         UwpLayoutBridge::get().invalidateMeasure( _pFrameworkElement);
     }
 
-    virtual void invalidateArrange()
+    void invalidateArrange() override
     {
         UwpLayoutBridge::get().invalidateArrange( _pFrameworkElement);
     }
