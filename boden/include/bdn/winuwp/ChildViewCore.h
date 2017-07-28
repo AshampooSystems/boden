@@ -67,12 +67,11 @@ public:
 				ViewCoreEventForwarder^ pEventForwarder )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        _widthForCalcPreferredSize = std::numeric_limits<double>::quiet_NaN();
-        _heightForCalcPreferredSize = std::numeric_limits<double>::quiet_NaN();
-
+        
 		_outerViewWeak = pOuterView;
 		_pFrameworkElement = pFrameworkElement;
+
+        _measureAvailableSpaceMaximum = Size::none();
 
 		_pEventForwarder = pEventForwarder;
 
@@ -206,33 +205,6 @@ public:
     
 
 
-    /** An internal helper class that will notify the core of the specified view that
-        it is currently being layouted by its parent.
-        
-        The flag will be set while the InUwpLayoutOperation object exists and
-        will be cleared when it is destroyed.
-        */
-    class InUwpLayoutOperation_
-    {
-    public:
-        InUwpLayoutOperation_(View* pView)
-        {
-            _pCore = cast<ChildViewCore>( pView->getViewCore() );
-
-            if(_pCore!=nullptr)
-                _pCore->setInUwpLayoutOperation(true);
-        }
-
-        ~InUwpLayoutOperation_()
-        {
-            if(_pCore!=nullptr)
-                _pCore->setInUwpLayoutOperation(false);
-        }
-
-    private:
-        P<ChildViewCore> _pCore;
-    };
-    friend class InUwpLayoutOperation;
     
 
     Rect adjustAndSetBounds(const Rect& requestedBounds)
@@ -391,6 +363,8 @@ public:
                 // interpret the available size. So we incorporate it.
                 effectiveAvailableSpace.applyMaximum( pOuter->preferredSizeMaximum() );
             }
+
+            effectiveAvailableSpace.applyMaximum( _measureAvailableSpaceMaximum );
             
             ::Windows::Foundation::Size winAvailableSpace = sizeToUwpSize(effectiveAvailableSpace);
 
@@ -404,19 +378,15 @@ public:
             
             // We use the Width and Height property to force the view to have exactly the size we want it to have.
             // If we leave them set then Measure will simply return those values back to us.
-            // So we must clear these values - usually we set them to NaN.
-            // However, some controls also want to set a specific Width or Height during calcPreferredSize,
-            // for example, TextViews need to set the width to the preferred size hint so that the text will
-            // auto-wrap. So instead of setting Width and Height to NaN directly, we set them to the value of a special
-            // member variable. Usually that is NaN, but for TextViews, for example, it contains the hint width.
+            // So we must clear these values.
 
             // Note that we do not need to restore the old values after merasure. See the comments below
             // for an explanation.
 
-            if( _pFrameworkElement->Width != _widthForCalcPreferredSize)
-                _pFrameworkElement->Width = _widthForCalcPreferredSize;
-            if( _pFrameworkElement->Height != _heightForCalcPreferredSize )
-                _pFrameworkElement->Height = _heightForCalcPreferredSize;
+            if( !std::isnan( _pFrameworkElement->Width ) )
+                _pFrameworkElement->Width = std::numeric_limits<double>::quiet_NaN();
+            if( !std::isnan( _pFrameworkElement->Height ) )
+                _pFrameworkElement->Height = std::numeric_limits<double>::quiet_NaN();
 		    
 		    // the Width and Height UIElement properties indicate to the layout process how big we want to be.
 		    // If they are set then they are incorporated into the DesiredSize measurements.
@@ -572,15 +542,32 @@ protected:
 
 protected:
 	
-    void setWidthForCalcPreferredSize(double value)
+    /** Sets an artificial upper limit for the available space that is communicated
+        to the control in calcPreferredSize.
+        
+        This can be used, for example, to force the control to wrap its text content
+        at a certain point.
+
+        Each component of the limit size can be infinity to indicate that
+        there should be no artificial limit.
+        */
+    void setMeasureAvailableSpaceMaximum(const Size& limit)
     {
-        _widthForCalcPreferredSize = value;
+        _measureAvailableSpaceMaximum = limit;
     }
 
-    void setHeightForCalcPreferredSize(double value)
+    
+
+    virtual void invalidateMeasure()
     {
-        _heightForCalcPreferredSize = value;
+        UwpLayoutBridge::get().invalidateMeasure( _pFrameworkElement);
     }
+
+    virtual void invalidateArrange()
+    {
+        UwpLayoutBridge::get().invalidateArrange( _pFrameworkElement);
+    }
+
 
 		
 private:
@@ -605,21 +592,6 @@ private:
 	}
 
 
-    void setInUwpLayoutOperation(bool inLayoutOp)
-    {
-        _inUwpLayoutOperation = inLayoutOp;
-    }
-
-    void invalidateMeasure()
-    {
-        UwpLayoutBridge::get().invalidateMeasure( _pFrameworkElement);
-    }
-
-    void invalidateArrange()
-    {
-        UwpLayoutBridge::get().invalidateArrange( _pFrameworkElement);
-    }
-
 	::Windows::UI::Xaml::FrameworkElement^ _pFrameworkElement;
 
 	WeakP<View> 			_outerViewWeak;	// weak by design
@@ -632,10 +604,7 @@ private:
     bool _currBoundsInitialized = false;
     Rect _currBounds;
     
-    bool _inUwpLayoutOperation = false;
-
-    double _widthForCalcPreferredSize;
-    double _heightForCalcPreferredSize;
+    Size   _measureAvailableSpaceMaximum;
 
 };
 
