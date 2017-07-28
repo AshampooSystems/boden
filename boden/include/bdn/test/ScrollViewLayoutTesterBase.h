@@ -643,9 +643,9 @@ public:
                             pThis->verifyScrolledAreaSize( viewPortSize  );
                             pThis->verifyViewPortSize( viewPortSize );
                         
-                            // calcpreferredsize should have been called
-                            int calcCount = pButton->getCalcPreferredSizeCallCount();
-                            REQUIRE( calcCount > initialCalcPreferredSizeCallCount );
+                            // calcPreferredSize might or might not have been called, since the available space
+                            // is big enough to fit in the preferred size. So the view object might have optimized
+                            // the call away.
                         };
                     };
                 }
@@ -666,8 +666,9 @@ public:
                             pThis->verifyScrolledAreaSize( optimalSize  );
                             pThis->verifyViewPortSize( optimalSize );
                         
-                            // calcpreferredsize should have been called
-                            REQUIRE( pButton->getCalcPreferredSizeCallCount() > initialCalcPreferredSizeCallCount+1 );
+                            // calcPreferredSize might or might not have been called, since the available space
+                            // is big enough to fit in the preferred size. So the view object might have optimized
+                            // the call away.
                         };
                     };
                 }
