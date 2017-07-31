@@ -38,7 +38,7 @@ protected:
         return Size( (-rect.left) + rect.right, (-rect.top + rect.bottom));
     }
 
-    void resizeScrollViewToViewPortSize( const Size& viewPortSize)
+    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
         // resize the scroll view so that it has exactly the desired scroll view size
 

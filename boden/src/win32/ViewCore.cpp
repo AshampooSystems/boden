@@ -108,6 +108,11 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }
 
+void ViewCore::setMargin(const UiMargin& margin)
+{
+    // do nothing. The parent will handle this automatically.
+}
+
 void ViewCore::invalidateSizingInfo(View::InvalidateReason reason)
 {
     // nothing to invalidate for ourselves (since we do not cache anything

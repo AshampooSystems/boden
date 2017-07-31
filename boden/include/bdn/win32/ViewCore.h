@@ -56,6 +56,9 @@ public:
 	void setVisible(const bool& visible) override;
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
+    void setMargin(const UiMargin& margin) override;
+
+
             
     void setHorizontalAlignment(const View::HorizontalAlignment& align) override;
     void setVerticalAlignment(const View::VerticalAlignment& align) override;
