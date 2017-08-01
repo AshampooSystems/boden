@@ -20,16 +20,33 @@ public:
 
 	void setPadding(const Nullable<UiMargin>& uiPadding) override
 	{
-		// the outer class automatically handles our own padding. So nothing to do here.
+        // padding is handled manually, so no need to set anything in the GTK widget
 	}
 
 		
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
+        // call the outer container's preferred size calculation
+
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+            return pOuterView->calcContainerPreferredSize( availableSpace );
+        else
+            return Size(0,0);
 	}
+
+        
+	void layout() override
+	{
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+        {        
+            P<ViewLayout> pLayout = pOuterView->calcContainerLayout( pOuterView->size() );
+            pLayout->applyTo(pOuterView);
+        }
+	}
+    
     
     void _addChildViewCore(ViewCore* pChildCore) override
     {

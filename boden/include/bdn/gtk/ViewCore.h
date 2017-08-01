@@ -4,6 +4,7 @@
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
 #include <bdn/PixelAligner.h>
+#include <bdn/LayoutCoordinator.h>
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/util.h>
 
@@ -14,7 +15,7 @@ namespace bdn
 namespace gtk
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ViewCore(View* pOuterView, GtkWidget* pWidget)
@@ -39,6 +40,71 @@ public:
 	void setPadding(const Nullable<UiMargin>& padding) override
     {
     }
+    
+    
+    void setMargin(const UiMargin& margin) override
+    {
+        // the parent handles margins - nothing to do.
+    }
+    
+    
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+    
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+    
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+    
+    
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
     
     
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
@@ -114,8 +180,18 @@ public:
 
 	
 
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
+        Size effectiveAvailableSpace( availableSpace );
+
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            // preferredSizeMaximum is a hard limit, So we clip the available space to this, so that
+            // the control can adjust accordingly.
+            effectiveAvailableSpace.applyMaximum( pOuterView->preferredSizeMaximum() );
+        }
+        
         GtkRequisition resultSize;
         
         //std::cout << typeid(*this).name() << " available: " << availableWidth << "x" << availableHeight << std::endl;
@@ -127,7 +203,7 @@ public:
         gtk_widget_get_size_request( _pWidget, &oldWidth, &oldHeight);
         
         // invisible widgets do not take up any size in the layout.
-        // So if it is 
+        // So if it is invisible then we make it temporarily visible
         gboolean oldVisible = gtk_widget_get_visible(_pWidget);
         if(oldVisible==FALSE)
             gtk_widget_set_visible(_pWidget, TRUE);
@@ -142,9 +218,14 @@ public:
         GtkRequisition unrestrictedNaturalSize;
         gtk_widget_get_preferred_size (_pWidget, &unrestrictedMinSize, &unrestrictedNaturalSize );
         
-        if(availableWidth!=-1 && canAdjustWidthToAvailableSpace() )
+        // we subtract the padding from the available space because the padding is not reflected
+        // in the GTK widget by default. So we make the available space smaller and ask the
+        // widget how big it wants to be inside it. Then we add the padding on top of the
+        // desired size.
+        
+        if( std::isfinite(effectiveAvailableSpace.width) && canAdjustWidthToAvailableSpace() )
         {
-            availableWidth -= padding.left + padding.right;
+            double availableWidth = effectiveAvailableSpace.width - (padding.left + padding.right);
             
             if(availableWidth>=unrestrictedNaturalSize.width)
             {
@@ -188,9 +269,9 @@ public:
                 resultSize.width = availableWidth;                   
             }
         }
-        else if(availableHeight!=-1 && canAdjustHeightToAvailableSpace() )
+        else if( std::isfinite(effectiveAvailableSpace.height) && canAdjustHeightToAvailableSpace() )
         {
-            availableHeight -= padding.top + padding.bottom;
+            double availableHeight = effectiveAvailableSpace.height - (padding.top + padding.bottom);
             
             if(availableHeight>=unrestrictedNaturalSize.width)
             {
@@ -233,15 +314,23 @@ public:
 
         size += padding;
         
-        P<const View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        if(pOuterView!=nullptr)
+        {
+            size.applyMinimum( pOuterView->preferredSizeMinimum() );
+            size.applyMaximum( pOuterView->preferredSizeMaximum() );
+        }
                 
         //std::cout << typeid(*this).name() << " preferred: " << size.width << "x" << size.height << " padding: " << padding.top << "," << padding.right <<","<< padding.bottom <<","<< padding.left << std::endl;
         
         return size;
     }
 	
+    
+    void layout() override
+    {
+        // do nothing by default. Most views do not have child views.
+    }
+    
  
 	bool tryChangeParentView(View* pNewParent) override
     {
@@ -257,12 +346,7 @@ public:
     }
     
     
-    P<const View> getOuterViewIfStillAttached() const
-    {
-        return _outerViewWeak.toStrong();
-    }
-    
-    P<View> getOuterViewIfStillAttached()
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
     }
