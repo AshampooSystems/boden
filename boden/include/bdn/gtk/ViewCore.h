@@ -227,6 +227,9 @@ public:
         {
             double availableWidth = effectiveAvailableSpace.width - (padding.left + padding.right);
             
+            if(availableWidth<0)
+                availableWidth = 0;
+            
             if(availableWidth>=unrestrictedNaturalSize.width)
             {
                 // the unrestructed width  is smaller or equal to the available width.
@@ -272,6 +275,9 @@ public:
         else if( std::isfinite(effectiveAvailableSpace.height) && canAdjustHeightToAvailableSpace() )
         {
             double availableHeight = effectiveAvailableSpace.height - (padding.top + padding.bottom);
+            
+            if(availableHeight<0)
+                availableHeight = 0;
             
             if(availableHeight>=unrestrictedNaturalSize.width)
             {

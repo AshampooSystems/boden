@@ -1,5 +1,5 @@
-#ifndef BDN_GTK_bridgeBin_H_
-#define BDN_GTK_bridgeBin_H_
+#ifndef BDN_GTK_gtkBridge_H_
+#define BDN_GTK_gtkBridge_H_
 
 #include <bdn/View.h>
 
@@ -12,10 +12,10 @@
 
 G_BEGIN_DECLS
 
-#define BDN_GTK_TYPE_BRIDGE_BIN (bdn_gtk_bridge_bin_get_type ())
+#define BDN_GTK_TYPE_BRIDGE (bdn_gtk_bridge_get_type ())
 
 
-G_DECLARE_FINAL_TYPE (BdnGtkBridgeBin, bdn_gtk_bridge_bin, BDN_GTK, BRIDGE_BIN, GtkBin)
+G_DECLARE_FINAL_TYPE (BdnGtkBridge, bdn_gtk_bridge, BDN_GTK, BRIDGE, GtkLayout)
 
 
 /** Creates a new bridge widget for GTK. The bridge widget
@@ -25,12 +25,12 @@ G_DECLARE_FINAL_TYPE (BdnGtkBridgeBin, bdn_gtk_bridge_bin, BDN_GTK, BRIDGE_BIN, 
  *  size the bridge correctly.
  * 
  *  The bridge will include the child view's margin in its preferred size.
- *  You can also set an additinal padding for the bridge (see bdn_gtk_bridge_bin_set_padding)
+ *  You can also set an additinal padding for the bridge (see bdn_gtk_bridge_set_padding)
  * 
  * 
- *  The bdn::View object can be set with bdn_gtk_bridge_bin_set_view.
+ *  The bdn::View object can be set with bdn_gtk_bridge_set_view.
  * */
-GtkWidget* bdn_gtk_bridge_bin_new(void);
+GtkWidget* bdn_gtk_bridge_new(void);
 
 
 
@@ -47,15 +47,15 @@ G_END_DECLS
  *  pChildView is the Boden View object
  *  pChildWidget is the view's corresponding Gtk Widget
  * */
-void bdn_gtk_bridge_bin_set_child(BdnGtkBridgeBin* bridge, bdn::View* pChildView, GtkWidget* pChildWidget);
+void bdn_gtk_bridge_set_child(BdnGtkBridge* bridge, bdn::View* pChildView, GtkWidget* pChildWidget);
 
 
 /** Sets the padding for the bridge.
  * 
  *  The padding is copied.
  * */
-void bdn_gtk_bridge_bin_set_padding (
-    BdnGtkBridgeBin* bridge,
+void bdn_gtk_bridge_set_padding (
+    BdnGtkBridge* bridge,
 	const bdn::Margin& padding);
 
 
