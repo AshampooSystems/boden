@@ -59,9 +59,14 @@ void View::deleteThis()
 	// it remains valid as long as the pointer exists - so crashes may occur.
 
 	// To avoid that we must first detach the child views.
-    // XXX still todo
 
-	Base::deleteThis();
+    std::list< P<View> > childList;
+    getChildViews(childList);
+
+    for( auto& pChildView: childList)
+        pChildView->_setParentView(nullptr);
+    
+	RequireNewAlloc<Base, View>::deleteThis();
 }
 
 
@@ -102,6 +107,16 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 void View::invalidateSizingInfo( InvalidateReason reason )
 {
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when invalidateSizingInfo is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
+
+		// So, do nothing.
+        return;
+	}
+
     if( Thread::isCurrentMain() )
     {
         // clear cached sizing data
@@ -119,32 +134,31 @@ void View::invalidateSizingInfo( InvalidateReason reason )
     }
     else
     {
-		if( isBeingDeletedBecauseReferenceCountReachedZero() )
-		{
-			// this happens when invalidateSizingInfo is called during the destructor.
-			// In this case we do not schedule the invalidation, since the view
-			// will be gone anyway.
+		// schedule the invalidation to be done from the main thread.
+		P<View> pThis = this;
 
-			// So, do nothing.
-		}
-		else
-		{
-			// schedule the invalidation to be done from the main thread.
-			P<View> pThis = this;
-
-			asyncCallFromMainThread(
-					[pThis, reason]()
-					{
-						pThis->invalidateSizingInfo(reason);
-					}
-			);
-		}
+		asyncCallFromMainThread(
+				[pThis, reason]()
+				{
+					pThis->invalidateSizingInfo(reason);
+				}
+		);
     }
 }
 
 
 void View::needLayout( InvalidateReason reason )
 {
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when invalidateSizingInfo is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
+
+		// So, do nothing.
+        return;
+	}
+
     if( Thread::isCurrentMain() )
     {
         P<IViewCore> pCore = getViewCore();
@@ -157,25 +171,14 @@ void View::needLayout( InvalidateReason reason )
     }
     else
     {
-		if( isBeingDeletedBecauseReferenceCountReachedZero() )
-		{
-			// this happens when needLayout is called during the destructor.
-			// In this case we do not schedule the invalidation, since the view
-			// will be gone anyway.
+		// schedule the invalidation to be done from the main thread.
+		P<View> pThis = this;
 
-			// So, do nothing.
-		}
-		else
-		{
-			// schedule the invalidation to be done from the main thread.
-			P<View> pThis = this;
-
-			asyncCallFromMainThread(
-					[pThis, reason]()
-					{
-						pThis->needLayout(reason);
-					});
-		}
+		asyncCallFromMainThread(
+				[pThis, reason]()
+				{
+					pThis->needLayout(reason);
+				});
     }
 }
 
@@ -223,6 +226,16 @@ Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
 
 void View::childSizingInfoInvalidated(View* pChild)
 {
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when childSizingInfoInvalidated is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
+
+		// So, do nothing.
+        return;
+	}
+
     P<IViewCore> pCore = getViewCore();
 
     if(pCore!=nullptr)
