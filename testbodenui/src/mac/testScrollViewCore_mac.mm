@@ -61,7 +61,7 @@ protected:
         return bdn::Size(0,0);
     }
 
-    void resizeScrollViewToViewPortSize( const bdn::Size& viewPortSize) override
+    void initiateScrollViewResizeToHaveViewPortSize( const bdn::Size& viewPortSize) override
     {
         // resize the scroll view so that it has exactly the desired scroll view size
 

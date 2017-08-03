@@ -69,13 +69,6 @@ protected:
 
     }
     
-    void verifyInitialDummyCorePosition() override
-    {
-        bdn::Rect rect = getFrameRect();
-        
-        REQUIRE( rect.getPosition() == bdn::Point() );
-    }
-
 	void verifyInitialDummyCoreSize() override
     {
         bdn::Rect rect = getFrameRect();

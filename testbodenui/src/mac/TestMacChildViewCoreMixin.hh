@@ -55,13 +55,6 @@ protected:
 
 
     
-    void verifyInitialDummyCorePosition() override
-    {        
-        Rect rect = getFrameRect();
-                
-        REQUIRE( rect.getPosition() == Point() );
-    }
-
     void verifyInitialDummyCoreSize() override
     {        
         Rect rect = getFrameRect();

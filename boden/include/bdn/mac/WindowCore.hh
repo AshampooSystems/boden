@@ -71,6 +71,12 @@ public:
     }
     
     
+    void setMargin(const UiMargin& margin) override
+    {
+        // Ignore - window margins have no effect.
+    }
+
+    
     
     void invalidateSizingInfo(View::InvalidateReason reason) override
     {

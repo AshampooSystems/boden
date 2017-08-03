@@ -40,6 +40,12 @@ public:
         // if the corresponding Cocoa view class supports setting a padding.
     }
     
+    void setMargin(const UiMargin& margin) override
+    {
+        // Ignore: our parent handles margins
+    }
+
+    
     
     void invalidateSizingInfo(View::InvalidateReason reason) override
     {
