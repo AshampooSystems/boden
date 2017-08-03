@@ -42,7 +42,7 @@ protected:
     {
         // resize the scroll view so that it has exactly the desired scroll view size
 
-        Rect newBounds( _pScrollView->position() ,viewPortSize + getNonClientSize() );
+        Rect newBounds( _pScrollView->position(), viewPortSize + getNonClientSize() );
 
         _pScrollView->adjustAndSetBounds(newBounds);
     }
