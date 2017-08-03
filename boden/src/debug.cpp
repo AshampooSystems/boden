@@ -1,7 +1,9 @@
 #include <bdn/init.h>
 #include <bdn/debug.h>
 
-
+#if BDN_PLATFORM_ANDROID
+#include <android/log.h>
+#endif
 
 
 #ifdef BDN_PLATFORM_OSX
@@ -78,6 +80,18 @@
             OutputDebugStringW( (text+"\n").asWidePtr() );
         }
     }
+
+#elif BDN_PLATFORM_ANDROID
+
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        __android_log_write(ANDROID_LOG_DEBUG, "boden", text.asUtf8Ptr() );
+    }
+}
+
 
 #else
 

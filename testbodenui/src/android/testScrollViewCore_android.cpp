@@ -21,21 +21,21 @@ protected:
     }
     
   
-    double getVertBarWidth()
+    double getVertBarWidth() override
     {
         // scroll bars are overlays that do not take up layout space
         return 0;
     }
 
 
-    double getHorzBarHeight()
+    double getHorzBarHeight() override
     {
         // scroll bars are overlays that do not take up layout space
         return 0;
     }
                 
 
-    void resizeScrollViewToViewPortSize( const Size& viewPortSize)
+    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
     {
         // resize the scroll view so that it has exactly the desired scroll view size
 
