@@ -7985,7 +7985,11 @@ public:
             if(argPtrs.empty())
                 argPtrs.push_back("");
 
-            int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
+
+			//argPtrs.push_back( "DefaultProperty" );
+
+
+			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
             if(exitCode!=0)
             {
                 // invalid commandline arguments. Exit.
