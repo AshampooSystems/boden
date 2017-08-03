@@ -224,6 +224,58 @@ TEST_CASE("Window", "[ui]")
                     });
             }
 	    }
+
+        SECTION("getChildList")
+        {
+            SECTION("empty")
+            {
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("non-empty")
+            {
+                P<Button> pChild = newObj<Button>();
+                pWindow->setContentView(pChild);
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.size() == 1);
+                REQUIRE( childList.front() == cast<View>(pChild) );
+            }
+        }
+
+        SECTION("removeAllChildViews")
+        {
+            SECTION("no content view")
+            {
+                pWindow->removeAllChildViews();
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("with content view")
+            {
+                P<Button> pChild = newObj<Button>();
+                pWindow->setContentView(pChild);
+
+                pWindow->removeAllChildViews();
+
+                REQUIRE( pWindow->getContentView()==nullptr );
+                REQUIRE( pChild->getParentView() == nullptr );
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+        }
     
 	    SECTION("sizing")
 	    {
@@ -348,6 +400,46 @@ TEST_CASE("Window", "[ui]")
                 Size size = pChild->size();               
                 REQUIRE_ALMOST_EQUAL( size.width*pixelsPerDip, std::round(size.width*pixelsPerDip), 0.000001 );
                 REQUIRE_ALMOST_EQUAL( size.height*pixelsPerDip, std::round(size.height*pixelsPerDip), 0.000001 );
+            };
+        }
+
+        SECTION("content view detached before destruction begins")
+        {            
+            P<Button> pChild = newObj<Button>();
+            pWindow->setContentView( pChild );
+
+            struct LocalTestData_ : public Base
+            {
+                bool destructorRun = false;
+                int childParentStillSet = -1;
+                int childStillChild = -1;
+            };
+
+            P<LocalTestData_> pData = newObj<LocalTestData_>();
+
+            
+            pWindow->setDestructFunc(
+                [pData, pChild]( bdn::test::ViewWithTestExtensions<Window>* pWin )
+                {
+                    pData->destructorRun = true;
+                    pData->childParentStillSet = (pChild->getParentView()!=nullptr) ? 1 : 0;
+                    pData->childStillChild = (pWin->getContentView()!=nullptr) ? 1 : 0;
+                } );
+
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pChild)
+            {
+                // All test objects should have been destroyed by now.
+                // First verify that the destructor was even called.
+                REQUIRE( pData->destructorRun );
+
+                // now verify what we actually want to test: that the
+                // content view's parent was set to null before the destructor
+                // of the parent was called.
+                REQUIRE( pData->childParentStillSet == 0 );
+
+                // the child should also not be a child of the parent
+                // from the parent's perspective anymore.
+                REQUIRE( pData->childStillChild == 0 );
             };
         }
 

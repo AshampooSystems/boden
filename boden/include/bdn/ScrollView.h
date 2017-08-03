@@ -19,7 +19,6 @@ class ScrollView : public View
 {
 public:
 	ScrollView();
-    ~ScrollView();
 
     /** Controls wether or not the view scrolls vertically.
         Default: true*/
@@ -114,6 +113,12 @@ public:
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
 	}
+
+
+    void removeAllChildViews() override
+    {
+        setContentView(nullptr);
+    }
 		
 	P<View> findPreviousChildView(View* pChildView) override
 	{

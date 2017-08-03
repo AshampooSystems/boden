@@ -355,7 +355,7 @@ inline void testView()
     int initialVisibleChangeCount = shouldViewBeInitiallyVisible<ViewType>() ? 0 : 1;
     
     BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore, initialVisibleChangeCount )
-    {        
+    {
 	    SECTION("initialViewState")
 	    {
             // the core should initialize its properties from the outer window when it is created.

@@ -320,6 +320,14 @@ public:
 	}
 
 
+    /** Removes all child views.*/
+    virtual void removeAllChildViews()
+    {
+        // no child views by default
+    }
+
+
+
 	/** Finds the child view that "precedes" the specified one.
 		Returns nullptr if any of the following conditions are true:
 		

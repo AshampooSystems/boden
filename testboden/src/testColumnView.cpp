@@ -143,35 +143,56 @@ TEST_CASE("ColumnView")
 
         pButton->adjustAndSetBounds( Rect(10, 10, 10, 10) );
 
-        SECTION("addChildView")
-        {
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
+        SECTION("no child view")
+        {   
+            SECTION("getChildList")
             {
-                int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
+                std::list< P<View> > childList;
+                pColumnView->getChildViews(childList);
 
-                pColumnView->addChildView(pButton);
+                REQUIRE( childList.empty() );
+            }
 
-                // let scheduled property updates propagate
-                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, layoutCountBefore)
+            SECTION("removeAllChildViews")
+            {
+                pColumnView->removeAllChildViews();
+
+                std::list< P<View> > childList;
+                pColumnView->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("addChildView")
+            {
+                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
                 {
-                    // should cause a layout update.
-                    REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
+                    int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
-                    Size preferredSize = pColumnView->calcPreferredSize();
+                    pColumnView->addChildView(pButton);
 
-                    Size buttonPreferredSize = pButton->calcPreferredSize();
+                    // let scheduled property updates propagate
+                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, layoutCountBefore)
+                    {
+                        // should cause a layout update.
+                        REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
-                    REQUIRE( preferredSize!=Size(0,0) );
+                        Size preferredSize = pColumnView->calcPreferredSize();
 
-                    // the column view must ensure that the button gets a valid size for our mock display.
-                    // So the button's preferred size must be rounded up to full mock pixels. We have 3 mock
-                    // pixels per DIP, so that is what we should get
-                    Rect buttonBounds( Point(), buttonPreferredSize );
-                    Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+                        Size buttonPreferredSize = pButton->calcPreferredSize();
 
-                    REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
-                };            
-            };
+                        REQUIRE( preferredSize!=Size(0,0) );
+
+                        // the column view must ensure that the button gets a valid size for our mock display.
+                        // So the button's preferred size must be rounded up to full mock pixels. We have 3 mock
+                        // pixels per DIP, so that is what we should get
+                        Rect buttonBounds( Point(), buttonPreferredSize );
+                        Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+
+                        REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
+                    };            
+                };
+            }
         }
 
         SECTION("with child view")
@@ -267,10 +288,73 @@ TEST_CASE("ColumnView")
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );                        
                     }        
                 }
+
+                
+                SECTION("getChildList")
+                {
+                    std::list< P<View> > childList;
+                    pColumnView->getChildViews(childList);
+
+                    REQUIRE( childList.size() == 1);
+                    REQUIRE( childList.front() == cast<View>(pButton) );
+                }
+
+                SECTION("removeAllChildViews")
+                {
+                    pColumnView->removeAllChildViews();
+
+                    std::list< P<View> > childList;
+                    pColumnView->getChildViews(childList);
+
+                    REQUIRE( childList.empty() );
+
+                    REQUIRE( pButton->getParentView() == nullptr );
+                }
+                
+                SECTION("child views detached before destruction begins")
+                {            
+                    struct LocalTestData_ : public Base
+                    {
+                        bool destructorRun = false;
+                        int childParentStillSet = -1;
+                        int childListEmpty = -1;
+                    };
+
+                    P<LocalTestData_> pData = newObj<LocalTestData_>();
+
+            
+                    pColumnView->setDestructFunc(
+                        [pData, pButton]( bdn::test::ViewWithTestExtensions<ColumnView>* pColView )
+                        {
+                            pData->destructorRun = true;
+                            pData->childParentStillSet = (pButton->getParentView()!=nullptr) ? 1 : 0;
+
+                            std::list< P<View> > childList;
+                            pColView->getChildViews(childList);
+                            pData->childListEmpty = (childList.empty() ? 1 : 0);
+                        } );
+
+                    BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pButton)
+                    {
+                        // All test objects should have been destroyed by now.
+                        // First verify that the destructor was even called.
+                        REQUIRE( pData->destructorRun );
+
+                        // now verify what we actually want to test: that the
+                        // content view's parent was set to null before the destructor
+                        // of the parent was called.
+                        REQUIRE( pData->childParentStillSet == 0 );
+
+                        // the child should also not be a child of the parent
+                        // from the parent's perspective anymore.
+                        REQUIRE( pData->childListEmpty == 1 );
+                    };
+                }
+
             };
         }
 
-        SECTION("multiple child views")
+        SECTION("multiple child views properly arranged")
         {
             pColumnView->addChildView(pButton);
 
@@ -302,24 +386,20 @@ TEST_CASE("ColumnView")
                 Rect bounds = Rect( pButton->position(), pButton->size());
                 Rect bounds2 = Rect( pButton2->position(), pButton2->size());
 
-                SECTION("properly arranged")
-                {
-                    REQUIRE( bounds.x == m.left);
-                    REQUIRE( bounds.y == m.top);
-                    // width and height should have been rounded up to full pixels.
-                    // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
-                    REQUIRE( bounds.width == stableScaledRoundUp(pButton->calcPreferredSize().width, 3) );
-                    REQUIRE( bounds.height == stableScaledRoundUp(pButton->calcPreferredSize().height,3) );
+                REQUIRE( bounds.x == m.left);
+                REQUIRE( bounds.y == m.top);
+                // width and height should have been rounded up to full pixels.
+                // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
+                REQUIRE( bounds.width == stableScaledRoundUp(pButton->calcPreferredSize().width, 3) );
+                REQUIRE( bounds.height == stableScaledRoundUp(pButton->calcPreferredSize().height,3) );
 
-                    REQUIRE( bounds2.x == m2.left );
-                    REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
-                    REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->calcPreferredSize().width, 3) );
-                    REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->calcPreferredSize().height, 3) );
-                }
+                REQUIRE( bounds2.x == m2.left );
+                REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
+                REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->calcPreferredSize().width, 3) );
+                REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->calcPreferredSize().height, 3) );
             };
         }
-
-
+        
 	}	
 }
 

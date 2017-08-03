@@ -39,9 +39,7 @@ public:
 			See the IUiProvider documentation for more information.
 			If this is nullptr then the default UI provider for the platform is used.*/
 	Window(IUiProvider* pUiProvider = nullptr);
-
-    ~Window();
-
+    
 
 	/** Sets the specified view as the content view of the window.
 		Note that windows can only have a single child content view. If one is already
@@ -133,6 +131,11 @@ public:
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
 	}
+
+    void removeAllChildViews() override
+    {
+        setContentView(nullptr);
+    }
 		
 	P<View> findPreviousChildView(View* pChildView) override
 	{

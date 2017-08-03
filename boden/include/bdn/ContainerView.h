@@ -109,6 +109,15 @@ public:
 		}
 	}
 
+    void removeAllChildViews() override
+    {
+        MutexLock lock( getHierarchyAndCoreMutex() );
+
+        for(auto& pChildView: _childViews)            
+			pChildView->_setParentView(nullptr);
+
+        _childViews.clear();
+    }
 
 	void getChildViews(std::list< P<View> >& childViews) const override
 	{
@@ -118,6 +127,7 @@ public:
 
 		childViews = _childViews;
 	}
+
 
 
 	P<View> findPreviousChildView(View* pChildView) override

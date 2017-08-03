@@ -14,11 +14,6 @@ ScrollView::ScrollView()
     initProperty<bool, IScrollViewCore, &IScrollViewCore::setVerticalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_verticalScrollingEnabled);
 }
 
-ScrollView::~ScrollView()
-{
-    // if we have a content view, detach it from us.
-    setContentView(nullptr);
-}
 
 
 

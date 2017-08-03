@@ -59,12 +59,7 @@ void View::deleteThis()
 	// it remains valid as long as the pointer exists - so crashes may occur.
 
 	// To avoid that we must first detach the child views.
-
-    std::list< P<View> > childList;
-    getChildViews(childList);
-
-    for( auto& pChildView: childList)
-        pChildView->_setParentView(nullptr);
+    removeAllChildViews();
     
 	RequireNewAlloc<Base, View>::deleteThis();
 }
