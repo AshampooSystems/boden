@@ -49,6 +49,18 @@ void LayoutCoordinator::needUpdate()
 {
 	if(!_updateScheduled)
 	{
+		if(isBeingDeletedBecauseReferenceCountReachedZero())
+		{
+			// the layout coordinator is in the process of being deleted. This can happen
+			// because the destructor of the layout coordinator may destroy Views
+			// that are waiting for an update. And if those views schedule an update in their
+			// destructor then needUpdate might be called.
+			// Since we are being destroyed there is no need to schedule anything
+			// - just do nothing.
+			bdn::doNothing();
+			return;
+		}
+
 		P<LayoutCoordinator> pThis = this;
 
 		_updateScheduled = true;
@@ -189,30 +201,49 @@ void LayoutCoordinator::mainThreadUpdateNow()
 			{
 				ToDo nextToDo;
 
-				{
-					MutexLock lock( _mutex );
+                // We have to hold the hierarchy and core mutex when we construct ToDo instances.
+                // The ToDo constructor checks the parent view and that can change at any time.
+                // So we must hold the mutex to prevent it from being changed in another thread.
 
-					// note that we only remove one view at a time from the pending set.
-					// The reason is that we need to handle pending events after each
-					// layout.
-					// So we select the one we want (parent first order) and leave the
-					// others in the set for now.
+                // Since we should not lock our own mutex and the hierarchy and core mutex at the same
+                // time (to prevent deadlocks), that means that we must copy the layout set first,
+                // before we examine it.
+               
+                {
+                    std::set< P<View> > layoutSetCopy;
 
-					for(auto& pView: _layoutSet)
-					{
-						// construct ToDo object so that we know the level.
-						ToDo toDo(pView);
+                    {
+                        MutexLock lock( _mutex );
+                        layoutSetCopy = _layoutSet;
+                    }
+                    
+                    {
+                        MutexLock lock( View::getHierarchyAndCoreMutex() );
 
-						if(nextToDo.pView==nullptr || toDo<nextToDo)
-							nextToDo = toDo;
-					}
+                        // note that we only remove one view at a time from the pending set.
+                        // The reason is that we need to handle pending events after each
+                        // layout.
+                        // So we select the one we want (parent first order) and leave the
+                        // others in the set for now.
 
-					if(nextToDo.pView!=nullptr)
-					{
-						// remove the view we selected from the set
-						_layoutSet.erase( nextToDo.pView );
-					}
-				}
+                        for(auto& pView: layoutSetCopy)
+                        {
+                            // construct ToDo object so that we know the level.
+                            ToDo toDo(pView);
+
+                            if(nextToDo.pView==nullptr || toDo<nextToDo)
+                                nextToDo = toDo;
+                        }
+                    }
+                }
+
+                if(nextToDo.pView!=nullptr)
+                {
+                    MutexLock lock( _mutex );
+                
+                    // remove the view we selected from the set
+                    _layoutSet.erase( nextToDo.pView );
+                }
 				
 
 				if(nextToDo.pView!=nullptr)
