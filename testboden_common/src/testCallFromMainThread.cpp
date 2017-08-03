@@ -374,6 +374,9 @@ void testAsyncCallFromMainThread(bool throwException)
 
                          StopWatch threadWatch;
 
+                         // sanity check: there should be only one reference on pData at this point in time
+                         REQUIRE( pData->getRefCount()==1 );
+
                          asyncCallFromMainThread(   [pData, throwException](int x)
                                                     {
                                                         Thread::sleepMillis(2000);
@@ -384,6 +387,9 @@ void testAsyncCallFromMainThread(bool throwException)
                                                     }
                                                     ,42 );
 
+                         // pData was captured by the function that was scheduled. So there
+                         // should be an additional reference there.
+                         REQUIRE( pData->getRefCount() > 1 );
 
                          // should NOT have been called immediately, since we are in a different thread.
                          // Instead the call should have been deferred to the main thread.
@@ -396,6 +402,9 @@ void testAsyncCallFromMainThread(bool throwException)
 
                          // NOW the function should have been called
                          REQUIRE( pData->callCount==1 );
+
+                         // and the refcount should be 1 again
+                         REQUIRE( pData->getRefCount()==1 );
                      } );
 
     }
