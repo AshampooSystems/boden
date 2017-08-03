@@ -818,7 +818,9 @@ protected:
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;
 
 	P<IUiProvider>			                _pUiProvider;
-		
+
+	void deleteThis() override;
+
 
 private:
 	View*					        _pParentViewWeak = nullptr;

@@ -2,6 +2,7 @@
 #include <bdn/View.h>
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/debug.h>
 
 namespace bdn
 {
@@ -38,6 +39,29 @@ View::~View()
     // _deinitCore takes care of this.
 
     _deinitCore();
+}
+
+void View::deleteThis()
+{
+	// this is called when the view is DEFINITELY going to be deleted.
+	// Weak references have already been detached.
+
+	// this is called when the reference count reaches zero.
+
+	// Note that this may happen in ANY thread.
+
+	// Because of this it is important that we detach all child views BEFORE
+	// our destructor starts to execute. That is because the parentView references to us
+	// are weak and
+	// and must be set to null before the destruction starts. Otherwise a getParentView()
+	// call in another thread might return a strong pointer to an object that has already
+	// started destruction. And since it is a strong pointer the caller will assume that
+	// it remains valid as long as the pointer exists - so crashes may occur.
+
+	// To avoid that we must first detach the child views.
+    // XXX still todo
+
+	Base::deleteThis();
 }
 
 
@@ -95,14 +119,26 @@ void View::invalidateSizingInfo( InvalidateReason reason )
     }
     else
     {
-        // schedule the invalidation to be done from the main thread.
-        P<View>			pThis = this;
+		if( isBeingDeletedBecauseReferenceCountReachedZero() )
+		{
+			// this happens when invalidateSizingInfo is called during the destructor.
+			// In this case we do not schedule the invalidation, since the view
+			// will be gone anyway.
 
-        asyncCallFromMainThread(
-            [pThis, reason]()
-            {
-                pThis->invalidateSizingInfo(reason);
-            } );
+			// So, do nothing.
+		}
+		else
+		{
+			// schedule the invalidation to be done from the main thread.
+			P<View> pThis = this;
+
+			asyncCallFromMainThread(
+					[pThis, reason]()
+					{
+						pThis->invalidateSizingInfo(reason);
+					}
+			);
+		}
     }
 }
 
@@ -121,14 +157,25 @@ void View::needLayout( InvalidateReason reason )
     }
     else
     {
-        // schedule the invalidation to be done from the main thread.
-        P<View>			pThis = this;
+		if( isBeingDeletedBecauseReferenceCountReachedZero() )
+		{
+			// this happens when needLayout is called during the destructor.
+			// In this case we do not schedule the invalidation, since the view
+			// will be gone anyway.
 
-        asyncCallFromMainThread(
-            [pThis, reason]()
-            {
-                pThis->needLayout(reason);
-            } );
+			// So, do nothing.
+		}
+		else
+		{
+			// schedule the invalidation to be done from the main thread.
+			P<View> pThis = this;
+
+			asyncCallFromMainThread(
+					[pThis, reason]()
+					{
+						pThis->needLayout(reason);
+					});
+		}
     }
 }
 
