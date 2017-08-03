@@ -84,13 +84,18 @@ protected:
         // verify that the scroll view has a plausible size.
         Size scrollViewSize = _pScrollView->size();
 
-        REQUIRE( scrollViewSize>=_viewPortSizeRequestedInPrepare );
+        Rect expectedBounds( _pScrollView->position(), _viewPortSizeRequestedInPrepare );
+        expectedBounds = _pScrollView->adjustBounds(expectedBounds, RoundType::nearest, RoundType::nearest);
+
+        Size expectedSize = expectedBounds.getSize();
+
+        REQUIRE( scrollViewSize>=expectedSize );
 
         // we do not know how big the viewport border is, but we assume that
         // it is less than 50 DIPs. If the following fails then it might be the
         // case that the border is actually bigger - in that case this test must be
         // adapted.
-        REQUIRE( scrollViewSize <= _viewPortSizeRequestedInPrepare+Size(50,50) );
+        REQUIRE( scrollViewSize <= expectedSize+Size(50,50) );
         
         // request layout explicitly again. Usually the resizing will have caused one,
         // but we want to make sure.
