@@ -592,9 +592,22 @@ public:
             getScrollView()->setContentView(pButton);
 
             Margin buttonMargin(1,2,3,4);
+
+            // round the margin to full pixels
+            buttonMargin.top = stableScaledRound(RoundType::nearest, buttonMargin.top, 1.0/pixelSize.height);
+            buttonMargin.bottom = stableScaledRound(RoundType::nearest, buttonMargin.bottom, 1.0/pixelSize.height);
+            buttonMargin.left = stableScaledRound(RoundType::nearest, buttonMargin.left, 1.0/pixelSize.width);
+            buttonMargin.right = stableScaledRound(RoundType::nearest, buttonMargin.right, 1.0/pixelSize.width);
+
             pButton->margin() = UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left);
 
             Margin scrollViewPadding(5,6,7,8);
+
+            scrollViewPadding.top = stableScaledRound(RoundType::nearest, scrollViewPadding.top, 1.0/pixelSize.height);
+            scrollViewPadding.bottom = stableScaledRound(RoundType::nearest, scrollViewPadding.bottom, 1.0/pixelSize.height);
+            scrollViewPadding.left = stableScaledRound(RoundType::nearest, scrollViewPadding.left, 1.0/pixelSize.width);
+            scrollViewPadding.right = stableScaledRound(RoundType::nearest, scrollViewPadding.right, 1.0/pixelSize.width);
+
             getScrollView()->padding() = UiMargin(scrollViewPadding.top, scrollViewPadding.right, scrollViewPadding.bottom, scrollViewPadding.left);
         
             CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize, buttonMargin, scrollViewPadding)
@@ -604,19 +617,19 @@ public:
 
                 Size optimalButtonSize = pButton->calcPreferredSize();
         
-                Rect optimalButtonBounds( Point(4+8, 1+5), optimalButtonSize);
+                Rect unadjustedOptimalButtonBounds( Point(buttonMargin.left+scrollViewPadding.left, buttonMargin.top+scrollViewPadding.top), optimalButtonSize);
 
                 // adjust the optimal size so that it is a multiple of the physical pixels
-                optimalButtonBounds = pButton->adjustBounds( optimalButtonBounds, RoundType::nearest, RoundType::nearest );     
+                Rect optimalButtonBounds = pButton->adjustBounds( unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::nearest );
                 optimalButtonSize = optimalButtonBounds.getSize();
 
                 Size optimalSize = optimalButtonSize + buttonMargin + scrollViewPadding;                
 
                 // calculate the adjusted optimal scrollview size, based on the optimal button bounds.
                 {
-                    Rect optimalScrollViewBounds( optimalButtonBounds );
+                    Rect optimalScrollViewBounds( unadjustedOptimalButtonBounds );
                     optimalScrollViewBounds += buttonMargin + scrollViewPadding;
-                    optimalScrollViewBounds = pThis->getScrollView()->adjustBounds( optimalScrollViewBounds, RoundType::nearest, RoundType::up );
+                    optimalScrollViewBounds = pThis->getScrollView()->adjustBounds( optimalScrollViewBounds, RoundType::nearest, RoundType::nearest );
 
                     optimalSize = Size(optimalScrollViewBounds.width, optimalScrollViewBounds.height);
                 }
@@ -630,16 +643,24 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount, optimalButtonBounds, buttonMargin, scrollViewPadding )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount, optimalButtonBounds, buttonMargin, scrollViewPadding )
                         {
                             // content view should be stretched to fill whole viewport
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( false );
-                            pThis->verifyContentViewBounds( Rect(4+8, 1+5, viewPortSize.width - 2-4-6-8, viewPortSize.height -1-3-5-7) );
+
+                            Rect expectedBounds = pThis->getScrollView()->adjustBounds(
+                                    Rect(buttonMargin.left+scrollViewPadding.left,
+                                         buttonMargin.top+scrollViewPadding.top,
+                                         viewPortSize.width - buttonMargin.right - buttonMargin.left - scrollViewPadding.right - scrollViewPadding.left,
+                                         viewPortSize.height - buttonMargin.top - buttonMargin.bottom - scrollViewPadding.top - scrollViewPadding.bottom),
+                                    RoundType::nearest,
+                                    RoundType::nearest );
+                            pThis->verifyContentViewBounds( expectedBounds );
                             pThis->verifyScrolledAreaSize( viewPortSize  );
                             pThis->verifyViewPortSize( viewPortSize );
                         

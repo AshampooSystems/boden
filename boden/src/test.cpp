@@ -7986,7 +7986,7 @@ public:
                 argPtrs.push_back("");
 
 
-			//argPtrs.push_back( "DefaultProperty" );
+			//argPtrs.push_back( "android.ScrollViewCore" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );

@@ -85,7 +85,7 @@ protected:
     {
         Size scrollAreaSizePixels = getScrollAreaSizePixels();
 
-        int viewHeight = _jView.getWidth();
+        int viewHeight = _jView.getHeight();
 
         double scrolls = (scrollAreaSizePixels.height > viewHeight);
         REQUIRE( scrolls == expectedScrolls );
