@@ -413,6 +413,11 @@ public:
     
 protected:
 
+    Rect getCurrentBounds() const
+    {
+        return _currentBounds;
+    }
+
 
 
     double getEmSizeDips() const

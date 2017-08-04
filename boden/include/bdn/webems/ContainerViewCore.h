@@ -1,5 +1,5 @@
-#ifndef BDN_WEBEMS_ContainerViewCore_HH_
-#define BDN_WEBEMS_ContainerViewCore_HH_
+#ifndef BDN_WEBEMS_ContainerViewCore_H_
+#define BDN_WEBEMS_ContainerViewCore_H_
 
 #include <bdn/ContainerView.h>
 #include <bdn/webems/ViewCore.h>
