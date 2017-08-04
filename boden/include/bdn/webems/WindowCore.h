@@ -12,7 +12,9 @@ namespace bdn
 namespace webems
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore,
+    BDN_IMPLEMENTS IWindowCore,
+    BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
     WindowCore( Window* pOuterWindow )
@@ -74,41 +76,49 @@ public:
     }
 
 
-    Rect getContentArea() override
+
+
+
+    void requestAutoSize() override
     {
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            return Rect( Point(0,0), pView->size().get() );
-        else
-            return Rect();
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pWindow );
+        }
+    }
+
+    void requestCenter() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsCentering( pWindow );
+        }
     }
 
 
-    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
+    void autoSize() override
     {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return contentSize;
+        // we cannot change our size. So, do nothing
+    }
+
+    void center() override
+    {
+        // we cannot change our position. So, do nothing.
     }
 
 
-    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-    {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return windowSize;
-    }
 
-
-    Size getMinimumSize() const override
-    {
-        // don't have a minimum size since the title bar is not connected to our window div.
-        // (the title is displayed in the browser tab bar).
-        return Size(0, 0);
-    }
     
+private:
 
-    Rect getScreenWorkArea() const override
+
+    Rect getScreenWorkArea() const
     {
         emscripten::val windowVal = emscripten::val::global("window");
 
@@ -117,8 +127,7 @@ public:
 
         return Rect(0, 0, width, height);
     }
-    
-private:
+
     Rect _getBounds() const
     {
         int width = _domObject["offsetWidth"].as<int>();
