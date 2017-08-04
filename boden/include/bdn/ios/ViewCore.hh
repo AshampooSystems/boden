@@ -61,6 +61,11 @@ public:
     {
     }
     
+    void setMargin(const UiMargin& margin) override
+    {
+    }    
+
+    
     
     
     void invalidateSizingInfo(View::InvalidateReason reason) override
