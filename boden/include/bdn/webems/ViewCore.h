@@ -413,12 +413,6 @@ public:
     
 protected:
 
-    Rect getCurrentBounds() const
-    {
-        return _currentBounds;
-    }
-
-
 
     double getEmSizeDips() const
     {
@@ -464,20 +458,30 @@ protected:
 
     
 
+    /** Used internally - do not call manually.*/
     void _addToParent(View* pParent)
     {
-        emscripten::val docVal = emscripten::val::global("document");
-
         if(pParent==nullptr)
+        {
+            emscripten::val docVal = emscripten::val::global("document");
             docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", _domObject);
+        }
         else
         {
             P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
                 throw ProgrammingError("Internal error: parent of bdn::webems::ViewCore does not have a core.");
 
-            docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", _domObject);
+            pParentCore->_addChildElement(_domObject);            
         }
+    }
+
+    /** Used internally - do not call manually.*/
+    virtual void _addChildElement(emscripten::val childDomObject)
+    {
+        emscripten::val docVal = emscripten::val::global("document");
+
+        docVal.call<emscripten::val>("getElementById", getHtmlElementId().asUtf8() ).call<void>("appendChild", childDomObject);
     }
 
 

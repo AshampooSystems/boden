@@ -22,6 +22,9 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace ) const override
 	{
+		// XXX
+            std::cout << String( typeid(*this).name() ).asUtf8() << " available width: "<<availableSpace.width << std::endl;
+
 		// call the outer container's preferred size calculation
 
 		P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );

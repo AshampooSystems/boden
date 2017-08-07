@@ -3,6 +3,7 @@
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
+#include <bdn/windowCoreUtil.h>
 
 #include <bdn/webems/ViewCore.h>
 
@@ -77,6 +78,23 @@ public:
 
 
 
+    Size calcPreferredSize( const Size& availableSpace ) const override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size(0,0) );
+        else
+            return Size(0,0);
+    }
+
+    void layout() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {    
+            defaultWindowLayoutImpl( pWindow, Rect( Point(), pWindow->size()) );
+        }
+    }
 
 
     void requestAutoSize() override
