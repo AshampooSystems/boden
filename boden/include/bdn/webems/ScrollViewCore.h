@@ -115,8 +115,7 @@ public:
 			_scrolledAreaSize = helper.getScrolledAreaSize();
 			setDomScrolledAreaSize(_scrolledAreaSize);
 
-
-			// now arrange the content view inside the scrolled area
+            // now arrange the content view inside the scrolled area
 			Rect contentBounds = helper.getContentViewBounds();
 
 			P<View> pContentView = pOuterView->getContentView();

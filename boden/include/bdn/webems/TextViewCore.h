@@ -50,7 +50,9 @@ public:
             availableSpaceToUse.applyMaximum(hint);
         }
 
-        return ViewCore::calcPreferredSize(availableSpaceToUse);
+        Size prefSize = ViewCore::calcPreferredSize(availableSpaceToUse);
+
+        return prefSize;
     }
 
 

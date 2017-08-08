@@ -269,6 +269,10 @@ public:
         if(pView!=nullptr)
             limit.applyMaximum( pView->preferredSizeMaximum() );        
 
+        emscripten::val parentDomObj( emscripten::val::null() );
+        emscripten::val parentStyleObj( emscripten::val::null() );
+        emscripten::val oldParentWidthObj( emscripten::val::null() );
+        bool            restoreParentWidth = false;
 
         bool maxWidthSet = false;
         if( std::isfinite(limit.width) )
@@ -282,6 +286,35 @@ public:
 
             styleObj.set("max-width", std::to_string((int)std::floor(limit.width))+"px" );
             maxWidthSet = true;
+
+            // if we have a width limit then we cannot disable auto-wrapping, otherwise we will
+            // also not wrap according to this limit.
+            // That creates another problem: if our parent is currently smaller than this limit
+            // then the auto-wrapping will wrap to make us small enough to fit into the parent.
+
+            // So we have to make the parent temporarily bigger to get a correct size.
+            parentDomObj = _domObject["parentElement"];
+            if(!parentDomObj.isNull())
+            {
+                // we need to know the parent's current clientWidth and width
+                
+
+                double parentWidth = parentDomObj["offsetWidth"].as<double>();
+                double parentClientWidth = parentDomObj["clientWidth"].as<double>();
+
+                if(parentClientWidth<limit.width)
+                {
+                    // we do not fit into the parent. Enlarge it temporarily.
+                    parentStyleObj = parentDomObj["style"];
+
+                    oldParentWidthObj = parentStyleObj["width"];
+
+                    double incBy = limit.width-parentClientWidth+2;
+                    parentStyleObj.set("width", std::to_string((int)std::ceil( parentWidth + incBy) )+"px" );
+                    restoreParentWidth = true;
+                }
+            }
+
         }
         else
         {
@@ -344,6 +377,14 @@ public:
                 styleObj.set("white-space", "initial");
             else
                 styleObj.set("white-space", oldWhitespaceStyle);
+        }
+
+        if(restoreParentWidth)
+        {
+            if(oldParentWidthObj.isUndefined())
+                parentStyleObj.set("width", "auto" );
+            else
+                parentStyleObj.set("width", oldParentWidthObj );
         }
 
         // no scaling necessary. Web browsers already use DIPs.
