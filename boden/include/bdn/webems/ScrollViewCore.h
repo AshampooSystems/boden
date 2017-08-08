@@ -47,6 +47,12 @@ public:
         // we want the padding to be included in the reported box size.
         scrolledAreaStyleObj.set("box-sizing", "border-box");
 
+        // it is very important that the scrolled area has "overflow hidden".
+        // Otherwise the content of the scrolled area can overflow the size we
+        // have set for it and thus it can happen that scroll bars appear when we
+        // do not want them to appear (e.g. if scrolling is disabled).
+        scrolledAreaStyleObj.set("overflow", "hidden");
+
 		_domObject.call<void>("appendChild", _scrolledAreaDomObject);
 
         // the ViewCore constructor will have set the padding. Clear that again
@@ -107,12 +113,33 @@ public:
 
 			ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);
 
-			
-			Size scrollViewSize = pOuterView->size();
+            Size scrollViewSize = pOuterView->size();
 			helper.calcLayout( pOuterView, scrollViewSize );
 
-			// resize the scrolled area
 			_scrolledAreaSize = helper.getScrolledAreaSize();
+
+            // unfortunately the layout system of many browsers (chrome for example)
+            // is a little bit broken as far as scrolling is concerned.
+            // When a scrollbar is shown this reduces the viewport size, since some space
+            // is used by the scrollbar.
+            // The problem is that if scroll bars are currently visible then they only
+            // disappear when the content size becomes smaller than this reduced viewport
+            // size. Even if the content would fit completely into the bigger viewport
+            // with no scrollbars.
+            // For example: content size 100x100, scrollview size 100x100.
+            // Obviously no scrollbar is needed.
+            // If the content is enlarged to 200x200 then two scrollbars are shown.
+            // The viewport becomes smaller (let's say 90x90).
+            // When the content now goes back to 100x100 then scrollbars are still shown
+            // because the content is bigger than the CURRENT viewport of 90x90.
+            // When the content is made even smaller to 90x90 then the scrollbars disappear.
+            // At this point one can make the content bigger again to 100x100 without
+            // scrollbars appearing.
+
+            // So, to work around this problem we ALWAYS set the scrolled area size to 0x0 at first
+            // to hide any scrollbars and then we enlarge it to the actual size.
+            setDomScrolledAreaSize( Size(0,0) );
+
 			setDomScrolledAreaSize(_scrolledAreaSize);
 
             // now arrange the content view inside the scrolled area
@@ -154,12 +181,12 @@ public:
                 // IMPORTANT: we cannot use getBoundingClientRect here. At the time of this writing, getBoundingClientRect
                 // does NOT exclude the scrollbar sizes. It should exclude them (according to the documentation), but
                 // it does not.
-                // So we use the clientWidth and clientHeight properties instead. Those are rounded integer values,
-                // but that is ok for these purposes - it does not matter that much if we allocate too much layout space
-                // for the scroll bar. It would just increase the spacing between scroll bar and content slightly.
+
+                // We use clientWidth and clientHeight instead. Those are rounded to integer pixels, but we assume that
+                // the scroll bars have an integer size anyway.
 
                 double clientWidth = _domObject["clientWidth"].as<double>();
-                double clientHeight = _domObject["clientHeight"].as<double>();
+                double clientHeight = _domObject["clientWidth"].as<double>();
 
             	_vertScrollBarLayoutWidth = 400 - clientWidth;
             	_horzScrollBarLayoutHeight = 400 - clientHeight;
@@ -168,11 +195,6 @@ public:
                     _vertScrollBarLayoutWidth = 0;
                 if(_horzScrollBarLayoutHeight<0)
                     _horzScrollBarLayoutHeight = 0;
-
-                // we add +1 to the sizes, in case clientWidth and clientHeight were rounded up.
-                // It is ok if we allocate 1 pixel too much, but inacceptable if we allocate 1 pixel too little.
-                _vertScrollBarLayoutWidth++;
-                _horzScrollBarLayoutHeight++;            	
 
             	// set the scrolled area size back to what it was
             	setDomScrolledAreaSize( _scrolledAreaSize );
