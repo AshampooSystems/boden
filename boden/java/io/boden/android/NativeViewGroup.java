@@ -59,17 +59,19 @@ public class NativeViewGroup extends ViewGroup
     {
         // modify the child's layout params
 
-        Log.i("boden", "setChildBounds " + child.toString()+" to "+Integer.toString(width)+"x"+Integer.toString(height));
+        // Log.i("boden", "setChildBounds " + child.toString()+" to "+Integer.toString(width)+"x"+Integer.toString(height));
 
         final LayoutParams params = new LayoutParams(x, y, width, height);
         child.setLayoutParams(params);
 
         // and then schedule a re-layout of this container so that the child will be repositioned
         if(isInLayout())
-            Log.i("boden", "skipped requestLayout");
+        {
+            // Log.i("boden", "skipped requestLayout");
+        }
         else
         {
-            Log.i("boden", "requestLayout " + toString());
+            // Log.i("boden", "requestLayout " + toString());
             requestLayout();
         }
     }
@@ -108,10 +110,11 @@ public class NativeViewGroup extends ViewGroup
         final int childCount = getChildCount();
 
         String myParams = Integer.toString(left)+", "+Integer.toString(top)+", "+Integer.toString(right)+", "+Integer.toString(bottom);
-        if(childCount==0)
+
+        /*if(childCount==0)
             Log.i("boden", getClass().getName()+".onLayout("+myParams+") with zero children.");
         else
-            Log.i("boden", getClass().getName()+".onLayout("+myParams+") "+toString()+" started.");
+            Log.i("boden", getClass().getName()+".onLayout("+myParams+") "+toString()+" started.");*/
 
         for(int i=0; i<childCount; i++)
         {
@@ -121,51 +124,9 @@ public class NativeViewGroup extends ViewGroup
             {
                 final LayoutParams params = (LayoutParams)child.getLayoutParams();
 
-                Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
+                // Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
 
                 child.layout( params.x, params.y, params.x+params.width, params.y+params.height );
-
-                if( child instanceof ScrollView)
-                {
-                    int subChildCount = ((ScrollView) child).getChildCount();
-                    if(subChildCount>0)
-                    {
-                        View subChild  = ((ScrollView) child).getChildAt(0);
-
-                        {
-                            int width = subChild.getWidth();
-                            int height = subChild.getHeight();
-
-                            Log.i("boden", "Subchild " + Integer.toString(width) + "x" + Integer.toString(height));
-                        }
-
-                        int subSubChildCount = ((HorizontalScrollView) subChild).getChildCount();
-                        if(subSubChildCount>0) {
-                            View subSubChild = ((HorizontalScrollView) subChild).getChildAt(0);
-
-                            {
-                                int width = subSubChild.getWidth();
-                                int height = subSubChild.getHeight();
-
-                                Log.i("boden", "SubSubchild " + Integer.toString(width) + "x" + Integer.toString(height));
-
-                                //subSubChild.requestLayout();
-
-                                width = subSubChild.getWidth();
-                                height = subSubChild.getHeight();
-
-                                ViewGroup.LayoutParams subsubparams = subSubChild.getLayoutParams();
-
-                                width = subsubparams.width;
-                                height = subsubparams.height;
-
-
-
-                            }
-                        }
-                    }
-                }
-
             }
         }
     }
