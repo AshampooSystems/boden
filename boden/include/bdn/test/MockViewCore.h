@@ -2,7 +2,7 @@
 #define BDN_TEST_MockViewCore_H_
 
 #include <bdn/IViewCore.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 #include <bdn/test/MockUiProvider.h>
 
 #include <bdn/test.h>
@@ -22,7 +22,6 @@ class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS Layou
 {
 public:
 	explicit MockViewCore(View* pView)
-        : _pixelAligner(3)  // 3 physical pixels per DIP
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -276,7 +275,7 @@ public:
     Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
         // our mock UI has 3 pixels per DIP
-        return PixelAligner(3).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign(requestedBounds, _pixelsPerDip, positionRoundType, sizeRoundType);
     }
 
        
@@ -468,7 +467,7 @@ protected:
     
 	WeakP<View>	 _outerViewWeak = nullptr;
 
-    PixelAligner _pixelAligner;
+    const double _pixelsPerDip=3; // 3 physical pixels per DIP
 
 };
 

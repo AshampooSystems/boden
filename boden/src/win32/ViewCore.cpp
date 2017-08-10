@@ -4,7 +4,7 @@
 #include <bdn/win32/UiProvider.h>
 #include <bdn/win32/util.h>
 
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 namespace bdn
 {
@@ -165,7 +165,7 @@ Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
 
 Rect ViewCore::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
 {
-    return PixelAligner( _uiScaleFactor ).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+    return Dip::pixelAlign(requestedBounds, _uiScaleFactor, positionRoundType, sizeRoundType);
 }
 
 

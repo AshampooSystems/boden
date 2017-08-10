@@ -5,7 +5,6 @@
 #include <bdn/win32/hresultError.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/win32/util.h>
-#include <bdn/PixelAligner.h>
 #include <bdn/windowCoreUtil.h>
 
 #include <bdn/win32/UiProvider.h>
