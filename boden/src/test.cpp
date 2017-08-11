@@ -49,6 +49,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/mainThread.h>
 #include <bdn/debug.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/ITextUi.h>
 
 
 #include <cstring>
@@ -439,6 +440,92 @@ public:
 
 public: // IStream
 	virtual std::ostream& stream() const BDN_OVERRIDE;
+};
+
+
+class TextUiStreamBuf : public std::streambuf
+{
+public:
+    TextUiStreamBuf(ITextUi* pUi)
+    {
+        _pUi = pUi;
+    }
+
+    int sync() override
+    {
+        char* pData = pbase();
+        char* pDataEnd = pptr();
+
+        // we only want to write full UTF-8 sequences. So we need to find the end
+        // of the valid UTF-8 data.
+        char* pCompleteEnd = pData;
+        while(pData!=pDataEnd)
+        {            
+            char32_t chr = Utf8Codec::decodeChar(pData, pDataEnd);
+            if(chr==0xfffd)
+            {
+                // decoding error. If this was at the end of the data
+                // then this is ok - we probably just have an incomplete character.
+                if( (pDataEnd-pCompleteEnd) < Utf8Codec::getMaxEncodedElementsPerCharacter() )
+                    break;
+
+                // if enough data for a complete char is available then we keep going.                
+            }
+
+            pCompleteEnd = pData;
+        }
+
+        _pUi->write( String(pData, pCompleteEnd-pData) );
+
+        // reset the "current" pointer of the buffer to the start
+        setp( pbase(), epptr() );
+
+        // copy the remaining incomplete characters to the front of the buffer.
+        pData = pCompleteEnd;
+        while(pData<pDataEnd)
+        {
+            sputc(*pData);
+            pData++;
+        }
+
+        return 0;
+    }
+
+    int_type overflow(int_type c) override
+    {
+        // write as much from the buffer data to the UI as we can
+        sync();
+
+        // if we have a real char then also write that. Note that
+        // we have at most 5 bytes left in the buffer after sync,
+        // so we know that the additional character will fit and
+        // we will not enter an infinite loop.
+        if(c!=EOF)
+            sputc(c);
+
+        return c;
+    }
+
+private:
+    P<ITextUi> _pUi;
+};
+
+
+class TextUiStream : public IStream {
+	mutable std::ostream m_os;
+public:
+	TextUiStream(ITextUi* pUi)
+    {
+        _pUi = pUi;
+    }
+
+	virtual ~TextUiStream() BDN_NOEXCEPT;
+
+public:
+	virtual std::ostream& stream() const override
+    {
+
+    }
 };
 
 

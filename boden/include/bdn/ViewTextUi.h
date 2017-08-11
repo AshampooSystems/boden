@@ -3,6 +3,7 @@
 
 #include <bdn/ITextUi.h>
 #include <bdn/Window.h>
+#include <bdn/ScrollView.h>
 #include <bdn/TextView.h>
 #include <bdn/OneShotStateNotifier.h>
 
@@ -70,7 +71,9 @@ private:
 
     Mutex           _mutex;
     P< Window >     _pWindow;
-    P< TextView >    _pTextView;
+    P< ScrollView > _pScrollView;
+    P< ColumnView > _pScrolledColumnView;
+    P< TextView >   _pCurrParagraphView;
 };
 
 

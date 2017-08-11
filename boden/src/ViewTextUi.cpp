@@ -14,9 +14,12 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 
     P<ColumnView> pContainer = newObj<ColumnView>();
 
-    _pTextView = newObj<TextView>();
-    pContainer->addChildView(_pTextView);
+    _pScrollView = newObj<ScrollView>();
+    pContainer->addChildView( _pScrollView );
 
+    _pScrolledColumnView = newObj<ColumnView>();
+    pContainer->addChildView( _pScrolledColumnView );
+    
     _pWindow->setContentView(pContainer);
 
     _pWindow->visible() = true;
@@ -32,11 +35,30 @@ P< IAsyncOp<void> > ViewTextUi::write(const String& s)
 {
     MutexLock lock(_mutex);
 
-    String newText = _pTextView->text() + s;
+    String remaining = s;
+    // normalize linebreaks
+    remaining.findReplace("\r\n", "\n");
 
-    _pTextView->text() = newText;
-    _pWindow->requestAutoSize();
+    while(!remaining.isEmpty())
+    {
+        char32_t separator=0;
+        String para = remaining.splitOffToken("\n", &separator);
 
+        if(_pCurrParagraphView==nullptr)
+        {
+            _pCurrParagraphView = newObj<TextView>();
+            _pScrolledColumnView->addChildView(_pCurrParagraphView);
+        }
+
+        _pCurrParagraphView->text() = _pCurrParagraphView->text().get() + para;
+
+        if(separator!=0)
+        {
+            // linebreak was found => finish current paragraph.
+            _pCurrParagraphView = nullptr;
+        }
+    }
+    
     P<WriteOp> pOp = newObj<WriteOp>();
     // immediately done
     pOp->onDone().postNotification( pOp );
