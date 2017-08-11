@@ -13,7 +13,7 @@ class ViewCore;
 }
 
 #include <bdn/IViewCore.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 #include <bdn/LayoutCoordinator.h>
 
 #include <bdn/java/NativeWeakPointer.h>
@@ -221,7 +221,7 @@ public:
     Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType) const override
     {
         // align on pixel boundaries
-        return PixelAligner(_uiScaleFactor).alignRect( requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign( requestedBounds, _uiScaleFactor, positionRoundType, sizeRoundType);
     }
 
 
