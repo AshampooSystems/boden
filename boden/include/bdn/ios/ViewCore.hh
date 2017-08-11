@@ -10,7 +10,7 @@
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/util.hh>
 
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 
 namespace bdn
@@ -160,7 +160,7 @@ public:
         
         double scale = screen.scale;    // 1 for old displays, 2 for retina iphone, 3 for iphone plus, etc.
         
-        return PixelAligner(scale).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign(requestedBounds, scale, positionRoundType, sizeRoundType);
     }
     
 
