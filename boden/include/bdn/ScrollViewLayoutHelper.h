@@ -151,7 +151,7 @@ public:
                 heightClipped = true;
                 contentSizeWithMarginAndPadding.height = _viewPortSize.height;
             }
-        
+
             _contentViewBounds = Rect( Point(0,0), contentSizeWithMarginAndPadding);
             _contentViewBounds -= outerPadding;
             _contentViewBounds -= contentMargin;

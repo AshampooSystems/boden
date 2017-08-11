@@ -9,7 +9,7 @@
 #include <bdn/winuwp/IUwpViewCore.h>
 #include <bdn/winuwp/UwpLayoutBridge.h>
 
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 #include <cassert>
 
@@ -296,7 +296,7 @@ public:
         double scaleFactor = UiProvider::get().getUiScaleFactor();
 
         // the scale factor indicates how many physical pixels there are per DIP. So we want to round to a multiple of that.
-        Rect adjustedBounds = PixelAligner(scaleFactor).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        Rect adjustedBounds = Dip::pixelAlign(requestedBounds, scaleFactor, positionRoundType, sizeRoundType);
 
         return adjustedBounds;
     }
