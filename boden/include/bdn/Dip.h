@@ -12,47 +12,24 @@ namespace bdn
 /** A class that represents a value in DIP (device independent pixel) values.
 
     The main function of this class is to make different DIP values comparable
-    in a way so that invisibly small differences are ignored.
+    in a way so that insignificantly small differences are ignored.
     
-    
+    The rationale for this comes from the fact that floating point calculations can
+    introduce slight errors, since not all numbers can be represented exactly.
 
-    The rationale for this comes from two main problems:
+    If you calculate the same DIP value with two mathematical equivalent operations then
+    the resulting floating point numbers might be slightly different. 
+    So íf you want repeatable and consistent calculations then it can be helpful
+    to ignore tiny differences.
 
-    1) Floating point inaccuracies: Floating point calculations can
-       introduce slight errors, since not all numbers can be represented exactly.
-
-       If you calculate the same DIP value with two mathematical equivalent operations then
-       the resulting floating point numbers might be slightly different. This class makes
-       it easy to ignore such insignificant differences.
-
-       So íf you want repeatable and consistent calculations then it can be helpful
-       to ignore tiny differences.
-
-
-    2) There are some cases in which differences between values that are bigger than
-       the tiny floating point inaccuracies should also be ignored. For example, when
-       you want to round a value expressed in DIPs to integer multiples of physical pixels.
-       
-       Let's look at an example: let's assume in this example that physical pixels have a
-       size of 0.5 DIPs (i.e. there are 2 pixels per DIP). Let's say you have a button and the
-       button reports that it needs to be 10.01 DIPs wide to show its content.
-       When you round sizes to physical pixels then one usually wants to round up, to make sure
-       that the entire content is displayed. If you round up from 10.01 to the next pixel
-       then you will get a result of 10.5.
-       However, 10.01 is visually indistinguishable from 10.0. I.e. if one were to reduce the
-       size of the button by 0.01 then no visible clipping to the content would occur.
-       So it would be much more reasonable to round this value down to 10.0 instead of
-       up to 10.5. And this is exactly where the DIP class comes in: it defines the boundary
-       at which we consider a difference to be "visible" and it provides functionality that
-       treats smaller differences than this as non-existant. I.e. the Dip class would consider
-       10.01 to be equal to 10.0, thus it would NOT round up.
-
+    So, what is an "insignificant difference"? The static function significanceBoundary() 
+    returns the minimum difference that is considered to be significant. See the documentation
+    of significanceBoundary() for more information.
 
     Note that the Dip class can handle infinity double values. The comparisons work as expected.
     Most other operations will return infinity as the output when you put in an infinity value.
 
     Dip objects can be implicitly converted to double values.
-
 */
 class Dip : public Base
 {
@@ -70,7 +47,7 @@ public:
 
 
     /** Aligns the aligns of the Dip object to a physical pixel boundary.
-        See pixelAlignValue() for more information.*/
+        See pixelAlign(double, double, RoundType) for more information.*/
     Dip& pixelAlign(double pixelsPerDip, RoundType roundType)
     {
         _value = pixelAlign(_value, pixelsPerDip, roundType);
@@ -86,15 +63,14 @@ public:
 
         roundType indicates the rounding strategy (up, down or nearest).
         
-        Important: this function uses specialized rounding behaviour that works on the notion of
-        "visible differences", rather than only pure hard numbers.
+        Important: this function uses specialized rounding behaviour that uses the
+        concept of "insignificant differences" (see class description).
 
-        In practice that means that DIP values that are VERY close to a pixel boundary,
-        to the point where the difference is not noticeable, are
+        In practice that means that DIP values that are very close to a pixel boundary
         always rounded towards that pixel boundary. Even if the specified rounding type is not "nearest".
 
         For example, if you have a DIP value of 3.701 and a pixel boundary would be at 3.7,
-        then 3.701 is always rounded down to 3.7, even if the rounding type is "nearest" or "up".
+        then 3.700001 is always rounded down to 3.7, even if the rounding type is "nearest" or "up".
 
         If the difference is bigger (let's say 3.72) then the rounding type determines in which
         direction one will round. If you specify a rounding type of "up" then 3.72 will be rounded to the next higher pixel
@@ -118,63 +94,51 @@ public:
         1 pixel difference.
 
         The pixelAlign function solves these issues by considering two values to be equal, if their difference
-        would not be "visible".
-    
-        The notion of "visible difference" is obviously hard to define in an objective way.
-        A subjective definition would be that if you made two tiny dots on the glass of your monitor with a pen,
-        one at the one DIP value and below that one at the other DIP value, would you see a difference?
-    
-        In our example, if you made a dot at x=3.7 and below that one at x=3.701, they would look exactly the same to the human eye.
-
-        Which distance is considered to be the boundary between visible or invisible is obviously highly
-        subjective. pixelAlign() uses the value visibilityBoundary().
+        is "insignifant" (see significanceBoundary() ).    
         */
     static double pixelAlign(double val, double pixelsPerDip, RoundType roundType)
     {
-        // first we need to check if the value is "invisibly close" to a pixel boundary
-        // (i.e. less than visibilityBoundary away from a pixel boundary).
-        double boundaryBelow = stableScaledRound(RoundType::down, val, pixelsPerDip);
-        double boundaryAbove = stableScaledRound(RoundType::up, val, pixelsPerDip);
+        if( !std::isfinite(val) )
+            return val;
 
-        if( fabs(val-boundaryBelow) < visibilityBoundary() )
+        // first we need to check if the value is "invisibly close" to a pixel boundary
+        // (i.e. less than significanceBoundary away from a pixel boundary).
+        double boundaryBelow = std::floor(val*pixelsPerDip) / pixelsPerDip;
+        double boundaryAbove = std::ceil(val*pixelsPerDip) / pixelsPerDip;
+
+        if( equal(val, boundaryBelow) )
             return boundaryBelow;
-        else if( fabs(boundaryAbove-val) < visibilityBoundary() )
+
+        else if( equal(val, boundaryAbove) )
             return boundaryAbove;
 
         if( roundType==RoundType::nearest )
         {
-            // if we use "nearest" then we consider all values that are visibly
+            // if we use "nearest" then we consider all values that are insignificantly
             // close to the halfway point to be on the halfway point.
-            // Why do we do that? Again, this is to improve consistency for floating point
-            // calculations whose mathematically exact result is exactly the halfway point.
-            // This is not that uncommon: half pixel values can easily happen.
-            // For example, if 1 pixel has a size of 0.8 DIPs, then 2.0 DIPs is exactly 
-            // a halfway point between the pixel boundaries at 1.6 and 2.4. 
-            // For these kinds of results it would be bad if one calculation results in 1.99999999
-            // and another in 2.000000001 due to rounding errors and then the result would
-            // be a 1 pixel difference. So we also use the "visible difference" measure
-            // for the halfway point.
+            double halfway = (boundaryAbove+boundaryBelow)/2;
 
-            // Note that this of course creates a new boundary slightly below and above the halfway
-            // point, where tiny differences can result in a 1 pixel rounding difference.
-            // However, calculation results that fall exactly on such boundaries should be much less common,
-            // since the values are much smaller and as such less likely to occur in values defined by humans.
-            if( fabs( fabs(boundaryAbove+boundaryBelow)/2 - fabs(val) ) < visibilityBoundary() )
+            if( equal(val, halfway) )
             {
+                // we are insignificantly close to the halfway point. 
                 // boundaryAbove is closer to zero than boundaryBelow for negative number.
                 // We must return the one that is furthest away from zero
                 return (val<0) ? boundaryBelow : boundaryAbove;
             }
+            else
+                return std::round(val*pixelsPerDip) / pixelsPerDip;
         }
-
-        // the value is not close to a pixel boundary. Use normal rounding.            
-        return stableScaledRound(roundType, val, pixelsPerDip);
+        else if(roundType==RoundType::up)
+            return boundaryAbove;
+        else
+            return boundaryBelow;
     }
 
-    /** Aligns the specified rectangle in DIP coordinates to physical pixel boundaries. positionRoundType indicates how the position
-        is rounded, sizeRoundType indicates how the size is rounded.
+    /** Aligns the specified rectangle in DIP coordinates to physical pixel boundaries.
+    
+        positionRoundType indicates how the position is rounded, sizeRoundType indicates how the size is rounded.
         
-        See pixelAlign() for more information about how this alignment is done.
+        See pixelAlign(double, double, RoundType) for more information about how this alignment is done.
         
         */
     static Rect pixelAlign(const Rect& rect, double pixelsPerDip, RoundType positionRoundType, RoundType sizeRoundType)
@@ -198,9 +162,9 @@ public:
         if(std::isfinite(a) && std::isfinite(b))
         {
             double diff = a-b;
-            if(diff < - visibilityBoundary() )
+            if(diff < - significanceBoundary() )
                 return -1;
-            else if(diff > visibilityBoundary() )
+            else if(diff > significanceBoundary() )
                 return 1;
             else
                 return 0;
@@ -224,7 +188,7 @@ public:
     static bool equal( double a, double b)
     {
         if(std::isfinite(a) && std::isfinite(b))
-            return fabs(a-b) <= visibilityBoundary();
+            return fabs(a-b) <= significanceBoundary();
         else
         {
             // when infinities are involved then slight differences do affect the outcome
@@ -342,50 +306,49 @@ public:
     }
 
 
-    /** Returns the distance in DIPs at which a difference between two values
-        is considered to be visible to the naked eye.
+    /** Returns the minimum difference between two DIP values that is considered significant.
 
-        Background information about why this value was chosen
-        ------------------------------------------------------
+        In the current implementation this is 0.0001, although you should not depend on that.
+        The value might be changed in the future!
 
-        There is a whole spectrum of values between what is "definitely visible"
-        and "definitely invisible". The spectrum is quite big, as it depends on
-        many external conditions (display, person, lighting, contrast, etc.).
-        So a value like this is always a little arbitrary.
-        
-        The value was deliberately chosen to be quite small, so
-        that one can be reasonably sure that a difference that is smaller than this
-        will indeed be unnoticeable in most circumstances.
-                
-        Note that this value was also deliberately chosen to be a weird, uneven number that is
-        unlikely to occur in values chosen by humans. The reason for this is that floating
-        point calculations whose results are close to the visibility boundary would again
-        have the same floating point inaccuracy problem. If results come close to this then
-        small, mathematically equivalent differences in the formula could cause a result
-        to switch from visible to invisible difference. Since we want to avoid such cases, we chose
-        a weird value that is unlikely to occur in "normal life".
+        Background information: why was this value chosen?
+        --------------------------------------------------
+
+        This value is used to iron out small differences introduced by the inaccuracies of
+        floating point operations. The maximum error of a single floating point operation
+        depends on how big the involved numbers are. Bigger numbers can introduce bigger errors.
+        If you combine multiple operations then these errors can obviously get bigger and bigger.
+
+        So we should set this boundary value as big as we can, but not so big that intentional
+        differences between DIP values are ignored.
+
+        To determine which differences are "insignificant" we have to look at what
+        the value "1 DIP" represents. A DIP is roughly size of a "legacy pixel" on an old school
+        96 DPI display. 4k displays use pixels that are about 4 times smaller
+        (i.e. each pixel is roughly 0.25 DIPs).
+
+        Since for 4k displays individual pixels are not visible to the human eye,
+        differences below 0.1 DIP should be indiscernible on most normal displays.
+        For huge displays or close viewing distances a lower limit might apply.
+        Since we do not know the exact viewing conditions the limit was chosen to
+        be way smaller than 0.1 to account for the unknown circumstances.
+               
         */
-    static constexpr double visibilityBoundary() 
+    static constexpr double significanceBoundary() 
     {
-        // To determine which differences are "insignificant" we have to look at what
-        // the value "1 DIP" represents.
-        // A DIP is roughly size of a "legacy pixel" on an old school
-        // 96 DPI display. 4k displays use pixels that are about 4 times smaller
-        // (i.e. each pixel is roughly 0.25 DIPs).
+        // "double" floating point values have about a 15 decimal digit precision.
+        // Desktop displays often have a width of 1000 - 2000 DIPs.
+        // If we allow for 1000 times bigger displays (=display walls)
+        // then we will need about 7 digits before the decimal point.
+        // I.e. we have 8 digits after the decimal point in that case.
+        
+        // So our chosen 0.0001 precision is well within the range where floating
+        // point numbers in the expected ranges can be reasonably accurate. The only
+        // differences can come from certain numbers not being exactly representable
+        // as a floating point and those differences should usually be less than 0.0001 in
+        // the given number range - even if multiple operations are combined.
 
-        // Since for 4k displays individual pixels are considered to be invisible to the human eye,
-        // differences below 0.25 DIP should be indiscernible on most normal displays.
-
-        // However, this only applies to desktop displays. If you have much bigger displays
-        // (e.g. in a football stadium) then the DIP unit SHOULD be redefined so that 
-        // one DIP again has roughly the same apparent subjective size at the "normal" vieweing
-        // distance. However, the vieweing distance can have a much wider range for such specialty
-        // displays.
-        // So we want to have a little bit more wriggle room and choose a value that is significantly
-        // smaller than the "normal" visibility boundary for desktop displays.
-
-        // we use a value around 0.04 (again 6 times smaller than the 4k resolution pixel).
-        return 0.03719;
+        return 0.0001;
     }
     
 

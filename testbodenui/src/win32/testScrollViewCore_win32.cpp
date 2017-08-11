@@ -67,7 +67,7 @@ protected:
 
     void verifyContentViewBounds( const Rect& expectedBounds, double maxDeviation=0) override
     {
-        maxDeviation += Dip::visibilityBoundary();
+        maxDeviation += Dip::significanceBoundary();
 
         P<View> pContentView =  _pScrollView->getContentView();
 
