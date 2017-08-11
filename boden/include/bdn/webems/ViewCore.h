@@ -3,7 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 #include <bdn/webems/UiProvider.h>
 
@@ -142,7 +142,7 @@ public:
     	// animations to make bigger position "jumps" than would be necessary, but currently there is not
     	// standard compliant way around it.
 
-    	return PixelAligner(1).alignRect( requestedBounds, positionRoundType, sizeRoundType);
+    	return Dip::pixelAlign( requestedBounds, 1, positionRoundType, sizeRoundType);
     }
 
 
