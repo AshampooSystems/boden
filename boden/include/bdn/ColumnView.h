@@ -21,32 +21,33 @@ namespace bdn
 class ColumnView : public ContainerView
 {
 public:
-	ColumnView()
-	{		
-	}
+	ColumnView();
 
+	Size calcContainerPreferredSize( const Size& availableSpace = Size::none() ) const override;
 	
-
-	Size	calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
-
+	P<ViewLayout> calcContainerLayout(const Size& containerSize) const override;
 	
-protected:
+private:
 	
 	/** Calculates the positions and sizes (in DIPs - see UILength::Unit::dip) of the child views for the case that the ColumnView
 		has the specified width.
 
+		availableSpace indicates the amount of space that is available for the client views inside the parent.
+
         forMeasuring indicates that the call is not intended for arranging the children, but to measure the preferred size
-        of the container. If this is true then it forces all children to be left-aligned, ignoring their actual alignment values.
-        It also influences how the child bounds are rounded to full pixels.
+        of the container. In this case availableSpace is interpreted as in calcPreferredSize as a "recommended upper limit".
+		The size limits for preferred sizes (View::preferredSizeMaximum, View::preferredSizeMinimum) are also factored in.
+		If forMeasuring is false then availableSpace is interpreted as the fixed predetermined container size        
+
+		If forMeasuring is true then width and/or height of availableSpace can be Size::componentNone(), which
+		means that the space is unlimited - i.e. the bounds should be measured for the case when any preferred size is acceptable.
         
-		Returns the "useful" Size for the container contents (including padding and margins) in DIPs. Note that if the \c availableWidth parameter
-        is bigger than the size needed to accomodate the widest child then the returned width will be smaller than the \c availableWidth
-        parameter.        
+		Returns the total size of the layout (i.e. the used amount of space that is covered by the layout).
         */
-	Size calcChildBoundsForWidth(double availableWidth, const std::list< P<View> >& childViews, std::list<Rect>& childBoundsList, bool forMeasuring) const;
+	Size calcLayoutImpl(ViewLayout* pLayout, const Size& availableSpace, bool forMeasuring) const;
 
 
-	void	layout() override;
+	
 };
 
 

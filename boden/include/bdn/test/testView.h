@@ -5,6 +5,7 @@
 #include <bdn/test/MockUiProvider.h>
 #include <bdn/test/ViewWithTestExtensions.h>
 #include <bdn/test/testCalcPreferredSize.h>
+#include <bdn/test/MockViewCore.h>
 
 namespace bdn
 {
@@ -120,60 +121,140 @@ inline bool shouldViewHaveParent<Window>()
 
 
 
-/** Helper function that performs an operation on a view object and verifies the result afterwards.
+
+/** Used internally - do not use outside the Boden framework.*/
+enum class ExpectedSideEffect_
+{
+    invalidateSizingInfo = 1 << 0,
+    invalidateLayout = 1 << 1,
+    invalidateParentLayout = 1 << 2
+};
+
+inline int operator | (ExpectedSideEffect_ left, ExpectedSideEffect_ right)
+{
+    return static_cast<int>(left) | static_cast<int>(right);
+}
+
+inline int operator | (int left, ExpectedSideEffect_ right)
+{
+    return left | static_cast<int>(right);
+}
+
+inline int operator & (int left, ExpectedSideEffect_ right)
+{
+    return left & static_cast<int>(right);
+}
+
+
+/** Used internally. Do not use outside the Boden framework.
+    
+    Helper function that performs an operation on a view object and verifies the result afterwards.
 
     The operation is performed twice: once from the main thread and once from another thread (if the target
     platform supports multithreading).
 
+    _testViewOp may schedule parts of the test to be continued later
+    after pending UI events have been handled (see CONTINUE_SECTION_WHEN_IDLE). If this happens then
+    the _testViewOp function returns before the test has actually finished. The Boden test system will
+    automatically manage the postponed continuation of the test, but the caller must be aware that local
+    objects that are used by the opFunc and verifyFunc might not be there anymore at that point in time.
+    To solve this problem the caller can pass an opaque object in pKeepAliveDuringContinuations
+    that is kept alive until all test continuations have finished. If only one object is needed by opFunc and
+    verifyFunc then it can be passed in pKeepAliveDuringContinuations directly. If multiple objects need to
+    be kept alive then one should add them to a container and then pass the container in pKeepAliveDuringContinuations.
+    If no objects need to be kept alive artificially then the caller can simply pass null for pKeepAliveDuringContinuations.
+
+    Note that pView is automatically kept alive during the test. It is not necessary to pass it in pKeepAliveDuringContinuations.
+
     @param pView the view to perform the operation on
+    @param pKeepAliveDuringContinuations an arbitrary object that is kept alive during the test.
+        This can be used to ensure that resources needed by opFunc and verifyFunc remain alive, even
+        if the test is continued asynchronously (see above for more information).
+        pKeepAliveDuringContinuations can be null if it is not needed.
     @param opFunc a function object that performs the action on the view
     @param verifyFunc a function object that verifies that the view is in the expected state after the action.
-    @param expectedSizingInfoUpdates the number of sizing info updates the operation should trigger. This is usually
-        either 0 (sizing info should not be updated) or 1 (sizing info should be updated).
+    @param expectedSideEffects a combination of flags from the bdn::ExpectedSideEffect_ enumeration. The flags
+        indicate what kind of side effect the operation should have on the layout system.
 */
 template<class ViewType>
-inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
+inline void _testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
+                P<IBase> pKeepAliveDuringContinuations,
                 std::function<void()> opFunc,
                 std::function<void()> verifyFunc,
-                int expectedSizingInfoUpdates )
+                int expectedSideEffects )
 {
     // schedule the test asynchronously, so that the initial sizing
 	// info update from the view construction is already done.
-
-	ASYNC_SECTION("mainThread", pView, opFunc, verifyFunc, expectedSizingInfoUpdates)
+        
+    ASYNC_SECTION("mainThread", pView, opFunc, verifyFunc, pKeepAliveDuringContinuations, expectedSideEffects)
 	{
-        int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
+        int initialNeedLayoutCount = cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount();
+        int initialSizingInvalidatedCount = cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount();
+
+        P<View> pParent = pView->getParentView();
+        int initialParentLayoutInvalidatedCount = 0;
+        int initialParentLayoutCount = 0;
+        if(pParent!=nullptr)
+        {
+            initialParentLayoutInvalidatedCount = cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount();
+            initialParentLayoutCount = cast<MockViewCore>(pParent->getViewCore())->getLayoutCount();
+        }
 
 		opFunc();
 
-        // sizing info updates should never happen immediately. We want them
-		// to happen asynchronously, so that multiple changes can be handled
-		// together with a single update.
-		BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount );	
-
         // the results of the change may depend on notification calls. Those are posted
         // to the main event queue. So we need to process those now before we verify.
-        BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+        BDN_CONTINUE_SECTION_WHEN_IDLE(pView, pParent, pKeepAliveDuringContinuations, initialNeedLayoutCount, initialSizingInvalidatedCount, initialParentLayoutInvalidatedCount, initialParentLayoutCount, expectedSideEffects, verifyFunc)
         {
 		    verifyFunc();
 
-		    // sizing info updates also happen asynchronously. Process all events that were added in the initial
-            // notification round and then check them.
-		    
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            bool expectSizingInfoInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateSizingInfo)!=0;            
+            bool expectParentLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateParentLayout)!=0;
+            bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
+
+            // if the parent layout is being invalidated then that can cause the view's size to change, which can also trigger
+            // a child layout invalidation. So if the parent layout is invalidated then we allow (but do not require)
+            // the child layout to be invalidated as wenn.
+            bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
+
+            BDN_REQUIRE( (cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount) == expectSizingInfoInvalidation );
+
+            if( expectLayoutInvalidation )
+                BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount );
+            else if(!mightInvalidateLayout)
+                BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() == initialNeedLayoutCount );
+
+            // if the parent should be invalidated and the view is not a top level
+            // window then it MUST have a parent.
+            if(expectParentLayoutInvalidation && tryCast<Window>(pView)==nullptr )
+                REQUIRE( pParent!=nullptr );
+
+            if(pParent!=nullptr)
             {
-                BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
-            };
+                BDN_REQUIRE( ( cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount()>initialParentLayoutInvalidatedCount ) == expectParentLayoutInvalidation );
+                
+                // verify that the layout was only updates once in total (if an update was expected)
+                BDN_REQUIRE( cast<MockViewCore>(pParent->getViewCore())->getLayoutCount() == initialParentLayoutCount + (expectParentLayoutInvalidation ? 1 : 0) );
+            }
         };
 	};
 
 #if BDN_HAVE_THREADS
 
-    // schedule the test asynchronously, so that the initial sizing
-	// info update from the view construction is already done.
-	ASYNC_SECTION("otherThread", pView, opFunc, verifyFunc, expectedSizingInfoUpdates)
+    // schedule the test asynchronously, so that the layout update from the view construction is already done.
+	ASYNC_SECTION("otherThread", pView, pKeepAliveDuringContinuations, opFunc, verifyFunc, expectedSideEffects)
 	{
-        int initialSizingInfoUpdateCount = pView->getSizingInfoUpdateCount();
+        int initialNeedLayoutCount = cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount();
+        int initialSizingInvalidatedCount = cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount();
+
+        P<View> pParent = pView->getParentView();
+        int initialParentLayoutInvalidatedCount = 0;
+        int initialParentLayoutCount = 0;
+        if(pParent!=nullptr)
+        {
+            initialParentLayoutInvalidatedCount = cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount();
+            initialParentLayoutCount = cast<MockViewCore>(pParent->getViewCore())->getLayoutCount();
+        }
 
 		// note that we call get on the future object, so that we wait until the
 		// other thread has finished (so that any changes have been scheduled)
@@ -186,21 +267,43 @@ inline void testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
 		// So do another async call. That one will be executed after the property
 		// changes.
 
-        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, verifyFunc, initialSizingInfoUpdateCount, expectedSizingInfoUpdates )
+        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, pParent, pKeepAliveDuringContinuations, verifyFunc, initialNeedLayoutCount, initialSizingInvalidatedCount, initialParentLayoutInvalidatedCount, initialParentLayoutCount, expectedSideEffects )
 		{
             // the results of the change may depend on notification calls. Those are posted
             // to the main event queue. So we need to process those now before we verify.
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, pParent, pKeepAliveDuringContinuations, initialNeedLayoutCount, initialSizingInvalidatedCount, initialParentLayoutInvalidatedCount, initialParentLayoutCount, expectedSideEffects, verifyFunc)
             {
 		        verifyFunc();
 
-		        // sizing info updates also happen asynchronously. Process all events that were added in the initial
-                // notification round and then check them.
-		    
-                BDN_CONTINUE_SECTION_WHEN_IDLE(pView, initialSizingInfoUpdateCount, expectedSizingInfoUpdates, verifyFunc)
+                bool expectSizingInfoInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateSizingInfo)!=0;
+                bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
+                bool expectParentLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateParentLayout)!=0;
+
+                 // if the parent layout is being invalidated then that can cause the view's size to change, which can also trigger
+                // a child layout invalidation. So if the parent layout is invalidated then we allow (but do not require)
+                // the child layout to be invalidated as wenn.
+                bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
+
+		        BDN_REQUIRE( ( cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount ) == expectSizingInfoInvalidation );
+
+                if( expectLayoutInvalidation )
+                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount );
+                else if(!mightInvalidateLayout)
+                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() == initialNeedLayoutCount );
+
+
+                // if the parent should be invalidated and the view is not a top level
+                // window then it MUST have a parent.
+                if(expectParentLayoutInvalidation && tryCast<Window>(pView)==nullptr )
+                    REQUIRE( pParent!=nullptr );
+
+                if(pParent!=nullptr)
                 {
-                    BDN_REQUIRE( pView->getSizingInfoUpdateCount() == initialSizingInfoUpdateCount + expectedSizingInfoUpdates );
-                };
+                    BDN_REQUIRE( ( cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount() > initialParentLayoutInvalidatedCount ) == expectParentLayoutInvalidation );
+
+                    // verify that the layout was only updates once in total (if an update was expected)
+                    BDN_REQUIRE( cast<MockViewCore>(pParent->getViewCore())->getLayoutCount() == initialParentLayoutCount + (expectParentLayoutInvalidation ? 1 : 0) );
+                }
             };
         };
 	};
@@ -240,10 +343,7 @@ inline void testView()
 
     P<Window> pWindow = pPreparer->getWindow();
 
-    // when the view core is created then the view schedules a sizing info update.
-    // We wait until that is done before we continue.
-    REQUIRE( pView->getSizingInfoUpdateCount()==0 );
-
+    
     // Normally the default for a view's visible property is true.
     // But for top level Windows, for example, the default is false. This is a change that is done in the constructor
     // of the Window object. At that point there are no subscribers for the property's change event, BUT a notification
@@ -256,9 +356,6 @@ inline void testView()
     
     BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore, initialVisibleChangeCount )
     {
-        // the pending updates should have happened now
-        REQUIRE( pView->getSizingInfoUpdateCount()==1 );
-        
 	    SECTION("initialViewState")
 	    {
             // the core should initialize its properties from the outer window when it is created.
@@ -276,8 +373,9 @@ inline void testView()
 		    BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
 		    BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
 
-            BDN_REQUIRE( pView->minSize() == UiSize(UiLength(), UiLength()) );
-            BDN_REQUIRE( pView->maxSize() == UiSize(UiLength(), UiLength()) );
+            BDN_REQUIRE( pView->preferredSizeHint() == Size::none() );
+            BDN_REQUIRE( pView->preferredSizeMinimum() == Size::none() );
+            BDN_REQUIRE( pView->preferredSizeMaximum() == Size::none() );
 
 		    BDN_REQUIRE( pView->getUiProvider().getPtr() == pPreparer->getUiProvider() );
 
@@ -292,24 +390,140 @@ inline void testView()
             // the view should not have any child views
 		    std::list< P<View> > childViews;
 		    pView->getChildViews(childViews);
-		    BDN_REQUIRE( childViews.empty() );
-		
+		    BDN_REQUIRE( childViews.empty() );	
 
-		    // sizing info should have been updated now.
-		    BDN_REQUIRE( pView->getSizingInfoUpdateCount()==1);        
 	    }
 
-        SECTION("multiple needSizingInfoUpdate calls cause single update")
+        SECTION("invalidateSizingInfo calls core")
         {
-            int updateCountBefore = pView->getSizingInfoUpdateCount();
+            int callCountBefore = pCore->getInvalidateSizingInfoCount();
 
-            pView->needSizingInfoUpdate();
-            pView->needSizingInfoUpdate();
+            pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pView, updateCountBefore)
+            REQUIRE( pCore->getInvalidateSizingInfoCount() == callCountBefore + 1);
+        }
+
+        SECTION("invalidateSizingInfo notifies parent")
+        {
+            P<View>         pParent = pView->getParentView();
+            if(pParent!=nullptr)
             {
-                REQUIRE( pView->getSizingInfoUpdateCount() == updateCountBefore+1 );
-            };
+                P<MockViewCore> pParentCore = cast<MockViewCore>( pParent->getViewCore() );
+
+                int childSizingInfoInvalidatedCount = pParentCore->getChildSizingInfoInvalidatedCount();
+                int parentSizingInvalidatedCount = pParentCore->getInvalidateSizingInfoCount();
+                int parentNeedLayoutCount = pParentCore->getNeedLayoutCount();
+
+                pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
+
+                // should have invalidated the parent sizing info and layout via a childSizingInfoInvalidated call.
+                REQUIRE( pParentCore->getChildSizingInfoInvalidatedCount() == childSizingInfoInvalidatedCount+1 );
+                REQUIRE( pParentCore->getInvalidateSizingInfoCount() == parentSizingInvalidatedCount+1 );
+                REQUIRE( pParentCore->getNeedLayoutCount() == parentNeedLayoutCount+1 );
+            }
+        }
+
+        SECTION("preferred size caching (finite space)")
+        {
+            // fill cache
+            Size prefSize = pView->calcPreferredSize( Size(1000, 2000) );
+
+            int calcCountBefore = pCore->getCalcPreferredSizeCount();
+
+            // sanity check - should not call view's calcPreferredSize
+            Size prefSize2 = pView->calcPreferredSize( Size(1000, 2000) );
+            REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+            REQUIRE( prefSize2 == prefSize );
+
+            SECTION("invalidateSizingInfo")
+            {
+                pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
+
+                // now call calc again. This time the size should be freshly calculated again
+                Size prefSize3 = pView->calcPreferredSize( Size(1000, 2000) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+                REQUIRE( prefSize3 == prefSize);
+            }
+
+            SECTION("different available space")
+            {
+                pView->calcPreferredSize( Size(1001, 2000) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+                pView->calcPreferredSize( Size(1000, 2001) );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+2 );
+            }
+        }
+
+        SECTION("preferred size caching (infinite space)")
+        {
+            // fill cache
+            Size prefSize = pView->calcPreferredSize( Size::none() );
+
+            int calcCountBefore = pCore->getCalcPreferredSizeCount();
+
+            SECTION("same infinite space")
+            {
+                Size prefSize2 = pView->calcPreferredSize( Size::none() );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+                REQUIRE( prefSize2 == prefSize );
+            }
+
+            SECTION("prefSize")
+            {
+                // specifying an available space > prefSize should return prefSize from the cache
+                Size prefSize2 = pView->calcPreferredSize( prefSize );
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore );
+                REQUIRE( prefSize2 == prefSize );
+            }
+
+            SECTION("width smaller than prefSize")
+            {
+                pView->calcPreferredSize( prefSize - Size(1,0) );
+                // should calculate a new preferred size
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+            }
+
+            SECTION("height smaller than prefSize")
+            {
+                pView->calcPreferredSize( prefSize - Size(0,1) );
+                // should calculate a new preferred size
+                REQUIRE( pCore->getCalcPreferredSizeCount() == calcCountBefore+1 );
+            }
+
+        }
+
+
+        SECTION("invalidateSizingInfo")
+        {
+            _testViewOp( pView,
+                        pPreparer,
+                        [pView]()
+                        {
+                            pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );                            
+                        },
+                        []()
+                        {
+                        },
+                        ExpectedSideEffect_::invalidateSizingInfo
+                        | ExpectedSideEffect_::invalidateParentLayout // parent layout is invalidated since sizing info changed
+                            );
+        }
+
+
+        SECTION("needLayout")
+        {
+            int callCountBefore = pCore->getNeedLayoutCount();
+
+            _testViewOp( pView,
+                        pPreparer,
+                        [pView]()
+                        {
+                            pView->needLayout( View::InvalidateReason::customDataChanged );
+                        },
+                        []()
+                        {
+                        },
+                        0 | ExpectedSideEffect_::invalidateLayout );
         }
     
         SECTION("parentViewNullAfterParentDestroyed")
@@ -339,59 +553,14 @@ inline void testView()
             };
 	    }
 
-        SECTION("applySizeConstraints")
-        {
-            double limit = 11.7;
-            double below = 11.3;
-            double above = 12.5;
-
-            SECTION("minWidth")
-            {
-                pView->minSize() = UiSize( limit, UiLength() );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(limit, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(limit, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
-            }
-
-            SECTION("minHeight")
-            {
-                pView->minSize() = UiSize( UiLength(), limit );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, above) );
-            }
-
-            SECTION("maxWidth")
-            {
-                pView->maxSize() = UiSize( limit, UiLength() );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(limit, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, above) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(limit, above) );
-            }
-
-            SECTION("maxHeight")
-            {
-                pView->maxSize() = UiSize( UiLength(), limit );
-
-                REQUIRE( pView->applySizeConstraints( Size(below, below) ) == Size(below, below) );
-                REQUIRE( pView->applySizeConstraints( Size(above, below) ) == Size(above, below) );
-                REQUIRE( pView->applySizeConstraints( Size(below, above) ) == Size(below, limit) );
-                REQUIRE( pView->applySizeConstraints( Size(above, above) ) == Size(above, limit) );
-            }
-        }
 
 	    SECTION("changeViewProperty")
 	    {
 		    SECTION("visible")
 		    {
-			    testViewOp<ViewType>(
+			    _testViewOp<ViewType>(
 				    pView,
+                    pPreparer,
 				    [pView, pWindow]()
 				    {
 					    pView->visible() = !shouldViewBeInitiallyVisible<ViewType>();
@@ -401,7 +570,7 @@ inline void testView()
 					    BDN_REQUIRE( pCore->getVisibleChangeCount()==initialVisibleChangeCount+1 );
 					    BDN_REQUIRE( pCore->getVisible() == !shouldViewBeInitiallyVisible<ViewType>() );	
 				    },
-				    0	// should NOT have caused a sizing info update
+				    0   // no layout invalidations
 				    );
 		    }
 	
@@ -412,18 +581,24 @@ inline void testView()
                             UiLength::sem(3),
                             UiLength::sem(4) );
 
-			    testViewOp<ViewType>( 
+			    _testViewOp<ViewType>( 
 				    pView,
+                    pPreparer,
 				    [pView, m, pWindow]()
 				    {
 					    pView->margin() = m;
 				    },
 				    [pCore, m, pView, pWindow]()
 				    {
-                        // margin should still have the value we set
+                        BDN_REQUIRE( pCore->getMarginChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getMargin() == m);
+
+                        // margin property should still have the value we set
                         REQUIRE( pView->margin().get() == m );
 				    },
-				    0	// should NOT have caused a sizing info update
+				    0 | ExpectedSideEffect_::invalidateParentLayout
+                        // should NOT have caused a sizing info update, since the view's
+                        // preferred size does not depend on its margin
 				    );
 		    }
 
@@ -431,8 +606,9 @@ inline void testView()
 		    {
 			    UiMargin m(UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) );
 
-			    testViewOp<ViewType>( 
+			    _testViewOp<ViewType>( 
 				    pView,
+                    pPreparer,
 				    [pView, m, pWindow]()
 				    {
 					    pView->padding() = m;
@@ -442,7 +618,107 @@ inline void testView()
 					    BDN_REQUIRE( pCore->getPaddingChangeCount()==1 );
 					    BDN_REQUIRE( pCore->getPadding() == m);
 				    },
-				    1	// should have caused a sizing info update
+                    ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated                    
+                    | ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+                    | ExpectedSideEffect_::invalidateLayout // should have caused layout to be invalidated
+				    );
+		    }
+
+
+            SECTION("horizontalAlignment")
+		    {
+			    _testViewOp<ViewType>( 
+				    pView,
+                    pPreparer,
+				    [pView, pWindow]()
+				    {
+					    pView->horizontalAlignment() = View::HorizontalAlignment::center;
+				    },
+				    [pCore, pView, pWindow]()
+				    {
+					    BDN_REQUIRE( pCore->getHorizontalAlignmentChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getHorizontalAlignment() == View::HorizontalAlignment::center);
+				    },
+                    0 | ExpectedSideEffect_::invalidateParentLayout
+				    // should not have caused sizing info to be invalidated
+                    // but should have invalidated the parent layout
+				    );
+		    }
+
+            SECTION("verticalAlignment")
+		    {
+			    _testViewOp<ViewType>( 
+				    pView,
+                    pPreparer,
+				    [pView, pWindow]()
+				    {
+					    pView->verticalAlignment() = View::VerticalAlignment::bottom;
+				    },
+				    [pCore, pView, pWindow]()
+				    {
+					    BDN_REQUIRE( pCore->getVerticalAlignmentChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getVerticalAlignment() == View::VerticalAlignment::bottom);
+				    },
+                    0 | ExpectedSideEffect_::invalidateParentLayout
+				    // should not have caused sizing info to be invalidated
+                    // but should have invalidated the parent layout
+				    );
+		    }
+
+            SECTION("preferredSizeMinimum")
+		    {
+			    _testViewOp<ViewType>( 
+				    pView,
+                    pPreparer,
+				    [pView, pWindow]()
+				    {
+					    pView->preferredSizeMinimum() = Size(10,20);
+				    },
+				    [pCore, pView, pWindow]()
+				    {
+					    BDN_REQUIRE( pCore->getPreferredSizeMinimumChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getPreferredSizeMinimum() == Size(10,20) );
+				    },
+				    ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+				    );
+		    }
+
+            SECTION("preferredSizeMaximum")
+		    {
+			    _testViewOp<ViewType>( 
+				    pView,
+                    pPreparer,
+				    [pView, pWindow]()
+				    {
+					    pView->preferredSizeMaximum() = Size(10,20);
+				    },
+				    [pCore, pView, pWindow]()
+				    {
+					    BDN_REQUIRE( pCore->getPreferredSizeMaximumChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getPreferredSizeMaximum() == Size(10,20) );
+				    },
+				    ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+				    );
+		    }
+
+            SECTION("preferredSizeHint")
+		    {
+			    _testViewOp<ViewType>( 
+				    pView,
+                    pPreparer,
+				    [pView, pWindow]()
+				    {
+					    pView->preferredSizeHint() = Size(10,20);
+				    },
+				    [pCore, pView, pWindow]()
+				    {
+					    BDN_REQUIRE( pCore->getPreferredSizeHintChangeCount()==1 );
+					    BDN_REQUIRE( pCore->getPreferredSizeHint() == Size(10,20) );
+				    },
+				    ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
 				    );
 		    }
 
@@ -454,8 +730,9 @@ inline void testView()
 
                     int boundsChangeCountBefore = pCore->getBoundsChangeCount();
 
-			        testViewOp<ViewType>( 
+			        _testViewOp<ViewType>( 
 				        pView,
+                        pPreparer,
 				        [pView, bounds, pWindow]()
 				        {
 					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);
@@ -470,7 +747,10 @@ inline void testView()
 					        BDN_REQUIRE( pView->position() == bounds.getPosition() );
                             BDN_REQUIRE( pView->size() == bounds.getSize() );
 				        },
-				        0	// should NOT have caused a sizing info update
+				        0 | ExpectedSideEffect_::invalidateLayout
+                            // should NOT have caused a sizing info update
+                            // should not cause a parent layout update
+                            // should cause a layout update (since size was changed)
 				        );
                 }
 
@@ -484,8 +764,9 @@ inline void testView()
 
                     int boundsChangeCountBefore = pCore->getBoundsChangeCount();
 
-			        testViewOp<ViewType>( 
+			        _testViewOp<ViewType>( 
 				        pView,
+                        pPreparer,
 				        [pView, bounds, expectedAdjustedBounds, pWindow]()
 				        {
 					        Rect adjustedBounds = pView->adjustAndSetBounds(bounds);                            
@@ -500,7 +781,10 @@ inline void testView()
 					        BDN_REQUIRE( pView->position() == expectedAdjustedBounds.getPosition() );
                             BDN_REQUIRE( pView->size() == expectedAdjustedBounds.getSize() );
 				        },
-				        0	// should NOT have caused a sizing info update
+				        0 | ExpectedSideEffect_::invalidateLayout
+                            // should NOT have caused a sizing info update
+                            // should not a parent layout update
+                            // should cause a layout update (since size was changed)
 				        );
 
                 }
@@ -581,17 +865,18 @@ inline void testView()
                         }
                     }
                 }
+
             }
 	    }
 
         SECTION("preferredSize")
-            bdn::test::_testCalcPreferredSize<View>(pView, pView, pPreparer);
+            bdn::test::_testCalcPreferredSize<ViewType, View>(pView, pView, pPreparer);
 
 	    SECTION("multiplePropertyChangesThatInfluenceSizing")
 	    {
-		    testViewOp<ViewType>(
+		    _testViewOp<ViewType>(
 			    pView,
-
+                pPreparer,
 			    [pView, pWindow]()
 			    {
 				    pView->padding() = UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10));
@@ -605,8 +890,10 @@ inline void testView()
 				    BDN_REQUIRE( pCore->getPadding() == UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9) ));
 			    },
 
-			    1	// should cause a single(!) sizing info update
 
+                ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+                    | ExpectedSideEffect_::invalidateLayout // should cause layout update
 			    );		
 	    }
 
@@ -654,7 +941,9 @@ inline void testView()
 
         }
 #endif
+
     };
+
 }
 
 }

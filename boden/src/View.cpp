@@ -2,6 +2,7 @@
 #include <bdn/View.h>
 
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/debug.h>
 
 namespace bdn
 {
@@ -10,21 +11,25 @@ BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 
 View::View()
 	: _visible(true) // most views are initially visible
+    , _preferredSizeHint( Size::none() )
+    , _preferredSizeMinimum( Size::none() )
+    , _preferredSizeMaximum( Size::none() )
 {
 	initProperty<bool, IViewCore, &IViewCore::setVisible, (int)PropertyInfluence_::none>(_visible);
 
-	initProperty<UiMargin, IViewCore, nullptr, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
+	initProperty<UiMargin, IViewCore,  &IViewCore::setMargin, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
 
 	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
 
 	initProperty<Point, IViewCore, nullptr, (int)PropertyInfluence_::none>(_position);
     initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::childLayout>(_size);
 
-    initProperty<HorizontalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
-    initProperty<VerticalAlignment, IViewCore, nullptr, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
+    initProperty<HorizontalAlignment, IViewCore, &IViewCore::setHorizontalAlignment, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
+    initProperty<VerticalAlignment, IViewCore, &IViewCore::setVerticalAlignment, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
 
-    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_minSize);
-    initProperty<UiSize, IViewCore, nullptr, (int)PropertyInfluence_::preferredSize>(_maxSize);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMinimum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMaximum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
+    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeHint, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
 }
 
 View::~View()
@@ -34,6 +39,29 @@ View::~View()
     // _deinitCore takes care of this.
 
     _deinitCore();
+}
+
+void View::deleteThis()
+{
+	// this is called when the view is DEFINITELY going to be deleted.
+	// Weak references have already been detached.
+
+	// this is called when the reference count reaches zero.
+
+	// Note that this may happen in ANY thread.
+
+	// Because of this it is important that we detach all child views BEFORE
+	// our destructor starts to execute. That is because the parentView references to us
+	// are weak and
+	// and must be set to null before the destruction starts. Otherwise a getParentView()
+	// call in another thread might return a strong pointer to an object that has already
+	// started destruction. And since it is a strong pointer the caller will assume that
+	// it remains valid as long as the pointer exists - so crashes may occur.
+
+	// To avoid that we must first detach the child views.
+    removeAllChildViews();
+    
+	RequireNewAlloc<Base, View>::deleteThis();
 }
 
 
@@ -72,15 +100,81 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 
 
-void View::needSizingInfoUpdate()
+void View::invalidateSizingInfo( InvalidateReason reason )
 {
-	LayoutCoordinator::get()->viewNeedsSizingInfoUpdate(this);
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when invalidateSizingInfo is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
+
+		// So, do nothing.
+        return;
+	}
+
+    if( Thread::isCurrentMain() )
+    {
+        // clear cached sizing data
+        _preferredSizeManager.clear();
+
+        // pass the operation to the core. The core will take care
+        // of invalidating the layout, if necessary
+        P<IViewCore> pCore = getViewCore();
+        if(pCore!=nullptr)
+            pCore->invalidateSizingInfo(reason);
+
+        P<View> pParentView = getParentView();
+        if(pParentView!=nullptr)
+            pParentView->childSizingInfoInvalidated( this );
+    }
+    else
+    {
+		// schedule the invalidation to be done from the main thread.
+		P<View> pThis = this;
+
+		asyncCallFromMainThread(
+				[pThis, reason]()
+				{
+					pThis->invalidateSizingInfo(reason);
+				}
+		);
+    }
 }
 
 
-void View::needLayout()
+void View::needLayout( InvalidateReason reason )
 {
-	LayoutCoordinator::get()->viewNeedsLayout(this);
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when invalidateSizingInfo is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
+
+		// So, do nothing.
+        return;
+	}
+
+    if( Thread::isCurrentMain() )
+    {
+        P<IViewCore> pCore = getViewCore();
+
+        // forward the request to the core. Depending on the platform
+        // it may be that the UI uses a layout coordinator provided by the system,
+        // rather than our own.
+        if(pCore!=nullptr)
+            pCore->needLayout(reason);
+    }
+    else
+    {
+		// schedule the invalidation to be done from the main thread.
+		P<View> pThis = this;
+
+		asyncCallFromMainThread(
+				[pThis, reason]()
+				{
+					pThis->needLayout(reason);
+				});
+    }
 }
 
 
@@ -124,31 +218,24 @@ Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
 		return Margin();	
 }
 
-void View::updateSizingInfo()
+
+void View::childSizingInfoInvalidated(View* pChild)
 {
-	SizingInfo info;
-
-	info.preferredSize = calcPreferredSize();
-
-	if(info!=_sizingInfo)
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
 	{
-		_sizingInfo = info;
-		
-		P<View> pParentView = getParentView();
+		// this happens when childSizingInfoInvalidated is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
 
-		if(pParentView!=nullptr)
-		{
-			// our parent needs to update its own sizing
-			pParentView->needSizingInfoUpdate();
-
-			// AND, since our sizing info has changed the parent also needs
-			// to re-layout us and our siblings
-			
-			pParentView->needLayout();
-		}
+		// So, do nothing.
+        return;
 	}
-}
 
+    P<IViewCore> pCore = getViewCore();
+
+    if(pCore!=nullptr)
+        pCore->childSizingInfoInvalidated(pChild);
+}
 
 void View::_setParentView(View* pParentView)
 {
@@ -351,68 +438,33 @@ void View::_initCore()
 				pChildView->_initCore();
 
 			// our old sizing info is obsolete when the core has changed.
-			needSizingInfoUpdate();
+			invalidateSizingInfo( View::InvalidateReason::standardPropertyChanged );
 		}		
 	}
 }
 
 
 
-Size View::calcPreferredSize(double availableWidth, double availableHeight) const
+Size View::calcPreferredSize( const Size& availableSpace ) const
 {
 	verifyInMainThread("View::calcPreferredSize");
+	
+	Size preferredSize;
+	if( ! _preferredSizeManager.get(availableSpace, preferredSize) )
+	{
+		P<IViewCore> pCore = getViewCore();
 
-	P<IViewCore> pCore = getViewCore();
+		if(pCore!=nullptr)
+		{
+			preferredSize = pCore->calcPreferredSize( availableSpace );
+			_preferredSizeManager.set( availableSpace, preferredSize );
+		}
+	}
 
-	if(pCore!=nullptr)
-		return pCore->calcPreferredSize(availableWidth, availableHeight);
-	else
-		return Size(0, 0);
+	return preferredSize;
 }
 
 
-Size View::applySizeConstraints(const Size& inputSize) const
-{
-    verifyInMainThread("View::applySizeConstraints");
-
-    UiSize minSize = _minSize.get();
-    UiSize maxSize = _maxSize.get();
-    Size   resultSize( inputSize );
-
-    if(!minSize.width.isNone())
-    {
-        double minWidth = uiLengthToDips(minSize.width);
-
-        if(resultSize.width < minWidth)
-            resultSize.width = minWidth;            
-    }
-
-    if(!minSize.height.isNone())
-    {
-        double minHeight = uiLengthToDips(minSize.height);
-
-        if(resultSize.height < minHeight)
-            resultSize.height = minHeight;            
-    }
-
-    if(!maxSize.width.isNone())
-    {
-        double maxWidth = uiLengthToDips(maxSize.width);
-
-        if(resultSize.width > maxWidth)
-            resultSize.width = maxWidth;  
-    }
-
-    if(!maxSize.height.isNone())
-    {
-        double maxHeight = uiLengthToDips(maxSize.height);
-
-        if(resultSize.height > maxHeight)
-            resultSize.height = maxHeight;  
-    }
-
-    return resultSize;
-}
 
 
 

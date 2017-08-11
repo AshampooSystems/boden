@@ -13,6 +13,9 @@ namespace bdn
 
 /** Coordinates the updating of the layout for user interface components.
 
+    The coordinator can be used by IViewCore implementations to implement coordination
+    of layout functions.
+
 	Whenever an event happens that might require a re-layout, the corresponding component
 	notifies the layout coordinator.
 
@@ -25,21 +28,16 @@ namespace bdn
 
 	Usually the global coordinator object should be used (see LayoutCoordinator::get()).
 
+    The view core objects that use the layout coordinator need to implement IViewCoreExtension.
+    or IWindowCoreExtension (depending on the the type of core object).
+
 	This class is thread-safe.
 */
 class LayoutCoordinator : public Base
 {
 public:
+
 	LayoutCoordinator();
-
-	/** Registers a view for a size information update. This should be called when sizing
-		parameters (like padding, etc) or the view contents change and the preferred/minimum/maximum
-		sizes of the view may have changed.
-
-		For view containers this should also be called when child views change in
-		a way that could influence the container's preferred/minimum/maximum size.
-	*/
-	void viewNeedsSizingInfoUpdate(View* pView);
 
 
 	/** Registers a view for re-layout. This should be called when any of the child
@@ -47,25 +45,36 @@ public:
 		(like margins, alignment, etc.)
 		*/
 	void viewNeedsLayout(View* pView);
-
-
-
+    
 	/** Registers a top level window for auto-sizing.*/
 	void windowNeedsAutoSizing(Window* pWindow);
 
 	/** Registers a top-level window for centering on the screen.*/
 	void windowNeedsCentering(Window* pWindow);
+    
+
+    
+    /** Interface that IViewCore objects which use the LayoutCoordinator should implement.*/
+    class IViewCoreExtension : BDN_IMPLEMENTS IBase
+    {
+    public:        
+        /** Updates the layout of the view's contents (see View::needLayout()).*/
+	    virtual void layout()=0;
+    };
 
 
+    /** Interfaces that IWindowCore objects which use the LayoutCoordinator should implement.*/
+    class IWindowCoreExtension : BDN_IMPLEMENTS IViewCoreExtension
+    {
+    public:        
+        /** Autosizes the window. See Window::requestAutoSize().*/
+	    virtual void autoSize()=0;
 
-	/** Returns the global coordinator object.*/
-	static P<LayoutCoordinator> get()
-	{
-		static SafeInit<LayoutCoordinator> init;
+        /** Centers the window on the screen. See Window::requestCenter()*/
+	    virtual void center()=0;    
+    };
 
-		return init.get();
-	}
-	
+
 protected:
 	void needUpdate();
 
@@ -85,7 +94,6 @@ protected:
 
 	Mutex				_mutex;
 	
-	std::set< P<View> > _sizingInfoSet;
 	std::set< P<View> > _layoutSet;
 
 	std::set< P<Window> > _windowAutoSizeSet;

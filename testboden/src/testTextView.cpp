@@ -35,8 +35,9 @@ TEST_CASE("TextView")
 		{   
 			SECTION("text")
 			{
-				bdn::test::testViewOp( 
+				bdn::test::_testViewOp( 
 					pTextView,
+                    pPreparer,
 					[pTextView, pPreparer]()
 					{
 						pTextView->text() = "hello";					
@@ -46,7 +47,8 @@ TEST_CASE("TextView")
 						REQUIRE( pCore->getText()=="hello" );					
 						REQUIRE( pCore->getTextChangeCount()==1 );					
 					},
-					1 // should cause a sizing update.
+                    bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
 					);
 			}        
 		}

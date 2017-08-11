@@ -2,7 +2,8 @@
 #define BDN_TEST_MockViewCore_H_
 
 #include <bdn/IViewCore.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
+#include <bdn/test/MockUiProvider.h>
 
 #include <bdn/test.h>
 
@@ -17,11 +18,10 @@ namespace test
     
     See MockUiProvider.
     */
-class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class MockViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
 	explicit MockViewCore(View* pView)
-        : _pixelAligner(3)  // 3 physical pixels per DIP
 	{
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
@@ -29,6 +29,12 @@ public:
 
 		_visible = pView->visible();
 		_padding = pView->padding();
+        _margin = pView->margin();
+        _horizontalAlignment = pView->horizontalAlignment();
+        _verticalAlignment = pView->verticalAlignment();
+        _preferredSizeHint = pView->preferredSizeHint();
+        _preferredSizeMinimum = pView->preferredSizeMinimum();
+        _preferredSizeMaximum = pView->preferredSizeMaximum();
         _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
@@ -39,6 +45,8 @@ public:
         BDN_REQUIRE_IN_MAIN_THREAD();
     }
 
+
+    
     
 
     /** Returns the outer view object that this core is embedded in.*/
@@ -74,6 +82,19 @@ public:
 	}
 
 
+    
+    /** Returns the margin that is currently configured.*/
+    UiMargin getMargin() const
+	{
+	    return _margin;
+	}
+
+    /** Returns the number of times the view's margin has changed.*/
+    int getMarginChangeCount() const
+	{
+	    return _marginChangeCount;
+	}
+
 
     /** Returns the current view bounds.*/
     Rect getBounds() const
@@ -105,16 +126,15 @@ public:
 	}
 
 
-
-    
-
-
-
-
 	Size _getTextSize(const String& s) const
 	{
-		// our fake font has a size of 9.75 x 19.60 DIPs for each character.
-		return Size( s.getLength()*9.75, 19.60);
+		// our fake font has a size of 9.75 x 19 2/3 DIPs for each character.
+
+        // round width to the next "pixel"
+        double width = std::ceil( s.getLength()*9.75 * 3 ) / 3;
+        double height = 19 + 2.0/3;
+
+		return Size( width, height );
 	}
 
 	void	setVisible(const bool& visible) override
@@ -135,6 +155,110 @@ public:
 		_paddingChangeCount++;
 	}
 
+    void setMargin(const UiMargin& margin) override
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_margin = margin;
+        _marginChangeCount++;
+	}
+
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_horizontalAlignment = align;
+		_horizontalAlignmentChangeCount++;
+    }
+
+    View::HorizontalAlignment getHorizontalAlignment() const
+    {
+        return _horizontalAlignment;
+    }
+
+    int getHorizontalAlignmentChangeCount() const
+    {
+        return _horizontalAlignmentChangeCount;
+    }
+
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_verticalAlignment = align;
+		_verticalAlignmentChangeCount++;
+    }
+
+    View::VerticalAlignment getVerticalAlignment() const
+    {
+        return _verticalAlignment;
+    }
+
+    int getVerticalAlignmentChangeCount() const
+    {
+        return _verticalAlignmentChangeCount;
+    }
+
+
+
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeHint = hint;
+		_preferredSizeHintChangeCount++;
+    }
+
+    Size getPreferredSizeHint() const
+    {
+        return _preferredSizeHint;
+    }
+
+    int getPreferredSizeHintChangeCount() const
+    {
+        return _preferredSizeHintChangeCount;
+    }
+
+
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeMinimum = limit;
+		_preferredSizeMinimumChangeCount++;
+    }
+
+    Size getPreferredSizeMinimum() const
+    {
+        return _preferredSizeMinimum;
+    }
+
+    int getPreferredSizeMinimumChangeCount() const
+    {
+        return _preferredSizeMinimumChangeCount;
+    }
+
+
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+		_preferredSizeMaximum = limit;
+		_preferredSizeMaximumChangeCount++;
+    }
+
+    Size getPreferredSizeMaximum() const
+    {
+        return _preferredSizeMaximum;
+    }
+
+    int getPreferredSizeMaximumChangeCount() const
+    {
+        return _preferredSizeMaximumChangeCount;
+    }
 
 
 
@@ -151,7 +275,7 @@ public:
     Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
     {
         // our mock UI has 3 pixels per DIP
-        return PixelAligner(3).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign(requestedBounds, _pixelsPerDip, positionRoundType, sizeRoundType);
     }
 
        
@@ -206,7 +330,99 @@ public:
 		return true;
 	}
 
+
+    int getCalcPreferredSizeCount() const
+    {
+        return _calcPreferredSizeCount;
+    }
+
+    Size calcPreferredSize( const Size& availableSpace ) const override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+
+        _calcPreferredSizeCount++;
+
+        // return a dummy size here. Derived classes need to override this
+        return Size(0,0);
+    }
+	
+    /** Returns the number of times that the view's layout was updated.*/
+    int getLayoutCount() const
+    {
+        return _layoutCount;
+    }
+
+	void layout() override
+	{
+		BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_layoutCount++;
+
+        if( _overrideLayoutFunc )
+            _overrideLayoutFunc();            
+	}	
+
+
+    /** Sets a function that is called instead of the normal layout function.
+    
+        If the return value of the override function is false then the normal
+        layout function implementation runs after the override function. If the
+        return value is true then the normal implementation is not run.
+    */
+    void setOverrideLayoutFunc( const std::function<bool()> func )
+    {
+        _overrideLayoutFunc = func;
+    }
      
+
+
+    int getInvalidateSizingInfoCount() const
+    {
+        return _invalidateSizingInfoCount;
+    }    
+  
+	void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_invalidateSizingInfoCount++;
+    }
+
+    int getNeedLayoutCount() const
+    {
+        return _needLayoutCount;
+    }   
+
+	void needLayout(View::InvalidateReason reason) override
+    {
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_needLayoutCount++;
+
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            cast<MockUiProvider>(pView->getUiProvider())->getLayoutCoordinator()->viewNeedsLayout(pView);
+    }
+
+
+    int getChildSizingInfoInvalidatedCount() const
+    {
+        return _childSizingInfoInvalidatedCount;
+    }   
+
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+         BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_childSizingInfoInvalidatedCount++;
+        
+        P<View> pOuter = getOuterViewIfStillAttached();
+        if(pOuter!=nullptr)
+        {
+            pOuter->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuter->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
 
 protected:    
 	bool		_visible = false;
@@ -216,15 +432,42 @@ protected:
 	Nullable<UiMargin>	_padding;
 	int			_paddingChangeCount = 0;
 
+    UiMargin	_margin;
+	int			_marginChangeCount = 0;
+
+
+    View::HorizontalAlignment   _horizontalAlignment;
+    int                         _horizontalAlignmentChangeCount = 0;
+
+    View::VerticalAlignment     _verticalAlignment;
+    int                         _verticalAlignmentChangeCount = 0;
+
+    Size        _preferredSizeHint;
+    int         _preferredSizeHintChangeCount = 0;
+
+    Size        _preferredSizeMinimum;
+    int         _preferredSizeMinimumChangeCount = 0;
+
+    Size        _preferredSizeMaximum;
+    int         _preferredSizeMaximumChangeCount = 0;
+
 	Rect        _bounds;
 	int			_boundsChangeCount = 0;
 
 	View*		_pParentViewWeak = nullptr;
 	int			_parentViewChangeCount = 0;
+
+	int			_layoutCount = 0;
+    std::function<bool()> _overrideLayoutFunc;
+
+    int         _invalidateSizingInfoCount = 0;
+    int         _childSizingInfoInvalidatedCount = 0;
+    int         _needLayoutCount = 0;
+    mutable int _calcPreferredSizeCount = 0;
     
 	WeakP<View>	 _outerViewWeak = nullptr;
 
-    PixelAligner _pixelAligner;
+    const double _pixelsPerDip=3; // 3 physical pixels per DIP
 
 };
 

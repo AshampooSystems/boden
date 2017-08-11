@@ -11,22 +11,24 @@ namespace test
 {
 
 
+
+
 /** Helper for tests that verify IContainerViewCore implementations.*/
-class TestContainerViewCore : public TestViewCore
+class TestContainerViewCore : public TestViewCore<ContainerView>
 {
 
 protected:
-
+    
     P<View> createView() override
     {
-        return newObj<ColumnView>();
+        return newObj<TestContainerView>();
     }
 
     void setView(View* pView) override
     {
         TestViewCore::setView(pView);
 
-        _pContainerView = cast<ContainerView>( pView );
+        _pContainerView = cast<TestContainerView>( pView );
     }
 
     void runInitTests() override
@@ -39,17 +41,48 @@ protected:
     void runPostInitTests() override
     {
         TestViewCore::runPostInitTests();
+        
+        P<TestContainerViewCore> pThis = this;
 
-        SECTION("preferredSize")
+        SECTION("calcPreferredSize forwarded to outer")
         {
-            // container view cores do not calculate a preferred size. That is always done
-            // by the other container view implementation.
-            // As such, the container view core should throw exceptions when size calculation
-            // is used.
+            // container view cores should call calcContainerPreferredSize from the outer object
 
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize() );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(100, -1) );
-            REQUIRE_THROWS_PROGRAMMING_ERROR( _pCore->calcPreferredSize(-1, 100) );
+            int initialCount = _pContainerView->getCalcContainerPreferredSizeCount();
+
+            SECTION("infinite availableSpace")
+            {
+                _pCore->calcPreferredSize();
+
+                REQUIRE( _pContainerView->getCalcContainerPreferredSizeCount() == initialCount+1 );
+                REQUIRE( _pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size::none() );
+            }
+
+            SECTION("finite availableSpace")
+            {
+                _pCore->calcPreferredSize( Size(100, 200) );
+
+                REQUIRE( _pContainerView->getCalcContainerPreferredSizeCount() == initialCount+1 );
+                REQUIRE( _pContainerView->getLastCalcContainerPreferredSizeAvailableSpace() == Size(100, 200) );
+            }
+        }
+
+        SECTION("layout forwarded to outer")
+        {
+            int initialCount = _pContainerView->getCalcContainerLayoutCount();
+            
+            _pContainerView->needLayout( View::InvalidateReason::customDataChanged );
+
+            // XXX
+            CONTINUE_SECTION_AFTER_SECONDS( 2, pThis, initialCount)
+            {            
+                CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
+                {
+                    int currLayoutCount = pThis->_pContainerView->getCalcContainerLayoutCount();
+                    REQUIRE( currLayoutCount == initialCount+1 );
+                    REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
+                };
+            };
         }
     }
 
@@ -64,7 +97,57 @@ protected:
         return false;
     }
 
-    P<ContainerView> _pContainerView;
+private:
+    class TestContainerView : public ColumnView
+    {
+    public:
+
+        Size calcContainerPreferredSize( const Size& availableSpace ) const override
+        {
+            _calcContainerPreferredSizeCount++;
+            _lastCalcContainerPreferredSizeAvailableSpace = availableSpace;
+
+            return ColumnView::calcContainerPreferredSize(availableSpace);
+        }
+
+        int getCalcContainerPreferredSizeCount() const        
+        {
+            return _calcContainerPreferredSizeCount;
+        }
+
+        Size getLastCalcContainerPreferredSizeAvailableSpace() const
+        {
+            return _lastCalcContainerPreferredSizeAvailableSpace;
+        }
+
+
+        P<ViewLayout> calcContainerLayout( const Size& containerSize ) const override
+        {
+            _calcContainerLayoutCount++;
+            _lastCalcContainerLayoutContainerSize = containerSize;
+
+            return ColumnView::calcContainerLayout(containerSize);
+        }
+
+        int getCalcContainerLayoutCount() const        
+        {
+            return _calcContainerLayoutCount;
+        }
+
+        Size getLastCalcContainerLayoutContainerSize() const
+        {
+            return _lastCalcContainerLayoutContainerSize;
+        }
+
+    private:
+        mutable int _calcContainerPreferredSizeCount = 0;
+        mutable Size _lastCalcContainerPreferredSizeAvailableSpace;
+
+        mutable int _calcContainerLayoutCount = 0;
+        mutable Size _lastCalcContainerLayoutContainerSize;
+    };
+
+    P<TestContainerView> _pContainerView;
 };
 
 

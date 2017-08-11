@@ -50,6 +50,37 @@ TEST_CASE("Base")
 		REQUIRE( deleted );	
 	}
 
+	SECTION("isBeingDeletedBecauseReferenceCountReachedZero")
+	{
+		class TestBase : public Base
+		{
+		public:
+			TestBase(bool* pDeleted)
+			{
+				_pDeleted = pDeleted;
+			}
+
+			~TestBase()
+			{
+				*_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero();
+			}
+
+		protected:
+			bool* _pDeleted;
+		};
+
+		bool deleted = false;
+
+		TestBase* pTest = new(Base::RawNew::Use) TestBase(&deleted);
+
+		REQUIRE( !deleted );
+
+		pTest->releaseRef();
+
+		REQUIRE( deleted );
+	}
+
+
 	SECTION("revive during deletion")
 	{
 		class TestBase : public Base
@@ -82,6 +113,8 @@ TEST_CASE("Base")
 		REQUIRE( deleteThisCounter==1 );
 
 		REQUIRE( pTest->getRefCount()==1 );
+
+		REQUIRE( !pTest->isBeingDeletedBecauseReferenceCountReachedZero() );
 
 		delete pTest;		
 	}

@@ -48,23 +48,53 @@ public:
 
 
 	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        MockViewCore::calcPreferredSize(availableSpace);
+
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		Size size = _getTextSize(_text);
 
         // add our padding
         P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr && !pView->padding().get().isNull())
-            size += uiMarginToDipMargin(pView->padding().get());
+        Size    preferredSizeHint(Size::none());
+        if(pView!=nullptr)
+        {
+            if(!pView->padding().get().isNull())
+                size += uiMarginToDipMargin(pView->padding().get());
+
+            preferredSizeHint = pView->preferredSizeHint();
+        }
+
+        // text views typically somewhat adhere to the available width.
+        // We do not do real line breaking in this mock view - we simply clip the width
+        // and multiply the height with a corresponding factor.
+        if( std::isfinite(availableSpace.width) && size.width>availableSpace.width)
+        {
+            double factor = (availableSpace.width<=1) ? 100 : (size.width/availableSpace.width);
+            if(factor>100)
+                factor = 100;
+
+            size.width = availableSpace.width;
+            size.height *= factor;
+        }
+
+        // we also clip to the preferredSizeHint.width, since text views usually use
+        // that as an advisory value of where to clip
+        size.applyMaximum( Size(preferredSizeHint.width, Size::componentNone()) );
 
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {   
+            // clip to min and max size
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
+
         
 		return size;
 	}
-	
+    	
 
 protected:    
 	String _text;

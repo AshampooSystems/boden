@@ -22,7 +22,38 @@ inline void debugBreakDummy()
 }
 
 
+/** Prints a line of text to an output channel to that it can most easily be seen in 
+    an active debugger, if the program is being debugged.
+
+    Where exactly the text ends up depends on the target platform.
+
+    Each debuggerPrint text entry is separated automatically from other debuggerPrint text entries,
+    so that the entries can be distringuished from each other. For example, if the output channel
+    is simply a text stream then a linebreak is automatically added after each entry.    
+    
+    Some platforms might not have any way for a program to pass text to a debugger.
+    On those platforms this function might not do anything.
+
+    The macro BDN_DEBUG_PRINT does the same thing as this function, but it is automatically
+    removed from the program in release build.
+
+    Platform note
+    -------------------
+
+    Right now this function only has an effect on Windows, where it uses OutputDebugString
+    to send the text to the debugger. On all other platforms the functions does nothing.
+
+    */
+void debuggerPrint(const String& text);
+
+
 }
+
+/** \def BDN_DEBUGGER_PRINT
+    Same as bdn::debuggerPrint(), except that the whole statement is automatically removed in
+    release builds.
+    */
+#define BDN_DEBUGGER_PRINT(text) bdn::debuggerPrint(text)
 
 
 /** \def BDN_DEBUG_BREAK()

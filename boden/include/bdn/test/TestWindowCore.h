@@ -11,7 +11,7 @@ namespace test
     
 
 /** Helper for tests that verify IWindowCore implementations.*/
-class TestWindowCore : public TestViewCore
+class TestWindowCore : public TestViewCore<Window>
 {
 
 protected:
@@ -56,6 +56,8 @@ protected:
 
     void runPostInitTests() override
     {
+        P<TestWindowCore> pThis(this);
+    
         TestViewCore::runPostInitTests();
 
         SECTION("title")
@@ -63,7 +65,11 @@ protected:
             SECTION("value")
             {
                 _pWindow->title() = "hello world";
-                verifyCoreTitle();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreTitle();
+                };
             }
 
             SECTION("does not affect preferred size")
@@ -72,121 +78,66 @@ protected:
                 Size prefSizeBefore = _pWindow->calcPreferredSize();
 
                 _pWindow->title() = "this is a long long long long long long long long long long long long title";
-
-                Size prefSize = _pWindow->calcPreferredSize();
-
-                REQUIRE( prefSize == prefSizeBefore);
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                {
+                    Size prefSize = pThis->_pWindow->calcPreferredSize();
+                    
+                    REQUIRE( prefSize == prefSizeBefore);
+                };
             }
         }
 
         
-        SECTION("contentArea")
+        SECTION("layout arranges content view")
         {
-            // make the window a somewhat big size.
-            // Note that fullscreen windows may ignore this, but that is ok.
-            // We only want to avoid cases where the window is tiny.
-            _pWindow->adjustAndSetBounds( Rect(0, 0, 1000, 1000) );
+            P<Button> pChild = newObj<Button>();
+
+            _pWindow->setContentView(pChild);
+
+            // set a left/top margin for the child so that it is moved to the bottom right
+            Margin margin( 11, 0, 0, 22 );
+            pChild->margin() = UiMargin( margin.top, margin.right, margin.bottom, margin.left );
+
+            // then autosize the window
+            _pWindow->requestAutoSize();
 
             P<TestWindowCore> pThis = this;
 
-            // continue async to give the core a chance to correct / override
-            // the new bounds.
-            CONTINUE_SECTION_WHEN_IDLE(pThis)
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, pChild, margin)
             {
-                Size size = pThis->_pWindow->size();
+                Point oldPos = pChild->position();
+                Size  oldSize = pChild->size();
 
-                Rect contentArea = pThis->_pWindowCore->getContentArea();
+                // then invert the margin and make the top margin a bottom margin and the
+                // left margin a right margin
+                pChild->margin() = UiMargin( 0, margin.left, margin.top, 0);
+                
 
-                REQUIRE( contentArea.x>=0 );
-                REQUIRE( contentArea.y>=0 );
-                REQUIRE( contentArea.width>0 );
-                REQUIRE( contentArea.height>0 );
-            
-                // the content area must be fully inside the window bounds.
-                REQUIRE( contentArea.x + contentArea.width <= size.width);
-                REQUIRE( contentArea.y + contentArea.height <= size.height);
+                // this should cause a layout. We know the layout happens (we test that in another case).
+                // Here we only verify that the layout actually updates the content view.
+                BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, pChild, oldPos, oldSize, margin)
+                {
+                    // if a layout was done then the child position should now be moved to the left and up
+                    // by the amount of the removed margin.
+                    // The position might not match exactly, since it is rounded to full pixels
+                    Point expectedPos(oldPos.x - margin.left, oldPos.y - margin.top);
+                    Point pos = pChild->position();
+                    REQUIRE_ALMOST_EQUAL( pos.x, expectedPos.x, 2);
+                    REQUIRE_ALMOST_EQUAL( pos.y, expectedPos.y, 2);
+                    
+                    // size should not have changed
+                    REQUIRE( pChild->size().get() == oldSize );
+                };
+                
             };
         }
-
-        SECTION("calcWindowSizeFromContentAreaSize")
-        {
-            SECTION("zero")
-            {
-                Size windowSize = _pWindowCore->calcWindowSizeFromContentAreaSize( Size() );
-                REQUIRE( windowSize.width>=0 );
-                REQUIRE( windowSize.height>=0 );
-            }
-
-            SECTION("nonzero")
-            {
-                Size contentSize(1000, 2000);
-                Size windowSize = _pWindowCore->calcWindowSizeFromContentAreaSize( contentSize );
-                REQUIRE( windowSize.width>=contentSize.width );
-                REQUIRE( windowSize.height>=contentSize.height );
-            }
-        }
-
-
-        SECTION("calcContentAreaSizeFromWindowSize")
-        {
-            SECTION("zero")
-            {
-                // should never get a negative size
-                REQUIRE( _pWindowCore->calcContentAreaSizeFromWindowSize( Size() ) == Size() );
-            }
-
-            SECTION("nonzero")
-            {
-                Size windowSize(1000, 2000);
-                Size contentSize = _pWindowCore->calcContentAreaSizeFromWindowSize( windowSize );
-                REQUIRE( contentSize.width>0 );
-                REQUIRE( contentSize.height>0 );
-                REQUIRE( contentSize.width<=windowSize.width );
-                REQUIRE( contentSize.height<=windowSize.height );
-            }
-        }
-    
-        SECTION("getMinimumSize")
-        {
-            SECTION("plausible")
-            {
-                Size minSize = _pWindowCore->getMinimumSize();
-
-                REQUIRE( minSize.width>=0 );
-                REQUIRE( minSize.height>=0 );
-            }
-
-            SECTION("not affected by View::minSize()")
-            {
-                Size minSizeUnconstrained = _pWindowCore->getMinimumSize();
-
-                SECTION("smaller")
-                    _pWindow->minSize() = UiSize( minSizeUnconstrained-Size(1,1) );
-                SECTION("bigger")
-                    _pWindow->minSize() = UiSize( minSizeUnconstrained+Size(1,1) );
-
-                // View::minSize() should have no effect
-                Size minSize = _pWindowCore->getMinimumSize();
-                REQUIRE( minSize == minSizeUnconstrained );
-            }
-        }
-
-        SECTION("getScreenWorkArea")
-        {
-            Rect area = _pWindowCore->getScreenWorkArea();
-
-            // note that the work area may have negative coordinates.
-            REQUIRE( area.width>0 );
-            REQUIRE( area.height>0 );
-        }
-
+                
         
         SECTION("Ui element destroyed when object destroyed")
         {
             // there may be pending sizing info updates for the window, which keep it alive.
             // Ensure that those are done first.
-
-            P<TestWindowCore> pThis = this;
 
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {

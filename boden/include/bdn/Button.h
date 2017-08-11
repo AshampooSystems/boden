@@ -51,13 +51,6 @@ public:
 	}
 
 
-protected:	
-	void layout() override
-	{
-		// nothing to do. The button does not have child views.
-	}
-
-
 	DefaultProperty<String>		            _label;
 
 	P< DefaultNotifier<const ClickEvent&> > _pOnClick;

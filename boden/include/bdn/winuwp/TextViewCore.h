@@ -52,9 +52,7 @@ public:
             uiPadding = pad;
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
-
-		_doSizingInfoUpdateOnNextLayout = true;		
-
+        
 		// UWP also uses DIPs => no conversion necessary
 
 		_pTextBlock->Padding = ::Windows::UI::Xaml::Thickness(
@@ -66,16 +64,26 @@ public:
         BDN_WINUWP_TO_STDEXC_END;
 	}
 
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        BDN_WINUWP_TO_STDEXC_BEGIN;
+
+        // the preferred width hint is the width at which the text view should
+        // auto-wrap its text.
+        // We implement this by setting a limit for the available space that we
+        // pass to the control.
+
+        setMeasureAvailableSpaceMaximum( Size( hint.width, Size::componentNone() ) );
+                
+        invalidateMeasure();
+        
+        BDN_WINUWP_TO_STDEXC_END;
+	}
+
 	void setText(const String& text)
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
-
-        // we cannot simply schedule a sizing info update here. The desired size of the control will still
-		// be outdated when the sizing happens.
-		// Instead we wait for the "layout updated" event that will happen soon after we set the
-		// content. That is when we update our sizing info.
-        _doSizingInfoUpdateOnNextLayout = true;		
-        
+                
 		_pTextBlock->Text = ref new ::Platform::String( text.asWidePtr() );
 
         BDN_WINUWP_TO_STDEXC_END;
@@ -92,22 +100,9 @@ protected:
 	}
 	
 
-	void _layoutUpdated() override
-	{
-		if(_doSizingInfoUpdateOnNextLayout)
-		{
-			_doSizingInfoUpdateOnNextLayout = false;
-
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if(pOuterView!=nullptr)
-			    pOuterView->needSizingInfoUpdate();
-		}
-	}
     
 	::Windows::UI::Xaml::Controls::TextBlock^ _pTextBlock;
-
-	double      _doSizingInfoUpdateOnNextLayout = true;
-	
+    	
 };
 
 }

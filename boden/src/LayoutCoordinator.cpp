@@ -34,15 +34,6 @@ void LayoutCoordinator::windowNeedsCentering(Window* pWindow)
 }
 
 
-void LayoutCoordinator::viewNeedsSizingInfoUpdate(View* pView)
-{
-	MutexLock lock( _mutex );
-
-	_sizingInfoSet.insert( pView );
-
-	needUpdate();
-}
-
 void LayoutCoordinator::viewNeedsLayout(View* pView)
 {
 	MutexLock lock( _mutex );
@@ -58,6 +49,18 @@ void LayoutCoordinator::needUpdate()
 {
 	if(!_updateScheduled)
 	{
+		if(isBeingDeletedBecauseReferenceCountReachedZero())
+		{
+			// the layout coordinator is in the process of being deleted. This can happen
+			// because the destructor of the layout coordinator may destroy Views
+			// that are waiting for an update. And if those views schedule an update in their
+			// destructor then needUpdate might be called.
+			// Since we are being destroyed there is no need to schedule anything
+			// - just do nothing.
+			bdn::doNothing();
+			return;
+		}
+
 		P<LayoutCoordinator> pThis = this;
 
 		_updateScheduled = true;
@@ -136,262 +139,189 @@ void LayoutCoordinator::mainThreadUpdateNow()
 		};
 
 
-		bool anySizingInfosUpdated = false;
+        // now we do window auto sizing
+		bool anyWindowsAutoSized = false;
+		{		
+			// note that the order in which we auto-size the windows
+			// does not matter, since all windows are top-level
 
-		// note that this loop is structured in a way so that new objects can be added during
-		// the sizing info update of each view.
-		{
-			std::list< ToDo > toDoList;
+			std::set< P<Window> > toDoSet;
 			while(true)
 			{
-				std::set< P<View> > newlyAddedSet;
-
 				{
 					MutexLock lock( _mutex );
-					newlyAddedSet = _sizingInfoSet;
-					_sizingInfoSet.clear();
-				}
-				
-				// add the new requests to the todo list.
-				// Keep the global UI mutex locked during this, because we do not
-				// want any changes made to the view hierarchy during this (since we compute
-				// our level value based on the hierarchy)
-				if(!newlyAddedSet.empty())
-				{
-					{
-						MutexLock lock( View::getHierarchyAndCoreMutex() );
+					toDoSet.insert( _windowAutoSizeSet.begin(), _windowAutoSizeSet.end() );
+					_windowAutoSizeSet.clear();
+				}				
 
-						toDoList.insert( toDoList.end(), newlyAddedSet.begin(), newlyAddedSet.end() );
-					}
-
-					// re-sort the list. We want inverted order: higher levels (=children) first.
-					// Note that we accept that if any changes are made to the UI hierarchy during this
-					// then we will have an unoptimal order. But that case should be very rare, 
-					// and the end result will still be correct. So we ignore it.
-					std::vector<ToDo> temp(toDoList.begin(), toDoList.end());
-
-					std::sort(	temp.begin(),
-								temp.end(),
-								[](const ToDo& a, const ToDo& b)
-								{
-									// invert the order. We want higher levels (=children) first.
-									// So we return the result of b<a instead of a<b.
-									return b<a;
-								} );
-
-					toDoList.clear();
-					toDoList.insert( toDoList.end(), temp.begin(), temp.end() );
-
-                    // remove duplicates from the toDoList. We can get those if the same view
-                    // is added in subsequent iterations after we moved the initial entry from
-                    // the set to the toDoList.
-                    P<View> pPrevView;
-                    for(auto it = toDoList.begin(); it!=toDoList.end(); )
-                    {
-                        if(it->pView == pPrevView)
-                            it = toDoList.erase(it);
-                        else
-                        {
-                            pPrevView = it->pView;
-                            ++it;
-                        }
-                    }
-				}		
-
-				if(toDoList.empty())
+				if(toDoSet.empty())
 				{
 					// done.
 					break;
 				}
+					
+				P<Window> pWindow = *toDoSet.begin();
+				toDoSet.erase(toDoSet.begin());
 
-				ToDo toDo = toDoList.front();
-				toDoList.pop_front();
+				anyWindowsAutoSized = true;
 
-				anySizingInfosUpdated = true;
-				
-                try
+                P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>( pWindow->getViewCore() );
+                if(pCore!=nullptr)
                 {
-				    toDo.pView->updateSizingInfo();		
+				    try
+				    {					
+                        pCore->autoSize();
+				    }
+				    catch(std::exception& e)
+				    {
+					    handleException(&e, "LayoutCoordinator::IWindowCoreExtension::autoSize");
+				    }
+				    catch(...)
+				    {
+					    handleException(nullptr, "LayoutCoordinator::IWindowCoreExtension::autoSize");                    
+				    }		
                 }
-                catch(std::exception& e)
-                {
-                    handleException(&e, "View::updateSizingInfo");
-                }
-                catch(...)
-                {
-                    handleException(nullptr, "View::updateSizingInfo");                    
-                }		
-			}
-		}
+			}	
+		}		
 
-		// the sizing info update may have changed one or more properties of the views.
-		// Their change notifications will now be in the event queue. Since those might trigger
-		// more sizing updates (for example, of parent views) we want to make sure that
-		// we execute all of those before we continue with the dependent actions.
-		// So if any sizing info was updated we end here and schedule another update.
-		// Since that has the same priority as the property notifications this ensures
-		// that they have all been handled and any subsequent update requests have been added.
-		if(anySizingInfosUpdated)			
+		// note that for window sizing we also need to do the same async interruption here that
+		// we do after sizing info updates. While window sizes cannot impact parents, they CAN cause
+		// layout operations of inner windows. And we do want all of those to be in
+		// our queues, so that we can remove duplicates.
+		// So again, we reschedule another update if we have done anything.
+		if(anyWindowsAutoSized)
 			needUpdate();
 		else
-		{
-			// no sizing infos updated. Continue with other tasks.
+		{	
+			bool anyLayoutDone = false;
 
-			// now we do window auto sizing
-			bool anyWindowsAutoSized = false;
-			{		
-				// note that the order in which we auto-size the windows
-				// does not matter, since all windows are top-level
+			// now do the layout operations.
+			// Note that layout operations that have been triggered by any
+			// of the sizing info updates, or window auto-sizing are included in this!
+			{
+				ToDo nextToDo;
 
-				std::set< P<Window> > toDoSet;
-				while(true)
-				{
-					{
-						MutexLock lock( _mutex );
-						toDoSet.insert( _windowAutoSizeSet.begin(), _windowAutoSizeSet.end() );
-						_windowAutoSizeSet.clear();
-					}				
+                // We have to hold the hierarchy and core mutex when we construct ToDo instances.
+                // The ToDo constructor checks the parent view and that can change at any time.
+                // So we must hold the mutex to prevent it from being changed in another thread.
 
-					if(toDoSet.empty())
-					{
-						// done.
-						break;
-					}
-					
-					P<Window> pWindow = *toDoSet.begin();
-					toDoSet.erase(toDoSet.begin());
+                // Since we should not lock our own mutex and the hierarchy and core mutex at the same
+                // time (to prevent deadlocks), that means that we must copy the layout set first,
+                // before we examine it.
+               
+                {
+                    std::set< P<View> > layoutSetCopy;
 
-					anyWindowsAutoSized = true;
+                    {
+                        MutexLock lock( _mutex );
+                        layoutSetCopy = _layoutSet;
+                    }
+                    
+                    {
+                        MutexLock lock( View::getHierarchyAndCoreMutex() );
+
+                        // note that we only remove one view at a time from the pending set.
+                        // The reason is that we need to handle pending events after each
+                        // layout.
+                        // So we select the one we want (parent first order) and leave the
+                        // others in the set for now.
+
+                        for(auto& pView: layoutSetCopy)
+                        {
+                            // construct ToDo object so that we know the level.
+                            ToDo toDo(pView);
+
+                            if(nextToDo.pView==nullptr || toDo<nextToDo)
+                                nextToDo = toDo;
+                        }
+                    }
+                }
+
+                if(nextToDo.pView!=nullptr)
+                {
+                    MutexLock lock( _mutex );
+                
+                    // remove the view we selected from the set
+                    _layoutSet.erase( nextToDo.pView );
+                }
+				
+
+				if(nextToDo.pView!=nullptr)
+				{	
+					anyLayoutDone = true;
 
 					try
 					{
-						pWindow->autoSize();
+						P<IViewCoreExtension> pCore = tryCast<IViewCoreExtension>( nextToDo.pView->getViewCore() );
+						if(pCore!=nullptr)
+							pCore->layout();
 					}
 					catch(std::exception& e)
 					{
-						handleException(&e, "Window::autoSize");
+						handleException(&e, "LayoutCoordinator::IViewCoreExtension::layout");                    
 					}
 					catch(...)
 					{
-						handleException(nullptr, "Window::autoSize::layout");                    
-					}		
-				}	
-			}		
+						handleException(nullptr, "LayoutCoordinator::IViewCoreExtension::layout");                    
+					}									
+				}
+			}
 
-			// note that for window sizing we also need to do the same async interruption here that
-			// we do after sizing info updates. While window sizes cannot impact parents, they CAN cause
-			// layout operations of inner windows. And we do want all of those to be in
-			// our queues, so that we can remove duplicates.
-			// So again, we reschedule another update if we have done anything.
-			if(anyWindowsAutoSized)
+			// if a parent view has been layouted then we want events to be handled at this point,
+			// before we continue with our todo list (which is in parent-first order).
+			// The reason is that child sizes may have changed and the property change notifications for
+			// those changes are queued up in the dispatcher queue now (if child sizes changed). And those
+			// queued up change notifications will likely trigger a layout request for the child
+			// view they belong to. And since the child view might already be in our todo list it is important
+			// that we wait for the queued up events to be handled before we proceed with the layout.
+			// Only if we wait can we detect the duplicate layout and prevent the child from being
+			// layouted twice.
+			// So if we did layout anything then we schedule another update. Otherwise we continue.
+			if(anyLayoutDone)
 				needUpdate();
 			else
-			{	
-				bool anyLayoutDone = false;
+			{
+				// now we do window centering
+				{		
+					// note that the order in which we auto-size the windows
+					// does not matter, since all windows are top-level
 
-				// now do the layout operations.
-				// Note that layout operations that have been triggered by any
-				// of the sizing info updates, or window auto-sizing are included in this!
-				{
-					ToDo nextToDo;
-
+					std::set< P<Window> > toDoSet;
+					while(true)
 					{
-						MutexLock lock( _mutex );
-
-						// note that we only remove one view at a time from the pending set.
-						// The reason is that we need to handle pending events after each
-						// layout.
-						// So we select the one we want (parent first order) and leave the
-						// others in the set for now.
-
-						for(auto& pView: _layoutSet)
 						{
-							// construct ToDo object so that we know the level.
-							ToDo toDo(pView);
+							MutexLock lock( _mutex );
+							toDoSet.insert( _windowCenterSet.begin(), _windowCenterSet.end() );
+							_windowCenterSet.clear();
+						}				
 
-							if(nextToDo.pView==nullptr || toDo<nextToDo)
-								nextToDo = toDo;
+						if(toDoSet.empty())
+						{
+							// done.
+							break;
 						}
-
-						if(nextToDo.pView!=nullptr)
-						{
-							// remove the view we selected from the set
-							_layoutSet.erase( nextToDo.pView );
-						}
-					}
-				
-
-					if(nextToDo.pView!=nullptr)
-					{	
-						anyLayoutDone = true;
-
-						try
-						{
-							nextToDo.pView->layout();
-						}
-						catch(std::exception& e)
-						{
-							handleException(&e, "View::layout");                    
-						}
-						catch(...)
-						{
-							handleException(nullptr, "View::layout");                    
-						}									
-					}
-				}
-
-				// if a parent view has been layouted then we want events to be handled at this point,
-				// before we continue with our todo list (which is in parent-first order).
-				// The reason is that child sizes may have changed and the property change notifications for
-				// those changes are queued up in the dispatcher queue now (if child sizes changed). And those
-				// queued up change notifications will likely trigger a layout request for the child
-				// view they belong to. And since the child view might already be in our todo list it is important
-				// that we wait for the queued up events to be handled before we proceed with the layout.
-				// Only if we wait can we detect the duplicate layout and prevent the child from being
-				// layouted twice.
-				// So if we did layout anything then we schedule another update. Otherwise we continue.
-				if(anyLayoutDone)
-					needUpdate();
-				else
-				{
-					// now we do window centering
-					{		
-						// note that the order in which we auto-size the windows
-						// does not matter, since all windows are top-level
-
-						std::set< P<Window> > toDoSet;
-						while(true)
-						{
-							{
-								MutexLock lock( _mutex );
-								toDoSet.insert( _windowCenterSet.begin(), _windowCenterSet.end() );
-								_windowCenterSet.clear();
-							}				
-
-							if(toDoSet.empty())
-							{
-								// done.
-								break;
-							}
 					
-							P<Window> pWindow = *toDoSet.begin();
-							toDoSet.erase(toDoSet.begin());
+						P<Window> pWindow = *toDoSet.begin();
+						toDoSet.erase(toDoSet.begin());
 
-							try
-							{
-								pWindow->center();
-							}
-							catch(std::exception& e)
-							{
-								handleException(&e, "Window::center");
-							}
-							catch(...)
-							{
-								handleException(nullptr, "Window::center");                    
-							}		
-						}	
-					}		
-				}
+                        P<IWindowCoreExtension> pCore = tryCast<IWindowCoreExtension>( pWindow->getViewCore() );
+                        if(pCore!=nullptr)
+                        {
+						    try
+						    {
+							    pCore->center();
+						    }
+						    catch(std::exception& e)
+						    {
+							    handleException(&e, "LayoutCoordinator::IWindowCoreExtension::center");
+						    }
+						    catch(...)
+						    {
+							    handleException(nullptr, "LayoutCoordinator::IWindowCoreExtension::center");                    
+						    }		
+                        }
+					}	
+				}		
 			}
 		}
 	}

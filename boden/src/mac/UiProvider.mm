@@ -10,6 +10,7 @@
 #import <bdn/mac/ButtonCore.hh>
 #import <bdn/mac/TextViewCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
+#import <bdn/mac/ScrollViewCore.hh>
 
 namespace bdn
 {
@@ -34,6 +35,8 @@ UiProvider::UiProvider()
 {
     // mac uses DIPs natively. So no conversion necessary
     _semDips = NSFont.systemFontSize;
+    
+    _pLayoutCoordinator = newObj<LayoutCoordinator>();
 }
 
 String UiProvider::getName() const
@@ -51,6 +54,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+    
+    else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
+        return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );

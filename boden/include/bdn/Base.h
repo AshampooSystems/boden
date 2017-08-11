@@ -69,6 +69,17 @@ public:
 	}
 
 
+	/** Returns true if the object is currently being deleted because the reference count had reached zero.
+	 *
+	 *  This function does NOT return true if the object is being destructed in other ways. For example,
+	 *  the function will will return false if the object was allocated on the stack as a local variable
+	 *  (instead of with newObj) and the corresponding function exits.*/
+	bool isBeingDeletedBecauseReferenceCountReachedZero() const
+	{
+		return _refCount<0;
+	}
+
+
 	/** A helper enumeration. This is only used if the raw new operator
 		needs to be called.*/
 	enum class RawNew
@@ -147,7 +158,7 @@ protected:
 		reached 0). This can be overloaded to do custom cleanup or prevent normal
         deletion with the delete operator.
 
-        Note that when deleteThis is called at a point in time when all exísting weak pointers
+        Note that when deleteThis is called at a point in time when all exï¿½sting weak pointers
         (see WeakP) to the object have already been invalidated / set to null. So the object is
         actually already considered "dead" at this point.
 

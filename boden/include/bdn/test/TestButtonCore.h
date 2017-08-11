@@ -11,7 +11,7 @@ namespace test
 
 
 /** Helper for tests that verify IButtonCore implementations.*/
-class TestButtonCore : public TestViewCore
+class TestButtonCore : public TestViewCore<Button>
 {
 
 protected:
@@ -45,6 +45,8 @@ protected:
 
     void runPostInitTests() override
     {
+        P<TestButtonCore> pThis(this);
+    
         TestViewCore::runPostInitTests();
 
         SECTION("label")
@@ -52,7 +54,11 @@ protected:
             SECTION("value")
             {
                 _pButton->label() = "helloworld";
-                verifyCoreLabel();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreLabel();
+                };
             }
 
             SECTION("effectsOnPreferredSize")
@@ -65,20 +71,26 @@ protected:
                 Size prefSizeBefore = _pButton->calcPreferredSize();
 
                 _pButton->label() = labelBefore+labelBefore+labelBefore;
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
+                {
+                    Size prefSize = pThis->_pButton->calcPreferredSize();
 
-                Size prefSize = _pButton->calcPreferredSize();
+                    // width must increase with a bigger label
+                    REQUIRE(prefSize.width > prefSizeBefore.width);
 
-                // width must increase with a bigger label
-                REQUIRE(prefSize.width > prefSizeBefore.width);
+                    // note that the height might or might not increase. But it cannot be smaller.
+                    REQUIRE(prefSize.height >= prefSizeBefore.height);
 
-                // note that the height might or might not increase. But it cannot be smaller.
-                REQUIRE(prefSize.height >= prefSizeBefore.height);
-
-                // when we go back to the same label as before then the preferred size should
-                // also be the same again
-                _pButton->label() = labelBefore;
-
-                REQUIRE(_pButton->calcPreferredSize() == prefSizeBefore);
+                    // when we go back to the same label as before then the preferred size should
+                    // also be the same again
+                    pThis->_pButton->label() = labelBefore;
+                    
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
+                    {
+                        REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
+                    };
+                };
             }
         }
     }

@@ -165,7 +165,7 @@ protected:
 		and its return value is the result of the message.
 
 		If you want to override the default result, or if you want to prevent the default handler
-		from being called altogether, then you can call MessageContext::overrideResult on the provided
+		from being called altogether, then you can call MessageContext::overrideResult() on the provided
 		context object.
 	*/
 	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);

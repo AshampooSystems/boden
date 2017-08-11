@@ -16,6 +16,7 @@ namespace bdn
 #include <bdn/DefaultProperty.h>
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
+#include <bdn/PreferredViewSizeManager.h>
 
 
 namespace bdn
@@ -319,6 +320,14 @@ public:
 	}
 
 
+    /** Removes all child views.*/
+    virtual void removeAllChildViews()
+    {
+        // no child views by default
+    }
+
+
+
 	/** Finds the child view that "precedes" the specified one.
 		Returns nullptr if any of the following conditions are true:
 		
@@ -362,14 +371,53 @@ public:
         // do nothing by default
 	}
 
+    
 
-	/** Requests that the view updates its sizing information (preferred size, etc.).
-		The measuring does not happen immediately in this function - it is performed asynchronously.
-		
-		Note that it is usually NOT necessary to call this as a user of a view object. The view object
-		will automatically schedule re-measuring when its parameters and properties change.
+    enum class InvalidateReason
+    {
+        /** The data was invalidated because a standard property of the view
+            (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardPropertyChanged,
+
+        /** The data was invalidated because a standard child property
+            (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardChildPropertyChanged,
+
+        /** A child view was added or removed.*/
+        childAddedOrRemoved,
+
+
+        /** The sizing information of a child view has been invalidated. The child size
+            must be recalculated.*/
+        childSizingInfoInvalidated,
+
+
+        /** The data was invalidated because some custom data associated with the
+            view has changed that influences sizing or layout.
+            
+            This is usually used when the application overloaded layout or sizing functionality
+            of the view. When some internal custom data changes that influences the layout
+            then the application should use this update reason.
+            */
+        customDataChanged,
+    };
+
+
+	/** Invalidates the cached sizing information of the view (see calcPreferredSize()).
+
+        It is usually not necessary to call this manually. The view will automatically invalidate
+        the sizing info when relevant internal data or properties change.
+
+        Invalidating the sizing info also invalidates the layout and sizing info of any direct
+        or indirect parent view(s).
+
+        It is safe to call this from any thread.
+        
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::InvalidateReason::customDataChanged
 		*/
-	void needSizingInfoUpdate();
+	virtual void invalidateSizingInfo(InvalidateReason reason);
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -378,101 +426,98 @@ public:
 		
 		Note that it is usually NOT necessary to call this as a user of a view object. The view object
 		will automatically schedule re-layout operations when its layout parameters or child views change.
+
+        It is safe to call this from any thread.
+
+        \param reason the reason for the update. If the function is called by the application
+            (rather than the framework itself) then this should usually be set to
+            View::InvalidateReason::customDataChanged
 		*/
-	void needLayout();
+	virtual void needLayout(InvalidateReason reason);
 
 
-
-    /** Sets a minimum size of the view (in DIP units).
-
-        IMPORTANT: this property only influences the size that the view requests during layout
-        (see calcPreferredSize()).
-        Its parent view may decide to make it bigger than this because of other layout considerations.
-
-        If the width and/or height are UiLength::Unit::none then it means that there is no minimum.
-        
-        The minimum size affects the preferred size calculation (see #sizingInfo() and calcPreferredSize()).
-        If the internally calculated preferred size would be below the minimum size then it is increased
-        accordingly.
-    */
-    virtual Property<UiSize>& minSize()
-    {
-        return _minSize;
-    }
-
-    virtual const ReadProperty<UiSize>& minSize() const
-    {
-        return _minSize;
-    }
-
-
-    /** Sets a maximum size of the view (in DIP units).
-
-        IMPORTANT: this property only influences the size that the view requests during layout
-        (see calcPreferredSize()).
-        Its parent view may decide to make it smaller than this because of other layout considerations.
-
-        If the width and/or height are -1 then it means that there is no limit.
-        
-        The maximum size affects the preferred size calculation (see #sizingInfo() and calcPreferredSize()).
-        If the internally calculated preferred size would be bigger than the maximum size then it is decreased
-        accordingly.
-    */
-    virtual Property<UiSize>& maxSize()
-    {
-        return _maxSize;
-    }
-
-    virtual const ReadProperty<UiSize>& maxSize() const
-    {
-        return _maxSize;
-    }
-
-
+    /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to
+        influence the automatic sizing of the view.
     
-    /** Helper function that applies the size constraints that are configured in the view
-        (minSize(), maxSize, etc) so the specified size and returns the resulting
-        constrained size.
+        This does *not* set a hard limit like preferredSizeMinimum() or preferredSizeMaximum(). The view is
+        free to ignore this hint, if it does not make sense in the context of the view.
+
+        But for some views the hint is used to influence the calculation of the preferred size. For example,
+        text views should use the hint width as a guideline as to where to automatically wrap their text.
         
-        This function does not modify the view's own size. It only works on the specified size object.
+        Width and/or height of the hint can be set to Size::componentNone() to indicate that there is no hint for that
+        component (i.e. the view should choose the preferred size completely on its own).
 
-        This function must only be called from the main thread.
-        */
-    virtual Size applySizeConstraints(const Size& size) const;
+        The default value is Size::none(), i.e. there is no size hint.
 
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
+        (see calcPreferredSize()).
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
+    */
+    virtual Property<Size>& preferredSizeHint()
+    {
+        return _preferredSizeHint;
+    }
 
-
-	struct SizingInfo
-	{
-        /** The preferred size of the view (in DIP units), assuming that unlimited space is available.
-        
-            Note that this size is not yet adjusted to meet the constraints of the physical display
-            that the view is rendered to. For example, it is NOT rounded to full pixel boundaries.
-            As a result, the size might be adjusted when it is assigned to the view with
-            adjustAndSetSize(). You can also call adjustSize() ahead of time to adjust it manually,
-            if you need to.
-            */
-		Size preferredSize;
-
-		bool operator==(const SizingInfo& o) const
-		{
-			return preferredSize == o.preferredSize;
-		}
-
-		bool operator!=(const SizingInfo& o) const
-		{
-			return !operator==(o);
-		}
-	};
+    virtual const ReadProperty<Size>& preferredSizeHint() const
+    {
+        return _preferredSizeHint;
+    }
 
 
-	/** Returns the sizing information of the view (to use during layout).
-	*/
-	const ReadProperty<SizingInfo>& sizingInfo() const
-	{
-		return _sizingInfo;
-	}
+    /** An optional lower limit for the preferred size of the view (in DIP units). This can be used by the application
+        to influence the layout of the view and enforce special sizing.
 
+        Width and/or height of the constraint can be set to Size::componentNone() to indicate that the corresponding
+        component should not have a lower limit.
+
+        The default value is Size::none(), i.e. there is no minimum for either width or height.
+
+        The view will automatically apply this constraint when calculating its preferred size. It is a hard limit,
+        so the view will never report a preferred size below this minimum.        
+
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
+        (see calcPreferredSize()).
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
+    */
+    virtual Property<Size>& preferredSizeMinimum()
+    {
+        return _preferredSizeMinimum;
+    }
+
+    virtual const ReadProperty<Size>& preferredSizeMinimum() const
+    {
+        return _preferredSizeMinimum;
+    }
+
+
+
+    /** An optional upper limit for the preferred size of the view (in DIP units). This can be used by the application
+        to influence the layout of the view and enforce special sizing.
+
+        Width and/or height of the constraint can be set to Size::componentNone() to indicate that the corresponding
+        component should not have an upper limit.
+
+        The default value is Size::none(), i.e. there is no maximum for either width or height.
+
+        The view will automatically apply this constraint when calculating its preferred size. It is a hard limit,
+        so the view will never report a preferred size that exceeds this maximum. 
+
+        IMPORTANT: this property only influences the preferred size that the view requests during layout
+        (see calcPreferredSize()).
+        Its parent view may decide to make it bigger than this because of other layout considerations.        
+    */
+    virtual Property<Size>& preferredSizeMaximum()
+    {
+        return _preferredSizeMaximum;
+    }
+
+    virtual const ReadProperty<Size>& preferredSizeMaximum() const
+    {
+        return _preferredSizeMaximum;
+    }
+
+		
 
 
     /** Converts a UiLength object to DIPs.
@@ -503,14 +548,23 @@ public:
 
 
 
-    /** Asks the view core to calculate its preferred size in DIPs (see UiLength::Unit::dip),
-        based on it current content	and properties.
+    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+        based on it current contents and properties.
+
+		Note that the View object will cache the result of the call. Calling this multiple
+		times with the same availableSpace parameter is a fast operation.
+
+        There are several constraints for the preferred size:
+
+        availableSpace
+        --------------
         
-		availableWidth and availableHeight are used to indicate the maximum amount of available
-		space for the view (also in DIPs). If they are both -1 then that means that the available space should be considered to be unlimited.
+		The availableSpace function parameter is used to indicate the maximum amount of available
+		space for the view (also in DIPs). If availableSpace is Size::none() (i.e. width and height equal Size::componentNone())
+        then that means that the available space should be considered to be unlimited.
 		I.e. the function should return the view's optimal size.
 
-		When one of the availableXYZ parameters is not -1 then it means that the available space is limited
+		When one of the availableSpace components (width or height) is not Size::componentNone() then it means that the available space is limited
 		in that dimension. The function should return the preferred size of the view within those constraints,
 		trying to not exceed the limited size component.
 		
@@ -521,23 +575,42 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
-        that is not adjusted for the constraints of the current display yet. I.e. it may not be roundedmi
-        to full physical pixels yet.
-        Use adjustBounds() to adjust the returned size to something that can actually be represented on the display.
+        preferredSizeHint()
+        -------------------
 
-        calcPreferredSize will take the View::minSize and View::maxSize properties into account
-        and clip or extend the result accordingly. In rare cases, if the minSize and/or maxSize absolutely
-        do not make sense for the view implementation then the function may also return a preferred size that exceeds
-        these bounds. Implementors of calcPreferredSize can use the helper function
-        View::applySizeConstraints() to apply minSize and maxSize.
+        preferredSizeHint() is an optional advisory hint to the view as to what the preferred width and/or height should
+        roughly be. The calcPreferredSize implementation may ignore this if it does not make sense for the view type.
+        In fact the value is unused by most views. One example where the parameter can be useful are text views which can dynamically
+        wrap text into multiple lines. These kinds of views can use the hint width to determine the place where the text should
+        wrap by default
+
+        preferredSizeMinimum() and preferredSizeMaximum()
+        -------------------------------------------------
+
+        preferredSizeMinimum() and preferredSizeMaximum() are hard limits for the preferred size. 
+        The calcPreferredSize implementation should never return a size that violates these limits, if they are set.
+        Even if that means that the view's content does not fit into the view.
+        
+        If there is a conflict between the minimum and maximum and/or hint values then the values should
+        be prioritized in this ascending order: hint, minimum, maximum.
+        So the maximum value has the highest priority and the returned value should never exceed
+        it. For example, if a minimum is set that exceeds the maximum
+        then the maximum should "win" and the preferred size should not exceed the maximum.
+         
+
+        Important Notes
+        ---------------
+
+        IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
+        that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
+        to full physical pixels yet. The size will be adapted to the display properties in adjustAndSetBounds().        
 
         IMPORTANT: This function must only called be called from the main thread.
 		*/		
-	virtual Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const;
+    virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
 
     
-
+    
 	/** Returns the global mutex object that is used to synchronize changes in the
 		UI hierarchy (parent-child relationships) and replacement of view core objects.
 
@@ -580,6 +653,7 @@ public:
 
 
 protected:
+    
 
 	/** Verifies that the current thread is the main thread.
 		Throws a ProgrammingError if that is not the case.
@@ -588,43 +662,11 @@ protected:
 	void verifyInMainThread(const String& methodName) const;
 
 
-	/** Tells the view to update its sizing info.
-	
-		IMPORTANT: This must only be called from the main thread.
-	*/
-	virtual void updateSizingInfo();
+    /** This is called when the sizing information of a child view has changed.
+        Usually this will prompt this view (the parent view) to also schedule an update to
+        its own sizing information and an update to its layout.*/
+    virtual void childSizingInfoInvalidated(View* pChild);
 
-
-
-	/**	Tells the view to update the layout of its child views. The
-		view should NOT update its OWN size or position during this - 
-		it has to work with the size and position it currently has and
-		should ONLY update the size and position of its child views.
-
-        IMPORTANT: This function must only be called from the main thread.
-
-        Note to implementors
-        --------------------
-
-        Depending on the UI implementation backend, 
-        the sizes and positions of child views may have some constraints. For example,
-        with many implementations the sizes and positions must be rounded to full physical
-        pixel boundaries. The layout() function should be aware of this and use
-        adjustBounds() to calculate a bounds rect that meets these constraints.
-        
-        When calling adjustBounds in this context, it is recommended to use RoundType::up for rounding child view positions.
-        That ensures that small margins that are less than 1 pixel in size are rounded up to 1 pixel, rather than
-        disappearing completely.
-        
-        Child view sizes should usually be rounded with RoundType::up when enough space is available
-        and RoundType::down when not enough space is available.
-
-        The rounding policies noted above are merely guidelines: layout implementations are free to
-        ignore them if there are other considerations that cause other rounding types to be better for
-        for the particular case.
-
-		*/
-	virtual void layout()=0;
 
 
 	// allow the coordinator to call the sizing info and layout functions.
@@ -670,27 +712,27 @@ protected:
         {
             // update the sizing information. If that changes then the parent
             // layout will automatically be updated.
-            needSizingInfoUpdate();
+            invalidateSizingInfo( InvalidateReason::standardPropertyChanged );
         }    
         
         if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
         {
             // the layout of our children is influenced by this
-            needLayout();
+            needLayout( InvalidateReason::standardPropertyChanged );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needSizingInfoUpdate();
+                pParent->invalidateSizingInfo( InvalidateReason::standardChildPropertyChanged );
         }
 
         if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
         {
             P<View> pParent = getParentView();
             if(pParent!=nullptr)
-                pParent->needLayout();
+                pParent->needLayout( InvalidateReason::standardChildPropertyChanged );
         }
     }
 
@@ -783,17 +825,20 @@ protected:
 	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
 	DefaultProperty<VerticalAlignment>		_verticalAlignment;
 
-	P<IUiProvider>			_pUiProvider;
-		
+	P<IUiProvider>			                _pUiProvider;
+
+	void deleteThis() override;
+
 
 private:
-	View*					_pParentViewWeak = nullptr;
-	P<IViewCore>			_pCore;
-    
-	DefaultProperty<SizingInfo>		_sizingInfo;
+	View*					        _pParentViewWeak = nullptr;
+	P<IViewCore>			        _pCore;
 
-    DefaultProperty<UiSize>         _minSize;
-    DefaultProperty<UiSize>         _maxSize;
+    DefaultProperty<Size>           _preferredSizeHint;
+    DefaultProperty<Size>           _preferredSizeMinimum;
+    DefaultProperty<Size>           _preferredSizeMaximum;
+
+	mutable PreferredViewSizeManager	_preferredSizeManager;
 };
 
 }

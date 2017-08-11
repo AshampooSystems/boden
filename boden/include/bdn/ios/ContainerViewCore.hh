@@ -25,13 +25,41 @@ public:
 	}
 
 		
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const
-	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
-	}
+    
+    Size calcPreferredSize( const Size& availableSpace ) const override
+    {
+        // call the outer container's preferred size calculation
+        
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+            return pOuterView->calcContainerPreferredSize( availableSpace );
+        else
+            return Size(0,0);
+    }
+    
+    void layout() override
+    {
+        // call the outer container's layout function
+        
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+        {
+            P<ViewLayout> pLayout = pOuterView->calcContainerLayout( pOuterView->size() );
+            pLayout->applyTo(pOuterView);
+        }
+    }
+    
 
+protected:
+    bool canAdjustToAvailableWidth() const override
+    {
+        return true;
+    }
+    
+    bool canAdjustToAvailableHeight() const override
+    {
+        return true;
+    }
 
 };
 

@@ -3,6 +3,7 @@
 
 #include <bdn/ContainerView.h>
 #include <bdn/android/ViewCore.h>
+#include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JNativeViewGroup.h>
 
 
@@ -11,7 +12,7 @@ namespace bdn
 namespace android
 {
 
-class ContainerViewCore : public ViewCore
+class ContainerViewCore : public ViewCore, BDN_IMPLEMENTS IParentViewCore
 {
 private:
 	static P<JNativeViewGroup> _createJNativeViewGroup(ContainerView* pOuter)
@@ -37,15 +38,31 @@ public:
 	{
 	}
 
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& availableSpace ) const override
 	{
-		// this core function should never have been called.
-		// The outer window is responsible for everything layout-related.
-		throw ProgrammingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
+		// call the outer container's preferred size calculation
+
+		P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+		if(pOuterView!=nullptr)
+			return pOuterView->calcContainerPreferredSize( availableSpace );
+		else
+			return Size(0,0);
+	}
+
+	void layout() override
+	{
+		// call the outer container's layout function
+
+		P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+		if(pOuterView!=nullptr)
+		{
+			P<ViewLayout> pLayout = pOuterView->calcContainerLayout( pOuterView->size() );
+			pLayout->applyTo(pOuterView);
+		}
 	}
 
 
-    Rect adjustAndSetBounds(const Rect& requestedBounds) override
+	Rect adjustAndSetBounds(const Rect& requestedBounds) override
 	{
 		Rect adjustedBounds = ViewCore::adjustAndSetBounds(requestedBounds);
 
@@ -58,6 +75,19 @@ public:
 				std::lround(adjustedBounds.height * scaleFactor) );
 
 		return adjustedBounds;
+	}
+
+
+	double getUiScaleFactor() const override
+	{
+		return ViewCore::getUiScaleFactor();
+	}
+
+	void addChildJView( JView childJView ) override
+	{
+		JNativeViewGroup parentGroup( getJView().getRef_() );
+
+		parentGroup.addView( childJView );
 	}
 
 };

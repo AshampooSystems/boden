@@ -21,11 +21,11 @@ protected:
     {
         TestWinuwpViewCoreMixin< TestContainerViewCore >::initCore();
 
-        _pWinCanvas = dynamic_cast<::Windows::UI::Xaml::Controls::Canvas^>( _pWinFrameworkElement );
-        REQUIRE( _pWinCanvas!=nullptr );
+        _pWinPanel = dynamic_cast<::Windows::UI::Xaml::Controls::Panel^>( _pWinFrameworkElement );
+        REQUIRE( _pWinPanel!=nullptr );
     }    
 
-    ::Windows::UI::Xaml::Controls::Canvas^ _pWinCanvas;
+    ::Windows::UI::Xaml::Controls::Panel^ _pWinPanel;
 };
 
 

@@ -3,6 +3,7 @@
 
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
+#include <bdn/windowCoreUtil.h>
 
 #include <bdn/webems/ViewCore.h>
 
@@ -12,7 +13,9 @@ namespace bdn
 namespace webems
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore,
+    BDN_IMPLEMENTS IWindowCore,
+    BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
     WindowCore( Window* pOuterWindow )
@@ -74,41 +77,66 @@ public:
     }
 
 
-    Rect getContentArea() override
+
+    Size calcPreferredSize( const Size& availableSpace ) const override
     {
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-            return Rect( Point(0,0), pView->size().get() );
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size(0,0) );
         else
-            return Rect();
+            return Size(0,0);
     }
 
-
-    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
+    void layout() override
     {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return contentSize;
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {    
+            defaultWindowLayoutImpl( pWindow, Rect( Point(), pWindow->size()) );
+        }
     }
 
 
-    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
+    void requestAutoSize() override
     {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return windowSize;
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pWindow );
+        }
     }
 
-
-    Size getMinimumSize() const override
+    void requestCenter() override
     {
-        // don't have a minimum size since the title bar is not connected to our window div.
-        // (the title is displayed in the browser tab bar).
-        return Size(0, 0);
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsCentering( pWindow );
+        }
     }
+
+
+    void autoSize() override
+    {
+        // we cannot change our size. So, do nothing
+    }
+
+    void center() override
+    {
+        // we cannot change our position. So, do nothing.
+    }
+
+
+
     
+private:
 
-    Rect getScreenWorkArea() const override
+
+    Rect getScreenWorkArea() const
     {
         emscripten::val windowVal = emscripten::val::global("window");
 
@@ -117,8 +145,7 @@ public:
 
         return Rect(0, 0, width, height);
     }
-    
-private:
+
     Rect _getBounds() const
     {
         int width = _domObject["offsetWidth"].as<int>();

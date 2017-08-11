@@ -694,14 +694,14 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
 
         srcDir = os.path.join(self._projectDir, "..", "..", moduleName, "src" );
         for name in os.listdir( srcDir):
-            if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread"):
+            if os.path.isdir( os.path.join(srcDir, name) ) and name not in ("android", "java", "pthread", "test"):
                 excludeEntries.add("**/%s/**" % name);
 
 
         includeBdnDir = os.path.join(self._projectDir, "..", "..", moduleName, "include", "bdn" );
         if os.path.isdir(includeBdnDir):
             for name in os.listdir( includeBdnDir):
-                if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread"):
+                if os.path.isdir( os.path.join(includeBdnDir, name) ) and name not in ("android", "java", "pthread", "test"):
                     excludeEntries.add("**/%s/**" % name);
 
         

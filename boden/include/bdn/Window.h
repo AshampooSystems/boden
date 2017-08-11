@@ -39,29 +39,13 @@ public:
 			See the IUiProvider documentation for more information.
 			If this is nullptr then the default UI provider for the platform is used.*/
 	Window(IUiProvider* pUiProvider = nullptr);
-
-    ~Window();
-
+    
 
 	/** Sets the specified view as the content view of the window.
 		Note that windows can only have a single child content view. If one is already
 		set then it will be replaced.
 		See #Window class documentation for more information.*/
-	void setContentView(View* pContentView)
-	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
-		if(pContentView!=_pContentView)
-		{
-			if(_pContentView!=nullptr)
-				_pContentView->_setParentView(nullptr);
-
-			_pContentView = pContentView;
-
-            if(_pContentView!=nullptr)
-			    _pContentView->_setParentView(this);
-		}
-	}
+	void setContentView(View* pContentView);
 
 
 	/** Returns the window's content view (see #getContentView()).
@@ -147,6 +131,11 @@ public:
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
 	}
+
+    void removeAllChildViews() override
+    {
+        setContentView(nullptr);
+    }
 		
 	P<View> findPreviousChildView(View* pChildView) override
 	{
@@ -164,32 +153,17 @@ public:
 	}
 
 
-	Size	calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
-
-	
 
 protected:
-	void layout() override;	
-
-	virtual void autoSize();
-	virtual void center();
-	
-	// allow the coordinator to call our protected functions like autoSize.
-	friend class LayoutCoordinator;
-
-
 	P<IUiProvider> determineUiProvider() override
 	{
 		// our Ui provider never changes. Just return the current one.
 		return _pUiProvider;
-	}
+	}	
 
-	DefaultProperty<String> _title;
-
-private:
-    Margin getDipPadding() const;
-    
+private:    
 	P<View>					_pContentView;
+    DefaultProperty<String> _title;
 };
 
 }

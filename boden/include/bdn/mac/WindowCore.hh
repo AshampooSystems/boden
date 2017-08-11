@@ -6,6 +6,7 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/windowCoreUtil.h>
 
 #import <bdn/mac/UiProvider.hh>
 
@@ -20,7 +21,7 @@ namespace mac
 {
 
 
-class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore
+class WindowCore : public Base, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS IParentViewCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
     WindowCore(View* pOuter);
@@ -50,63 +51,9 @@ public:
     }
     
     
-    Rect getContentArea() override
-    {
-        // the content parent is inside the inverted coordinate space of the window
-        // origin is bottom left. So we need to pass the content height, so that
-        // the coordinates can be flipped.
-        return macRectToRect( _nsContentParent.frame, _nsContentParent.frame.size.height );
-    }
-    
-    
-    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
-    {
-        // we can ignore the coordinate space being inverted here. We do not
-        // care about the position, just the size.
-        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), contentSize), -1 );
-    
-        NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
-        
-        return macRectToRect(macWindowRect, -1).getSize();
-    }
-    
-    
-    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-    {
-        // we can ignore the coordinate space being inverted here. We do not
-        // care about the position, just the size.
-        NSRect macWindowRect = rectToMacRect( Rect(Point(0,0), windowSize), -1 );
-        
-        NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
-        
-        Size resultSize = macRectToRect(macContentRect, -1).getSize();
-        
-        resultSize.width = std::max(resultSize.width, 0.0);
-        resultSize.height = std::max(resultSize.height, 0.0);
-        
-        return resultSize;
-    }
-    
-
-    Size getMinimumSize() const override
-    {
-        return macSizeToSize( _nsWindow.minSize );
-    }
     
     
     
-    
-    Rect getScreenWorkArea() const override
-    {
-        NSScreen* screen = _getNsScreen();
-    
-        NSRect workArea = screen.visibleFrame;
-        NSRect fullArea = screen.frame;
-        
-        return macRectToRect(workArea, fullArea.size.height);
-    }
-
-
 
     
     void	setVisible(const bool& visible) override
@@ -124,75 +71,75 @@ public:
     }
     
     
-    
-    Rect adjustAndSetBounds(const Rect& requestedBounds) override
+    void setMargin(const UiMargin& margin) override
     {
-        // first adjust the bounds so that they are on pixel boundaries
-        Rect adjustedBounds = adjustBounds(requestedBounds, RoundType::nearest, RoundType::nearest);
-        
-        if(adjustedBounds!=_currActualWindowBounds)
+        // Ignore - window margins have no effect.
+    }
+
+    
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterWindowIfStillAttached();
+        if(pOuterView!=nullptr)
         {
-            // the screen's coordinate system is inverted (from our point of view). So we need to
-            // flip the coordinates.
-            NSScreen* screen = _getNsScreen();
-            
-            // the screen's coordinate system is inverted. So we need to
-            // flip the coordinates.
-            NSRect macRect = rectToMacRect(adjustedBounds, screen.frame.size.height);
-            
-            [_nsWindow setFrame:macRect display: FALSE];
-            _currActualWindowBounds = adjustedBounds;
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
         }
-        
-        return adjustedBounds;
     }
     
-    
-    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override
+    void childSizingInfoInvalidated(View* pChild) override
     {
-        NSScreen* screen = _getNsScreen();
-        
-        // the screen's coordinate system is inverted (from our point of view). So we need to
-        // flip the coordinates.
-        double screenHeight = screen.frame.size.height;
-        NSRect macRect = rectToMacRect( requestedBounds, screenHeight);
-        
-        NSAlignmentOptions alignOptions = 0;
-        
-        // our "position" indicates the top/left position of the window. However, in the
-        // flipped screen coordinate system the (0,0) is actually the bottom left cordner
-        // of the window.
-        // The top/left of the window is minX/maxY.
-        if(positionRoundType==RoundType::down)
-            alignOptions |= NSAlignMinXOutward | NSAlignMaxYOutward;
-        
-        else if(positionRoundType==RoundType::up)
-            alignOptions |= NSAlignMinXInward | NSAlignMaxYInward;
-        
-        else
-            alignOptions |= NSAlignMinXNearest | NSAlignMaxYNearest;
-        
-        
-        if(sizeRoundType==RoundType::down)
-            alignOptions |= NSAlignWidthInward | NSAlignHeightInward;
-        
-        else if(sizeRoundType==RoundType::up)
-            alignOptions |= NSAlignWidthOutward | NSAlignHeightOutward;
-        
-        else
-            alignOptions |= NSAlignWidthNearest | NSAlignHeightNearest;
-        
-        
-        NSRect adjustedMacRect =
-            [_nsWindow backingAlignedRect:macRect
-                                options:alignOptions ];
-        
-        Rect adjustedBounds = macRectToRect( adjustedMacRect, screenHeight);
-        
-        return adjustedBounds;
+        P<View> pOuterView = getOuterWindowIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
     }
     
     
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+    
+    
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+
+
+    
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override;
+    
+    Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override;
 
     
 
@@ -228,15 +175,17 @@ public:
     }
 
    
+   
+    
+    void layout() override;
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
-    {
-        // the implementation for this must be provided by the outer Window object.
-        throw NotImplementedError("WindowCore::calcPreferredSize");
-    }
+    void requestAutoSize() override;
+    void requestCenter() override;
     
-       
+    void autoSize() override;
+    void center() override;
     
     
     bool tryChangeParentView(View* pNewParent) override
@@ -263,7 +212,80 @@ public:
     
 private:
 
+    Rect getContentArea()
+    {
+        // the content parent is inside the inverted coordinate space of the window
+        // origin is bottom left. So we need to pass the content height, so that
+        // the coordinates can be flipped.
+        return macRectToRect( _nsContentParent.frame, _nsContentParent.frame.size.height );
+    }
+    
+    
+    Rect getScreenWorkArea() const
+    {
+        NSScreen* screen = _getNsScreen();
         
+        NSRect workArea = screen.visibleFrame;
+        NSRect fullArea = screen.frame;
+        
+        return macRectToRect(workArea, fullArea.size.height);
+    }
+
+    
+    Size getMinimumSize() const
+    {
+        return macSizeToSize( _nsWindow.minSize );
+    }
+    
+    Margin getNonClientMargin() const
+    {
+        Size dummyContentSize = getMinimumSize();
+        
+        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), dummyContentSize), -1 );
+        NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
+        
+        Rect windowRect = macRectToRect(macWindowRect, -1);
+        
+        return Margin(
+                      fabs( windowRect.y ),
+                      fabs( windowRect.x+windowRect.width-dummyContentSize.width ),
+                      fabs( windowRect.y+windowRect.height-dummyContentSize.height ),
+                      fabs( windowRect.x ) );
+    }
+    
+    Size calcWindowSizeFromContentAreaSize(const Size& contentSize)
+    {
+        // we can ignore the coordinate space being inverted here. We do not
+        // care about the position, just the size.
+        NSRect macContentRect = rectToMacRect( Rect(Point(0,0), contentSize), -1 );
+        
+        NSRect macWindowRect = [_nsWindow frameRectForContentRect:macContentRect];
+        
+        return macRectToRect(macWindowRect, -1).getSize();
+    }
+    
+    
+    Size calcContentAreaSizeFromWindowSize(const Size& windowSize)
+    {
+        // we can ignore the coordinate space being inverted here. We do not
+        // care about the position, just the size.
+        NSRect macWindowRect = rectToMacRect( Rect(Point(0,0), windowSize), -1 );
+        
+        NSRect macContentRect = [_nsWindow contentRectForFrameRect:macWindowRect];
+        
+        Size resultSize = macRectToRect(macContentRect, -1).getSize();
+        
+        resultSize.width = std::max(resultSize.width, 0.0);
+        resultSize.height = std::max(resultSize.height, 0.0);
+        
+        return resultSize;
+    }
+    
+    
+
+
+    
+    
     double getEmSizeDips() const
     {
         if(_emDipsIfInitialized==-1)

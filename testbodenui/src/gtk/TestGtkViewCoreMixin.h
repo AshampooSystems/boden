@@ -74,11 +74,6 @@ protected:
     }
 
 
-    void verifyInitialDummyCorePosition() override
-    {        
-        if( GTK_IS_WINDOW(_pGtkWidget) ) 
-            REQUIRE( getWindowPosition() == Point() );
-    }
 
     void verifyInitialDummyCoreSize() override
     {        

@@ -64,6 +64,9 @@ public:
 
             if(_pContentView!=nullptr)
 			    _pContentView->_setParentView(this);
+            
+            invalidateSizingInfo( View::InvalidateReason::childAddedOrRemoved );
+            needLayout( View::InvalidateReason::childAddedOrRemoved );
 		}
 	}
 
@@ -110,6 +113,12 @@ public:
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
 	}
+
+
+    void removeAllChildViews() override
+    {
+        setContentView(nullptr);
+    }
 		
 	P<View> findPreviousChildView(View* pChildView) override
 	{
@@ -125,11 +134,6 @@ public:
 		if(pChildView==_pContentView)
 			_pContentView = nullptr;
 	}
-    
-	
-
-protected:
-	void layout() override;	
     
 private:
     P<View>					_pContentView;

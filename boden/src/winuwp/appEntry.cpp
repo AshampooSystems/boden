@@ -22,7 +22,6 @@ int appEntry(const std::function< P<AppControllerBase>() >& appControllerCreator
     return 0;
 }
 
-
 }
 }
 

@@ -8,6 +8,7 @@
 #include <bdn/webems/ButtonCore.h>
 #include <bdn/webems/TextViewCore.h>
 #include <bdn/webems/WindowCore.h>
+#include <bdn/webems/ScrollViewCore.h>
 
 
 namespace bdn
@@ -47,6 +48,10 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );
     
+    else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
+        return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
+    
+
     else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }

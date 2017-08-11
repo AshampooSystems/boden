@@ -47,23 +47,35 @@ public:
 	}
 
 
-	
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
+        MockViewCore::calcPreferredSize(availableSpace);
+
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
 		Size size = _getTextSize(_label);
 
+        
+
         // add our padding
         P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr && !pView->padding().get().isNull())
-            size += uiMarginToDipMargin(pView->padding().get());
+        if(pView!=nullptr)
+        {
+            if(!pView->padding().get().isNull())
+                size += uiMarginToDipMargin(pView->padding().get());
+        }
 
-		// add some space for the fake button border
+        // add some space for the fake button border
 		size += Margin( 4, 5);
 
+        // ignore available space. We have a fixed size.
+        
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {            
+            // clip to min and max size
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
 
 		return size;
 	}

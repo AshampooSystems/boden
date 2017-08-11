@@ -3,6 +3,7 @@
 
 #include <bdn/Button.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockButtonCore.h>
 
 using namespace bdn;
 
@@ -34,18 +35,20 @@ TEST_CASE("Button")
 		{   
 			SECTION("label")
 			{
-				bdn::test::testViewOp( 
+				bdn::test::_testViewOp( 
 					pButton,
-					[pButton, pPreparer]()
+                    pPreparer,
+					[pButton]()
 					{
 						pButton->label() = "hello";					
 					},
-					[pCore, pButton, pPreparer]
+					[pCore, pButton]
 					{
 						REQUIRE( pCore->getLabel()=="hello" );					
 						REQUIRE( pCore->getLabelChangeCount()==1 );					
 					},
-					1 // should cause a sizing update.
+                    (int)bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+                    | (int)bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated					
 					);
 			}        
 		}

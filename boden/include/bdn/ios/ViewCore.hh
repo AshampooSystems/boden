@@ -5,11 +5,12 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/LayoutCoordinator.h>
 
 #import <bdn/ios/UiProvider.hh>
 #import <bdn/ios/util.hh>
 
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 
 namespace bdn
@@ -17,7 +18,7 @@ namespace bdn
 namespace ios
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ViewCore(View* pOuterView, UIView* view)
@@ -37,15 +38,11 @@ public:
         _view = nil;        
     }
     
-    P<const View> getOuterViewIfStillAttached() const
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
     }
     
-    P<View> getOuterViewIfStillAttached()
-    {
-        return _outerViewWeak.toStrong();
-    }
     
     UIView* getUIView() const
     {
@@ -64,6 +61,72 @@ public:
     {
     }
     
+    void setMargin(const UiMargin& margin) override
+    {
+    }    
+
+    
+    
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+    
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+    
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+    
+    
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    
+
     
     
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
@@ -97,7 +160,7 @@ public:
         
         double scale = screen.scale;    // 1 for old displays, 2 for retina iphone, 3 for iphone plus, etc.
         
-        return PixelAligner(scale).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign(requestedBounds, scale, positionRoundType, sizeRoundType);
     }
     
 
@@ -137,15 +200,29 @@ public:
 
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
-        CGSize constraintSize = UILayoutFittingCompressedSize;
-        if(availableWidth!=-1)
-            constraintSize.width = availableWidth;
-        if(availableHeight!=-1)
-            constraintSize.height = availableHeight;
+        Margin padding = getPaddingDips();
         
-		CGSize iosSize = [_view systemLayoutSizeFittingSize:constraintSize];
+        CGSize constraintSize = UILayoutFittingCompressedSize;
+        
+        // systemLayoutSizeFittingSize will clip the return value to the constraint size.
+        // So we only pass the available space if the view can actually adjust itself to the
+        // available space.
+        if( std::isfinite(availableSpace.width) && canAdjustToAvailableWidth() )
+        {
+            constraintSize.width = availableSpace.width - (padding.left+padding.right);
+            if(constraintSize.width<0)
+                constraintSize.width=0;
+        }
+        if( std::isfinite(availableSpace.height) && canAdjustToAvailableHeight() )
+        {
+            constraintSize.height = availableSpace.height - (padding.top+padding.bottom);
+            if(constraintSize.height<0)
+                constraintSize.height=0;
+        }
+        
+		CGSize iosSize = [_view systemLayoutSizeFittingSize: constraintSize];
         
         Size size = iosSizeToSize(iosSize);
         
@@ -153,8 +230,6 @@ public:
             size.width = 0;
         if(size.height<0)
             size.height = 0;
-        
-        Margin padding = getPaddingDips();
         
         size += padding;
         
@@ -165,11 +240,19 @@ public:
         
         P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
         
         return size;
     }
     
+    
+    void layout() override
+    {
+        // do nothing by default. Most views do not have subviews.
+    }
     
     bool tryChangeParentView(View* pNewParent) override
     {
@@ -212,6 +295,26 @@ protected:
         return padding;
     }
     
+    
+    
+    /** Returns true if the view can adjust its size to fit into a given
+        width.
+        The default return value is false. Derived view classes can override
+        this to indicate that they can adapt.*/
+    virtual bool canAdjustToAvailableWidth() const
+    {
+        return false;
+    }
+    
+    
+    /** Returns true if the view can adjust its size to fit into a given
+        height.
+        The default return value is false. Derived view classes can override
+        this to indicate that they can adapt.*/
+    virtual bool canAdjustToAvailableHeight() const
+    {
+        return false;
+    }
 
     
     

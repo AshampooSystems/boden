@@ -208,6 +208,309 @@ TEST_CASE("Size")
         REQUIRE( ! (a >= Size(11, 20)) );
         REQUIRE( ! (a >= Size(11, 21)) );
     }
+
+
+    SECTION("applyMinimum")
+    {
+        SECTION("to normal size")
+        {
+            Size a(10, 20);
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMinimum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size(10,20) );
+            }
+            
+
+            SECTION("width bigger, height unlimited")
+            {
+                a.applyMinimum( Size( 11, Size::componentNone()) );                
+                REQUIRE( a==Size(11,20) );
+            }
+
+            SECTION("width equal, height unlimited")
+            {
+                a.applyMinimum( Size( 10, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width smaller, height unlimited")
+            {
+                a.applyMinimum( Size( 9, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+
+            SECTION("width unlimited, height bigger")
+            {
+                a.applyMinimum( Size( Size::componentNone(), 21 ) );                
+                REQUIRE( a==Size(10,21) );
+            }
+
+
+            SECTION("width unlimited, height equal")
+            {
+                a.applyMinimum( Size( Size::componentNone(), 20 ) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width unlimited, height smaller")
+            {
+                a.applyMinimum( Size( Size::componentNone(), 19 ) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+
+            SECTION("width smaller, height bigger")
+            {
+                a.applyMinimum( Size( 9, 21 ) );                
+                REQUIRE( a==Size(10,21) );
+            }
+
+            SECTION("width bigger, height smaller")
+            {
+                a.applyMinimum( Size( 11, 19 ) );                
+                REQUIRE( a==Size(11,20) );
+            }
+        }
+
+
+
+        SECTION("to unlimited width, normal height")
+        {
+            Size a( Size::componentNone(), 20);
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMinimum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size( Size::componentNone(),20) );
+            }
+            
+
+            SECTION("width normal, height unlimited")
+            {
+                a.applyMinimum( Size( 10, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width normal, height smaller")
+            {
+                a.applyMinimum( Size( 10, 19) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width normal, height equal")
+            {
+                a.applyMinimum( Size( 10, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width normal, height bigger")
+            {
+                a.applyMinimum( Size( 10, 21) );                
+                REQUIRE( a==Size(10,21) );
+            }
+        }
+
+
+
+        SECTION("to normal width, unlimited height")
+        {
+            Size a( 10, Size::componentNone());
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMinimum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size( 10, Size::componentNone() ) );
+            }
+            
+
+            SECTION("width unlimited, height normal")
+            {
+                a.applyMinimum( Size( Size::componentNone(), 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width smaller, height normal")
+            {
+                a.applyMinimum( Size( 9, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width equal, height normal")
+            {
+                a.applyMinimum( Size( 10, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width bigger, height normal")
+            {
+                a.applyMinimum( Size( 11, 20) );                
+                REQUIRE( a==Size(11,20) );
+            }
+
+        }
+
+    }
+
+
+    SECTION("applyMaximum")
+    {
+        SECTION("to normal size")
+        {
+            Size a(10, 20);
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMaximum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size(10,20) );
+            }
+            
+
+            SECTION("width bigger, height unlimited")
+            {
+                a.applyMaximum( Size( 11, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width equal, height unlimited")
+            {
+                a.applyMaximum( Size( 10, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width smaller, height unlimited")
+            {
+                a.applyMaximum( Size( 9, Size::componentNone()) );                
+                REQUIRE( a==Size(9,20) );
+            }
+
+
+            SECTION("width unlimited, height bigger")
+            {
+                a.applyMaximum( Size( Size::componentNone(), 21 ) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+
+            SECTION("width unlimited, height equal")
+            {
+                a.applyMaximum( Size( Size::componentNone(), 20 ) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width unlimited, height smaller")
+            {
+                a.applyMaximum( Size( Size::componentNone(), 19 ) );                
+                REQUIRE( a==Size(10,19) );
+            }
+
+
+            SECTION("width smaller, height bigger")
+            {
+                a.applyMaximum( Size( 9, 21 ) );                
+                REQUIRE( a==Size(9,20) );
+            }
+
+            SECTION("width bigger, height smaller")
+            {
+                a.applyMaximum( Size( 11, 19 ) );                
+                REQUIRE( a==Size(10,19) );
+            }
+        }
+
+
+
+        SECTION("to unlimited width, normal height")
+        {
+            Size a( Size::componentNone(), 20);
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMaximum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size( Size::componentNone(),20) );
+            }
+            
+
+            SECTION("width normal, height unlimited")
+            {
+                a.applyMaximum( Size( 10, Size::componentNone()) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width normal, height smaller")
+            {
+                a.applyMaximum( Size( 10, 19) );                
+                REQUIRE( a==Size(10,19) );
+            }
+
+            SECTION("width normal, height equal")
+            {
+                a.applyMaximum( Size( 10, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width normal, height bigger")
+            {
+                a.applyMaximum( Size( 10, 21) );                
+                REQUIRE( a==Size(10,20) );
+            }
+        }
+
+
+
+        SECTION("to normal width, unlimited height")
+        {
+            Size a( 10, Size::componentNone());
+
+            SECTION("width unlimited, height unlimited")
+            {
+                a.applyMaximum( Size::none() );
+                
+                // should have no effect
+                REQUIRE( a==Size( 10, Size::componentNone() ) );
+            }
+            
+
+            SECTION("width unlimited, height normal")
+            {
+                a.applyMaximum( Size( Size::componentNone(), 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width smaller, height normal")
+            {
+                a.applyMaximum( Size( 9, 20) );                
+                REQUIRE( a==Size(9,20) );
+            }
+
+            SECTION("width equal, height normal")
+            {
+                a.applyMaximum( Size( 10, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+            SECTION("width bigger, height normal")
+            {
+                a.applyMaximum( Size( 11, 20) );                
+                REQUIRE( a==Size(10,20) );
+            }
+
+        }
+
+    }
+
 }
 
 

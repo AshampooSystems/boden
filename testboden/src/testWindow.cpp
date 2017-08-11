@@ -3,6 +3,8 @@
 
 #include <bdn/test.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockButtonCore.h>
+#include <bdn/test/MockWindowCore.h>
 
 #include <bdn/Button.h>
 
@@ -41,8 +43,8 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	P<bdn::test::MockButtonCore> pButtonCore = cast<bdn::test::MockButtonCore>( pButton->getViewCore() );
 
-	// Sanity check. Verify the fake button size. 9.75 , 19.60 per character, plus 10x8 for border
-	Size buttonSize( 10*9.75 + 10, 19.60 + 8);
+	// Sanity check. Verify the fake button size. 9.75 , 19.60 per character, rounded to full 1/3 DIP pixels, plus 10x8 for border
+	Size buttonSize( std::ceil(10*9.75*3)/3 + 10, 19 + 2.0/3 + 8);
 	REQUIRE( pButtonCore->calcPreferredSize() == buttonSize );
 
 	// window border size is 20, 11, 12, 13 in our fake UI
@@ -52,7 +54,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize)
+	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, buttonSize, buttonMargin, windowBorder)
 	{
 		Size size = getSizeFunc();
 
@@ -92,8 +94,9 @@ TEST_CASE("Window", "[ui]")
 	    {
 		    SECTION("title")
 		    {
-			    bdn::test::testViewOp( 
+			    bdn::test::_testViewOp( 
 				    pWindow,
+                    pPreparer,
 				    [pWindow]()
 				    {
 					    pWindow->title() = "hello";					
@@ -104,17 +107,19 @@ TEST_CASE("Window", "[ui]")
 					    REQUIRE( pCore->getTitle()=="hello" );					
 				    },
 				    0	// should NOT cause a sizing info update, since the
-					    // title is not part of the "preferred size" calculation
+					        // title is not part of the "preferred size" calculation
+                       // should also not cause a parent layout update
 				    );
 		    }
 
             SECTION("contentView")
 		    {
-                SECTION("!=null")
+                SECTION("set to !=null")
 		        {
                     P<Button> pButton = newObj<Button>();
-                    bdn::test::testViewOp( 
+                    bdn::test::_testViewOp( 
 				        pWindow,
+                        pPreparer,
 				        [pWindow, pButton]()
 				        {
 					        pWindow->setContentView(pButton);
@@ -123,27 +128,63 @@ TEST_CASE("Window", "[ui]")
 				        {
                             REQUIRE( pWindow->getContentView() == cast<View>(pButton) );
 				        },
-				        1	// should have caused a sizing info update
+                        bdn::test::ExpectedSideEffect_::invalidateSizingInfo
+                            | bdn::test::ExpectedSideEffect_::invalidateLayout
+				        // should have caused a sizing info update and a layout update
+                        // should not cause a parent layout update, since there is no parent
 				    );		        
 		        }
 
 
-                SECTION("null")
+                SECTION("set to null")
 		        {
-                    // basically we only test here that there is no crash when the content view is set to null
-                    // and that it does not result in a sizing info update.
-                    bdn::test::testViewOp( 
-				        pWindow,
-				        [pWindow]()
-				        {
-					        pWindow->setContentView(nullptr);
-				        },
-				        [pWindow]
-				        {
-                            REQUIRE( pWindow->getContentView() == nullptr);
-				        },
-				        0	// should not have caused a sizing info update
-				    );		        
+                    SECTION("was null")
+                    {
+                        // sanity check
+                        REQUIRE( pWindow->getContentView() == nullptr);
+
+                        
+                        bdn::test::_testViewOp( 
+				            pWindow,
+                            pPreparer,
+				            [pWindow]()
+				            {
+					            pWindow->setContentView(nullptr);
+				            },
+				            [pWindow]
+				            {
+                                REQUIRE( pWindow->getContentView() == nullptr);
+				            },
+				            0 // this should not invalidate anything since the property does not actually change
+				        );		   
+                    }
+                    else
+                    {   
+                        // first make sure that there is a content view attached before the test runs
+                        P<Button> pButton = newObj<Button>();
+
+                        pWindow->setContentView( pButton );
+
+                        CONTINUE_SECTION_WHEN_IDLE(pPreparer, pWindow, pCore)
+                        {
+                            // basically we only test here that there is no crash when the content view is set to null
+                            // and that it does result in a sizing info update.
+                            bdn::test::_testViewOp( 
+				                pWindow,
+                                pPreparer,
+				                [pWindow]()
+				                {
+					                pWindow->setContentView(nullptr);
+				                },
+				                [pWindow]
+				                {
+                                    REQUIRE( pWindow->getContentView() == nullptr);
+				                },
+				                bdn::test::ExpectedSideEffect_::invalidateSizingInfo
+                                    | bdn::test::ExpectedSideEffect_::invalidateLayout
+				            );		        
+                        };
+                    }
 		        }
 		    }
 	    }
@@ -183,6 +224,58 @@ TEST_CASE("Window", "[ui]")
                     });
             }
 	    }
+
+        SECTION("getChildList")
+        {
+            SECTION("empty")
+            {
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("non-empty")
+            {
+                P<Button> pChild = newObj<Button>();
+                pWindow->setContentView(pChild);
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.size() == 1);
+                REQUIRE( childList.front() == cast<View>(pChild) );
+            }
+        }
+
+        SECTION("removeAllChildViews")
+        {
+            SECTION("no content view")
+            {
+                pWindow->removeAllChildViews();
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("with content view")
+            {
+                P<Button> pChild = newObj<Button>();
+                pWindow->setContentView(pChild);
+
+                pWindow->removeAllChildViews();
+
+                REQUIRE( pWindow->getContentView()==nullptr );
+                REQUIRE( pChild->getParentView() == nullptr );
+
+                std::list< P<View> > childList;
+                pWindow->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+        }
     
 	    SECTION("sizing")
 	    {
@@ -195,28 +288,12 @@ TEST_CASE("Window", "[ui]")
 
 			    SECTION("calcPreferredSize")
 				    REQUIRE( pWindow->calcPreferredSize()==expectedSize );
-
-			    SECTION("sizingInfo")
-			    {
-
-				    // sizing info is updated asynchronously. So we need to check async as well.
-                    CONTINUE_SECTION_WHEN_IDLE(pWindow, expectedSize)
-                    {
-                        View::SizingInfo sizingInfo = pWindow->sizingInfo();
-
-                        REQUIRE( sizingInfo.preferredSize == expectedSize );
-                
-                    };				
-			    }
 		    }
 
 		    SECTION("withContentView")
 		    {
 			    SECTION("calcPreferredSize")
 				    testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->calcPreferredSize(); } );
-
-			    SECTION("sizingInfo")
-				    testSizingWithContentView( pWindow, pPreparer->getUiProvider(), [pWindow](){ return pWindow->sizingInfo().get().preferredSize; } );
 		    }
 	    }
 
@@ -294,7 +371,8 @@ TEST_CASE("Window", "[ui]")
 
                 REQUIRE( pWindow->size() == Size(200, 200) );
 			};
-	    }		        
+	    }	
+
 
         SECTION("contentView aligned on full pixels")
         {
@@ -322,6 +400,46 @@ TEST_CASE("Window", "[ui]")
                 Size size = pChild->size();               
                 REQUIRE_ALMOST_EQUAL( size.width*pixelsPerDip, std::round(size.width*pixelsPerDip), 0.000001 );
                 REQUIRE_ALMOST_EQUAL( size.height*pixelsPerDip, std::round(size.height*pixelsPerDip), 0.000001 );
+            };
+        }
+
+        SECTION("content view detached before destruction begins")
+        {            
+            P<Button> pChild = newObj<Button>();
+            pWindow->setContentView( pChild );
+
+            struct LocalTestData_ : public Base
+            {
+                bool destructorRun = false;
+                int childParentStillSet = -1;
+                int childStillChild = -1;
+            };
+
+            P<LocalTestData_> pData = newObj<LocalTestData_>();
+
+            
+            pWindow->setDestructFunc(
+                [pData, pChild]( bdn::test::ViewWithTestExtensions<Window>* pWin )
+                {
+                    pData->destructorRun = true;
+                    pData->childParentStillSet = (pChild->getParentView()!=nullptr) ? 1 : 0;
+                    pData->childStillChild = (pWin->getContentView()!=nullptr) ? 1 : 0;
+                } );
+
+            BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pChild)
+            {
+                // All test objects should have been destroyed by now.
+                // First verify that the destructor was even called.
+                REQUIRE( pData->destructorRun );
+
+                // now verify what we actually want to test: that the
+                // content view's parent was set to null before the destructor
+                // of the parent was called.
+                REQUIRE( pData->childParentStillSet == 0 );
+
+                // the child should also not be a child of the parent
+                // from the parent's perspective anymore.
+                REQUIRE( pData->childStillChild == 0 );
             };
         }
 

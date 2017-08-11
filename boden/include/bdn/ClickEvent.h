@@ -20,7 +20,7 @@ public:
     }
     
 protected:
-    P<View> _pView;
+    P<View>         _pView;
 };
     
 }

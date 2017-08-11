@@ -17,13 +17,29 @@ ContainerViewCore::ContainerViewCore(ContainerView* pOuter)
 {
 }
 
-Size ContainerViewCore::calcPreferredSize(double availableWidth, double availableHeight) const
+Size ContainerViewCore::calcPreferredSize( const Size& availableSpace ) const
 {
-	// this core function should never have been called.
-	// The outer window is responsible for everything layout-related.
-	programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
-    return Size();
+    // call the outer container's preferred size calculation
+
+    P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+        return pOuterView->calcContainerPreferredSize( availableSpace );
+    else
+        return Size(0,0);
 }
+
+void ContainerViewCore::layout()
+{
+    // call the outer container's layout function
+
+    P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        P<ViewLayout> pLayout = pOuterView->calcContainerLayout( pOuterView->size() );
+        pLayout->applyTo(pOuterView);
+    }    
+}
+
 
 
 

@@ -4,10 +4,13 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
+#include <bdn/windowCoreUtil.h>
+
 #include <bdn/java/WeakReference.h>
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JNativeRootView.h>
 #include <bdn/android/JConfiguration.h>
+#include <bdn/android/IParentViewCore.h>
 
 #include <bdn/log.h>
 
@@ -16,7 +19,7 @@ namespace bdn
 namespace android
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension, BDN_IMPLEMENTS IParentViewCore
 {
 private:
     P<JNativeViewGroup> createJNativeViewGroup(Window* pOuterWindow)
@@ -102,56 +105,91 @@ public:
     }
 
 
-    Rect getContentArea() override
+
+
+    void invalidateSizingInfo(View::InvalidateReason reason) override
     {
-        // content area = bounds (there are no borders)
-        return _currentBounds;
+        // nothing to do since we do not cache sizing info in the core.
     }
 
 
-    Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
+    void needLayout(View::InvalidateReason reason) override
     {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return contentSize;
-    }
-
-
-    Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-    {
-        // our "window" is simply the size of the div. It as no borders.
-        // So "window" size = content size.
-        return windowSize;
-    }
-
-
-    Size getMinimumSize() const override
-    {
-        // don't have a minimum size since the title bar is not connected to our window div.
-        // (the title is displayed in the browser tab bar).
-        return Size(0, 0);
-    }
-    
-
-    Rect getScreenWorkArea() const override
-    {
-        JNativeRootView rootView( tryGetAccessibleRootViewRef() );
-
-        if(rootView.isNull_())
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
         {
-            // don't have a root view => work area size is 0
-            return Rect();
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
         }
+    }
+
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+
+
+
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size() );
         else
+            return Size(0,0);
+    }
+
+    void layout() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowLayoutImpl( pWindow, getContentArea() );
+    }
+
+
+
+
+    void requestAutoSize() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
         {
-            int width = rootView.getWidth();
-            int height = rootView.getHeight();
-
-            // logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
-
-            return Rect(0, 0, width, height );
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pWindow );
         }
     }
+
+    void requestCenter() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsCentering( pWindow );
+        }
+    }
+
+
+    void autoSize() override
+    {
+        // we cannot change our size. So, do nothing
+    }
+
+    void center() override
+    {
+        // we cannot change our position. So, do nothing.
+    }
+
+
+
 
 
     static void _rootViewCreated( const bdn::java::Reference& javaRef )
@@ -197,8 +235,27 @@ public:
             pWindowCore->rootViewConfigurationChanged(config);
     }
 
+
+    double getUiScaleFactor() const override
+    {
+        return ViewCore::getUiScaleFactor();
+    }
+
+    void addChildJView( JView childJView ) override
+    {
+        JNativeViewGroup parentGroup( getJView().getRef_() );
+
+        parentGroup.addView( childJView );
+    }
+
+
 protected:
 
+    Rect getContentArea()
+    {
+        // content area = bounds (there are no borders)
+        return _currentBounds;
+    }
 
     /** Called when the window core's root view was garbage collected or disposed.*/
     virtual void rootViewDisposed()
@@ -260,6 +317,26 @@ protected:
 
 
 private:
+
+    Rect getScreenWorkArea() const
+    {
+        JNativeRootView rootView( tryGetAccessibleRootViewRef() );
+
+        if(rootView.isNull_())
+        {
+            // don't have a root view => work area size is 0
+            return Rect();
+        }
+        else
+        {
+            int width = rootView.getWidth();
+            int height = rootView.getHeight();
+
+            // logInfo("screen area: ("+std::to_string(width)+"x"+std::to_string(height)+")");
+
+            return Rect(0, 0, width, height );
+        }
+    }
 
     void updateUiScaleFactor( JConfiguration config )
     {

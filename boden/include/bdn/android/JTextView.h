@@ -164,7 +164,7 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        return invoke_<double>(getStaticClass_(), methodId, "getTextSize");
+        return invoke_<float>(getStaticClass_(), methodId, "getTextSize");
     }
 
 

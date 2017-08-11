@@ -4,7 +4,7 @@
 #include <bdn/win32/UiProvider.h>
 #include <bdn/win32/util.h>
 
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 namespace bdn
 {
@@ -24,7 +24,7 @@ ViewCore::ViewCore(	View* pOuterView,
 					name,
 					style | (pOuterView->visible().get() ? WS_VISIBLE : 0),
 					exStyle,
-					ViewCore::getViewHwnd( pOuterView->getParentView() ),
+					ViewCore::getViewParentHwndForChildren( pOuterView->getParentView() ),
 					x,
 					y,
 					width,
@@ -108,7 +108,42 @@ void ViewCore::setPadding(const Nullable<UiMargin>& padding)
 	// do nothing. We handle it on the fly when our preferred size is calculated.
 }
 
+void ViewCore::setMargin(const UiMargin& margin)
+{
+    // do nothing. The parent will handle this automatically.
+}
 
+void ViewCore::invalidateSizingInfo(View::InvalidateReason reason)
+{
+    // nothing to invalidate for ourselves (since we do not cache anything
+    // in the core)
+}
+
+void ViewCore::needLayout(View::InvalidateReason reason)
+{    
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+    {
+        P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+        if(pProvider!=nullptr)
+            pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+    }
+}
+
+void ViewCore::childSizingInfoInvalidated(View* pChild)
+{
+    P<View> pOuterView = getOuterViewIfStillAttached();
+    if(pOuterView!=nullptr)
+    {
+        pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+        pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+    }
+}
+
+void ViewCore::layout()
+{
+    // do nothing in the base implementation. Most views do not have child views.
+}
 
 
 Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
@@ -130,20 +165,34 @@ Rect ViewCore::adjustAndSetBounds(const Rect& requestedBounds)
 
 Rect ViewCore::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const
 {
-    return PixelAligner( _uiScaleFactor ).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+    return Dip::pixelAlign(requestedBounds, _uiScaleFactor, positionRoundType, sizeRoundType);
 }
 
 
 void ViewCore::setHorizontalAlignment(const View::HorizontalAlignment& align)
 {
-    // do nothing. The parent handles this.
+    // do nothing. The View handles this.
 }
 
 void ViewCore::setVerticalAlignment(const View::VerticalAlignment& align)
 {
-    // do nothing. The parent handles this.
+    // do nothing. The View handles this.
 }
 
+void ViewCore::setPreferredSizeHint(const Size& hint)
+{
+    // do nothing in the base implementation. Most views do not use the size hint.
+}
+
+void ViewCore::setPreferredSizeMinimum(const Size& limit)
+{
+    // do nothing here. We use the property from the view directly when we need it.
+}
+
+void ViewCore::setPreferredSizeMaximum(const Size& limit)
+{
+    // do nothing here. We use the property from the view directly when we need it.
+}
 
 void ViewCore::updateOrderAmongSiblings()
 {
@@ -188,7 +237,7 @@ bool ViewCore::tryChangeParentView(View* pNewParentView)
 	{
 		HWND currentParentHwnd = ::GetParent( ourHwnd );
 
-		if( getViewHwnd(pNewParentView)==currentParentHwnd )
+		if( getViewParentHwndForChildren(pNewParentView)==currentParentHwnd )
 		{
 			// the underlying win32 window is the same.
 			// Note that this case is quite common, since many View containers
@@ -226,11 +275,6 @@ void ViewCore::handleMessage(MessageContext& context, HWND windowHandle, UINT me
 
 	if(message==WM_SIZE)
 	{
-		// whenever our size changes it means that we have to update our layout
-        P<View> pView = getOuterViewIfStillAttached();
-        if(pView!=nullptr)
-		    pView->needLayout();
-
         // we invalidate the window contents whenever the size changes. Otherwise
         // we have found that some controls (e.g. static text) are only partially updated (seen on Windows 10).
         ::InvalidateRect(windowHandle, NULL, NULL);

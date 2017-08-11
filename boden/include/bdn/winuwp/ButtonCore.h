@@ -22,7 +22,7 @@ private:
 	}
 
 public:
-	
+
 	/** Used internally.*/
 	ref class ButtonCoreEventForwarder : public ViewCoreEventForwarder
 	{
@@ -90,9 +90,7 @@ public:
             uiPadding = pad;
 
 		Margin padding = uiMarginToDipMargin(uiPadding);
-
-		_doSizingInfoUpdateOnNextLayout = true;		
-
+        
         // UWP also uses DIPs => no conversion necessary
 
         // Note that the padding must be set on the button Content to have an effect. The button
@@ -123,9 +121,7 @@ public:
 		// be outdated when the sizing happens.
 		// Instead we wait for the "layout updated" event that will happen soon after we set the
 		// content. That is when we update our sizing info.
-
-		_doSizingInfoUpdateOnNextLayout = true;		
-
+        
         _pButton->Content = pLabel;		
 
         if(_applyContentPadding)
@@ -148,26 +144,11 @@ protected:
         }
 	}
 
-	void _layoutUpdated() override
-	{
-		if(_doSizingInfoUpdateOnNextLayout)
-		{
-			_doSizingInfoUpdateOnNextLayout = false;
-
-            P<View> pOuterView = getOuterViewIfStillAttached();
-            if(pOuterView!=nullptr)
-			    pOuterView->needSizingInfoUpdate();
-		}
-	}
-
    
 	::Windows::UI::Xaml::Controls::Button^ _pButton;
 
     ::Windows::UI::Xaml::Thickness _contentPadding;
-    bool                           _applyContentPadding = false;
-
-	double      _doSizingInfoUpdateOnNextLayout = true;
-	
+    bool                           _applyContentPadding = false;	
 };
 
 }

@@ -3,7 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/IdGen.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 
 #include <bdn/webems/UiProvider.h>
 
@@ -18,7 +18,7 @@ namespace bdn
 namespace webems
 {
 
-class ViewCore : public Base, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ViewCore(   View* pOuterView,
@@ -68,16 +68,11 @@ public:
     }
 
 
-    P<const View> getOuterViewIfStillAttached() const
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
     }
-    
-    P<View> getOuterViewIfStillAttached()
-    {
-        return _outerViewWeak.toStrong();
-    }
-    
+       
 
 
     
@@ -147,7 +142,7 @@ public:
     	// animations to make bigger position "jumps" than would be necessary, but currently there is not
     	// standard compliant way around it.
 
-    	return PixelAligner(1).alignRect( requestedBounds, positionRoundType, sizeRoundType);
+    	return Dip::pixelAlign( requestedBounds, 1, positionRoundType, sizeRoundType);
     }
 
 
@@ -185,8 +180,72 @@ public:
     }
    
     
+    void setMargin(const UiMargin& margin) override
+    {
+        // nothing to do. Our parent handles this.
+    }
+
+
+
+
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+
+
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+
+
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+
+
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+
+
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+
+
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
 		emscripten::val styleObj = _domObject["style"];
 
@@ -204,7 +263,19 @@ public:
         styleObj.set("width", std::string("auto") );
         styleObj.set("height", std::string("auto") );
 
-        if(availableWidth!=-1)
+        Size limit = availableSpace;
+
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+            limit.applyMaximum( pView->preferredSizeMaximum() );        
+
+        emscripten::val parentDomObj( emscripten::val::null() );
+        emscripten::val parentStyleObj( emscripten::val::null() );
+        emscripten::val oldParentWidthObj( emscripten::val::null() );
+        bool            restoreParentWidth = false;
+
+        bool maxWidthSet = false;
+        if( std::isfinite(limit.width) )
         {
             // how should we round here?
             // If we round up then we might cause the content to not fit in the final view size.
@@ -213,7 +284,37 @@ public:
             // will work with the preferred size we give it. And if we round THAT up then we will get the same
             // value in availableWidth if enough space is available. So that should be ok.
 
-            styleObj.set("max-width", std::to_string((int)std::floor(availableWidth))+"px" );
+            styleObj.set("max-width", std::to_string((int)std::floor(limit.width))+"px" );
+            maxWidthSet = true;
+
+            // if we have a width limit then we cannot disable auto-wrapping, otherwise we will
+            // also not wrap according to this limit.
+            // That creates another problem: if our parent is currently smaller than this limit
+            // then the auto-wrapping will wrap to make us small enough to fit into the parent.
+
+            // So we have to make the parent temporarily bigger to get a correct size.
+            parentDomObj = _domObject["parentElement"];
+            if(!parentDomObj.isNull())
+            {
+                // we need to know the parent's current clientWidth and width
+                
+
+                double parentWidth = parentDomObj["offsetWidth"].as<double>();
+                double parentClientWidth = parentDomObj["clientWidth"].as<double>();
+
+                if(parentClientWidth<limit.width)
+                {
+                    // we do not fit into the parent. Enlarge it temporarily.
+                    parentStyleObj = parentDomObj["style"];
+
+                    oldParentWidthObj = parentStyleObj["width"];
+
+                    double incBy = limit.width-parentClientWidth+2;
+                    parentStyleObj.set("width", std::to_string((int)std::ceil( parentWidth + incBy) )+"px" );
+                    restoreParentWidth = true;
+                }
+            }
+
         }
         else
         {
@@ -264,8 +365,11 @@ public:
         styleObj.set("width", oldWidthStyle);
         styleObj.set("height", oldHeightStyle);
 
-        if(availableWidth!=-1)
+        if(maxWidthSet)
+        {
+            // clear the max width setting again
             styleObj.set("max-width", "initial");
+        }
 
         if(restoreWhitespaceStyle)
         {
@@ -273,6 +377,14 @@ public:
                 styleObj.set("white-space", "initial");
             else
                 styleObj.set("white-space", oldWhitespaceStyle);
+        }
+
+        if(restoreParentWidth)
+        {
+            if(oldParentWidthObj.isUndefined())
+                parentStyleObj.set("width", "auto" );
+            else
+                parentStyleObj.set("width", oldParentWidthObj );
         }
 
         // no scaling necessary. Web browsers already use DIPs.
@@ -284,12 +396,22 @@ public:
 
         Size prefSize(width, height );
 
-        P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
-            prefSize = pView->applySizeConstraints(prefSize);
+        {
+            prefSize.applyMinimum( pView->preferredSizeMinimum() );
+            prefSize.applyMaximum( pView->preferredSizeMaximum() );
+        }
 
         return prefSize;
     }
+
+
+    
+    void layout() override
+    {
+        // do nothing by default. Most views do not have subviews.
+    }
+
     
     
     bool tryChangeParentView(View* pNewParent) override
@@ -331,7 +453,6 @@ public:
 
     
 protected:
-
 
 
     double getEmSizeDips() const
@@ -378,20 +499,30 @@ protected:
 
     
 
+    /** Used internally - do not call manually.*/
     void _addToParent(View* pParent)
     {
-        emscripten::val docVal = emscripten::val::global("document");
-
         if(pParent==nullptr)
+        {
+            emscripten::val docVal = emscripten::val::global("document");
             docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", _domObject);
+        }
         else
         {
             P<ViewCore> pParentCore = cast<ViewCore>(pParent->getViewCore());
             if(pParentCore==nullptr)
                 throw ProgrammingError("Internal error: parent of bdn::webems::ViewCore does not have a core.");
 
-            docVal.call<emscripten::val>("getElementById", pParentCore->getHtmlElementId().asUtf8() ).call<void>("appendChild", _domObject);
+            pParentCore->_addChildElement(_domObject);            
         }
+    }
+
+    /** Used internally - do not call manually.*/
+    virtual void _addChildElement(emscripten::val childDomObject)
+    {
+        emscripten::val docVal = emscripten::val::global("document");
+
+        docVal.call<emscripten::val>("getElementById", getHtmlElementId().asUtf8() ).call<void>("appendChild", childDomObject);
     }
 
 

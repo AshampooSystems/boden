@@ -27,14 +27,35 @@ public:
 	{
 	}
     
-	
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+
+   
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
-	    // this core function should never have been called.
-	    // The outer window is responsible for everything layout-related.
-	    programmingError("ContainerView::calcPreferredSize must be overloaded in derived class.");
-        return Size();
+        MockViewCore::calcPreferredSize(availableSpace);
+
+        // call the outer container's preferred size calculation
+        P<ContainerView> pOuterView = cast<ContainerView>( getOuterViewIfStillAttached() );
+        if(pOuterView!=nullptr)
+            return pOuterView->calcContainerPreferredSize( availableSpace );
+        else
+            return Size(0,0);
     }
+
+
+	void layout() override
+	{
+        BDN_REQUIRE_IN_MAIN_THREAD();
+		
+		_layoutCount++;
+
+        if( !_overrideLayoutFunc || !_overrideLayoutFunc() )
+        {
+		    P<ContainerView> pView = cast<ContainerView>( getOuterViewIfStillAttached() );
+		
+		    P<ViewLayout> pLayout = pView->calcContainerLayout( pView->size() );
+		    pLayout->applyTo( pView );
+        }
+	}
 
 
 };

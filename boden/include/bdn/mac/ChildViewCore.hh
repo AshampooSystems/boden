@@ -2,7 +2,6 @@
 #define BDN_MAC_ChildViewCore_HH_
 
 #include <Cocoa/Cocoa.h>
-
 #include <bdn/IViewCore.h>
 #include <bdn/mac/IParentViewCore.h>
 
@@ -15,7 +14,7 @@ namespace bdn
 namespace mac
 {
 
-class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IParentViewCore
+class ChildViewCore : public Base, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS IParentViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
     ChildViewCore(View* pOuterView, NSView* nsView)
@@ -41,7 +40,71 @@ public:
         // if the corresponding Cocoa view class supports setting a padding.
     }
     
+    void setMargin(const UiMargin& margin) override
+    {
+        // Ignore: our parent handles margins
+    }
+
     
+    
+    void invalidateSizingInfo(View::InvalidateReason reason) override
+    {
+        // nothing to do since we do not cache sizing info in the core.
+    }
+    
+    
+    void needLayout(View::InvalidateReason reason) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pOuterView->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->viewNeedsLayout( pOuterView );
+        }
+    }
+    
+    void childSizingInfoInvalidated(View* pChild) override
+    {
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            pOuterView->invalidateSizingInfo( View::InvalidateReason::childSizingInfoInvalidated );
+            pOuterView->needLayout( View::InvalidateReason::childSizingInfoInvalidated );
+        }
+    }
+    
+    
+    
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setVerticalAlignment(const View::VerticalAlignment& align) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    
+    void setPreferredSizeHint(const Size& hint) override
+    {
+        // nothing to do by default. Most views do not use this.
+    }
+    
+    
+    void setPreferredSizeMinimum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+    void setPreferredSizeMaximum(const Size& limit) override
+    {
+        // do nothing. The View handles this.
+    }
+    
+
+
     
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
@@ -133,7 +196,7 @@ public:
 
     
     
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         Size size = macSizeToSize( _nsView.fittingSize );
         
@@ -174,11 +237,21 @@ public:
             size.height = 0;
         
         if(pView!=nullptr)
-            size = pView->applySizeConstraints(size);
+        {
+            size.applyMinimum( pView->preferredSizeMinimum() );
+            size.applyMaximum( pView->preferredSizeMaximum() );
+        }
         
         
         return size;
     }
+    
+    void layout() override
+    {
+        // do nothing by default
+    }
+    
+    
     
     bool tryChangeParentView(View* pNewParent) override
     {
@@ -189,14 +262,9 @@ public:
     
     
     
-    P<View> getOuterViewIfStillAttached()
+    P<View> getOuterViewIfStillAttached() const
     {
         return _outerViewWeak.toStrong();
-    }
-
-    P<const View> getOuterViewIfStillAttached() const
-    {
-      return _outerViewWeak.toStrong();
     }
 
     

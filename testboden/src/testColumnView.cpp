@@ -2,7 +2,10 @@
 #include <bdn/test.h>
 
 #include <bdn/ColumnView.h>
+#include <bdn/Button.h>
 #include <bdn/test/testView.h>
+#include <bdn/test/MockViewCore.h>
+#include <bdn/test/MockContainerViewCore.h>
 
 using namespace bdn;
 
@@ -37,20 +40,20 @@ void testChildAlignment(
 
     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
     {
-        int sizingInfoBeforeCount = pColumnView->getSizingInfoUpdateCount();
-        int layoutCountBefore = pColumnView->getLayoutCount();
+        int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
+
+        Rect buttonBoundsBefore = Rect( pButton->position(), pButton->size() );
 
         SECTION("horizontal")
         {
             pButton->horizontalAlignment() = horzAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, layoutCountBefore)
             {
-                // sizing info should NOT have been updated
-                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
-
                 // but layout should have happened
-                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+                REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
+
+                Margin margin = pButton->uiMarginToDipMargin( pButton->margin());
 
                 Rect bounds = Rect( pButton->position(), pButton->size() );
                 Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
@@ -63,20 +66,20 @@ void testChildAlignment(
                 // and the view should now be aligned accordingly.
                 if(horzAlign==View::HorizontalAlignment::left)
                 {
-                    REQUIRE( bounds.x==0 );
+                    REQUIRE( bounds.x==margin.left );
                 }
                 else if(horzAlign==View::HorizontalAlignment::center)
                 {
-                    REQUIRE( bounds.x == (containerBounds.width-bounds.width)/2  );
+                    REQUIRE( bounds.x == margin.left + (containerBounds.width - (bounds.width+margin.left+margin.right) )/2  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::right)
                 {
-                    REQUIRE( bounds.x == containerBounds.width-bounds.width  );
+                    REQUIRE( bounds.x == containerBounds.width - margin.right - bounds.width  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::expand)
                 {
-                    REQUIRE( bounds.x == 0);
-                    REQUIRE( bounds.width == containerBounds.width );
+                    REQUIRE( bounds.x == margin.left);
+                    REQUIRE( bounds.width == containerBounds.width - margin.left - margin.right );
                 }
             };
         }
@@ -85,21 +88,15 @@ void testChildAlignment(
         {
             pButton->verticalAlignment() = vertAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, sizingInfoBeforeCount, layoutCountBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, layoutCountBefore, buttonBoundsBefore)
             {
-                // sizing info should NOT have been updated
-                REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoBeforeCount);
-
-                // but layout should have
-                REQUIRE( pColumnView->getLayoutCount() == layoutCountBefore+1 );
+                // layout should have been invalidated
+                REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
                 // vertical alignment should have NO effect in a column view.
                 Rect bounds = Rect( pButton->position(), pButton->size() );
-                Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
 
-                REQUIRE( bounds.y==0 );
-                REQUIRE( bounds.height < containerBounds.height );
-
+                REQUIRE( bounds == buttonBoundsBefore );
             };
         }
     };
@@ -134,7 +131,7 @@ TEST_CASE("ColumnView")
     SECTION("View-base")
         bdn::test::testView<ColumnView>();
 
-	SECTION("ColumnView-specific")
+    SECTION("ColumnView-specific")
 	{
 		P<bdn::test::ViewTestPreparer<ColumnView> >         pPreparer = newObj< bdn::test::ViewTestPreparer<ColumnView> >();
 		P< bdn::test::ViewWithTestExtensions<ColumnView> >  pColumnView = pPreparer->createView();
@@ -146,37 +143,56 @@ TEST_CASE("ColumnView")
 
         pButton->adjustAndSetBounds( Rect(10, 10, 10, 10) );
 
-        SECTION("addChildView")
-        {
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
+        SECTION("no child view")
+        {   
+            SECTION("getChildList")
             {
-                int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
-                int layoutCountBefore = pColumnView->getLayoutCount();
+                std::list< P<View> > childList;
+                pColumnView->getChildViews(childList);
 
-                pColumnView->addChildView(pButton);
+                REQUIRE( childList.empty() );
+            }
 
-                // let scheduled property updates propagate
-                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, sizingInfoUpdateCountBefore, layoutCountBefore)
+            SECTION("removeAllChildViews")
+            {
+                pColumnView->removeAllChildViews();
+
+                std::list< P<View> > childList;
+                pColumnView->getChildViews(childList);
+
+                REQUIRE( childList.empty() );
+            }
+
+            SECTION("addChildView")
+            {
+                CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore)
                 {
-                    // should cause a sizing update and a layout update.
-                    REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
-                    REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
+                    int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
-                    Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
+                    pColumnView->addChildView(pButton);
 
-                    Size buttonPreferredSize = pButton->sizingInfo().get().preferredSize;
+                    // let scheduled property updates propagate
+                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, layoutCountBefore)
+                    {
+                        // should cause a layout update.
+                        REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
-                    REQUIRE( preferredSize!=Size(0,0) );
+                        Size preferredSize = pColumnView->calcPreferredSize();
 
-                    // the column view must ensure that the button gets a valid size for our mock display.
-                    // So the button's preferred size must be rounded up to full mock pixels. We have 3 mock
-                    // pixels per DIP, so that is what we should get
-                    Rect buttonBounds( Point(), buttonPreferredSize );
-                    Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+                        Size buttonPreferredSize = pButton->calcPreferredSize();
 
-                    REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
-                };            
-            };
+                        REQUIRE( preferredSize!=Size(0,0) );
+
+                        // the column view must ensure that the button gets a valid size for our mock display.
+                        // So the button's preferred size must be rounded up to full mock pixels. We have 3 mock
+                        // pixels per DIP, so that is what we should get
+                        Rect buttonBounds( Point(), buttonPreferredSize );
+                        Rect adjustedButtonBounds = pCore->adjustBounds(buttonBounds, RoundType::nearest, RoundType::up);
+
+                        REQUIRE( preferredSize == adjustedButtonBounds.getSize()  );
+                    };            
+                };
+            }
         }
 
         SECTION("with child view")
@@ -189,19 +205,17 @@ TEST_CASE("ColumnView")
             {
                 SECTION("child margins")
                 {
-                    Size preferredSizeBefore = pColumnView->sizingInfo().get().preferredSize;
-                    int sizingInfoUpdateCountBefore = pColumnView->getSizingInfoUpdateCount();
-                    int layoutCountBefore = pColumnView->getLayoutCount();
+                    Size preferredSizeBefore = pColumnView->calcPreferredSize();
+                    int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
                     pButton->margin() = UiMargin(1, 2, 3, 4);
 
-                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, sizingInfoUpdateCountBefore, layoutCountBefore)
+                    CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, layoutCountBefore)
                     {
-                        // should cause a sizing update for the column view, followed by a layout update
-                        REQUIRE( pColumnView->getSizingInfoUpdateCount()==sizingInfoUpdateCountBefore+1 );
-                        REQUIRE( pColumnView->getLayoutCount()==layoutCountBefore+1 );                
+                        // should cause a layout update for the column view
+                        REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount()==layoutCountBefore+1 );                
 
-                        Size preferredSize = pColumnView->sizingInfo().get().preferredSize;
+                        Size preferredSize = pColumnView->calcPreferredSize();
 
                         REQUIRE( preferredSize == preferredSizeBefore+Margin(1,2,3,4) );
                     };         
@@ -214,72 +228,133 @@ TEST_CASE("ColumnView")
                         for(int vertAlign = (int)View::VerticalAlignment::top; vertAlign<=(int)View::VerticalAlignment::expand; vertAlign++)
                         {
                             SECTION( toString(horzAlign)+", "+toString(vertAlign) )
-                                testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+                            {
+                                SECTION("no margin")
+                                    testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+
+                                SECTION("with margin")
+                                {
+                                    pButton->margin() = UiMargin( 10, 20, 30, 40);
+
+                                    testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
+                                }
+                            }
                         }
                     }
                 }
                 
                 
-                SECTION("aligned on pixel multiples")
+                SECTION("position and size pixel aligned")
                 {
                     // add a weird margin to the button to bring everything out of pixel alignment
                     pButton->margin() = UiMargin( 0.1234567 );
 
-                    SECTION("availableWidth = -1")
+                    CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pCore )
                     {
-                        // note that the container's preferred size does not have to be a pixel
-                        // multiple.
-
-                        // But the sizes of the child views have to be.
-
                         verifyPixelMultiple( pButton->position() );
                         verifyPixelMultiple( pButton->size() );
-                    }
+                    };
+                }
 
+                
+                SECTION("calcContainerPreferredSize")
+                {
                     SECTION("availableWidth bigger than needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width+1 );
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width+1, Size::componentNone()) );
                 
                         // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
                     }
 
                     SECTION("availableWidth exactly same as needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
 
-                        Size size = pColumnView->calcPreferredSize( unrestrictedSize.width );
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width, Size::componentNone()) );
                 
-
                         // should be the same as the unresctricted size
                         REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
                     }
 
                     SECTION("availableWidth smaller than needed")
                     {
-                        Size unrestrictedSize = pColumnView->calcPreferredSize();
-                        Size size = pColumnView->calcPreferredSize(unrestrictedSize.width / 2);
+                        Size unrestrictedSize = pColumnView->calcContainerPreferredSize();
+                        Size size = pColumnView->calcContainerPreferredSize( Size(unrestrictedSize.width / 2, Size::componentNone()) );
 
                         // should still report almost the unrestricted size since none of the child views can be shrunk.
-                        // However, the sizes will be rounded down to the 
-                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );
-                        
-                        verifyPixelMultiple( pButton->position() );
-                        verifyPixelMultiple( pButton->size() );
+                        REQUIRE_ALMOST_EQUAL( size, unrestrictedSize, Size(0.0000001, 0.0000001) );                        
                     }        
                 }
+
+                
+                SECTION("getChildList")
+                {
+                    std::list< P<View> > childList;
+                    pColumnView->getChildViews(childList);
+
+                    REQUIRE( childList.size() == 1);
+                    REQUIRE( childList.front() == cast<View>(pButton) );
+                }
+
+                SECTION("removeAllChildViews")
+                {
+                    pColumnView->removeAllChildViews();
+
+                    std::list< P<View> > childList;
+                    pColumnView->getChildViews(childList);
+
+                    REQUIRE( childList.empty() );
+
+                    REQUIRE( pButton->getParentView() == nullptr );
+                }
+                
+                SECTION("child views detached before destruction begins")
+                {            
+                    struct LocalTestData_ : public Base
+                    {
+                        bool destructorRun = false;
+                        int childParentStillSet = -1;
+                        int childListEmpty = -1;
+                    };
+
+                    P<LocalTestData_> pData = newObj<LocalTestData_>();
+
+            
+                    pColumnView->setDestructFunc(
+                        [pData, pButton]( bdn::test::ViewWithTestExtensions<ColumnView>* pColView )
+                        {
+                            pData->destructorRun = true;
+                            pData->childParentStillSet = (pButton->getParentView()!=nullptr) ? 1 : 0;
+
+                            std::list< P<View> > childList;
+                            pColView->getChildViews(childList);
+                            pData->childListEmpty = (childList.empty() ? 1 : 0);
+                        } );
+
+                    BDN_CONTINUE_SECTION_WHEN_IDLE(pData, pButton)
+                    {
+                        // All test objects should have been destroyed by now.
+                        // First verify that the destructor was even called.
+                        REQUIRE( pData->destructorRun );
+
+                        // now verify what we actually want to test: that the
+                        // content view's parent was set to null before the destructor
+                        // of the parent was called.
+                        REQUIRE( pData->childParentStillSet == 0 );
+
+                        // the child should also not be a child of the parent
+                        // from the parent's perspective anymore.
+                        REQUIRE( pData->childListEmpty == 1 );
+                    };
+                }
+
             };
         }
 
-        SECTION("multiple child views")
+        SECTION("multiple child views properly arranged")
         {
             pColumnView->addChildView(pButton);
 
@@ -311,24 +386,20 @@ TEST_CASE("ColumnView")
                 Rect bounds = Rect( pButton->position(), pButton->size());
                 Rect bounds2 = Rect( pButton2->position(), pButton2->size());
 
-                SECTION("properly arranged")
-                {
-                    REQUIRE( bounds.x == m.left);
-                    REQUIRE( bounds.y == m.top);
-                    // width and height should have been rounded up to full pixels.
-                    // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
-                    REQUIRE( bounds.width == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.width, 3) );
-                    REQUIRE( bounds.height == stableScaledRoundUp(pButton->sizingInfo().get().preferredSize.height,3) );
+                REQUIRE( bounds.x == m.left);
+                REQUIRE( bounds.y == m.top);
+                // width and height should have been rounded up to full pixels.
+                // Since our mock view has 3 pixels per DIP, we need to round up accordingly.
+                REQUIRE( bounds.width == stableScaledRoundUp(pButton->calcPreferredSize().width, 3) );
+                REQUIRE( bounds.height == stableScaledRoundUp(pButton->calcPreferredSize().height,3) );
 
-                    REQUIRE( bounds2.x == m2.left );
-                    REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
-                    REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.width, 3) );
-                    REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->sizingInfo().get().preferredSize.height, 3) );
-                }
+                REQUIRE( bounds2.x == m2.left );
+                REQUIRE( bounds2.y == bounds.y + bounds.height + m.bottom + m2.top );
+                REQUIRE( bounds2.width == stableScaledRoundUp( pButton2->calcPreferredSize().width, 3) );
+                REQUIRE( bounds2.height == stableScaledRoundUp( pButton2->calcPreferredSize().height, 3) );
             };
         }
-
-
+        
 	}	
 }
 

@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 public class NativeViewGroup extends ViewGroup
 {
@@ -57,17 +59,19 @@ public class NativeViewGroup extends ViewGroup
     {
         // modify the child's layout params
 
-        Log.i("boden", "setChildBounds " + child.toString()+" to "+Integer.toString(width)+"x"+Integer.toString(height));
+        // Log.i("boden", "setChildBounds " + child.toString()+" to "+Integer.toString(width)+"x"+Integer.toString(height));
 
         final LayoutParams params = new LayoutParams(x, y, width, height);
         child.setLayoutParams(params);
 
         // and then schedule a re-layout of this container so that the child will be repositioned
         if(isInLayout())
-            Log.i("boden", "skipped requestLayout");
+        {
+            // Log.i("boden", "skipped requestLayout");
+        }
         else
         {
-            Log.i("boden", "requestLayout " + toString());
+            // Log.i("boden", "requestLayout " + toString());
             requestLayout();
         }
     }
@@ -96,7 +100,7 @@ public class NativeViewGroup extends ViewGroup
                 resolveSize(mWidth, widthMeasureSpec),
                 resolveSize(mHeight, heightMeasureSpec));
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
 
@@ -105,10 +109,12 @@ public class NativeViewGroup extends ViewGroup
     {
         final int childCount = getChildCount();
 
-        if(childCount==0)
-            Log.i("boden", getClass().getName()+".onLayout with zero children.");
+        String myParams = Integer.toString(left)+", "+Integer.toString(top)+", "+Integer.toString(right)+", "+Integer.toString(bottom);
+
+        /*if(childCount==0)
+            Log.i("boden", getClass().getName()+".onLayout("+myParams+") with zero children.");
         else
-            Log.i("boden", getClass().getName()+".onLayout "+toString()+" started.");
+            Log.i("boden", getClass().getName()+".onLayout("+myParams+") "+toString()+" started.");*/
 
         for(int i=0; i<childCount; i++)
         {
@@ -118,7 +124,7 @@ public class NativeViewGroup extends ViewGroup
             {
                 final LayoutParams params = (LayoutParams)child.getLayoutParams();
 
-                Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
+                // Log.i("boden", "Laying out child " + child.toString()+" to size "+Integer.toString(params.width)+"x"+Integer.toString(params.height));
 
                 child.layout( params.x, params.y, params.x+params.width, params.y+params.height );
             }

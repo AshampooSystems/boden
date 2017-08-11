@@ -13,7 +13,7 @@ namespace bdn
 namespace win32
 {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
 	WindowCore(Window* pWindow);			
@@ -22,17 +22,30 @@ public:
 	
 	void	setTitle(const String& title) override;
 
-	Rect getContentArea() override;
-
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override;
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override;
 	
-	Rect getScreenWorkArea() const override;	
+    /** Returns the area of the screen that can be used by windows.
+		That excludes taskbars, sidebars and the like (if they are always visible).
+		The returned rect applies only to the screen that the window is currently on.
+		Other screens can have different window areas.
+        
+        Note that the work area position may have negative coordinates on systems
+        with multiple monitors. That can be normal.
+     
+        */
+	Rect getScreenWorkArea() const;	
 
 	Size getMinimumSize() const;
 
-	Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override;
+	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+    void layout() override;
+
+	void requestAutoSize();
+    void requestCenter();
+
+    void center() override;
+    void autoSize() override;
+       
+
 	
 protected:
 	class WindowCoreClass : public Win32WindowClass
@@ -53,8 +66,15 @@ protected:
 	void setWindowsDpiValue(int dpi);
 
 	void dpiChanged(int newDpi, const RECT* pSuggestedNewRect );
+    void sizeChanged(int changeType);
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+
+private:
+    /** Returns the size of the non-client area around the window.
+        This includes the window border, titlebar, etc.*/
+    Margin getNonClientMargin() const;
+
 };
 
 }

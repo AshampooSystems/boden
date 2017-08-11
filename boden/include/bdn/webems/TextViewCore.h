@@ -31,6 +31,31 @@ public:
     	// need to process linebreaks.
         _domObject.set("textContent", text.asUtf8());
     }    
+
+
+
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
+    {
+        Size availableSpaceToUse(availableSpace);
+
+        // we want to use the preferred size hint as the maximum, so that we wrap correctly.
+        P<const View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            Size hint = pView->preferredSizeHint();
+
+            // ignore the hint height. We cannot adjust our width based on the desired height, only the other way round.
+            hint.height = Size::componentNone();
+
+            availableSpaceToUse.applyMaximum(hint);
+        }
+
+        Size prefSize = ViewCore::calcPreferredSize(availableSpaceToUse);
+
+        return prefSize;
+    }
+
+
 };
 
 

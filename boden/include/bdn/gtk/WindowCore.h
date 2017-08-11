@@ -5,6 +5,8 @@
 #include <bdn/IWindowCore.h>
 #include <bdn/Window.h>
 
+#include <bdn/windowCoreUtil.h>
+
 #include <gtk/gtk.h>
 
 namespace bdn
@@ -13,7 +15,7 @@ namespace gtk
 {
     
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore
+class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
 {
 public:
 	WindowCore(View* pOuter)
@@ -103,74 +105,80 @@ public:
     }
     
     
-
-
-
-	Rect getContentArea() override
+    
+    
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
-        // content area size is the same as our size (since window borders etc. are not
-        // included in our size).
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            return defaultWindowCalcPreferredSizeImpl( pWindow, availableSpace, Margin(), Size() );
+        else
+            return Size(0,0);
+    }
+    
+    void layout() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            gint width;
+            gint height;
+            gtk_window_get_size( GTK_WINDOW( getGtkWidget() ), &width, &height );        
+            // note that we get the size and position without window borders and decorations here.
+            // That is ok, since we completely ignore the nonclient area of the window and pretend
+            // that it is 0 anyway. All GTK functions work that way, so that is OK.
+            
+            GdkRectangle rect;
+            rect.x = 0;
+            rect.y = 0;
+            rect.width = width;
+            rect.height = height;
         
-        Rect area( Point(0,0), _currBounds.getSize() );
-        
-        // note that we cannot use the current size of _pContentParentWidget, because it might
-        // lag behind a little bit when the size of the overall window changes.
-        // If we need to change to the _pContentParentWidget size in the future then we need
-        // to react to the resizing of the content parent.
-        
-        /*GtkAllocation alloc;
-        gtk_widget_get_allocation(_pContentParentWidget, &alloc );
-
-        Rect area = gtkRectToRect(alloc );        */
-        
-        return area;
+            Rect contentArea = gtkRectToRect( rect );
+            
+            defaultWindowLayoutImpl( pWindow, contentArea );
+        }
+    }
+    
+    
+    
+    
+    void requestAutoSize() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsAutoSizing( pWindow );
+        }
+    }
+    
+    void requestCenter() override
+    {
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+        {
+            P<UiProvider> pProvider = tryCast<UiProvider>( pWindow->getUiProvider() );
+            if(pProvider!=nullptr)
+                pProvider->getLayoutCoordinator()->windowNeedsCentering( pWindow );
+        }
+    }
+    
+    
+    void autoSize() override
+    {
+        // we cannot change our size. So, do nothing
+    }
+    
+    void center() override
+    {
+        // we cannot change our position. So, do nothing.
     }
 
 
-	Size calcWindowSizeFromContentAreaSize(const Size& contentSize) override
-    {
-        // the "window size" in GTK is the size without borders and window decorations.
-        // So the window size is equal to the content size.
-        return contentSize;
-    }
-
-
-	Size calcContentAreaSizeFromWindowSize(const Size& windowSize) override
-    {
-        // the "window size" in GTK is the size without borders and window decorations.
-        // So the window size is equal to the content size.
-        return windowSize;
-    }
-
-
-	Size getMinimumSize() const override
-    {
-        return _minSize;
-    }
 
 	
-	Rect getScreenWorkArea() const
-    {
-        GdkScreen* pScreen = gtk_window_get_screen( getGtkWindow() );
-        
-        GdkWindow* pGdkWindow = gtk_widget_get_window( getGtkWidget() );
-        
-        gint monitorNum;
-        
-        if(pGdkWindow!=nullptr)
-            monitorNum = gdk_screen_get_monitor_at_window( pScreen, pGdkWindow );
-        else
-        {
-            // widget is not realized. Just return the default monitor
-            monitorNum = gdk_screen_get_primary_monitor( pScreen );
-        }
-        
-        
-        GdkRectangle workArea;
-        gdk_screen_get_monitor_workarea( pScreen, monitorNum, &workArea );
-        
-        return gtkRectToRect(workArea );        
-    }
 	
     GtkWindow* getGtkWindow() const
     {
@@ -201,6 +209,36 @@ public:
 
     
 protected:
+    
+	Rect getScreenWorkArea() const
+    {
+        GdkScreen* pScreen = gtk_window_get_screen( getGtkWindow() );
+        
+        GdkWindow* pGdkWindow = gtk_widget_get_window( getGtkWidget() );
+        
+        gint monitorNum;
+        
+        if(pGdkWindow!=nullptr)
+            monitorNum = gdk_screen_get_monitor_at_window( pScreen, pGdkWindow );
+        else
+        {
+            // widget is not realized. Just return the default monitor
+            monitorNum = gdk_screen_get_primary_monitor( pScreen );
+        }
+        
+        
+        GdkRectangle workArea;
+        gdk_screen_get_monitor_workarea( pScreen, monitorNum, &workArea );
+        
+        return gtkRectToRect(workArea );        
+    }
+
+	Size getMinimumSize() const
+    {
+        return _minSize;
+    }
+
+
     Rect _getBounds()
     {
         gint x;

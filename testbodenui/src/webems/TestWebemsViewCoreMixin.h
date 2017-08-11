@@ -103,12 +103,6 @@ protected:
         }
     }
 
-    void verifyInitialDummyCorePosition() override
-    {        
-        Rect rect = getViewRect();
-
-        REQUIRE( rect.getPosition() == Point() );
-    }
 
     void verifyInitialDummyCoreSize() override
     {        

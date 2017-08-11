@@ -59,13 +59,7 @@ protected:
 
         return Size( _jView.getWidth()/scaleFactor, _jView.getHeight()/scaleFactor );
     }
-    
-    void verifyInitialDummyCorePosition() override
-    {        
-        Point pos = getViewPosition();
 
-        REQUIRE( pos == Point() );
-    }
 
     void verifyInitialDummyCoreSize() override
     {        

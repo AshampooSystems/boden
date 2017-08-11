@@ -22,9 +22,12 @@ void ButtonCore::setLabel(const String& label)
 	setWindowText(getHwnd(), label);
 }
 
-Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight) const
+Size ButtonCore::calcPreferredSize( const Size& availableSpace ) const
 {
     String label;
+
+    // we completely ignore the available space. We do not have any way to reduce the needed
+    // size for the button.
 
     P<const Button> pButton = cast<const Button>( getOuterViewIfStillAttached() );
     if(pButton!=nullptr)
@@ -67,7 +70,10 @@ Size ButtonCore::calcPreferredSize(double availableWidth, double availableHeight
 	prefSize.height += 2 * 2;
 
     if(pButton!=nullptr)
-        prefSize = pButton->applySizeConstraints( prefSize );
+    {
+        prefSize.applyMaximum( pButton->preferredSizeMaximum() );
+        prefSize.applyMinimum( pButton->preferredSizeMinimum() );
+    }
 
 	return prefSize;
 }

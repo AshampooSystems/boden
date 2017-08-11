@@ -84,25 +84,41 @@ public:
         return adjustedBounds;
     }
 
-    Size calcPreferredSize(double availableWidth=-1, double availableHeight=-1) const override
+    Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
     {
         // we must unset the fixed width we set in the last setSize call, otherwise it will influence
         // the size we measure here.
 
-        if(_currWidthPixels!=0x7fffffff && _pJTextView!=nullptr)
-            _pJTextView->setMaxWidth(0x7fffffff);
+        if(_pJTextView!=nullptr)
+        {
+            int maxWidthPixels = 0x7fffffff;
+
+            // if we have a preferred width hint then we use that. The text view core uses
+            // the "max width" to do its wrapping. Same if we have a maximum width
+            P<const View> pView = getOuterViewIfStillAttached();
+            if (pView != nullptr)
+            {
+                Size limit = pView->preferredSizeHint();
+                limit.applyMaximum(pView->preferredSizeMaximum());
+
+                if (std::isfinite(limit.width))
+                    maxWidthPixels = std::lround(limit.width * getUiScaleFactor());
+            }
+
+            _pJTextView->setMaxWidth(maxWidthPixels);
+        }
 
         Size resultSize;
 
         try
         {
-            resultSize = ViewCore::calcPreferredSize(availableWidth, availableHeight);
+            resultSize = ViewCore::calcPreferredSize( availableSpace );
         }
         catch(...)
         {
             try
             {
-                if(_currWidthPixels!=0x7fffffff && _pJTextView!=nullptr)
+                if(_pJTextView!=nullptr)
                     _pJTextView->setMaxWidth(_currWidthPixels);
             }
             catch(...)
@@ -113,7 +129,7 @@ public:
             throw;
         }
 
-        if(_currWidthPixels!=0x7fffffff && _pJTextView!=nullptr)
+        if(_pJTextView!=nullptr)
             _pJTextView->setMaxWidth(_currWidthPixels);
 
         return resultSize;

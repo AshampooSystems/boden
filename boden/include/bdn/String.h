@@ -1034,12 +1034,12 @@ inline std::wistream& operator>>(std::wistream& stream, bdn::String& s)
 }
 
 
-namespace std
+namespace bdn
 {
 
 	/** Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
-	inline std::istream& getline(std::istream& stream, bdn::String& s, char delimiterChar)
+	inline std::istream& getLineFromStream(std::istream& stream, bdn::String& s, char delimiterChar)
 	{
 		std::string temp;
 
@@ -1052,7 +1052,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
-	inline std::istream& getline(std::istream& stream, bdn::String& s)
+	inline std::istream& getLineFromStream(std::istream& stream, bdn::String& s)
 	{
 		std::string temp;
 
@@ -1069,7 +1069,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
-	inline std::istream& getline(std::istream&& stream, bdn::String& s, char delimiterChar)
+	inline std::istream& getLineFromStream(std::istream&& stream, bdn::String& s, char delimiterChar)
 	{
 		std::string temp;
 
@@ -1082,7 +1082,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
-	inline std::istream& getline(std::istream&& stream, bdn::String& s)
+	inline std::istream& getLineFromStream(std::istream&& stream, bdn::String& s)
 	{
 		std::string temp;
 
@@ -1098,7 +1098,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
 		in a bdn::String object.*/
-	inline std::wistream& getline(std::wistream& stream, bdn::String& s, wchar_t delimiterChar)
+	inline std::wistream& getLineFromStream(std::wistream& stream, bdn::String& s, wchar_t delimiterChar)
 	{
 		std::wstring temp;
 
@@ -1111,7 +1111,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
 		in a bdn::String object.*/
-	inline std::wistream& getline(std::wistream& stream, bdn::String& s)
+	inline std::wistream& getLineFromStream(std::wistream& stream, bdn::String& s)
 	{
 		std::wstring temp;
 
@@ -1130,7 +1130,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
 		in a bdn::String object.*/
-	inline std::wistream& getline(std::wistream&& stream, bdn::String& s, wchar_t delimiterChar)
+	inline std::wistream& getLineFromStream(std::wistream&& stream, bdn::String& s, wchar_t delimiterChar)
 	{
 		std::wstring temp;
 
@@ -1143,7 +1143,7 @@ namespace std
 
 	/** Behaves the same way as std::getline for std::wstring, except that the result is stored
 		in a bdn::String object.*/
-	inline std::wistream& getline(std::wistream&& stream, bdn::String& s)
+	inline std::wistream& getLineFromStream(std::wistream&& stream, bdn::String& s)
 	{
 		std::wstring temp;
 

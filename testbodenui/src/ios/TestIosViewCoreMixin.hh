@@ -48,13 +48,6 @@ protected:
         return bdn::ios::iosRectToRect( _pUIView.frame);
     }
     
-    void verifyInitialDummyCorePosition() override
-    {        
-        Rect rect = getFrameRect();
-                
-        REQUIRE( rect.getPosition() == Point() );
-    }
-
     void verifyInitialDummyCoreSize() override
     {        
         Rect rect = getFrameRect();

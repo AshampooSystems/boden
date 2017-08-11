@@ -5,6 +5,7 @@
 #include <bdn/win32/WindowCore.h>
 #include <bdn/win32/ContainerViewCore.h>
 #include <bdn/win32/TextViewCore.h>
+#include <bdn/win32/ScrollViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/win32/win32Error.h>
 
@@ -73,6 +74,9 @@ UiProvider::UiProvider()
 	// add the font to our map
 	FontSpec spec;
 	_fontMap[spec] = _pDefaultUiFont;
+
+    // we use the generic layout coordinator
+    _pLayoutCoordinator = newObj<LayoutCoordinator>();
 }
 
 
@@ -120,6 +124,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
 		return newObj<TextViewCore>( cast<TextView>(pView) );
+
+    else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
+		return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
 
 	else	
 		throw ViewCoreTypeNotSupportedError(coreTypeName);

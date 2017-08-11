@@ -2,6 +2,7 @@
 #define BDN_WEBEMS_UiProvider_H_
 
 #include <bdn/IUiProvider.h>
+#include <bdn/LayoutCoordinator.h>
 
 #include <emscripten/val.h>
 
@@ -20,6 +21,8 @@ class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
 public:
     UiProvider()
     {
+        _pLayoutCoordinator = newObj<LayoutCoordinator>();
+
         emscripten::val docVal = emscripten::val::global("document");
         
         emscripten::val divVal( docVal.call<emscripten::val>("createElement", std::string("div") ) );
@@ -51,8 +54,17 @@ public:
     }
 
 
+    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
+    P<LayoutCoordinator> getLayoutCoordinator()
+    {
+        return _pLayoutCoordinator;
+    }
+
+
+
 private:
     double _semDips;
+    P<LayoutCoordinator> _pLayoutCoordinator;
 
 };
 

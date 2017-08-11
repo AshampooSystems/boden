@@ -1,5 +1,5 @@
 #ifndef BDN_IScrollViewCore_H_
-#define BDN_IWindowCoreBDN_IScrollViewCore_H__H_
+#define BDN_IScrollViewCore_H_
 
 #include <bdn/IViewCore.h>
 
@@ -13,14 +13,11 @@ class IScrollViewCore : BDN_IMPLEMENTS IViewCore
 public:
 
 	/** Controls wether or not the view scrolls horizontally.*/
-	virtual void setHorizontalScrollingEnabled(bool enabled)=0;
+	virtual void setHorizontalScrollingEnabled(const bool& enabled)=0;
 
     /** Controls wether or not the view scrolls vertically.*/
-	virtual void setVerticalScrollingEnabled(bool enabled)=0;
+	virtual void setVerticalScrollingEnabled(const bool& enabled)=0;
     
-
-    /** Sizes and positions the content view.*/
-    virtual void layout()=0;
 	
 };
 

@@ -8,6 +8,7 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/Button.h>
+#include <bdn/ColumnView.h>
 
 namespace bdn
 {
@@ -16,14 +17,15 @@ namespace test
 
 
 /** Helper for tests that verify IViewCore implementations.*/
-class TestViewCore : public RequireNewAlloc<Base, TestViewCore>
+template<class ViewType>
+class TestViewCore : public RequireNewAlloc<Base, TestViewCore<ViewType> >
 {
 public:
 
     /** Performs the tests.*/
     virtual void runTests()
     {
-        _pWindow = newObj<Window>( &getUiProvider() );
+        _pWindow = newObj<WindowForTest>( &getUiProvider() );
 
         _pWindow->visible() = true;
 
@@ -62,7 +64,7 @@ public:
             _pView->visible() = true;
 
             // ensure that all pending initializations have finished.
-            P<TestViewCore> pThis = this;
+            P<TestViewCore<ViewType>> pThis = this;
 
             CONTINUE_SECTION_WHEN_IDLE(pThis)
             {
@@ -147,8 +149,7 @@ protected:
         {
             _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
 
-            initCore();
-            verifyInitialDummyCorePosition();
+            initCore();            
             verifyInitialDummyCoreSize();
         }
     }
@@ -159,7 +160,9 @@ protected:
         The core is already created/initialized when this is function is called.
         */
     virtual void runPostInitTests()
-    {        
+    {
+        P<TestViewCore<ViewType>> pThis = this;
+    
         SECTION("uiLengthToDips")
         {
             REQUIRE( _pCore->uiLengthToDips( UiLength::none() ) == 0 );
@@ -222,7 +225,7 @@ protected:
         if(coreCanCalculatePreferredSize())
         {	
             SECTION("calcPreferredSize")
-                bdn::test::_testCalcPreferredSize<IViewCore>( _pView, _pCore, this );
+                bdn::test::_testCalcPreferredSize<ViewType, IViewCore>( _pView, _pCore, this );
         }
     
         SECTION("visibility")   
@@ -230,13 +233,21 @@ protected:
             SECTION("visible")
             {
                 _pView->visible() = true;
-                verifyCoreVisibility();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreVisibility();
+                };
             }
 
             SECTION("invisible")
             {
                 _pView->visible() = false;
-                verifyCoreVisibility();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCoreVisibility();
+                };
             }
 
             if(coreCanCalculatePreferredSize())                
@@ -247,13 +258,24 @@ protected:
                     Size prefSizeBefore = _pCore->calcPreferredSize();
 
                     _pView->visible() = true;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                    CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                    {
+                        REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                    _pView->visible() = false;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                        pThis->_pView->visible() = false;
+                        
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                        {
+                            REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                    _pView->visible() = true;
-                    REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                            pThis->_pView->visible() = true;
+                            
+                            CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                            {
+                                REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                            };
+                        };
+                    };
                 }
             }
         }
@@ -263,7 +285,11 @@ protected:
             SECTION("custom")
             {
                 _pView->padding() = UiMargin( 11, 22, 33, 44);
-                verifyCorePadding();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCorePadding();
+                };
             }
 
             SECTION("default after custom")
@@ -271,8 +297,11 @@ protected:
                 // set a non-default padding, then go back to default padding.
                 _pView->padding() = UiMargin( 11, 22, 33, 44);
                 _pView->padding() = nullptr;
-
-                verifyCorePadding();
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                {
+                    pThis->verifyCorePadding();
+                };
             }
 
             if(coreCanCalculatePreferredSize())
@@ -291,7 +320,6 @@ protected:
                     _pView->padding() = paddingBefore;
                     
                     // wait a little so that sizing info is updated.
-                    P<TestViewCore> pThis = this;
                     CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
                     {        
                         Size prefSizeBefore = pThis->_pCore->calcPreferredSize();
@@ -338,13 +366,11 @@ protected:
             SECTION("need adjustments")
                 bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
 
-            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);            
-
-            P<TestViewCore> pThis = this;
-            
+            Rect returnedBounds = _pView->adjustAndSetBounds(bounds);
+                        
             // on some platform and with some view types (Linux / GTK with top level window)
             // waiting for idle is not enough to ensure that the position actually changed.
-            // So instead we first wait for idle and then wait 2 additional seconds to ensure
+            // So instead we first wait for idle and then wait some additional seconds to ensure
             // that our changes have been applied
             CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {
@@ -380,8 +406,11 @@ protected:
                 Size prefSizeBefore = _pCore->calcPreferredSize();
 
                 _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
-                    
-                REQUIRE( _pCore->calcPreferredSize() == prefSizeBefore );
+                
+                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
+                {
+                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                };
             }
         }
 
@@ -480,6 +509,15 @@ protected:
                 }
             }
         }        
+
+        SECTION("invalidateSizingInfo invalidates parent sizing info")
+        {
+            int invalidateCountBefore = _pWindow->getInvalidateSizingInfoCount();
+
+            _pView->invalidateSizingInfo( View::InvalidateReason::customDataChanged );
+
+            REQUIRE( _pWindow->getInvalidateSizingInfoCount() > invalidateCountBefore );
+        }
     }
 
 
@@ -488,7 +526,15 @@ protected:
     virtual void initCore()
     {
         if(_pView!=cast<View>(_pWindow))
-            _pWindow->setContentView( _pView );
+        {
+            // the view might need control over its size to be able to do some of its test.
+            // Because of this we cannot add it to the window directly.
+            // Instead we add an intermediate ColumnView.
+            P<ColumnView> pContainer = newObj<ColumnView>();
+            _pWindow->setContentView(pContainer);
+
+            pContainer->addChildView( _pView );
+        }
 
         _pCore = _pView->getViewCore();
 
@@ -501,12 +547,7 @@ protected:
     /** Verifies that the core's padding property matches that of the outer view.*/
     virtual void verifyCorePadding()=0;
 
-
-    /** Verifies that the core's position property has the initial dummy value used
-        directly after initialization.*/
-    virtual void verifyInitialDummyCorePosition()=0;
-
-
+    
     /** Verifies that the core's size property has the initial dummy value used
         directly after initialization.*/
     virtual void verifyInitialDummyCoreSize()=0;
@@ -544,11 +585,38 @@ protected:
         return true;
     }
 
-    
-    P<Window> _pWindow;
-    P<View>   _pView;
 
-    P<IViewCore> _pCore;
+protected:
+
+    class WindowForTest : public Window
+    {
+    public:
+        WindowForTest(IUiProvider* pUiProvider = nullptr)
+            : Window(pUiProvider)
+        {
+        }
+
+        void invalidateSizingInfo(InvalidateReason reason) override
+        {
+            _invalidateSizingInfoCount++;
+
+            Window::invalidateSizingInfo(reason);
+        }
+
+        int getInvalidateSizingInfoCount() const
+        {
+            return _invalidateSizingInfoCount;
+        }
+
+    private:
+        int _invalidateSizingInfoCount = 0;
+    };
+
+   
+    P<WindowForTest>    _pWindow;
+    P<View>             _pView;
+
+    P<IViewCore>        _pCore;
 };
 
 

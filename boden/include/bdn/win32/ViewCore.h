@@ -2,6 +2,7 @@
 #define BDN_WIN32_ViewCore_H_
 
 #include <bdn/View.h>
+#include <bdn/LayoutCoordinator.h>
 #include <bdn/win32/Win32Window.h>
 #include <bdn/win32/Font.h>
 
@@ -12,7 +13,7 @@ namespace win32
 
 /** Base implementation for win32 view cores (see IViewCore).
 */
-class ViewCore : public Win32Window, BDN_IMPLEMENTS IViewCore
+class ViewCore : public Win32Window, BDN_IMPLEMENTS IViewCore, BDN_IMPLEMENTS LayoutCoordinator::IViewCoreExtension
 {
 public:
 	ViewCore(	View* pOuterView,
@@ -28,16 +29,43 @@ public:
     ~ViewCore();
 
 
+    /** Returns tne handle of the win32 window that serves as the parent for this view's children.
+        
+        This from getHwnd() (which simply returns the HWND of the view itself)
+        if the view consists of multiple HWNDs and child views are not
+        actually children of the main view HWND. For example, scroll views may have
+        a special content panel that serves as the parent of the child views.
+
+        Returns NULL if the window was already destroyed.
+        */
+	virtual HWND getParentHwndForChildren() const
+	{
+		return getHwnd();
+	}
+
+
+	void invalidateSizingInfo(View::InvalidateReason reason) override;
+    void needLayout(View::InvalidateReason reason) override;
+    void childSizingInfoInvalidated(View* pChild) override;
+    
+    void layout() override;
+
     Rect adjustAndSetBounds(const Rect& requestedBounds) override;
     Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const override;
 		
 	void setVisible(const bool& visible) override;
 			
 	void setPadding(const Nullable<UiMargin>& padding) override;
-            
-    void setHorizontalAlignment(const View::HorizontalAlignment& align);
-    void setVerticalAlignment(const View::VerticalAlignment& align);
+    void setMargin(const UiMargin& margin) override;
 
+
+            
+    void setHorizontalAlignment(const View::HorizontalAlignment& align) override;
+    void setVerticalAlignment(const View::VerticalAlignment& align) override;
+
+    void setPreferredSizeHint(const Size& hint) override;
+    void setPreferredSizeMinimum(const Size& limit) override;
+    void setPreferredSizeMaximum(const Size& limit) override;
 
 	double uiLengthToDips(const UiLength& uiLength) const override;
 	Margin uiMarginToDipMargin(const UiMargin& margin) const override;
@@ -84,6 +112,30 @@ public:
 			IViewCore* pCore = pView->getViewCore();
 			if(pCore!=nullptr)
 				return cast<ViewCore>(pCore)->getHwnd();
+		}
+
+		return NULL;
+	}
+
+
+    /** Returns the handle of the win32 window that serves as the parent window
+        for children of the specified view.
+        
+        This from getViewHwnd() (which simply returns the HWND of the parent view)
+        if the parent view consists of multiple HWNDs and child views are not
+        actually children of the main view HWND. For example, scroll views may have
+        a special content panel that serves as the parent of the child views.
+
+		Returns NULL if pView is null or if pView does not have an associated
+		core object.
+		*/
+	static HWND getViewParentHwndForChildren(View* pParentView)
+	{
+		if(pParentView!=nullptr)
+		{
+			IViewCore* pCore = pParentView->getViewCore();
+			if(pCore!=nullptr)
+				return cast<ViewCore>(pCore)->getParentHwndForChildren();
 		}
 
 		return NULL;

@@ -1,7 +1,9 @@
 #include <bdn/init.h>
 #include <bdn/debug.h>
 
-
+#if BDN_PLATFORM_ANDROID
+#include <android/log.h>
+#endif
 
 
 #ifdef BDN_PLATFORM_OSX
@@ -68,6 +70,40 @@
 
 #endif
 
+
+#if BDN_PLATFORM_WIN32 || BDN_PLATFORM_WINUWP
+    
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            OutputDebugStringW( (text+"\n").asWidePtr() );
+        }
+    }
+
+#elif BDN_PLATFORM_ANDROID
+
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        __android_log_write(ANDROID_LOG_DEBUG, "boden", text.asUtf8Ptr() );
+    }
+}
+
+
+#else
+
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            // do nothing
+        }
+    }
+
+#endif
 
 
 

@@ -21,39 +21,25 @@ public:
 	{		
 	}
 
-
-    /** Returns the number of times that the sizing information has been updated.*/
-    int getSizingInfoUpdateCount() const
+    ~ViewWithTestExtensions()
     {
-        return _sizingInfoUpdateCount;
+        if(_destructFunc)
+            _destructFunc(this);
     }
 
-	void updateSizingInfo() override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-		
-		_sizingInfoUpdateCount++;
-		BaseViewClass::updateSizingInfo();		
-	}	
 
-
-    /** Returns the number of times that the view's layout was updated.*/
-    int getLayoutCount() const
+    /** Sets a function that is executed from the object's destructor.
+    
+        The function gets a pointer to the object being destructed as its sole parameter.
+    */
+    void setDestructFunc( std::function< void( ViewWithTestExtensions<BaseViewClass>* ) > func)
     {
-        return _layoutCount;
+        _destructFunc = func;
     }
 
-	void layout() override
-	{
-		BDN_REQUIRE_IN_MAIN_THREAD();
-		
-		_layoutCount++;
-		BaseViewClass::layout();		
-	}	
+protected:
+    std::function< void( ViewWithTestExtensions<BaseViewClass>* ) > _destructFunc;
 
-protected:    
-	int _sizingInfoUpdateCount = 0;
-    int _layoutCount = 0;
 };
 
 
