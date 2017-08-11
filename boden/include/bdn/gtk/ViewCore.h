@@ -3,7 +3,7 @@
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
-#include <bdn/PixelAligner.h>
+#include <bdn/Dip.h>
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/util.h>
@@ -143,7 +143,7 @@ public:
         // Note that the GTK scale factor (factor from DIPs to pixels) is always an integer, so DIP
         // boundaries are always also pixel boundaries. But there may be additional pixel boundaries
         // between DIP boundaries.
-        return PixelAligner( 1 ).alignRect(requestedBounds, positionRoundType, sizeRoundType);
+        return Dip::pixelAlign(requestedBounds, 1, positionRoundType, sizeRoundType);
     }
 
 
