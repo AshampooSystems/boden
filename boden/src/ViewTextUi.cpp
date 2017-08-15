@@ -42,7 +42,7 @@ P< IAsyncOp<void> > ViewTextUi::write(const String& s)
     while(!remaining.isEmpty())
     {
         char32_t separator=0;
-        String para = remaining.splitOffToken("\n", &separator);
+        String para = remaining.splitOffToken("\n", true, &separator);
 
         if(_pCurrParagraphView==nullptr)
         {

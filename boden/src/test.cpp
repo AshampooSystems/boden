@@ -443,10 +443,10 @@ public: // IStream
 };
 
 
-class TextUiStreamBuf : public std::streambuf
+class TextUiStdStreamBuf : public std::streambuf
 {
 public:
-    TextUiStreamBuf(ITextUi* pUi)
+    TextUiStdStreamBuf(ITextUi* pUi)
     {
         _pUi = pUi;
     }
@@ -511,21 +511,28 @@ private:
 };
 
 
-class TextUiStream : public IStream {
-	mutable std::ostream m_os;
+class TextUiStream : public IStream
+{
 public:
 	TextUiStream(ITextUi* pUi)
+        : _stdStreamBuffer(pUi)
+        , _stdStream(&_stdStreamBuffer)
     {
-        _pUi = pUi;
     }
 
-	virtual ~TextUiStream() BDN_NOEXCEPT;
+	virtual ~TextUiStream() noexcept
+    {
+        // nothing to do.
+    }
 
-public:
 	virtual std::ostream& stream() const override
     {
-
+        return _stdStream;
     }
+
+private:
+    TextUiStdStreamBuf      _stdStreamBuffer;
+    mutable std::ostream    _stdStream;
 };
 
 
@@ -657,11 +664,14 @@ public:
 
 private:
 
-	IStream const* openStream() {
+	IStream const* openStream()
+    {
 		if( m_data.outputFilename.empty() )
 			return new CoutStream();
+
 		else if( m_data.outputFilename[0] == '%' )
 			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
+
 		else
 			return new FileStream( m_data.outputFilename );
 	}

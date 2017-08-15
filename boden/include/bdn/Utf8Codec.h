@@ -278,68 +278,7 @@ public:
 		{
 			_nextIt = _sourceIt;
 
-            _chr = Utf8Codec::decodeChar(_nextIt, _endSourceIt);
-
-			uint8_t firstByte = *_nextIt;
-
-			++_nextIt;
-
-			if((firstByte & 0x80)==0)
-				_chr = firstByte;
-			else
-			{
-				int     mask = 0x40;
-				bool    invalid = false;
-				int     length=1;
-
-				_chr = 0;
-
-				while(true)
-				{
-					if((firstByte & mask)==0)
-					{
-						// end of sequence
-						break;
-					}
-
-					if(_nextIt==_endSourceIt)
-					{
-						// we should have one more byte, but we don't.
-						invalid = true;
-						break;
-					}
-
-					uint8_t val = *_nextIt;
-					if((val & 0xc0)!=0x80)
-					{
-						// invalid sequence. We should abort right away, because the current
-						// value could be part of a valid sequence that follows the broken one.
-						invalid = true;
-						break;
-					}
-
-					_chr <<= 6;
-					_chr |= (val & 0x3f);
-
-					mask >>= 1;
-
-					++_nextIt;
-					++length;
-				}
-
-				if(invalid || length==1 || length>6)
-				{
-					// use the unicode "replacement character".
-					_chr = 0xfffd;
-					// only consume a single byte.
-					_nextIt = _sourceIt;
-					++_nextIt;
-				}
-				else
-				{
-					_chr |= (((char32_t)firstByte) & (mask-1)) << ((length-1)*6);
-				}
-			}
+            _chr = Utf8Codec::decodeChar(_nextIt, _endSourceIt);			
 		}
 
 

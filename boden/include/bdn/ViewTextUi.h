@@ -5,6 +5,7 @@
 #include <bdn/Window.h>
 #include <bdn/ScrollView.h>
 #include <bdn/TextView.h>
+#include <bdn/ColumnView.h>
 #include <bdn/OneShotStateNotifier.h>
 
 
