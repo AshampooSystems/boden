@@ -10,7 +10,23 @@ namespace bdn
 /** A std::basic_streambuf implementation that outputs data to a bdn::ITextUi object.
 
     This class is rarely used directly - see bdn::TextUiStdIoStream instead.
-    
+
+    The streambuf uses the encoding of the locale that is selected into it with pubimbue()
+    to decode the string data to Unicode.
+
+    Special UTF-8 handling
+    ----------------------
+
+    There is special handling for UTF-8: the TextUiStdStreamBuf object will detect if
+    the multibyte encoding of the locale is UTF-8. If it is then it will use its own
+    UTF-8 decoding routines instead of using the locale codec. This is done to improve the
+    consistency on different platforms because many C++ standard libraries have buggy
+    UTF-8 implementations.
+
+    If the locale defines uses any other encoding then the TextUiStdStreamBuf will use the
+    codec provided by the locale.
+
+
 */
 template<typename CharType > 
 class TextUiStdStreamBuf : public std::basic_streambuf<CharType>
@@ -59,14 +75,14 @@ private:
     int syncImpl<char>()
     {
         // for char we cannot be certain that we have utf-8. It depends on the selected locale.
-        // So we prefer the generic implementation that uses the locale.
-        if( std::has_facet< std::codecvt<wchar_t, char, mbstate_t> >( getloc() ) )
-            return syncWithLocaleDecoding<char>();
-        else
-        {
-            // if we do not have a conversion facet for this then we fall back to utf-8
+        
+        // If the locale uses UTF-8 then we want to use our own decoding implementation. It ensures that
+        // the decoder works properly and consistently on all platforms. This special handling is necessary
+        // because the UTF-8 implementation in many C++ standard libraries is buggy.
+        if( isUtf8Locale( getloc() ) )
             return utfSync<char>();
-        }
+        else
+            return syncWithLocaleDecoding<char>();
     }
 
     template<>
