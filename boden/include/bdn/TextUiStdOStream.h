@@ -2,7 +2,7 @@
 #define BDN_TextUiStdOStream_H_
 
 #include <bdn/TextUiStdStreamBuf.h>
-#include <bdn/CodecType.h>
+
 
 namespace bdn
 {
@@ -21,17 +21,18 @@ namespace bdn
     The initial locale (when imbue() is not called) is a copy of the global
     C++ locale (as constructed by std::locale() ).
 */
-template<typename CharType, typename CodecType = UtfCodec<CharType> >
+template<typename CharType >
 class TextUiStdOStream : public std::basic_ostream<CharType>
 {
 public:
-    TextUiStdOStream()
-        : std::basic_ostream<CharType>(&_streamBuf)
+    TextUiStdOStream(ITextUi* pUi)
+        : _streamBuf(pUi)
+        , std::basic_ostream<CharType>(&_streamBuf)
     {
     }
 
 private:
-    TextUiStdStreamBuf<CharType, CodecType> _streamBuf;
+    TextUiStdStreamBuf<CharType> _streamBuf;
 };
 
 

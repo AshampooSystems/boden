@@ -3,6 +3,7 @@
 
 #include <bdn/UtfCodec.h>
 #include <bdn/ITextUi.h>
+#include <bdn/localeUtil.h>
 
 namespace bdn
 {
@@ -23,7 +24,7 @@ namespace bdn
     consistency on different platforms because many C++ standard libraries have buggy
     UTF-8 implementations.
 
-    If the locale defines uses any other encoding then the TextUiStdStreamBuf will use the
+    If the locale uses any other encoding then the TextUiStdStreamBuf will use the
     codec provided by the locale.
 
 

@@ -5,94 +5,11 @@
 #include <bdn/NotImplementedError.h>
 #include <bdn/localeUtil.h>
 
+#include <bdn/test/MockTextUi.h>
+
 
 using namespace bdn;
 
-
-class DummyTextUi : public Base, BDN_IMPLEMENTS ITextUi
-{
-public:
-
-    std::vector< String > _writtenChunks;
-    std::vector< String > _writtenErrorChunks;
-    
-
-    P< IAsyncOp<String> > readLine() override
-    {
-        throw NotImplementedError("DummyTextUi::readLine");
-    }
-
-	
-	P< IAsyncOp<void> >  write(const String& s) override
-    {
-        _writtenChunks.push_back(s);
-
-        return newObj<DummyWriteOp>();
-    }
-
-	
-	P< IAsyncOp<void> > writeLine(const String& s) override
-    {
-        _writtenChunks.push_back(s+"\n");
-
-        return newObj<DummyWriteOp>();
-    }
-
-
-	P< IAsyncOp<void> > writeError(const String& s) override
-    {
-        _writtenErrorChunks.push_back(s);
-
-        return newObj<DummyWriteOp>();
-    }
-	
-    
-	P< IAsyncOp<void> > writeErrorLine(const String& s) override
-    {
-        _writtenErrorChunks.push_back(s+"\n");
-
-        return newObj<DummyWriteOp>();
-    }
-
-private:
-    
-    class DummyWriteOp : public Base, BDN_IMPLEMENTS IAsyncOp<void>
-    {
-    public:          
-        DummyWriteOp()
-        {            
-            _pDoneNotifier = newObj< OneShotStateNotifier< P<IAsyncOp<void>> > >();
-
-            // immediately done
-            _pDoneNotifier->postNotification( this );
-        }
-
-        void getResult() const
-        {
-            // cannot fail
-        }
-
-        void signalStop()
-        {
-            // do nothing - cannot be aborted
-        }
-
-        bool isDone() const
-        {
-            // done immediately
-            return true;
-        }
-
-        
-        INotifier< P<IAsyncOp> >& onDone() const
-        {
-            return *_pDoneNotifier;
-        }
-
-    protected:
-        P< OneShotStateNotifier< P<IAsyncOp<void>> > > _pDoneNotifier;
-    };
-};
 
 
 
@@ -224,8 +141,10 @@ static void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSu
 }
 
 template<class CharType>
-static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStreamBuf<CharType>& buf, bool multiByteIsUtf8 )
+static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, TextUiStdStreamBuf<CharType>& buf, bool multiByteIsUtf8 )
 {  
+    const std::vector<String>& writtenChunks = pUi->getWrittenChunks();
+
     SECTION("sputc auto flush")
     {
         // the buffer has an input size of 64 elements.
@@ -236,16 +155,18 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
             expectedDataA += "a";
         }
 
+        const std::vector<String>& writtenChunks = pUi->getWrittenChunks();
+
         // nothing should have been written yet
-        REQUIRE( pUi->_writtenChunks.size() == 0);
+        REQUIRE( writtenChunks.size() == 0);
 
         buf.sputc('b');
 
         // this should trigger an overflow. All decodable data in the buffer
         // should be flushed
 
-        REQUIRE( pUi->_writtenChunks.size() == 1);
-        REQUIRE( pUi->_writtenChunks[0] == expectedDataA );
+        REQUIRE( writtenChunks.size() == 1);
+        REQUIRE( writtenChunks[0] == expectedDataA );
 
         String expectedDataB = "b";
 
@@ -257,15 +178,15 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
         }
 
         // should not have flushed yet
-        REQUIRE( pUi->_writtenChunks.size() == 1);
+        REQUIRE( writtenChunks.size() == 1);
 
         // write one more
         buf.sputc('c');
 
         // this should trigger another overflow / flush
-        REQUIRE( pUi->_writtenChunks.size() == 2);
-        REQUIRE( pUi->_writtenChunks[0] == expectedDataA );
-        REQUIRE( pUi->_writtenChunks[1] == expectedDataB );
+        REQUIRE( writtenChunks.size() == 2);
+        REQUIRE( writtenChunks[0] == expectedDataA );
+        REQUIRE( writtenChunks[1] == expectedDataB );
     }
 
     SECTION("sputn auto flush")
@@ -283,7 +204,7 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
         }
 
         // nothing should have been flushed yet
-        REQUIRE( pUi->_writtenChunks.size() == 0);
+        REQUIRE( writtenChunks.size() == 0);
 
         // The following should not trigger an overflow yet, since it still all
         // fits into the buffer.
@@ -300,15 +221,15 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
             // in the buffer should be flushed, then the new 8 characters
             // should be buffered.
 
-            REQUIRE( pUi->_writtenChunks.size() == 1);
-            REQUIRE( pUi->_writtenChunks[0] == expected );
+            REQUIRE( writtenChunks.size() == 1);
+            REQUIRE( writtenChunks[0] == expected );
 
             // now do a sync - this should flush the tail data
             buf.pubsync();
 
-            REQUIRE( pUi->_writtenChunks.size() == 2);
-            REQUIRE( pUi->_writtenChunks[0] == expected );
-            REQUIRE( pUi->_writtenChunks[1] == String(toWrite8) );
+            REQUIRE( writtenChunks.size() == 2);
+            REQUIRE( writtenChunks[0] == expected );
+            REQUIRE( writtenChunks[1] == String(toWrite8) );
         }       
 
         SECTION("1 less than buffer limit, then overflow")
@@ -325,15 +246,15 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
             // in the buffer should be flushed, then the new 8 characters
             // should be buffered.
 
-            REQUIRE( pUi->_writtenChunks.size() == 1);
-            REQUIRE( pUi->_writtenChunks[0] == expected );
+            REQUIRE( writtenChunks.size() == 1);
+            REQUIRE( writtenChunks[0] == expected );
 
             // now do a sync - this should flush the tail data
             buf.pubsync();
 
-            REQUIRE( pUi->_writtenChunks.size() == 2);
-            REQUIRE( pUi->_writtenChunks[0] == expected );
-            REQUIRE( pUi->_writtenChunks[1] == String(toWrite8.c_str()+1) );
+            REQUIRE( writtenChunks.size() == 2);
+            REQUIRE( writtenChunks[0] == expected );
+            REQUIRE( writtenChunks[1] == String(toWrite8.c_str()+1) );
         }
     }
 
@@ -347,13 +268,13 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
         }
 
         // should not have been flushed yet
-        REQUIRE( pUi->_writtenChunks.size() == 0);
+        REQUIRE( writtenChunks.size() == 0);
 
         int syncResult = buf.pubsync();
         REQUIRE( syncResult == 0);
 
-        REQUIRE( pUi->_writtenChunks.size() == 1);
-        REQUIRE( pUi->_writtenChunks[0] == expected );
+        REQUIRE( writtenChunks.size() == 1);
+        REQUIRE( writtenChunks[0] == expected );
     }
 
     if( sizeof(CharType)==1 && !multiByteIsUtf8)
@@ -384,12 +305,12 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
 
                         if(subTestData.encoded.length()==0)
                         {
-                            REQUIRE( pUi->_writtenChunks.size() == 0);
+                            REQUIRE( writtenChunks.size() == 0);
                         }
                         else
                         {
-                            REQUIRE( pUi->_writtenChunks.size() == 1);
-                            REQUIRE( pUi->_writtenChunks[0] == subTestData.expectedDecoded );
+                            REQUIRE( writtenChunks.size() == 1);
+                            REQUIRE( writtenChunks[0] == subTestData.expectedDecoded );
                         }
                     }
 
@@ -404,7 +325,7 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
                             {
                                 // The encoded data represents a single character. So we should not get any
                                 // output before the last element is written.
-                                REQUIRE( pUi->_writtenChunks.size() == 0);
+                                REQUIRE( writtenChunks.size() == 0);
                             }
                         }
 
@@ -423,7 +344,7 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
                             // matches the expected data, rather than verifying each written chunk individually.
 
                             String written;
-                            for(auto& chunk: pUi->_writtenChunks)
+                            for(auto& chunk: writtenChunks)
                                 written += chunk;
 
                             REQUIRE( written==subTestData.expectedDecoded );
@@ -431,11 +352,11 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
                         else
                         {                        
                             // each decoded character should have been written individually.
-                            REQUIRE( pUi->_writtenChunks.size() == subTestData.expectedDecoded.length() );
+                            REQUIRE( writtenChunks.size() == subTestData.expectedDecoded.length() );
 
                             for(int decodedCharIndex=0; decodedCharIndex<(int)subTestData.expectedDecoded.length(); decodedCharIndex++)
                             {   
-                                REQUIRE( pUi->_writtenChunks[decodedCharIndex] == subTestData.expectedDecoded.substr(decodedCharIndex, 1) );
+                                REQUIRE( writtenChunks[decodedCharIndex] == subTestData.expectedDecoded.substr(decodedCharIndex, 1) );
                             }
                         }
                     }
@@ -459,21 +380,21 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
                             buf.sputn( subTestData.encoded.c_str(), subTestData.encoded.length() );
                         
                             // this should have triggered an overflow and flush
-                            REQUIRE( pUi->_writtenChunks.size() == 1);
+                            REQUIRE( writtenChunks.size() == 1);
 
                             // We only run this test if the encoded data represents a single character
                             // (see if-statement above).
                             // the written data should not include any part of the last character
                             // since that one was incomplete
-                            REQUIRE( pUi->_writtenChunks[0] == expected );
+                            REQUIRE( writtenChunks[0] == expected );
 
                             // flush explicitly
                             buf.pubsync();
 
                             // now the utf8 character should have been written
-                            REQUIRE( pUi->_writtenChunks.size() == 2);
-                            REQUIRE( pUi->_writtenChunks[0] == expected );
-                            REQUIRE( pUi->_writtenChunks[1] == subTestData.expectedDecoded );
+                            REQUIRE( writtenChunks.size() == 2);
+                            REQUIRE( writtenChunks[0] == expected );
+                            REQUIRE( writtenChunks[1] == subTestData.expectedDecoded );
                         }
                     }
                 }
@@ -486,7 +407,7 @@ static void testTextUiStreamBuf_Preinitialized(P< DummyTextUi> pUi, TextUiStdStr
 template<class CharType>
 static void testTextUiStreamBuf()
 {
-    P< DummyTextUi> pUi = newObj<DummyTextUi>();
+    P< bdn::test::MockTextUi> pUi = newObj<bdn::test::MockTextUi>();
 
     TextUiStdStreamBuf< CharType > buf(pUi);
 
