@@ -987,9 +987,11 @@ inline bool operator>=(const char32_t* a, const bdn::String& b)
 
 
 
-/** Behaves the same way as the corresponding operators for std::string and const char*. The string
+/** Writes the string to the specified char output stream. The string
 	is written in the encoding of the locale that is associated with the stream
     (as returned by std::ostream::getloc() )
+
+    Behaves the same way as the corresponding operators for std::string and const char_t*
 */
 inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
 {
@@ -998,7 +1000,9 @@ inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
 
 
 
-/** Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
+/** Writes the string to the specified wide char output stream.
+
+    Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
 */
 inline std::wostream& operator<<(std::wostream& stream, const bdn::String& s)
 {
@@ -1006,8 +1010,25 @@ inline std::wostream& operator<<(std::wostream& stream, const bdn::String& s)
 }
 
 
+/** Writes the string to the specified UTF-16 output stream.
+*/
+inline std::basic_ostream<char16_t>& operator<<(std::basic_ostream<char16_t>& stream, const bdn::String& s)
+{
+	return stream << s.asUtf16();
+}
 
-/** Behaves the same way as the corresponding operators for std::string and const char*. The string
+
+/** Writes the string to the specified UTF-32 output stream.
+*/
+inline std::basic_ostream<char32_t>& operator<<(std::basic_ostream<char32_t>& stream, const bdn::String& s)
+{
+	return stream << s.asUtf32();
+}
+
+
+
+/** Reads a string from the specified stream.
+    Behaves the same way as the corresponding operators for std::string and const char*. The string
 	is read in the encoding of the locale that is associated with the stream
     (as returned by std::istream::getloc() )
 */
@@ -1022,7 +1043,8 @@ inline std::istream& operator>>(std::istream& stream, bdn::String& s)
 
 
 
-/** Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
+/** Reads a string from the specified stream.
+    Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
 */
 inline std::wistream& operator>>(std::wistream& stream, bdn::String& s)
 {
@@ -1034,10 +1056,33 @@ inline std::wistream& operator>>(std::wistream& stream, bdn::String& s)
 }
 
 
+/** Reads a string from the specified stream.
+*/
+inline std::basic_istream<char16_t>& operator>>(std::basic_istream<char16_t>& stream, bdn::String& s)
+{
+	std::basic_string<char16_t> temp;
+	stream >> temp;
+	s = temp;
+
+	return stream;
+}
+
+/** Reads a string from the specified stream.
+*/
+inline std::basic_istream<char32_t>& operator>>(std::basic_istream<char32_t>& stream, bdn::String& s)
+{
+	std::basic_string<char32_t> temp;
+	stream >> temp;
+	s = temp;
+
+	return stream;
+}
+
 namespace bdn
 {
 
-	/** Behaves the same way as std::getline for std::string, except that the result is stored
+	/** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
 	inline std::istream& getLineFromStream(std::istream& stream, bdn::String& s, char delimiterChar)
 	{
@@ -1050,7 +1095,8 @@ namespace bdn
 		return stream;
 	}
 
-	/** Behaves the same way as std::getline for std::string, except that the result is stored
+	/** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
 		in a bdn::String object.*/
 	inline std::istream& getLineFromStream(std::istream& stream, bdn::String& s)
 	{
@@ -1059,6 +1105,64 @@ namespace bdn
 		std::getline(stream, temp);
 
 		s = bdn::String::fromLocaleEncoding(temp, stream.getloc());
+
+		return stream;
+	}
+
+
+    /** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+    inline std::basic_istream<char16_t>& getLineFromStream(std::basic_istream<char16_t>& stream, bdn::String& s, char16_t delimiterChar)
+	{
+		std::basic_string<char16_t> temp;
+
+		std::getline(stream, temp, delimiterChar);
+
+		s = bdn::String(temp);
+
+		return stream;
+	}
+
+    /** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+    inline std::basic_istream<char16_t>& getLineFromStream(std::basic_istream<char16_t>& stream, bdn::String& s)
+	{
+		std::basic_string<char16_t> temp;
+
+		std::getline(stream, temp);
+
+		s = bdn::String(temp);
+
+		return stream;
+	}
+
+
+    /** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+    inline std::basic_istream<char32_t>& getLineFromStream(std::basic_istream<char32_t>& stream, bdn::String& s)
+	{
+		std::basic_string<char32_t> temp;
+
+		std::getline(stream, temp);
+
+		s = bdn::String(temp);
+
+		return stream;
+	}
+
+    /** Reads a line of text from the stream.
+        Behaves the same way as std::getline for std::string, except that the result is stored
+		in a bdn::String object.*/
+    inline std::basic_istream<char32_t>& getLineFromStream(std::basic_istream<char32_t>& stream, bdn::String& s, char32_t delimiterChar)
+	{
+		std::basic_string<char32_t> temp;
+
+		std::getline(stream, temp, delimiterChar);
+
+		s = bdn::String(temp);
 
 		return stream;
 	}

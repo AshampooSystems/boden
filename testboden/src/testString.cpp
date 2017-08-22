@@ -355,6 +355,12 @@ inline void testStreamIntegration()
 
 	SECTION("wchar_t")
 		verifyStreamIntegration<wchar_t>();
+
+    SECTION("char16_t")
+		verifyStreamIntegration<char16_t>();
+
+    SECTION("char32_t")
+		verifyStreamIntegration<char32_t>();
 }
 
 void testStdSwap()
