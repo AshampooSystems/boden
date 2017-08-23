@@ -17,6 +17,9 @@ static void testTextUiStdOStream()
 
     TextUiStdOStream<CharType> streamObj(pUi);
 
+    // use the classic locale so that we get predictable formatting
+    streamObj.imbue( std::locale::classic() );
+
     // most of the detailed tests for decoding corner cases etc. are covered by the tests
     // for TextUiStdStreamBuf. Here we only have some rough tests that verify
     // that the integration of the streambuf into a stream object works as expected.
@@ -24,9 +27,9 @@ static void testTextUiStdOStream()
     // to be certain that this is the case we use the stream as a generic std::ostream.
     std::basic_ostream<CharType>& stream = streamObj;
 
-    SECTION("several values")
+    SECTION("several values without linebreak")
     {
-        stream << 42 << " " << 1.22 << std::endl << String("hello world\n");
+        stream << 42 << " " << 1.22 << " " << String("hello world");
 
         // should be buffered initially.
         REQUIRE( writtenChunks.size() == 0);
@@ -34,7 +37,22 @@ static void testTextUiStdOStream()
         stream.flush();
 
         REQUIRE( writtenChunks.size() == 1);
-        REQUIRE( writtenChunks[0] == "42 1.22\nhello world\n" );
+        REQUIRE( writtenChunks[0] == "42 1.22 hello world" );
+    }
+
+
+    SECTION("several values with linebreak")
+    {
+        stream << 42 << " " << 1.22 << std::endl << String("hello world");
+
+        // the implementation flushes at line breaks.
+        REQUIRE( writtenChunks.size() == 1);
+        REQUIRE( writtenChunks[0] == "42 1.22\n" );
+
+        stream.flush();
+        
+        REQUIRE( writtenChunks.size() == 2);
+        REQUIRE( writtenChunks[1] == "hello world" );
     }
 
     SECTION("autosync when buffer exceeded")
@@ -50,7 +68,7 @@ static void testTextUiStdOStream()
         stream << "X";
 
         REQUIRE( writtenChunks.size() == 1);
-        REQUIRE( writtenChunks[0] == "012345670123456701234567012345670123456701234567" );        
+        REQUIRE( writtenChunks[0] == "0123456701234567012345670123456701234567012345670123456701234567" );        
     }
 }
 
@@ -64,11 +82,20 @@ TEST_CASE("TextUiStdOStream")
     SECTION("wchar_t")
         testTextUiStdOStream<wchar_t>();
 
+    // the std stream implementations for char16_t and char32_t do not work reliably
+    // with all compilers at the time of this writing (buggy in VS2015 and VS2017).
+    // Instead of trying to work around that we consider these variants as "off limits"
+    // for the time being and do not test them.
+
+    /*
+
     SECTION("char16_t")
         testTextUiStdOStream<char16_t>();
 
     SECTION("char32_t")
         testTextUiStdOStream<char32_t>();    
+
+        */
 
 }
 
