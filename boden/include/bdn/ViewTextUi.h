@@ -1,5 +1,5 @@
-#ifndef BDN_StdioTextUi_H_
-#define BDN_StdioTextUi_H_
+#ifndef BDN_ViewTextUi_H_
+#define BDN_ViewTextUi_H_
 
 #include <bdn/ITextUi.h>
 #include <bdn/Window.h>

@@ -4,6 +4,8 @@
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
 
+#include <bdn/test/MockTextUi.h>
+
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 
 namespace bdn
@@ -60,6 +62,7 @@ public:
     MockUiProvider()
     {
         _pLayoutCoordinator = newObj<LayoutCoordinator>();
+        _pTextUi = newObj<MockTextUi>();
     }
     
 	String getName() const
@@ -82,6 +85,11 @@ public:
         return _pLayoutCoordinator;
     }
 
+    P<ITextUi> getTextUi() override
+    {
+        return _pTextUi;
+    }
+
     
 	P<IViewCore> createViewCore(const String& coreTypeName, View* pView);
     
@@ -89,6 +97,7 @@ protected:
     int _coresCreated = 0;
 
     P<LayoutCoordinator> _pLayoutCoordinator;
+    P<MockTextUi>        _pTextUi;
 };
 
 

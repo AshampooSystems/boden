@@ -8,15 +8,26 @@
 #include <bdn/win32/ScrollViewCore.h>
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/win32/win32Error.h>
+#include <bdn/ViewTextUi.h>
+#include <bdn/IAppRunner.h>
+#include <bdn/StdioUiProvider.h>
 
 #include <ShellScalingAPI.h>
 
 namespace bdn
 {
 
-P<IUiProvider> getPlatformUiProvider()
+P<IUiProvider> getDefaultUiProvider()
 {
-	return &bdn::win32::UiProvider::get();
+    if( getAppRunner()->isCommandLineApp() )
+    {
+        // on win32 we use wchar_t so that we get full unicode support on the commandline.
+        static P< StdioUiProvider<wchar_t> > pProvider( newObj< StdioUiProvider<wchar_t> >(&std::wcin, &std::wcout, &std::wcerr) );
+
+        return pProvider;
+    }
+    else
+	    return &bdn::win32::UiProvider::get();
 }
 
 }
@@ -155,6 +166,17 @@ double UiProvider::getUiScaleFactorForMonitor(HMONITOR monitorHandle)
 	return ((double)dpiY) / 96.0;
 }
 
+
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        MutexLock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+            _pTextUi = newObj< ViewTextUi >();
+    }
+
+    return _pTextUi;
+}
 
 
 }

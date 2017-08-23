@@ -12,9 +12,11 @@ int genericCommandLineAppEntry(const std::function< P<AppControllerBase>() >& ap
     try
     {
         bdn::P<GenericAppRunner> pAppRunner = bdn::newObj<GenericAppRunner>(appControllerCreator,
-                                                                            argc, argv);
+                                                                            argc,
+                                                                            argv,
+                                                                            true );
         _setAppRunner(pAppRunner);
-
+        
         pAppRunner->entry();
     }
     catch(...)

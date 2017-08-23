@@ -29,17 +29,34 @@ private:
 	}
 
 public:
-	GenericAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[] )
-		: AppRunnerBase( appControllerCreator, _makeLaunchInfo(argCount, args) )
+    /** \param appControllerCreator function that creates the app controller (see AppControllerBase)
+        \param argCount number of commandline arguments
+        \param args array of C-style strings with the commandline arguments
+        \param commandLineApp indicates whether or not the application is a commandline app or not (see isCommandLineApp() for
+            more information)*/
+	GenericAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[], bool commandLineApp )
+		: _commandLineApp( commandLineApp )
+        , AppRunnerBase( appControllerCreator, _makeLaunchInfo(argCount, args) )
 	{
         _pDispatcher = newObj<GenericDispatcher>();
 	}
 
-	GenericAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, const AppLaunchInfo& launchInfo)
-		: AppRunnerBase( appControllerCreator, launchInfo )
+
+    /** \param appControllerCreator function that creates the app controller (see AppControllerBase)
+        \param launchInfo application launch information
+        \param commandLineApp indicates whether or not the application is a commandline app or not (see isCommandLineApp() for
+            more information)*/
+	GenericAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, const AppLaunchInfo& launchInfo, bool commandLineApp )
+        : _commandLineApp(commandLineApp)
+		, AppRunnerBase( appControllerCreator, launchInfo )
 	{
         _pDispatcher = newObj<GenericDispatcher>();
 	}
+
+    bool isCommandLineApp() const override
+    {
+        return _commandLineApp;
+    }
 
 	void initiateExitIfPossible(int exitCode) override
 	{
@@ -113,6 +130,7 @@ protected:
         _pDispatcher->dispose();
     }
 	
+    bool _commandLineApp;
 
 	mutable Mutex _exitMutex;
 

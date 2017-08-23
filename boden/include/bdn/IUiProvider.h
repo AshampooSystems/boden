@@ -9,6 +9,7 @@ namespace bdn
 
 #include <bdn/IViewCore.h>
 #include <bdn/View.h>
+#include <bdn/ITextUi.h>
 
 namespace bdn
 {
@@ -36,9 +37,9 @@ public:
 	virtual String getName() const=0;
 
 
-	/** Create thes core for the specified UI object.
+    /** Create thes core for the specified UI object.
 
-		If the view type is not supported then a ViewTypeNotSupportedError is thrown.
+		If the view type is not supported then a bdn::ViewCoreTypeNotSupportedError is thrown.
 
         Initialization of the created core objects
         ------------------------------------------
@@ -73,39 +74,37 @@ public:
 			*/
 	virtual P<IViewCore> createViewCore(const String& coreTypeName, View* pView)=0;
 
+
+
+    /** Returns an object that can be used to interact with the user via a text interface.
+    
+        For Console/Terminal applications this is usually a ITextUi implementation that uses
+        the stdio streams (STDOUT / std::cout, etc.). One such implementation is bdn::StdioTextUi.
+
+        For other types of applications the text UI implementation will often open a graphical
+        window and use normal view components to interact with the user (for example with
+        bdn::ViewTextUi ).
+
+        Note that while console / terminal apps are not supported on all platforms, a functioning
+        text UI implementation will still provided in all cases.
+        */
+    virtual P<ITextUi> getTextUi()=0;
+
 };
 
 
-/** Returns the default UI provider for the current platform.
+/** Returns the default UI provider for the current platform. Note that this is not necessarily
+    the active UI provider that is used by the app. To get that use AppControllerBase::getUiProvider().
 
-	Initially this is the same as getPlatformUiProvider(), but it can
-	be changed with setDefaultUiProvider().
+    For commandline applications (those running exclusively in a Terminal / Command window)
+    the default UI provider uses the stdio streams (std::cout, etc.) to provide the user interface.
+    In these cases the some or all bdn::View types might not be supported by the provider, but text UI is always
+    supported (see IUiProvider::getTextUi()).
 
 	This function is thread-safe.
 */
 P<IUiProvider> getDefaultUiProvider();
 
-
-/** Sets the default UI provider to use.	
-
-	The default UI provider is used for newly created top level windows.
-	Child views inherit the UI provider of their parent by default.
-
-	Changing the default UI provider will only affect newly created windows.
-	The UI provider of any existing windows is not modified by this.
-
-	This function is thread-safe.
-*/
-void setDefaultUiProvider(IUiProvider* pProvider);
-
-
-/** Returns a pointer to the default UI provider for normal
-	visible UI elements on the platform.
-	Note that in most cases you should use getDefaultUiProvider() instead.
-	Only use getPlatformUiProvider if you specifically ALWAYS want the normal
-	platform UI - no matter what was passed to setDefaultUiProvider().
-	*/
-P<IUiProvider> getPlatformUiProvider();
 
 
 }
