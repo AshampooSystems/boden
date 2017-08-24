@@ -12,17 +12,24 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 {
     _pWindow = newObj<Window>(pUiProvider);
 
-    P<ColumnView> pContainer = newObj<ColumnView>();
+    _pWindow->padding() = UiMargin(10);
 
     _pScrollView = newObj<ScrollView>();
-    pContainer->addChildView( _pScrollView );
 
     _pScrolledColumnView = newObj<ColumnView>();
-    pContainer->addChildView( _pScrolledColumnView );
+
+    _pScrolledColumnView->size().onChange() += weakMethod(this, &ViewTextUi::scrolledSizeChanged );
+
+    _pScrollView->setContentView( _pScrolledColumnView );
     
-    _pWindow->setContentView(pContainer);
+    _pWindow->setContentView(_pScrollView);
+
+    _pWindow->preferredSizeMinimum() = Size(600, 400);
 
     _pWindow->visible() = true;
+
+    _pWindow->requestAutoSize();
+    _pWindow->requestCenter();
 }
 
 P< IAsyncOp<String> > ViewTextUi::readLine()
@@ -85,6 +92,18 @@ P< IAsyncOp<void> > ViewTextUi::writeErrorLine(const String& s)
 }
 
 
+void ViewTextUi::scrolledSizeChanged()
+{
+    // this is called when the size of the scrolled text view changed (i.e. when the layout of the scrollview
+    // has been updated after text was written).
+    // When this happens then we want to scroll down to the bottom.
+    Size size = _pScrolledColumnView->size();
+
+    // make sure the last pixel line of the scroll view is visible
+    Rect rect( 0, size.height-1, 0, 1 );
+
+    _pScrollView->scrollContentRectToVisible(rect);
+}
 
 }
 

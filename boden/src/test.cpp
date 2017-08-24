@@ -41,8 +41,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/IAppRunner.h>
 #include <bdn/AppControllerBase.h>
-#include <bdn/UiTestAppController.h>
-#include <bdn/CommandLineTestAppController.h>
+#include <bdn/TestAppController.h>
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
 #include <bdn/TextView.h>
@@ -2808,7 +2807,9 @@ public:
 
 void printTestStatus(const std::string& s)
 {
-    std::cout << s << std::endl;
+    P<bdn::ITextUi> pTextUi = bdn::AppControllerBase::get()->getUiProvider()->getTextUi();
+
+    pTextUi->writeLine(s);
 
     BDN_DEBUGGER_PRINT( s );
 }
@@ -3339,6 +3340,8 @@ public:
             // We do that with asyncCallFromMainThread so that
             // it is ensured that the next test executes in the main thread
             // in a "clean" environment (i.e. no locked mutexes, etc.)
+
+            // We schedule this as "idle" to give any pending UI actions time to execute.
 
             asyncCallFromMainThread(
                 [this]()
@@ -7985,29 +7988,25 @@ namespace test
 
 
 
-class TestAppControllerImplBase
+class TestAppController::Impl
 {
 public:
-	TestAppControllerImplBase()
+	Impl()
 	{
 		_pTestSession = nullptr;
         _pTestRunner = nullptr;
 	}
     
-    virtual ~TestAppControllerImplBase()
+    virtual ~Impl()
     {
     }
-
-
-
-	void init(std::vector<String> args)
+    
+	void beginLaunch(std::vector<String> args)
 	{
         try
         {
             _pTestSession = new bdn::Session;
 
-			initUi();
-			
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
@@ -8035,9 +8034,7 @@ public:
 				return;
             }
 
-            _pTestRunner = new TestRunner( &_pTestSession->config() );
-            
-			testRunnerReady();
+            _pTestRunner = new TestRunner( &_pTestSession->config() );            
         }
         catch(...)
         {
@@ -8052,15 +8049,10 @@ public:
 
 	}
 
-	void start()
+	void finishLaunch()
 	{
 		// schedule our first test to be called
 		scheduleNextTest();
-	}
-
-	void deinit()
-	{
-		deinitUi();
 	}
 
 
@@ -8076,63 +8068,18 @@ public:
             return false;
     }
 
-protected:
-	
-	virtual void initUi()
-	{
-	}
-
-	virtual void deinitUi()
-	{
-	}
-
-	virtual void testRunnerReady()
-	{
-	}
-
-	virtual void abortingBecauseOfInvalidCommandLineArguments()
-	{
-	}
-
-	virtual void abortingBecauseJustShowingHelp()
-	{
-	}
-
-	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
-	{
-	}
-
-
-	virtual void finished(int failedCount)
-	{
-	}
-
-	void scheduleNextTest()
-	{
-		asyncCallFromMainThread( std::bind(&TestAppControllerImplBase::runNextTest, this) );
-	}
-
-	void waitAndClose(int exitCode)
-	{
-		asyncCallFromMainThread(
-			[exitCode]()
-			{
-				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
-
-				getAppRunner()->initiateExitIfPossible(exitCode);
-			} );
-	}
-
-	void onTestDone()
+    void onTestDone()
 	{
 		scheduleNextTest();
 	}
+
+    
 
 	void runNextTest()
     {
         try
         {
-            if(_pTestRunner->beginNextTest( std::bind(&TestAppControllerImplBase::onTestDone, this) ) )
+            if(_pTestRunner->beginNextTest( std::bind(&TestAppController::Impl::onTestDone, this) ) )
             {
 				// this was not the last test.
 
@@ -8168,6 +8115,47 @@ protected:
         }
     }
 
+protected:
+	
+
+
+	virtual void abortingBecauseJustShowingHelp()
+	{
+	}
+    
+	virtual void abortingBecauseOfInvalidCommandLineArguments()
+	{
+        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Invalid commandline" );
+	}
+
+	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
+	{
+        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Fatal Error: " + errorInfo.toString() );
+	}			
+
+
+	virtual void finished(int failedCount)
+	{
+	}
+
+	void scheduleNextTest()
+	{
+		asyncCallFromMainThread( std::bind(&TestAppController::Impl::runNextTest, this) );
+	}
+
+	void waitAndClose(int exitCode)
+	{
+		asyncCallFromMainThread(
+			[exitCode]()
+			{
+				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
+
+				getAppRunner()->initiateExitIfPossible(exitCode);
+			} );
+	}
+
+	
+
 
 protected:
 	Session*    _pTestSession;
@@ -8175,168 +8163,30 @@ protected:
 };
 
 
-class UiTestAppController::Impl : public TestAppControllerImplBase
-{
-public:
 
-
-protected:
-	
-	void initUi() override
-	{
-		// this is just a place holder frame so that we have something visible.
-		_pWindow = newObj<Window>();
-		_pWindow->title() = "Running tests...";
-		_pWindow->visible() = true;
-
-		_pWindow->padding() = UiMargin( UiLength::sem(1) );
-            
-		P<ColumnView> pColumnView = newObj<ColumnView>();
-        _pWindow->setContentView( pColumnView );         
-            
-		_pStatusView = newObj<TextView>();
-
-        pColumnView->addChildView( _pStatusView );
-
-        // we want to see at least 3 lines in our status view.
-        // We also want a minimum width to that at least some text is visible.
-        _pStatusView->preferredSizeMinimum() = Size( _pStatusView->uiLengthToDips(UiLength::em(20)) ,
-                                                     _pStatusView->uiLengthToDips(UiLength::em(3)) );
-
-
-		
-	}
-
-	void deinitUi()  override
-	{
-		_pStatusView = nullptr;
-		_pWindow = nullptr;
-	}
-
-	void testRunnerReady() override
-	{
-		_pStatusView->text().bind( _pTestRunner->statusText() );
-            
-        _pWindow->requestAutoSize();
-        _pWindow->requestCenter();
-	}
-
-	void abortingBecauseOfInvalidCommandLineArguments()  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Invalid commandline";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Invalid commandline";
-	}
-
-	void abortingBecauseJustShowingHelp()  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Done";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Done";
-	}
-
-	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Fatal Error";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Fatal Error: " + errorInfo.getMessage();
-	}
-
-	void finished(int failedCount)  override
-	{
-		_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
-	}
-		
-	P<Window>	_pWindow;
-	P<TextView>	_pStatusView;
-};
-
-
-UiTestAppController::UiTestAppController()
+TestAppController::TestAppController()
 {
 	_pImpl = new Impl;
 }
 
-UiTestAppController::~UiTestAppController()
+TestAppController::~TestAppController()
 {
 	delete _pImpl;
 }
 
 
-void UiTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
-	_pImpl->init( launchInfo.getArguments() );
+	_pImpl->beginLaunch( launchInfo.getArguments() );
 }
 
-void UiTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
-	_pImpl->start();
-}
-
-void UiTestAppController::onTerminate()
-{
-	_pImpl->deinit();
-}
-
-void UiTestAppController::unhandledProblem(IUnhandledProblem& problem)
-{
-    if(!_pImpl->unhandledProblem(problem))
-        AppControllerBase::unhandledProblem(problem);
+	_pImpl->finishLaunch();
 }
 
 
-class CommandLineTestAppController::Impl : public TestAppControllerImplBase
-{
-public:
-
-
-protected:
-	
-	void abortingBecauseOfInvalidCommandLineArguments()  override
-	{
-		bdn::cerr() << "Invalid commandline" << std::endl;
-	}
-
-	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
-	{
-		bdn::cerr() << ("Fatal Error: " + errorInfo.toString().asUtf8()) << std::endl;
-	}			
-};
-
-
-CommandLineTestAppController::CommandLineTestAppController()
-{
-	_pImpl = new Impl;
-}
-
-CommandLineTestAppController::~CommandLineTestAppController()
-{
-	delete _pImpl;
-}
-
-
-void CommandLineTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
-{
-	_pImpl->init( launchInfo.getArguments() );
-}
-
-void CommandLineTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
-{
-	_pImpl->start();
-}
-
-void CommandLineTestAppController::onTerminate()
-{
-	_pImpl->deinit();
-}
-
-void CommandLineTestAppController::unhandledProblem(IUnhandledProblem& problem)
+void TestAppController::unhandledProblem(IUnhandledProblem& problem)
 {
     if(!_pImpl->unhandledProblem(problem))
         AppControllerBase::unhandledProblem(problem);

@@ -172,6 +172,8 @@
 
 
 
+#include <bdn/TestAppController.h>
+
 /** \def BDN_TEST_APP_INIT()
 
 	Sets up a Boden test framework unittest app that runs the test cases defined in the app.
@@ -179,13 +181,7 @@
 	This replaces the normal BDN_APP_INIT() statement that you use for normal apps.
 
 	*/
-#if BDN_COMPILING_COMMANDLINE_APP && (BDN_PLATFORM_WIN32 || BDN_PLATFORM_LINUX || BDN_PLATFORM_MAC)
-	#include <bdn/CommandLineTestAppController.h>
-	#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::CommandLineTestAppController )
-#else
-	#include <bdn/UiTestAppController.h>
-	#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::UiTestAppController )
-#endif
+#define BDN_TEST_APP_INIT() BDN_APP_INIT( bdn::TestAppController )
 
 
 #endif
