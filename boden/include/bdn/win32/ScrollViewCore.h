@@ -23,6 +23,10 @@ public:
 	void setHorizontalScrollingEnabled( const bool& enabled) override;    
 	void setVerticalScrollingEnabled( const bool& enabled) override;    
 
+    
+    void scrollAreaToVisible(const Rect& area) override;
+
+
     void layout() override;
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;	

@@ -51,7 +51,7 @@ public:
 		Note that ScrollView object can only have a single child content view. If one is already
 		set then it will be replaced.
 		See #ScrollView class documentation for more information.*/
-	void setContentView(View* pContentView)
+	virtual void setContentView(View* pContentView)
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -73,7 +73,7 @@ public:
 
 	/** Returns the scroll view's content view (see #getContentView()).
 		This can be nullptr if no content view has been set yet.*/
-	P<View> getContentView()
+	virtual P<View> getContentView()
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -83,7 +83,7 @@ public:
 
 	/** Returns the scroll view's content view (see #getContentView()).
 		This can be nullptr if no content view has been set yet.*/
-	P<const View> getContentView() const
+	virtual P<const View> getContentView() const
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 
@@ -92,6 +92,16 @@ public:
 
 
 
+    /** Changes the scroll position so that the specified area is visible.
+        The specified rect coordinates refer to scroll view's inner scrolled
+        coordinate system. I.e. The point (0,0) refers to the top left corner
+        of the scrolled area, which is not necessarily the same
+        of the top-left corner the content view (if the content view has a nonzero margin,
+        or if the scroll view has nonzero padding).
+
+        This function is thread safe.
+        */
+    virtual void scrollAreaToVisible(const Rect& area);
 	
 
 	/** Static function that returns the type name for #ScrollView objects.*/

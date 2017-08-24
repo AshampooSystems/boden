@@ -70,6 +70,8 @@ private:
         P< OneShotStateNotifier< P<IAsyncOp<void>> > > _pDoneNotifier;
     };
 
+    void scrolledSizeChanged();
+
     Mutex           _mutex;
     P< Window >     _pWindow;
     P< ScrollView > _pScrollView;

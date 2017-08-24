@@ -382,6 +382,102 @@ POINT ScrollViewCore::getScrollPositionInPixels(ScrollViewCore::ScrollPosType sc
 }
 
 
+void ScrollViewCore::scrollAreaToVisible(const Rect& area)
+{
+    HWND hwnd = getHwnd();
+    if(hwnd!=NULL)
+    {
+        RECT viewPortRect = {0};
+        ::GetClientRect( hwnd, &viewPortRect);
+
+        int viewPortWidth = viewPortRect.right - viewPortRect.left;
+        int viewPortHeight = viewPortRect.bottom - viewPortRect.top;
+
+        POINT         scrollPos{0,0};
+        
+        SCROLLINFO horzScrollInfo;
+        memset(&horzScrollInfo, 0, sizeof(horzScrollInfo));
+        horzScrollInfo.cbSize = sizeof(horzScrollInfo);
+        horzScrollInfo.fMask = SIF_POS | SIF_RANGE;
+
+        SCROLLINFO vertScrollInfo = horzScrollInfo;
+        
+        if(::GetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo))
+            scrollPos.x = horzScrollInfo.nPos;
+
+        if(::GetScrollInfo(hwnd, SB_VERT, &vertScrollInfo))
+            scrollPos.y = vertScrollInfo.nPos;
+    
+        RECT currVisibleRect;
+        currVisibleRect.left = scrollPos.x;
+        currVisibleRect.top = scrollPos.y;
+        currVisibleRect.right = scrollPos.x+viewPortWidth;
+        currVisibleRect.bottom = scrollPos.y+viewPortHeight;
+
+        double scaleFactor = getUiScaleFactor();
+
+        RECT targetRect = rectToWin32Rect(area, scaleFactor );
+        
+        if(targetRect.right > currVisibleRect.right )
+            scrollPos.x = targetRect.right - viewPortWidth;
+        if( targetRect.left<currVisibleRect.left )
+            scrollPos.x = targetRect.left;
+
+
+        if(targetRect.bottom > currVisibleRect.bottom )
+            scrollPos.y = targetRect.bottom - viewPortHeight;
+        if( targetRect.top<currVisibleRect.top )
+            scrollPos.y = targetRect.top;
+
+        if(scrollPos.x<0)
+            scrollPos.x = 0;
+        if(scrollPos.x > horzScrollInfo.nMax )
+            scrollPos.x = horzScrollInfo.nMax;
+
+        if(scrollPos.y<0)
+            scrollPos.y = 0;
+        if(scrollPos.y > vertScrollInfo.nMax )
+            scrollPos.y = vertScrollInfo.nMax;
+
+        if(scrollPos.x != horzScrollInfo.nPos)
+        {
+            // scroll position has changed
+            horzScrollInfo.nPos = scrollPos.x;
+
+            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo);
+        }
+
+        if(scrollPos.y != vertScrollInfo.nPos)
+        {
+            // scroll position has changed
+            horzScrollInfo.nPos = scrollPos.x;
+
+            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo);
+        }
+
+
+        
+
+                
+
+        HWND contentContainerHwnd = _pContentContainer->getHwnd();
+        if(contentContainerHwnd!=NULL)
+        {
+            RECT contentContainerRect = {0};
+            ::GetClientRect( contentContainerHwnd, &contentContainerRect);
+
+
+
+
+
+
+
+
+
+    
+}
+
+
 }
 }
 

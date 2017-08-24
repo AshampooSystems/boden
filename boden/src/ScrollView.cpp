@@ -15,7 +15,37 @@ ScrollView::ScrollView()
 }
 
 
+void ScrollView::scrollAreaToVisible(const Rect& area)
+{
+    if( isBeingDeletedBecauseReferenceCountReachedZero() )
+	{
+		// this happens when invalidateSizingInfo is called during the destructor.
+		// In this case we do not schedule the invalidation, since the view
+		// will be gone anyway.
 
+		// So, do nothing.
+        return;
+	}
+
+    if( Thread::isCurrentMain() )
+    {
+        P<IViewCore> pCore = getViewCore();
+        if(pCore!=nullptr)
+            pCore->scrollAreaToVisible(area);
+    }
+    else
+    {
+		// schedule the invalidation to be done from the main thread.
+		P<View> pThis = this;
+
+		asyncCallFromMainThread(
+				[pThis, area]()
+				{
+					pThis->scrollAreaToVisible(area);
+				}
+		);
+    }
+}
 
 }
 
