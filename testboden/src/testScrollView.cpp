@@ -60,6 +60,71 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 }
 
 
+static void testScrollViewScrollAreaToVisible(
+    P<IBase> pKeepAliveDuringTest,
+    P<ScrollView> pScrollView,
+    double initialPos,
+    double targetAreaPos,
+    double targetAreaSize,
+    double expectedPos )
+{
+    Size scrolledAreaSize = pScrollView->getContentView()->size();
+
+    SECTION("vertical")
+    {
+        if( std::signbit(initialPos) )  // also true for -0
+            initialPos += scrolledAreaSize.height;
+
+        if( std::signbit(expectedPos) )
+            expectedPos += scrolledAreaSize.height;
+
+        if( std::signbit(targetAreaPos) )
+            targetAreaPos += scrolledAreaSize.height;
+        
+        pScrollView->scrollAreaToVisible( Rect(0, initialPos, 0, 0) );
+
+        BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetAreaPos, targetAreaSize, fromEnd, expectedPos)
+        {
+            // check if the initial position is as expected
+            REQUIRE( pScrollView->scrollPosition() == Point(0, initialPos) );
+            
+            pScrollView->scrollAreaToVisible( Rect(0, targetAreaPos, 0, targetAreaSize) );
+
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetAreaPos, targetAreaSize, expectedPos)
+            {
+                REQUIRE( pScrollView->scrollPosition() == Point(0, expectedPos) );
+            };
+        };
+    }
+
+    SECTION("horizontal")
+    {
+        if( std::signbit(initialPos) )  // also true for -0
+            initialPos += scrolledAreaSize.width;
+
+        if( std::signbit(expectedPos) )
+            expectedPos += scrolledAreaSize.width;
+
+        if( std::signbit(targetAreaPos) )
+            targetAreaPos += scrolledAreaSize.width - targetAreaSize;
+        
+        pScrollView->scrollAreaToVisible( Rect(initialPos, 0, 0, 0) );
+
+        BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetAreaPos, targetAreaSize, expectedPos)
+        {
+            // check if the initial position is as expected
+            REQUIRE( pScrollView->scrollPosition() == Point(initialPos, 0) );
+
+            pScrollView->scrollAreaToVisible( Rect(targetAreaPos, 0, targetAreaSize, 0) );
+
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetAreaPos, targetAreaSiz, expectedPos)
+            {
+                REQUIRE( pScrollView->position() == Point(expectedPos, 0) );
+            };
+        };
+    }
+}
+
 
 TEST_CASE("ScrollView", "[ui]")
 {   
@@ -340,6 +405,213 @@ TEST_CASE("ScrollView", "[ui]")
                 };
             }
 
+
+            SECTION("scrollAreaToVisible and scrollPosition")
+            {
+                P<Button> pButton = newObj<Button>();
+
+                // make the button bigger than the scroll view so that
+                // it will scroll
+                Size scrollViewSize = pScrollView->size();
+                pButton->preferredSizeMinimum() = Size(scrollViewSize.width*2, scrollViewSize.height*2);
+
+                pScrollView->setContentView(pButton);
+
+                CONTINUE_SECTION_WHEN_IDLE(pScrollView, pButton, pPreparer, scrollViewSize)
+                {
+                    SECTION("from top to bottom")
+                    {
+                        SECTION("zero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                0,
+                                -0.0,
+                                0,
+                                -0.0 );
+                        }
+
+                        SECTION("nonzero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                0,
+                                -5.0,
+                                5,
+                                -0.0 );
+                        }
+                    }
+
+                    SECTION("bottom to top")
+                    {
+                        SECTION("zero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                -0.0,
+                                0,
+                                0,
+                                0 );
+                        }
+
+                        SECTION("nonzero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                -0.0,
+                                0,
+                                5,
+                                0 );
+                        }
+                    }
+
+                    SECTION("top to almost bottom")
+                    {
+                        SECTION("zero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                0,
+                                -5.0,
+                                0,
+                                -5.0 );
+                        }
+
+                        SECTION("nonzero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                0,
+                                -10.0,
+                                5,
+                                -10.0 );
+                        }
+                    }
+
+                    SECTION("bottom to almost top")
+                    {
+                        SECTION("zero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                -0.0,
+                                5,
+                                0,
+                                5 );
+                        }
+
+                        SECTION("nonzero target area size")
+                        {
+                            testScrollViewScrollAreaToVisible(
+                                pPreparer,
+                                pScrollView,
+                                -0.0,
+                                5,
+                                5,
+                                5 );
+                        }
+                    }
+
+                    SECTION("area already visible")
+                    {
+                        SECTION("top of viewport")
+                        {
+                            SECTION("zero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    0,
+                                    1,
+                                    0,
+                                    0 );
+                            }
+
+                            SECTION("nonzero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    0,
+                                    1,
+                                    5,
+                                    0 );
+                            }
+                        }
+
+                        SECTION("bottom of viewport")
+                        {
+                            SECTION("zero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    0,
+                                    viewPortSize.height,
+                                    0,
+                                    0 );
+                            }
+
+                            SECTION("nonzero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    0,
+                                    viewPortSize.height-5,
+                                    5,
+                                    0 );
+                            }
+                        }
+                    }
+
+                    SECTION("part of target area barely not visible")
+                    {
+                        SECTION("top of viewport")
+                        {
+                            SECTION("zero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    -0.0,
+                                    -viewPortSize.height-1,
+                                    0,
+                                    -viewPortSize.height-1, );
+                            }
+
+                            SECTION("nonzero target area size")
+                            {
+                                testScrollViewScrollAreaToVisible(
+                                    pPreparer,
+                                    pScrollView,
+                                    0,
+                                    1,
+                                    5,
+                                    0 );
+                            }
+                        }
+                    }
+
+
+                    SECTION("area just visible")
+                    {
+                        testScrollViewScrollAreaToVisible(
+                            pPreparer,
+                            pScrollView,
+                            0,
+                            ,
+                            0 );
+                    }
+                };        
+            }
         };
     }
 }

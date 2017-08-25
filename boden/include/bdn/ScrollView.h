@@ -47,6 +47,17 @@ public:
      
 
 
+    /** Read-only property that indicates the scroll view's current scroll position. This is the
+        position of the scrolled area that is shown in the top left corner of the viewport.
+
+        The scroll position can be manipulated with scrollAreaToVisible().
+    */
+    virtual const ReadProperty<Point>& scrollPosition() const
+    {
+        return _scrollPosition;
+    }
+
+
 	/** Sets the specified view as the content view of the window.
 		Note that ScrollView object can only have a single child content view. If one is already
 		set then it will be replaced.
@@ -150,6 +161,7 @@ private:
 
     DefaultProperty<bool>   _verticalScrollingEnabled;
     DefaultProperty<bool>   _horizontalScrollingEnabled;
+    DefaultProperty<Point>  _scrollPosition;
 };
 
 }

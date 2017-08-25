@@ -69,7 +69,15 @@ public:
 
     void scrollAreaToVisible(const Rect& area) override
     {
-        // we do nothing here, since we do not track the scroll position at the moment
+        // update the scroll position of the outer view
+        P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
+
+        if(pOuterView!=nullptr)
+        {
+            Point currScrollPosition = pOuterView->scrollPosition();
+
+
+        pOuterView->_scrollPositionChanged( area.getPosition() )
     }
 
     void layout() override
