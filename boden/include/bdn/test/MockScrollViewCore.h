@@ -66,6 +66,12 @@ public:
         return _verticalScrollBarVisible;
     }
 
+
+    void scrollAreaToVisible(const Rect& area) override
+    {
+        // we do nothing here, since we do not track the scroll position at the moment
+    }
+
     void layout() override
     {
         BDN_REQUIRE_IN_MAIN_THREAD();

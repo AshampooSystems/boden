@@ -29,14 +29,14 @@ void ScrollView::scrollAreaToVisible(const Rect& area)
 
     if( Thread::isCurrentMain() )
     {
-        P<IViewCore> pCore = getViewCore();
+        P<IScrollViewCore> pCore = cast<IScrollViewCore>( getViewCore() );
         if(pCore!=nullptr)
             pCore->scrollAreaToVisible(area);
     }
     else
     {
 		// schedule the invalidation to be done from the main thread.
-		P<View> pThis = this;
+		P<ScrollView> pThis = this;
 
 		asyncCallFromMainThread(
 				[pThis, area]()

@@ -439,42 +439,31 @@ void ScrollViewCore::scrollAreaToVisible(const Rect& area)
         if(scrollPos.y > vertScrollInfo.nMax )
             scrollPos.y = vertScrollInfo.nMax;
 
+        bool anyChange = false;
+
         if(scrollPos.x != horzScrollInfo.nPos)
         {
-            // scroll position has changed
+            anyChange = true;
+
+            // horizontal scroll position has changed
             horzScrollInfo.nPos = scrollPos.x;
 
-            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo);
+            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo, TRUE);
         }
 
         if(scrollPos.y != vertScrollInfo.nPos)
         {
-            // scroll position has changed
-            horzScrollInfo.nPos = scrollPos.x;
+            anyChange = true;
 
-            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo);
+            // vertical scroll position has changed
+            vertScrollInfo.nPos = scrollPos.y;
+
+            ::SetScrollInfo(hwnd, SB_VERT, &vertScrollInfo, TRUE);
         }
 
-
-        
-
-                
-
-        HWND contentContainerHwnd = _pContentContainer->getHwnd();
-        if(contentContainerHwnd!=NULL)
-        {
-            RECT contentContainerRect = {0};
-            ::GetClientRect( contentContainerHwnd, &contentContainerRect);
-
-
-
-
-
-
-
-
-
-    
+        if(anyChange)
+            updateContentContainerPos(scrollPos);
+    }
 }
 
 

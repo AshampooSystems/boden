@@ -18,7 +18,7 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 
     _pScrolledColumnView = newObj<ColumnView>();
 
-    _pScrolledColumnView->size().onChange() += weakMethod(this, &ViewTextUi::scrolledSizeChanged );
+    _pScrolledColumnView->size().onChange().subscribeParamless( weakMethod(this, &ViewTextUi::scrolledSizeChanged ) );
 
     _pScrollView->setContentView( _pScrolledColumnView );
     
@@ -102,7 +102,10 @@ void ViewTextUi::scrolledSizeChanged()
     // make sure the last pixel line of the scroll view is visible
     Rect rect( 0, size.height-1, 0, 1 );
 
-    _pScrollView->scrollContentRectToVisible(rect);
+    // the scrollview has no padding, so the scrolled columnview size is
+    // exactly the size of the scrolled area
+
+    _pScrollView->scrollAreaToVisible(rect);
 }
 
 }
