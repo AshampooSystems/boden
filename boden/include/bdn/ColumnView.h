@@ -29,7 +29,7 @@ public:
 	
 private:
 	
-	/** Calculates the positions and sizes (in DIPs - see UILength::Unit::dip) of the child views for the case that the ColumnView
+	/** Calculates the positions and sizes (in DIPs - see \ref dip.md) of the child views for the case that the ColumnView
 		has the specified width.
 
 		availableSpace indicates the amount of space that is available for the client views inside the parent.

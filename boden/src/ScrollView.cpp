@@ -13,11 +13,11 @@ ScrollView::ScrollView()
 	initProperty<bool, IScrollViewCore, &IScrollViewCore::setHorizontalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_horizontalScrollingEnabled);
     initProperty<bool, IScrollViewCore, &IScrollViewCore::setVerticalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_verticalScrollingEnabled);
 
-    initProperty<Point, IScrollViewCore, nullptr, 0>(_scrollPosition);
+    initProperty<Rect, IScrollViewCore, nullptr, 0>(_visibleClientRect);
 }
 
 
-void ScrollView::scrollAreaToVisible(const Rect& area)
+void ScrollView::scrollClientRectToVisible(const Rect& area)
 {
     if( isBeingDeletedBecauseReferenceCountReachedZero() )
 	{
@@ -33,7 +33,7 @@ void ScrollView::scrollAreaToVisible(const Rect& area)
     {
         P<IScrollViewCore> pCore = cast<IScrollViewCore>( getViewCore() );
         if(pCore!=nullptr)
-            pCore->scrollAreaToVisible(area);
+            pCore->scrollClientRectToVisible(area);
     }
     else
     {
@@ -43,7 +43,7 @@ void ScrollView::scrollAreaToVisible(const Rect& area)
 		asyncCallFromMainThread(
 				[pThis, area]()
 				{
-					pThis->scrollAreaToVisible(area);
+					pThis->scrollClientRectToVisible(area);
 				}
 		);
     }

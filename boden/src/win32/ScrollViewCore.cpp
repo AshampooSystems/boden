@@ -115,27 +115,54 @@ void ScrollViewCore::layout()
         _showVerticalScrollBar = helper.getVerticalScrollBarVisible();
 
         Rect contentViewBounds = helper.getContentViewBounds();
-        Size scrolledAreaSize = helper.getScrolledAreaSize();
+        Size clientSize = helper.getScrolledAreaSize();
         Size viewPortSize = helper.getViewPortSize();
         
-        SIZE scrollAreaSizeInPixels = sizeToWin32Size(scrolledAreaSize, uiScaleFactor);
-        SIZE viewPortSizeInPixels = sizeToWin32Size(viewPortSize, uiScaleFactor);
-        
+        _clientSizePixels = sizeToWin32Size(clientSize, uiScaleFactor);               
+        _viewPortSizePixels = sizeToWin32Size(viewPortSize, uiScaleFactor);
+
+        // make sure that our scroll position is valid
+        if(_showHorizontalScrollBar)
+        {
+            int maxPos = _clientSizePixels.cx - _viewPortSizePixels.cx;
+            if(maxPos<0)
+                maxPos=0;
+            if(_scrollPositionPixels.x>maxPos)
+                _scrollPositionPixels.x = maxPos;
+        }
+        else
+            _scrollPositionPixels.x = 0;
+
+        if(_showVerticalScrollBar)
+        {
+            int maxPos = _clientSizePixels.cy - _viewPortSizePixels.cy;
+            if(maxPos<0)
+                maxPos=0;
+            if(_scrollPositionPixels.y>maxPos)
+                _scrollPositionPixels.y = maxPos;
+        }
+        else
+            _scrollPositionPixels.y = 0;
+
         // update our style so that the scroll bars are added / removed
-        POINT scrollPos = updateScrollInfo(_showHorizontalScrollBar, _showVerticalScrollBar, viewPortSizeInPixels, scrollAreaSizeInPixels);
-                
+        // and the scroll infos.
+        updateWin32ScrollInfo();
+
+        // move and resize the content container
         ::SetWindowPos(
             _pContentContainer->getHwnd(),
             NULL,
-            -scrollPos.x,
-            -scrollPos.y,
-            scrollAreaSizeInPixels.cx,
-            scrollAreaSizeInPixels.cy,
+            -_scrollPositionPixels.x,
+            -_scrollPositionPixels.y,
+            _clientSizePixels.cx,
+            _clientSizePixels.cy,
             SWP_NOZORDER | SWP_NOOWNERZORDER);
 
         P<View> pContentView = pOuterView->getContentView();
         if(pContentView!=nullptr)
-            pContentView->adjustAndSetBounds(contentViewBounds);
+            pContentView->adjustAndSetBounds(contentViewBounds);        
+
+        updateVisibleClientRect();
     }
 }
 	
@@ -161,10 +188,8 @@ Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
 }
 
 
-POINT ScrollViewCore::updateScrollInfo(bool horzScrollBar, bool vertScrollBar, const SIZE& viewPortSizeInPixels, const SIZE& fullContentSizeInPixels)
+void ScrollViewCore::updateWin32ScrollInfo()
 {
-    POINT scrollPos{0,0};
-
     HWND     hwnd = getHwnd();
     if(hwnd==NULL)
     {
@@ -176,9 +201,9 @@ POINT ScrollViewCore::updateScrollInfo(bool horzScrollBar, bool vertScrollBar, c
     
         LONG_PTR newStyle = currStyle & (~(WS_VSCROLL | WS_HSCROLL));
 
-        if(horzScrollBar)
+        if(_showHorizontalScrollBar)
             newStyle |= WS_HSCROLL;
-        if(vertScrollBar)
+        if(_showVerticalScrollBar)
             newStyle |= WS_VSCROLL;
 
         if(newStyle!=currStyle)
@@ -186,9 +211,7 @@ POINT ScrollViewCore::updateScrollInfo(bool horzScrollBar, bool vertScrollBar, c
             ::SetWindowLongPtr( hwnd, GWL_STYLE, newStyle);
             ::SetWindowPos( hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
         }
-
-        scrollPos = getScrollPositionInPixels();
-
+        
         SCROLLINFO scrollInfo;
         memset(&scrollInfo, 0, sizeof(scrollInfo));
         
@@ -197,55 +220,37 @@ POINT ScrollViewCore::updateScrollInfo(bool horzScrollBar, bool vertScrollBar, c
 
         scrollInfo.nMin = 0;
                 
-        if(horzScrollBar)
+        if(_showHorizontalScrollBar)
         {
-            scrollInfo.nMax = fullContentSizeInPixels.cx;
-            scrollInfo.nPage = viewPortSizeInPixels.cx;
-
-            int maxPos = scrollInfo.nMax - scrollInfo.nPage;  
-            if(maxPos<0)
-                maxPos=0;
-            if(scrollPos.x>maxPos)
-                scrollPos.x = maxPos;            
+            scrollInfo.nMax = _clientSizePixels.cx;
+            scrollInfo.nPage = _viewPortSizePixels.cx;
         }
         else
         {
             scrollInfo.nMax = 0;
             scrollInfo.nPage = 0;
-
-            scrollPos.x = 0;
         }
 
-        scrollInfo.nPos = scrollPos.x;
+        scrollInfo.nPos = _scrollPositionPixels.x;
 
         ::SetScrollInfo(hwnd, SB_HORZ, &scrollInfo, TRUE);  // TRUE means redraw scrollbar
             
 
-        if(vertScrollBar)
+        if(_showVerticalScrollBar)
         {
-            scrollInfo.nMax = fullContentSizeInPixels.cy;
-            scrollInfo.nPage = viewPortSizeInPixels.cy;
-
-            int maxPos = scrollInfo.nMax - scrollInfo.nPage;
-            if(maxPos<0)
-                maxPos=0;
-            if(scrollPos.y>maxPos)
-                scrollPos.y = maxPos;
+            scrollInfo.nMax = _clientSizePixels.cy;
+            scrollInfo.nPage = _viewPortSizePixels.cy;
         }
         else
         {
             scrollInfo.nMax = 0;
             scrollInfo.nPage = 0;
-
-            scrollPos.y = 0;
         }
 
-        scrollInfo.nPos = scrollPos.y;
+        scrollInfo.nPos = _scrollPositionPixels.y;
 
         ::SetScrollInfo(hwnd, SB_VERT, &scrollInfo, TRUE);  // TRUE means redraw scrollbar        
     }
-
-    return scrollPos;
 }
 
 
@@ -338,15 +343,19 @@ void ScrollViewCore::handleMessage(MessageContext& context, HWND windowHandle, U
         if(info.nPos > maxPos)
             info.nPos = maxPos;
 
+        if(barType==SB_VERT)
+            _scrollPositionPixels.y = info.nPos;
+        else
+            _scrollPositionPixels.x = info.nPos;
+
         // and make it the actual position. If we do not do this then the scrollbar will
         // jump back to the old position when the users stops scrolling.
 
-        info.fMask = SIF_POS;
- 
+        info.fMask = SIF_POS; 
         ::SetScrollInfo(windowHandle, barType, &info, TRUE);  // TRUE means redraw scrollbar
-        
-        POINT scrollPos = getScrollPositionInPixels(ScrollPosType::current);
-        updateContentContainerPos(scrollPos);
+                
+        updateContentContainerPos();
+        updateVisibleClientRect();
 
         context.setResult(0, false);
     }
@@ -354,9 +363,9 @@ void ScrollViewCore::handleMessage(MessageContext& context, HWND windowHandle, U
         ViewCore::handleMessage(context, windowHandle, message, wParam, lParam);
 }
 
-void ScrollViewCore::updateContentContainerPos(const POINT& scrollPosInPixels)
+void ScrollViewCore::updateContentContainerPos()
 {
-    ::SetWindowPos( _pContentContainer->getHwnd(), NULL, -scrollPosInPixels.x, -scrollPosInPixels.y, 0, 0, SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOSIZE );        
+    ::SetWindowPos( _pContentContainer->getHwnd(), NULL, -_scrollPositionPixels.x, -_scrollPositionPixels.y, 0, 0, SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOSIZE );        
 }
 
 POINT ScrollViewCore::getScrollPositionInPixels(ScrollViewCore::ScrollPosType scrollPosType)
@@ -382,90 +391,98 @@ POINT ScrollViewCore::getScrollPositionInPixels(ScrollViewCore::ScrollPosType sc
 }
 
 
-void ScrollViewCore::scrollAreaToVisible(const Rect& area)
+void ScrollViewCore::scrollClientRectToVisible(const Rect& rect)
 {
     HWND hwnd = getHwnd();
     if(hwnd!=NULL)
     {
-        RECT viewPortRect = {0};
-        ::GetClientRect( hwnd, &viewPortRect);
+        POINT         newScrollPos = _scrollPositionPixels;
 
-        int viewPortWidth = viewPortRect.right - viewPortRect.left;
-        int viewPortHeight = viewPortRect.bottom - viewPortRect.top;
-
-        POINT         scrollPos{0,0};
-        
-        SCROLLINFO horzScrollInfo;
-        memset(&horzScrollInfo, 0, sizeof(horzScrollInfo));
-        horzScrollInfo.cbSize = sizeof(horzScrollInfo);
-        horzScrollInfo.fMask = SIF_POS | SIF_RANGE;
-
-        SCROLLINFO vertScrollInfo = horzScrollInfo;
-        
-        if(::GetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo))
-            scrollPos.x = horzScrollInfo.nPos;
-
-        if(::GetScrollInfo(hwnd, SB_VERT, &vertScrollInfo))
-            scrollPos.y = vertScrollInfo.nPos;
-    
         RECT currVisibleRect;
-        currVisibleRect.left = scrollPos.x;
-        currVisibleRect.top = scrollPos.y;
-        currVisibleRect.right = scrollPos.x+viewPortWidth;
-        currVisibleRect.bottom = scrollPos.y+viewPortHeight;
+        currVisibleRect.left = _scrollPositionPixels.x;
+        currVisibleRect.top = _scrollPositionPixels.y;
+        currVisibleRect.right = _scrollPositionPixels.x + _viewPortSizePixels.cx;
+        currVisibleRect.bottom = _scrollPositionPixels.y + _viewPortSizePixels.cy;
 
+        POINT maxScrollPos{ _clientSizePixels.cx - _viewPortSizePixels.cx,
+                            _clientSizePixels.cy - _viewPortSizePixels.cy };
+
+        if(maxScrollPos.x < 0)
+            maxScrollPos.x = 0;
+        if(maxScrollPos.y < 0)
+            maxScrollPos.y = 0;
+        
         double scaleFactor = getUiScaleFactor();
 
-        RECT targetRect = rectToWin32Rect(area, scaleFactor );
+        RECT targetRect = rectToWin32Rect(rect, scaleFactor );
         
         if(targetRect.right > currVisibleRect.right )
-            scrollPos.x = targetRect.right - viewPortWidth;
-        if( targetRect.left<currVisibleRect.left )
-            scrollPos.x = targetRect.left;
+            newScrollPos.x = targetRect.right - _viewPortSizePixels.cx;
+        if( targetRect.left < currVisibleRect.left )
+            newScrollPos.x = targetRect.left;
 
 
         if(targetRect.bottom > currVisibleRect.bottom )
-            scrollPos.y = targetRect.bottom - viewPortHeight;
-        if( targetRect.top<currVisibleRect.top )
-            scrollPos.y = targetRect.top;
+            newScrollPos.y = targetRect.bottom - _viewPortSizePixels.cy;
+        if( targetRect.top < currVisibleRect.top )
+            newScrollPos.y = targetRect.top;
 
-        if(scrollPos.x<0)
-            scrollPos.x = 0;
-        if(scrollPos.x > horzScrollInfo.nMax )
-            scrollPos.x = horzScrollInfo.nMax;
+        if(newScrollPos.x<0)
+            newScrollPos.x = 0;
+        if(newScrollPos.x > maxScrollPos.x )
+            newScrollPos.x = maxScrollPos.x;
 
-        if(scrollPos.y<0)
-            scrollPos.y = 0;
-        if(scrollPos.y > vertScrollInfo.nMax )
-            scrollPos.y = vertScrollInfo.nMax;
+        if(newScrollPos.y<0)
+            newScrollPos.y = 0;
+        if(newScrollPos.y > maxScrollPos.y )
+            newScrollPos.y = maxScrollPos.y;
 
-        bool anyChange = false;
-
-        if(scrollPos.x != horzScrollInfo.nPos)
+        if(newScrollPos.x !=_scrollPositionPixels.x
+            || newScrollPos.y != _scrollPositionPixels.y)
         {
-            anyChange = true;
+            SCROLLINFO info;
+            memset(&info, 0, sizeof(info));
+            info.cbSize = sizeof(info);
+            info.fMask = SIF_POS;
 
-            // horizontal scroll position has changed
-            horzScrollInfo.nPos = scrollPos.x;
+            if(newScrollPos.x != _scrollPositionPixels.x)
+            {
+                // horizontal scroll position has changed
+                info.nPos = newScrollPos.x;
+                ::SetScrollInfo(hwnd, SB_HORZ, &info, TRUE);            
+            }
 
-            ::SetScrollInfo(hwnd, SB_HORZ, &horzScrollInfo, TRUE);
+            if(newScrollPos.y != _scrollPositionPixels.y)
+            {
+                // vertical scroll position has changed
+                info.nPos = newScrollPos.y;
+                ::SetScrollInfo(hwnd, SB_VERT, &info, TRUE);
+            }
+
+            _scrollPositionPixels = newScrollPos;
+
+            updateContentContainerPos();
+            updateVisibleClientRect();
         }
-
-        if(scrollPos.y != vertScrollInfo.nPos)
-        {
-            anyChange = true;
-
-            // vertical scroll position has changed
-            vertScrollInfo.nPos = scrollPos.y;
-
-            ::SetScrollInfo(hwnd, SB_VERT, &vertScrollInfo, TRUE);
-        }
-
-        if(anyChange)
-            updateContentContainerPos(scrollPos);
     }
 }
 
+
+void ScrollViewCore::updateVisibleClientRect()
+{
+    P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        double scaleFactor = getUiScaleFactor();
+
+        Point scrollPos = win32PointToPoint( _scrollPositionPixels, scaleFactor );
+        Size  viewPortSize = win32SizeToSize( _viewPortSizePixels, scaleFactor );
+
+        Rect  visibleClientRect(scrollPos, viewPortSize);
+
+        pOuterView->_setVisibleClientRect( visibleClientRect );
+    }
+}
 
 }
 }

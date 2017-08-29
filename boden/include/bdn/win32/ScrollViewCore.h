@@ -24,7 +24,7 @@ public:
 	void setVerticalScrollingEnabled( const bool& enabled) override;    
 
     
-    void scrollAreaToVisible(const Rect& area) override;
+    void scrollClientRectToVisible(const Rect& rect) override;
 
 
     void layout() override;
@@ -33,8 +33,9 @@ public:
 
 private:
 
-    POINT   updateScrollInfo(bool horzScrollBar, bool vertScrollBar, const SIZE& viewPortSizeInPixels, const SIZE& fullContentSizeInPixels);
-    void    updateContentContainerPos(const POINT& scrollPosInPixels);
+    void    updateWin32ScrollInfo();
+    void    updateContentContainerPos();
+    void    updateVisibleClientRect();
 
     enum class ScrollPosType
     {
@@ -94,6 +95,10 @@ private:
     Margin              _nonClientMargins;
 
     P<ContentContainer> _pContentContainer;
+
+    SIZE                _viewPortSizePixels{0,0};
+    SIZE                _clientSizePixels{0,0};
+    POINT               _scrollPositionPixels{0,0};
 };
 
 }

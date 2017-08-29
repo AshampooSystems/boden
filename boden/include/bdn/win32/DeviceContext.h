@@ -30,7 +30,7 @@ public:
     }
 
 
-    /** Returns the size of the specified text in DIP units (see UiLength::Unit::dip).
+    /** Returns the size of the specified text in DIP units (see \ref dip.md).
     
         This function handles linebreaks correctly (i.e. it returns the size
         of multiple lines of text if the string contains linebreaks)

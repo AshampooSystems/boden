@@ -123,7 +123,8 @@ public:
 	}
 
 
-	/** The position of the view inside its parent coordinate system in DIP units (see UiLength::Unit::dip).
+	/** The position of the view, in client coordinates of the parent view.
+        ) in DIP units (see \ref dip.md).
 
         The position property is read-only. The position of a view can be modified with adjustAndSetBounds,
         which is usually called automatically during the parent view's layout process.
@@ -143,7 +144,7 @@ public:
 
 
 
-    /** The size of the view DIP units (see UiLength::Unit::dip).
+    /** The size of the view DIP units (see \ref dip.md).
 
         The size property is read-only. The size of a view can be modified with adjustAndSetBounds,
         which is usually called automatically during the parent view's layout process.
@@ -521,7 +522,7 @@ public:
 
 
     /** Converts a UiLength object to DIPs.
-        DIP stands for "device independent pixel", a special unit (see UiLength::Unit::dip).
+        DIP stands for "device independent pixel", a special unit (see \ref dip.md).
 		
         This uses view-specific internal data, so the result can be different
 		for different view objects.
@@ -535,7 +536,7 @@ public:
 
 
 	/** Converts a UiMargin object to a DIP based margin object.
-        DIP stands for "device independent pixel", a special unit (see UiLength::Unit::dip)
+        DIP stands for "device independent pixel", a special unit (see \ref dip.md)
 		
         This uses view-specific internal data, so the result can be different
 		for different view objects.
@@ -548,7 +549,7 @@ public:
 
 
 
-    /** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+    /** Asks the view to calculate its preferred size in DIPs (see \ref dip.md),
         based on it current contents and properties.
 
 		Note that the View object will cache the result of the call. Calling this multiple

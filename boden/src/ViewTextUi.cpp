@@ -94,18 +94,12 @@ P< IAsyncOp<void> > ViewTextUi::writeErrorLine(const String& s)
 
 void ViewTextUi::scrolledSizeChanged()
 {
-    // this is called when the size of the scrolled text view changed (i.e. when the layout of the scrollview
-    // has been updated after text was written).
-    // When this happens then we want to scroll down to the bottom.
-    Size size = _pScrolledColumnView->size();
+    // we want to scroll to the end of the client area.
+    // scrollClientRectToVisible supports the infinity value
+    // to scroll to the end, so we just use that.
+    Rect rect( 0, std::numeric_limits<double>::infinity(), 0, 0 );    
 
-    // make sure the last pixel line of the scroll view is visible
-    Rect rect( 0, size.height-1, 0, 1 );
-
-    // the scrollview has no padding, so the scrolled columnview size is
-    // exactly the size of the scrolled area
-
-    _pScrollView->scrollAreaToVisible(rect);
+    _pScrollView->scrollClientRectToVisible(rect);
 }
 
 }

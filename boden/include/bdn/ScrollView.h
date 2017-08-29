@@ -47,14 +47,17 @@ public:
      
 
 
-    /** Read-only property that indicates the scroll view's current scroll position. This is the
-        position of the scrolled area that is shown in the top left corner of the viewport.
-
-        The scroll position can be manipulated with scrollAreaToVisible().
+    /** Read-only property that indicates the part of the client area (=the scrolled area) that
+        is currently visible. The rect is in client coordinates (see \ref layout_box_model.bd).
+                
+        The top-left corner of the visible client rect is what is also commonly referred to as the 
+        "scroll position".
+        
+        The visible client rect / scroll position can be manipulated with scrollClientRectToVisible().
     */
-    virtual const ReadProperty<Point>& scrollPosition() const
+    virtual const ReadProperty<Rect>& visibleClientRect() const
     {
-        return _scrollPosition;
+        return _visibleClientRect;
     }
 
 
@@ -103,16 +106,22 @@ public:
 
 
 
-    /** Changes the scroll position so that the specified area is visible.
-        The specified rect coordinates refer to scroll view's inner scrolled
-        coordinate system. I.e. The point (0,0) refers to the top left corner
-        of the scrolled area, which is not necessarily the same
-        of the top-left corner the content view (if the content view has a nonzero margin,
-        or if the scroll view has nonzero padding).
+    /** Changes the scroll position so that the specified part of the
+        client area is visible.
 
+        The specified rect is in client coordinates (see \ref layout_box_model.md).
+
+        It is ok to specify coordinates outside the client area. If the rect exceeds
+        the client area then the function will make sure that the edge of the client area
+        in that direction is visible.
+
+        The function also supports the special "infinity" floating point value.
+        If positive infinity is specified as the rect position then the function will scroll
+        to the end of the client area in that direction.
+                        
         This function is thread safe.
         */
-    virtual void scrollAreaToVisible(const Rect& area);
+    virtual void scrollClientRectToVisible(const Rect& clientRect);
 	
 
 	/** Static function that returns the type name for #ScrollView objects.*/
@@ -155,13 +164,26 @@ public:
 		if(pChildView==_pContentView)
 			_pContentView = nullptr;
 	}
+
+
+    /** Called by the scroll view's core when the visible client area
+        changes. This updates the value of the visibleClientRect() property.
+
+        This should only be called by the core. In particular, the application
+        should never call this. scrollClientRectToVisible() can be used
+        to manipulate the scroll position.
+        */
+    virtual void _setVisibleClientRect(const Rect& rect)
+    {
+        _visibleClientRect = rect;
+    }
     
 private:
     P<View>					_pContentView;
 
     DefaultProperty<bool>   _verticalScrollingEnabled;
     DefaultProperty<bool>   _horizontalScrollingEnabled;
-    DefaultProperty<Point>  _scrollPosition;
+    DefaultProperty<Rect>   _visibleClientRect;
 };
 
 }

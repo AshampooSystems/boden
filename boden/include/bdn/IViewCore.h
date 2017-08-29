@@ -161,7 +161,7 @@ public:
 
         
 	
-	/** Converts the specified Ui length to DIPs (device independent pixels  - see UiLength::Unit::dip).
+	/** Converts the specified Ui length to DIPs (see \ref dip.md).
     
         Return 0 for "none" values (see UiLength::isNone()).
 
@@ -169,14 +169,14 @@ public:
 	virtual double uiLengthToDips(const UiLength& uiLength) const=0;
 	
 
-	/** Converts a UiMargin object to a DIP-based margin object (see UiLength::Unit::dip).*/
+	/** Converts a UiMargin object to a DIP-based margin object (see \ref dip.md).*/
 	virtual Margin uiMarginToDipMargin(const UiMargin& margin) const=0;
 
 
 
 	
 
-	/** Asks the view to calculate its preferred size in DIPs (see UiLength::Unit::dip),
+	/** Asks the view to calculate its preferred size in DIPs (see \ref dip.md),
         based on it current contents	and properties.
 
         There are several constraints for the preferred size:
