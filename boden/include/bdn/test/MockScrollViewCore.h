@@ -157,12 +157,12 @@ public:
             _horizontalScrollBarVisible = helper.getHorizontalScrollBarVisible();
             _verticalScrollBarVisible = helper.getVerticalScrollBarVisible();
 
-            Size viewPortSize = helper.getViewPortSize();
+            _viewPortSize = helper.getViewPortSize();
 
             // update the size of the visible client rect
             Rect visibleClientRect = pOuterView->visibleClientRect();
-            visibleClientRect.width = viewPortSize.width;
-            visibleClientRect.height = viewPortSize.height;
+            visibleClientRect.width = _viewPortSize.width;
+            visibleClientRect.height = _viewPortSize.height;
 
             // make sure that the visible client rect is inside the client area            
             if(visibleClientRect.x + visibleClientRect.width > _clientSize.width)
@@ -175,7 +175,15 @@ public:
     }
 
 
-    
+    Size getClientSize() const
+    {
+        return _clientSize;
+    }
+
+    Size getViewPortSize() const
+    {
+        return _viewPortSize;
+    }
 
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
@@ -203,6 +211,7 @@ private:
     bool _verticalScrollBarVisible = false;
 
     Size _clientSize;
+    Size _viewPortSize;
 };
 
 
