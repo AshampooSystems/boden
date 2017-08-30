@@ -14,13 +14,11 @@ ColumnView::ColumnView()
 
 Size ColumnView::calcContainerPreferredSize( const Size& availableSpace ) const
 {
-    // XXX
-    BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcContainerPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
+    // BDN_DEBUGGER_PRINT( String(typeid(*this).name())+".calcContainerPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n"  );
 
 	Size totalSize = calcLayoutImpl( nullptr, availableSpace, true);
 
-    // XXX
-            BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcContainerPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" );
+    // BDN_DEBUGGER_PRINT( "/"+String(typeid(*this).name())+".calcContainerPreferredSize -> "+std::to_string(totalSize.width)+", "+std::to_string(totalSize.height)+")\n" );
 
 	return totalSize;
 }
