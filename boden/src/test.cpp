@@ -8013,6 +8013,10 @@ public:
             if(argPtrs.empty())
                 argPtrs.push_back("");
 
+            // XXX
+            argPtrs.push_back("--print-level");
+            argPtrs.push_back("7");
+            argPtrs.push_back("winuwp.ScrollViewCore");
 
 			//argPtrs.push_back( "android.ScrollViewCore" );
 

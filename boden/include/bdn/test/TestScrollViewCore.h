@@ -556,6 +556,27 @@ private:
         else
             return Size(0, s);
     }
+    
+    static void waitForCondition( std::chrono::steady_clock::time_point timeoutTime, std::function<bool(bool)> checkFunc, std::function<void()> continueFunc )
+    {
+        std::chrono::steady_clock::time_point currTime = std::chrono::steady_clock::now();
+
+        bool lastTry = (currTime>timeoutTime);
+
+        if(!checkFunc(lastTry))
+        {
+            std::function<void()> f = [timeoutTime, checkFunc, continueFunc]()
+                {
+                    waitForCondition(timeoutTime, checkFunc, continueFunc);
+                };
+
+            BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( 0.1, f);
+        }
+        else
+        {
+            continueFunc();
+        }
+    }
 
     static void subTestScrollClientRectToVisible_Dir(
         TestDir_ dir,
@@ -577,38 +598,72 @@ private:
         targetSize += comp(targetSizeAdd, dir);
         expectedPos += comp(expectedPosAdd, dir);
 
+        Rect visibleRectBefore = pScrollView->visibleClientRect();
+
         pScrollView->scrollClientRectToVisible( Rect( compToPoint(initialPos, dir), pScrollView->visibleClientRect().get().getSize() ) );
 
-        BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetPos, targetSize, expectedPos, dir)
-        {
-            Rect visibleRectBefore = pScrollView->visibleClientRect();
-
-            Rect expectedInitialRect( compToPoint( initialPos, dir), visibleRectBefore.getSize() );
-            Rect adjustedExpectedInitialRect_down = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::down, RoundType::nearest );
-            Rect adjustedExpectedInitialRect_up = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::up, RoundType::nearest );
-
-            // check if the initial position is as expected
-            REQUIRE_ALMOST_EQUAL( visibleRectBefore.x, expectedInitialRect.x, std::fabs(adjustedExpectedInitialRect_up.x - adjustedExpectedInitialRect_down.x) );
-            REQUIRE_ALMOST_EQUAL( visibleRectBefore.y, expectedInitialRect.y, std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y) );        
-            
-            pScrollView->scrollClientRectToVisible( Rect( compToPoint(targetPos, dir), compToSize(targetSize, dir) ) );
-
-            BDN_CONTINUE_SECTION_WHEN_IDLE( pKeepAliveDuringTest, pScrollView, initialPos, targetPos, targetSize, expectedPos, dir, visibleRectBefore)
+        // it may take a while until the scroll operation is done (for example, if it is animated). So we wait and check
+        // a few times until the expected condition is present.
+        waitForCondition(
+            std::chrono::steady_clock::now() + std::chrono::seconds(10),
+            [pKeepAliveDuringTest, pScrollView, initialPos, dir, visibleRectBefore](bool lastTry)
             {
                 Rect visibleRect = pScrollView->visibleClientRect();
 
-                Rect expectedRect( compToPoint( expectedPos, dir), visibleRectBefore.getSize() );
-                Rect adjustedExpectedRect_down = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::down, RoundType::nearest );
-                Rect adjustedExpectedRect_up = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::up, RoundType::nearest );
+                Rect expectedInitialRect( compToPoint( initialPos, dir), visibleRectBefore.getSize() );
+                Rect adjustedExpectedInitialRect_down = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::down, RoundType::nearest );
+                Rect adjustedExpectedInitialRect_up = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::up, RoundType::nearest );
 
-                // allow the visible rect to be adjusted just like a view bounds rect would be.                
-                REQUIRE_ALMOST_EQUAL( visibleRect.x, expectedRect.x, std::fabs(adjustedExpectedRect_up.x - adjustedExpectedRect_down.x) );
-                REQUIRE_ALMOST_EQUAL( visibleRect.y, expectedRect.y, std::fabs(adjustedExpectedRect_up.y - adjustedExpectedRect_down.y) );
+                if(lastTry)
+                {
+                    REQUIRE_ALMOST_EQUAL( visibleRect.x, expectedInitialRect.x, std::fabs(adjustedExpectedInitialRect_up.x - adjustedExpectedInitialRect_down.x) );
+                    REQUIRE_ALMOST_EQUAL( visibleRect.y, expectedInitialRect.y, std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y) );        
 
-                // Size should not have changed
-                REQUIRE( visibleRect.getSize() == visibleRectBefore.getSize() );
-            };
-        };
+                    return true;
+                }
+                else
+                {
+                    return ( std::fabs(visibleRect.x - expectedInitialRect.x) <= std::fabs(adjustedExpectedInitialRect_up.x - adjustedExpectedInitialRect_down.x)
+                            && std::fabs(visibleRect.y - expectedInitialRect.y) <= std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y) );
+                }
+            },
+            [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore]()
+            {
+                pScrollView->scrollClientRectToVisible( Rect( compToPoint(targetPos, dir), compToSize(targetSize, dir) ) );
+
+                waitForCondition(
+                    std::chrono::steady_clock::now() + std::chrono::seconds(10),
+                    [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore](bool lastTry)
+                    {
+                        Rect visibleRect = pScrollView->visibleClientRect();
+
+                        Rect expectedRect( compToPoint( expectedPos, dir), visibleRectBefore.getSize() );
+                        Rect adjustedExpectedRect_down = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::down, RoundType::nearest );
+                        Rect adjustedExpectedRect_up = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::up, RoundType::nearest );
+
+                        if(lastTry)
+                        {
+                            // allow the visible rect to be adjusted just like a view bounds rect would be.                
+                            REQUIRE_ALMOST_EQUAL( visibleRect.x, expectedRect.x, std::fabs(adjustedExpectedRect_up.x - adjustedExpectedRect_down.x) );
+                            REQUIRE_ALMOST_EQUAL( visibleRect.y, expectedRect.y, std::fabs(adjustedExpectedRect_up.y - adjustedExpectedRect_down.y) );
+
+                            return true;
+                        }
+                        else
+                        {
+                            return ( std::fabs(visibleRect.x - expectedRect.x) <= std::fabs(adjustedExpectedRect_up.x - adjustedExpectedRect_down.x)
+                                    && std::fabs(visibleRect.y - expectedRect.y) <= std::fabs(adjustedExpectedRect_up.y - adjustedExpectedRect_down.y) );
+                        }
+
+                    },
+                    [pKeepAliveDuringTest, pScrollView, visibleRectBefore]()
+                    {
+                        Rect visibleRect = pScrollView->visibleClientRect();
+
+                        // Size should not have changed
+                        REQUIRE( visibleRect.getSize() == visibleRectBefore.getSize() );
+                    } );
+            } );
     }
 
     static void subTestScrollClientRectToVisible(

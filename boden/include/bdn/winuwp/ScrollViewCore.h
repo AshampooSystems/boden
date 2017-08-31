@@ -30,11 +30,14 @@ private:
 public:
 
 	ScrollViewCore(	ScrollView* pOuter)
-		: ChildViewCore(pOuter, _createScrollViewer(pOuter), ref new ViewCoreEventForwarder(this) )
+		: ChildViewCore(pOuter, _createScrollViewer(pOuter), ref new ScrollViewCoreEventForwarder(this) )
 	{
         BDN_WINUWP_TO_STDEXC_BEGIN;
                 
 		_pScrollViewer = dynamic_cast< ::Windows::UI::Xaml::Controls::ScrollViewer^ >( getFrameworkElement() );
+
+        _pScrollViewer->HorizontalScrollBarVisibility = ::Windows::UI::Xaml::Controls::ScrollBarVisibility::Auto;
+        _pScrollViewer->VerticalScrollBarVisibility = ::Windows::UI::Xaml::Controls::ScrollBarVisibility::Auto;
 
         // we want to let the scroll viewer handle the scroll bars and layouting automatically.
         // It is compatible with our own layout system.
@@ -47,6 +50,12 @@ public:
         _pContentWrapper->setLayoutDelegateWeak( _pContentWrapperLayoutDelegate );
 
 		_pScrollViewer->Content = _pContentWrapper;
+
+
+		_pScrollViewer->ViewChanged += ref new ::Windows::Foundation::EventHandler<::Windows::UI::Xaml::Controls::ScrollViewerViewChangedEventArgs^>(
+            dynamic_cast<ScrollViewCoreEventForwarder^>(getViewCoreEventForwarder()),
+            &ScrollViewCoreEventForwarder::viewChanged );
+
 
 		/*::Windows::UI::Xaml::Controls::ScrollContentPresenter^ pPresenter = ref new ::Windows::UI::Xaml::Controls::ScrollContentPresenter;
 
@@ -91,15 +100,69 @@ public:
 	
 
 
-	void setHorizontalScrollingEnabled(const bool& enabled)
+	void setHorizontalScrollingEnabled(const bool& enabled) override
     {
         _pScrollViewer->HorizontalScrollMode = enabled ? ::Windows::UI::Xaml::Controls::ScrollMode::Enabled : ::Windows::UI::Xaml::Controls::ScrollMode::Disabled;
     }
 
-	void setVerticalScrollingEnabled(const bool& enabled)
+	void setVerticalScrollingEnabled(const bool& enabled) override
     {
         _pScrollViewer->VerticalScrollMode = enabled ? ::Windows::UI::Xaml::Controls::ScrollMode::Enabled : ::Windows::UI::Xaml::Controls::ScrollMode::Disabled;
     }
+
+    void scrollClientRectToVisible(const Rect& clientRect) override
+    {
+        Rect visibleRect;
+        visibleRect.x = _pScrollViewer->HorizontalOffset;
+        visibleRect.y = _pScrollViewer->VerticalOffset;
+        visibleRect.width = _pScrollViewer->ViewportWidth;
+        visibleRect.height = _pScrollViewer->ViewportHeight;
+
+        Size clientSize;
+        clientSize.width = _pContentWrapper->ActualWidth;
+        clientSize.height = _pContentWrapper->ActualHeight;
+
+        auto hm = _pScrollViewer->HorizontalScrollMode;
+        auto vm = _pScrollViewer->VerticalScrollMode;
+
+        double targetLeft = clientRect.x;
+        double targetRight = clientRect.x + clientRect.width;
+        double targetTop = clientRect.y;
+        double targetBottom = clientRect.y + clientRect.height;
+        
+        // first, clip the target rect to the client area.
+        // This also automatically gets rid of infinity target positions (which are allowed)
+        if( targetLeft > clientSize.width)
+            targetLeft = clientSize.width;
+        if( targetRight > clientSize.width )
+            targetRight = clientSize.width;
+        if( targetTop > clientSize.height)
+            targetTop = clientSize.height;
+        if( targetBottom > clientSize.height )
+            targetBottom = clientSize.height;
+
+        if(targetLeft<0)
+            targetLeft = 0;
+        if(targetRight<0)
+            targetRight = 0;
+        if(targetTop<0)
+            targetTop = 0;
+        if(targetBottom<0)
+            targetBottom = 0;
+
+        if(targetRight > visibleRect.x + visibleRect.width)
+            visibleRect.x = targetRight - visibleRect.width;
+        if(targetLeft < visibleRect.x)
+            visibleRect.x = targetLeft;
+
+        if(targetBottom > visibleRect.y + visibleRect.height)
+            visibleRect.y = targetBottom - visibleRect.height;
+        if(targetTop < visibleRect.y)
+            visibleRect.y = targetTop;
+        
+        _pScrollViewer->ChangeView( visibleRect.x, visibleRect.y, _pScrollViewer->ZoomFactor );
+    }
+	
     
 
     void layout()
@@ -209,10 +272,11 @@ protected:
 
     void _uwpSizeChanged() override
 	{
-        // XXX
-        OutputDebugString( L"ScrollViewCore._uwpSizeChanged()\n" );
+        // OutputDebugString( L"ScrollViewCore._uwpSizeChanged()\n" );
 
         ChildViewCore::_uwpSizeChanged();
+
+        updateVisibleRect();
 
         // the scroll viewer's size has changed. Ensure that we update the DesiredSize that the content
         // reports, because the desired size may depend on the size and/or shape of the viewport.
@@ -220,7 +284,54 @@ protected:
         UwpLayoutBridge::get().invalidateMeasure( _pContentWrapper );
 	}
 
+    virtual void _uwpViewChanged()
+	{
+        // OutputDebugString( L"ScrollViewCore._uwpViewChanged()\n" );
+
+        updateVisibleRect();
+	}
+
+    virtual void updateVisibleRect()
+    {
+        // a scroll operation has changed the visible rect.
+        P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );
+        if(pOuter!=nullptr)
+        {
+            Rect visibleRect;
+            visibleRect.x = _pScrollViewer->HorizontalOffset;
+            visibleRect.y = _pScrollViewer->VerticalOffset;
+            visibleRect.width = _pScrollViewer->ViewportWidth;
+            visibleRect.height = _pScrollViewer->ViewportHeight;
+
+            pOuter->_setVisibleClientRect(visibleRect);
+        }        
+    }
+
 private:
+    
+    
+
+
+    ref class ScrollViewCoreEventForwarder : public ViewCoreEventForwarder
+	{
+	internal:
+		ScrollViewCoreEventForwarder(ChildViewCore* pParent)
+            : ViewCoreEventForwarder(pParent)
+		{
+		}
+        
+	public:
+		void viewChanged( Platform::Object^ pSender,  ::Windows::UI::Xaml::Controls::ScrollViewerViewChangedEventArgs^ pArgs)
+		{
+            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
+
+			P<ScrollViewCore> pViewCore = cast<ScrollViewCore>( getViewCoreIfAlive() );
+			if(pViewCore!=nullptr)
+				pViewCore->_uwpViewChanged();
+
+            BDN_WINUWP_TO_PLATFORMEXC_END
+		}
+	};
     
     class ContentWrapperLayoutDelegate : public Base, BDN_IMPLEMENTS IUwpLayoutDelegate
     {
@@ -232,8 +343,7 @@ private:
 
         Size uwpMeasureOverride(const Size& availableSpace ) override
         {
-            // XXX
-            OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+            // OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
 
             P<ScrollView> pView = _viewWeak.toStrong();
 
@@ -273,7 +383,7 @@ private:
                 }
             }
 
-            OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
+            // OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
             
             return resultSize;
         }
@@ -294,8 +404,7 @@ private:
         
         Size uwpArrangeOverride(const Size& finalSize ) override
         {
-            // XXX
-            OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
+            // OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             P<ScrollView> pView = _viewWeak.toStrong();
 
@@ -313,7 +422,7 @@ private:
                         {
 					        Rect						contentBounds(pContentView->position(), pContentView->size());
 
-                            OutputDebugString( String( "ScrollView content view "+String(pContentElement->GetType()->ToString()->Data())+" arrange: "+std::to_string(contentBounds.x)+", "+std::to_string(contentBounds.y)+", "+std::to_string(contentBounds.width)+", "+std::to_string(contentBounds.height)+"\n" ).asWidePtr() );
+                            // OutputDebugString( String( "ScrollView content view "+String(pContentElement->GetType()->ToString()->Data())+" arrange: "+std::to_string(contentBounds.x)+", "+std::to_string(contentBounds.y)+", "+std::to_string(contentBounds.width)+", "+std::to_string(contentBounds.height)+"\n" ).asWidePtr() );
                             
 					        ::Windows::Foundation::Rect winContentBounds = rectToUwpRect( contentBounds );
                             				
@@ -323,18 +432,20 @@ private:
                             double width = pContentElement->ActualWidth;
                             double height = pContentElement->ActualHeight;
 
-                            OutputDebugString( String( "Resulting size: "+std::to_string(width)+" x "+std::to_string(height)+"\n" ).asWidePtr() );
+                            // OutputDebugString( String( "Resulting size: "+std::to_string(width)+" x "+std::to_string(height)+"\n" ).asWidePtr() );
 				        }
                     }
                 }
                 
                 P<ScrollViewCore> pCore = tryCast<ScrollViewCore>( pView->getViewCore() );
 				if(pCore!=nullptr)
+                {
 					pCore->_pScrollViewer->InvalidateScrollInfo();
+                    pCore->updateVisibleRect();
+                }
             }     
 
-            // XXX
-            OutputDebugString( String( "/ContentWrapperLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
+            // OutputDebugString( String( "/ContentWrapperLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
 
             return finalSize;
         }
