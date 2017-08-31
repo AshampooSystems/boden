@@ -99,6 +99,11 @@ public:
             
                 if(!wideEnough || !highEnough)
                     actualContentSize = pContentView->calcPreferredSize(contentAvailableSpace);               
+
+                Rect bounds( Point(), actualContentSize );
+                Rect adjustedBounds = pContentView->adjustBounds(bounds, RoundType::nearest, RoundType::up);
+
+                actualContentSize = adjustedBounds.getSize();
             }
 
             // reset the scrollbar booleans and viewport size.

@@ -42,9 +42,12 @@ protected:
     {
         // resize the scroll view so that it has exactly the desired scroll view size
 
-        Rect newBounds( _pScrollView->position(), viewPortSize + getNonClientSize() );
+        Size viewSize = viewPortSize + getNonClientSize();
 
-        _pScrollView->adjustAndSetBounds(newBounds);
+        _pScrollView->preferredSizeMinimum() = viewSize;
+        _pScrollView->preferredSizeMaximum() = viewSize;
+
+        _pWindow->requestAutoSize();
     }
     
     void verifyScrollsHorizontally( bool expectedVisible) override

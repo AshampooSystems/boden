@@ -96,20 +96,20 @@ void ScrollViewCore::layout()
 
         RECT winRect;
         ::GetWindowRect(hwnd, &winRect);
-        Size clientSizeWithoutScrollbars = win32RectToRect(winRect, uiScaleFactor).getSize();
+        Size viewPortSizeWithoutScrollbars = win32RectToRect(winRect, uiScaleFactor).getSize();
 
         // subtract the size of the border.
-        clientSizeWithoutScrollbars.width -= _nonClientMargins.left + _nonClientMargins.right;
-        clientSizeWithoutScrollbars.height -= _nonClientMargins.top + _nonClientMargins.bottom;
+        viewPortSizeWithoutScrollbars.width -= _nonClientMargins.left + _nonClientMargins.right;
+        viewPortSizeWithoutScrollbars.height -= _nonClientMargins.top + _nonClientMargins.bottom;
 
-        if(clientSizeWithoutScrollbars.width<0)
-            clientSizeWithoutScrollbars.width = 0;
-        if(clientSizeWithoutScrollbars.height<0)
-            clientSizeWithoutScrollbars.height = 0;
+        if(viewPortSizeWithoutScrollbars.width<0)
+            viewPortSizeWithoutScrollbars.width = 0;
+        if(viewPortSizeWithoutScrollbars.height<0)
+            viewPortSizeWithoutScrollbars.height = 0;
         
         ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);    
 
-        helper.calcLayout(pOuterView, clientSizeWithoutScrollbars );
+        helper.calcLayout(pOuterView, viewPortSizeWithoutScrollbars );
 
         _showHorizontalScrollBar = helper.getHorizontalScrollBarVisible();
         _showVerticalScrollBar = helper.getVerticalScrollBarVisible();
@@ -415,13 +415,47 @@ void ScrollViewCore::scrollClientRectToVisible(const Rect& rect)
         double scaleFactor = getUiScaleFactor();
 
         RECT targetRect = rectToWin32Rect(rect, scaleFactor );
-        
+
+        // handle infinity positions.
+        if( !std::isfinite(rect.x) )
+        {
+            int width = targetRect.right - targetRect.left;
+            targetRect.left = (rect.x>0) ? _clientSizePixels.cx : 0;
+            targetRect.right = targetRect.left + width;
+        }
+        if( !std::isfinite(rect.y) )
+        {
+            int height = targetRect.bottom - targetRect.top;
+
+            targetRect.top = (rect.y>0) ? _clientSizePixels.cy : 0;
+            targetRect.bottom = targetRect.top + height;
+        }
+
+        // now we clip the target rect to the client area
+        if(targetRect.right > _clientSizePixels.cx)
+            targetRect.right = _clientSizePixels.cx;
+        if(targetRect.left > _clientSizePixels.cx)
+            targetRect.left = _clientSizePixels.cx;
+        if(targetRect.right < 0)
+            targetRect.right = 0;
+        if(targetRect.left < 0)
+            targetRect.left = 0;
+
+        if(targetRect.bottom > _clientSizePixels.cy)
+            targetRect.bottom = _clientSizePixels.cy;
+        if(targetRect.top > _clientSizePixels.cy)
+            targetRect.top = _clientSizePixels.cy;
+        if(targetRect.bottom < 0)
+            targetRect.bottom = 0;
+        if(targetRect.top < 0)
+            targetRect.top = 0;
+
+
         if(targetRect.right > currVisibleRect.right )
             newScrollPos.x = targetRect.right - _viewPortSizePixels.cx;
         if( targetRect.left < currVisibleRect.left )
             newScrollPos.x = targetRect.left;
-
-
+                        
         if(targetRect.bottom > currVisibleRect.bottom )
             newScrollPos.y = targetRect.bottom - _viewPortSizePixels.cy;
         if( targetRect.top < currVisibleRect.top )

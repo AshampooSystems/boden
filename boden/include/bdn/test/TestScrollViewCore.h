@@ -583,10 +583,13 @@ private:
         {
             Rect visibleRectBefore = pScrollView->visibleClientRect();
 
-            // check if the initial position is as expected
-            REQUIRE( visibleRectBefore.getPosition() == compToPoint( initialPos, dir) );
+            Rect expectedInitialRect( compToPoint( initialPos, dir), visibleRectBefore.getSize() );
+            Rect adjustedExpectedInitialRect_down = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::down, RoundType::nearest );
+            Rect adjustedExpectedInitialRect_up = pScrollView->getContentView()->adjustBounds( expectedInitialRect, RoundType::up, RoundType::nearest );
 
-        
+            // check if the initial position is as expected
+            REQUIRE_ALMOST_EQUAL( visibleRectBefore.x, expectedInitialRect.x, std::fabs(adjustedExpectedInitialRect_up.x - adjustedExpectedInitialRect_down.x) );
+            REQUIRE_ALMOST_EQUAL( visibleRectBefore.y, expectedInitialRect.y, std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y) );        
             
             pScrollView->scrollClientRectToVisible( Rect( compToPoint(targetPos, dir), compToSize(targetSize, dir) ) );
 
@@ -594,7 +597,13 @@ private:
             {
                 Rect visibleRect = pScrollView->visibleClientRect();
 
-                REQUIRE( visibleRect.getPosition() == compToPoint( expectedPos, dir) );
+                Rect expectedRect( compToPoint( expectedPos, dir), visibleRectBefore.getSize() );
+                Rect adjustedExpectedRect_down = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::down, RoundType::nearest );
+                Rect adjustedExpectedRect_up = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::up, RoundType::nearest );
+
+                // allow the visible rect to be adjusted just like a view bounds rect would be.                
+                REQUIRE_ALMOST_EQUAL( visibleRect.x, expectedRect.x, std::fabs(adjustedExpectedRect_up.x - adjustedExpectedRect_down.x) );
+                REQUIRE_ALMOST_EQUAL( visibleRect.y, expectedRect.y, std::fabs(adjustedExpectedRect_up.y - adjustedExpectedRect_down.y) );
 
                 // Size should not have changed
                 REQUIRE( visibleRect.getSize() == visibleRectBefore.getSize() );
