@@ -15,7 +15,7 @@
 namespace bdn
 {
     
-P<IUiProvider> getPlatformUiProvider()
+P<IUiProvider> getDefaultUiProvider()
 {
     return &bdn::mac::UiProvider::get();
 }
@@ -43,6 +43,18 @@ String UiProvider::getName() const
 {
     return "mac";
 }
+    
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        MutexLock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+            _pTextUi = newObj< ViewTextUi >();
+    }
+    
+    return _pTextUi;
+}
+
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 {

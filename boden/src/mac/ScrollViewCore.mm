@@ -2,6 +2,7 @@
 #import <bdn/mac/ScrollViewCore.hh>
 
 #include <bdn/ScrollViewLayoutHelper.h>
+#import <bdn/mac/util.hh>
 
 #import <Cocoa/Cocoa.h>
 
@@ -39,6 +40,31 @@
 @end
 
 
+
+
+@interface BdnMacScrollViewCoreEventForwarder_ : NSObject
+
+@property bdn::mac::ScrollViewCore* pScrollViewCore;
+
+@end
+
+
+@implementation BdnMacScrollViewCoreEventForwarder_
+
+-(void)setScrollViewCore:(bdn::mac::ScrollViewCore*)pCore
+{
+    _pScrollViewCore = pCore;
+}
+
+-(void)contentViewBoundsDidChange
+{
+    _pScrollViewCore->_contentViewBoundsDidChange();
+}
+
+@end
+
+
+
 namespace bdn
 {
 namespace mac
@@ -58,11 +84,30 @@ ScrollViewCore::ScrollViewCore(	ScrollView* pOuter)
     
     _nsScrollView.autohidesScrollers = YES;
     
+    _nsScrollView.contentView.postsBoundsChangedNotifications = YES;
+    
+    BdnMacScrollViewCoreEventForwarder_* eventForwarder = [BdnMacScrollViewCoreEventForwarder_ alloc];
+    [eventForwarder setScrollViewCore:this];
+    _eventForwarder = eventForwarder;
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:eventForwarder
+                                             selector:@selector(contentViewBoundsDidChange)
+                                                 name:NSViewBoundsDidChangeNotification
+                                               object:_nsScrollView.contentView];
+    
     setHorizontalScrollingEnabled( pOuter->horizontalScrollingEnabled() );
     setVerticalScrollingEnabled( pOuter->verticalScrollingEnabled() );
     
     
     setPadding( pOuter->padding() );
+}
+
+ScrollViewCore::~ScrollViewCore()
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:_eventForwarder
+                                                    name:NSViewBoundsDidChangeNotification
+                                                  object:_nsScrollView.contentView ];
 }
 
 NSScrollView* ScrollViewCore::_createScrollView(ScrollView* pOuter)
@@ -191,6 +236,34 @@ void ScrollViewCore::layout()
             
             [_nsScrollView.documentView setFrameSize:wrapperSize];
         }
+        
+        updateVisibleClientRect();
+    }
+}
+
+void ScrollViewCore::scrollClientRectToVisible(const Rect& clientRect)
+{
+    if(_nsScrollView.contentView!=nil)
+    {
+        [_nsScrollView.contentView scrollRectToVisible:rectToMacRect(clientRect, -1)];
+    }
+}
+
+void ScrollViewCore::_contentViewBoundsDidChange()
+{
+    // when the view scrolls then the bounds of the content view (not the document view)
+    // change.
+    updateVisibleClientRect();
+}
+
+void ScrollViewCore::updateVisibleClientRect()
+{
+    P<ScrollView> pOuterView = cast<ScrollView>( getOuterViewIfStillAttached() );
+    if(pOuterView!=nullptr)
+    {
+        Rect visibleClientRect = macRectToRect( _nsScrollView.documentVisibleRect, -1 );
+    
+        pOuterView->_setVisibleClientRect(visibleClientRect);
     }
 }
 

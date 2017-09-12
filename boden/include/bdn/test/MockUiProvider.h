@@ -65,7 +65,7 @@ public:
         _pTextUi = newObj<MockTextUi>();
     }
     
-	String getName() const
+	String getName() const override
 	{
 		return "mock";
 	}
@@ -91,7 +91,7 @@ public:
     }
 
     
-	P<IViewCore> createViewCore(const String& coreTypeName, View* pView);
+	P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
     
 protected:
     int _coresCreated = 0;

@@ -104,7 +104,7 @@ typedef CodecVtUtf8Utf32 CodecVtUtf8Ucs4;
     typedef std::codecvt<unsigned short, char, std::mbstate_t> CodecVtChar16Char;
 
 #else
-    typedef std::codecvt<char16_t, char, std::mbstate_t> CodecVtChar16Char
+    typedef std::codecvt<char16_t, char, std::mbstate_t> CodecVtChar16Char;
 #endif
 
 
@@ -121,7 +121,7 @@ typedef CodecVtUtf8Utf32 CodecVtUtf8Ucs4;
     typedef std::codecvt<unsigned int, char, std::mbstate_t> CodecVtChar32Char;
 
 #else
-    typedef std::codecvt<char32_t, char, std::mbstate_t> CodecVtChar32Char
+    typedef std::codecvt<char32_t, char, std::mbstate_t> CodecVtChar32Char;
 #endif
     
 }

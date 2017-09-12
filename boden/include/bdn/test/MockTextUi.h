@@ -4,6 +4,8 @@
 #include <bdn/ITextUi.h>
 #include <bdn/NotImplementedError.h>
 
+#include <vector>
+
 namespace bdn
 {
 namespace test

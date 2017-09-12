@@ -23,6 +23,7 @@ private:
 
 public:
 	ScrollViewCore(	ScrollView* pOuter);
+    ~ScrollViewCore();
     
     void setPadding(const Nullable<UiMargin>& padding) override;
 
@@ -37,6 +38,13 @@ public:
     
     void addChildNsView( NSView* childView ) override;
     
+    void scrollClientRectToVisible(const Rect& clientRect) override;
+    
+    
+    
+    /** Used internally. Do not call.*/
+    void _contentViewBoundsDidChange();
+    
     
 private:
     /** Creates a ScrollViewLayoutHelper object that can be used to calculate preferred sizes
@@ -45,10 +53,16 @@ private:
         \param pBorderSize an optional parameter that receives the size of the nonclient border around
             the scroll view (if pBorderSize is not null).*/
     P<ScrollViewLayoutHelper> createLayoutHelper(Size* pBorderSize = nullptr) const;
+    
+    
+    /** Updates the ScrollView::visibleClientRect property of the outer view.*/
+    void updateVisibleClientRect();
 
 
     NSScrollView*   _nsScrollView;
     NSView*         _nsContentViewParent;
+    
+    NSObject*       _eventForwarder;
 };
 
 }

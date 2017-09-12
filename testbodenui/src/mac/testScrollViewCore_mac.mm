@@ -60,14 +60,18 @@ protected:
         // our scroll views do not have a border.
         return bdn::Size(0,0);
     }
-
+    
     void initiateScrollViewResizeToHaveViewPortSize( const bdn::Size& viewPortSize) override
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
-
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize + getNonClientSize() );
-
-        _pScrollView->adjustAndSetBounds(newBounds);
+        // we cannot resize the scroll view directly with adjustAndSetBounds.
+        // That would not have any effect outside of a layout cycle.
+        // Instead we set the preferred size min and max to force the outer view
+        // to resize it to the specified size.
+        
+        _pScrollView->preferredSizeMinimum() = viewPortSize+getNonClientSize();
+        _pScrollView->preferredSizeMaximum() = viewPortSize+getNonClientSize();
+        
+        _pWindow->requestAutoSize();
     }
     
     void verifyScrollsHorizontally( bool expectedScrolls) override

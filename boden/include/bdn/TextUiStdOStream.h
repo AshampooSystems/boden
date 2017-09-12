@@ -26,13 +26,18 @@ class TextUiStdOStream : public std::basic_ostream<CharType>
 {
 public:
     TextUiStdOStream(ITextUi* pUi)
-        : _streamBuf(pUi)
-        , std::basic_ostream<CharType>(&_streamBuf)
+        : std::basic_ostream<CharType>( new TextUiStdStreamBuf<CharType>(pUi) )
     {
+        _pStreamBuf = dynamic_cast< TextUiStdStreamBuf<CharType>* >(this->rdbuf());
+    }
+    
+    ~TextUiStdOStream()
+    {
+        delete _pStreamBuf;
     }
 
 private:
-    TextUiStdStreamBuf<CharType> _streamBuf;
+    TextUiStdStreamBuf<CharType>* _pStreamBuf;
 };
 
 

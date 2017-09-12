@@ -120,6 +120,12 @@ static void _globalUnhandledNSException(NSException* exception)
     }
 }
 
+
+bool UiAppRunner::isCommandLineApp() const
+{
+    return false;
+}
+
 int UiAppRunner::entry()
 {
     NSSetUncaughtExceptionHandler( &_globalUnhandledNSException );

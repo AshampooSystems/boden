@@ -138,7 +138,10 @@ protected:
             Size viewPortSize = pScrollView->visibleClientRect().get().getSize();
             Size clientSize = pButton->size();
 
-            // verify that the scroll view initialization was successful
+            // verify that the scroll view initialization was successful.
+            // If this fails then it can be that either the resizing of the scrollview was incorrect,
+            // or that the visibleClientRect property of the View was not correctly updated by the
+            // ScrollViewCore implementation.
             REQUIRE( viewPortSize > Size(400, 400) );
             REQUIRE( viewPortSize < Size(600, 600) );
 
@@ -627,20 +630,31 @@ private:
                             && std::fabs(visibleRect.y - expectedInitialRect.y) <= std::fabs(adjustedExpectedInitialRect_up.y - adjustedExpectedInitialRect_down.y) );
                 }
             },
-            [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore]()
+            [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore, initialPos, initialPosAdd, targetPosAdd, targetSizeAdd, expectedPosAdd]()
             {
                 pScrollView->scrollClientRectToVisible( Rect( compToPoint(targetPos, dir), compToSize(targetSize, dir) ) );
 
                 waitForCondition(
                     std::chrono::steady_clock::now() + std::chrono::seconds(10),
-                    [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore](bool lastTry)
+                    [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore, initialPos, initialPosAdd, targetPosAdd, targetSizeAdd, expectedPosAdd](bool lastTry)
                     {
                         Rect visibleRect = pScrollView->visibleClientRect();
 
                         Rect expectedRect( compToPoint( expectedPos, dir), visibleRectBefore.getSize() );
                         Rect adjustedExpectedRect_down = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::down, RoundType::nearest );
                         Rect adjustedExpectedRect_up = pScrollView->getContentView()->adjustBounds( expectedRect, RoundType::up, RoundType::nearest );
-
+                        
+                        // copy captured variables to locals for better debugging in lldb
+                        TestDir_ dirL = dir;
+                        int initialPosL = initialPos;
+                        Size initialPosAddL = initialPosAdd;
+                        int targetPosL = targetPos;
+                        Size targetPosAddL = targetPosAdd;
+                        int targetSizeL = targetSize;
+                        Size targetSizeAddL = targetSizeAdd;
+                        int expectedPosL = expectedPos;
+                        Size expectedPosAddL = expectedPosAdd;
+                        
                         if(lastTry)
                         {
                             // allow the visible rect to be adjusted just like a view bounds rect would be.                
