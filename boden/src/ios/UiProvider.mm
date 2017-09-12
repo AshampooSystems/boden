@@ -68,6 +68,19 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 }
 
 
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        MutexLock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+            _pTextUi = newObj< ViewTextUi >();
+    }
+    
+    return _pTextUi;
+}
+
+
+
 }
 }
 

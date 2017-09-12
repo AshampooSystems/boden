@@ -3,6 +3,7 @@
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ViewTextUi.h>
 
 namespace bdn
 {
@@ -20,6 +21,7 @@ public:
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
+    P<ITextUi> getTextUi() override;
 
     static UiProvider& get();
     
@@ -40,6 +42,9 @@ private:
     double _semDips;
     
     P<LayoutCoordinator> _pLayoutCoordinator;
+    
+    Mutex                _textUiInitMutex;
+    P<ViewTextUi>        _pTextUi;
 };
 
 }

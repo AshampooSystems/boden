@@ -139,6 +139,11 @@ void ScrollViewCore::layout()
     }
 }
 
+void ScrollViewCore::scrollClientRectToVisible(const Rect& clientRect)
+{
+    
+}
+
 
 }
 }

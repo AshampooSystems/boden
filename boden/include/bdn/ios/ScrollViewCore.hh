@@ -32,6 +32,7 @@ public:
     
     void layout() override;
     
+    void scrollClientRectToVisible(const Rect& clientRect) override;
     
     void addChildUIView( UIView* childView ) override;
     
