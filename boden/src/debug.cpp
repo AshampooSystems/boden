@@ -5,6 +5,8 @@
 #include <android/log.h>
 #endif
 
+#include <bdn/IAppRunner.h>
+
 
 #ifdef BDN_PLATFORM_OSX
     #include <assert.h>
@@ -100,6 +102,25 @@ namespace bdn
     {
         // stdout is connected to the debugger
         std::cout << text.asUtf8() << std::endl;
+    }
+}
+
+#elif BDN_PLATFORM_OSX
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // If we have a UI app then we can output the debug text to stdout.
+        // The debugger will pick that up.
+        // For commandline apps we must not do that, since stdout is actually
+        // used for user interaction there.
+        
+        if( ! getAppRunner()->isCommandLineApp() )
+        {
+            // stdout is connected to the debugger
+            std::cout << text.asUtf8() << std::endl;
+        }
     }
 }
 

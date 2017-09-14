@@ -50,9 +50,11 @@ void debuggerPrint(const String& text);
 }
 
 /** \def BDN_DEBUGGER_PRINT
-    Same as bdn::debuggerPrint(), except that the whole statement is automatically removed in
-    release builds.
-    */
+ Same as bdn::debuggerPrint(), except that the whole statement is automatically removed in
+ release builds.
+ */
+
+// XXX need to detect debug builds here
 #define BDN_DEBUGGER_PRINT(text) bdn::debuggerPrint(text)
 
 
