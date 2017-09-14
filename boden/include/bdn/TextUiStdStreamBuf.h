@@ -175,7 +175,7 @@ protected:
                 break;
             }
             
-            int unconsumedElements = pInEnd - it.getInner();
+            size_t unconsumedElements = pInEnd - it.getInner();
             if(unconsumedElements >= UtfCodec<CharType>::getMaxEncodedElementsPerCharacter() )
             {
                 // the "invalid" data at the end is definitely long enough 

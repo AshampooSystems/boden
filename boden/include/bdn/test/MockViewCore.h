@@ -161,7 +161,7 @@ public:
             {
                 lineCount++;
 
-                int lineChars = line.getLength();
+                size_t lineChars = line.getLength();
 
                 if(maxLineChars!=-1 && lineChars > maxLineChars)
                 {

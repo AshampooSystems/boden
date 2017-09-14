@@ -54,6 +54,22 @@ inline CGSize sizeToIosSize(const Size& size)
     return iosSize;
 }
 
+inline Point iosPointToPoint(const CGPoint& iosPoint)
+{
+    return Point( iosPoint.x,
+                iosPoint.y );
+}
+
+inline CGPoint pointToIosPoint(const Point& p)
+{
+    CGPoint iosPoint;
+    
+    iosPoint.x = p.x;
+    iosPoint.y = p.y;
+    
+    return iosPoint;
+}
+
 
 inline NSString* stringToIosString(const String& val)
 {

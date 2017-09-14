@@ -14,7 +14,7 @@
 namespace bdn
 {
     
-P<IUiProvider> getPlatformUiProvider()
+P<IUiProvider> getDefaultUiProvider()
 {
     return &bdn::ios::UiProvider::get();
 }

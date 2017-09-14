@@ -92,6 +92,16 @@ namespace bdn
     }
 }
 
+#elif BDN_PLATFORM_IOS
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // stdout is connected to the debugger
+        std::cout << text.asUtf8() << std::endl;
+    }
+}
 
 #else
 

@@ -128,7 +128,7 @@ protected:
         pScrollView->horizontalScrollingEnabled() = true;
         pScrollView->setContentView(pButton);
 
-        initiateScrollViewResizeToHaveViewPortSize( Size(500, 500) );
+        initiateScrollViewResizeToHaveViewPortSize( Size(300, 300) );
 
         P<TestScrollViewCore> pThis = this;
                         
@@ -142,8 +142,8 @@ protected:
             // If this fails then it can be that either the resizing of the scrollview was incorrect,
             // or that the visibleClientRect property of the View was not correctly updated by the
             // ScrollViewCore implementation.
-            REQUIRE( viewPortSize > Size(400, 400) );
-            REQUIRE( viewPortSize < Size(600, 600) );
+            REQUIRE( viewPortSize > Size(200, 200) );
+            REQUIRE( viewPortSize < Size(400, 400) );
 
             REQUIRE( clientSize > Size(900, 900) );
             REQUIRE( clientSize < Size(1100, 1100) );
@@ -383,6 +383,35 @@ protected:
                                 0, Size() );
                         }
                     }
+                    
+                    SECTION("negative infinity position")
+                    {
+                        SECTION("zero target area size")
+                        {
+                            subTestScrollClientRectToVisible(
+                                                             pThis,
+                                                             pScrollView,
+                                                             10, Size(),
+                                                             - std::numeric_limits<double>::infinity(), Size(),
+                                                             0, Size(),
+                                                             0, Size() );
+                        }
+                        
+                        SECTION("nonzero target area size")
+                        {
+                            // the size of the target area does not matter if the position
+                            // is negative infinity.
+                        
+                            subTestScrollClientRectToVisible(
+                                                             pThis,
+                                                             pScrollView,
+                                                             10, Size(),
+                                                             - std::numeric_limits<double>::infinity(), Size(),
+                                                             300, Size(),
+                                                             0, Size() );
+                        }
+                    }
+
 
                     SECTION("target area crosses 0")
                     {
@@ -406,10 +435,59 @@ protected:
                                     
                             // the target rect is bigger than the viewport, so we cannot
                             // make all of it visible.
-                            // The left/top side of the target rect should get preference.
-                            0, Size() );
+                            // The scroll view should scroll the minimal amount possible
+                            // to make as much of the target rect visible as it can.
+                            // Since the current visible rect is already fully in the target
+                            // area that means that the scroll view should not scroll at all
+                            10, Size() );
                     }
                 }
+                
+                
+                
+                SECTION("target area bigger than viewport and already visible")
+                {
+                    subTestScrollClientRectToVisible(
+                                                     pThis,
+                                                     pScrollView,
+                                                     10, Size(),
+                                                     5, Size(),
+                                                     10, viewPortSize,
+                                                     
+                                                     // should not move, since all the area of the target
+                                                     // rect that can fit into the viewport is already visible
+                                                     10, Size() );
+                }
+                
+                SECTION("target area bigger than viewport and begins slightly after current scroll position")
+                {
+                    subTestScrollClientRectToVisible(
+                                                     pThis,
+                                                     pScrollView,
+                                                     10, Size(),
+                                                     11, Size(),
+                                                     2, viewPortSize,
+                                                     
+                                                     // should move one pixel to right, since the left edge
+                                                     // of the target area is 1 pixel to right of current viewport
+                                                     11, Size() );
+                }
+                
+                SECTION("target area bigger than viewport and ends slightly before end of current visible rect")
+                {
+                    subTestScrollClientRectToVisible(
+                                                     pThis,
+                                                     pScrollView,
+                                                     10, Size(),
+                                                     5, Size(),
+                                                     4, viewPortSize,
+                                                     
+                                                     // should move one pixel to left since the right edge
+                                                     // of the target area is 1 pixel to left of current viewport end
+                                                     9, Size() );
+                }
+                
+                
 
                 SECTION("exceeds end")
                 {

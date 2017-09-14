@@ -264,7 +264,7 @@ public:
 
                 SECTION("less width than needed, more than enough height for scrollbar")
                 {
-                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, 300) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, 100) );
 
                     if(pThis->_horzScrollingEnabled)
                     {
@@ -330,7 +330,7 @@ public:
 
                 SECTION("less height than needed, more than enough width for scrollbar")
                 {
-                    Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(300, -pixelSize.height) );
+                    Size prefSize = pThis->callCalcPreferredSize(optimalSize + Size(100, -pixelSize.height) );
 
                     if(pThis->_vertScrollingEnabled)
                     {
@@ -458,7 +458,7 @@ public:
                 {
                     Size optimalContentSize = pContentView->calcPreferredSize();
                     
-                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, 300) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(-pixelSize.width, 100) );
 
                     // content view should have been asked for its preferred sizeat least once
                     REQUIRE( pContentView->getCalcPreferredSizeCallCount() > initialCalcCount  );
@@ -477,7 +477,7 @@ public:
                         if(pThis->_vertScrollingEnabled)
                             REQUIRE( !std::isfinite(contentAvailSpace.height) );
                         else
-                            REQUIRE( contentAvailSpace.height == optimalContentSize.height+300);
+                            REQUIRE( contentAvailSpace.height == optimalContentSize.height+100);
 
                         // the preferred width should be less than optimal. The height should have increased
                         // (since we need more lines for the text).
@@ -490,7 +490,7 @@ public:
                 {
                     Size optimalContentSize = pContentView->calcPreferredSize();
 
-                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(300, -pixelSize.height) );
+                    Size prefSize = pThis->callCalcPreferredSize( optimalSize + Size(100, -pixelSize.height) );
 
                     // content view should have been asked for its preferred sizeat least once
                     REQUIRE( pContentView->getCalcPreferredSizeCallCount() > initialCalcCount  );
@@ -510,7 +510,7 @@ public:
                         if(pThis->_horzScrollingEnabled)
                             REQUIRE( !std::isfinite(contentAvailSpace.width) );
                         else
-                            REQUIRE( contentAvailSpace.width == optimalContentSize.width+300);
+                            REQUIRE( contentAvailSpace.width == optimalContentSize.width+100);
                         
                         // should have reported the optimal size since text views cannot reduce their height.
                         REQUIRE( prefSize == optimalSize );
@@ -533,7 +533,7 @@ public:
         {
             SECTION("no margin, no padding")
             {
-                prepareCalcLayout( Size(700, 700) );
+                prepareCalcLayout( Size(250, 250) );
 
                 BDN_CONTINUE_SECTION_WHEN_IDLE( pThis )
                 {
@@ -543,9 +543,9 @@ public:
                     {
                         pThis->verifyScrollsHorizontally( false );
                         pThis->verifyScrollsVertically( false );
-                        pThis->verifyContentViewBounds( Rect(0, 0, 700, 700) );
-                        pThis->verifyScrolledAreaSize( Size(700, 700)  );
-                        pThis->verifyViewPortSize( Size(700, 700) );
+                        pThis->verifyContentViewBounds( Rect(0, 0, 250, 250) );
+                        pThis->verifyScrolledAreaSize( Size(250, 250)  );
+                        pThis->verifyViewPortSize( Size(250, 250) );
                     };
                 };
             }
@@ -559,7 +559,7 @@ public:
 
                 CONTINUE_SECTION_WHEN_IDLE( pThis )
                 {
-                    pThis->prepareCalcLayout( Size(700, 700) );
+                    pThis->prepareCalcLayout( Size(250, 250) );
 
                     CONTINUE_SECTION_WHEN_IDLE( pThis )
                     {
@@ -569,9 +569,9 @@ public:
                         {
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( false );
-                            pThis->verifyContentViewBounds( Rect(4, 1, 700-2-4, 700-1-3) );
-                            pThis->verifyScrolledAreaSize( Size(700, 700)  );
-                            pThis->verifyViewPortSize( Size(700, 700) );
+                            pThis->verifyContentViewBounds( Rect(4, 1, 250-2-4, 250-1-3) );
+                            pThis->verifyScrolledAreaSize( Size(250, 250)  );
+                            pThis->verifyViewPortSize( Size(250, 250) );
                         };
                     };
                 };
@@ -637,9 +637,9 @@ public:
                 
                 int initialCalcPreferredSizeCallCount = pButton->getCalcPreferredSizeCallCount();
 
-                SECTION("huge viewport")
+                SECTION("much bigger viewport")
                 {
-                    Size viewPortSize = optimalSize+Size(300, 300);
+                    Size viewPortSize = optimalSize+Size(100, 100);
 
                     pThis->prepareCalcLayout( viewPortSize );
 
@@ -696,7 +696,7 @@ public:
 
                 SECTION("less width than needed, more than enough height for scrollbar")
                 {
-                    Size viewPortSize = optimalSize + Size(-pixelSize.width, pixelSize.height*300);
+                    Size viewPortSize = optimalSize + Size(-pixelSize.width, pixelSize.height*100);
 
                     pThis->prepareCalcLayout( viewPortSize );
 
@@ -712,11 +712,11 @@ public:
                             Rect expectedContentViewBounds;
 
                             if(pThis->_horzScrollingEnabled)
-                                expectedContentViewBounds = Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(0, pixelSize.height*300-horzBarHeight) );
+                                expectedContentViewBounds = Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(0, pixelSize.height*100-horzBarHeight) );
                             else
                             {
                                 // no scrolling >= no scrollbar. Also width is truncated
-                                expectedContentViewBounds = Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width, pixelSize.height*300) );
+                                expectedContentViewBounds = Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(-pixelSize.width, pixelSize.height*100) );
                             }                
                                         
                             // we allow slight deviation due to floating point calculations
@@ -756,7 +756,7 @@ public:
                                     // reported available space should have been the available height height (since not scrollable) and 1 DIP less
                                     // width than needed.
                                     Size lastAvailSpace = pButton->getLastCalcPreferredSizeAvailableSpace();
-                                    Size expectedLastAvailSpace = optimalButtonSize + Size(-pixelSize.width, pixelSize.height*300);
+                                    Size expectedLastAvailSpace = optimalButtonSize + Size(-pixelSize.width, pixelSize.height*100);
                                     REQUIRE( Dip::equal( lastAvailSpace, expectedLastAvailSpace ) );
                                 }
                             }
@@ -863,7 +863,7 @@ public:
 
                 SECTION("less height than needed, more than enough width for scrollbar")
                 {
-                    Size viewPortSize = optimalSize + Size(300, -pixelSize.height);
+                    Size viewPortSize = optimalSize + Size(100, -pixelSize.height);
 
                     pThis->prepareCalcLayout( viewPortSize );
 
@@ -878,7 +878,7 @@ public:
 
                             if(pThis->_vertScrollingEnabled)
                             {
-                                pThis->verifyContentViewBounds( Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(300-vertBarWidth, 0) ) );
+                                pThis->verifyContentViewBounds( Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(100-vertBarWidth, 0) ) );
                 
                                 // scrollable area width is the viewport width minus the scrollbar width. Height is the optimal height
                                 pThis->verifyScrolledAreaSize( Size(viewPortSize.width-vertBarWidth, optimalSize.height) );
@@ -890,10 +890,10 @@ public:
                                 // cannot scroll vertically => no scrollbar shown.
                                 // width fills the viewport. height is truncated to available space
 
-                                pThis->verifyContentViewBounds( Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(300, -pixelSize.height) ) );
+                                pThis->verifyContentViewBounds( Rect( optimalButtonBounds.getPosition(), optimalButtonBounds.getSize()+Size(100, -pixelSize.height) ) );
                 
                                 // scrollable area width is the viewport width. Height is the optimal height, truncated to the available space
-                                pThis->verifyScrolledAreaSize( optimalSize + Size(300,-pixelSize.height) );
+                                pThis->verifyScrolledAreaSize( optimalSize + Size(100,-pixelSize.height) );
 
                                 // no scrollbar visible => full viewport size
                                 pThis->verifyViewPortSize( viewPortSize );

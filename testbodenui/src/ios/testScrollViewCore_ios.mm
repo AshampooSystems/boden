@@ -52,11 +52,18 @@ protected:
 
     void initiateScrollViewResizeToHaveViewPortSize( const bdn::Size& viewPortSize) override
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
+        // we cannot resize the scroll view directly with adjustAndSetBounds.
+        // That would not have any effect outside of a layout cycle.
+        // Instead we set the preferred size min and max to force the outer view
+        // to resize it to the specified size.
+        
+        _pScrollView->preferredSizeMinimum() = viewPortSize+getNonClientSize();
+        _pScrollView->preferredSizeMaximum() = viewPortSize+getNonClientSize();
 
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize + getNonClientSize() );
-
-        _pScrollView->adjustAndSetBounds(newBounds);
+        // also request a re-layout here. With the normal propagation of the property changes
+        // it would take two event cycles until the layout happens. But we want it to happen
+        // immediately after the properties have been changed.
+        _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );       
     }
     
     void verifyScrollsHorizontally( bool expectedScrolls) override

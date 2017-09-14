@@ -36,6 +36,10 @@ public:
     
     void addChildUIView( UIView* childView ) override;
     
+    
+    /** Used internally - do not call.*/
+    void _scrollViewDidScroll();
+    
 protected:
     bool canAdjustToAvailableWidth() const override
     {
@@ -49,11 +53,15 @@ protected:
 
     
 private:
+    void updateVisibleClientRect();
+
     UIScrollView*   _uiScrollView;
     UIView*         _uiContentViewParent;
     
     bool            _horzScrollEnabled = false;
     bool            _vertScrollEnabled = false;
+    
+    NSObject*       _delegate = nil;
 };
 
 }

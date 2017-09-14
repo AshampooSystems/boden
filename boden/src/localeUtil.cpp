@@ -79,7 +79,7 @@ bool isUtf8Locale(const std::locale& loc)
         {
             // the codec says that it was able to encode the data.
             // Verify that the result is what we expected.
-            int expectedLength = strlen(pExpectedUtf8);
+            size_t expectedLength = strlen(pExpectedUtf8);
             
             if(pOutNext == outBuffer+expectedLength
                 && memcmp(outBuffer, pExpectedUtf8, expectedLength)==0)
