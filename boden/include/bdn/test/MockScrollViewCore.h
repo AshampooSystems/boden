@@ -100,10 +100,102 @@ public:
             if(targetBottom > _clientSize.height)
                 targetBottom = _clientSize.height;
             
+            
             double visibleLeft = visibleRect.x;
             double visibleRight = visibleRect.x + visibleRect.width;
             double visibleTop = visibleRect.y;
-            double visibleBottom = visibleRect.y + visibleRect.height;            
+            double visibleBottom = visibleRect.y + visibleRect.height;    
+
+            
+            // there is a special case if the target rect is bigger than the viewport.
+            // In that case the desired end position is ambiguous: any sub-rect of viewport size
+            // inside the specified target rect would be "as good as possible".
+            // The documentation for scrollClientRectToVisible resolves this ambiguity by requiring
+            // that we scroll the minimal amount. So we want the new visible rect to be as close
+            // to the old one as possible.
+    
+            // The ios scrollRectToVisible function does not behave like that. It seems to give the
+            // targetBottom and targetRight edges of the specified target rect priority.
+            // So we have to manually fix this by selecting the part of the big target rect that
+            // we actually want to scroll to.
+             
+            if(targetRight-targetLeft > visibleRect.width)
+            {
+                // the width of the target rect is bigger than the viewport width.
+                // So not all of the target rect can be made visible.
+                // UIScrollView will prioritize the targetRight edge of the target rect.
+                // We want the closest edge to the current visible rect to be prioritized.
+        
+                if( visibleLeft >= targetLeft && visibleRight<=targetRight)
+                {
+                    // The current visible rect is already fully inside the target rect.
+                    // In this case we do not want to move the scroll position at all.
+                    // So set the target rect to the current view port rect
+                    targetLeft = visibleLeft;
+                    targetRight = visibleRight;
+                }
+                else
+                {
+                    // shrink the target rect so that it matches the viewport width.
+                    // We want to shrink towards the edge that is closest to the current visible rect.
+                    // Note that the width of the visible rect is smaller than the target width and
+                    // that the visible rect is not fully inside the target rect.
+                    // So one of the target rect edges has to be closer than the other.
+            
+                    double distanceLeft = fabs( targetLeft-visibleLeft );
+                    double distanceRight = fabs( targetRight-visibleRight );
+            
+                    if(distanceLeft<distanceRight)
+                    {
+                        // the targetLeft edge of the target rect is closer to the current visible rect
+                        // than the targetRight edge. So we want to move towards the targetLeft.
+                        targetRight = targetLeft + visibleRect.width;
+                    }
+                    else
+                    {
+                        // move towards the targetRight edge
+                        targetLeft = targetRight - visibleRect.width;
+                    }
+                }
+            }
+    
+            if(targetBottom-targetTop > visibleRect.height)
+            {
+                if( visibleTop >= targetTop && visibleBottom<=targetBottom)
+                {
+                    targetTop = visibleTop;
+                    targetBottom = visibleBottom;
+                }
+                else
+                {
+                    double distanceTop = fabs( targetTop-visibleTop );
+                    double distanceBottom = fabs( targetBottom-visibleBottom );
+            
+                    if(distanceTop<distanceBottom)
+                        targetBottom = targetTop + visibleRect.height;
+                    else
+                        targetTop = targetBottom - visibleRect.height;
+                }
+            }
+    
+            if(targetLeft<0)
+                targetLeft = 0;
+            if(targetRight<0)
+                targetRight = 0;
+            if(targetTop<0)
+                targetTop = 0;
+            if(targetBottom<0)
+                targetBottom = 0;
+
+            if(targetLeft > _clientSize.width)
+                targetLeft = _clientSize.width;
+            if(targetRight > _clientSize.width)
+                targetRight = _clientSize.width;
+            if(targetTop > _clientSize.height)
+                targetTop = _clientSize.height;
+            if(targetBottom > _clientSize.height)
+                targetBottom = _clientSize.height;
+                    
 
             // move the visible rect so that it shows the desired target area
             if(targetRight > visibleRight)
