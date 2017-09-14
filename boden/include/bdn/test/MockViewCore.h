@@ -163,7 +163,7 @@ public:
 
                 size_t lineChars = line.getLength();
 
-                if(maxLineChars!=-1 && lineChars > maxLineChars)
+                if(maxLineChars!=-1 && lineChars > (size_t)maxLineChars)
                 {
                     // find the break point.
                     // Note that if there is a whitespace just FOLLOWING the maximum number of

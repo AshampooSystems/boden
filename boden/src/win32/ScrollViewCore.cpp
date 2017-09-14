@@ -419,16 +419,13 @@ void ScrollViewCore::scrollClientRectToVisible(const Rect& rect)
         // handle infinity positions.
         if( !std::isfinite(rect.x) )
         {
-            int width = targetRect.right - targetRect.left;
             targetRect.left = (rect.x>0) ? _clientSizePixels.cx : 0;
-            targetRect.right = targetRect.left + width;
+            targetRect.right = targetRect.left;
         }
         if( !std::isfinite(rect.y) )
         {
-            int height = targetRect.bottom - targetRect.top;
-
             targetRect.top = (rect.y>0) ? _clientSizePixels.cy : 0;
-            targetRect.bottom = targetRect.top + height;
+            targetRect.bottom = targetRect.top;
         }
 
         // now we clip the target rect to the client area
@@ -449,6 +446,51 @@ void ScrollViewCore::scrollClientRectToVisible(const Rect& rect)
             targetRect.bottom = 0;
         if(targetRect.top < 0)
             targetRect.top = 0;
+
+        // if the target rect is bigger than the visible rect
+        // then we want to scroll as little as possible, to
+        // fill the viewport with ANY part of the target rect.
+
+        if( targetRect.right-targetRect.left > _viewPortSizePixels.cx)
+        {
+            if( currVisibleRect.left>=targetRect.left && currVisibleRect.right<=targetRect.right)
+            {
+                // if the current visible rect is already inside the target rect then
+                // we do not want to scroll
+                targetRect.left = currVisibleRect.left;
+                targetRect.right = currVisibleRect.right;
+            }
+            else
+            {
+                // we want to scroll towards the of the target rect that is closest
+                int leftDistance = std::abs( targetRect.left - currVisibleRect.left );
+                int rightDistance = std::abs( targetRect.right - currVisibleRect.right );
+
+                if(rightDistance<leftDistance)
+                    targetRect.left = targetRect.right - _viewPortSizePixels.cx;
+                else
+                    targetRect.right = targetRect.left + _viewPortSizePixels.cx;
+            }
+        }
+
+        if( targetRect.bottom-targetRect.top > _viewPortSizePixels.cy)
+        {
+            if( currVisibleRect.top>=targetRect.top && currVisibleRect.bottom<=targetRect.bottom)
+            {
+                targetRect.top = currVisibleRect.top;
+                targetRect.bottom = currVisibleRect.bottom;
+            }
+            else
+            {
+                int topDistance = std::abs( targetRect.top - currVisibleRect.top );
+                int bottomDistance = std::abs( targetRect.bottom - currVisibleRect.bottom );
+
+                if(bottomDistance<topDistance)
+                    targetRect.top = targetRect.bottom - _viewPortSizePixels.cy;
+                else
+                    targetRect.bottom = targetRect.top + _viewPortSizePixels.cy;
+            }
+        }
 
 
         if(targetRect.right > currVisibleRect.right )

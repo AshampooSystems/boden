@@ -724,13 +724,13 @@ private:
                         
                         // copy captured variables to locals for better debugging in lldb
                         TestDir_ dirL = dir;
-                        int initialPosL = initialPos;
+                        double initialPosL = initialPos;
                         Size initialPosAddL = initialPosAdd;
-                        int targetPosL = targetPos;
+                        double targetPosL = targetPos;
                         Size targetPosAddL = targetPosAdd;
-                        int targetSizeL = targetSize;
+                        double targetSizeL = targetSize;
                         Size targetSizeAddL = targetSizeAdd;
-                        int expectedPosL = expectedPos;
+                        double expectedPosL = expectedPos;
                         Size expectedPosAddL = expectedPosAdd;
                         
                         if(lastTry)
