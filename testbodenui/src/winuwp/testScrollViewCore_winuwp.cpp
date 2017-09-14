@@ -117,7 +117,10 @@ protected:
         if(_pWinScrollViewer->VerticalScrollMode==::Windows::UI::Xaml::Controls::ScrollMode::Disabled && height>_pWinScrollViewer->ViewportHeight)
             height = _pWinScrollViewer->ViewportHeight;
 
-        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
+        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
+
+        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + scaleFactor );
+        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + scaleFactor );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -125,7 +128,10 @@ protected:
         double width = _pWinScrollViewer->ViewportWidth;
         double height = _pWinScrollViewer->ViewportHeight;
 
-        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
+        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
+
+        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + scaleFactor );
+        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + scaleFactor );
     }               
              
     void verifyCorePadding() override
