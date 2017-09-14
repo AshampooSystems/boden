@@ -30,7 +30,7 @@ protected:
     {
         BaseClass::initCore();
 
-        _pMockCore = cast<bdn::test::MockViewCore>( _pView->getViewCore() );
+        _pMockCore = cast<bdn::test::MockViewCore>( this->_pView->getViewCore() );
         REQUIRE( _pMockCore!=nullptr );
     }
 
@@ -41,7 +41,7 @@ protected:
 
     void verifyCoreVisibility() override
     {
-        bool expectedVisible = _pView->visible();
+        bool expectedVisible = this->_pView->visible();
 
         REQUIRE( _pMockCore->getVisible() == expectedVisible );
     }
@@ -55,14 +55,14 @@ protected:
 
     void verifyCorePosition() override
     {        
-        Point expectedPosition = _pView->position();
+        Point expectedPosition = this->_pView->position();
 
         REQUIRE( _pMockCore->getBounds().getPosition() == expectedPosition );
     }
 
     void verifyCoreSize() override
     {        
-        Size expectedSize = _pView->size();
+        Size expectedSize = this->_pView->size();
 
         REQUIRE( _pMockCore->getBounds().getSize() == expectedSize );
     }
@@ -70,7 +70,7 @@ protected:
 
     void verifyCorePadding() override
     {
-        Nullable<UiMargin> expectedPadding = _pView->padding();
+        Nullable<UiMargin> expectedPadding = this->_pView->padding();
         
         if(expectedPadding.isNull())
             REQUIRE( _pMockCore->getPadding().isNull() );

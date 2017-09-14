@@ -19,7 +19,8 @@ private:
 
 public:
 	AppRunner( std::function< P<AppControllerBase>() > appControllerCreator );
-	
+
+	bool isCommandLineApp() const override;
 
 	/** Main entry function of the app runner.*/
     void entry();

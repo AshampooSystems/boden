@@ -20,7 +20,8 @@ private:
 
 protected:
 
-    result do_out( MyStateType& state,
+    typename std::codecvt<typename InnerCodecType::intern_type, typename InnerCodecType::extern_type, typename InnerCodecType::state_type>::result
+        do_out( MyStateType& state,
             const MyInternType* from,
             const MyInternType* from_end,
             const MyInternType*& from_next,
@@ -31,7 +32,8 @@ protected:
         return _innerCodec.out(state, from, from_end, from_next, to, to_end, to_next);
     }
 
-    result do_in( MyStateType& state,
+    typename std::codecvt<typename InnerCodecType::intern_type, typename InnerCodecType::extern_type, typename InnerCodecType::state_type>::result
+        do_in( MyStateType& state,
             const MyExternType* from,
             const MyExternType* from_end,
             const MyExternType*& from_next,
@@ -42,7 +44,8 @@ protected:
         return _innerCodec.in(state, from, from_end, from_next, to, to_end, to_next);
     }
 
-    result do_unshift( MyStateType& state,
+    typename std::codecvt<typename InnerCodecType::intern_type, typename InnerCodecType::extern_type, typename InnerCodecType::state_type>::result
+        do_unshift( MyStateType& state,
                            MyExternType* to,
                            MyExternType* to_end,
                            MyExternType*& to_next) const override

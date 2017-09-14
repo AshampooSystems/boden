@@ -14,6 +14,7 @@ class UiProvider;
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ViewTextUi.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
@@ -39,6 +40,8 @@ public:
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
 
+    P<ITextUi> getTextUi() override;
+
 
     double getSemSizeDips(ViewCore& viewCore);
 
@@ -51,13 +54,15 @@ public:
     }
 
 
-
     static UiProvider& get();
 
 
 private:
     double _semDips;
     P<LayoutCoordinator> _pLayoutCoordinator;
+
+    Mutex           _textUiInitMutex;
+    P<ViewTextUi>   _pTextUi;
 
 };
 

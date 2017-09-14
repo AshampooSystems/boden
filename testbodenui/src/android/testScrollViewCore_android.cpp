@@ -123,7 +123,8 @@ protected:
                 scrollAreaSizePixels.width / scaleFactor,
                 scrollAreaSizePixels.height / scaleFactor );
 
-        REQUIRE( Dip::equal( scrollAreaSize, expectedSize) );
+        REQUIRE_ALMOST_EQUAL( scrollAreaSize.width, expectedSize.width, (1.0/scaleFactor)+Dip::significanceBoundary() );
+        REQUIRE_ALMOST_EQUAL( scrollAreaSize.height, expectedSize.height, (1.0/scaleFactor)+Dip::significanceBoundary() );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -134,8 +135,9 @@ protected:
                 _jView.getWidth() / scaleFactor,
                 _jView.getHeight() / scaleFactor );
 
-        REQUIRE( Dip::equal( viewPortSize, expectedSize) );
-    }               
+        REQUIRE_ALMOST_EQUAL( viewPortSize.width, expectedSize.width, (1.0/scaleFactor)+Dip::significanceBoundary() );
+        REQUIRE_ALMOST_EQUAL( viewPortSize.height, expectedSize.height, (1.0/scaleFactor)+Dip::significanceBoundary() );
+    }
 
 
 
