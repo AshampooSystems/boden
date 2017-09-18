@@ -76,12 +76,16 @@ protected:
         return _pScrollViewCore->calcPreferredSize( availableSpace );
     }  
 
-    void prepareCalcLayout(const Size& viewPortSize) override
+    Size prepareCalcLayout(const Size& viewPortSize) override
     {
         // we must force the viewport to have the requested size.
-        initiateScrollViewResizeToHaveViewPortSize(viewPortSize);
+        _viewPortSizeRequestedInPrepare  = initiateScrollViewResizeToHaveViewPortSize(viewPortSize);
 
-        _viewPortSizeRequestedInPrepare = viewPortSize;
+        // the final viewport size should be roughly the same as the requested one
+        REQUIRE( _viewPortSizeRequestedInPrepare >= viewPortSize - Size(5,5) );
+        REQUIRE( _viewPortSizeRequestedInPrepare <= viewPortSize + Size(5,5) );
+
+        return _viewPortSizeRequestedInPrepare;
     }
 
     void calcLayoutAfterPreparation() override
@@ -111,8 +115,11 @@ protected:
     /** Causes the scroll view to have the specified viewport size when no scroll bars are shown.
 
         It is ok if the resizing happens asynchronously after the function has already returned.
+
+        Must return the viewport size that the view will actually end up having
+        (adjusted or pixel aligned for the current display).
     */
-    virtual void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)=0;
+    virtual Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)=0;
 
 
     virtual void testScrollClientRectToVisible()

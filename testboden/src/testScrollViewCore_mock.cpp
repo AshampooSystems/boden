@@ -37,12 +37,16 @@ protected:
     }
      
 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
-        _pScrollView->preferredSizeMinimum() = viewPortSize;
-        _pScrollView->preferredSizeMaximum() = viewPortSize;
+        Size adjustedSize = _pScrollView->adjustBounds( Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest).getSize();
+
+        _pScrollView->preferredSizeMinimum() = adjustedSize;
+        _pScrollView->preferredSizeMaximum() = adjustedSize;
 
         _pWindow->requestAutoSize();
+
+        return adjustedSize;
     }
     
     void verifyScrollsHorizontally( bool expectedVisible) override

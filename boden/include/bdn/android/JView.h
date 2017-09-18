@@ -272,6 +272,28 @@ public:
     }
 
 
+    /** Return the scrolled left position of this view.
+     *  This is the left edge of the displayed part of your view. You do not need to draw any pixels
+     *  farther left, since those are outside of the frame of your view on screen.*/
+    int getScrollX()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getScrollX");
+    }
+
+
+    /** Return the scrolled top position of this view. This is the top edge of the displayed part
+     *  of your view. You do not need to draw any pixels above it, since those are outside of the
+     *  frame of your view on screen.*/
+    int getScrollY()
+    {
+        static bdn::java::MethodId methodId;
+
+        return invoke_<int>(getStaticClass_(), methodId, "getScrollY");
+    }
+
+
     class OnClickListener : public bdn::java::JObject
     {
     public:
@@ -316,6 +338,51 @@ public:
         invoke_<void>(getStaticClass_ (), methodId, "setOnClickListener", listener);
     }
 
+
+
+    class OnScrollChangeListener : public bdn::java::JObject
+    {
+    public:
+        /** @param javaRef the reference to the Java object.
+        *      The JObject instance will copy this reference and keep its type.
+        *      So if you want the JObject instance to hold a strong reference
+        *      then you need to call toStrong() on the reference first and pass the result.
+        *      */
+        explicit OnScrollChangeListener(const bdn::java::Reference& javaRef)
+                : JObject(javaRef)
+        {
+        }
+
+        /** Returns the JClass object for this class.
+         *
+         *  Note that the returned class object is not necessarily unique for the whole
+         *  process.
+         *  You might get different objects if this function is called from different
+         *  shared libraries.
+         *
+         *  If you want to check for type equality then you should compare the type name
+         *  (see getTypeName() )
+         *  */
+        static bdn::java::JClass& getStaticClass_ ()
+        {
+            static bdn::java::JClass cls( "android/view/View$OnScrollChangeListener" );
+
+            return cls;
+        }
+
+        bdn::java::JClass& getClass_ () override
+        {
+            return getStaticClass_ ();
+        }
+    };
+
+
+    void setOnScrollChangeListener( JView::OnScrollChangeListener& listener )
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_ (), methodId, "setOnScrollChangeListener", listener);
+    }
 
 
     class OnLayoutChangeListener : public bdn::java::JObject

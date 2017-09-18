@@ -4,11 +4,12 @@
 #include <bdn/ScrollView.h>
 #include <bdn/IScrollViewCore.h>
 #include <bdn/ScrollViewLayoutHelper.h>
+#include <bdn/java/NativeWeakPointer.h>
 #include <bdn/android/ViewCore.h>
-#include <bdn/android/JScrollView.h>
-#include <bdn/android/JHorizontalScrollView.h>
+#include <bdn/android/JNativeScrollViewManager.h>
 #include <bdn/android/IParentViewCore.h>
 #include <bdn/android/JViewGroup.h>
+#include <bdn/android/JNativeScrollViewManager.h>
 
 
 namespace bdn
@@ -19,7 +20,7 @@ namespace android
 class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore, BDN_IMPLEMENTS IParentViewCore
 {
 private:
-	static P<JScrollView> _createJScrollView(ScrollView* pOuter)
+	static P<JNativeScrollViewManager> _createNativeScrollViewManager(ScrollView* pOuter)
 	{
 		// we need to know the context to create the view.
 		// If we have a parent then we can get that from the parent's core.
@@ -33,34 +34,35 @@ private:
 
 		JContext context = pParentCore->getJView().getContext();
 
-		P<JScrollView> pVertScrollView = newObj<JScrollView>(context);
+		P<JNativeScrollViewManager> pMan = newObj<JNativeScrollViewManager>(context);
 
-		return pVertScrollView;
+		return pMan;
 	}
 
 public:
-	ScrollViewCore(ScrollView* pOuter)
-     : ViewCore(pOuter, _createJScrollView(pOuter) )
+	ScrollViewCore(ScrollView* pOuter )
+	: ScrollViewCore( pOuter, _createNativeScrollViewManager(pOuter) )
 	{
-		_pVertScrollView = newObj<JScrollView>( getJView().getRef_() );
+	}
 
-		// unfortunately android does not offer a scroll view that can scroll in both directions.
-		// So we emulate this by nesting a horizontal scroll view inside the vertical scroll view.
-		_pHorzScrollView = newObj<JHorizontalScrollView>( _pVertScrollView->getContext() );
+private:
+	ScrollViewCore(ScrollView* pOuter, P<JNativeScrollViewManager> pMan  )
+	: ViewCore(pOuter, newObj<JView>( pMan->getWrapperView() ) )
+	{
+		_pMan = pMan;
 
-		_pVertScrollView->addView( *_pHorzScrollView );
-
-		// inside the scroll view we add a NativeViewGroup object as the glue between our layout system and
+		// inside the scroll view we have a NativeViewGroup object as the glue between our layout system and
 		// that of android. That allows us to position the content view manually. It also ensures that
 		// the parent of the content view is a NativeViewGroup, which is important because we assume
 		// that that is the case in some places.
-		_pContentParent = newObj<JNativeViewGroup>( _pVertScrollView->getContext() );
-		_pHorzScrollView->addView( *_pContentParent );
+		_pContentParent = newObj<JNativeViewGroup>( pMan->getContentParent() );
 
 		setVerticalScrollingEnabled( pOuter->verticalScrollingEnabled() );
 		setHorizontalScrollingEnabled( pOuter->horizontalScrollingEnabled() );
 	}
 
+
+public:
 
 
 	void setHorizontalScrollingEnabled(const bool& enabled) override
@@ -111,6 +113,7 @@ public:
 									std::lround( scrolledAreaSize.height * uiScaleFactor)
 									);
 
+
 			// now arrange the content view inside the content parent
 			Rect contentBounds = helper.getContentViewBounds();
 
@@ -121,16 +124,17 @@ public:
 			// we must call _pContentParent->requestLayout because we have to clear
 			// its measure cache. Otherwise the changes might not take effect.
 			_pContentParent->requestLayout();
+
+			updateVisibleClientRect();
 		}
 	}
 
 	void scrollClientRectToVisible(const Rect& clientRect) override
 	{
-		/*
-		int visibleLeft = _pHorzScrollView->getScrollX();
-		int visibleTop = _pVertScrollView->getScrollY();
-		int visibleWidth = _pVertScrollView->getWidth();
-		int visibleHeight = _pVertScrollView->getHeight();
+		int visibleLeft = _pMan->getScrollX();
+		int visibleTop = _pMan->getScrollY();
+		int visibleWidth = _pMan->getWidth();
+		int visibleHeight = _pMan->getHeight();
 		int visibleRight = visibleLeft + visibleWidth;
 		int visibleBottom = visibleTop + visibleHeight;
 
@@ -165,8 +169,8 @@ public:
 		}
 		else
 		{
-			if(clientRect.x>0)
-				targetTop = clientWidth;
+			if(clientRect.y>0)
+				targetTop = clientHeight;
 			else
 				targetTop = 0;
 
@@ -222,8 +226,8 @@ public:
 				// that the visible rect is not fully inside the target rect.
 				// So one of the target rect edges has to be closer than the other.
 
-				double distanceLeft = fabs( targetLeft-visibleLeft );
-				double distanceRight = fabs( targetRight-visibleRight );
+				int distanceLeft = std::abs( targetLeft-visibleLeft );
+				int distanceRight = std::abs( targetRight-visibleRight );
 
 				if(distanceLeft<distanceRight)
 				{
@@ -248,8 +252,8 @@ public:
 			}
 			else
 			{
-				double distanceTop = fabs( targetTop-visibleTop );
-				double distanceBottom = fabs( targetBottom-visibleBottom );
+				int distanceTop = std::abs( targetTop-visibleTop );
+				int distanceBottom = std::abs( targetBottom-visibleBottom );
 
 				if(distanceTop<distanceBottom)
 					targetBottom = targetTop + visibleHeight;
@@ -281,10 +285,7 @@ public:
 		if(targetTop < visibleTop)
 			scrollY = targetTop;
 
-		_pVertScrollView->smoothScrollTo(0, scrollY);
-		_pHorzScrollView->smoothScrollTo(scrollX, 0);
-
-		 */
+		_pMan->smoothScrollTo(scrollX, scrollY);
 	}
 
 
@@ -303,12 +304,36 @@ public:
 	}
 
 
-private:
-	P<JScrollView>		  	 _pVertScrollView;
-	P<JHorizontalScrollView> _pHorzScrollView;
-	P<JNativeViewGroup>      _pContentParent;
+	/** Used internally - do not call.*/
+	void _scrollChange(int scrollX, int scrollY, int oldScrollX, int oldScrollY)
+	{
+		updateVisibleClientRect();
+	}
 
-	JView				     _currContentJView;
+
+
+private:
+	void updateVisibleClientRect()
+	{
+		P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );
+		if(pOuter!=nullptr)
+		{
+			double uiScaleFactor = getUiScaleFactor();
+
+			Rect visibleRect(
+					_pMan->getScrollX() / uiScaleFactor,
+					_pMan->getScrollY() / uiScaleFactor,
+					_pMan->getWidth() / uiScaleFactor,
+					_pMan->getHeight() / uiScaleFactor);
+
+			pOuter->_setVisibleClientRect(visibleRect);
+		}
+	}
+
+	P<JNativeScrollViewManager> 	_pMan;
+	P<JNativeViewGroup>      		_pContentParent;
+
+	JView				     		_currContentJView;
 };
 
 }
