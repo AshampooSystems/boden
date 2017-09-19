@@ -3,6 +3,7 @@
 
 
 #include <locale>
+#include <cstring>
 
 
 namespace bdn

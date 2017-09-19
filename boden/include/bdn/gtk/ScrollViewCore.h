@@ -69,7 +69,10 @@ public:
     }
     
     
-    
+    void scrollClientRectToVisible(const Rect& clientRect) override
+    {
+        
+    }
     
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{

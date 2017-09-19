@@ -168,12 +168,17 @@ public:
     
     void autoSize() override
     {
-        // we cannot change our size. So, do nothing
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize() );
     }
-    
+
+   
     void center() override
     {
-        // we cannot change our position. So, do nothing.
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowCenterImpl(pWindow, getScreenWorkArea() );
     }
 
 
