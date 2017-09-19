@@ -105,6 +105,19 @@ namespace bdn
     }
 }
 
+#elif BDN_PLATFORM_WEBEMS
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // stdout might be connected to a controlling command prompt process.
+        // So we print debug messages there.
+        std::cout << text.asUtf8() << std::endl;
+    }
+}
+
+
 #elif BDN_PLATFORM_OSX
 
 namespace bdn

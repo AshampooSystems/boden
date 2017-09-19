@@ -25,7 +25,7 @@ template<typename CharType>
 static void initTextUiStreamBufSubTestData( std::list<TextUiStreamBufSubTestData_<CharType> >& subTestDataList );
 
 template<>
-static void initTextUiStreamBufSubTestData<char>( std::list<TextUiStreamBufSubTestData_<char> >& subTestDataList )
+void initTextUiStreamBufSubTestData<char>( std::list<TextUiStreamBufSubTestData_<char> >& subTestDataList )
 {
     subTestDataList = std::list< TextUiStreamBufSubTestData_<char> > {
                                 { "", U"", "empty" },
@@ -53,7 +53,7 @@ static void initTextUiStreamBufSubTestData<char>( std::list<TextUiStreamBufSubTe
 
 
 template<>
-static void initTextUiStreamBufSubTestData<char16_t>( std::list<TextUiStreamBufSubTestData_<char16_t> >& subTestDataList )
+void initTextUiStreamBufSubTestData<char16_t>( std::list<TextUiStreamBufSubTestData_<char16_t> >& subTestDataList )
 {
     // \uFFFF yields and incorrect string with G++ 4.8. So we work around it.
 	char16_t u16ffff[2] = {0xffff, 0};
@@ -90,7 +90,7 @@ static void initTextUiStreamBufSubTestData<char16_t>( std::list<TextUiStreamBufS
 
 
 template<>
-static void initTextUiStreamBufSubTestData<char32_t>( std::list<TextUiStreamBufSubTestData_<char32_t> >& subTestDataList )
+void initTextUiStreamBufSubTestData<char32_t>( std::list<TextUiStreamBufSubTestData_<char32_t> >& subTestDataList )
 {
     subTestDataList = std::list< TextUiStreamBufSubTestData_<char32_t> > {                                
                                 { U"", U"", "empty" },
@@ -106,7 +106,7 @@ static void initTextUiStreamBufSubTestData<char32_t>( std::list<TextUiStreamBufS
 
 
 template<>
-static void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestData_<wchar_t> >& subTestDataList )
+void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestData_<wchar_t> >& subTestDataList )
 {
     if(sizeof(wchar_t)==2)
     {

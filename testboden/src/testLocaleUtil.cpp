@@ -157,7 +157,9 @@ TEST_CASE("localeUtil")
         std::locale loc = deriveUtf8Locale( origLoc );
 
         // verify that the locale uses utf-8 codecs
-        REQUIRE( typeid( std::use_facet< std::codecvt<wchar_t,char,mbstate_t> >(loc) ) == typeid( std::codecvt_utf8<wchar_t> ) );
+        const std::codecvt<wchar_t,char,mbstate_t>& locWideCodec = std::use_facet< std::codecvt<wchar_t,char,mbstate_t> >(loc);
+
+        REQUIRE( typeid( locWideCodec ) == typeid( std::codecvt_utf8<wchar_t> ) );
 
         
 #if defined(_MSC_VER) && _MSC_VER>=1900 && _MSC_VER<=1901  // Visual Studio 2015 and 2017
@@ -169,13 +171,19 @@ TEST_CASE("localeUtil")
 
         // So, do nothing here.
 #else
-        REQUIRE( typeid( std::use_facet< std::codecvt<char16_t,char,mbstate_t> >(loc) ) == typeid( CodecVtUtf8Utf16 ) );
-        REQUIRE( typeid( std::use_facet< std::codecvt<char32_t,char,mbstate_t> >(loc) ) == typeid( CodecVtUtf8Utf32 ) );
+        const std::codecvt<char16_t,char,mbstate_t>& locUtf16Codec = std::use_facet< std::codecvt<char16_t,char,mbstate_t> >(loc);
+        REQUIRE( typeid( locUtf16Codec  ) == typeid( CodecVtUtf8Utf16 ) );
+
+        const std::codecvt<char32_t,char,mbstate_t>& locUtf32Codec = std::use_facet< std::codecvt<char32_t,char,mbstate_t> >(loc);
+        REQUIRE( typeid( locUtf32Codec ) == typeid( CodecVtUtf8Utf32 ) );
 #endif
 
         // verify that the other settings are still the same
-        REQUIRE( typeid( std::use_facet< std::moneypunct<char> >(loc) ) == typeid( std::use_facet< std::moneypunct<char> >(origLoc) )  );
-        REQUIRE( std::use_facet< std::moneypunct<char> >(loc).decimal_point() == std::use_facet< std::moneypunct<char> >(origLoc).decimal_point()  );
+        const std::moneypunct<char>& locMoneyPunct = std::use_facet< std::moneypunct<char> >(loc);
+        const std::moneypunct<char>& origLocMoneyPunct = std::use_facet< std::moneypunct<char> >(origLoc);
+        REQUIRE( typeid( locMoneyPunct ) == typeid( origLocMoneyPunct )  );
+
+        REQUIRE( locMoneyPunct.decimal_point() == origLocMoneyPunct.decimal_point()  );
         
     }
 

@@ -330,8 +330,11 @@ set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Deb
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS BDN_COMPILING_COMMANDLINE_APP)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+
+    get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
+
 	# make sure that we also generate a HTML file
-	set_property(TARGET testboden APPEND PROPERTY LINK_FLAGS "-o testboden.html")
+	set_property(TARGET testboden APPEND PROPERTY LINK_FLAGS "-o testboden.html --shell-file ${WEBEMS_SHELL_FILE}")
 endif()
 
 target_link_libraries(testboden boden)
@@ -429,8 +432,10 @@ endif()
 set_property(TARGET testbodenui APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
+
 	# make sure that we also generate a HTML file
-	set_property(TARGET testbodenui APPEND PROPERTY LINK_FLAGS "-o testbodenui.html")
+	set_property(TARGET testbodenui APPEND PROPERTY LINK_FLAGS "-o testbodenui.html --shell-file ${WEBEMS_SHELL_FILE}")
 endif()
 
 target_link_libraries(testbodenui boden)

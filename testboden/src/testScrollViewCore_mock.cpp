@@ -25,13 +25,13 @@ protected:
 
     
   
-    double getVertBarWidth()
+    double getVertBarWidth() override
     {
         return 10;
     }
 
 
-    double getHorzBarHeight()
+    double getHorzBarHeight() override
     {
         return 10;
     }

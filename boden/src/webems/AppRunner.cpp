@@ -34,6 +34,12 @@ AppRunner::AppRunner( std::function< P<AppControllerBase>() > appControllerCreat
 {        
 }
 
+bool AppRunner::isCommandLineApp() const
+{
+    // web apps cannot be commandline apps.
+    return false;
+}
+
 int AppRunner::entry()
 {
     _pMainDispatcher = newObj<MainDispatcher>();

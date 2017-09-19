@@ -55,6 +55,8 @@ public:
 
 		_domObject.call<void>("appendChild", _scrolledAreaDomObject);
 
+        emscripten_set_scroll_callback( _elementId.asUtf8Ptr(), this, false, _scrolledCallback);
+
         // the ViewCore constructor will have set the padding. Clear that again
         // (see setPadding for more info)
         setDefaultPadding();
@@ -81,6 +83,138 @@ public:
 
         // So, do nothing here.
     }
+
+
+    
+    void scrollClientRectToVisible(const Rect& clientRect) override
+    {
+        Rect visibleRect = getVisibleClientRect();
+
+        double targetLeft = clientRect.x;
+        double targetRight = clientRect.x + clientRect.width;
+        double targetTop = clientRect.y;
+        double targetBottom = clientRect.y + clientRect.height;
+        
+        // first, clip the target rect to the client area.
+        // This also automatically gets rid of infinity target positions (which are allowed)
+        if( targetLeft > _scrolledAreaSize.width)
+            targetLeft = _scrolledAreaSize.width;
+        if( targetRight > _scrolledAreaSize.width )
+            targetRight = _scrolledAreaSize.width;
+        if( targetTop > _scrolledAreaSize.height)
+            targetTop = _scrolledAreaSize.height;
+        if( targetBottom > _scrolledAreaSize.height )
+            targetBottom = _scrolledAreaSize.height;
+
+        if(targetLeft<0)
+            targetLeft = 0;
+        if(targetRight<0)
+            targetRight = 0;
+        if(targetTop<0)
+            targetTop = 0;
+        if(targetBottom<0)
+            targetBottom = 0;
+
+        
+        // there is a special case if the target rect is bigger than the viewport.
+        // In that case the desired end position is ambiguous: any sub-rect of viewport size
+        // inside the specified target rect would be "as good as possible".
+        // The documentation for scrollClientRectToVisible resolves this ambiguity by requiring
+        // that we scroll the minimal amount. So we want the new visible rect to be as close
+        // to the old one as possible.
+    
+        // Since we specify the scroll position directly, we need to handle this case on our side.
+       
+    
+        if(targetRight-targetLeft > visibleRect.width)
+        {
+            // the width of the target rect is bigger than the viewport width.
+            double visibleRight = visibleRect.x + visibleRect.width;
+        
+            if( visibleRect.x >= targetLeft && visibleRight<=targetRight)
+            {
+                // The current visible rect is already fully inside the target rect.
+                // In this case we do not want to move the scroll position at all.
+                // So set the target rect to the current view port rect
+                targetLeft = visibleRect.x;
+                targetRight = visibleRight;
+            }
+            else
+            {
+                // shrink the target rect so that it matches the viewport width.
+                // We want to shrink towards the edge that is closest to the current visible rect.
+                // Note that the width of the visible rect is smaller than the target width and
+                // that the visible rect is not fully inside the target rect.
+                // So one of the target rect edges has to be closer than the other.
+            
+                double distanceLeft = fabs( targetLeft-visibleRect.x );
+                double distanceRight = fabs( targetRight-visibleRight );
+            
+                if(distanceLeft<distanceRight)
+                {
+                    // the left edge of the target rect is closer to the current visible rect
+                    // than the right edge. So we want to move towards the left.
+                    targetRight = targetLeft + visibleRect.width;
+                }
+                else
+                {
+                    // move towards the right edge
+                    targetLeft = targetRight - visibleRect.width;
+                }
+            }
+        }
+    
+        if(targetBottom - targetTop > visibleRect.height)
+        {
+            double visibleBottom = visibleRect.y+visibleRect.height;
+
+            if( visibleRect.y >= targetTop && visibleBottom<=targetBottom)
+            {
+                targetTop = visibleRect.y;
+                targetBottom = visibleBottom;
+            }
+            else
+            {
+                double distanceTop = fabs( targetTop-visibleRect.y );
+                double distanceBottom = fabs( targetBottom-visibleBottom );
+            
+                if(distanceTop<distanceBottom)
+                    targetBottom = targetTop + visibleRect.height;
+                else
+                    targetTop = targetBottom - visibleRect.height;
+            }
+        }
+    
+        if(targetLeft<0)
+            targetLeft = 0;
+        if(targetRight<0)
+            targetRight = 0;
+        if(targetTop<0)
+            targetTop = 0;
+        if(targetBottom<0)
+            targetBottom = 0;
+
+        double newScrollX = visibleRect.x;
+        double newScrollY = visibleRect.y;
+
+        if(targetRight > visibleRect.x + visibleRect.width)
+            newScrollX = targetRight - visibleRect.width;
+        if(targetLeft < visibleRect.x)
+            newScrollX = targetLeft;
+
+        if(targetBottom > visibleRect.y + visibleRect.height)
+            newScrollY = targetBottom - visibleRect.height;
+        if(targetTop < visibleRect.y)
+            newScrollY = targetTop;
+
+
+        if(newScrollX != visibleRect.x)
+            _domObject.set("scrollLeft", newScrollX);
+
+        if(newScrollY != visibleRect.y)
+            _domObject.set("scrollTop", newScrollY);
+    }
+    
 
 
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
@@ -148,6 +282,8 @@ public:
 			P<View> pContentView = pOuterView->getContentView();
 			if(pContentView!=nullptr)
 				pContentView->adjustAndSetBounds( contentBounds );
+
+            updateVisibleClientRect();
 		}
 	}
 
@@ -186,7 +322,7 @@ public:
                 // the scroll bars have an integer size anyway.
 
                 double clientWidth = _domObject["clientWidth"].as<double>();
-                double clientHeight = _domObject["clientWidth"].as<double>();
+                double clientHeight = _domObject["clientHeight"].as<double>();
 
             	_vertScrollBarLayoutWidth = 400 - clientWidth;
             	_horzScrollBarLayoutHeight = 400 - clientHeight;
@@ -225,12 +361,49 @@ public:
 
 private:
 
+
+    bool _scrolled(int eventType, const EmscriptenUiEvent* pEvent)
+    {
+        if(eventType==EMSCRIPTEN_EVENT_SCROLL)
+            updateVisibleClientRect();
+        
+        return false;
+    }
+
+    static EM_BOOL _scrolledCallback(int eventType, const EmscriptenUiEvent* pEvent, void* pUserData)
+    {
+        return ((ScrollViewCore*)pUserData)->_scrolled(eventType, pEvent);
+    }
+
+
 	void setDomScrolledAreaSize(const Size& size) const
 	{
 		emscripten::val scrolledAreaStyleObj = _scrolledAreaDomObject["style"];
     	scrolledAreaStyleObj.set("width", std::to_string((int)std::lround(size.width))+"px");
     	scrolledAreaStyleObj.set("height", std::to_string((int)std::lround(size.height))+"px");
 	}
+
+    Rect getVisibleClientRect() const
+    {
+        double scrollX = _domObject["scrollLeft"].as<double>();
+        double scrollY = _domObject["scrollTop"].as<double>();
+
+        double clientWidth = _domObject["clientWidth"].as<double>();
+        double clientHeight = _domObject["clientHeight"].as<double>();
+
+        return Rect( scrollX, scrollY, clientWidth, clientHeight);
+    }
+
+    void updateVisibleClientRect()
+    {
+        P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );
+        if(pOuter!=nullptr)
+        {
+            Rect visibleClientRect = getVisibleClientRect();            
+
+            pOuter->_setVisibleClientRect(visibleClientRect);
+        }
+    }
 
 	Size                _scrolledAreaSize;
 

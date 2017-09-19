@@ -19,6 +19,7 @@ private:
 public:
 	AppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[] );
 
+    bool isCommandLineApp() const override;
 
 	void initiateExitIfPossible(int exitCode) override;
 
