@@ -43,6 +43,14 @@ public:
         gtk_widget_set_visible( _pScrolledArea, TRUE );
         
         updateScrollPolicy();
+        
+        GtkScrolledWindow* pScrolledWindow = GTK_SCROLLED_WINDOW( getGtkWidget() );
+        
+        _pHAdjustment = gtk_scrolled_window_get_hadjustment( pScrolledWindow );
+        _pVAdjustment = gtk_scrolled_window_get_vadjustment( pScrolledWindow );
+        
+        g_signal_connect( _pHAdjustment, "value-changed", G_CALLBACK(scrollPositionChangedCallback), this );
+        g_signal_connect( _pVAdjustment, "value-changed", G_CALLBACK(scrollPositionChangedCallback), this );        
     }
     
     
@@ -69,9 +77,136 @@ public:
     }
     
     
-    void scrollClientRectToVisible(const Rect& clientRect) override
+    void scrollClientRectToVisible(const Rect& targetRect) override
     {
+        double left = targetRect.x;
+        double right = targetRect.x + targetRect.width;
+        double top = targetRect.y;
+        double bottom = targetRect.y + targetRect.height;
         
+        // first, clip the target rect to the client area.
+        // This also automatically gets rid of infinity target positions (which are allowed)
+        if( left > _clientSize.width)
+            left = _clientSize.width;
+        if( right > _clientSize.width )
+            right = _clientSize.width;
+        if( top > _clientSize.height)
+            top = _clientSize.height;
+        if( bottom > _clientSize.height )
+            bottom = _clientSize.height;
+        
+        if(left<0)
+            left = 0;
+        if(right<0)
+            right = 0;
+        if(top<0)
+            top = 0;
+        if(bottom<0)
+            bottom = 0;
+        
+        if(right<left)
+            right = left;
+        if(bottom<top)
+            bottom = top;
+        
+        Point scrollPos = getGtkScrollPosition();
+        
+        // there is a special case if the target rect is bigger than the viewport.
+        // In that case the desired end position is ambiguous: any sub-rect of viewport size
+        // inside the specified target rect would be "as good as possible".
+        // The documentation for scrollClientRectToVisible resolves this ambiguity by requiring
+        // that we scroll the minimal amount. So we want the new visible rect to be as close
+        // to the old one as possible.
+        
+        double currVisibleLeft = scrollPos.x;
+        double currVisibleRight = currVisibleLeft + _viewPortSize.width;
+        double currVisibleTop = scrollPos.y;
+        double currVisibleBottom = currVisibleTop + _viewPortSize.height;
+        
+        if(right-left > _viewPortSize.width)
+        {
+            // the width of the target rect is bigger than the viewport width.
+            // So not all of the target rect can be made visible.
+            // We want the closest edge to the current visible rect to be prioritized.
+            
+            if( currVisibleLeft >= left && currVisibleRight<=right)
+            {
+                // The current visible rect is already fully inside the target rect.
+                // In this case we do not want to move the scroll position at all.
+                // So set the target rect to the current view port rect
+                left = currVisibleLeft;
+                right = currVisibleRight;
+            }
+            else
+            {
+                // shrink the target rect so that it matches the viewport width.
+                // We want to shrink towards the edge that is closest to the current visible rect.
+                // Note that the width of the visible rect is smaller than the target width and
+                // that the visible rect is not fully inside the target rect.
+                // So one of the target rect edges has to be closer than the other.
+                
+                double distanceLeft = fabs( left-currVisibleLeft );
+                double distanceRight = fabs( right-currVisibleRight );
+                
+                if(distanceLeft<distanceRight)
+                {
+                    // the left edge of the target rect is closer to the current visible rect
+                    // than the right edge. So we want to move towards the left.
+                    right = left + _viewPortSize.width;
+                }
+                else
+                {
+                    // move towards the right edge
+                    left = right - _viewPortSize.width;
+                }
+            }
+        }
+        
+        if(bottom-top > _viewPortSize.height)
+        {
+            if( currVisibleTop >= top && currVisibleBottom<=bottom)
+            {
+                top = currVisibleTop;
+                bottom = currVisibleBottom;
+            }
+            else
+            {
+                double distanceTop = fabs( top-currVisibleTop );
+                double distanceBottom = fabs( bottom-currVisibleBottom );
+                
+                if(distanceTop<distanceBottom)
+                    bottom = top + _viewPortSize.height;
+                else
+                    top = bottom - _viewPortSize.height;
+            }
+        }
+        
+        if(left<0)
+            left = 0;
+        if(right<0)
+            right = 0;
+        if(top<0)
+            top = 0;
+        if(bottom<0)
+            bottom = 0;            
+
+		int scrollX = currVisibleLeft;
+		int scrollY = currVisibleTop;
+
+		if(right > currVisibleRight)
+			scrollX = right - _viewPortSize.width;
+		if(left < currVisibleLeft)
+			scrollX = left;
+
+		if(bottom > currVisibleBottom)
+			scrollY = bottom - _viewPortSize.height;
+		if(top < currVisibleTop)
+			scrollY = top;
+
+        if(_pHAdjustment!=nullptr)
+            gtk_adjustment_set_value(_pHAdjustment, scrollX);
+        if(_pVAdjustment!=nullptr)
+            gtk_adjustment_set_value(_pVAdjustment, scrollY);        
     }
     
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
@@ -122,9 +257,11 @@ public:
             P<ScrollViewLayoutHelper> pHelper = createLayoutHelper();        
             pHelper->calcLayout( pOuter, viewPortSize );
             
-            Size scrolledAreaSize = pHelper->getScrolledAreaSize();
+            _viewPortSize = pHelper->getViewPortSize();
             
-            gtk_layout_set_size( GTK_LAYOUT(_pScrolledArea), scrolledAreaSize.width, scrolledAreaSize.height);
+            _clientSize = pHelper->getScrolledAreaSize();
+            
+            gtk_layout_set_size( GTK_LAYOUT(_pScrolledArea), _clientSize.width, _clientSize.height);
             
             //GtkScrolledWindow* pScrolledWindow = GTK_SCROLLED_WINDOW( getGtkWidget() );
             
@@ -134,6 +271,8 @@ public:
             P<View> pContentView = pOuter->getContentView();
             if(pContentView!=nullptr)
                 pContentView->adjustAndSetBounds( pHelper->getContentViewBounds() );
+                
+            updateVisibleClientRect();
         }
 	}
     
@@ -309,6 +448,34 @@ protected:
     }
     
 private:
+
+    Point getGtkScrollPosition()
+    {
+        Point scrollPos;
+            
+        if(_pHAdjustment!=nullptr)
+            scrollPos.x = gtk_adjustment_get_value( _pHAdjustment );
+            
+        if(_pVAdjustment!=nullptr)
+            scrollPos.y = gtk_adjustment_get_value( _pVAdjustment );
+            
+        return scrollPos;
+    }
+    
+    void updateVisibleClientRect()    
+    {
+        P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );
+        if(pOuter!=nullptr)
+        {   
+            Point scrollPos = getGtkScrollPosition();            
+
+            Rect visibleRect( scrollPos, _viewPortSize );
+        
+            pOuter->_setVisibleClientRect(visibleRect);
+        }                
+    }
+    
+    
     void updateScrollPolicy()
     {
         P<ScrollView> pOuter = cast<ScrollView>( getOuterViewIfStillAttached() );
@@ -331,9 +498,23 @@ private:
         // now we can let our scrollview layout helper determine the preferred size.
         return newObj<ScrollViewLayoutHelper>( vertBarSpaceWidth, horzBarSpaceHeight);
     }
+    
+    void scrollPositionChanged()
+    {
+        updateVisibleClientRect();
+    }
+    
+    static void scrollPositionChangedCallback(GtkAdjustment* pAdjustment, gpointer pParam)
+    {
+        ((ScrollViewCore*)pParam)->scrollPositionChanged();
+    }   
        
-    GtkWidget* _pScrolledArea;    
-
+    GtkWidget*      _pScrolledArea = nullptr;    
+    GtkAdjustment*  _pHAdjustment = nullptr;
+    GtkAdjustment*  _pVAdjustment = nullptr;
+    
+    Size            _viewPortSize;
+    Size            _clientSize;
 };
 
 
