@@ -119,8 +119,8 @@ protected:
 
         double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
 
-        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + scaleFactor );
-        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + scaleFactor );
+        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + (1.0/scaleFactor) );
+        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + (1.0/scaleFactor) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -130,8 +130,8 @@ protected:
 
         double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
 
-        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + scaleFactor );
-        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + scaleFactor );
+        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + (1.0/scaleFactor) );
+        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + (1.0/scaleFactor) );
     }               
              
     void verifyCorePadding() override
