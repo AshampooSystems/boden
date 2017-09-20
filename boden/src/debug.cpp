@@ -94,6 +94,7 @@ namespace bdn
     }
 }
 
+
 #elif BDN_PLATFORM_IOS
 
 namespace bdn
@@ -118,14 +119,14 @@ namespace bdn
 }
 
 
-#elif BDN_PLATFORM_OSX
+#elif BDN_PLATFORM_OSX || BDN_PLATFORM_LINUX
 
 namespace bdn
 {
     void debuggerPrint(const String& text)
     {
         // If we have a UI app then we can output the debug text to stdout.
-        // The debugger will pick that up.
+        // The debugger will usually pick that up.
         // For commandline apps we must not do that, since stdout is actually
         // used for user interaction there.
         

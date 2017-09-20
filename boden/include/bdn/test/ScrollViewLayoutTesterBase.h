@@ -543,7 +543,7 @@ public:
                 REQUIRE( viewPortSize >= Size(245, 245) );
                 REQUIRE( viewPortSize <= Size(255, 255) );
 
-                BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize )
+                BDN_CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize )                
                 {
                     pThis->calcLayoutAfterPreparation();
                 

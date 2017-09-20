@@ -443,6 +443,76 @@ public: // IStream
 };
 
 
+class TextUiWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextUi
+{
+public:
+    TextUiWrapperWithDebugPrint(ITextUi* pInnerUi)
+    {
+        _pInnerUi = pInnerUi;
+    }
+    
+    
+    P< IAsyncOp<String> > readLine() override
+    {
+        return _pInnerUi->readLine();
+    }
+
+    
+	P< IAsyncOp<void> >  write(const String& s) override
+    {       
+        doDebugPrint(s);
+        
+        return _pInnerUi->write(s);
+    }
+
+	P< IAsyncOp<void> > writeLine(const String& s)
+    {
+        doDebugPrint(s+"\n");
+        
+        return _pInnerUi->writeLine(s);
+    }
+
+	
+	P< IAsyncOp<void> > writeError(const String& s)
+    {
+        doDebugPrint(s);
+        
+        return _pInnerUi->writeError(s);
+    }
+	
+    
+	P< IAsyncOp<void> > writeErrorLine(const String& s)
+    {
+        doDebugPrint(s+"\n");
+        
+        return _pInnerUi->writeErrorLine(s);
+    }
+    
+private:
+    void doDebugPrint(const String& s)
+    {
+        String rem = s;
+        
+        while( !rem.isEmpty() )
+        {
+            char32_t sep=0;
+            
+            _currDebugPrintLine += rem.splitOffToken("\n", true, &sep);            
+            
+            if(sep!=0)
+            {
+                // we had a line break
+                BDN_DEBUGGER_PRINT(_currDebugPrintLine);
+                _currDebugPrintLine = "";
+            }
+        }        
+    }
+    
+    P<ITextUi>  _pInnerUi;    
+    String      _currDebugPrintLine;
+};
+
+
 class TextUiStream : public IStream
 {
 public:
@@ -463,6 +533,7 @@ public:
 
 private:
     mutable TextUiStdOStream<char> _stdStream;
+    String  _currLine;
 };
 
 
@@ -597,8 +668,15 @@ private:
 	IStream const* openStream()
     {
 		if( m_data.outputFilename.empty() )
-            return new TextUiStream( AppControllerBase::get()->getUiProvider()->getTextUi() );
+        {
+            P<ITextUi> pUi = AppControllerBase::get()->getUiProvider()->getTextUi();
+            
+            // we also want all output to be printed to the debugger
+            pUi = newObj< TextUiWrapperWithDebugPrint >(pUi);
+            
+            return new TextUiStream( pUi );
 			//return new CoutStream();
+        }
 
 		else if( m_data.outputFilename[0] == '%' )
 			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
@@ -2805,13 +2883,10 @@ public:
     }
 };
 
-void printTestStatus(const std::string& s)
-{
-    P<bdn::ITextUi> pTextUi = bdn::AppControllerBase::get()->getUiProvider()->getTextUi();
-
-    pTextUi->writeLine(s);
-
-    BDN_DEBUGGER_PRINT( s );
+void printTestStatus(const IConfig* pConfig, const std::string& s)
+{    
+    if(pConfig!=nullptr)
+        pConfig->stream() << s << std::endl;
 }
 
 
@@ -2874,7 +2949,7 @@ public:
         _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
 
         if(m_printLevel>=1)
-            printTestStatus( "Test case: "+getCurrentTestName() );            
+            printTestStatus(m_config.get(), "Test case: "+getCurrentTestName() );            
 
 		_testDoneCallback = doneCallback;
 
@@ -3034,7 +3109,7 @@ private: // IResultCapture
                 else
                     statusText += sectionInfo.name;
 
-                printTestStatus(statusText);
+                printTestStatus(m_config.get(), statusText);
             }
 
 		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
