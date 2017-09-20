@@ -8,13 +8,22 @@
 #include <bdn/gtk/ScrollViewCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
+#include <bdn/IAppRunner.h>
+#include <bdn/StdioUiProvider.h>
 
 namespace bdn
 {
     
 P<IUiProvider> getDefaultUiProvider()
 {
-    return &bdn::gtk::UiProvider::get();
+    if( getAppRunner()->isCommandLineApp() )
+    {
+        static P< StdioUiProvider<char> > pProvider( newObj< StdioUiProvider<char> >(&std::cin, &std::cout, &std::cerr) );
+
+        return pProvider;
+    }
+    else
+        return &bdn::gtk::UiProvider::get();
 }
     
 }
