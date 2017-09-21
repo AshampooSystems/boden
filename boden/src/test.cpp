@@ -8221,11 +8221,10 @@ protected:
 
 	void waitAndClose(int exitCode)
 	{
-		asyncCallFromMainThread(
+		asyncCallFromMainThreadAfterSeconds(
+			5,
 			[exitCode]()
 			{
-				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
-
 				getAppRunner()->initiateExitIfPossible(exitCode);
 			} );
 	}
