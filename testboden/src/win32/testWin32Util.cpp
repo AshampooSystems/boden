@@ -90,10 +90,10 @@ TEST_CASE("win32.util")
         SECTION("scaling")
         {
             SECTION(">1")
-                REQUIRE( win32RectToRect( RECT{2, 3, 4, 5}, 2.5 ) == Rect(2/2.5, 3/2.5, 4/2.5, 5/2.5) );
+                REQUIRE( win32RectToRect( RECT{2, 3, 2+4, 3+5}, 2.5 ) == Rect(2/2.5, 3/2.5, 4/2.5, 5/2.5) );
 
             SECTION("<1")
-                REQUIRE( win32RectToRect( RECT{2, 3, 4, 5}, 0.75 ) == Rect(2/0.75, 3/0.75, 4/0.75, 5/0.75) );
+                REQUIRE( win32RectToRect( RECT{2, 3, 2+4, 3+5}, 0.75 ) == Rect(2/0.75, 3/0.75, 4/0.75, 5/0.75) );
         }
     }
 
