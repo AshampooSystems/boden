@@ -23,11 +23,18 @@ TEST_CASE("TextView")
 
 		SECTION("initialState")
 		{
+			// the test view from the text view preparer has a text set (so that the preferredsizehint will have an effect).
+			// So it is not in the initial state. So we create a new one here to test the initial state.
+			P<TextView> pNewView = newObj<TextView>();
+			pPreparer->getWindow()->setContentView( pNewView );
+
+			P<bdn::test::MockTextViewCore> pNewCore = cast<bdn::test::MockTextViewCore>( pNewView->getViewCore() );
+
 			SECTION("text")
 			{
-				REQUIRE( pTextView->text() == "" );
-				REQUIRE( pCore->getText()=="" );
-				REQUIRE( pCore->getTextChangeCount()==0 );
+				REQUIRE( pNewView->text() == "" );
+				REQUIRE( pNewCore->getText()=="" );
+				REQUIRE( pNewCore->getTextChangeCount()==0 );
 			}
 		}
 
@@ -35,21 +42,26 @@ TEST_CASE("TextView")
 		{   
 			SECTION("text")
 			{
-				bdn::test::_testViewOp( 
-					pTextView,
-                    pPreparer,
-					[pTextView, pPreparer]()
-					{
-						pTextView->text() = "hello";					
-					},
-					[pCore, pTextView, pPreparer]
-					{
-						REQUIRE( pCore->getText()=="hello" );					
-						REQUIRE( pCore->getTextChangeCount()==1 );					
-					},
-                    bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
-                    | bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
-					);
+				CONTINUE_SECTION_WHEN_IDLE(pTextView, pPreparer, pCore)
+				{
+					int initialChangeCount = pCore->getTextChangeCount();
+
+					bdn::test::_testViewOp( 
+						pTextView,
+						pPreparer,
+						[pTextView, pPreparer]()
+						{
+							pTextView->text() = "hello";					
+						},
+						[pCore, pTextView, pPreparer, initialChangeCount]
+						{
+							REQUIRE( pCore->getText()=="hello" );					
+							REQUIRE( pCore->getTextChangeCount()==initialChangeCount+1 );					
+						},
+						bdn::test::ExpectedSideEffect_::invalidateSizingInfo // should have caused sizing info to be invalidated
+						| bdn::test::ExpectedSideEffect_::invalidateParentLayout // should cause a parent layout update since sizing info was invalidated
+						);
+				};
 			}        
 		}
 

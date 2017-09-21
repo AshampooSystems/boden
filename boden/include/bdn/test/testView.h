@@ -12,7 +12,19 @@ namespace bdn
 namespace test
 {
 
+template<class ViewType>
+static void _initViewTestPreparerTestView(ViewType* pView)
+{
+	// do nothing by default
+}
     
+template<>
+void _initViewTestPreparerTestView<TextView>(TextView* pView)
+{
+	// must have a text set so that the preferred size hint will have a measurable effect
+	pView->text() = "hello world";
+}
+
 template<class ViewType>
 class ViewTestPreparer : public Base
 {
@@ -36,6 +48,8 @@ public:
     P< ViewWithTestExtensions<ViewType> > createView()
     {
         P< ViewWithTestExtensions<ViewType> > pView = newObj< ViewWithTestExtensions<ViewType> >();
+
+		_initViewTestPreparerTestView<ViewType>(pView);
 
         _pWindow->setContentView(pView);
 
@@ -77,6 +91,8 @@ public:
     {
         P<ViewWithTestExtensions<Window> > pWindow = newObj< ViewWithTestExtensions<Window> >( _pUiProvider );
 
+		_initViewTestPreparerTestView<Window>(pWindow);
+
         _pWindow = pWindow;
 
         return pWindow;
@@ -91,6 +107,9 @@ protected:
     P<MockUiProvider>       _pUiProvider;
     P<Window>               _pWindow;
 };
+
+
+
 
 
 template<class ViewType>

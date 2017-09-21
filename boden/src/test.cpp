@@ -8172,7 +8172,7 @@ public:
 
 				delete _pTestRunner;
 				_pTestRunner = nullptr;
-
+				
 				waitAndClose(exitCode);
 			}
         }
