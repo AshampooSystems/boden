@@ -38,16 +38,18 @@ protected:
         return Size( (-rect.left) + rect.right, (-rect.top + rect.bottom));
     }
 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
+		Size viewSize = viewPortSize + getNonClientSize();
 
-        Size viewSize = viewPortSize + getNonClientSize();
+        viewSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest ).getSize();
 
         _pScrollView->preferredSizeMinimum() = viewSize;
         _pScrollView->preferredSizeMaximum() = viewSize;
 
         _pWindow->requestAutoSize();
+
+		return viewSize;
     }
     
     void verifyScrollsHorizontally( bool expectedVisible) override
