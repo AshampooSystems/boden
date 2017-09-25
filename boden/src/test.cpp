@@ -465,7 +465,7 @@ public:
         return _pInnerUi->write(s);
     }
 
-	P< IAsyncOp<void> > writeLine(const String& s)
+	P< IAsyncOp<void> > writeLine(const String& s) override
     {
         doDebugPrint(s+"\n");
         
@@ -473,7 +473,7 @@ public:
     }
 
 	
-	P< IAsyncOp<void> > writeError(const String& s)
+	P< IAsyncOp<void> > writeError(const String& s) override
     {
         doDebugPrint(s);
         
@@ -481,7 +481,7 @@ public:
     }
 	
     
-	P< IAsyncOp<void> > writeErrorLine(const String& s)
+	P< IAsyncOp<void> > writeErrorLine(const String& s) override
     {
         doDebugPrint(s+"\n");
         
