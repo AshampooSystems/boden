@@ -3351,26 +3351,95 @@ public:
         _postponedSectionEventsInsertPos = _postponedSectionEvents.begin();
     }
 
+
+    /** Helper that tracks whether the data that is used by a test continuation has already been
+        released. This is used to ensure that all data from a previous test section has been released
+        before the next section is started.*/
+    class ContinuationSynchronizer : public Base
+    {
+    public:
+        ContinuationSynchronizer()
+        {
+        }
+
+        bool wasContinuationDataReleased()
+        {
+            MutexLock lock(_mutex);
+            return _continuationDataReleased;
+        }
+
+        void notifyContinuationDataReleased()
+        {
+            MutexLock lock(_mutex);
+            _continuationDataReleased = true;
+        }
+
+    private:
+        Mutex _mutex;
+        bool  _continuationDataReleased = false;
+    };
+
+
+    /** Helper that wraps the data that is used by a test continuation. The wrapper notifies
+        the ContinuationSynchronizer when it is deleted, so that the synchronizer can 
+        allow the next test section to begin.*/
+    class ContinuationData : public Base
+    {
+    public:
+        ContinuationData(const std::function<void()>& continuationFunc, ContinuationSynchronizer* pSynchronizer)
+        {
+            _continuationFunc = continuationFunc;
+            _pSynchronizer = pSynchronizer;
+        }
+
+        ~ContinuationData()
+        {
+            // before we notify the synchronizer we have to ensure that all data is
+            // actually released. I.e. the continuation function must be deleted.
+            _continuationFunc = std::function<void()>();
+
+            _pSynchronizer->notifyContinuationDataReleased();
+        }
+
+        std::function<void()>& getContinuationFunc()
+        {
+            return _continuationFunc;
+        }
+
+    private:
+        ContinuationData(const ContinuationData&) = delete;
+
+        std::function<void()>       _continuationFunc;
+        P<ContinuationSynchronizer> _pSynchronizer;
+    };
+        
+
 	void continueSectionWhenIdle(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		        		
         asyncCallFromMainThreadWhenIdle(
-            [this, continuationFunc]()
+            [this, pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
     
     void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		        		
         asyncCallFromMainThreadAfterSeconds(
             seconds,
-            [this, continuationFunc]()
+            [this, pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
 
@@ -3378,11 +3447,14 @@ public:
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		
         Thread::exec(
-            [this, continuationFunc]()
+            [this,  pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
 
@@ -3398,14 +3470,14 @@ public:
 #endif
 
     
-    void doSectionContinuation(std::function<void()> continuationFunc)
+    void doSectionContinuation(std::function<void()> continuationFunc, P<ContinuationSynchronizer> pSynchronizer)
     {
         // lock the mutex to ensure that the code that scheduled the continuation
         // has exited.
         MutexLock lock( _runTestMutex );
-
-        bool testDone = continueCurrentTest(continuationFunc);
         
+        bool testDone = continueCurrentTest(continuationFunc);
+
         if(testDone)
         {
             // ok, the test (=section) is done. I.e. there was no additional
@@ -3417,23 +3489,49 @@ public:
             // in a "clean" environment (i.e. no locked mutexes, etc.)
 
             // We schedule this as "idle" to give any pending UI actions time to execute.
-
+                        
             asyncCallFromMainThread(
-                [this]()
+                [this, pSynchronizer]()
                 {
-                    if(shouldContinueTestCaseIteration())
-		            {
-                        // do the next iteration.
-			            runTestCase_Continue();
-		            }
-		            else
-                        runTestCase_Finalize();
-                });
+                    endSectionContinuation(pSynchronizer);
+                } );
         }
         else
         {
             // test is continued asynchronously. The async continuation is already scheduled,
             // so there is nothing else we have to do.
+        }
+    }
+
+    void endSectionContinuation(P<ContinuationSynchronizer> pSynchronizer)
+    {
+        // It may be that the previous continuation step is not fully done yet.
+        // Its continuation func and captured data might not yet be released
+        // (for example, if the continuation was executed in a separate thread).
+        // But we want all remnants of the previous section to be gone, otherwise
+        // we risk strange interactions between test sections.
+        // So if the continuation is not gone yet then we wait a little and check again.
+        if(!pSynchronizer->wasContinuationDataReleased())
+        {
+            asyncCallFromMainThreadAfterSeconds(
+                0.05,
+                [this, pSynchronizer]()
+                {
+                    endSectionContinuation(pSynchronizer);
+                } );
+
+            return;
+        }
+
+
+        if(shouldContinueTestCaseIteration())
+		{
+            // do the next iteration.
+			runTestCase_Continue();
+		}
+		else
+        {
+            runTestCase_Finalize();
         }
     }
 
@@ -8089,8 +8187,8 @@ public:
                 argPtrs.push_back("");
 
             //argPtrs.push_back( "--print-level" );
-			//argPtrs.push_back( "7" );
-			//argPtrs.push_back( "webems.ScrollViewCore" );
+			//argPtrs.push_back( "8" );
+			//argPtrs.push_back( "CONTINUE_SECTION_IN_THREAD_WITH" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
