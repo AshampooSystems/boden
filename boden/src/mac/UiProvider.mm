@@ -5,6 +5,8 @@
 #import <Cocoa/Cocoa.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
+#include <bdn/IAppRunner.h>
+#include <bdn/StdioUiProvider.h>
 
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
@@ -17,7 +19,14 @@ namespace bdn
     
 P<IUiProvider> getDefaultUiProvider()
 {
-    return &bdn::mac::UiProvider::get();
+    if( getAppRunner()->isCommandLineApp() )
+    {
+        static P< StdioUiProvider<char> > pProvider( newObj< StdioUiProvider<char> >(&std::cin, &std::cout, &std::cerr) );
+        
+        return pProvider;
+    }
+    else
+        return &bdn::mac::UiProvider::get();
 }
     
 }
