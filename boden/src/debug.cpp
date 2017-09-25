@@ -6,6 +6,7 @@
 #endif
 
 #include <bdn/IAppRunner.h>
+#include <bdn/Thread.h>
 
 
 #ifdef BDN_PLATFORM_OSX
@@ -73,7 +74,17 @@
 #endif
 
 
-#if BDN_PLATFORM_WIN32 || BDN_PLATFORM_WINUWP
+#if BDN_PLATFORM_WIN32
+    
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            OutputDebugStringW( (text+"\n").asWidePtr() );
+        }
+    }
+
+#elif BDN_PLATFORM_WINUWP
     
     namespace bdn
     {
