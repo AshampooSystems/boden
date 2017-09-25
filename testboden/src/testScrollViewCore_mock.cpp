@@ -69,10 +69,6 @@ protected:
         {
             Rect bounds( _pScrollView->getContentView()->position(), pContentView->size() );
 
-            // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-            // At most 1 pixel, which is 0.33 DIPs for the mock UI. Add that to maxDeviation.
-            maxDeviation += 1.0/3;
-            
             if(maxDeviation==0)
                 REQUIRE( bounds == expectedBounds );
             else
@@ -89,27 +85,14 @@ protected:
     {
         Size scrolledAreaSize = _pMockScrollViewCore->getClientSize();
 
-        // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-        // At most 1 pixel, which is 0.33 DIPs for the mock UI. Add that to maxDeviation.
-        double maxDeviation = 1.0/3;
-
-        // add a little more to account for floating point rounding errors.
-        maxDeviation += 0.0001;
-
-        REQUIRE_ALMOST_EQUAL(  scrolledAreaSize.width, expectedSize.width, maxDeviation );
-        REQUIRE_ALMOST_EQUAL(  scrolledAreaSize.height, expectedSize.height, maxDeviation );
+        REQUIRE( Dip::equal( scrolledAreaSize, expectedSize ) );        
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
     {
         Size viewPortSize = _pMockScrollViewCore->getViewPortSize();
-        
-        // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-        // At most 1 pixel, which is 0.33 DIPs for the mock UI. Add that to maxDeviation.
-        double maxDeviation = 1.0/3;
-
-        REQUIRE_ALMOST_EQUAL(  viewPortSize.width, expectedSize.width, maxDeviation );
-        REQUIRE_ALMOST_EQUAL(  viewPortSize.height, expectedSize.height, maxDeviation );
+  
+        REQUIRE( Dip::equal( viewPortSize, expectedSize ) );
     }               
              
     P<bdn::test::MockScrollViewCore> _pMockScrollViewCore;

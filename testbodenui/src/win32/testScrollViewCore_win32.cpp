@@ -20,13 +20,27 @@ protected:
   
     double getVertBarWidth()
     {
-        return ::GetSystemMetrics(SM_CXVSCROLL);
+        double uiScaleFactor = _pWin32Core->getUiScaleFactor();
+        double width = bdn::win32::ScrollViewCore::getVerticalScrollBarWidth( _pWin32Core->getUiScaleFactor() );        
+
+        double pixelSize = 1.0/uiScaleFactor;
+
+        REQUIRE_ALMOST_EQUAL( width, GetSystemMetrics(SM_CXVSCROLL), pixelSize);
+
+        return width;
     }
 
 
     double getHorzBarHeight()
     {
-        return ::GetSystemMetrics(SM_CYHSCROLL);
+        double uiScaleFactor = _pWin32Core->getUiScaleFactor();
+        double height = bdn::win32::ScrollViewCore::getHorizontalScrollBarHeight( _pWin32Core->getUiScaleFactor() );        
+
+        double pixelSize = 1.0/uiScaleFactor;
+
+        REQUIRE_ALMOST_EQUAL( height, GetSystemMetrics(SM_CYHSCROLL), pixelSize);
+
+        return height;
     }
                 
 
@@ -79,11 +93,7 @@ protected:
         if(pContentView!=nullptr)
         {
             Rect bounds( _pScrollView->getContentView()->position(), pContentView->size() );
-
-            // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-            // At most 1 pixel. Add that to maxDeviation
-            maxDeviation += 1.0/_pWin32Core->getUiScaleFactor();
-            
+                        
             if(maxDeviation==0)
                 REQUIRE( bounds == expectedBounds );
             else
@@ -107,15 +117,7 @@ protected:
 
         Size scrolledAreaSize = contentContainerRect.getSize();
 
-        // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-        // At most 1 pixel.
-        double maxDeviation = 1.0/_pWin32Core->getUiScaleFactor();
-
-        // add a little more to account for floating point rounding errors.
-        maxDeviation += 0.0001;
-
-        REQUIRE_ALMOST_EQUAL(  scrolledAreaSize.width, expectedSize.width, maxDeviation );
-        REQUIRE_ALMOST_EQUAL(  scrolledAreaSize.height, expectedSize.height, maxDeviation );
+        REQUIRE( Dip::equal(  scrolledAreaSize, expectedSize ) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -139,12 +141,7 @@ protected:
         if( (style & WS_VSCROLL)==WS_VSCROLL)
             viewPortSize.width -= getVertBarWidth();
 
-        // the bounds are rounded to pixel boundaries, so there can always be some deviation.
-        // At most 1 pixel.
-        double maxDeviation = 1.0/_pWin32Core->getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL(  viewPortSize.width, expectedSize.width, maxDeviation );
-        REQUIRE_ALMOST_EQUAL(  viewPortSize.height, expectedSize.height, maxDeviation );
+        REQUIRE( Dip::equal(  viewPortSize, expectedSize ) );
     }               
              
 

@@ -31,6 +31,18 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;	
 
+
+    /** Returns the height of the horizontal scroll bar in DIPs.
+        The returned value is in DIPs, but rounded to full physical pixels.
+        */
+    static double getHorizontalScrollBarHeight(double uiScaleFactor);
+
+    /** Returns the width of the vertical scroll bar in DIPs.
+        The returned value is in DIPs, but rounded to full physical pixels.
+        */
+    static double getVerticalScrollBarWidth(double uiScaleFactor);
+
+
 private:
 
     void    updateWin32ScrollInfo();

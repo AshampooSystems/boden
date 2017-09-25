@@ -68,7 +68,27 @@ void ScrollViewCore::setVerticalScrollingEnabled(const bool& enabled)
     // the outer view directly.
 }
 
+double ScrollViewCore::getHorizontalScrollBarHeight(double uiScaleFactor)
+{
+    // these values are unscaled (i.e. for scale factor 1). That means that
+    // they are in DIPs.
+    double horzBarHeight = ::GetSystemMetrics(SM_CYHSCROLL);
 
+    // we must round the sizes to full physical pixels, though.        
+    horzBarHeight = stableScaledRoundUp(horzBarHeight, uiScaleFactor);
+
+    return horzBarHeight;
+}
+
+double ScrollViewCore::getVerticalScrollBarWidth(double uiScaleFactor)
+{
+    double vertBarWidth = ::GetSystemMetrics(SM_CXVSCROLL);
+
+    // we must round the sizes to full physical pixels, though.        
+    vertBarWidth = stableScaledRoundUp(vertBarWidth, uiScaleFactor);
+
+    return vertBarWidth;
+}
 
 void ScrollViewCore::layout()
 {
@@ -82,12 +102,10 @@ void ScrollViewCore::layout()
     }
     else
     {
-        // these values are unscaled (i.e. for scale factor 1). That means that
-        // they are in DIPs.
-        int     horzBarHeight = ::GetSystemMetrics(SM_CYHSCROLL);
-        int     vertBarWidth = ::GetSystemMetrics(SM_CXVSCROLL);
-        
         double  uiScaleFactor = getUiScaleFactor();
+
+        double     horzBarHeight = getHorizontalScrollBarHeight(uiScaleFactor);
+        double     vertBarWidth = getVerticalScrollBarWidth(uiScaleFactor);        
                 
         // the client rect automatically excludes the space needed for the scroll bars.
         // Subtracting it manually does not work properly in all cases since there seems to be short
@@ -178,9 +196,10 @@ Size ScrollViewCore::calcPreferredSize( const Size& availableSpace ) const
     }
     else
     {
-        int     horzBarHeight = ::GetSystemMetrics(SM_CYHSCROLL);
-        int     vertBarWidth = ::GetSystemMetrics(SM_CXVSCROLL);
-
+        double     uiScaleFactor = getUiScaleFactor();
+        double     horzBarHeight = getHorizontalScrollBarHeight(uiScaleFactor);
+        double     vertBarWidth = getVerticalScrollBarWidth(uiScaleFactor);        
+        
         ScrollViewLayoutHelper helper(vertBarWidth, horzBarHeight);    
 
         return helper.calcPreferredSize(pOuterView, availableSpace );
