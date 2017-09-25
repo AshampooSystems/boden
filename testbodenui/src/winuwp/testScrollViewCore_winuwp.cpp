@@ -35,20 +35,26 @@ protected:
     }
                 
 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
-    {        
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
+    {   
+        Size viewSize = viewPortSize;
+
+        viewSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest ).getSize();
+
         // we cannot resize the scroll view directly with adjustAndSetBounds.
         // That would not have any effect outside of a layout cycle.
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _pScrollView->preferredSizeMinimum() = viewPortSize;
-        _pScrollView->preferredSizeMaximum() = viewPortSize;
+        _pScrollView->preferredSizeMinimum() = viewSize;
+        _pScrollView->preferredSizeMaximum() = viewSize;
 
         // also request a re-layout here. With the normal propagation of the property changes
         // it would take two event cycles until the layout happens. But we want it to happen
         // immediately after the properties have been changed.
         _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );
+
+        return viewSize;
     }
     
     void verifyScrollsHorizontally( bool expectedScrolls) override
@@ -116,22 +122,16 @@ protected:
 
         if(_pWinScrollViewer->VerticalScrollMode==::Windows::UI::Xaml::Controls::ScrollMode::Disabled && height>_pWinScrollViewer->ViewportHeight)
             height = _pWinScrollViewer->ViewportHeight;
-
-        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + (1.0/scaleFactor) );
-        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + (1.0/scaleFactor) );
+        
+        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
     {
         double width = _pWinScrollViewer->ViewportWidth;
         double height = _pWinScrollViewer->ViewportHeight;
-
-        double scaleFactor = bdn::winuwp::UiProvider::get().getUiScaleFactor();
-
-        REQUIRE_ALMOST_EQUAL( width, expectedSize.width, Dip::significanceBoundary() + (1.0/scaleFactor) );
-        REQUIRE_ALMOST_EQUAL( height, expectedSize.height, Dip::significanceBoundary() + (1.0/scaleFactor) );
+        
+        REQUIRE( Dip::equal( Size(width, height), expectedSize ) );
     }               
              
     void verifyCorePadding() override
