@@ -3490,7 +3490,7 @@ public:
 
             // We schedule this as "idle" to give any pending UI actions time to execute.
                         
-            asyncCallFromMainThread(
+            asyncCallFromMainThreadWhenIdle(
                 [this, pSynchronizer]()
                 {
                     endSectionContinuation(pSynchronizer);
@@ -8186,9 +8186,9 @@ public:
             if(argPtrs.empty())
                 argPtrs.push_back("");
 
-            //argPtrs.push_back( "--print-level" );
-			//argPtrs.push_back( "8" );
-			//argPtrs.push_back( "CONTINUE_SECTION_IN_THREAD_WITH" );
+            // argPtrs.push_back( "--print-level" );
+			// argPtrs.push_back( "8" );
+			// argPtrs.push_back( "MainDispatcher" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
@@ -8314,7 +8314,9 @@ protected:
 
 	void scheduleNextTest()
 	{
-		asyncCallFromMainThread( std::bind(&TestAppController::Impl::runNextTest, this) );
+		// note: we use idle priority here to ensure that all pending UI events (like graphics
+		// updates, etc.) have been finished.
+		asyncCallFromMainThreadWhenIdle( std::bind(&TestAppController::Impl::runNextTest, this) );
 	}
 
 	void waitAndClose(int exitCode)
