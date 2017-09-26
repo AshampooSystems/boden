@@ -40,6 +40,25 @@ public:
     }
 
 
+    /** Set the scrolled position of your view. This will cause a call to onScrollChanged(int, int, int, int) and the view will be invalidated.
+
+        This version also clamps the scrolling to the bounds of our child.
+     */
+    void scrollTo (int x, int y)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "scrollTo", x, y);
+    }
+
+
+    /** Like scrollTo(int, int), but scroll smoothly instead of immediately. */
+    void smoothScrollTo (int x, int y)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_(), methodId, "smoothScrollTo", x, y);
+    }
 
 
     /** Returns the JClass object for this class.

@@ -3,6 +3,7 @@
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ViewTextUi.h>
 
 namespace bdn
 {
@@ -17,9 +18,10 @@ public:
     String getName() const override;
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
-
-    static UiProvider& get();
     
+    P<ITextUi> getTextUi() override;
+    
+    static UiProvider& get();
     
     double getSemSizeDips() const
     {
@@ -32,12 +34,15 @@ public:
     {
         return _pLayoutCoordinator;
     }
-
+    
     
 private:
     double _semDips;
     
     P<LayoutCoordinator> _pLayoutCoordinator;
+    
+    Mutex                _textUiInitMutex;
+    P<ViewTextUi>        _pTextUi;
 };
 
 

@@ -165,6 +165,12 @@ AppRunner::AppRunner( std::function< P<AppControllerBase>() > appControllerCreat
 {
 }
 
+bool AppRunner::isCommandLineApp() const
+{
+    // UWP does not support commandline apps.
+    return false;
+}
+
 void AppRunner::prepareLaunch()
 {
     AppRunnerBase::prepareLaunch();

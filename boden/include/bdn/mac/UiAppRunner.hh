@@ -17,7 +17,8 @@ private:
 
 public:
     UiAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[]);
-
+    
+    bool isCommandLineApp() const override;
 
     int entry();
     

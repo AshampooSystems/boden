@@ -24,6 +24,11 @@ public:
 
 	void initiateExitIfPossible(int exitCode) override;
 
+    bool isCommandLineApp() const override
+    {
+        return false;
+    }
+
     P<IDispatcher> getMainDispatcher() override
     {
         return this;

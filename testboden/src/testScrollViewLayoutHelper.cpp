@@ -53,9 +53,15 @@ public:
         return _helper.calcPreferredSize( _pScrollView, availableSpace );
     }  
 
-    void prepareCalcLayout(const Size& viewPortSize) override
+    Size prepareCalcLayout(const Size& viewPortSize) override
     {
-        _prepareCalcLayoutViewPortSize = viewPortSize;
+        _prepareCalcLayoutViewPortSize = _pScrollView->adjustBounds( Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest ).getSize();
+
+        // the adjusted size should be roughly the same
+        REQUIRE( _prepareCalcLayoutViewPortSize >= viewPortSize - Size(5,5) );
+        REQUIRE( _prepareCalcLayoutViewPortSize <= viewPortSize + Size(5,5) );
+
+        return _prepareCalcLayoutViewPortSize;
     }
 
     void calcLayoutAfterPreparation() override

@@ -37,7 +37,8 @@ class Window : public View
 public:
 	/** @param pUiProvider the UI provider that the window should use.
 			See the IUiProvider documentation for more information.
-			If this is nullptr then the default UI provider for the platform is used.*/
+			If this is nullptr then the UI provider provided by the
+            app controller is used (see AppControllerBase::getUiProvider() ) .*/
 	Window(IUiProvider* pUiProvider = nullptr);
     
 

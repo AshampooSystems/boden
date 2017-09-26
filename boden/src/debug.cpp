@@ -5,6 +5,9 @@
 #include <android/log.h>
 #endif
 
+#include <bdn/IAppRunner.h>
+#include <bdn/Thread.h>
+
 
 #ifdef BDN_PLATFORM_OSX
     #include <assert.h>
@@ -71,7 +74,17 @@
 #endif
 
 
-#if BDN_PLATFORM_WIN32 || BDN_PLATFORM_WINUWP
+#if BDN_PLATFORM_WIN32
+    
+    namespace bdn
+    {
+        void debuggerPrint(const String& text)
+        {
+            OutputDebugStringW( (text+"\n").asWidePtr() );
+        }
+    }
+
+#elif BDN_PLATFORM_WINUWP
     
     namespace bdn
     {
@@ -92,6 +105,49 @@ namespace bdn
     }
 }
 
+
+#elif BDN_PLATFORM_IOS
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // stdout is connected to the debugger
+        std::cout << text.asUtf8() << std::endl;
+    }
+}
+
+#elif BDN_PLATFORM_WEBEMS
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // stdout might be connected to a controlling command prompt process.
+        // So we print debug messages there.
+        std::cout << text.asUtf8() << std::endl;
+    }
+}
+
+
+#elif BDN_PLATFORM_OSX || BDN_PLATFORM_LINUX
+
+namespace bdn
+{
+    void debuggerPrint(const String& text)
+    {
+        // If we have a UI app then we can output the debug text to stdout.
+        // The debugger will usually pick that up.
+        // For commandline apps we must not do that, since stdout is actually
+        // used for user interaction there.
+        
+        if( ! getAppRunner()->isCommandLineApp() )
+        {
+            // stdout is connected to the debugger
+            std::cout << text.asUtf8() << std::endl;
+        }
+    }
+}
 
 #else
 

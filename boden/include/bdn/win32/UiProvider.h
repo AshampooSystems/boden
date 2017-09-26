@@ -5,6 +5,7 @@
 #include <bdn/UiMargin.h>
 #include <bdn/Margin.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ITextUi.h>
 
 #include <bdn/View.h>
 
@@ -64,6 +65,9 @@ public:
         return _pLayoutCoordinator;
     }
 
+
+    P<ITextUi> getTextUi() override;
+
     
 	static UiProvider& get();
 
@@ -95,6 +99,9 @@ protected:
     P<LayoutCoordinator>        _pLayoutCoordinator;
 
 	std::map< FontSpec, P<Font> > _fontMap;	
+
+    Mutex                       _textUiInitMutex;
+    P<ITextUi>                  _pTextUi;
 };
 
 }

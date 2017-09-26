@@ -6,8 +6,11 @@
 #include <bdn/Window.h>
 
 #include <bdn/windowCoreUtil.h>
+#include <bdn/debug.h>
 
 #include <gtk/gtk.h>
+
+#include <chrono>
 
 namespace bdn
 {
@@ -52,6 +55,8 @@ public:
         geo.min_height = gtkNaturalSize.height;
 
         gtk_window_set_geometry_hints( GTK_WINDOW(getGtkWidget()), NULL, &geo, GDK_HINT_MIN_SIZE );                
+                
+        _lastKnownGtkBounds = _getGtkBounds();
 	}
 
 	~WindowCore()
@@ -72,10 +77,10 @@ public:
 
     Rect adjustAndSetBounds(const Rect& requestedBounds)
     {
-        if(_inReconfigured)
+        if(_inGtkBoundsChanged)
         {
-            // adjustAndSetBounds is currently called in the context of a _reconfigured
-            // event. That is just done to notify the outer view of the new bounds and no change
+            // adjustAndSetBounds is currently called in the context of a notification that the
+            // GTK bounds have changed. That is just done to notify the outer view of the new bounds and no change
             // is actually intended. Just return the current bounds as the "adjusted" bounds.
             return _currBounds;
         }
@@ -94,8 +99,11 @@ public:
             gtk_window_move( getGtkWindow(), alloc.x, alloc.y );            
             
         if(adjustedBounds.getSize() != _currBounds.getSize())
-            gtk_window_resize( getGtkWindow(), alloc.width, alloc.height );
+        {
+            //BDN_DEBUGGER_PRINT( "Resizing window "+std::to_string((uintptr_t)this)+" to "+std::to_string(alloc.width)+", "+std::to_string(alloc.height));
             
+            gtk_window_resize( getGtkWindow(), alloc.width, alloc.height );
+        }            
             
         this->_currBounds = adjustedBounds;
         
@@ -120,21 +128,12 @@ public:
     {
         P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
         if(pWindow!=nullptr)
-        {
-            gint width;
-            gint height;
-            gtk_window_get_size( GTK_WINDOW( getGtkWidget() ), &width, &height );        
-            // note that we get the size and position without window borders and decorations here.
+        {            
+            // note that _currBounds has the size and position without window borders and decorations.
             // That is ok, since we completely ignore the nonclient area of the window and pretend
             // that it is 0 anyway. All GTK functions work that way, so that is OK.
-            
-            GdkRectangle rect;
-            rect.x = 0;
-            rect.y = 0;
-            rect.width = width;
-            rect.height = height;
         
-            Rect contentArea = gtkRectToRect( rect );
+            Rect contentArea( Point(), _currBounds.getSize() );
             
             defaultWindowLayoutImpl( pWindow, contentArea );
         }
@@ -168,12 +167,17 @@ public:
     
     void autoSize() override
     {
-        // we cannot change our size. So, do nothing
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowAutoSizeImpl(pWindow, getScreenWorkArea().getSize() );
     }
-    
+
+   
     void center() override
     {
-        // we cannot change our position. So, do nothing.
+        P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
+        if(pWindow!=nullptr)
+            defaultWindowCenterImpl(pWindow, getScreenWorkArea() );
     }
 
 
@@ -239,7 +243,7 @@ protected:
     }
 
 
-    Rect _getBounds()
+    Rect _getGtkBounds()
     {
         gint x;
         gint y;        
@@ -262,20 +266,74 @@ protected:
         return gtkRectToRect( rect );
     }
     
-    void _reconfigured()
+    
+    
+    void _reconfigured(GdkEvent* pEvent)
     {
-        _inReconfigured = true;
+        // a single window size change will typically cause multiple reconfigure
+        // events to be sent in quick succession. For example, when we resize a window
+        // with gtk_window_resize then we get 4-5 events. The first 4 are still with the
+        // old size, only the last has the new size.
+        // We want to ignore the intermediate events that are fired when the final
+        // size is not yet set. Otherwise we will update our layout multiple times,
+        // which may slow the UI down noticeably.
+        
+        // so we simply compare the current size with the old size and only react if it changes.
+        
+        checkGtkBoundsChanged();
+    }
+    
+    void checkGtkBoundsChanged()
+    {
+        Rect bounds = _getGtkBounds();
+        
+        bool posChange = (bounds.getPosition() != _lastKnownGtkBounds.getPosition() );
+        bool sizeChange = (bounds.getSize() != _lastKnownGtkBounds.getSize());
+        
+        if( posChange || sizeChange )
+        {
+            _lastKnownGtkBounds = bounds;
+                        
+            gtkBoundsChanged( bounds, posChange, sizeChange );            
+        }
+    }
+    
+    void gtkBoundsChanged(const Rect& newBounds, bool posChange, bool sizeChange)
+    {        
+        _inGtkBoundsChanged = true;
         
         try
-        {                    
-            // size, position or "stacking" has changed. Update the bounds() property
+        {                           
+            // BDN_DEBUGGER_PRINT( "Window "+std::to_string((uintptr_t)this)+" reconfigured to "+std::to_string(newBounds.x)+", "+std::to_string(newBounds.y)+" "+std::to_string(newBounds.width)+", "+std::to_string(newBounds.height)+" posChange="+std::to_string(posChange)+" sizeChange="+std::to_string(sizeChange) );
             
-            Rect newBounds = _getBounds();
+            // we ignore the size we get from GTK, UNLESS it has changed.
+            // The reason for this is that the GTK window size lags behind our
+            // size considerably and is only updated with an irregular, unpredictable
+            // delay. To work around this, we immediately treat the window as having
+            // the desired size after we issue the resize request.
+            
+            // Following the resize request we usually get several reconfigure events
+            // for which only the position has changed and the size is still at the old value.
+            // When handling these events we want to use our new size that the window will eventually
+            // have.
+            // Note that we DO react when the size changes. Usually this change happens when
+            // the desired size is finally applied, but it may also be that it happens when the
+            // user has manually resized the window. In both cases we want to update our own
+            // size and use the one from GTK from that point on (until we issue the next
+            // resize request).
+            
+            Rect newBoundsToUse;
+            if(sizeChange)
+                newBoundsToUse = newBounds;
+            else
+                newBoundsToUse = Rect(newBounds.getPosition(), _currBounds.getSize() );
+                
+            // BDN_DEBUGGER_PRINT( "Window "+std::to_string((uintptr_t)this)+" using "+std::to_string(newBoundsToUse.x)+", "+std::to_string(newBoundsToUse.y)+" "+std::to_string(newBoundsToUse.width)+", "+std::to_string(newBoundsToUse.height) );
             
             // the bounds may not have changed
-            if(newBounds!=_currBounds)
+            if(newBoundsToUse!=_currBounds)
             {   
-                _currBounds = newBounds;            
+                _currBounds = newBoundsToUse;            
             
                 // update the properties. Note that this will not cause
                 // another configure event, because the setBounds method will only
@@ -284,15 +342,15 @@ protected:
                 P<View> pView = getOuterViewIfStillAttached();
                 if(pView!=nullptr)
                     pView->adjustAndSetBounds( _currBounds );
-            }
+            }            
         }
         catch(...)
         {
-            _inReconfigured = false;
+            _inGtkBoundsChanged = false;
             throw;
         }
         
-        _inReconfigured = false;
+        _inGtkBoundsChanged = false;
     }
     
     
@@ -300,7 +358,7 @@ protected:
                                             GdkEvent* pEvent,
                                             gpointer  pUser)
     {
-        ((WindowCore*)pUser)->_reconfigured();
+        ((WindowCore*)pUser)->_reconfigured( pEvent);
         
         return FALSE;
     }
@@ -311,7 +369,9 @@ protected:
     Size        _minSize;    
     Rect        _currBounds;
     
-    bool        _inReconfigured = false;
+    bool        _inGtkBoundsChanged = false;
+    
+    Rect        _lastKnownGtkBounds;
 };
 
 

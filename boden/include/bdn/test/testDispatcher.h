@@ -101,8 +101,16 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
 
     pDestructTest = nullptr;
 
-    CONTINUE_SECTION_AFTER_SECONDS(7, pData, startTime, pRedirectUnhandled, throwException)
+    std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+    CONTINUE_SECTION_AFTER_SECONDS(7, pData, startTime, pRedirectUnhandled, throwException, waitStartTime)
     {
+        std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+        std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+        // sanity check: verify that we have waited the expected amount of time.
+        REQUIRE( waitDurationMillis.count() >= 6900 );
+        
         // our timer is expected to be called once every 100 ms.            
         // Verify that all expected timer calls have happened.
         // This also verifies that the timer has stopped once
@@ -177,8 +185,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
 
             pDestructTest = nullptr;
 
-            CONTINUE_SECTION_AFTER_SECONDS(1, pData)
+            std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+            CONTINUE_SECTION_AFTER_SECONDS(1, pData, waitStartTime)
             {
+                std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                // sanity check: verify that we have waited the expected amount of time.
+                REQUIRE( waitDurationMillis.count() >= 900 );
+        
                 REQUIRE( pData->callOrder.size()==1 );
                 REQUIRE( pData->callableDestroyedCount==1 );
                 REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
@@ -231,8 +247,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                     },
                     prio);
 
-                CONTINUE_SECTION_AFTER_SECONDS(2, pData)
+                std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                CONTINUE_SECTION_AFTER_SECONDS(2, pData, waitStartTime)
                 {
+                    std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                    std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                    // sanity check: verify that we have waited the expected amount of time.
+                    REQUIRE( waitDurationMillis.count() >= 1900 );
+        
                     REQUIRE( pData->callOrder.size()==2);
             
                     // should have been called in the same order in which they were enqueued.
@@ -264,8 +288,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                     },
                     IDispatcher::Priority::idle );
 
-                CONTINUE_SECTION_AFTER_SECONDS(1.5, pData)
+                std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                CONTINUE_SECTION_AFTER_SECONDS(1.5, pData, waitStartTime)
                 {
+                    std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                    std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                    // sanity check: verify that we have waited the expected amount of time.
+                    REQUIRE( waitDurationMillis.count() >= 1400 );
+
                     REQUIRE( pData->callOrder.size()==2);
             
                     // should have been called in the same order in which they were enqueued.
@@ -297,8 +329,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                     },
                     IDispatcher::Priority::normal );
 
-                CONTINUE_SECTION_AFTER_SECONDS(1.5, pData)
+                std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                CONTINUE_SECTION_AFTER_SECONDS(1.5, pData, waitStartTime)
                 {
+                    std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                    std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                    // sanity check: verify that we have waited the expected amount of time.
+                    REQUIRE( waitDurationMillis.count() >= 1400 );
+
                     REQUIRE( pData->callOrder.size()==2);
             
                     // should have been called in reverse order
@@ -376,8 +416,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
 
                 pDestructTest = nullptr;
 
-                CONTINUE_SECTION_AFTER_SECONDS(2, pData, pRedirectUnhandled)
+                std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                CONTINUE_SECTION_AFTER_SECONDS(2, pData, pRedirectUnhandled, waitStartTime)
                 {
+                    std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                    std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                    // sanity check: verify that we have waited the expected amount of time.
+                    REQUIRE( waitDurationMillis.count() >= 1900 );
+
                     REQUIRE( pData->callOrder.size()==1 );
                     REQUIRE( pData->callableDestroyedCount==1 );
                     REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
@@ -428,8 +476,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                     REQUIRE( pData->callOrder.size()==0 );
                     REQUIRE( pData->callableDestroyedCount==0 );
 
-                    CONTINUE_SECTION_AFTER_SECONDS(2, pData)
+                    std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                    CONTINUE_SECTION_AFTER_SECONDS(2, pData, waitStartTime)
                     {
+                        std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                        std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                        // sanity check: verify that we have waited the expected amount of time.
+                        REQUIRE( waitDurationMillis.count() >= 1900 );
+                        
                         // but after another 2 seconds it should have been called
                         REQUIRE( pData->callOrder.size()==1 );
                         REQUIRE( pData->callOrder[0]==0 );
@@ -461,8 +517,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 },
                 prio);
 
-            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
+            std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData, waitStartTime)
             {
+                std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                // sanity check: verify that we have waited the expected amount of time.
+                REQUIRE( waitDurationMillis.count() >= 400 );
+
                 // should already have been called.
                 REQUIRE( pData->callOrder.size()==1 );      
             };
@@ -488,8 +552,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 },
                 prio);
 
-            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData)
+            std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+            CONTINUE_SECTION_AFTER_SECONDS(0.5, pData, waitStartTime)
             {
+                std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                // sanity check: verify that we have waited the expected amount of time.
+                REQUIRE( waitDurationMillis.count() >= 400 );
+                
                 // should already have been called.
                 REQUIRE( pData->callOrder.size()==1 );      
             };
@@ -539,8 +611,16 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
 
                 pDestructTest = nullptr;
 
-                CONTINUE_SECTION_AFTER_SECONDS(3, pData, pRedirectUnhandled)
+                std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+                CONTINUE_SECTION_AFTER_SECONDS(3, pData, pRedirectUnhandled, waitStartTime)
                 {
+                    std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                    std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                    // sanity check: verify that we have waited the expected amount of time.
+                    REQUIRE( waitDurationMillis.count() >= 2900 );
+
                     REQUIRE( pData->callOrder.size()==1 );
                     REQUIRE( pData->callableDestroyedCount==1 );
                     REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );

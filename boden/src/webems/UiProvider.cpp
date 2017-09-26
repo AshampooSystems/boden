@@ -14,7 +14,7 @@
 namespace bdn
 {
     
-P<IUiProvider> getPlatformUiProvider()
+P<IUiProvider> getDefaultUiProvider()
 {
     return &bdn::webems::UiProvider::get();
 }
@@ -51,9 +51,19 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
         return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
     
-
     else
         throw ViewCoreTypeNotSupportedError(coreTypeName);
+}
+
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        MutexLock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+            _pTextUi = newObj< ViewTextUi >();
+    }
+
+    return _pTextUi;
 }
 
 

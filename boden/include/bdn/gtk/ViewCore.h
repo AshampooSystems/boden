@@ -7,6 +7,7 @@
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/util.h>
+#include <bdn/debug.h>
 
 #include <gtk/gtk.h>
 
@@ -131,6 +132,12 @@ public:
                 pParentViewCore->_moveChildViewCore( this, alloc.x, alloc.y );            
             }
         }
+        
+        /*
+        if(adjustedBounds.getSize() != pView->size().get() )
+        {        
+            BDN_DEBUGGER_PRINT( String(typeid(*this).name()) + " size: "+ std::to_string(adjustedBounds.width)+" x "+std::to_string(adjustedBounds.height) );
+        }*/
         
         return adjustedBounds;
     }

@@ -54,36 +54,33 @@ public:
 
 		BDN_REQUIRE_IN_MAIN_THREAD();
 
-		Size size = _getTextSize(_text);
-
-        // add our padding
-        P<View> pView = getOuterViewIfStillAttached();
         Size    preferredSizeHint(Size::none());
+        Margin  padding;
+
+        P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
             if(!pView->padding().get().isNull())
-                size += uiMarginToDipMargin(pView->padding().get());
+                padding = uiMarginToDipMargin(pView->padding().get());
 
             preferredSizeHint = pView->preferredSizeHint();
         }
 
-        // text views typically somewhat adhere to the available width.
-        // We do not do real line breaking in this mock view - we simply clip the width
-        // and multiply the height with a corresponding factor.
-        if( std::isfinite(availableSpace.width) && size.width>availableSpace.width)
-        {
-            double factor = (availableSpace.width<=1) ? 100 : (size.width/availableSpace.width);
-            if(factor>100)
-                factor = 100;
+        double wrapWidth = preferredSizeHint.width;
 
-            size.width = availableSpace.width;
-            size.height *= factor;
-        }
+        if( std::isfinite(availableSpace.width) && availableSpace.width < wrapWidth )
+            wrapWidth = availableSpace.width;
 
-        // we also clip to the preferredSizeHint.width, since text views usually use
-        // that as an advisory value of where to clip
-        size.applyMaximum( Size(preferredSizeHint.width, Size::componentNone()) );
+        if(std::isfinite(wrapWidth))
+            wrapWidth -= padding.left + padding.right;
 
+        if(wrapWidth<0)
+            wrapWidth = 0;
+
+		Size size = _getTextSize(_text, wrapWidth);
+
+        size += padding;
+                
         if(pView!=nullptr)
         {   
             // clip to min and max size

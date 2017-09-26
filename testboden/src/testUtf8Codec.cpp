@@ -9,6 +9,31 @@
 namespace bdn
 {
 
+static void testUtf8CodecDecodeChar( const std::string& utf8, const std::u32string& expectedDecoded)
+{
+    std::u32string decoded;
+
+    auto it = utf8.begin();
+    while( it!=utf8.end() )
+    {
+        auto itBefore = it;
+        char32_t chr = Utf8Codec::decodeChar(it, utf8.end() );
+
+        if(chr==0xfffd)
+        {
+            // it should be at one byte after itBefore
+            auto expectedIt = itBefore;
+            ++expectedIt;
+
+            REQUIRE( it == expectedIt );
+        }
+
+        decoded += chr;
+    }
+
+    REQUIRE( decoded == expectedDecoded );
+}
+
 TEST_CASE( "Utf8Codec.decoding", "[string]" )
 {
 	struct SubTestData
@@ -62,9 +87,25 @@ TEST_CASE( "Utf8Codec.decoding", "[string]" )
 			std::string encoded(pCurrData->utf8);
 			std::u32string expectedDecoded(pCurrData->expectedDecoded);
 
-			testCodecDecodingIterator<Utf8Codec>(encoded, expectedDecoded);
+            SECTION("decodeChar")
+                testUtf8CodecDecodeChar(encoded, expectedDecoded);
+
+            SECTION("iterator")
+			    testCodecDecodingIterator<Utf8Codec>(encoded, expectedDecoded);            
 		}
 	}
+
+    SECTION("decodeChar on empty data")
+    {
+        std::string empty;
+
+        auto it = empty.begin();
+        char32_t chr = Utf8Codec::decodeChar( it, empty.end() );
+
+        REQUIRE( chr == 0xfffd );
+
+        REQUIRE( it==empty.end() );
+    }
 }
 
 

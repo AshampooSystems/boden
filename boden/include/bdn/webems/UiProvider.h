@@ -3,6 +3,7 @@
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ViewTextUi.h>
 
 #include <emscripten/val.h>
 
@@ -43,6 +44,8 @@ public:
     String getName() const override;
     
     P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
+
+    P<ITextUi> getTextUi() override;
     
 
     static UiProvider& get();
@@ -65,6 +68,9 @@ public:
 private:
     double _semDips;
     P<LayoutCoordinator> _pLayoutCoordinator;
+
+    Mutex                _textUiInitMutex;
+    P<ViewTextUi>        _pTextUi;
 
 };
 

@@ -1,9 +1,11 @@
-#ifndef BDN_StdioTextUi_H_
-#define BDN_StdioTextUi_H_
+#ifndef BDN_ViewTextUi_H_
+#define BDN_ViewTextUi_H_
 
 #include <bdn/ITextUi.h>
 #include <bdn/Window.h>
+#include <bdn/ScrollView.h>
 #include <bdn/TextView.h>
+#include <bdn/ColumnView.h>
 #include <bdn/OneShotStateNotifier.h>
 
 
@@ -68,9 +70,13 @@ private:
         P< OneShotStateNotifier< P<IAsyncOp<void>> > > _pDoneNotifier;
     };
 
+    void scrolledSizeChanged();
+
     Mutex           _mutex;
     P< Window >     _pWindow;
-    P< TextView >    _pTextView;
+    P< ScrollView > _pScrollView;
+    P< ColumnView > _pScrolledColumnView;
+    P< TextView >   _pCurrParagraphView;
 };
 
 

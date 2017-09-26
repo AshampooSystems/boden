@@ -23,14 +23,31 @@ public:
 	void setHorizontalScrollingEnabled( const bool& enabled) override;    
 	void setVerticalScrollingEnabled( const bool& enabled) override;    
 
+    
+    void scrollClientRectToVisible(const Rect& rect) override;
+
+
     void layout() override;
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;	
 
+
+    /** Returns the height of the horizontal scroll bar in DIPs.
+        The returned value is in DIPs, but rounded to full physical pixels.
+        */
+    static double getHorizontalScrollBarHeight(double uiScaleFactor);
+
+    /** Returns the width of the vertical scroll bar in DIPs.
+        The returned value is in DIPs, but rounded to full physical pixels.
+        */
+    static double getVerticalScrollBarWidth(double uiScaleFactor);
+
+
 private:
 
-    POINT   updateScrollInfo(bool horzScrollBar, bool vertScrollBar, const SIZE& viewPortSizeInPixels, const SIZE& fullContentSizeInPixels);
-    void    updateContentContainerPos(const POINT& scrollPosInPixels);
+    void    updateWin32ScrollInfo();
+    void    updateContentContainerPos();
+    void    updateVisibleClientRect();
 
     enum class ScrollPosType
     {
@@ -90,6 +107,10 @@ private:
     Margin              _nonClientMargins;
 
     P<ContentContainer> _pContentContainer;
+
+    SIZE                _viewPortSizePixels{0,0};
+    SIZE                _clientSizePixels{0,0};
+    POINT               _scrollPositionPixels{0,0};
 };
 
 }

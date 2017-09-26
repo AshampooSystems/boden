@@ -14,7 +14,7 @@ class CommandLineAppRunner : public GenericAppRunner
 {
 public:
 	CommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[])
-		: GenericAppRunner( appControllerCreator, makeAppLaunchInfo() )
+		: GenericAppRunner( appControllerCreator, makeAppLaunchInfo(), true )
 	{
 	}
 	

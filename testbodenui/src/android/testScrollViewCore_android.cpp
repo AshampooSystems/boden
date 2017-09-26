@@ -35,13 +35,24 @@ protected:
     }
                 
 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
+        // we cannot resize the scroll view directly with adjustAndSetBounds.
+        // That would not have any effect outside of a layout cycle.
+        // Instead we set the preferred size min and max to force the outer view
+        // to resize it to the specified size.
 
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize );
+        Size adjustedSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest ).getSize();
 
-        _pScrollView->adjustAndSetBounds(newBounds);
+        _pScrollView->preferredSizeMinimum() = adjustedSize;
+        _pScrollView->preferredSizeMaximum() = adjustedSize;
+
+        // also request a re-layout here. With the normal propagation of the property changes
+        // it would take two event cycles until the layout happens. But we want it to happen
+        // immediately after the properties have been changed.
+        _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );
+
+        return adjustedSize;
     }
 
     Size getScrollAreaSizePixels()
@@ -123,7 +134,10 @@ protected:
                 scrollAreaSizePixels.width / scaleFactor,
                 scrollAreaSizePixels.height / scaleFactor );
 
-        REQUIRE( Dip::equal( scrollAreaSize, expectedSize) );
+        /*REQUIRE_ALMOST_EQUAL( scrollAreaSize.width, expectedSize.width, (1.0/scaleFactor)+Dip::significanceBoundary() );
+        REQUIRE_ALMOST_EQUAL( scrollAreaSize.height, expectedSize.height, (1.0/scaleFactor)+Dip::significanceBoundary() );*/
+
+        REQUIRE( Dip::equal(scrollAreaSize, expectedSize) );
     }
 
     void verifyViewPortSize( const Size& expectedSize) override
@@ -134,8 +148,11 @@ protected:
                 _jView.getWidth() / scaleFactor,
                 _jView.getHeight() / scaleFactor );
 
-        REQUIRE( Dip::equal( viewPortSize, expectedSize) );
-    }               
+        /*REQUIRE_ALMOST_EQUAL( viewPortSize.width, expectedSize.width, (1.0/scaleFactor)+Dip::significanceBoundary() );
+        REQUIRE_ALMOST_EQUAL( viewPortSize.height, expectedSize.height, (1.0/scaleFactor)+Dip::significanceBoundary() );*/
+
+        REQUIRE( Dip::equal(viewPortSize, expectedSize) );
+    }
 
 
 

@@ -3,6 +3,7 @@
 
 #include <bdn/AppLaunchInfo.h>
 #include <bdn/IUnhandledProblem.h>
+#include <bdn/IUiProvider.h>
 
 #include <vector>
 #include <map>
@@ -10,6 +11,7 @@
 namespace bdn
 {
     
+
     
 /** Base class for app controllers.
  
@@ -19,11 +21,7 @@ namespace bdn
     During the lifetime of the app, the app controllers lifecycle notification functions
     will be called at various points. AppControllerBase provides a default implementation
     for these that does noting.
- 
-    Usually custom app controller classes do not derive directly from AppControllerBase
-	(although they can). Consider deriving from UiAppControllerBase for an app with a
-	graphical user interface, or from CommandLineAppControllerBase for a commandline app.
-	
+
 	You control which app controller class your app uses by passing it to the app initialization macros
 	#BDN_INIT_UI_APP(), #BDN_INIT_COMMANDLINE_APP(), ...
  
@@ -31,7 +29,19 @@ namespace bdn
 class AppControllerBase : public Base
 {
 public:
-  		
+
+
+    /** Returns the app's Ui provider (i.e. the object that provides elements for
+        interacting with the user).
+        
+        The default implementation calls the global function bdn::getDefaultUiProvider().
+        Derived app controller classes may override this to control which UI provider is used.
+        */
+    virtual P<IUiProvider> getUiProvider()
+    {
+        return getDefaultUiProvider();
+    }
+      		
 
     /** Called when the app launch has begun.
      
@@ -189,8 +199,8 @@ public:
     {
         // do nothing by default
     }
-     
-    
+
+
 
     /** Returns the global app controller instance.*/
     static P<AppControllerBase> get()
@@ -216,7 +226,6 @@ private:
         
         return pController;
     }
-    
 };
     
     

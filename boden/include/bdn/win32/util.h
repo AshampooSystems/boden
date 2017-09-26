@@ -79,6 +79,26 @@ inline Rect win32RectToRect(const RECT& rect, double scaleFactor)
                  (rect.bottom-rect.top) / scaleFactor );
 }
 
+/** Converts a win32 POINT structure with pixel coordinates to a Point with DIP coordinates.
+
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+    */
+inline Point win32PointToPoint(const POINT& p, double scaleFactor)
+{
+	return Point( p.x / scaleFactor,
+                  p.y / scaleFactor );
+}
+
+
+/** Converts a win32 SIZE structure with pixel coordinates to a Size with DIP coordinates.
+
+    scaleFactor is the UI scale factor for the UI (i.e. the factor to convert from DIPs to pixels.
+    */
+inline Size win32SizeToSize(const SIZE& s, double scaleFactor)
+{
+	return Size( s.cx / scaleFactor,
+                  s.cy / scaleFactor );
+}
 
 /** Parses a wide character commandline string (as returned by the win32 API function
 	GetCommandLineW.

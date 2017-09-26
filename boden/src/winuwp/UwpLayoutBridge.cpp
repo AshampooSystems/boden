@@ -42,7 +42,7 @@ void UwpLayoutBridge::invalidateArrange(::Windows::UI::Xaml::FrameworkElement^ p
 
 void UwpLayoutBridge::invalidateMeasure(::Windows::UI::Xaml::FrameworkElement^ pElement)
 {
-    OutputDebugString( ( "InvalidateMeasure on "+String( pElement->GetType()->ToString()->Data() )+"\n").asWidePtr() );
+    // OutputDebugString( ( "InvalidateMeasure on "+String( pElement->GetType()->ToString()->Data() )+"\n").asWidePtr() );
 
     BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -85,7 +85,7 @@ void UwpLayoutBridge::measureEnding(IUwpLayoutDelegate* pDelegate, const Size& a
         // finalization. We set _activeFinalizers to a dummy number to prevent that.
         _activeMeasureCalls = 0x10000000;
 
-        OutputDebugString( (String(typeid(*pDelegate).name()) +" finalizeUwpMeasure("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n").asWidePtr() );
+        //OutputDebugString( (String(typeid(*pDelegate).name()) +" finalizeUwpMeasure("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n").asWidePtr() );
 
         try
         {
@@ -97,7 +97,7 @@ void UwpLayoutBridge::measureEnding(IUwpLayoutDelegate* pDelegate, const Size& a
             throw;
         }
 
-        OutputDebugString( ("/"+String(typeid(*pDelegate).name()) +" finalizeUwpMeasure()\n").asWidePtr() );
+        //OutputDebugString( ("/"+String(typeid(*pDelegate).name()) +" finalizeUwpMeasure()\n").asWidePtr() );
 
         _activeMeasureCalls = 0;
     }

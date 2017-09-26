@@ -26,6 +26,103 @@ public:
 	}
 
 
+    /** Decodes a single unicode character from the specified UTf-8 data.
+
+        If the amount of data is empty ( it == endIt ) then the function returns
+        0xfffd and does not modify the position of the \c it parameter.
+
+        If the character was successfully decoded then the decoded character is returned
+        and the \c it parameter is modified to point to the byte following the decoded Utf-8
+        byte sequence.
+
+        If the data is not a valid encoded utf-8 character sequence then the function
+        returns the special unicode value 0xfffd and moves the \c it parameter
+        a single byte ahead.
+                    
+        \param it reference to a byte iterator (returning uint8_t elements) pointing to the start
+            of the encoded UTF-8 character. This iterator will be modified by the function - see above
+            for an explanation of its position after the function completes.
+
+        \param endIt an iterator pointing to the byte after the last one of the encoded data. This is NOT necessarily the
+            end of the single character - it is the end of the total encoded data. This is specified
+            for safety to ensure that the decode function will not overshoot the valid data
+            in case of incorrectly encoded data.
+
+        \return the decoded character or 0xfffd in case of an error (see above for more information).
+    */
+    template<typename IteratorType>
+    static char32_t decodeChar(IteratorType& it, const IteratorType& endIt)
+	{
+        if(it==endIt)
+            return 0xfffd;
+
+		uint8_t firstByte = *it;
+
+		++it;
+
+        if((firstByte & 0x80)==0)
+			return firstByte;
+		else
+		{
+			int     mask = 0x40;
+			bool    invalid = false;
+			int     length=1;
+
+			char32_t chr = 0;
+
+            // safe this iterator position in case the encoded sequence is invalid.
+            IteratorType secondByteIt = it;
+
+			while(true)
+			{
+				if((firstByte & mask)==0)
+				{
+					// end of sequence
+					break;
+				}
+
+				if(it==endIt)
+				{
+					// we should have one more byte, but we don't.
+					invalid = true;
+					break;
+				}
+
+				uint8_t val = *it;
+				if((val & 0xc0)!=0x80)
+				{
+					// invalid sequence. We should abort right away, because the current
+					// value could be part of a valid sequence that follows the broken one.
+					invalid = true;
+					break;
+				}
+
+				chr <<= 6;
+				chr |= (val & 0x3f);
+
+				mask >>= 1;
+
+				++it;
+				++length;
+			}
+
+			if(invalid || length==1 || length>6)
+			{
+				// use the unicode "replacement character".
+				chr = 0xfffd;
+				// only consume a single byte.
+				it = secondByteIt;
+			}
+			else
+			{
+				chr |= (((char32_t)firstByte) & (mask-1)) << ((length-1)*6);
+			}
+
+            return chr;
+		}
+	}
+
+
 	/** A character iterator that decodes UTF-8 data (char elements) from an
 		arbitrary source iterator into Unicode characters (char32_t).
 
@@ -169,7 +266,7 @@ public:
 
 
 		/** Returns an iterator to the inner encoded string that the decoding iterator is working on.
-			The inner iterator points to the first encoded element of the character, that the decoding
+			The inner iterator points to the first encoded element of the character that the decoding
 			iterator is currently pointing to.*/
 		const SourceIterator& getInner() const
 		{
@@ -181,66 +278,7 @@ public:
 		{
 			_nextIt = _sourceIt;
 
-			uint8_t firstByte = *_nextIt;
-
-			++_nextIt;
-
-			if((firstByte & 0x80)==0)
-				_chr = firstByte;
-			else
-			{
-				int     mask = 0x40;
-				bool    invalid = false;
-				int     length=1;
-
-				_chr = 0;
-
-				while(true)
-				{
-					if((firstByte & mask)==0)
-					{
-						// end of sequence
-						break;
-					}
-
-					if(_nextIt==_endSourceIt)
-					{
-						// we should have one more byte, but we don't.
-						invalid = true;
-						break;
-					}
-
-					uint8_t val = *_nextIt;
-					if((val & 0xc0)!=0x80)
-					{
-						// invalid sequence. We should abort right away, because the current
-						// value could be part of a valid sequence that follows the broken one.
-						invalid = true;
-						break;
-					}
-
-					_chr <<= 6;
-					_chr |= (val & 0x3f);
-
-					mask >>= 1;
-
-					++_nextIt;
-					++length;
-				}
-
-				if(invalid || length==1 || length>6)
-				{
-					// use the unicode "replacement character".
-					_chr = 0xfffd;
-					// only consume a single byte.
-					_nextIt = _sourceIt;
-					++_nextIt;
-				}
-				else
-				{
-					_chr |= (((char32_t)firstByte) & (mask-1)) << ((length-1)*6);
-				}
-			}
+            _chr = Utf8Codec::decodeChar(_nextIt, _endSourceIt);			
 		}
 
 

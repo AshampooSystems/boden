@@ -180,8 +180,7 @@ public:
         // see needLayout for an explanation about why we ignore standard property changes.
         if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
-            // XXX
-            OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
+            // OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
@@ -219,8 +218,7 @@ public:
 
         if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
-            // XXX
-            OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 
+            // OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() ); 
 
             // a full relayout only happens if another measure cycle is done (since we actually
             // do our own layout at the end of measure, not in arrange).
@@ -239,8 +237,7 @@ public:
     {        
         BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		// XXX
-        OutputDebugString( (String(typeid(*this).name())+".adjustAndSetBounds("+std::to_string(requestedBounds.width)+", "+std::to_string(requestedBounds.height)+"\n" ).asWidePtr() );
+        // OutputDebugString( (String(typeid(*this).name())+".adjustAndSetBounds("+std::to_string(requestedBounds.width)+", "+std::to_string(requestedBounds.height)+"\n" ).asWidePtr() );
 
         // first adjust the bounds
         Rect adjustedBounds = adjustBounds( requestedBounds, RoundType::nearest, RoundType::nearest);
@@ -263,7 +260,7 @@ public:
         ::Windows::UI::Xaml::FrameworkElement^ pElement = getFrameworkElement();
         if(pElement!=nullptr)
         {
-            OutputDebugString( (String(typeid(*this).name())+" Measure("+std::to_string(assignedSize.width)+", "+std::to_string(assignedSize.height)+"\n" ).asWidePtr() );
+            // OutputDebugString( (String(typeid(*this).name())+" Measure("+std::to_string(assignedSize.width)+", "+std::to_string(assignedSize.height)+"\n" ).asWidePtr() );
             
             ::Windows::Foundation::Size winAssignedSize = sizeToUwpSize( assignedSize );
 
@@ -278,8 +275,7 @@ public:
             pElement->Measure( winAssignedSize );
         }
 
-        // XXX
-        OutputDebugString( ("/"+String(typeid(*this).name())+".adjustAndSetBounds()\n" ).asWidePtr() );
+        // OutputDebugString( ("/"+String(typeid(*this).name())+".adjustAndSetBounds()\n" ).asWidePtr() );
 
 
         return adjustedBounds;
@@ -358,8 +354,7 @@ public:
 	
 	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override
 	{
-        // XXX
-        OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
+        //OutputDebugString( (String(typeid(*this).name())+".calcPreferredSize("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+"\n" ).asWidePtr() );
 
 		BDN_WINUWP_TO_STDEXC_BEGIN;
 
@@ -460,8 +455,8 @@ public:
             }
             
 
-            // XXX
-            OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize() -> desiredSize= "+std::to_string(preferredSize.width)+", "+std::to_string(preferredSize.height)+"\n" ).asWidePtr() );
+            
+            //OutputDebugString( ("/"+String(typeid(*this).name())+".calcPreferredSize() -> desiredSize= "+std::to_string(preferredSize.width)+", "+std::to_string(preferredSize.height)+"\n" ).asWidePtr() );
 
             return preferredSize;
         }

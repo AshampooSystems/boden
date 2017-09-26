@@ -15,6 +15,23 @@ struct TestData : public Base
 };
 
 
+struct TestContinuationDataRelease : public Base
+{
+    TestContinuationDataRelease(TestData* pData)
+    {
+        _pData = pData;
+    }
+
+    ~TestContinuationDataRelease()
+    {
+        Thread::sleepMillis(2000);
+        _pData->callCount++;
+    }
+
+    P<TestData> _pData;
+};
+
+
 
 template<typename FuncType>
 void testContinueSectionWith( FuncType scheduleContinueWith )
@@ -70,6 +87,33 @@ void testContinueSectionWith( FuncType scheduleContinueWith )
         // the continuation of the previous section should have been called
 
         REQUIRE( pCalledBeforeNextSectionData->callCount==1 );
+    }
+
+
+    static P<TestData> pContinuationFuncReleasedBeforeNextSectionData;
+    SECTION("continuationFuncReleasedBeforeNextSection-a")
+    {
+        pContinuationFuncReleasedBeforeNextSectionData = pData;
+
+        P<TestContinuationDataRelease> pReleaseTestData = newObj<TestContinuationDataRelease>(pData);
+
+        scheduleContinueWith(
+            [pReleaseTestData]()
+            {
+            } );        
+
+        REQUIRE( pData->callCount==0);
+    }
+
+    SECTION("continuationFuncReleasedBeforeNextSection-b")
+    {
+        REQUIRE( pContinuationFuncReleasedBeforeNextSectionData!=nullptr );
+
+        // the next section should only be called AFTER the continuation function
+        // of the previous section has been destroyed. This test is mostly intended for thread
+        // continuation to ensure that the thread from the previous section has actually exited
+        // before the next section is started.
+        REQUIRE( pContinuationFuncReleasedBeforeNextSectionData->callCount==1 );
     }
 
     SECTION("notCalledMultipleTimes")

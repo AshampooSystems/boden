@@ -9,7 +9,7 @@ namespace bdn
 
 /** Provides a way to interact with the user via a text interface.
 
-    The default implementation for the platform can be obtained via textUi().
+    ITextUi objects are usually obtained from the app's Ui provider (see bdn::IUiProvider).
 */
 class ITextUi : BDN_IMPLEMENTS IBase
 {
@@ -45,19 +45,6 @@ public:
 	virtual P< IAsyncOp<void> > writeErrorLine(const String& s)=0;	
 
 };
-
-
-/** Provides the default implementation for text based interaction with the user.
-
-    For commandline(!) applications this is guarenteed to use stdio
-    (stdin, stdout, stderr).
-
-    For graphical applications the UI will typically be implemented with graphical UI components / views.
-
-    In any case: the implementation takes care of presenting the text in a way that works
-    well for the specific platform.
-*/
-P<ITextUi> textUi();
 
 
 }

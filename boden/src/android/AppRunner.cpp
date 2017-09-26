@@ -30,6 +30,12 @@ AppRunner::AppRunner( std::function< P<AppControllerBase>() > appControllerCreat
 }
 
 
+bool AppRunner::isCommandLineApp() const
+{
+    // android does not support commandline apps
+    return false;
+}
+
 void AppRunner::entry()
 {
     // entry is called from the JAVA main thread when the main activity is initialized

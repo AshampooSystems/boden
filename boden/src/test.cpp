@@ -41,14 +41,15 @@ DEALINGS IN THE SOFTWARE.
 
 #include <bdn/IAppRunner.h>
 #include <bdn/AppControllerBase.h>
-#include <bdn/UiTestAppController.h>
-#include <bdn/CommandLineTestAppController.h>
+#include <bdn/TestAppController.h>
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
 #include <bdn/TextView.h>
 #include <bdn/mainThread.h>
 #include <bdn/debug.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/TextUiStdOStream.h>
+
 
 
 #include <cstring>
@@ -442,6 +443,100 @@ public: // IStream
 };
 
 
+class TextUiWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextUi
+{
+public:
+    TextUiWrapperWithDebugPrint(ITextUi* pInnerUi)
+    {
+        _pInnerUi = pInnerUi;
+    }
+    
+    
+    P< IAsyncOp<String> > readLine() override
+    {
+        return _pInnerUi->readLine();
+    }
+
+    
+	P< IAsyncOp<void> >  write(const String& s) override
+    {       
+        doDebugPrint(s);
+        
+        return _pInnerUi->write(s);
+    }
+
+	P< IAsyncOp<void> > writeLine(const String& s) override
+    {
+        doDebugPrint(s+"\n");
+        
+        return _pInnerUi->writeLine(s);
+    }
+
+	
+	P< IAsyncOp<void> > writeError(const String& s) override
+    {
+        doDebugPrint(s);
+        
+        return _pInnerUi->writeError(s);
+    }
+	
+    
+	P< IAsyncOp<void> > writeErrorLine(const String& s) override
+    {
+        doDebugPrint(s+"\n");
+        
+        return _pInnerUi->writeErrorLine(s);
+    }
+    
+private:
+    void doDebugPrint(const String& s)
+    {
+        String rem = s;
+        
+        while( !rem.isEmpty() )
+        {
+            char32_t sep=0;
+            
+            _currDebugPrintLine += rem.splitOffToken("\n", true, &sep);            
+            
+            if(sep!=0)
+            {
+                // we had a line break
+                BDN_DEBUGGER_PRINT(_currDebugPrintLine);
+                _currDebugPrintLine = "";
+            }
+        }        
+    }
+    
+    P<ITextUi>  _pInnerUi;    
+    String      _currDebugPrintLine;
+};
+
+
+class TextUiStream : public IStream
+{
+public:
+	TextUiStream(ITextUi* pUi)
+        : _stdStream(pUi)
+    {
+    }
+
+	virtual ~TextUiStream() noexcept
+    {
+        // nothing to do.
+    }
+
+	virtual std::ostream& stream() const override
+    {
+        return _stdStream;
+    }
+
+private:
+    mutable TextUiStdOStream<char> _stdStream;
+    String  _currLine;
+};
+
+
 }
 
 #include <memory>
@@ -570,11 +665,22 @@ public:
 
 private:
 
-	IStream const* openStream() {
+	IStream const* openStream()
+    {
 		if( m_data.outputFilename.empty() )
-			return new CoutStream();
+        {
+            P<ITextUi> pUi = AppControllerBase::get()->getUiProvider()->getTextUi();
+            
+            // we also want all output to be printed to the debugger
+            pUi = newObj< TextUiWrapperWithDebugPrint >(pUi);
+            
+            return new TextUiStream( pUi );
+			//return new CoutStream();
+        }
+
 		else if( m_data.outputFilename[0] == '%' )
 			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
+
 		else
 			return new FileStream( m_data.outputFilename );
 	}
@@ -2777,11 +2883,10 @@ public:
     }
 };
 
-void printTestStatus(const std::string& s)
-{
-    std::cout << s << std::endl;
-
-    BDN_DEBUGGER_PRINT( s );
+void printTestStatus(const IConfig* pConfig, const std::string& s)
+{    
+    if(pConfig!=nullptr)
+        pConfig->stream() << s << std::endl;
 }
 
 
@@ -2844,7 +2949,7 @@ public:
         _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
 
         if(m_printLevel>=1)
-            printTestStatus( "Test case: "+getCurrentTestName() );            
+            printTestStatus(m_config.get(), "Test case: "+getCurrentTestName() );            
 
 		_testDoneCallback = doneCallback;
 
@@ -3004,7 +3109,7 @@ private: // IResultCapture
                 else
                     statusText += sectionInfo.name;
 
-                printTestStatus(statusText);
+                printTestStatus(m_config.get(), statusText);
             }
 
 		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
@@ -3246,26 +3351,95 @@ public:
         _postponedSectionEventsInsertPos = _postponedSectionEvents.begin();
     }
 
+
+    /** Helper that tracks whether the data that is used by a test continuation has already been
+        released. This is used to ensure that all data from a previous test section has been released
+        before the next section is started.*/
+    class ContinuationSynchronizer : public Base
+    {
+    public:
+        ContinuationSynchronizer()
+        {
+        }
+
+        bool wasContinuationDataReleased()
+        {
+            MutexLock lock(_mutex);
+            return _continuationDataReleased;
+        }
+
+        void notifyContinuationDataReleased()
+        {
+            MutexLock lock(_mutex);
+            _continuationDataReleased = true;
+        }
+
+    private:
+        Mutex _mutex;
+        bool  _continuationDataReleased = false;
+    };
+
+
+    /** Helper that wraps the data that is used by a test continuation. The wrapper notifies
+        the ContinuationSynchronizer when it is deleted, so that the synchronizer can 
+        allow the next test section to begin.*/
+    class ContinuationData : public Base
+    {
+    public:
+        ContinuationData(const std::function<void()>& continuationFunc, ContinuationSynchronizer* pSynchronizer)
+        {
+            _continuationFunc = continuationFunc;
+            _pSynchronizer = pSynchronizer;
+        }
+
+        ~ContinuationData()
+        {
+            // before we notify the synchronizer we have to ensure that all data is
+            // actually released. I.e. the continuation function must be deleted.
+            _continuationFunc = std::function<void()>();
+
+            _pSynchronizer->notifyContinuationDataReleased();
+        }
+
+        std::function<void()>& getContinuationFunc()
+        {
+            return _continuationFunc;
+        }
+
+    private:
+        ContinuationData(const ContinuationData&) = delete;
+
+        std::function<void()>       _continuationFunc;
+        P<ContinuationSynchronizer> _pSynchronizer;
+    };
+        
+
 	void continueSectionWhenIdle(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		        		
         asyncCallFromMainThreadWhenIdle(
-            [this, continuationFunc]()
+            [this, pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
     
     void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		        		
         asyncCallFromMainThreadAfterSeconds(
             seconds,
-            [this, continuationFunc]()
+            [this, pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
 
@@ -3273,11 +3447,14 @@ public:
     void continueSectionInThread(std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
+
+        P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+        P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
 		
         Thread::exec(
-            [this, continuationFunc]()
+            [this,  pContData, pContSynchronizer]()
             {
-                doSectionContinuation(continuationFunc);
+                doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
             } );
 	}
 
@@ -3293,14 +3470,14 @@ public:
 #endif
 
     
-    void doSectionContinuation(std::function<void()> continuationFunc)
+    void doSectionContinuation(std::function<void()> continuationFunc, P<ContinuationSynchronizer> pSynchronizer)
     {
         // lock the mutex to ensure that the code that scheduled the continuation
         // has exited.
         MutexLock lock( _runTestMutex );
-
-        bool testDone = continueCurrentTest(continuationFunc);
         
+        bool testDone = continueCurrentTest(continuationFunc);
+
         if(testDone)
         {
             // ok, the test (=section) is done. I.e. there was no additional
@@ -3311,22 +3488,50 @@ public:
             // it is ensured that the next test executes in the main thread
             // in a "clean" environment (i.e. no locked mutexes, etc.)
 
-            asyncCallFromMainThread(
-                [this]()
+            // We schedule this as "idle" to give any pending UI actions time to execute.
+                        
+            asyncCallFromMainThreadWhenIdle(
+                [this, pSynchronizer]()
                 {
-                    if(shouldContinueTestCaseIteration())
-		            {
-                        // do the next iteration.
-			            runTestCase_Continue();
-		            }
-		            else
-                        runTestCase_Finalize();
-                });
+                    endSectionContinuation(pSynchronizer);
+                } );
         }
         else
         {
             // test is continued asynchronously. The async continuation is already scheduled,
             // so there is nothing else we have to do.
+        }
+    }
+
+    void endSectionContinuation(P<ContinuationSynchronizer> pSynchronizer)
+    {
+        // It may be that the previous continuation step is not fully done yet.
+        // Its continuation func and captured data might not yet be released
+        // (for example, if the continuation was executed in a separate thread).
+        // But we want all remnants of the previous section to be gone, otherwise
+        // we risk strange interactions between test sections.
+        // So if the continuation is not gone yet then we wait a little and check again.
+        if(!pSynchronizer->wasContinuationDataReleased())
+        {
+            asyncCallFromMainThreadAfterSeconds(
+                0.05,
+                [this, pSynchronizer]()
+                {
+                    endSectionContinuation(pSynchronizer);
+                } );
+
+            return;
+        }
+
+
+        if(shouldContinueTestCaseIteration())
+		{
+            // do the next iteration.
+			runTestCase_Continue();
+		}
+		else
+        {
+            runTestCase_Finalize();
         }
     }
 
@@ -7956,37 +8161,34 @@ namespace test
 
 
 
-class TestAppControllerImplBase
+class TestAppController::Impl
 {
 public:
-	TestAppControllerImplBase()
+	Impl()
 	{
 		_pTestSession = nullptr;
         _pTestRunner = nullptr;
 	}
     
-    virtual ~TestAppControllerImplBase()
+    virtual ~Impl()
     {
     }
-
-
-
-	void init(std::vector<String> args)
+    
+	void beginLaunch(std::vector<String> args)
 	{
         try
         {
             _pTestSession = new bdn::Session;
 
-			initUi();
-			
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
 				argPtrs.push_back( arg.asUtf8Ptr() );
             if(argPtrs.empty())
                 argPtrs.push_back("");
 
-
-			//argPtrs.push_back( "android.ScrollViewCore" );
+            // argPtrs.push_back( "--print-level" );
+			// argPtrs.push_back( "8" );
+			// argPtrs.push_back( "MainDispatcher" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );
@@ -8006,9 +8208,7 @@ public:
 				return;
             }
 
-            _pTestRunner = new TestRunner( &_pTestSession->config() );
-            
-			testRunnerReady();
+            _pTestRunner = new TestRunner( &_pTestSession->config() );            
         }
         catch(...)
         {
@@ -8023,15 +8223,10 @@ public:
 
 	}
 
-	void start()
+	void finishLaunch()
 	{
 		// schedule our first test to be called
 		scheduleNextTest();
-	}
-
-	void deinit()
-	{
-		deinitUi();
 	}
 
 
@@ -8047,63 +8242,18 @@ public:
             return false;
     }
 
-protected:
-	
-	virtual void initUi()
-	{
-	}
-
-	virtual void deinitUi()
-	{
-	}
-
-	virtual void testRunnerReady()
-	{
-	}
-
-	virtual void abortingBecauseOfInvalidCommandLineArguments()
-	{
-	}
-
-	virtual void abortingBecauseJustShowingHelp()
-	{
-	}
-
-	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
-	{
-	}
-
-
-	virtual void finished(int failedCount)
-	{
-	}
-
-	void scheduleNextTest()
-	{
-		asyncCallFromMainThread( std::bind(&TestAppControllerImplBase::runNextTest, this) );
-	}
-
-	void waitAndClose(int exitCode)
-	{
-		asyncCallFromMainThread(
-			[exitCode]()
-			{
-				std::this_thread::sleep_for( std::chrono::duration<int>(5) );
-
-				getAppRunner()->initiateExitIfPossible(exitCode);
-			} );
-	}
-
-	void onTestDone()
+    void onTestDone()
 	{
 		scheduleNextTest();
 	}
+
+    
 
 	void runNextTest()
     {
         try
         {
-            if(_pTestRunner->beginNextTest( std::bind(&TestAppControllerImplBase::onTestDone, this) ) )
+            if(_pTestRunner->beginNextTest( std::bind(&TestAppController::Impl::onTestDone, this) ) )
             {
 				// this was not the last test.
 
@@ -8120,7 +8270,7 @@ protected:
 
 				delete _pTestRunner;
 				_pTestRunner = nullptr;
-
+				
 				waitAndClose(exitCode);
 			}
         }
@@ -8139,6 +8289,48 @@ protected:
         }
     }
 
+protected:
+	
+
+
+	virtual void abortingBecauseJustShowingHelp()
+	{
+	}
+    
+	virtual void abortingBecauseOfInvalidCommandLineArguments()
+	{
+        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Invalid commandline" );
+	}
+
+	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
+	{
+        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Fatal Error: " + errorInfo.toString() );
+	}			
+
+
+	virtual void finished(int failedCount)
+	{
+	}
+
+	void scheduleNextTest()
+	{
+		// note: we use idle priority here to ensure that all pending UI events (like graphics
+		// updates, etc.) have been finished.
+		asyncCallFromMainThreadWhenIdle( std::bind(&TestAppController::Impl::runNextTest, this) );
+	}
+
+	void waitAndClose(int exitCode)
+	{
+		asyncCallFromMainThreadAfterSeconds(
+			5,
+			[exitCode]()
+			{
+				getAppRunner()->initiateExitIfPossible(exitCode);
+			} );
+	}
+
+	
+
 
 protected:
 	Session*    _pTestSession;
@@ -8146,168 +8338,30 @@ protected:
 };
 
 
-class UiTestAppController::Impl : public TestAppControllerImplBase
-{
-public:
 
-
-protected:
-	
-	void initUi() override
-	{
-		// this is just a place holder frame so that we have something visible.
-		_pWindow = newObj<Window>();
-		_pWindow->title() = "Running tests...";
-		_pWindow->visible() = true;
-
-		_pWindow->padding() = UiMargin( UiLength::sem(1) );
-            
-		P<ColumnView> pColumnView = newObj<ColumnView>();
-        _pWindow->setContentView( pColumnView );         
-            
-		_pStatusView = newObj<TextView>();
-
-        pColumnView->addChildView( _pStatusView );
-
-        // we want to see at least 3 lines in our status view.
-        // We also want a minimum width to that at least some text is visible.
-        _pStatusView->preferredSizeMinimum() = Size( _pStatusView->uiLengthToDips(UiLength::em(20)) ,
-                                                     _pStatusView->uiLengthToDips(UiLength::em(3)) );
-
-
-		
-	}
-
-	void deinitUi()  override
-	{
-		_pStatusView = nullptr;
-		_pWindow = nullptr;
-	}
-
-	void testRunnerReady() override
-	{
-		_pStatusView->text().bind( _pTestRunner->statusText() );
-            
-        _pWindow->requestAutoSize();
-        _pWindow->requestCenter();
-	}
-
-	void abortingBecauseOfInvalidCommandLineArguments()  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Invalid commandline";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Invalid commandline";
-	}
-
-	void abortingBecauseJustShowingHelp()  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Done";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Done";
-	}
-
-	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
-	{
-		if(_pWindow!=nullptr)
-			_pWindow->title() = "Fatal Error";
-
-		if(_pStatusView!=nullptr)
-			_pStatusView->text() = "Fatal Error: " + errorInfo.getMessage();
-	}
-
-	void finished(int failedCount)  override
-	{
-		_pWindow->title() = "Done ("+bdn::toString(failedCount)+" failed)";
-	}
-		
-	P<Window>	_pWindow;
-	P<TextView>	_pStatusView;
-};
-
-
-UiTestAppController::UiTestAppController()
+TestAppController::TestAppController()
 {
 	_pImpl = new Impl;
 }
 
-UiTestAppController::~UiTestAppController()
+TestAppController::~TestAppController()
 {
 	delete _pImpl;
 }
 
 
-void UiTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
 {
-	_pImpl->init( launchInfo.getArguments() );
+	_pImpl->beginLaunch( launchInfo.getArguments() );
 }
 
-void UiTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
+void TestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
 {
-	_pImpl->start();
-}
-
-void UiTestAppController::onTerminate()
-{
-	_pImpl->deinit();
-}
-
-void UiTestAppController::unhandledProblem(IUnhandledProblem& problem)
-{
-    if(!_pImpl->unhandledProblem(problem))
-        AppControllerBase::unhandledProblem(problem);
+	_pImpl->finishLaunch();
 }
 
 
-class CommandLineTestAppController::Impl : public TestAppControllerImplBase
-{
-public:
-
-
-protected:
-	
-	void abortingBecauseOfInvalidCommandLineArguments()  override
-	{
-		bdn::cerr() << "Invalid commandline" << std::endl;
-	}
-
-	void abortingBecauseOfException(const ErrorInfo& errorInfo)  override
-	{
-		bdn::cerr() << ("Fatal Error: " + errorInfo.toString().asUtf8()) << std::endl;
-	}			
-};
-
-
-CommandLineTestAppController::CommandLineTestAppController()
-{
-	_pImpl = new Impl;
-}
-
-CommandLineTestAppController::~CommandLineTestAppController()
-{
-	delete _pImpl;
-}
-
-
-void CommandLineTestAppController::beginLaunch(const AppLaunchInfo& launchInfo)
-{
-	_pImpl->init( launchInfo.getArguments() );
-}
-
-void CommandLineTestAppController::finishLaunch(const AppLaunchInfo& launchInfo)
-{
-	_pImpl->start();
-}
-
-void CommandLineTestAppController::onTerminate()
-{
-	_pImpl->deinit();
-}
-
-void CommandLineTestAppController::unhandledProblem(IUnhandledProblem& problem)
+void TestAppController::unhandledProblem(IUnhandledProblem& problem)
 {
     if(!_pImpl->unhandledProblem(problem))
         AppControllerBase::unhandledProblem(problem);

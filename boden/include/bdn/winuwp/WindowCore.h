@@ -227,8 +227,7 @@ public:
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
         if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
-            // XXX
-            OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
+            // OutputDebugString( (String(typeid(*this).name())+".needSizingInfoUpdate()\n" ).asWidePtr() );
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
@@ -243,8 +242,7 @@ public:
         // See ChildViewCore::needLayout for an explanation on why we ignore standard property changes.
         if(reason!=View::InvalidateReason::standardPropertyChanged && reason!=View::InvalidateReason::standardChildPropertyChanged )
         {
-            // XXX
-            OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
+            // OutputDebugString( (String(typeid(*this).name())+".needLayout()\n" ).asWidePtr() );
 
             // we leave the layout coordination up to windows. See doc_input/winuwp_layout.md for more information on why
             // this is.
@@ -378,7 +376,7 @@ public:
     {
         // this is called from uwpMeasureFinalize. Just call the default layout for the window.
         
-        OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
+        // OutputDebugString( (String(typeid(*this).name())+".layout()\n").asWidePtr() );
         
         P<Window> pOuter = _outerWindowWeak.toStrong();
         if(pOuter!=nullptr)
@@ -389,8 +387,7 @@ public:
             defaultWindowLayoutImpl(pOuter, contentArea);
         }
 
-        // XXX
-        OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
+        // OutputDebugString( ("/"+String(typeid(*this).name())+".layout()\n").asWidePtr() );
     }
     
     
@@ -606,8 +603,7 @@ private:
 
         Size uwpMeasureOverride(const Size& availableSpace ) override
         {
-            // XXX
-            OutputDebugString( String( "Window.TopContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
+            // OutputDebugString( String( "Window.TopContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
 
             AutoCleaningWindowIterator it( _windowWeakList );
             P<Window> pWindow;
@@ -621,7 +617,7 @@ private:
                 }
             }
 
-            OutputDebugString( String( "/Window.TopContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );
+            // OutputDebugString( String( "/Window.TopContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );
 
 			// IMPORTANT:
 			// In contrast to the documentation, UI elements cannot be made smaller than their DesiredSize
@@ -636,7 +632,7 @@ private:
         
         void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
         {
-            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
+            //OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
 
             AutoCleaningWindowIterator it( _windowWeakList );
             P<Window> pWindow;
@@ -646,8 +642,7 @@ private:
         
         Size uwpArrangeOverride(const Size& finalSize ) override
         {
-            // XXX
-            OutputDebugString( String( "Window.TopContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
+            //OutputDebugString( String( "Window.TopContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             Rect contentContainerRect( Point(0,0), finalSize);
 
@@ -663,8 +658,7 @@ private:
                 }
             }
 
-            // XXX
-            OutputDebugString( String( "/Window.TopContainerLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
+            // OutputDebugString( String( "/Window.TopContainerLayoutDelegate.arrangeOverride()\n" ).asWidePtr() );
 
             return finalSize;
         }
@@ -688,10 +682,9 @@ private:
 
         Size uwpMeasureOverride(const Size& availableSpace ) override
         {
-             // XXX
-            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
+            //OutputDebugString( String( "Window.ContentContainerLayoutDelegate.measureOverride("+std::to_string(availableSpace.width)+", "+std::to_string(availableSpace.height)+")\n" ).asWidePtr() );
             
-            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );            
+            //OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.measureOverride\n" ).asWidePtr() );            
 
             return Size(0,0);
         }
@@ -699,19 +692,18 @@ private:
         
 	    void finalizeUwpMeasure(const Size& lastMeasureAvailableSpace) override
         {            
-            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
+            // OutputDebugString( String( "Window.ContentContainerLayoutDelegate.finalizeUwpMeasure("+std::to_string(lastMeasureAvailableSpace.width)+", "+std::to_string(lastMeasureAvailableSpace.height)+")\n" ).asWidePtr() );
             
             P<Window> pWindow = _windowWeak.toStrong();
             if(pWindow!=nullptr)
                 defaultFinalizeUwpMeasure(pWindow, lastMeasureAvailableSpace);
                         
-            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.finalizeUwpMeasure\n" ).asWidePtr() );            
+            // OutputDebugString( String( "/Window.ContentContainerLayoutDelegate.finalizeUwpMeasure\n" ).asWidePtr() );            
         }
         
         Size uwpArrangeOverride(const Size& finalSize ) override
         {
-            // XXX
-            OutputDebugString( String( "Window.ContentContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
+            // OutputDebugString( String( "Window.ContentContainerLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             P<Window> pWindow = _windowWeak.toStrong();
 
@@ -721,8 +713,7 @@ private:
                 defaultArrangeOverride( pWindow, finalSize);
             }
 
-            // XXX
-            OutputDebugString( String( "/Window.ContentContainerLayoutDelegate()\n" ).asWidePtr() );
+            // OutputDebugString( String( "/Window.ContentContainerLayoutDelegate()\n" ).asWidePtr() );
 
             return finalSize;
         }

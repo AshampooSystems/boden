@@ -5,6 +5,7 @@
 
 #include <bdn/log.h>
 #include <bdn/LayoutCoordinator.h>
+#include <bdn/ViewTextUi.h>
 
 #include <gtk/gtk.h>
 
@@ -37,13 +38,18 @@ public:
     }
 
 
-	
+	P<ITextUi> getTextUi() override;
+    
     static UiProvider& get();
     
 private:
     double _semDips;
     
     P<LayoutCoordinator> _pLayoutCoordinator;
+    
+    Mutex                _textUiInitMutex;
+    P<ViewTextUi>        _pTextUi;
+
 };
 
 }

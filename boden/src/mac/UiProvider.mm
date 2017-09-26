@@ -5,6 +5,8 @@
 #import <Cocoa/Cocoa.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
+#include <bdn/IAppRunner.h>
+#include <bdn/StdioUiProvider.h>
 
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
@@ -15,9 +17,16 @@
 namespace bdn
 {
     
-P<IUiProvider> getPlatformUiProvider()
+P<IUiProvider> getDefaultUiProvider()
 {
-    return &bdn::mac::UiProvider::get();
+    if( getAppRunner()->isCommandLineApp() )
+    {
+        static P< StdioUiProvider<char> > pProvider( newObj< StdioUiProvider<char> >(&std::cin, &std::cout, &std::cerr) );
+        
+        return pProvider;
+    }
+    else
+        return &bdn::mac::UiProvider::get();
 }
     
 }
@@ -43,6 +52,18 @@ String UiProvider::getName() const
 {
     return "mac";
 }
+    
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        MutexLock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+            _pTextUi = newObj< ViewTextUi >();
+    }
+    
+    return _pTextUi;
+}
+
     
 P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 {

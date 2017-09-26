@@ -145,7 +145,7 @@ void defaultWindowAutoSizeImpl(Window* pWindow, const Size& screenWorkAreaSize)
 
     Rect adjustedBounds = pWindow->adjustBounds( Rect( pWindow->position(), Size(width, height) ), RoundType::nearest, RoundType::up );
 
-    pWindow->adjustAndSetBounds(adjustedBounds);
+    pWindow->adjustAndSetBounds(adjustedBounds);    
 }
 
 void defaultWindowCenterImpl(Window* pWindow, const Rect& screenWorkArea)

@@ -30,7 +30,7 @@ namespace bdn
     usually do not need to be concerned with threading issues.
     
     More detailed information about the implementation of the Notifier class and the design decisions
-    can be found here: \ref notifier_internals
+    can be found here: \ref notifier_internals.md
 
 	Example:
 

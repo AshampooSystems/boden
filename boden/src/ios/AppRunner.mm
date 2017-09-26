@@ -149,6 +149,12 @@ static void _globalUnhandledNSException(NSException* exception)
     }
 }
 
+bool AppRunner::isCommandLineApp() const
+{
+    // iOS does not support commandline apps.
+    return false;
+}
+
 int AppRunner::entry(int argCount, char* args[])
 {
     NSSetUncaughtExceptionHandler( &_globalUnhandledNSException );

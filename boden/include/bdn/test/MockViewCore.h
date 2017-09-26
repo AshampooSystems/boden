@@ -4,6 +4,7 @@
 #include <bdn/IViewCore.h>
 #include <bdn/Dip.h>
 #include <bdn/test/MockUiProvider.h>
+#include <bdn/round.h>
 
 #include <bdn/test.h>
 
@@ -35,7 +36,8 @@ public:
         _preferredSizeHint = pView->preferredSizeHint();
         _preferredSizeMinimum = pView->preferredSizeMinimum();
         _preferredSizeMaximum = pView->preferredSizeMaximum();
-        _bounds = Rect( pView->position(), pView->size() );
+        // the bounds should not be copied from the outer object - a layout cycle must happen to initialize it.
+        // _bounds = Rect( pView->position(), pView->size() );
 		_pParentViewWeak = pView->getParentView();
 	}
 
@@ -126,13 +128,81 @@ public:
 	}
 
 
-	Size _getTextSize(const String& s) const
+	Size _getTextSize(const String& s, double wrapWidth = std::numeric_limits<double>::infinity() ) const
 	{
-		// our fake font has a size of 9.75 x 19 2/3 DIPs for each character.
+		String remaining(s);
 
-        // round width to the next "pixel"
-        double width = std::ceil( s.getLength()*9.75 * 3 ) / 3;
-        double height = 19 + 2.0/3;
+        // normalize line breaks
+        remaining.findReplace("\r\n", "\n");
+
+        // our fake font has a size of 9.75 x 19 2/3 DIPs for each character.
+        double charWidth = 9.75;
+        double charHeight = 19 + 2.0/3;
+
+        int maxLineChars = -1;
+        if( std::isfinite(wrapWidth) )
+        {
+            // round the wrap width down to full mock pixels
+            wrapWidth = Dip::pixelAlign(wrapWidth, 3, RoundType::down );
+            
+            maxLineChars = static_cast<int>( std::floor(wrapWidth / charWidth) );
+
+            if(maxLineChars<=0)
+                maxLineChars = 1;
+        }
+        
+        int     lineCount = 0;
+        double  width = 0;
+        do
+        {
+            String line = remaining.splitOffToken("\n", true, nullptr);
+
+            do
+            {
+                lineCount++;
+
+                size_t lineChars = line.getLength();
+
+                if(maxLineChars!=-1 && lineChars > (size_t)maxLineChars)
+                {
+                    // find the break point.
+                    // Note that if there is a whitespace just FOLLOWING the maximum number of
+                    // chars then we want to break there. So we start searching from that point
+                    // backwards.
+                    size_t lastWhitespaceIndex = line.reverseFindOneOf(" \t", maxLineChars);
+                    if(lastWhitespaceIndex==String::npos)
+                    {
+                        // no white space found.
+                        lineChars = maxLineChars;
+                    }
+                    else
+                    {
+                        // break before whitespace
+                        lineChars = lastWhitespaceIndex;
+                    }
+                }
+
+                
+                double lineWidth = Dip::pixelAlign(lineChars*charWidth, 3, RoundType::up );
+                width = std::max(width, lineWidth);
+
+                line = line.subString( lineChars );
+
+                if(!line.isEmpty() )
+                {
+                    char32_t firstChar = line[0];
+
+                    // if we auto-wrap to a new line and that line begins with a whitespace
+                    // then we do not print it.
+                    if(firstChar==' ' || firstChar=='\t')
+                        line = line.subString(1);
+                }
+            }
+            while( ! line.isEmpty() );
+        }
+        while( ! remaining.isEmpty() );
+                
+        double height = lineCount * charHeight;
 
 		return Size( width, height );
 	}

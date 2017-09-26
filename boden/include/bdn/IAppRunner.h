@@ -41,6 +41,19 @@ public:
 	virtual const AppLaunchInfo& getLaunchInfo() const=0;
 
 
+    /** Returns true if the application is a commandline / terminal application
+        (also sometimes called "console application").
+    
+        Commandline applications usualy use stdio (STDOUT / std::cout, etc.) to interact with the user.
+        They are not supported on all platforms.
+
+        On platforms that support both commandline and graphical apps, the compile
+        definition BDN_COMPILING_COMMANDLINE_APP can be set when compiling the application
+        to select which type of application one wants to build.
+
+        */
+    virtual bool isCommandLineApp() const=0;
+
 
     /** Returns the main dispatcher that is responsible handling app events
         and scheduling of work items.*/

@@ -3,6 +3,7 @@
 
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/debug.h>
+#include <bdn/AppControllerBase.h>
 
 namespace bdn
 {
@@ -12,7 +13,7 @@ Window::Window(IUiProvider* pUiProvider)
 	// windows are invisible by default
 	_visible = false;
 
-	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : getDefaultUiProvider().getPtr();
+	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : AppControllerBase::get()->getUiProvider().getPtr();
 
 	initProperty<String, IWindowCore, &IWindowCore::setTitle, (int)PropertyInfluence_::none>(_title);
 

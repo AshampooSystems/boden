@@ -28,6 +28,11 @@ UiAppRunner::UiAppRunner( std::function< P<AppControllerBase>() > appControllerC
 {        
 }
 
+bool UiAppRunner::isCommandLineApp() const
+{
+    return false;
+}
+
 int UiAppRunner::entry()
 {
     gtk_init(NULL, NULL);

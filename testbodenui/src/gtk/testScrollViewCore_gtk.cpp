@@ -5,6 +5,7 @@
 #include <bdn/test/TestScrollViewCore.h>
 #include <bdn/gtk/UiProvider.h>
 #include <bdn/gtk/ScrollViewCore.h>
+#include <bdn/gtk/WindowCore.h>
 #include "TestGtkViewCoreMixin.h"
 
 
@@ -170,13 +171,18 @@ protected:
     }
                 
                 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize );
+        Size adjustedSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest ).getSize();
 
-        _pScrollView->adjustAndSetBounds(newBounds);
+        _pScrollView->preferredSizeMinimum() = adjustedSize;
+        _pScrollView->preferredSizeMaximum() = adjustedSize;
+        
+        _pWindow->requestAutoSize();
+
+        return adjustedSize;
     }
+    
 
     void verifyScrollsHorizontally( bool expectedScrolls ) override
     {

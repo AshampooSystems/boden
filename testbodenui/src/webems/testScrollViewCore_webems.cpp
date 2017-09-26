@@ -67,13 +67,20 @@ protected:
     
 
 
-    void initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
-        // resize the scroll view so that it has exactly the desired scroll view size
+        Size adjustedSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest ).getSize();
 
-        bdn::Rect newBounds( _pScrollView->position(), viewPortSize );
+        _pScrollView->preferredSizeMinimum() = adjustedSize;
+        _pScrollView->preferredSizeMaximum() = adjustedSize;
 
-        _pScrollView->adjustAndSetBounds(newBounds);
+        // also request a re-layout here. With the normal propagation of the property changes
+        // it would take two event cycles until the layout happens. But we want it to happen
+        // immediately after the properties have been changed.
+        _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );
+
+        return adjustedSize;
+
     }
 
     Size getScrolledAreaSize()
