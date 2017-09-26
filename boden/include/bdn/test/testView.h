@@ -47,12 +47,19 @@ public:
 
     P< ViewWithTestExtensions<ViewType> > createView()
     {
-        P< ViewWithTestExtensions<ViewType> > pView = newObj< ViewWithTestExtensions<ViewType> >();
-
-		_initViewTestPreparerTestView<ViewType>(pView);
+        P< ViewWithTestExtensions<ViewType> > pView = createViewWithoutParent();
 
         _pWindow->setContentView(pView);
 
+        return pView;
+    }
+    
+    P< ViewWithTestExtensions<ViewType> > createViewWithoutParent()
+    {
+        P< ViewWithTestExtensions<ViewType> > pView = newObj< ViewWithTestExtensions<ViewType> >();
+        
+        _initViewTestPreparerTestView<ViewType>(pView);
+        
         return pView;
     }
 
@@ -89,12 +96,17 @@ public:
 
     P< ViewWithTestExtensions<Window> > createView()
     {
+        return createViewWithoutParent();
+    }
+    
+    P< ViewWithTestExtensions<Window> > createViewWithoutParent()
+    {
         P<ViewWithTestExtensions<Window> > pWindow = newObj< ViewWithTestExtensions<Window> >( _pUiProvider );
-
-		_initViewTestPreparerTestView<Window>(pWindow);
-
+        
+        _initViewTestPreparerTestView<Window>(pWindow);
+        
         _pWindow = pWindow;
-
+        
         return pWindow;
     }
 
@@ -353,6 +365,34 @@ inline void testView()
 
 		BDN_REQUIRE( pPreparer->getUiProvider()->getCoresCreated()==initialCoresCreated );
 	}
+    
+    SECTION("without parent")
+    {
+        // we test the view before the core is created (i.e. before it has a parent).
+        P<ViewType> pView = pPreparer->createViewWithoutParent();
+        
+        if( tryCast<Window>(pView) == nullptr)
+        {
+            SECTION("core null")
+                REQUIRE( pView->getViewCore()==nullptr );
+        }
+        
+        SECTION("parent null")
+            REQUIRE( pView->getParentView()==nullptr );
+        
+        SECTION("calcPreferredSize")
+            REQUIRE( pView->calcPreferredSize() == Size(0,0) );
+        
+        SECTION("adjustBounds")
+            REQUIRE( pView->adjustBounds( Rect(1, 2, 3, 4), RoundType::nearest, RoundType::nearest ) == Rect(1, 2, 3, 4) );
+        
+        SECTION("adjustAndSetBounds")
+        {
+            REQUIRE( pView->adjustAndSetBounds(Rect(1, 2, 3, 4) ) == Rect(1, 2, 3, 4) );
+            REQUIRE( pView->position() == Point(1, 2) );
+            REQUIRE( pView->size() == Size(3, 4) );
+        }
+    }
 
 	P< ViewWithTestExtensions<ViewType> > pView = pPreparer->createView();
 	BDN_REQUIRE( pPreparer->getUiProvider()->getCoresCreated()==initialCoresCreated+1 );

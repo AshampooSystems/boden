@@ -71,10 +71,22 @@ Rect View::adjustAndSetBounds(const Rect& requestedBounds)
 
     Rect adjustedBounds;
     if(pCore!=nullptr)
+    {
         adjustedBounds = pCore->adjustAndSetBounds(requestedBounds);
+        
+        if( !std::isfinite(adjustedBounds.width)
+           || !std::isfinite(adjustedBounds.height)
+           || !std::isfinite(adjustedBounds.x)
+           || !std::isfinite(adjustedBounds.y) )
+        {
+            // the preferred size MUST be finite.
+            IViewCore* pCorePtr = pCore;
+            programmingError( String( typeid(*pCorePtr).name() )+".adjustAndSetBounds returned a non-finite value: "+std::to_string(adjustedBounds.x)+" , "+std::to_string(adjustedBounds.y)+" "+std::to_string(adjustedBounds.width)+" x "+std::to_string(adjustedBounds.height));
+        }
+    }
     else
         adjustedBounds = requestedBounds;
-
+    
     // update the position and size properties.
     // Note that the property changes will automatically cause our propertyChanged method
     // to be called, which will schedule any additional operations that should follow
@@ -92,7 +104,21 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
     P<const IViewCore> pCore = getViewCore();
 
     if(pCore!=nullptr)
-        return pCore->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
+    {
+        Rect adjustedBounds = pCore->adjustBounds(requestedBounds, positionRoundType, sizeRoundType);
+        
+        if( !std::isfinite(adjustedBounds.width)
+           || !std::isfinite(adjustedBounds.height)
+           || !std::isfinite(adjustedBounds.x)
+           || !std::isfinite(adjustedBounds.y) )
+        {
+            // the adjusted bounds MUST be finite.
+            const IViewCore* pCorePtr = pCore;
+            programmingError( String( typeid(*pCorePtr).name() )+".adjustBounds returned a non-finite value: "+std::to_string(adjustedBounds.x)+" , "+std::to_string(adjustedBounds.y)+" "+std::to_string(adjustedBounds.width)+" x "+std::to_string(adjustedBounds.height));
+        }
+        
+        return adjustedBounds;
+    }
     else
         return requestedBounds;
 }
@@ -457,10 +483,20 @@ Size View::calcPreferredSize( const Size& availableSpace ) const
 		if(pCore!=nullptr)
 		{
 			preferredSize = pCore->calcPreferredSize( availableSpace );
+            
+            if( !std::isfinite(preferredSize.width) || !std::isfinite(preferredSize.height) )
+            {
+                // the preferred size MUST be finite.
+                IViewCore* pCorePtr = pCore;
+                programmingError( String( typeid(*pCorePtr).name() )+".calcPreferredSize returned a non-finite value: "+std::to_string(preferredSize.width)+" x "+std::to_string(preferredSize.height));
+            }
+            
 			_preferredSizeManager.set( availableSpace, preferredSize );
 		}
+        else
+            preferredSize = Size();
 	}
-
+    
 	return preferredSize;
 }
 
