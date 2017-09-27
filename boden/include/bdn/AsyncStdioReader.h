@@ -7,31 +7,6 @@
 namespace bdn
 {
 	
-template<class CharType>
-class AsyncStdioReaderEncodingHelper_
-{
-public:
-
-    static String decodeString( const std::basic_string<CharType>& s, std::locale loc )
-    {
-        // the locale is not needed for most string types. See below for char specialization.
-        return String(s);
-    }
-    
-};
-
-
-template<>
-class AsyncStdioReaderEncodingHelper_<char>
-{
-public:
-    
-    static String decodeString( const std::basic_string<char>& s, std::locale loc )
-    {
-        return String::fromLocaleEncoding( s.c_str(), loc );
-    }
-};
-
 
 /** Implements asynchronous reading from a std::basic_istream.
 */
@@ -111,12 +86,8 @@ private:
 
             std::getline(*_pStream, l);
 
-            
-            return AsyncStdioReaderEncodingHelper_<CharType>::decodeString(l, _pStream->getloc() );
-        }
-
-    private:       
-        
+            return String::fromLocaleEncoding(l, _pStream->getloc() );
+        }        
       
     private:
         std::basic_istream<CharType>* _pStream;

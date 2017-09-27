@@ -46,75 +46,31 @@ public:
     }
 
 	
-	P< IAsyncOp<void> >  write(const String& s) override
+	void write(const String& s) override
     {
         _writtenChunks.push_back(s);
-
-        return newObj<DummyWriteOp>();
     }
 
 	
-	P< IAsyncOp<void> > writeLine(const String& s) override
+	void writeLine(const String& s) override
     {
         _writtenChunks.push_back(s+"\n");
-
-        return newObj<DummyWriteOp>();
     }
 
 
-	P< IAsyncOp<void> > writeError(const String& s) override
+	void writeError(const String& s) override
     {
         _writtenErrorChunks.push_back(s);
-
-        return newObj<DummyWriteOp>();
     }
 	
     
-	P< IAsyncOp<void> > writeErrorLine(const String& s) override
+	void writeErrorLine(const String& s) override
     {
         _writtenErrorChunks.push_back(s+"\n");
-
-        return newObj<DummyWriteOp>();
     }
 
 private:
     
-    class DummyWriteOp : public Base, BDN_IMPLEMENTS IAsyncOp<void>
-    {
-    public:          
-        DummyWriteOp()
-        {            
-            _pDoneNotifier = newObj< OneShotStateNotifier< P<IAsyncOp<void>> > >();
-
-            // immediately done
-            _pDoneNotifier->postNotification( this );
-        }
-
-        void getResult() const
-        {
-            // cannot fail
-        }
-
-        void signalStop()
-        {
-            // do nothing - cannot be aborted
-        }
-
-        bool isDone() const
-        {
-            // done immediately
-            return true;
-        }
-
-        
-        INotifier< P<IAsyncOp> >& onDone() const
-        {
-            return *_pDoneNotifier;
-        }
-
-    protected:
-        P< OneShotStateNotifier< P<IAsyncOp<void>> > > _pDoneNotifier;
-    };
 
     std::vector< String > _writtenChunks;
     std::vector< String > _writtenErrorChunks;

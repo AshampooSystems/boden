@@ -8,53 +8,6 @@ namespace bdn
 {
 
 
-template<class CharType>
-class AsyncStdioWriterEncodingHelper_
-{
-public:
-    static std::basic_string<CharType> encodeString( const String& s, std::locale loc );
-};
-
-template<>
-class AsyncStdioWriterEncodingHelper_<char>
-{
-public:
-    static std::basic_string<char> encodeString( const String& s, std::locale loc )
-    {
-        return s.toLocaleEncoding( loc );
-    }
-};
-
-template<>
-class AsyncStdioWriterEncodingHelper_<wchar_t>
-{
-public:
-    static std::basic_string<wchar_t> encodeString( const String& s, std::locale loc )
-    {
-        return s.asWide();
-    }
-};
-
-template<>
-class AsyncStdioWriterEncodingHelper_<char16_t>
-{
-public:
-    static std::basic_string<char16_t> encodeString( const String& s, std::locale loc )
-    {
-        return s.asUtf16();
-    }
-};
-
-    
-template<>
-class AsyncStdioWriterEncodingHelper_<char32_t>
-{
-public:
-    static std::basic_string<char32_t> encodeString( const String& s, std::locale loc )
-    {
-        return s.asUtf32();
-    }
-};
 	
 
 /** Implements asynchronous writing to a std::basic_ostream.
@@ -169,7 +122,7 @@ private:
     protected:        
         void doOp() override
         {
-            (*_pStream) << AsyncStdioWriterEncodingHelper_<CharType>::encodeString( _textToWrite, _pStream->getloc());
+            (*_pStream) << _textToWrite.toLocaleEncoding<CharType>(_pStream->getloc());
             if(_flush)
                 _pStream->flush();
         }

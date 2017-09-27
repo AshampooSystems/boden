@@ -400,19 +400,116 @@ public:
 
 
 
-	/** Static construction method. Initializes the String object from a C-style
+	/** Static construction method. Creates a String object from a C-style
 		string in the locale-dependent multibyte encoding.*/
 	static StringImpl fromLocaleEncoding(const char* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
 	{
 		return localeEncodingToWide( (lengthElements==toEnd) ? std::string(s) : std::string(s, lengthElements), loc );
 	}
 
-	/** Static construction method. Initializes the String object from a std::string
+	/** Static construction method. Creates a String object from a std::string
 	in the locale-dependent multibyte encoding.*/
 	static StringImpl fromLocaleEncoding(const std::string& s, const std::locale& loc = std::locale() )
 	{
 		return localeEncodingToWide( s, loc );
 	}
+
+
+    /** Static construction method. Creates a String object from a C-style
+		wchar_t string.
+
+        This function behaves identical to the normal StringImpl(const wchar_t*) constructor.
+        Since the wide char encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.
+        
+        */
+	static StringImpl fromLocaleEncoding(const wchar_t* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
+	{
+		return StringImpl(s, lengthElements);
+	}
+
+    /** Static construction method. Creates a String object from a std::wstring object
+
+        This function behaves identical to the normal StringImpl(const std::wstring&) constructor.
+        Since the wide char encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.        
+        */
+	static StringImpl fromLocaleEncoding(const std::wstring& s, const std::locale& loc = std::locale() )
+	{
+		return StringImpl(s);
+	}
+
+
+
+
+    /** Static construction method. Creates a String object from a C-style
+		char16_t string.
+
+        This function behaves identical to the normal StringImpl(const char16_t*) constructor.
+        Since the UTF16 encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.
+        
+        */
+	static StringImpl fromLocaleEncoding(const char16_t* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
+	{
+		return StringImpl(s, lengthElements);
+	}
+
+    /** Static construction method. Creates a String object from a std::u16string object
+
+        This function behaves identical to the normal StringImpl(const std::u16string&) constructor.
+        Since the UTF16 encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.        
+        */
+	static StringImpl fromLocaleEncoding(const std::u16string& s, const std::locale& loc = std::locale() )
+	{
+		return StringImpl(s);
+	}
+
+
+
+    /** Static construction method. Creates a String object from a C-style
+		char32_t string.
+
+        This function behaves identical to the normal StringImpl(const char32_t*) constructor.
+        Since the UTF32 encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.
+        
+        */
+	static StringImpl fromLocaleEncoding(const char32_t* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
+	{
+		return StringImpl(s, lengthElements);
+	}
+
+    /** Static construction method. Creates a String object from a std::u32string object
+
+        This function behaves identical to the normal StringImpl(const std::u32string&) constructor.
+        Since the UTF32 encoding is independent of the locale, the loc parameter has no effect
+        and is ignored.
+
+        This function is only provided for convenience, so that fromLocaleEncoding can be used with
+        all character types, not just with char.        
+        */
+	static StringImpl fromLocaleEncoding(const std::u32string& s, const std::locale& loc = std::locale() )
+	{
+		return StringImpl(s);
+	}
+    
 
 
 	/** Returns true if the string is empty (i.e. if its length is 0).*/
@@ -932,20 +1029,25 @@ public:
 
 
 
-	/** Returns a copy of the string as a std::string object in the specified
-		locale's multibyte encoding.
+	/** Returns a copy of the string as a std::string / std::basic_string object
+        for the indicated locale.
 
-		If the locale is not specified then the global locale is used.
+        The locale's encoding only influences the result if the template parameter CharType
+        is char. In that case the locale's multibyte encoding is used.
+
+        Other possible values for CharType are wchar_t, char16_t and char32_t. In each case
+        the corresponding std string object is returned (std::wstring, std::u16string, std::u32string).
+        The encoding does NOT depend on the locale for these.
+
+		If the locale is not explicitly specified then the global locale is used.
 
 		Note that in contrast to the asXYZ conversion routines this function always
 		returns a new copy of the data.
 	*/
-	std::string toLocaleEncoding(const std::locale& loc = std::locale()) const
+    template<typename CharType = char>
+	std::basic_string<CharType> toLocaleEncoding(const std::locale& loc = std::locale()) const
 	{
-		// note: we must use the wide char encoding as a basis, because that is the
-		// only facet provided by the locale object that converts to the locale-specific
-		// multibyte encoding. All other facets only convert to UTF-8.
-		return wideToLocaleEncoding(asWide(), loc);
+        return _toLocaleEncodingImpl((const CharType*)0, loc);		
 	}
 
 	/** Compares this string with the specified other string.
@@ -6256,6 +6358,32 @@ protected:
 	};
 	friend struct Modify;
 
+
+    std::string _toLocaleEncodingImpl(const char*, const std::locale& loc) const
+    {
+        // note: we must use the wide char encoding as a basis, because that is the
+		// only facet provided by the locale object that converts to the locale-specific
+		// multibyte encoding. All other facets only convert to UTF-8.
+		return wideToLocaleEncoding(asWide(), loc);
+    }
+
+    const std::wstring& _toLocaleEncodingImpl(const wchar_t*, const std::locale& loc) const
+    {
+        // the locale does not influence the wide char encoding
+        return asWide();
+    }
+
+    const std::u16string& _toLocaleEncodingImpl(const char16_t*, const std::locale& loc) const
+    {
+        // the locale does not influence the UTF-16 encoding
+        return asUtf16();
+    }
+
+    const std::u32string& _toLocaleEncodingImpl(const char32_t*, const std::locale& loc) const
+    {
+        // the locale does not influence the UTF-32 encoding
+        return asUtf32();
+    }
 
 	mutable P<MainDataType>	_pData;
 	mutable Iterator		_beginIt;

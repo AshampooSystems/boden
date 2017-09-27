@@ -145,116 +145,118 @@ public:
 
 
         SECTION("writeLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n", &_outStream, holdOpReference );
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n", &_outStream );
 
         SECTION("write")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "", &_outStream, holdOpReference );
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "", &_outStream );
 
         SECTION("writeErrorLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n", &_errStream, holdOpReference );
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n", &_errStream );
 
         SECTION("writeError")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "", &_errStream, holdOpReference );
+            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "", &_errStream );
     }
     
 
-    void testWrite(std::function< P<IAsyncOp<void>>(String) > writeFunc, String expectedWriteSuffix, std::basic_stringstream<CharType>* pStream, bool holdOpReference)
+    void testWrite(std::function< void(String) > writeFunc, String expectedWriteSuffix, std::basic_stringstream<CharType>* pStream)
     {
         P<TestStdioTextUiFixture> pThis = this;
 
         SECTION("sequential")
         {
-            P<IAsyncOp<void>> pOp = writeFunc("first");
+            writeFunc("first");
 
-            P<IAsyncOp<void>> pCaptureOp = holdOpReference ? pOp : nullptr;
+            REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix );
 
-            pOp->onDone() += [pCaptureOp, pThis, writeFunc, pStream, expectedWriteSuffix, holdOpReference]( P<IAsyncOp<void>> pParamOp )
-            {
-                REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix );
-                if(pCaptureOp!=nullptr)
-                    pCaptureOp->getResult();
-                pParamOp->getResult();
-                REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix );
+            writeFunc("second");
 
-                P<IAsyncOp<void>> pOp2 = writeFunc("second");
+            REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix );
 
-                P<IAsyncOp<void>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
-
-                pOp2->onDone() += [pCaptureOp2, pThis, writeFunc, pStream, expectedWriteSuffix, holdOpReference]( P<IAsyncOp<void>> pParamOp)
-                {
-                    REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix );
-                    if(pCaptureOp2!=nullptr)
-                        pCaptureOp2->getResult();
-                    pParamOp->getResult();
-                    REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix );
-
-                    P<IAsyncOp<void>> pOp3 = writeFunc("third");
-
-                    P<IAsyncOp<void>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
-
-                    pOp3->onDone() += [pCaptureOp3, pThis, writeFunc, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
-                    {
-                        REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-                        if(pCaptureOp3!=nullptr)
-                            pCaptureOp3->getResult();
-                        pParamOp->getResult();
-                        REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-
-                        pThis->_finished = true;
-                    };
-                };
-            };
-
+            writeFunc("third");
+            REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
+                        
+            pThis->_finished = true;
 
             scheduleFinishTest();
         }
 
-        SECTION("parallel")
+#if BDN_HAVE_THREADS
+        SECTION("multithreaded")
         {
-            P<IAsyncOp<void>> pOp = writeFunc("first");
-            P<IAsyncOp<void>> pOp2 = writeFunc("second");
-            P<IAsyncOp<void>> pOp3 = writeFunc("third");
-
-            P<IAsyncOp<void>> pCaptureOp = holdOpReference ? pOp : nullptr;
-            P<IAsyncOp<void>> pCaptureOp2 = holdOpReference ? pOp2 : nullptr;
-            P<IAsyncOp<void>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
-
-            pOp->onDone() += [pCaptureOp, pThis, pStream](P<IAsyncOp<void>> pParamOp)
-            {
-                if(pCaptureOp!=nullptr)
-                    pCaptureOp->getResult();
-                pParamOp->getResult();
-
-                REQUIRE( pThis->_finishedOpCounter==0);
-                pThis->_finishedOpCounter++;                    
-            };
-
-            pOp2->onDone() += [pCaptureOp2, pThis, pStream](P<IAsyncOp<void>> pParamOp)
-            {
-                if(pCaptureOp2!=nullptr)
-                    pCaptureOp2->getResult();
-                pParamOp->getResult();
-
-                REQUIRE( pThis->_finishedOpCounter==1);
-                pThis->_finishedOpCounter++;
-            };
-
-            pOp3->onDone() += [pCaptureOp3, pThis, pStream, expectedWriteSuffix](P<IAsyncOp<void>> pParamOp)
-            {
-                REQUIRE( pThis->_finishedOpCounter==2);
-
-                REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-                if(pCaptureOp3!=nullptr)
-                    pCaptureOp3->getResult();
-                pParamOp->getResult();
-                REQUIRE( String(pStream->str())=="first"+expectedWriteSuffix+"second"+expectedWriteSuffix+"third"+expectedWriteSuffix );
-
-                pThis->_finishedOpCounter++;
-                pThis->_finished = true;
-            };
+            P<Signal> pSignal = newObj<Signal>();
             
-            scheduleFinishTest();
+            std::future<void> thread1Result = Thread::exec(
+                [writeFunc, pSignal]()
+                {
+                    pSignal->wait();
+                    writeFunc(",first");
+                } );
+
+            std::future<void> thread2Result = Thread::exec(
+                [writeFunc, pSignal]()
+                {
+                    pSignal->wait();
+                    writeFunc(",second");
+                } );
+
+            std::future<void> thread3Result = Thread::exec(
+                [writeFunc, pSignal]()
+                {
+                    pSignal->wait();
+                    writeFunc(",third");
+                } );
+
+            // wait a little to ensure that all three threads are waiting on
+            // out signal.
+            Thread::sleepMillis(1000);
+
+            // set the signal to start all three operations at the same time
+            pSignal->set();
+
+            // wait for all threads to finish
+            thread1Result.get();
+            thread2Result.get();
+            thread3Result.get();
+
+            String result( pStream->str() );
+
+            REQUIRE( result.startsWith(",") );
+            result = result.subString(1);
+
+            bool gotFirst = false;
+            bool gotSecond = false;
+            bool gotThird = false;
+
+            char32_t lastSep=1;
+
+            while(!result.isEmpty())
+            {
+                String token = result.splitOffToken(",", true, &lastSep);
+                if(token=="first"+expectedWriteSuffix)
+                {
+                    REQUIRE( !gotFirst );
+                    gotFirst = true;
+                }
+                if(token=="second"+expectedWriteSuffix)
+                {
+                    REQUIRE( !gotSecond );
+                    gotSecond = true;
+                }
+
+                if(token=="third"+expectedWriteSuffix)
+                {
+                    REQUIRE( !gotThird );
+                    gotThird = true;
+                }
+            }
+
+            REQUIRE( gotFirst );
+            REQUIRE( gotSecond );
+            REQUIRE( gotThird );
+
+            REQUIRE( lastSep==0 );
         }
+#endif
     }
 
     void scheduleFinishTest()

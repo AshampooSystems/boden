@@ -38,7 +38,7 @@ P< IAsyncOp<String> > ViewTextUi::readLine()
 }
 
     
-P< IAsyncOp<void> > ViewTextUi::write(const String& s)
+void ViewTextUi::write(const String& s)
 {
     MutexLock lock(_mutex);
 
@@ -64,31 +64,25 @@ P< IAsyncOp<void> > ViewTextUi::write(const String& s)
             // linebreak was found => finish current paragraph.
             _pCurrParagraphView = nullptr;
         }
-    }
-    
-    P<WriteOp> pOp = newObj<WriteOp>();
-    // immediately done
-    pOp->onDone().postNotification( pOp );
-
-    return pOp;
+    }    
 }
 
 
-P< IAsyncOp<void> > ViewTextUi::writeLine(const String& s)
+void ViewTextUi::writeLine(const String& s)
 {
-    return write(s+"\n");
+    write(s+"\n");
 }
 
 
-P< IAsyncOp<void> > ViewTextUi::writeError(const String& s)
+void ViewTextUi::writeError(const String& s)
 {
-    return write(s);
+    write(s);
 }
 	
     
-P< IAsyncOp<void> > ViewTextUi::writeErrorLine(const String& s)
+void ViewTextUi::writeErrorLine(const String& s)
 {
-    return writeLine(s);
+    writeLine(s);
 }
 
 

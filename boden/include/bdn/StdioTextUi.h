@@ -24,12 +24,9 @@ public:
         std::basic_ostream<CharType>* pErrStream)
     {
         _pInReader = newObj< AsyncStdioReader<CharType> >(pInStream);
-        _pOutWriter = newObj< AsyncStdioWriter<CharType> >(pOutStream);
 
-        if(pErrStream==pOutStream)
-            _pErrWriter = _pOutWriter;
-        else
-            _pErrWriter = newObj< AsyncStdioWriter<CharType> >(pErrStream);
+        _pOutStream = pOutStream;
+        _pErrStream = pErrStream;
     }
 
 
@@ -46,15 +43,23 @@ public:
 
     
 	/** Writes the specified text (without adding a linebreak).*/
-	P< IAsyncOp<void> > write(const String& s) override
+	void write(const String& s) override
     {
-        return _pOutWriter->write(s);
+        MutexLock lock(_mutex);
+
+        (*_pOutStream) << s.toLocaleEncoding<CharType>( _pOutStream->getloc() );        
     }
 
 	/** Writes the specified line of text. A linebreak is automatically added.*/
-	P< IAsyncOp<void> > writeLine(const String& s) override
+	void writeLine(const String& s) override
     {
-        return _pOutWriter->writeLine(s);
+        MutexLock lock(_mutex);
+
+        (*_pOutStream)
+            << s.toLocaleEncoding<CharType>( _pOutStream->getloc() )
+            << std::endl;
+
+        _pOutStream->flush();
     }
 
 
@@ -65,23 +70,33 @@ public:
     
         If the UI implementation works on stdio streams then writeError typically causes the
         text to be written to stderr. */
-	P< IAsyncOp<void> > writeError(const String& s) override
+	void writeError(const String& s) override
     {
-        return _pErrWriter->write(s);
+        MutexLock lock(_mutex);
+
+        (*_pErrStream) << s.toLocaleEncoding<CharType>( _pErrStream->getloc() );                
     }
 	
     
 	/** Like writeError(), but also writes a line break after the text.*/
-	P< IAsyncOp<void> > writeErrorLine(const String& s) override
+	void writeErrorLine(const String& s) override
     {
-        return _pErrWriter->writeLine(s);
+        MutexLock lock(_mutex);
+
+        (*_pErrStream)
+            << s.toLocaleEncoding<CharType>( _pErrStream->getloc() )
+            << std::endl;
+
+        _pErrStream->flush();
     }
 
 
 private:
     P< AsyncStdioReader<CharType> > _pInReader;
-    P< AsyncStdioWriter<CharType> > _pOutWriter;
-    P< AsyncStdioWriter<CharType> > _pErrWriter;
+
+    Mutex                           _mutex;
+    std::basic_ostream<CharType>*   _pOutStream;
+    std::basic_ostream<CharType>*   _pErrStream;
 };
 
 

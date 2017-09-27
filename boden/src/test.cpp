@@ -458,34 +458,33 @@ public:
     }
 
     
-	P< IAsyncOp<void> >  write(const String& s) override
+	void  write(const String& s) override
     {       
         doDebugPrint(s);
         
-        return _pInnerUi->write(s);
+        _pInnerUi->write(s);
     }
 
-	P< IAsyncOp<void> > writeLine(const String& s) override
+	void writeLine(const String& s) override
     {
         doDebugPrint(s+"\n");
         
-        return _pInnerUi->writeLine(s);
+        _pInnerUi->writeLine(s);
     }
 
 	
-	P< IAsyncOp<void> > writeError(const String& s) override
+	void writeError(const String& s) override
     {
         doDebugPrint(s);
         
-        return _pInnerUi->writeError(s);
+        _pInnerUi->writeError(s);
     }
-	
-    
-	P< IAsyncOp<void> > writeErrorLine(const String& s) override
+	    
+	void writeErrorLine(const String& s) override
     {
         doDebugPrint(s+"\n");
         
-        return _pInnerUi->writeErrorLine(s);
+        _pInnerUi->writeErrorLine(s);
     }
     
 private:

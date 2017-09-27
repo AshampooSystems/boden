@@ -809,6 +809,39 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
+
+        SECTION("toLocaleEncoding")
+		{
+			std::u16string o = s.toLocaleEncoding<char16_t>();
+
+			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
+			// an incorrect string with \u.
+			REQUIRE( o==u"he\u0218\u0777\xffffllo" );
+		}
+
+        
+        SECTION("fromLocaleEncoding")
+		{
+            std::u16string o = u"he\u0218\u0777\uffffllo";
+
+            SECTION("const char16_t*")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str() );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+
+            SECTION("const char16_t* with length")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str(), std::locale(), 4 );
+                REQUIRE( result==U"he\u0218\u0777" );
+            }
+
+            SECTION("std::u16string")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+        }
 	}
 
 	SECTION("utf32")
@@ -851,6 +884,37 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
+        
+        SECTION("toLocaleEncoding")
+		{
+			std::u32string o = s.toLocaleEncoding<char32_t>();
+            REQUIRE( o==U"he\u0218\u0777\uffffllo" );
+        }
+
+        
+        SECTION("fromLocaleEncoding")
+		{
+            std::u32string o = U"he\u0218\u0777\uffffllo";
+
+            SECTION("const char32_t*")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str() );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+
+            SECTION("const char32_t* with length")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str(), std::locale(), 4 );
+                REQUIRE( result==U"he\u0218\u0777" );
+            }
+
+            SECTION("std::u32string")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+        }
+
 
 
 		SECTION("c_str")
@@ -870,6 +934,7 @@ inline void testConversion()
 			// must be the exact same pointer
 			REQUIRE( p==s.asUtf32Ptr() );
 		}
+
 	}
 
 	SECTION("wide")
@@ -912,6 +977,35 @@ inline void testConversion()
 			// must be the same object
 			REQUIRE( &o==&o2 );
 		}
+
+        SECTION("toLocaleEncoding")
+		{
+			std::wstring o = s.toLocaleEncoding<wchar_t>();
+            REQUIRE( o==L"he\u0218\u0777\uffffllo" );
+        }
+
+        SECTION("fromLocaleEncoding")
+		{
+            std::wstring o = L"he\u0218\u0777\uffffllo";
+
+            SECTION("const wchar_t*")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str() );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+
+            SECTION("const wchar_t* with length")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o.c_str(), std::locale(), 4 );
+                REQUIRE( result==U"he\u0218\u0777" );
+            }
+
+            SECTION("std::wstring")
+            {
+                StringImpl<DATATYPE> result = StringImpl<DATATYPE>::fromLocaleEncoding( o );
+                REQUIRE( result==U"he\u0218\u0777\uffffllo" );
+            }
+        }
 	}
 
 

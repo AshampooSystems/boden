@@ -25,10 +25,10 @@ public:
 
     
 	/** Writes the specified text (without adding a linebreak).*/
-	virtual P< IAsyncOp<void> >  write(const String& s)=0;
+	virtual void write(const String& s)=0;
 
 	/** Writes the specified line of text. A linebreak is automatically added.*/
-	virtual P< IAsyncOp<void> > writeLine(const String& s)=0;
+	virtual void writeLine(const String& s)=0;
 
 
 	/** Writes the specified text in a way that suggests an error.
@@ -38,11 +38,11 @@ public:
     
         If the UI implementation works on stdio streams then writeError typically causes the
         text to be written to stderr. */
-	virtual P< IAsyncOp<void> > writeError(const String& s)=0;
+	virtual void writeError(const String& s)=0;
 	
     
 	/** Like writeError(), but also writes a line break after the text.*/
-	virtual P< IAsyncOp<void> > writeErrorLine(const String& s)=0;	
+	virtual void writeErrorLine(const String& s)=0;	
 
 };
 

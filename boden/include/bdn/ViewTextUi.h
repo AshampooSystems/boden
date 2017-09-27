@@ -28,47 +28,19 @@ public:
     
     P< IAsyncOp<String> > readLine() override;
     
-	P< IAsyncOp<void> > write(const String& s) override;
-	P< IAsyncOp<void> > writeLine(const String& s) override;
+	void write(const String& s) override;
+	void writeLine(const String& s) override;
 
-	P< IAsyncOp<void> > writeError(const String& s) override;
-	P< IAsyncOp<void> > writeErrorLine(const String& s) override;
+	void writeError(const String& s) override;
+	void writeErrorLine(const String& s) override;
 
+    /** Returns the window that the UI object uses to display the text.*/
+    P<Window> getWindow()
+    {
+        return _pWindow;
+    }
 
 private:
-    class WriteOp : public Base, BDN_IMPLEMENTS IAsyncOp<void>
-    {
-    public:          
-        WriteOp()
-        {            
-            _pDoneNotifier = newObj< OneShotStateNotifier< P<IAsyncOp<void>> > >();
-        }
-
-        void getResult() const
-        {
-            // cannot fail
-        }
-
-        void signalStop()
-        {
-            // do nothing - cannot be aborted
-        }
-
-        bool isDone() const
-        {
-            // done immediately
-            return true;
-        }
-
-        
-        INotifier< P<IAsyncOp> >& onDone() const
-        {
-            return *_pDoneNotifier;
-        }
-
-    protected:
-        P< OneShotStateNotifier< P<IAsyncOp<void>> > > _pDoneNotifier;
-    };
 
     void scrolledSizeChanged();
 
