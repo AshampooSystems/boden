@@ -16,7 +16,7 @@ public:
     
     template<class... Args>
     StdSequenceCollection(Args... args)
-     : StdCollection( std::forward<Args...>(args...) )
+     : StdCollection( std::forward<Args>(args)... )
     {
     }
 
@@ -82,7 +82,15 @@ public:
         */
     void add( ElementType&& value )
     {
-        BaseCollectionType::push_back( std::forward(value) );
+        BaseCollectionType::push_back( std::forward<ElementType>(value) );
+    }
+
+
+    /** Adds \c count copies copy of the specified element \c el to the collection (at the end).        
+    */
+    void addMultipleCopies( SizeType count, const ElementType& el)
+    {
+        BaseCollectionType::insert(BaseCollectionType::end(), count, el);
     }
 
 
@@ -95,7 +103,7 @@ public:
         source collection must be compatible to the element type of the target collection.
         */
     template< class InputIt >
-    void add( InputIt beginIt, InputIt endIt )
+    void addSequence( InputIt beginIt, InputIt endIt )
     {
         BaseCollectionType::insert( end(), beginIt, endIt);
     }
@@ -108,10 +116,10 @@ public:
         \begin
         Array<int> ar;
 
-        ar.add( {1, 4, 7} );    // adds three elements to the array
+        ar.addSequence( {1, 4, 7} );    // adds three elements to the array
 
         */
-    void add( std::initializer_list<ElementType> initList )
+    void addSequence( std::initializer_list<ElementType> initList )
     {
         BaseCollectionType::insert( end(), initList );
     }
@@ -132,7 +140,7 @@ public:
     template< class... Args > 
     ElementType& addNew( Args&&... args )
     {
-        BaseCollectionType::emplace_back(pos, args);
+        BaseCollectionType::emplace_back( std::forward<Args>(args)... );
         return back();
     }
 
@@ -157,9 +165,9 @@ public:
     /** Like insertAt() but instead of being a copy the newly inserted element is created
         with C++ move semantics from the \c el argument.        
     */
-    Iterator insertAt( ConstIterator pos, const ElementType&& el)
+    Iterator insertAt( ConstIterator pos, ElementType&& el)
     {
-        return BaseCollectionType::insert(pos, std::forward(el) );
+        return BaseCollectionType::insert(pos, std::forward<ElementType>(el) );
     }
 
 
@@ -172,7 +180,7 @@ public:
 
         Returns an iterator to first inserted element. If count is 0 then \c pos is returned.
     */
-    Iterator insertAt( ConstIterator pos, SizeType count, const ElementType& el)
+    Iterator insertMultipleCopiesAt( ConstIterator pos, SizeType count, const ElementType& el)
     {
         return BaseCollectionType::insert(pos, count, el);
     }
@@ -182,7 +190,7 @@ public:
         iterator range at position \c pos.
         endIt points to the location just *after* the last element to add.
 
-        The beginIt and endIt iterators must not refer to the target collection. They can be from an arbitrary other
+        The beginIt and endIt iterators must NOT refer to the target collection that is being changed. They can be from an arbitrary other
         collection -- also from a collection of a different type. The only condition is that the element type of the
         source collection must be compatible to the element type of the target collection.
 
@@ -195,10 +203,11 @@ public:
         then \c pos is returned.
         */
     template< class InputIt >
-    Iterator insertAt( ConstIterator pos, InputIt first, InputIt last )
+    Iterator insertSequenceAt( ConstIterator pos, InputIt beginIt, InputIt endIt )
     {
-        return BaseCollectionType::insert<InputIt>(pos, first, last);
+        return BaseCollectionType::insert<InputIt>(pos, beginIt, endIt);
     }
+
 
 
     /** Inserts the elements from the specified initializer list at position \c pos.
@@ -213,10 +222,10 @@ public:
         \begin
         Array<int> ar;
 
-        ar.insert( ar.begin(), {1, 4, 7} );    // inserts three elements at the start of the array
+        ar.insertSequenceAt( ar.begin(), {1, 4, 7} );    // inserts three elements at the start of the array
 
         */
-    Iterator insertAt( ConstIterator pos, std::initializer_list<ElementType> initList )
+    Iterator insertSequenceAt( ConstIterator pos, std::initializer_list<ElementType> initList )
     {
         return BaseCollectionType::insert(pos, initList);
     }
@@ -238,7 +247,7 @@ public:
     template< class... Args > 
     Iterator insertNewAt( ConstIterator pos, Args&&... args )
     {
-        return BaseCollectionType::emplace(pos, args);
+        return BaseCollectionType::emplace(pos, std::forward<Args>(args)... );
     }
 
     
@@ -247,7 +256,7 @@ public:
 
         Same as insert( begin(), el).    
     */
-    void insertAtFront( const ElementType& el )
+    void insertAtBegin( const ElementType& el )
     {
         BaseCollectionType::insert( begin(), el);
     }
@@ -256,20 +265,68 @@ public:
 
         Same as insert( begin(), el).    
     */
-    void insertAtFront( ElementType&& el )
+    void insertAtBegin( ElementType&& el )
     {
-        BaseCollectionType::insert( begin(), std::forward(el) );
+        BaseCollectionType::insert( begin(), std::forward<ElementType>(el) );
     }
+
+
+    
+    /** Inserts \c count copies copy of the specified element \c el at the beginning of the collection.
+        
+        Returns an iterator to first inserted element. If count is 0 then \c begin() is returned.
+    */
+    Iterator insertMultipleCopiesAtBegin( SizeType count, const ElementType& el)
+    {
+        return BaseCollectionType::insert( BaseCollectionType::begin(), count, el);
+    }
+
+
+    /** Inserts copies of the elements from the specified [beginIt ... endIt)
+        iterator range at the beginning of the collection.
+        endIt points to the location just *after* the last element to add.
+
+        The beginIt and endIt iterators must NOT refer to the target collection that is being changed. They can be from an arbitrary other
+        collection -- also from a collection of a different type. The only condition is that the element type of the
+        source collection must be compatible to the element type of the target collection.
+        
+        Returns an iterator to first inserted element. If no elements are inserted (beginIt == endIt)
+        then \c begin() is returned.
+        */
+    template< class InputIt >
+    Iterator insertSequenceAtBegin( InputIt beginIt, InputIt endIt )
+    {
+        return BaseCollectionType::insert<InputIt>( BaseCollectionType::begin(), beginIt, endIt);
+    }
+
+
+
+    /** Inserts the elements from the specified initializer list at the beginning of the collection.
+    
+        This can be used to insert multiple elements with the {...} notation. For example:
+
+        \begin
+        Array<int> ar;
+
+        ar.insertSequenceAtBegin( {1, 4, 7} );    // inserts three elements at the start of the array
+
+        */
+    Iterator insertSequenceAtBegin( std::initializer_list<ElementType> initList )
+    {
+        return BaseCollectionType::insert( BaseCollectionType::begin(), initList);
+    }
+
 
     /** Constructs a new element and inserts it at the beginning of the collection.
 
         Same as insertNewAt( begin(), args...).    
     */
     template< class... Args > 
-    Iterator insertNewAtFront(Args&&... args)
+    Iterator insertNewAtBegin(Args&&... args)
     {
-        insertNewAt( begin(), std::forward<Args>(args) );
+        return insertNewAt( begin(), std::forward<Args>(args)... );
     }
+
 
     
     /** Removes the last element of the collection. Throws OutOfRangeError if the collection
