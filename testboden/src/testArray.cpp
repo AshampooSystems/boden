@@ -1155,7 +1155,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 }
 
 template<class CollType>
-void verifySortResult( CollType& coll, std::initializer_list<typename CollType::ElementType> elements )
+void verifySortResult( CollType& coll, std::initializer_list<typename CollType::ElementType> elements, bool expectInvertedOrder = false )
 {
     // verify that the elements are all in the correct order
     auto it = coll.begin();
@@ -1167,7 +1167,10 @@ void verifySortResult( CollType& coll, std::initializer_list<typename CollType::
         if(nextIt == coll.end() )
             break;
 
-        REQUIRE( ! (*nextIt < *it) );
+        if( expectInvertedOrder )
+            REQUIRE( ! (*it < *nextIt) );
+        else
+            REQUIRE( ! (*nextIt < *it) );
 
         ++it;
     }
@@ -1194,9 +1197,33 @@ void testSort(
             verifyReadOnlySequence( coll, {} );
         }
 
+        SECTION("sort with compare func")
+        {
+            coll.sort(
+                [](typename CollType::ElementType& a, typename CollType::ElementType& b)
+                {
+                    // use inverted comparison
+                    return (b<a);
+                } );
+
+            verifyReadOnlySequence( coll, {} );
+        }
+
         SECTION("stableSort")
         {
             coll.stableSort();
+            verifyReadOnlySequence( coll, {} );
+        }
+
+        SECTION("stableSort with compare func")
+        {
+            coll.stableSort(
+                [](const typename CollType::ElementType& a, const typename CollType::ElementType& b)
+                {
+                    // use inverted comparison
+                    return (b<a);
+                } );
+
             verifyReadOnlySequence( coll, {} );
         }
     }
@@ -1214,7 +1241,14 @@ void testSort(
 
         SECTION("sort with compare func")
         {
-            XXX
+            coll.sort(
+                [](typename CollType::ElementType& a, typename CollType::ElementType& b)
+                {
+                    // use inverted comparison
+                    return (b<a);
+                } );
+
+            verifySortResult( coll, elements, true );
         }
 
         SECTION("stableSort")
@@ -1228,7 +1262,19 @@ void testSort(
 
         SECTION("stableSort with compare func")
         {
-            XXX
+            coll.stableSort(
+                [](const typename CollType::ElementType& a, const typename CollType::ElementType& b)
+                {
+                    // use inverted comparison
+                    return (b<a);
+                } );
+
+            verifySortResult( coll, elements, true );
+
+            std::list<typename CollType::ElementType> expectedSortedElements( stableSortedElements.begin(), stableSortedElements.end() );
+            expectedSortedElements.reverse();
+
+            verifyReadOnlySequence( coll, expectedSortedElements );
         }
     }
 }

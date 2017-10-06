@@ -535,9 +535,9 @@ public:
         amongst themselves.
         */
     template<class ComesBeforeFuncType>
-    void stableSort( ComesBeforeFuncType comesBefore )
+    void stableSort( ComesBeforeFuncType comesBeforeFunc )
     {
-        std::stable_sort( this->begin(), this->end(), comesBefore );
+        std::stable_sort( this->begin(), this->end(), comesBeforeFunc );
     }
 
     // XXX find needs start iterator
