@@ -161,7 +161,19 @@ public:
 
 
     /** Replaces the current contents of the array with copies of the elements from the specified other
-        vector or Array.
+        Array.
+        
+        Returns a reference to this Array object.
+        */
+    Array& operator=( const Array& other )
+    {
+        std::vector<ELTYPE, ALLOCATOR>::operator=( other );
+        return *this;
+    }
+
+
+    /** Replaces the current contents of the array with copies of the elements from the specified
+        vector.
         
         Returns a reference to this Array object.
         */
@@ -195,10 +207,10 @@ public:
     /** Moves the data from the specified other Array object to this array, replacing any current contents in the process.
         The other Array object is invalidated by this operation.
         */
-    Array& operator=( const Array&& other )
+    Array& operator=( Array&& other )
         noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
-        std::vector<ELTYPE, ALLOCATOR>::operator=( std::forward(other) );
+        std::vector<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
     }
     
@@ -206,10 +218,10 @@ public:
     /** Moves the data from the specified other Array object to this array, replacing any current contents in the process.
         The other Array object is invalidated by this operation.
         */
-    Array& operator=( const std::vector<ELTYPE, ALLOCATOR>&& other )
+    Array& operator=( std::vector<ELTYPE, ALLOCATOR>&& other )
         noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
-        std::vector<ELTYPE, ALLOCATOR>::operator=( std::forward(other) );
+        std::vector<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
     }
 

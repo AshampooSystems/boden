@@ -678,6 +678,67 @@ static void verifySequence(
 
         verifyReadOnlySequence( coll, {});
     }
+
+    SECTION("operator=")
+    {
+        SECTION("other collection")
+        {
+            SECTION("empty")
+            {
+                CollType otherColl;
+
+                SECTION("ref")
+                {
+                    coll = otherColl;
+                    verifyReadOnlySequence( coll, {});
+                }
+
+                SECTION("move")
+                {
+                    coll = std::move(otherColl);
+                    verifyReadOnlySequence( coll, {});
+
+                    REQUIRE( otherColl.size() == 0);
+                }
+            }
+
+            SECTION("non-empty")
+            {
+                CollType otherColl;
+                otherColl.add( expectedConstructedEl );
+
+                SECTION("ref")
+                {
+                    coll = otherColl;
+                    verifyReadOnlySequence( coll, {expectedConstructedEl} );
+                }
+
+                SECTION("move")
+                {
+                    coll = std::move(otherColl);
+                    verifyReadOnlySequence( coll, {expectedConstructedEl} );
+
+                    REQUIRE( otherColl.size() == 0);
+                }
+            }
+        }
+
+        SECTION("initializer_list")
+        {
+            SECTION("empty")
+            {
+                coll = {};
+                verifyReadOnlySequence( coll, {});
+            }
+
+            SECTION("non-empty")
+            {
+                coll = {expectedConstructedEl};
+
+                verifyReadOnlySequence( coll, {expectedConstructedEl} );
+            }
+        }
+    }
     
     if( expectedElementList.size() > 0 )
     {
@@ -792,6 +853,79 @@ static void verifySequence(
     }
 }
 
+template<class CollType, class ItType >
+void verifyIndexedAccess(CollType& coll, int index, ItType expectedElementIt )
+{
+    if(index!=coll.size() )
+    {
+        SECTION("atIndex")
+            REQUIRE( &coll.atIndex(index) == &*expectedElementIt );
+
+        SECTION("operator[]")
+            REQUIRE( &coll[index] == &*expectedElementIt );
+    }
+
+    SECTION("indexToIterator")
+        REQUIRE( coll.indexToIterator(index) == expectedElementIt );
+
+    SECTION("iteratorToIndex")
+        REQUIRE( coll.iteratorToIndex(expectedElementIt) == index );
+}
+
+template<class CollType>
+void testIndexedAccess(CollType& coll)
+{
+    SECTION("0")
+        verifyIndexedAccess( coll, 0, coll.begin() );
+            
+    SECTION("1")
+        verifyIndexedAccess( coll, 1, ++coll.begin() );
+
+    SECTION("last")
+        verifyIndexedAccess( coll, coll.size()-1, --coll.end() );
+
+    SECTION("end")
+        verifyIndexedAccess( coll, coll.size(), coll.end() );
+}
+
+template<class CollType>
+void testPrepareForSize(CollType& coll)
+{
+    std::list< typename CollType::ElementType > origElements( coll.begin(), coll.end() );
+
+    typename CollType::SizeType origCapacity = coll.capacity();
+
+    typename CollType::SizeType prepareFor=0;
+    
+    SECTION("0")
+        prepareFor = 0;
+
+    SECTION("1")
+        prepareFor = 1;
+
+    SECTION("size")
+        prepareFor = coll.size();
+
+    SECTION("capacity")
+        prepareFor = coll.capacity();
+    
+    SECTION("capacity+1")
+        prepareFor = coll.capacity()+1;
+
+    coll.prepareForSize( prepareFor );
+
+    // prepareForSize should NEVER change the collection contents
+    verifyReadOnlySequence( coll, origElements );
+
+    typename CollType::SizeType newCapacity = coll.capacity();
+
+    REQUIRE( newCapacity>=coll.size() );
+
+    if(prepareFor <= origCapacity)
+        REQUIRE( newCapacity <= origCapacity );
+
+    REQUIRE( newCapacity >= prepareFor );
+}
 
 template<typename ElType, typename... ConstructArgs>
 static void testArray(
@@ -812,6 +946,9 @@ static void testArray(
             isMovedRemnant,
             expectedConstructedEl,
             std::forward<ConstructArgs>(constructArgs)... );
+
+        SECTION("prepareForSize")
+            testPrepareForSize(coll);
     }
 
     SECTION("non-empty")
@@ -825,56 +962,178 @@ static void testArray(
             newElList,
             isMovedRemnant,
             expectedConstructedEl,
-            std::forward<ConstructArgs>(constructArgs)... );
+            std::forward<ConstructArgs>(constructArgs)... );        
+
+        SECTION("indexed access")
+        {
+            SECTION("normal")
+                testIndexedAccess(coll);
+
+            SECTION("const")
+                testIndexedAccess( (const Array<ElType>&) coll );
+        }
+
+        SECTION("data")
+        {
+            SECTION("normal")
+                REQUIRE( coll.data() == &coll[0] );
+
+            SECTION("const")
+                REQUIRE( ((const Array<ElType>&)coll).data() == &coll[0] );
+        }
+
+        SECTION("prepareForSize")
+            testPrepareForSize(coll);
+    }    
+}
+
+template<class CollType, class ItType>
+static void verifyFindForSpecificVariant(CollType& coll, typename CollType::ElementType toFind, ItType expectedResult )
+{
+    SECTION("no startPos")
+    {
+        ItType it = coll.find( toFind );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("with startPos")
+    {
+        SECTION("begin")
+        {
+            ItType it = coll.find( toFind, coll.begin() );
+            REQUIRE( it == expectedResult );
+        }
+
+        SECTION("expected find position")
+        {
+            ItType it = coll.find( toFind, expectedResult );
+            REQUIRE( it == expectedResult );
+        }
+
+        if( expectedResult!=coll.end())
+        {
+            SECTION("one after expected find position")
+            {
+                ItType startPos = expectedResult;
+                ++startPos;
+
+                ItType it = coll.find( toFind, startPos );
+                REQUIRE( it != expectedResult );
+            }
+        }
+
+        SECTION("end")
+        {
+            ItType it = coll.find( toFind, coll.end() );
+            REQUIRE( it == coll.end() );
+        }
     }
 }
+
 
 template<class CollType>
 static void verifyFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
-    {
-        typename CollType::Iterator it = coll.find( toFind );
-        REQUIRE( it == expectedResult );
-    }
-
+        verifyFindForSpecificVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult);
+    
     SECTION("const")
     {
         const CollType& constColl(coll);
 
-        typename CollType::ConstIterator it = constColl.find( toFind );
+        // convert the const iterator to non-const
+        typename CollType::ConstIterator constExpectedResult = constColl.begin();
+        std::advance( constExpectedResult, std::distance(coll.begin(), expectedResult ) );
 
-        if(expectedResult==coll.end())
-            REQUIRE( it == constColl.end() );
-        else
-        {
-            REQUIRE( &*it == &*expectedResult );
-        }
+        verifyFindForSpecificVariant<const CollType, typename CollType::ConstIterator>( constColl, toFind, constExpectedResult);
     }
 }
 
+
+
+
+template<class CollType, class ItType>
+static void verifyReverseFindForSpecificVariant(CollType& coll, typename CollType::ElementType toFind, ItType expectedResult, ItType posAfterExpectedPos )
+{
+    SECTION("no startPos")
+    {
+        ItType it = coll.reverseFind( toFind );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("with startPos")
+    {
+        SECTION("begin")
+        {
+            ItType it = coll.reverseFind( toFind, coll.begin() );
+
+            if( !coll.isEmpty() && coll.getFirst() == toFind )
+                REQUIRE( it == coll.begin() );
+            else
+                REQUIRE( it == coll.end() );
+        }
+
+        SECTION("expected find position")
+        {
+            ItType it = coll.reverseFind( toFind, expectedResult );
+            REQUIRE( it == expectedResult );
+        }
+
+        if( expectedResult!=coll.begin() )
+        {
+            SECTION("after expected find position")
+            {
+                ItType it = coll.reverseFind( toFind, posAfterExpectedPos );
+
+                if(expectedResult==coll.end())
+                    REQUIRE( it == expectedResult );
+                else
+                    REQUIRE( it != expectedResult );
+            }
+        }
+
+        if(!coll.isEmpty())
+        {
+            SECTION("last")
+            {
+                ItType it = coll.reverseFind( toFind, --coll.end() );
+                REQUIRE( it == expectedResult );
+            }
+        }
+
+        SECTION("end")
+        {
+            ItType it = coll.reverseFind( toFind, coll.end() );
+            REQUIRE( it == expectedResult );
+        }
+    }
+}
 
 template<class CollType>
 static void verifyReverseFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
-        typename CollType::Iterator it = coll.reverseFind( toFind );
-        REQUIRE( it == expectedResult );
-    }
+        typename CollType::Iterator posAfterExpectedPos = expectedResult;
+        if(expectedResult!=coll.begin() )
+            --posAfterExpectedPos;
 
+        verifyReverseFindForSpecificVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult, posAfterExpectedPos);
+    }
+    
     SECTION("const")
     {
         const CollType& constColl(coll);
 
-        typename CollType::ConstIterator it = constColl.reverseFind( toFind );
+        // convert the const iterator to non-const
+        typename CollType::ConstIterator constExpectedResult = constColl.begin();
+        std::advance( constExpectedResult, std::distance(coll.begin(), expectedResult) );
 
-        if(expectedResult==coll.end())
-            REQUIRE( it == constColl.end() );
-        else
-        {
-            REQUIRE( &*it == &*expectedResult );
-        }
+        typename CollType::ConstIterator posAfterExpectedPos = constExpectedResult;
+        if(constExpectedResult!=constColl.begin())
+            --posAfterExpectedPos;
+
+        verifyReverseFindForSpecificVariant<const CollType, typename CollType::ConstIterator>( constColl, toFind, constExpectedResult, posAfterExpectedPos);
     }
 }
 
@@ -1278,6 +1537,7 @@ void testSort(
         }
     }
 }
+
 
 TEST_CASE("Array")
 {

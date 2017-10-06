@@ -392,6 +392,18 @@ public:
         return std::find( this->begin(), this->end(), el );
     }
 
+    /** Searches for the first element that compares equal to the specified \c el parameter,
+        starting from the position indicated by \c startPos.
+
+        The first possible hit is at \c startPos.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    Iterator find( const ElementType& el, Iterator startPos )
+    {
+        return std::find( startPos, this->end(), el );
+    }
+
 
     /** Const version of find() - returns a read-only iterator.
     */
@@ -399,6 +411,18 @@ public:
     {
         return std::find( this->begin(), this->end(), el );
     }    
+
+    /** Searches for the first element that compares equal to the specified \c el parameter,
+        starting from the position indicated by \c startPos.
+
+        The first possible hit is at \c startPos.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    ConstIterator find( const ElementType& el, ConstIterator startPos ) const
+    {
+        return std::find( startPos, this->end(), el );
+    }
 
 
     /** Searches for the first element for which the specified condition function returns true.        
@@ -428,13 +452,43 @@ public:
     */
     Iterator reverseFind( const ElementType& el )
     {
-        ReverseIterator endIt = this->reverseEnd();
-        ReverseIterator it = std::find( this->reverseBegin(), endIt, el );
-        if(it==endIt)
-            return this->end();
+        Iterator it = end();
+        Iterator beginIt = begin();
 
-        // it.base is the iterator of the element AFTER the one it points to
-        return --it.base();
+        while( it!=beginIt )
+        {
+            --it;
+
+            if( *it == el)
+                return it;
+        }
+
+        return end();
+    }
+
+    /** Searches backwards from the specified start position for
+        the last element that compares equal to the specified \c el parameter,
+
+        The first possible hit is at \c startPos.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    Iterator reverseFind( const ElementType& el, Iterator startPos )
+    {
+        Iterator it = startPos;
+        if( it!=end() )
+            ++it;
+        Iterator beginIt = begin();
+
+        while( it!=beginIt )
+        {
+            --it;
+
+            if( *it == el)
+                return it;
+        }
+
+        return end();
     }
 
 
@@ -442,13 +496,38 @@ public:
     */
     ConstIterator reverseFind( const ElementType& el ) const
     {
-        ConstReverseIterator endIt = this->reverseEnd();
-        ConstReverseIterator it = std::find( this->reverseBegin(), endIt, el );
-        if(it==endIt)
-            return this->end();
+        ConstIterator it = end();
+        ConstIterator beginIt = begin();
 
-        // it.base is the iterator of the element AFTER the one it points to
-        return --it.base();
+        while( it!=beginIt )
+        {
+            --it;
+
+            if( *it == el)
+                return it;
+        }
+
+        return end();
+    }    
+
+    /** Const version of reverseFind() - returns a read-only iterator.
+    */
+    ConstIterator reverseFind( const ElementType& el, ConstIterator startPos ) const
+    {
+        ConstIterator it = startPos;
+        if( it!=end() )
+            ++it;
+        ConstIterator beginIt = begin();
+
+        while( it!=beginIt )
+        {
+            --it;
+
+            if( *it == el)
+                return it;
+        }
+
+        return end();
     }    
 
 
@@ -539,8 +618,6 @@ public:
     {
         std::stable_sort( this->begin(), this->end(), comesBeforeFunc );
     }
-
-    // XXX find needs start iterator
 };
 
 
