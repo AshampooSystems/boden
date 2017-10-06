@@ -540,6 +540,7 @@ public:
         std::stable_sort( this->begin(), this->end(), comesBefore );
     }
 
+    // XXX find needs start iterator
 };
 
 

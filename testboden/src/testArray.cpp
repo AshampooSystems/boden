@@ -1212,6 +1212,11 @@ void testSort(
             verifySortResult( coll, elements );
         }
 
+        SECTION("sort with compare func")
+        {
+            XXX
+        }
+
         SECTION("stableSort")
         {
             coll.stableSort();
@@ -1219,6 +1224,11 @@ void testSort(
             verifySortResult( coll, elements );
 
             verifyReadOnlySequence( coll, stableSortedElements );
+        }
+
+        SECTION("stableSort with compare func")
+        {
+            XXX
         }
     }
 }
