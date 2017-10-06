@@ -422,7 +422,7 @@ public:
     Iterator reverseFind( const ElementType& el )
     {
         ReverseIterator endIt = reverseEnd();
-        ReverseIterator it = std::find(reverseBegin(), endIt );
+        ReverseIterator it = std::find(reverseBegin(), endIt, el );
         if(it==endIt)
             return end();
 
@@ -436,7 +436,7 @@ public:
     ConstIterator reverseFind( const ElementType& el ) const
     {
         ConstReverseIterator endIt = reverseEnd();
-        ConstReverseIterator it = std::find(reverseBegin(), endIt );
+        ConstReverseIterator it = std::find(reverseBegin(), endIt, el );
         if(it==endIt)
             return end();
 
@@ -466,7 +466,7 @@ public:
     /** Const version of reverseFindCondition() - returns a read-only iterator.
     */
     template<typename ConditionFuncType>
-	ConstIterator reverseFindCondition(ConditionFuncType condition ) const
+	ConstIterator reverseFindCondition(ConditionFuncType conditionFunc ) const
 	{
         ConstReverseIterator endIt = reverseEnd();
         ConstReverseIterator it = std::find_if(reverseBegin(), endIt, conditionFunc );

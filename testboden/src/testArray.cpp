@@ -176,8 +176,9 @@ public:
 
     bool operator<(const TestOrderedArrayElement_& o) const
     {
-        return (_a < o._a
-            || ( _a == o._a && _b < o._b) );
+        // the ordering is only based on the "a" component, so that
+        // we can have elements that are not equal, but have the same ordering position
+        return (_a < o._a);
     }
 };
 
@@ -185,7 +186,7 @@ public:
 static bool _isCollElementEqual(const TestArrayElement_& l, const TestArrayElement_& r)
 {
     return (l._a == r._a
-            && l._b && r._b);
+            && l._b == r._b);
 }
 
 static bool _isCollElementEqual(int l, int r)
@@ -619,8 +620,11 @@ static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::
 
     SECTION("maxSize")
     {
-        REQUIRE( coll.max_size() >= 0x1fffffff );
-        REQUIRE( coll.getMaxSize() >= 0x1fffffff );
+        // max size should be "reasonably large". It might depend on the size of the elements, though,
+        // So this test might not work for all element types. But it works for the types we use in
+        // our test.
+        REQUIRE( coll.max_size() >= 0x00ffffff );
+        REQUIRE( coll.getMaxSize() >= 0x00ffffff );
     }
 
 
@@ -648,41 +652,9 @@ static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::
 
     SECTION("iteration")
         verifyCollIteration( coll, expectedElementList );
-
-    SECTION("find")
-    {
-        if( expectedElementList.size() > 0)
-        {
-            SECTION("first")
-            {
-                typename CollType::Iterator it = coll.find( coll.getFirst() );
-                REQUIRE( it==coll.begin() );
-            }
-
-            SECTION("last")
-            {
-                typename CollType::Iterator it = coll.find( coll.getLast() );
-                REQUIRE( it == --coll.end() );
-            }
-
-            if( expectedElementList.size() > 1)
-            {
-                SECTION("mid")
-                {
-                    typename CollType::Iterator it = coll.find( *++coll.begin() );
-                    REQUIRE( it == ++coll.begin() );
-                }
-            }
-        }
-
-        SECTION("not found")
-        {
-            XXX
-            //typename CollType::Iterator it = coll.find( nonMemberElement );
-            //REQUIRE( it == coll.end() );
-        }
-    }
 }
+
+
     
 template<class CollType, typename... ConstructArgs>
 static void verifySequence(
@@ -816,17 +788,6 @@ static void verifySequence(
             verifyReadOnlySequence( coll, newExpectedElementList);
         }
     }
-    
-
-
-    
-    /*
-        find
-        findCondition
-        reverseFind
-        reverseFindCondition
-        sort
-        stableSort*/
 }
 
 
@@ -866,6 +827,400 @@ static void testArray(
     }
 }
 
+template<class CollType>
+static void verifyFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
+{
+    SECTION("normal")
+    {
+        typename CollType::Iterator it = coll.find( toFind );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("const")
+    {
+        const CollType& constColl(coll);
+
+        typename CollType::ConstIterator it = constColl.find( toFind );
+
+        if(expectedResult==coll.end())
+            REQUIRE( it == constColl.end() );
+        else
+        {
+            REQUIRE( &*it == &*expectedResult );
+        }
+    }
+}
+
+
+template<class CollType>
+static void verifyReverseFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
+{
+    SECTION("normal")
+    {
+        typename CollType::Iterator it = coll.reverseFind( toFind );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("const")
+    {
+        const CollType& constColl(coll);
+
+        typename CollType::ConstIterator it = constColl.reverseFind( toFind );
+
+        if(expectedResult==coll.end())
+            REQUIRE( it == constColl.end() );
+        else
+        {
+            REQUIRE( &*it == &*expectedResult );
+        }
+    }
+}
+
+template<class CollType>
+static void verifyFindCondition(CollType& coll, std::function< bool(const typename CollType::ElementType&) > conditionFunc, typename CollType::Iterator expectedResult )
+{
+    SECTION("normal")
+    {
+        typename CollType::Iterator it = coll.findCondition( conditionFunc );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("const")
+    {
+        const CollType& constColl(coll);
+
+        typename CollType::ConstIterator it = constColl.findCondition( conditionFunc );
+
+        if(expectedResult==coll.end())
+            REQUIRE( it == constColl.end() );
+        else
+        {
+            REQUIRE( &*it == &*expectedResult );
+        }
+    }
+}
+
+
+template<class CollType>
+static void verifyReverseFindCondition(CollType& coll, std::function< bool(const typename CollType::ElementType&) > conditionFunc, typename CollType::Iterator expectedResult )
+{
+    SECTION("normal")
+    {
+        typename CollType::Iterator it = coll.reverseFindCondition( conditionFunc );
+        REQUIRE( it == expectedResult );
+    }
+
+    SECTION("const")
+    {
+        const CollType& constColl(coll);
+
+        typename CollType::ConstIterator it = constColl.reverseFindCondition( conditionFunc );
+
+        if(expectedResult==coll.end())
+            REQUIRE( it == constColl.end() );
+        else
+        {
+            REQUIRE( &*it == &*expectedResult );
+        }
+    }
+}
+
+template<class CollType>
+static void testFind(std::initializer_list<typename CollType::ElementType> elements, const typename CollType::ElementType& elNotInColl )
+{
+    SECTION("find")
+    {
+        CollType coll;
+
+        SECTION("empty")
+        {
+            SECTION("not found")
+                verifyFind( coll, elNotInColl, coll.end() );
+        }
+
+        SECTION("not empty")
+        {        
+            coll.addSequence(elements);
+
+            // the first element must equal the third one for these tests to work
+            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+
+            SECTION("first")
+                verifyFind( coll, coll.getFirst(), coll.begin() );
+
+            SECTION("last")
+                verifyFind( coll, coll.getLast(), --coll.end() );
+
+            SECTION("second")
+                verifyFind( coll, *++coll.begin(), ++coll.begin() );
+
+            SECTION("not found")
+                verifyFind( coll, elNotInColl, coll.end() );
+        }
+    }
+
+    SECTION("findCondition")
+    {
+        CollType coll;
+
+        SECTION("empty")
+        {
+            SECTION("not found")
+            {
+                verifyFindCondition(
+                    coll,
+                    [](const typename CollType::ElementType& el)
+                    {
+                        return false;
+                    },
+                    coll.end() );
+            }
+        }
+
+        SECTION("not empty")
+        {        
+            coll.addSequence(elements);
+
+            // the first element must equal the third one for these tests to work
+            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+
+            SECTION("first")
+            {
+                typename CollType::ElementType toFind = coll.getFirst();
+
+                verifyFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    coll.begin() );
+            }
+
+            SECTION("last")
+            {
+                typename CollType::ElementType toFind = coll.getLast();
+
+                verifyFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    --coll.end() );
+            }
+
+            SECTION("second")
+            {
+                typename CollType::ElementType toFind = *++coll.begin();
+
+                verifyFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    ++coll.begin() );
+            }
+
+            SECTION("not found")
+            {
+                verifyFindCondition(
+                    coll,
+                    [](const typename CollType::ElementType& el)
+                    {
+                        return false;
+                    },
+                    coll.end() );
+            }
+        }
+    }
+
+
+
+    SECTION("reverseFind")
+    {
+        CollType coll;
+
+        SECTION("empty")
+        {
+            SECTION("not found")
+                verifyReverseFind( coll, elNotInColl, coll.end() );
+        }
+
+        SECTION("not empty")
+        {        
+            coll.addSequence(elements);
+
+            // the first element must equal the third one for these tests to work
+            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+
+            SECTION("first")
+            {
+                // the first and the third element compare equal. So we expect to find the third one
+                verifyReverseFind( coll, coll.getFirst(), ++(++coll.begin()) );
+            }
+
+            SECTION("last")
+                verifyReverseFind( coll, coll.getLast(), --coll.end() );
+
+            SECTION("second")
+                verifyReverseFind( coll, *++coll.begin(), ++coll.begin() );
+
+            SECTION("not found")
+                verifyReverseFind( coll, elNotInColl, coll.end() );
+        }
+    }
+
+    SECTION("reverseFindCondition")
+    {
+        CollType coll;
+
+        SECTION("empty")
+        {
+            SECTION("not found")
+            {
+                verifyReverseFindCondition(
+                    coll,
+                    [](const typename CollType::ElementType& el)
+                    {
+                        return false;
+                    },
+                    coll.end() );
+            }
+        }
+
+        SECTION("not empty")
+        {        
+            coll.addSequence(elements);
+
+            // the first element must equal the third one for these tests to work
+            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+
+            SECTION("first")
+            {
+                typename CollType::ElementType toFind = coll.getFirst();
+
+                verifyReverseFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    // the first element in the sequence is also the third one. So we should find that
+                    ++(++coll.begin()) );
+            }
+
+            SECTION("last")
+            {
+                typename CollType::ElementType toFind = coll.getLast();
+
+                verifyReverseFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    --coll.end() );
+            }
+
+            SECTION("second")
+            {
+                typename CollType::ElementType toFind = *++coll.begin();
+
+                verifyReverseFindCondition(
+                    coll,
+                    [toFind](const typename CollType::ElementType& el)
+                    {
+                        return (el == toFind);
+                    },
+                    ++coll.begin() );
+            }
+
+            SECTION("not found")
+            {
+                verifyReverseFindCondition(
+                    coll,
+                    [](const typename CollType::ElementType& el)
+                    {
+                        return false;
+                    },
+                    coll.end() );
+            }
+        }
+    }
+ 
+}
+
+template<class CollType>
+void verifySortResult( CollType& coll, std::initializer_list<typename CollType::ElementType> elements )
+{
+    // verify that the elements are all in the correct order
+    auto it = coll.begin();
+    while(it != coll.end() )
+    {
+        auto nextIt = it;
+        ++nextIt;
+
+        if(nextIt == coll.end() )
+            break;
+
+        REQUIRE( ! (*nextIt < *it) );
+
+        ++it;
+    }
+
+    // verify that all elements are still in the collection
+    REQUIRE( coll.size() == elements.size() );
+
+    for( auto& el: elements)
+        REQUIRE( coll.find(el) != coll.end() );
+}
+
+template<class CollType>
+void testSort(
+    std::initializer_list<typename CollType::ElementType> elements,
+    std::initializer_list<typename CollType::ElementType> stableSortedElements )
+{
+    SECTION("empty")
+    {
+        CollType coll;
+
+        SECTION("sort")
+        {
+            coll.sort();
+            verifyReadOnlySequence( coll, {} );
+        }
+
+        SECTION("stableSort")
+        {
+            coll.stableSort();
+            verifyReadOnlySequence( coll, {} );
+        }
+    }
+
+    SECTION("not empty")
+    {
+        CollType coll( elements );
+
+        SECTION("sort")
+        {
+            coll.sort();
+
+            verifySortResult( coll, elements );
+        }
+
+        SECTION("stableSort")
+        {
+            coll.stableSort();
+
+            verifySortResult( coll, elements );
+
+            verifyReadOnlySequence( coll, stableSortedElements );
+        }
+    }
+}
+
 TEST_CASE("Array")
 {
     SECTION("simple type")
@@ -878,7 +1233,10 @@ TEST_CASE("Array")
                 return true;
             },
             345,
-            345 );
+            345 );       
+
+        testFind< Array<int> >( {17, 42, 17, 3}, 88 );
+        testSort< Array<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
     }
 
     SECTION("complex type")
@@ -900,6 +1258,26 @@ TEST_CASE("Array")
                 },
                 TestOrderedArrayElement_(345, 456),
                 345, 456 );
+
+            testFind< Array<TestOrderedArrayElement_> >(
+                { TestOrderedArrayElement_(17, 117),
+                    TestOrderedArrayElement_(42, 142),
+                    TestOrderedArrayElement_(17, 117),
+                    TestOrderedArrayElement_(3, 103),
+                },
+                TestOrderedArrayElement_(400, 401) );
+
+            testSort< Array<TestOrderedArrayElement_> >(
+                { TestOrderedArrayElement_(17, 1),
+                    TestOrderedArrayElement_(42, 142),
+                    TestOrderedArrayElement_(17, 2),
+                    TestOrderedArrayElement_(3, 103),
+                },
+                { TestOrderedArrayElement_(3, 103),
+                    TestOrderedArrayElement_(17, 1),
+                    TestOrderedArrayElement_(17, 2),
+                    TestOrderedArrayElement_(42, 142),
+                } );
         }
 
         SECTION("unordered comparable")
@@ -919,6 +1297,16 @@ TEST_CASE("Array")
                 },
                 TestUnorderedComparableArrayElement_(345, 456),
                 345, 456 );
+
+            testFind< Array<TestUnorderedComparableArrayElement_> >(
+                { TestUnorderedComparableArrayElement_(17, 117),
+                    TestUnorderedComparableArrayElement_(42, 142),                
+                    TestUnorderedComparableArrayElement_(17, 117),
+                    TestUnorderedComparableArrayElement_(3, 103),
+                },
+                TestUnorderedComparableArrayElement_(400, 401) );
+
+            // cannot sort because not ordered
         }
 
         SECTION("unordered uncomparable")
@@ -938,6 +1326,8 @@ TEST_CASE("Array")
                 },
                 TestArrayElement_(345, 456),
                 345, 456 );
+
+            // cannot use Array::find, since elements are not comparable
         }
     }
 }
