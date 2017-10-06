@@ -6,7 +6,7 @@
 
 #include <Windows.h>
 
-#include <vector>
+#include <bdn/Array.h>
 
 namespace bdn
 {
@@ -102,10 +102,10 @@ inline Size win32SizeToSize(const SIZE& s, double scaleFactor)
 
 /** Parses a wide character commandline string (as returned by the win32 API function
 	GetCommandLineW.
-	Returns an array (std::vector) with the individual arguments. The first element in the array
+	Returns an array with the individual arguments. The first element in the array
 	will be the executable name that was included in the commandline.	
 	*/
-std::vector<String> parseWin32CommandLine(const String& commandline);
+Array<String> parseWin32CommandLine(const String& commandline);
 
 
 /** Creates an AppLaunchInfo object for the app. The commandline arguments

@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/Thread.h>
+#include <bdn/Array.h>
 
 using namespace bdn;
 
@@ -67,8 +68,8 @@ TEST_CASE("SafeInit")
 
 		const int threadCount = 100;
 
-		std::vector< std::future<void> > threadResults;
-		std::vector< P<Thread> > threads;
+		Array< std::future<void> > threadResults;
+		Array< P<Thread> > threads;
 
 		for(int i=0;i<threadCount; i++)
 			threadResults.emplace_back();

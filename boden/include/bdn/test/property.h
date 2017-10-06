@@ -2,6 +2,7 @@
 #define BDN_test_property_H_
 
 #include <bdn/Thread.h>
+#include <bdn/Array.h>
 
 #include <random>
 
@@ -455,7 +456,7 @@ void testStringProperty(std::function< P<PropertyType>() > propertyCreatorFunc, 
 		for(std::future<void>& f: futureList)
 			f.get();
 
-		std::vector<int> values;
+		Array<int> values;
 		String result = prop;
 		while(!result.isEmpty())
 		{
@@ -469,11 +470,12 @@ void testStringProperty(std::function< P<PropertyType>() > propertyCreatorFunc, 
 			}
 
 			int intVal = std::stoi(token.asUtf8());
-			values.push_back(intVal);
+			values.add(intVal);
 		}
 
-		std::vector<int> valuesBefore = values;
-		std::sort(values.begin(), values.end());
+		Array<int> valuesBefore = values;
+        
+        values.sort();
 
 		// if this fails then the values were added in the correct order. That is unlikely
 		// given the random waits that happen in the different threads. It suggests a bug

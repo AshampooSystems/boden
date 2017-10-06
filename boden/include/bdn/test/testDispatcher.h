@@ -2,6 +2,7 @@
 #define BDN_TEST_testDispatcher_H_
 
 #include <bdn/IDispatcher.h>
+#include <bdn/Array.h>
 
 
 namespace bdn
@@ -11,12 +12,12 @@ namespace test
 
 struct TestDispatcherData_ : public Base
 {
-    std::vector<int> callOrder;
+    Array<int> callOrder;
 
-    std::vector< std::chrono::steady_clock::time_point > callTimes;
+    Array< std::chrono::steady_clock::time_point > callTimes;
 
     int callableDestroyedCount = 0;
-    std::vector< Thread::Id > callableDestructWrongThreadIds;
+    Array< Thread::Id > callableDestructWrongThreadIds;
 
     int unhandledProblemCount = 0;
 };

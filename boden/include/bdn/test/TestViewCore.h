@@ -453,7 +453,7 @@ protected:
                     RoundType::up
                 };
 
-                std::vector<Rect> adjustedBoundsArray;
+                Array<Rect> adjustedBoundsArray;
 
                 for(RoundType sizeRoundType: roundTypes)
                 {

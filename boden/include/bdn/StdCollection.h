@@ -1,8 +1,6 @@
 #ifndef BDN_StdCollection_H_
 #define BDN_StdCollection_H_
 
-#include <vector>
-
 namespace bdn
 {
 

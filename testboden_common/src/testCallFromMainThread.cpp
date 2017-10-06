@@ -4,6 +4,7 @@
 #include <bdn/mainThread.h>
 #include <bdn/Thread.h>
 #include <bdn/StopWatch.h>
+#include <bdn/Array.h>
 
 using namespace bdn;
 
@@ -263,8 +264,8 @@ public:
     }
 
     Mutex               _mutex;
-    std::vector<int>	_expectedOrder;
-    std::vector<int>	_actualOrder;
+    Array<int>	        _expectedOrder;
+    Array<int>	        _actualOrder;
 
     int                 _scheduledPending;
 
@@ -884,7 +885,7 @@ TEST_CASE("asyncCallFromMainThreadAfterSeconds")
 
 struct TestCallWhenIdleOrder : public Base
 {
-    std::vector<int> callOrder;
+    Array<int> callOrder;
 };
 
 

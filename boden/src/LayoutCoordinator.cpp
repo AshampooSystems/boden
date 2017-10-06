@@ -4,7 +4,6 @@
 #include <bdn/NotImplementedError.h>
 #include <bdn/log.h>
 
-#include <vector>
 
 namespace bdn
 {

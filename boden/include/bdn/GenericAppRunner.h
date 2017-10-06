@@ -18,11 +18,11 @@ private:
 	{
 		AppLaunchInfo launchInfo;
 
-		std::vector<String> argStrings;
+		Array<String> argStrings;
 		for(int i=0; i<argCount; i++)
-			argStrings.push_back( String::fromLocaleEncoding(args[i]) );
+			argStrings.add( String::fromLocaleEncoding(args[i]) );
         if(argCount==0)
-            argStrings.push_back(""); // always add the first entry.
+            argStrings.add(""); // always add the first entry.
 		launchInfo.setArguments(argStrings);
 
 		return launchInfo;

@@ -2,6 +2,7 @@
 #include <bdn/test.h>
 
 #include <bdn/AsyncStdioReader.h>
+#include <bdn/Array.h>
 
 using namespace bdn;
 
@@ -69,7 +70,7 @@ public:
     P< AsyncStdioReader<CharType> >     _pReader;
 
     int                 _nextStep = 0;
-    std::vector<String> _results;
+    Array<String>       _results;
 
     int      _timeoutCounter = 0;
 
@@ -139,7 +140,7 @@ public:
     std::basic_stringstream<CharType>   _stream;
     P< AsyncStdioReader<CharType> >     _pReader;
 
-    std::vector<String>                 _results;
+    Array<String>                       _results;
 
     int                                 _timeoutCounter=0;
 
