@@ -33,15 +33,23 @@ template<typename ELTYPE, class ALLOCATOR = std::allocator<ELTYPE> >
 class Array : public StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >
 {
 public:
+    
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ElementType;
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::SizeType;
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::Iterator;
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstIterator;
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ReverseIterator;
+    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
+    
     /** Creates an empty array.*/
     Array() noexcept( noexcept(ALLOCATOR()) )
-     : StdSequenceCollection( ALLOCATOR() )
+     : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
     {
     }
 
     /** Constructs an array that uses a specific allocator object.*/
     explicit Array( const ALLOCATOR& alloc ) noexcept
-        : StdSequenceCollection(alloc)
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(alloc)
     {
     }
 
@@ -50,8 +58,8 @@ public:
     
         Optionally, one can also pass an allocator object for custom memory management.
     */
-    Array( typename StdSequenceCollection::SizeType count, const ElementType& el, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection(count, el, alloc)
+    Array( SizeType count, const ElementType& el, const ALLOCATOR& alloc = ALLOCATOR() )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(count, el, alloc)
     {
     }
 
@@ -60,8 +68,8 @@ public:
     
         Optionally, one can also pass an allocator object for custom memory management.
     */
-    explicit Array( typename StdSequenceCollection::SizeType count, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection(count, alloc)
+    explicit Array( SizeType count, const ALLOCATOR& alloc = ALLOCATOR() )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(count, alloc)
     {
     }
     
@@ -72,20 +80,20 @@ public:
     */
     template< class InputIt >
     Array( InputIt beginIt, InputIt endIt, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection(beginIt, endIt, alloc)
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(beginIt, endIt, alloc)
     {
     }
 
     /** Initializes the Array with copies of the elements from the specified other array.*/
     Array( const Array& other )
-        : StdSequenceCollection(other)
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(other)
     {
     }
 
 
     /** Initializes the Array with copies of the elements from the specified std::vector object.*/
     Array( const std::vector<ELTYPE, ALLOCATOR>& other )
-        : StdSequenceCollection(other)
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(other)
     {
     }
 
@@ -95,20 +103,20 @@ public:
         The specified allocator object is used to initialize the array's internal allocator.
         */
     Array( const std::vector<ELTYPE, ALLOCATOR>& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection(other, alloc)
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(other, alloc)
     {
     }
 
     /** Moves the data from the specified other array to this array. The other array is invalidated by this.*/
     Array( Array&& other ) noexcept
-        : StdSequenceCollection( std::forward(other) )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other) )
     {
     }
 
 
     /** Moves the data from the specified other vector to this array. The other array is invalidated by this.*/
     Array( std::vector<ELTYPE, ALLOCATOR>&& other ) noexcept
-        : StdSequenceCollection( std::forward(other) )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other) )
     {
     }
 
@@ -118,7 +126,7 @@ public:
         The specified allocator object is used to initialize the array's internal allocator.
         */
     Array( Array&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection( std::forward(other), alloc )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -127,7 +135,7 @@ public:
     
         The specified allocator object is used to initialize the array's internal allocator.*/
     Array( std::vector<ELTYPE, ALLOCATOR>&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection( std::forward(other), alloc )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -147,7 +155,7 @@ public:
         \endcode
     */
     Array( std::initializer_list<ElementType> initList, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection( initList, alloc )
+        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( initList, alloc )
     {
     }
 
@@ -212,7 +220,7 @@ public:
     */
     ElementType& atIndex( SizeType index )
     {
-        return StdSequenceCollectionType::at(index);
+        return this->at(index);
     }
 
 
@@ -220,7 +228,7 @@ public:
     */
     const ElementType& atIndex( SizeType index ) const
     {
-        return StdSequenceCollectionType::at(index);
+        return this->at(index);
     }
 
 
@@ -240,30 +248,30 @@ public:
 
         \endcode
     */
-    typename StdCollection::ElementType& operator[]( typename StdCollection::SizeType index )
+    ElementType& operator[]( SizeType index )
     {
-        return StdSequenceCollectionType::at(index);
+        return this->at(index);
     }
 
 
     /** Const version of operator[] -- returns a const reference to the element at the specified zero-based index.
     */
-    const typename StdCollection::ElementType& operator[]( typename StdCollection::SizeType index ) const
+    const ElementType& operator[]( SizeType index ) const
     {
-        return StdSequenceCollectionType::at(index);
+        return this->at(index);
     }
 
     
     /** Returns a pointer to the underlying raw array data.*/
     ElementType* data() noexcept
     {
-        return StdSequenceCollectionType::data();
+        return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }
     
     /** Const version of data() - returns a const pointer to the underlying raw array data.*/
     const ElementType* data() const noexcept
     {
-        return StdSequenceCollectionType::data();
+        return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }
 
 
@@ -280,14 +288,14 @@ public:
     */
     void prepareForSize(SizeType size)
     {
-        std::vector::reserve(size);
+        this->reserve(size);
     }
 
 
     /** Returns the zero based index that corresponds to the specified iterator.*/
     SizeType iteratorToIndex( ConstIterator it ) const
     {
-        return it-begin();
+        return it - this->begin();
     }
 
 
@@ -297,7 +305,7 @@ public:
     */
     Iterator indexToIterator( SizeType index )
     {
-        return begin()+index;
+        return this->begin()+index;
     }
 
     
@@ -305,7 +313,7 @@ public:
         at the specified zero based index.*/
     ConstIterator indexToIterator( SizeType index ) const
     {
-        return begin()+index;
+        return this->begin()+index;
     }
     
 

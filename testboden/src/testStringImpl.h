@@ -812,7 +812,7 @@ inline void testConversion()
 
         SECTION("toLocaleEncoding")
 		{
-			std::u16string o = s.toLocaleEncoding<char16_t>();
+			std::u16string o = s.template toLocaleEncoding<char16_t>();
 
 			// note: we use \xffff instead of \uffff because G++ 4.8 has a bug and generates
 			// an incorrect string with \u.
@@ -887,7 +887,7 @@ inline void testConversion()
         
         SECTION("toLocaleEncoding")
 		{
-			std::u32string o = s.toLocaleEncoding<char32_t>();
+			std::u32string o = s.template toLocaleEncoding<char32_t>();
             REQUIRE( o==U"he\u0218\u0777\uffffllo" );
         }
 
@@ -980,7 +980,7 @@ inline void testConversion()
 
         SECTION("toLocaleEncoding")
 		{
-			std::wstring o = s.toLocaleEncoding<wchar_t>();
+			std::wstring o = s.template toLocaleEncoding<wchar_t>();
             REQUIRE( o==L"he\u0218\u0777\uffffllo" );
         }
 

@@ -14,18 +14,25 @@ class StdSequenceCollection : public StdCollection< BaseCollectionType >
 {
 public:
     
+    using typename StdCollection< BaseCollectionType >::ElementType;
+    using typename StdCollection< BaseCollectionType >::SizeType;
+    using typename StdCollection< BaseCollectionType >::Iterator;
+    using typename StdCollection< BaseCollectionType >::ConstIterator;
+    using typename StdCollection< BaseCollectionType >::ReverseIterator;
+    using typename StdCollection< BaseCollectionType >::ConstReverseIterator;
+    
     template<class... Args>
     StdSequenceCollection(Args... args)
-     : StdCollection( std::forward<Args>(args)... )
+     : StdCollection<BaseCollectionType>( std::forward<Args>(args)... )
     {
     }
 
     
     /** Returns a reference to the first element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    typename StdCollection::ElementType& getFirst()
+    ElementType& getFirst()
     {
-        if(isEmpty())
+        if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
 
         return BaseCollectionType::front();
@@ -33,9 +40,9 @@ public:
 
     /** Returns a const reference to the first element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    const typename StdCollection::ElementType& getFirst() const
+    const ElementType& getFirst() const
     {
-        if(isEmpty())
+        if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
 
         return BaseCollectionType::front();
@@ -45,9 +52,9 @@ public:
 
     /** Returns a reference to the last element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    typename StdCollection::ElementType& getLast()
+    ElementType& getLast()
     {
-        if(isEmpty())
+        if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
 
         return BaseCollectionType::back();
@@ -56,9 +63,9 @@ public:
 
     /** Returns a const reference to the last element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    const typename StdCollection::ElementType& getLast() const
+    const ElementType& getLast() const
     {
-        if(isEmpty())
+        if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
 
         return BaseCollectionType::back();
@@ -105,7 +112,7 @@ public:
     template< class InputIt >
     void addSequence( InputIt beginIt, InputIt endIt )
     {
-        BaseCollectionType::insert( end(), beginIt, endIt);
+        BaseCollectionType::insert( this->end(), beginIt, endIt);
     }
 
 
@@ -121,7 +128,7 @@ public:
         */
     void addSequence( std::initializer_list<ElementType> initList )
     {
-        BaseCollectionType::insert( end(), initList );
+        BaseCollectionType::insert( this->end(), initList );
     }
 
 
@@ -141,7 +148,7 @@ public:
     ElementType& addNew( Args&&... args )
     {
         BaseCollectionType::emplace_back( std::forward<Args>(args)... );
-        return back();
+        return BaseCollectionType::back();
     }
 
 
@@ -205,7 +212,7 @@ public:
     template< class InputIt >
     Iterator insertSequenceAt( ConstIterator pos, InputIt beginIt, InputIt endIt )
     {
-        return BaseCollectionType::insert<InputIt>(pos, beginIt, endIt);
+        return BaseCollectionType:: template insert<InputIt>(pos, beginIt, endIt);
     }
 
 
@@ -258,7 +265,7 @@ public:
     */
     void insertAtBegin( const ElementType& el )
     {
-        BaseCollectionType::insert( begin(), el);
+        BaseCollectionType::insert( this->begin(), el);
     }
 
     /** Inserts an element at the beginning of the collection.
@@ -267,7 +274,7 @@ public:
     */
     void insertAtBegin( ElementType&& el )
     {
-        BaseCollectionType::insert( begin(), std::forward<ElementType>(el) );
+        BaseCollectionType::insert( this->begin(), std::forward<ElementType>(el) );
     }
 
 
@@ -278,7 +285,7 @@ public:
     */
     Iterator insertMultipleCopiesAtBegin( SizeType count, const ElementType& el)
     {
-        return BaseCollectionType::insert( BaseCollectionType::begin(), count, el);
+        return BaseCollectionType::insert( this->begin(), count, el);
     }
 
 
@@ -296,7 +303,7 @@ public:
     template< class InputIt >
     Iterator insertSequenceAtBegin( InputIt beginIt, InputIt endIt )
     {
-        return BaseCollectionType::insert<InputIt>( BaseCollectionType::begin(), beginIt, endIt);
+        return BaseCollectionType:: template insert<InputIt>( this->begin(), beginIt, endIt);
     }
 
 
@@ -313,7 +320,7 @@ public:
         */
     Iterator insertSequenceAtBegin( std::initializer_list<ElementType> initList )
     {
-        return BaseCollectionType::insert( BaseCollectionType::begin(), initList);
+        return BaseCollectionType::insert( this->begin(), initList);
     }
 
 
@@ -324,7 +331,7 @@ public:
     template< class... Args > 
     Iterator insertNewAtBegin(Args&&... args)
     {
-        return insertNewAt( begin(), std::forward<Args>(args)... );
+        return insertNewAt( this->begin(), std::forward<Args>(args)... );
     }
 
 
@@ -333,17 +340,17 @@ public:
         is empty.*/
     void removeLast()
     {
-        if(isEmpty())
+        if( this->isEmpty())
     		throw OutOfRangeError("StdSequenceCollection::removeLast called on empty array.");
 
-        BaseCollectionType::pop_back();
+        this->pop_back();
     }
 
     /** Removes the first element from the collection. Throws OutOfRangeError if the collection
         is empty.*/
     void removeFirst()
     {
-        if(isEmpty())
+        if( this->isEmpty())
     		throw OutOfRangeError("StdSequenceCollection::removeFirst called on empty array.");
 
         BaseCollectionType::erase( BaseCollectionType::begin() );
@@ -382,7 +389,7 @@ public:
     */
     Iterator find( const ElementType& el )
     {
-        return std::find(begin(), end(), el );
+        return std::find( this->begin(), this->end(), el );
     }
 
 
@@ -390,7 +397,7 @@ public:
     */
     ConstIterator find( const ElementType& el ) const
     {
-        return std::find(begin(), end(), el );
+        return std::find( this->begin(), this->end(), el );
     }    
 
 
@@ -402,7 +409,7 @@ public:
     template<class ConditionFuncType>
 	Iterator findCondition(ConditionFuncType conditionFunc )
 	{
-        return std::find_if( begin(), end(), conditionFunc );
+        return std::find_if( this->begin(), this->end(), conditionFunc );
 	}
 
 
@@ -411,7 +418,7 @@ public:
     template<class ConditionFuncType>
 	ConstIterator findCondition(ConditionFuncType conditionFunc ) const
 	{
-        return std::find_if( begin(), end(), conditionFunc );
+        return std::find_if( this->begin(), this->end(), conditionFunc );
 	}
 
 
@@ -421,10 +428,10 @@ public:
     */
     Iterator reverseFind( const ElementType& el )
     {
-        ReverseIterator endIt = reverseEnd();
-        ReverseIterator it = std::find(reverseBegin(), endIt, el );
+        ReverseIterator endIt = this->reverseEnd();
+        ReverseIterator it = std::find( this->reverseBegin(), endIt, el );
         if(it==endIt)
-            return end();
+            return this->end();
 
         // it.base is the iterator of the element AFTER the one it points to
         return --it.base();
@@ -435,10 +442,10 @@ public:
     */
     ConstIterator reverseFind( const ElementType& el ) const
     {
-        ConstReverseIterator endIt = reverseEnd();
-        ConstReverseIterator it = std::find(reverseBegin(), endIt, el );
+        ConstReverseIterator endIt = this->reverseEnd();
+        ConstReverseIterator it = std::find( this->reverseBegin(), endIt, el );
         if(it==endIt)
-            return end();
+            return this->end();
 
         // it.base is the iterator of the element AFTER the one it points to
         return --it.base();
@@ -453,10 +460,10 @@ public:
     template<typename ConditionFuncType>
 	Iterator reverseFindCondition(ConditionFuncType conditionFunc )
 	{
-        ReverseIterator endIt = reverseEnd();
-        ReverseIterator it = std::find_if(reverseBegin(), endIt, conditionFunc );
+        ReverseIterator endIt = this->reverseEnd();
+        ReverseIterator it = std::find_if( this->reverseBegin(), endIt, conditionFunc );
         if(it==endIt)
-            return end();
+            return this->end();
 
         // it.base is the iterator of the element AFTER the one it points to
         return --it.base();
@@ -468,10 +475,10 @@ public:
     template<typename ConditionFuncType>
 	ConstIterator reverseFindCondition(ConditionFuncType conditionFunc ) const
 	{
-        ConstReverseIterator endIt = reverseEnd();
-        ConstReverseIterator it = std::find_if(reverseBegin(), endIt, conditionFunc );
+        ConstReverseIterator endIt = this->reverseEnd();
+        ConstReverseIterator it = std::find_if( this->reverseBegin(), endIt, conditionFunc );
         if(it==endIt)
-            return end();
+            return this->end();
 
         // it.base is the iterator of the element AFTER the one it points to
         return --it.base();
@@ -487,7 +494,7 @@ public:
         */
     void sort()
     {
-        std::sort( begin(), end() );
+        std::sort( this->begin(), this->end() );
     }
 
 
@@ -502,7 +509,7 @@ public:
     template<class ComesBeforeFuncType>
     void sort(ComesBeforeFuncType comesBefore )
     {
-        std::sort( begin(), end(), comesBefore );
+        std::sort( this->begin(), this->end(), comesBefore );
     }
 
 
@@ -513,7 +520,7 @@ public:
     */
     void stableSort()
     {
-        std::stable_sort( begin(), end() );
+        std::stable_sort( this->begin(), this->end() );
     }
 
 
@@ -530,7 +537,7 @@ public:
     template<class ComesBeforeFuncType>
     void stableSort( ComesBeforeFuncType comesBefore )
     {
-        std::stable_sort( begin(), end(), comesBefore );
+        std::stable_sort( this->begin(), this->end(), comesBefore );
     }
 
 };

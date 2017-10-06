@@ -274,6 +274,54 @@ static void verifyCollIteration(CollType& coll, const std::list<typename CollTyp
         verifyIterators<typename CollType::ElementType>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
 }
 
+
+template<class CollType>
+static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::ElementType> expectedElementList )
+{
+    SECTION("size")
+    {
+        REQUIRE( coll.size() == expectedElementList.size() );
+        REQUIRE( coll.getSize() == expectedElementList.size() );
+    }
+    
+    SECTION("maxSize")
+    {
+        // max size should be "reasonably large". It might depend on the size of the elements, though,
+        // So this test might not work for all element types. But it works for the types we use in
+        // our test.
+        REQUIRE( coll.max_size() >= 0x00ffffff );
+        REQUIRE( coll.getMaxSize() >= 0x00ffffff );
+    }
+    
+    
+    SECTION("empty")
+    {
+        REQUIRE( coll.empty() == (expectedElementList.size()==0) );
+        REQUIRE( coll.isEmpty() == (expectedElementList.size()==0) );
+    }
+    
+    SECTION("getFirst")
+    {
+        if(expectedElementList.size() == 0)
+            REQUIRE_THROWS_AS( coll.getFirst(), OutOfRangeError );
+        else
+            REQUIRE( _isCollElementEqual(coll.getFirst(), expectedElementList.front() ) );
+    }
+    
+    SECTION("getLast")
+    {
+        if(expectedElementList.size() == 0)
+            REQUIRE_THROWS_AS( coll.getLast(), OutOfRangeError );
+        else
+            REQUIRE( _isCollElementEqual( coll.getLast(), expectedElementList.back() ) );
+    }
+    
+    SECTION("iteration")
+    verifyCollIteration( coll, expectedElementList );
+}
+
+
+
 template<class CollType, typename... ConstructArgs>
 static void verifyInsertAt(
     CollType& coll,
@@ -381,7 +429,7 @@ static void verifyInsertAt(
 
     SECTION("new")
     {
-        coll.insertNewAt<ConstructArgs...>( insertIt, std::forward<ConstructArgs>(constructArgs)... );
+        coll. template insertNewAt<ConstructArgs...>( insertIt, std::forward<ConstructArgs>(constructArgs)... );
         newExpectedElementList.insert( expectedInsertIt, expectedConstructedEl );
 
         verifyReadOnlySequence( coll, newExpectedElementList );
@@ -606,52 +654,6 @@ static void verifyInsertAtBegin(
 
         verifyReadOnlySequence( coll, newExpectedElementList );
     }
-}
-
-
-template<class CollType>
-static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::ElementType> expectedElementList )
-{
-    SECTION("size")
-    {
-        REQUIRE( coll.size() == expectedElementList.size() );
-        REQUIRE( coll.getSize() == expectedElementList.size() );
-    }
-
-    SECTION("maxSize")
-    {
-        // max size should be "reasonably large". It might depend on the size of the elements, though,
-        // So this test might not work for all element types. But it works for the types we use in
-        // our test.
-        REQUIRE( coll.max_size() >= 0x00ffffff );
-        REQUIRE( coll.getMaxSize() >= 0x00ffffff );
-    }
-
-
-    SECTION("empty")
-    {
-        REQUIRE( coll.empty() == (expectedElementList.size()==0) );
-        REQUIRE( coll.isEmpty() == (expectedElementList.size()==0) );
-    }
-
-    SECTION("getFirst")
-    {
-        if(expectedElementList.size() == 0)
-            REQUIRE_THROWS_AS( coll.getFirst(), OutOfRangeError );
-        else
-            REQUIRE( _isCollElementEqual(coll.getFirst(), expectedElementList.front() ) );
-    }
-
-    SECTION("getLast")
-    {
-        if(expectedElementList.size() == 0)
-            REQUIRE_THROWS_AS( coll.getLast(), OutOfRangeError );
-        else
-            REQUIRE( _isCollElementEqual( coll.getLast(), expectedElementList.back() ) );
-    }
-
-    SECTION("iteration")
-        verifyCollIteration( coll, expectedElementList );
 }
 
 
