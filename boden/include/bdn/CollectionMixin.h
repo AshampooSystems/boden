@@ -12,7 +12,7 @@ class CollectionMixin : public BaseCollectionType
 public:
     typedef BaseCollectionType::value_type ValueType;
     typedef BaseCollectionType::allocator_type AllocatorType;
-    typedef BaseCollectionType::size_type SizeType;
+    typedef BaseCollectionType::size_type Size;
     
     typedef BaseCollectionType::iterator Iterator;
     typedef BaseCollectionType::const_iterator ConstIterator;
@@ -315,17 +315,17 @@ public:
         return std::vector::empty();
     }
 
-    SizeType getSize() const noexcept
+    Size getSize() const noexcept
     {
         return std::vector::size();
     }
 
-    SizeType getMaxSize() const noexcept
+    Size getMaxSize() const noexcept
     {
         return std::vector::max_size();
     }
     
-    void prepareForSize(SizeType elementCount)
+    void prepareForSize(Size elementCount)
     {
         std::vector::reserve(elementCount);
     }
@@ -350,7 +350,7 @@ public:
     }
 
 
-    Iterator insert( ConstIterator pos, SizeType count, const ValueType& value)
+    Iterator insert( ConstIterator pos, Size count, const ValueType& value)
     {
         return std::vector::insert(pos, count, value);
     }
@@ -475,7 +475,7 @@ public:
 
 
 
-    SizeType indexOf( const ValueType& value ) const
+    Size indexOf( const ValueType& value ) const
     {
         const Iterator it = std::find(begin(), end(), value );
 
@@ -487,7 +487,7 @@ public:
 
 
     template<class Predicate>
-	SizeType indexOfCondition(Predicate condition ) const
+	Size indexOfCondition(Predicate condition ) const
 	{
         const Iterator it = std::find_if(begin(), end(), condition );
 

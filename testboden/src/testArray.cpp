@@ -250,33 +250,33 @@ static void verifyIterators(ItType it, ItType end, const std::list<ElType>& expe
 }
 
 template<class CollType>
-static void verifyCollIteration(CollType& coll, const std::list<typename CollType::ElementType>& expectedElementList)
+static void verifyCollIteration(CollType& coll, const std::list<typename CollType::Element>& expectedElementList)
 {
     SECTION("normal")
-        verifyIterators<typename CollType::ElementType>( coll.begin(), coll.end(), expectedElementList );
+        verifyIterators<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
 
     SECTION("const coll")
-        verifyIterators<typename CollType::ElementType>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
+        verifyIterators<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
 
     SECTION("constBegin/End")
-        verifyIterators<typename CollType::ElementType>( coll.constBegin(), coll.constEnd(), expectedElementList );
+        verifyIterators<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
 
-    std::list< typename CollType::ElementType > reversedExpectedElementList( expectedElementList );
+    std::list< typename CollType::Element > reversedExpectedElementList( expectedElementList );
     std::reverse( reversedExpectedElementList.begin(), reversedExpectedElementList.end() );
         
     SECTION("reverse normal")
-        verifyIterators<typename CollType::ElementType>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
+        verifyIterators<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
 
     SECTION("reverse const coll")
-        verifyIterators<typename CollType::ElementType>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList  );
+        verifyIterators<typename CollType::Element>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList  );
 
     SECTION("constReverseBegin/End")
-        verifyIterators<typename CollType::ElementType>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
+        verifyIterators<typename CollType::Element>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
 }
 
 
 template<class CollType>
-static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::ElementType> expectedElementList )
+static void verifyReadOnlySequence(CollType& coll, std::list<typename CollType::Element> expectedElementList )
 {
     SECTION("size")
     {
@@ -326,23 +326,23 @@ template<class CollType, typename... ConstructArgs>
 static void verifyInsertAt(
     CollType& coll,
     int insertIndex,
-    std::list<typename CollType::ElementType> expectedElementList,
-    std::initializer_list<typename CollType::ElementType> newElList,
-    std::function< bool(const typename CollType::ElementType&) > isMovedRemnant,
-    typename CollType::ElementType expectedConstructedEl,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList,
+    std::function< bool(const typename CollType::Element&) > isMovedRemnant,
+    typename CollType::Element expectedConstructedEl,
     ConstructArgs... constructArgs)
 {
-    std::list<typename CollType::ElementType> newExpectedElementList = expectedElementList;
+    std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
     typename CollType::Iterator insertIt = coll.begin();
-    typename std::list<typename CollType::ElementType>::iterator expectedInsertIt = newExpectedElementList.begin();
+    typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.begin();
     for(int i=0; i<insertIndex; i++)
     {
         ++insertIt;
         ++expectedInsertIt;
     }
 
-    typename CollType::ElementType elToAdd = *newElList.begin();
+    typename CollType::Element elToAdd = *newElList.begin();
 
     SECTION("ref")
     {
@@ -441,18 +441,18 @@ static void verifyInsertAt(
 template<class CollType, typename... ConstructArgs>
 static void verifyAdd(
     CollType& coll,
-    std::list<typename CollType::ElementType> expectedElementList,
-    std::initializer_list<typename CollType::ElementType> newElList,
-    std::function< bool(const typename CollType::ElementType&) > isMovedRemnant,
-    typename CollType::ElementType expectedConstructedEl,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList,
+    std::function< bool(const typename CollType::Element&) > isMovedRemnant,
+    typename CollType::Element expectedConstructedEl,
     ConstructArgs... constructArgs
 )
 {
-    std::list<typename CollType::ElementType> newExpectedElementList = expectedElementList;
+    std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
-    typename std::list<typename CollType::ElementType>::iterator expectedInsertIt = newExpectedElementList.end();
+    typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.end();
     
-    typename CollType::ElementType elToAdd = *newElList.begin();
+    typename CollType::Element elToAdd = *newElList.begin();
 
     SECTION("ref")
     {
@@ -551,18 +551,18 @@ static void verifyAdd(
 template<class CollType, typename... ConstructArgs>
 static void verifyInsertAtBegin(
     CollType& coll,
-    std::list<typename CollType::ElementType> expectedElementList,
-    std::initializer_list<typename CollType::ElementType> newElList,
-    std::function< bool(const typename CollType::ElementType&) > isMovedRemnant,
-    typename CollType::ElementType expectedConstructedEl,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList,
+    std::function< bool(const typename CollType::Element&) > isMovedRemnant,
+    typename CollType::Element expectedConstructedEl,
     ConstructArgs... constructArgs
 )
 {
-    std::list<typename CollType::ElementType> newExpectedElementList = expectedElementList;
+    std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
 
-    typename std::list<typename CollType::ElementType>::iterator expectedInsertIt = newExpectedElementList.begin();
+    typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.begin();
     
-    typename CollType::ElementType elToAdd = *newElList.begin();
+    typename CollType::Element elToAdd = *newElList.begin();
 
     SECTION("ref")
     {
@@ -661,16 +661,16 @@ static void verifyInsertAtBegin(
 template<class CollType, typename... ConstructArgs>
 static void verifySequence(
     CollType& coll,
-    std::list<typename CollType::ElementType> expectedElementList,
-    std::initializer_list<typename CollType::ElementType> newElList,
-    std::function< bool(const typename CollType::ElementType&) > isMovedRemnant,
-    typename CollType::ElementType expectedConstructedEl,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList,
+    std::function< bool(const typename CollType::Element&) > isMovedRemnant,
+    typename CollType::Element expectedConstructedEl,
     ConstructArgs... constructArgs
     )
 {
     verifyReadOnlySequence(coll, expectedElementList);
 
-    std::list<typename CollType::ElementType> newExpectedElementList( expectedElementList );
+    std::list<typename CollType::Element> newExpectedElementList( expectedElementList );
 
     SECTION("clear")
     {
@@ -836,7 +836,7 @@ static void verifySequence(
         SECTION("to one more")
         {
             coll.setSize( coll.size()+1 );
-            newExpectedElementList.push_back( typename CollType::ElementType() );
+            newExpectedElementList.push_back( typename CollType::Element() );
 
             verifyReadOnlySequence( coll, newExpectedElementList);
         }
@@ -846,7 +846,7 @@ static void verifySequence(
             coll.setSize( coll.size()+100 );
 
             for(int i=0; i<100; i++)
-                newExpectedElementList.push_back( typename CollType::ElementType() );
+                newExpectedElementList.push_back( typename CollType::Element() );
 
             verifyReadOnlySequence( coll, newExpectedElementList);
         }
@@ -891,11 +891,11 @@ void testIndexedAccess(CollType& coll)
 template<class CollType>
 void testPrepareForSize(CollType& coll)
 {
-    std::list< typename CollType::ElementType > origElements( coll.begin(), coll.end() );
+    std::list< typename CollType::Element > origElements( coll.begin(), coll.end() );
 
-    typename CollType::SizeType origCapacity = coll.capacity();
+    typename CollType::Size origCapacity = coll.capacity();
 
-    typename CollType::SizeType prepareFor=0;
+    typename CollType::Size prepareFor=0;
     
     SECTION("0")
         prepareFor = 0;
@@ -917,7 +917,7 @@ void testPrepareForSize(CollType& coll)
     // prepareForSize should NEVER change the collection contents
     verifyReadOnlySequence( coll, origElements );
 
-    typename CollType::SizeType newCapacity = coll.capacity();
+    typename CollType::Size newCapacity = coll.capacity();
 
     REQUIRE( newCapacity>=coll.size() );
 
@@ -935,6 +935,128 @@ static void testArray(
     ElType expectedConstructedEl,
     ConstructArgs... constructArgs )
 {
+    SECTION("construct")
+    {
+        std::list<ElType> expectedElements;
+
+        SECTION("n copies")
+        {
+            SECTION("0")
+            {
+                Array<ElType> coll( 0, *newElList.begin() );
+                
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+
+            SECTION("3")
+            {
+                Array<ElType> coll( 3, *newElList.begin() );
+
+                for(int i=0; i<3; i++)
+                    expectedElements.push_back( *newElList.begin() );
+
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+        }
+
+        SECTION("n default constructed")
+        {
+            SECTION("0")
+            {
+                Array<ElType> coll( 0 );
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+
+            SECTION("3")
+            {
+                Array<ElType> coll( 3 );
+
+                for(int i=0; i<3; i++)
+                    expectedElements.push_back( ElType() );
+
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+        }
+
+        SECTION("iterators")
+        {
+            SECTION("empty")
+            {
+                Array<ElType> coll( newElList.begin(), newElList.begin() );
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+
+            SECTION("non-empty")
+            {
+                Array<ElType> coll( newElList.begin(), newElList.end() );
+
+                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+        }
+
+        SECTION("copy")
+        {
+            SECTION("Array")
+            {
+                Array<ElType> src( newElList );
+
+                Array<ElType> coll(src);
+
+                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+
+            SECTION("vector")
+            {
+                std::vector<ElType> src( newElList );
+
+                Array<ElType> coll(src);
+
+                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+
+                verifyReadOnlySequence( coll, expectedElements );
+            }
+        }
+
+        SECTION("move")
+        {
+            SECTION("Array")
+            {
+                Array<ElType> src( newElList );
+
+                Array<ElType> coll( std::move(src) );
+
+                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+                verifyReadOnlySequence( coll, expectedElements );
+
+                REQUIRE( src.size()==0 );
+            }
+
+            SECTION("vector")
+            {
+                std::vector<ElType> src( newElList );
+
+                Array<ElType> coll( std::move(src) );
+
+                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+                verifyReadOnlySequence( coll, expectedElements );
+
+                REQUIRE( src.size()==0 );
+            }
+        }
+
+        SECTION("initializer_list")
+        {
+            Array<ElType> coll( newElList );
+
+            expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+            verifyReadOnlySequence( coll, expectedElements );
+        }
+    }
+
     Array<ElType> coll;
 
     SECTION("empty")
@@ -988,7 +1110,7 @@ static void testArray(
 }
 
 template<class CollType, class ItType>
-static void verifyFindForSpecificVariant(CollType& coll, typename CollType::ElementType toFind, ItType expectedResult )
+static void verifyFindForSpecificVariant(CollType& coll, typename CollType::Element toFind, ItType expectedResult )
 {
     SECTION("no startPos")
     {
@@ -1032,7 +1154,7 @@ static void verifyFindForSpecificVariant(CollType& coll, typename CollType::Elem
 
 
 template<class CollType>
-static void verifyFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
+static void verifyFind(CollType& coll, typename CollType::Element toFind, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
         verifyFindForSpecificVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult);
@@ -1053,7 +1175,7 @@ static void verifyFind(CollType& coll, typename CollType::ElementType toFind, ty
 
 
 template<class CollType, class ItType>
-static void verifyReverseFindForSpecificVariant(CollType& coll, typename CollType::ElementType toFind, ItType expectedResult, ItType posAfterExpectedPos )
+static void verifyReverseFindForSpecificVariant(CollType& coll, typename CollType::Element toFind, ItType expectedResult, ItType posAfterExpectedPos )
 {
     SECTION("no startPos")
     {
@@ -1110,7 +1232,7 @@ static void verifyReverseFindForSpecificVariant(CollType& coll, typename CollTyp
 }
 
 template<class CollType>
-static void verifyReverseFind(CollType& coll, typename CollType::ElementType toFind, typename CollType::Iterator expectedResult )
+static void verifyReverseFind(CollType& coll, typename CollType::Element toFind, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
@@ -1138,7 +1260,7 @@ static void verifyReverseFind(CollType& coll, typename CollType::ElementType toF
 }
 
 template<class CollType>
-static void verifyFindCondition(CollType& coll, std::function< bool(const typename CollType::ElementType&) > conditionFunc, typename CollType::Iterator expectedResult )
+static void verifyFindCondition(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
@@ -1163,7 +1285,7 @@ static void verifyFindCondition(CollType& coll, std::function< bool(const typena
 
 
 template<class CollType>
-static void verifyReverseFindCondition(CollType& coll, std::function< bool(const typename CollType::ElementType&) > conditionFunc, typename CollType::Iterator expectedResult )
+static void verifyReverseFindCondition(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
@@ -1187,7 +1309,7 @@ static void verifyReverseFindCondition(CollType& coll, std::function< bool(const
 }
 
 template<class CollType>
-static void testFind(std::initializer_list<typename CollType::ElementType> elements, const typename CollType::ElementType& elNotInColl )
+static void testFind(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
 {
     SECTION("find")
     {
@@ -1230,7 +1352,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
             {
                 verifyFindCondition(
                     coll,
-                    [](const typename CollType::ElementType& el)
+                    [](const typename CollType::Element& el)
                     {
                         return false;
                     },
@@ -1247,11 +1369,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("first")
             {
-                typename CollType::ElementType toFind = coll.getFirst();
+                typename CollType::Element toFind = coll.getFirst();
 
                 verifyFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1260,11 +1382,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("last")
             {
-                typename CollType::ElementType toFind = coll.getLast();
+                typename CollType::Element toFind = coll.getLast();
 
                 verifyFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1273,11 +1395,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("second")
             {
-                typename CollType::ElementType toFind = *++coll.begin();
+                typename CollType::Element toFind = *++coll.begin();
 
                 verifyFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1288,7 +1410,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
             {
                 verifyFindCondition(
                     coll,
-                    [](const typename CollType::ElementType& el)
+                    [](const typename CollType::Element& el)
                     {
                         return false;
                     },
@@ -1343,7 +1465,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
             {
                 verifyReverseFindCondition(
                     coll,
-                    [](const typename CollType::ElementType& el)
+                    [](const typename CollType::Element& el)
                     {
                         return false;
                     },
@@ -1360,11 +1482,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("first")
             {
-                typename CollType::ElementType toFind = coll.getFirst();
+                typename CollType::Element toFind = coll.getFirst();
 
                 verifyReverseFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1374,11 +1496,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("last")
             {
-                typename CollType::ElementType toFind = coll.getLast();
+                typename CollType::Element toFind = coll.getLast();
 
                 verifyReverseFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1387,11 +1509,11 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 
             SECTION("second")
             {
-                typename CollType::ElementType toFind = *++coll.begin();
+                typename CollType::Element toFind = *++coll.begin();
 
                 verifyReverseFindCondition(
                     coll,
-                    [toFind](const typename CollType::ElementType& el)
+                    [toFind](const typename CollType::Element& el)
                     {
                         return (el == toFind);
                     },
@@ -1402,7 +1524,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
             {
                 verifyReverseFindCondition(
                     coll,
-                    [](const typename CollType::ElementType& el)
+                    [](const typename CollType::Element& el)
                     {
                         return false;
                     },
@@ -1414,7 +1536,7 @@ static void testFind(std::initializer_list<typename CollType::ElementType> eleme
 }
 
 template<class CollType>
-void verifySortResult( CollType& coll, std::initializer_list<typename CollType::ElementType> elements, bool expectInvertedOrder = false )
+void verifySortResult( CollType& coll, std::initializer_list<typename CollType::Element> elements, bool expectInvertedOrder = false )
 {
     // verify that the elements are all in the correct order
     auto it = coll.begin();
@@ -1443,8 +1565,8 @@ void verifySortResult( CollType& coll, std::initializer_list<typename CollType::
 
 template<class CollType>
 void testSort(
-    std::initializer_list<typename CollType::ElementType> elements,
-    std::initializer_list<typename CollType::ElementType> stableSortedElements )
+    std::initializer_list<typename CollType::Element> elements,
+    std::initializer_list<typename CollType::Element> stableSortedElements )
 {
     SECTION("empty")
     {
@@ -1459,7 +1581,7 @@ void testSort(
         SECTION("sort with compare func")
         {
             coll.sort(
-                [](typename CollType::ElementType& a, typename CollType::ElementType& b)
+                [](typename CollType::Element& a, typename CollType::Element& b)
                 {
                     // use inverted comparison
                     return (b<a);
@@ -1477,7 +1599,7 @@ void testSort(
         SECTION("stableSort with compare func")
         {
             coll.stableSort(
-                [](const typename CollType::ElementType& a, const typename CollType::ElementType& b)
+                [](const typename CollType::Element& a, const typename CollType::Element& b)
                 {
                     // use inverted comparison
                     return (b<a);
@@ -1501,7 +1623,7 @@ void testSort(
         SECTION("sort with compare func")
         {
             coll.sort(
-                [](typename CollType::ElementType& a, typename CollType::ElementType& b)
+                [](typename CollType::Element& a, typename CollType::Element& b)
                 {
                     // use inverted comparison
                     return (b<a);
@@ -1522,7 +1644,7 @@ void testSort(
         SECTION("stableSort with compare func")
         {
             coll.stableSort(
-                [](const typename CollType::ElementType& a, const typename CollType::ElementType& b)
+                [](const typename CollType::Element& a, const typename CollType::Element& b)
                 {
                     // use inverted comparison
                     return (b<a);
@@ -1530,7 +1652,7 @@ void testSort(
 
             verifySortResult( coll, elements, true );
 
-            std::list<typename CollType::ElementType> expectedSortedElements( stableSortedElements.begin(), stableSortedElements.end() );
+            std::list<typename CollType::Element> expectedSortedElements( stableSortedElements.begin(), stableSortedElements.end() );
             expectedSortedElements.reverse();
 
             verifyReadOnlySequence( coll, expectedSortedElements );

@@ -14,8 +14,8 @@ class StdSequenceCollection : public StdCollection< BaseCollectionType >
 {
 public:
     
-    using typename StdCollection< BaseCollectionType >::ElementType;
-    using typename StdCollection< BaseCollectionType >::SizeType;
+    using typename StdCollection< BaseCollectionType >::Element;
+    using typename StdCollection< BaseCollectionType >::Size;
     using typename StdCollection< BaseCollectionType >::Iterator;
     using typename StdCollection< BaseCollectionType >::ConstIterator;
     using typename StdCollection< BaseCollectionType >::ReverseIterator;
@@ -30,7 +30,7 @@ public:
     
     /** Returns a reference to the first element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    ElementType& getFirst()
+    Element& getFirst()
     {
         if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
@@ -40,7 +40,7 @@ public:
 
     /** Returns a const reference to the first element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    const ElementType& getFirst() const
+    const Element& getFirst() const
     {
         if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
@@ -52,7 +52,7 @@ public:
 
     /** Returns a reference to the last element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    ElementType& getLast()
+    Element& getLast()
     {
         if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
@@ -63,7 +63,7 @@ public:
 
     /** Returns a const reference to the last element of the collection. Throws OutOfRangeError if the collection
         is empty.*/
-    const ElementType& getLast() const
+    const Element& getLast() const
     {
         if( this->isEmpty() )
     		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
@@ -77,7 +77,7 @@ public:
     
     /** Adds a new element to the collection (at the end).
     */
-    void add( const ElementType& value )
+    void add( const Element& value )
     {
         BaseCollectionType::push_back(value);
     }
@@ -87,15 +87,15 @@ public:
         element, the C++ move semantics are used to move the element data from the parameter
         \c el to the new collection element.
         */
-    void add( ElementType&& value )
+    void add( Element&& value )
     {
-        BaseCollectionType::push_back( std::forward<ElementType>(value) );
+        BaseCollectionType::push_back( std::forward<Element>(value) );
     }
 
 
     /** Adds \c count copies copy of the specified element \c el to the collection (at the end).        
     */
-    void addMultipleCopies( SizeType count, const ElementType& el)
+    void addMultipleCopies( Size count, const Element& el)
     {
         BaseCollectionType::insert(BaseCollectionType::end(), count, el);
     }
@@ -126,7 +126,7 @@ public:
         ar.addSequence( {1, 4, 7} );    // adds three elements to the array
 
         */
-    void addSequence( std::initializer_list<ElementType> initList )
+    void addSequence( std::initializer_list<Element> initList )
     {
         BaseCollectionType::insert( this->end(), initList );
     }
@@ -145,7 +145,7 @@ public:
         Returns a reference to the newly added element.
         */
     template< class... Args > 
-    ElementType& addNew( Args&&... args )
+    Element& addNew( Args&&... args )
     {
         BaseCollectionType::emplace_back( std::forward<Args>(args)... );
         return BaseCollectionType::back();
@@ -163,7 +163,7 @@ public:
 
         Returns an iterator to the newly inserted element.                
     */
-    Iterator insertAt( ConstIterator pos, const ElementType& el)
+    Iterator insertAt( ConstIterator pos, const Element& el)
     {
         return BaseCollectionType::insert(pos, el);
     }
@@ -172,9 +172,9 @@ public:
     /** Like insertAt() but instead of being a copy the newly inserted element is created
         with C++ move semantics from the \c el argument.        
     */
-    Iterator insertAt( ConstIterator pos, ElementType&& el)
+    Iterator insertAt( ConstIterator pos, Element&& el)
     {
-        return BaseCollectionType::insert(pos, std::forward<ElementType>(el) );
+        return BaseCollectionType::insert(pos, std::forward<Element>(el) );
     }
 
 
@@ -187,7 +187,7 @@ public:
 
         Returns an iterator to first inserted element. If count is 0 then \c pos is returned.
     */
-    Iterator insertMultipleCopiesAt( ConstIterator pos, SizeType count, const ElementType& el)
+    Iterator insertMultipleCopiesAt( ConstIterator pos, Size count, const Element& el)
     {
         return BaseCollectionType::insert(pos, count, el);
     }
@@ -232,7 +232,7 @@ public:
         ar.insertSequenceAt( ar.begin(), {1, 4, 7} );    // inserts three elements at the start of the array
 
         */
-    Iterator insertSequenceAt( ConstIterator pos, std::initializer_list<ElementType> initList )
+    Iterator insertSequenceAt( ConstIterator pos, std::initializer_list<Element> initList )
     {
         return BaseCollectionType::insert(pos, initList);
     }
@@ -263,7 +263,7 @@ public:
 
         Same as insert( begin(), el).    
     */
-    void insertAtBegin( const ElementType& el )
+    void insertAtBegin( const Element& el )
     {
         BaseCollectionType::insert( this->begin(), el);
     }
@@ -272,9 +272,9 @@ public:
 
         Same as insert( begin(), el).    
     */
-    void insertAtBegin( ElementType&& el )
+    void insertAtBegin( Element&& el )
     {
-        BaseCollectionType::insert( this->begin(), std::forward<ElementType>(el) );
+        BaseCollectionType::insert( this->begin(), std::forward<Element>(el) );
     }
 
 
@@ -283,7 +283,7 @@ public:
         
         Returns an iterator to first inserted element. If count is 0 then \c begin() is returned.
     */
-    Iterator insertMultipleCopiesAtBegin( SizeType count, const ElementType& el)
+    Iterator insertMultipleCopiesAtBegin( Size count, const Element& el)
     {
         return BaseCollectionType::insert( this->begin(), count, el);
     }
@@ -318,7 +318,7 @@ public:
         ar.insertSequenceAtBegin( {1, 4, 7} );    // inserts three elements at the start of the array
 
         */
-    Iterator insertSequenceAtBegin( std::initializer_list<ElementType> initList )
+    Iterator insertSequenceAtBegin( std::initializer_list<Element> initList )
     {
         return BaseCollectionType::insert( this->begin(), initList);
     }
@@ -363,9 +363,9 @@ public:
 
         If the collection is currently smaller then new default-constructed elements are added
         at the end. If you the new elements to be initialized differently then you should use
-        the setSize(SizeType, const ElementType&) overload of this method instead.
+        the setSize(Size, const Element&) overload of this method instead.
     */
-    void setSize( SizeType count )
+    void setSize( Size count )
     {
         BaseCollectionType::resize(count);
     }
@@ -377,7 +377,7 @@ public:
 
         If the collection is currently smaller then copies of \c padValue are added at the end.
     */
-    void setSize( SizeType count, const ElementType& padValue )
+    void setSize( Size count, const Element& padValue )
     {
         BaseCollectionType::resize(count, padValue);
     }
@@ -387,7 +387,7 @@ public:
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    Iterator find( const ElementType& el )
+    Iterator find( const Element& el )
     {
         return std::find( this->begin(), this->end(), el );
     }
@@ -399,7 +399,7 @@ public:
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    Iterator find( const ElementType& el, Iterator startPos )
+    Iterator find( const Element& el, Iterator startPos )
     {
         return std::find( startPos, this->end(), el );
     }
@@ -407,7 +407,7 @@ public:
 
     /** Const version of find() - returns a read-only iterator.
     */
-    ConstIterator find( const ElementType& el ) const
+    ConstIterator find( const Element& el ) const
     {
         return std::find( this->begin(), this->end(), el );
     }    
@@ -419,7 +419,7 @@ public:
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    ConstIterator find( const ElementType& el, ConstIterator startPos ) const
+    ConstIterator find( const Element& el, ConstIterator startPos ) const
     {
         return std::find( startPos, this->end(), el );
     }
@@ -450,7 +450,7 @@ public:
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    Iterator reverseFind( const ElementType& el )
+    Iterator reverseFind( const Element& el )
     {
         Iterator it = end();
         Iterator beginIt = begin();
@@ -473,7 +473,7 @@ public:
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    Iterator reverseFind( const ElementType& el, Iterator startPos )
+    Iterator reverseFind( const Element& el, Iterator startPos )
     {
         Iterator it = startPos;
         if( it!=end() )
@@ -494,7 +494,7 @@ public:
 
     /** Const version of reverseFind() - returns a read-only iterator.
     */
-    ConstIterator reverseFind( const ElementType& el ) const
+    ConstIterator reverseFind( const Element& el ) const
     {
         ConstIterator it = end();
         ConstIterator beginIt = begin();
@@ -512,7 +512,7 @@ public:
 
     /** Const version of reverseFind() - returns a read-only iterator.
     */
-    ConstIterator reverseFind( const ElementType& el, ConstIterator startPos ) const
+    ConstIterator reverseFind( const Element& el, ConstIterator startPos ) const
     {
         ConstIterator it = startPos;
         if( it!=end() )

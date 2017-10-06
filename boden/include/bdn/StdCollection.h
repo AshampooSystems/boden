@@ -12,14 +12,14 @@ class StdCollection : public BaseCollectionType, public Base
 public:
 
     /** The type of the collection elements.*/
-    typedef typename BaseCollectionType::value_type ElementType;
+    typedef typename BaseCollectionType::value_type Element;
 
     /** The type of the allocator that is used to manage the collection's memory allocations.*/
-    typedef typename BaseCollectionType::allocator_type AllocatorType;
+    typedef typename BaseCollectionType::allocator_type Allocator;
 
     /** The integer type that is used to represent indexes and collection sizes.
         This is usually an alias to size_t.*/
-    typedef typename BaseCollectionType::size_type SizeType;
+    typedef typename BaseCollectionType::size_type Size;
 
 
     /** The class of iterator objects for read/write access to elements.*/
@@ -44,7 +44,7 @@ public:
 
 
     /** Returns a copy of the allocator object that manages the collection's memory.*/
-    AllocatorType getAllocator() const
+    Allocator getAllocator() const
     {
         return BaseCollectionType::get_allocator();
     }
@@ -254,7 +254,7 @@ public:
 
 
     /** Returns the number of elements in the collection.*/
-    SizeType getSize() const noexcept
+    Size getSize() const noexcept
     {
         return BaseCollectionType::size();
     }
@@ -262,7 +262,7 @@ public:
 
     /** Returns the maximum number of elements the collection can potentially have.
         This refers to the theoretical maximum, provided that enough memory is available.*/
-    SizeType getMaxSize() const noexcept
+    Size getMaxSize() const noexcept
     {
         return BaseCollectionType::max_size();
     }
