@@ -275,13 +275,13 @@ public:
 
     
     /** Returns a pointer to the underlying raw array data.*/
-    Element* data() noexcept
+    Element* getData() noexcept
     {
         return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }
     
-    /** Const version of data() - returns a const pointer to the underlying raw array data.*/
-    const Element* data() const noexcept
+    /** Const version of getData() - returns a const pointer to the underlying raw array data.*/
+    const Element* getData() const noexcept
     {
         return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }

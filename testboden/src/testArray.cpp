@@ -1095,13 +1095,13 @@ static void testArray(
                 testIndexedAccess( (const Array<ElType>&) coll );
         }
 
-        SECTION("data")
+        SECTION("getData")
         {
             SECTION("normal")
-                REQUIRE( coll.data() == &coll[0] );
+                REQUIRE( coll.getData() == &coll[0] );
 
             SECTION("const")
-                REQUIRE( ((const Array<ElType>&)coll).data() == &coll[0] );
+                REQUIRE( ((const Array<ElType>&)coll).getData() == &coll[0] );
         }
 
         SECTION("prepareForSize")
