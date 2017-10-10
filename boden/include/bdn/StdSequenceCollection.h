@@ -2,6 +2,7 @@
 #define BDN_StdSequenceCollection_H_
 
 #include <bdn/StdCollection.h>
+#include <bdn/sort.h>
 
 namespace bdn
 {
@@ -355,6 +356,9 @@ public:
 
         BaseCollectionType::erase( BaseCollectionType::begin() );
     }
+
+
+    
     
 
     /** Changes the size of the collection to \c count number of elements.
@@ -564,60 +568,6 @@ public:
 	}
     
 
-    /** Sorts the elements from small to big (using the element's < operator
-        to compare them).
-
-        When elements compare equal to each other (i.e. neither one
-        is smaller than the other) then they will obviously end up next to each other.
-        However, their relative ordering amongst themselves is undefined. See stableSort() for an alternative.
-        */
-    void sort()
-    {
-        std::sort( this->begin(), this->end() );
-    }
-
-
-    /** Sorts the elements in a custom order. comesBefore must be a function that
-        takes references to two elements as its parameters and returns true if the first one
-        should come before the second one.
-        
-        When elements compare equal to each other (i.e. neither one
-        is smaller than the other) then they will obviously end up next to each other.
-        However, their relative ordering amongst themselves is undefined. See stableSort() for an alternative.
-        */
-    template<class ComesBeforeFuncType>
-    void sort(ComesBeforeFuncType comesBefore )
-    {
-        std::sort( this->begin(), this->end(), comesBefore );
-    }
-
-
-    /** Like sort() except that the ordering is stable. That means that 
-        when elements compare equal to each other (i.e. neither one
-        is smaller than the other) then they remain in their original relative order
-        amongst themselves.
-    */
-    void stableSort()
-    {
-        std::stable_sort( this->begin(), this->end() );
-    }
-
-
-    /** Like sort() except that the ordering is stable.
-        
-        Sorts the elements in a custom order. comesBefore must be a function that
-        takes references to two elements as its parameters and returns true if the first one
-        should come before the second one.
-
-        When elements compare equal to each other (i.e. neither one
-        is smaller than the other) then they remain in their original relative order
-        amongst themselves.
-        */
-    template<class ComesBeforeFuncType>
-    void stableSort( ComesBeforeFuncType comesBeforeFunc )
-    {
-        std::stable_sort( this->begin(), this->end(), comesBeforeFunc );
-    }
 };
 
 

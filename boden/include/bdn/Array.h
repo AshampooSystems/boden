@@ -329,6 +329,129 @@ public:
     }
     
 
+    
+    /** Sorts the elements in ascending order (small first), using the element's < operator
+        to compare them. 
+
+        If you need descending order or a custom order, there is also a variant of sort
+        that takes a comparison function as a parameter.
+
+        Examples:
+
+        \code
+
+        bool myComparisonFunc(const String& a, const String& b)
+        {
+            // return true if a should come before b
+            ...
+        }
+
+        void doSort()
+        {
+            Array<String> myArray = ...;
+
+            // sort in ascending order
+            myArray.sort(); 
+
+            // sort in descending order. bdn::descending() is a predefined
+            // comparison function provided by the boden framework.
+            myArray.sort( descending<String> );
+
+            // sort in a custom order, defined by the custom myComparisonFunc.
+            myArray.sort( myComparisonFunc );
+        }
+
+        \endcode
+
+        Stability
+        ---------
+
+        sort is *not* guaranteed to be implemented with a stable sorting algorithm.
+        Note that "stability" is a special term when discussing sorting algorithms.
+        It refers to how elements that are "equal" to each other (neither one of them is
+        smaller than the other) are handled. Stable sorting algorithms guarantee that
+        equal elements keep their original relative order amongst each other. Non-stable
+        sorting algorithms do not guarantee that.
+
+        If you need a stable sorting algorithm use stableSort() instead.
+        
+        */
+    void sort()
+    {
+        std::sort( this->begin(), this->end() );
+    }
+
+
+    /** Sorts the elements in a custom order. comesBefore must be a function that
+        takes references to two elements as its parameters and returns true if the first one
+        should come before the second one. There are also two predefined comparison functions
+        that can be used: pass bdn::ascending<ElementTypeName> to get ascending order or
+        bdn::descending<ElementTypeName> to get descending order.
+        
+        Examples:
+
+        \code
+
+        bool myComparisonFunc(const String& a, const String& b)
+        {
+            // return true if a should come before b
+            ...
+        }
+
+        void doSort()
+        {
+            Array<String> myArray = ...;
+
+            // sort in ascending order
+            myArray.sort(); 
+
+            // sort in descending order. bdn::descending() is a predefined
+            // comparison function provided by the boden framework.
+            myArray.sort( descending<String> );
+
+            // sort in a custom order, defined by the custom myComparisonFunc.
+            myArray.sort( myComparisonFunc );
+        }
+
+        \endcode
+
+        Stability
+        ---------
+
+        sort is *not* guaranteed to be implemented with a stable sorting algorithm.
+        Note that "stability" is a special term when discussing sorting algorithms.
+        It refers to how elements that are "equal" to each other (neither one of them is
+        smaller than the other) are handled. Stable sorting algorithms guarantee that
+        equal elements keep their original relative order amongst each other. Non-stable
+        sorting algorithms do not guarantee that.
+
+        If you need a stable sorting algorithm use stableSort() instead.        
+        */
+    template<class ComesBeforeFuncType>
+    void sort(ComesBeforeFuncType comesBefore )
+    {
+        std::sort( this->begin(), this->end(), comesBefore );
+    }
+
+
+    /** Like sort() except that the sorting algorithm is guaranteed to be stable. See sort() documentation for
+        more information about what this means.
+    */
+    void stableSort()
+    {
+        std::stable_sort( this->begin(), this->end() );
+    }
+
+
+    /** Like sort() except that the sorting algorithm is guaranteed to be stable. See sort() documentation for
+        more information about what this means.
+    */
+    template<class ComesBeforeFuncType>
+    void stableSort( ComesBeforeFuncType comesBeforeFunc )
+    {
+        std::stable_sort( this->begin(), this->end(), comesBeforeFunc );
+    }
+
 };
 
 

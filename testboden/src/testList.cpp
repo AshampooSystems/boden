@@ -3,55 +3,15 @@
 
 #include "testCollection.h"
 
-#include <bdn/Array.h>
+#include <bdn/List.h>
 
 using namespace bdn;
 using namespace bdn::test;
 
 
 
-template<class CollType>
-inline void _testArrayPrepareForSize(CollType& coll)
-{
-    std::list< typename CollType::Element > origElements( coll.begin(), coll.end() );
-
-    typename CollType::Size origCapacity = coll.capacity();
-
-    typename CollType::Size prepareFor=0;
-    
-    SECTION("0")
-        prepareFor = 0;
-
-    SECTION("1")
-        prepareFor = 1;
-
-    SECTION("size")
-        prepareFor = coll.size();
-
-    SECTION("capacity")
-        prepareFor = coll.capacity();
-    
-    SECTION("capacity+1")
-        prepareFor = coll.capacity()+1;
-
-    coll.prepareForSize( prepareFor );
-
-    // prepareForSize should NEVER change the collection contents
-    _verifySequenceCollectionReadOnly( coll, origElements );
-
-    typename CollType::Size newCapacity = coll.capacity();
-
-    REQUIRE( newCapacity>=coll.size() );
-
-    if(prepareFor <= origCapacity)
-        REQUIRE( newCapacity <= origCapacity );
-
-    REQUIRE( newCapacity >= prepareFor );
-}
-
-
 template<typename ElType, typename... ConstructArgs>
-static void testArray(
+static void testList(
     std::initializer_list<ElType> initElList,
     std::initializer_list<ElType> newElList,
     std::function< bool(const ElType&) > isMovedRemnant,
@@ -66,14 +26,14 @@ static void testArray(
         {
             SECTION("0")
             {
-                Array<ElType> coll( 0, *newElList.begin() );
+                List<ElType> coll( 0, *newElList.begin() );
                 
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
             {
-                Array<ElType> coll( 3, *newElList.begin() );
+                List<ElType> coll( 3, *newElList.begin() );
 
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( *newElList.begin() );
@@ -86,13 +46,13 @@ static void testArray(
         {
             SECTION("0")
             {
-                Array<ElType> coll( 0 );
+                List<ElType> coll( 0 );
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
             {
-                Array<ElType> coll( 3 );
+                List<ElType> coll( 3 );
 
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( ElType() );
@@ -105,13 +65,13 @@ static void testArray(
         {
             SECTION("empty")
             {
-                Array<ElType> coll( newElList.begin(), newElList.begin() );
+                List<ElType> coll( newElList.begin(), newElList.begin() );
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("non-empty")
             {
-                Array<ElType> coll( newElList.begin(), newElList.end() );
+                List<ElType> coll( newElList.begin(), newElList.end() );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
@@ -121,22 +81,22 @@ static void testArray(
 
         SECTION("copy")
         {
-            SECTION("Array")
+            SECTION("List")
             {
-                Array<ElType> src( newElList );
+                List<ElType> src( newElList );
 
-                Array<ElType> coll(src);
+                List<ElType> coll(src);
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
             }
 
-            SECTION("vector")
+            SECTION("std::list")
             {
-                std::vector<ElType> src( newElList );
+                std::list<ElType> src( newElList );
 
-                Array<ElType> coll(src);
+                List<ElType> coll(src);
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
@@ -146,11 +106,11 @@ static void testArray(
 
         SECTION("move")
         {
-            SECTION("Array")
+            SECTION("List")
             {
-                Array<ElType> src( newElList );
+                List<ElType> src( newElList );
 
-                Array<ElType> coll( std::move(src) );
+                List<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
@@ -158,11 +118,11 @@ static void testArray(
                 REQUIRE( src.size()==0 );
             }
 
-            SECTION("vector")
+            SECTION("std::list")
             {
-                std::vector<ElType> src( newElList );
+                std::list<ElType> src( newElList );
 
-                Array<ElType> coll( std::move(src) );
+                List<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
                 _verifySequenceCollectionReadOnly( coll, expectedElements );
@@ -173,14 +133,14 @@ static void testArray(
 
         SECTION("initializer_list")
         {
-            Array<ElType> coll( newElList );
+            List<ElType> coll( newElList );
 
             expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
             _verifySequenceCollectionReadOnly( coll, expectedElements );
         }
     }
 
-    Array<ElType> coll;
+    List<ElType> coll;
 
     SECTION("empty")
     {
@@ -193,13 +153,7 @@ static void testArray(
             std::forward<ConstructArgs>(constructArgs)... );
 
         SECTION("prepareForSize")
-        {
-            SECTION("generic")
-                _testGenericCollectionPrepareForSize(coll);
-
-            SECTION("array")
-                _testArrayPrepareForSize(coll);
-        }
+            _testGenericCollectionPrepareForSize(coll);
     }
 
     SECTION("non-empty")
@@ -214,42 +168,18 @@ static void testArray(
             isMovedRemnant,
             expectedConstructedEl,
             std::forward<ConstructArgs>(constructArgs)... );        
-
-        SECTION("indexed access")
-        {
-            SECTION("normal")
-                _testCollectionIndexedAccess(coll);
-
-            SECTION("const")
-                _testCollectionIndexedAccess( (const Array<ElType>&) coll );
-        }
-
-        SECTION("getData")
-        {
-            SECTION("normal")
-                REQUIRE( coll.getData() == &coll[0] );
-
-            SECTION("const")
-                REQUIRE( ((const Array<ElType>&)coll).getData() == &coll[0] );
-        }
-
+        
         SECTION("prepareForSize")
-        {
-            SECTION("generic")
-                _testGenericCollectionPrepareForSize(coll);
-
-            SECTION("array")
-                _testArrayPrepareForSize(coll);
-        }
+            _testGenericCollectionPrepareForSize(coll);
     }    
 }
 
 
-TEST_CASE("Array")
+TEST_CASE("List")
 {
     SECTION("simple type")
     {
-        testArray<int>(
+        testList<int>(
             {17, 42, 3},
             {100, 101, 102},
             [](const int& el)
@@ -259,15 +189,15 @@ TEST_CASE("Array")
             345,
             345 );       
 
-        _testCollectionFind< Array<int> >( {17, 42, 17, 3}, 88 );
-        _testCollectionSort< Array<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
+        _testCollectionFind< List<int> >( {17, 42, 17, 3}, 88 );
+        _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
     }
 
     SECTION("complex type")
     {
         SECTION("ordered")
         {
-            testArray<TestCollectionElement_OrderedComparable_>(
+            testList<TestCollectionElement_OrderedComparable_>(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                   TestCollectionElement_OrderedComparable_(42, 142),
                   TestCollectionElement_OrderedComparable_(3, 103)
@@ -283,7 +213,7 @@ TEST_CASE("Array")
                 TestCollectionElement_OrderedComparable_(345, 456),
                 345, 456 );
 
-            _testCollectionFind< Array<TestCollectionElement_OrderedComparable_> >(
+            _testCollectionFind< List<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
@@ -291,7 +221,7 @@ TEST_CASE("Array")
                 },
                 TestCollectionElement_OrderedComparable_(400, 401) );
 
-            _testCollectionSort< Array<TestCollectionElement_OrderedComparable_> >(
+            _testCollectionSort< List<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 1),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 2),
@@ -306,7 +236,7 @@ TEST_CASE("Array")
 
         SECTION("unordered comparable")
         {
-            testArray<TestCollectionElement_UnorderedComparable_>(
+            testList<TestCollectionElement_UnorderedComparable_>(
                 { TestCollectionElement_UnorderedComparable_(17, 117),
                   TestCollectionElement_UnorderedComparable_(42, 142),
                   TestCollectionElement_UnorderedComparable_(3, 103)
@@ -322,7 +252,7 @@ TEST_CASE("Array")
                 TestCollectionElement_UnorderedComparable_(345, 456),
                 345, 456 );
 
-            _testCollectionFind< Array<TestCollectionElement_UnorderedComparable_> >(
+            _testCollectionFind< List<TestCollectionElement_UnorderedComparable_> >(
                 { TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(42, 142),                
                     TestCollectionElement_UnorderedComparable_(17, 117),
@@ -335,7 +265,7 @@ TEST_CASE("Array")
 
         SECTION("unordered uncomparable")
         {
-            testArray<TestCollectionElement_UnorderedUncomparable_>(
+            testList<TestCollectionElement_UnorderedUncomparable_>(
                 { TestCollectionElement_UnorderedUncomparable_(17, 117),
                   TestCollectionElement_UnorderedUncomparable_(42, 142),
                   TestCollectionElement_UnorderedUncomparable_(3, 103)
@@ -351,7 +281,8 @@ TEST_CASE("Array")
                 TestCollectionElement_UnorderedUncomparable_(345, 456),
                 345, 456 );
 
-            // cannot use Array::find, since elements are not comparable
+            // cannot use List::find, since elements are not comparable
         }
     }
 }
+

@@ -1,6 +1,8 @@
 #ifndef BDN_StdCollection_H_
 #define BDN_StdCollection_H_
 
+#include <bdn/sort.h>
+
 namespace bdn
 {
 
@@ -294,7 +296,7 @@ public:
         Returns an iterator to element that follows the removed range. If the removed
         range was at the end of the collection then the end() iterator is returned.
     */
-    Iterator removeAt( ConstIterator beginIt, ConstIterator endIt )
+    Iterator removeSection( ConstIterator beginIt, ConstIterator endIt )
     {
         return BaseCollectionType::erase(beginIt, endIt);
     }
