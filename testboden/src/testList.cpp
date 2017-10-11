@@ -327,7 +327,12 @@ static void _verifyStealAndInsert( CollType& coll, CollType& other, typename Col
     std::list< ElementInfo<typename CollType::Iterator> > info = _getCollElementInfo(coll);
     std::list< ElementInfo<typename CollType::Iterator> > otherInfo = _getCollElementInfo(other);
 
+    size_t insertIndex = std::distance(coll.begin(), insertPos);
+
     std::list< ElementInfo<typename CollType::Iterator> >::iterator infoInsertPos = _toElementInfoIt(coll, insertPos, info);
+
+    size_t                      transferCount = 0;
+    size_t                      transferBeginIndex = 0;
 
     SECTION("stealAllAndInsertAt")
     {
@@ -343,31 +348,178 @@ static void _verifyStealAndInsert( CollType& coll, CollType& other, typename Col
         SECTION("std::list&&")
             coll.stealAllAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)) );
 
-        REQUIRE( other.isEmpty() );
-        REQUIRE( coll.getSize() == info.size() + otherInfo.size() );
-        
-        typename CollType::Iterator insertEnd = insertPos;
-        if(infoInsertPos == info.end() )
+        transferCount = otherInfo.size();
+        transferBeginIndex = 0;
+    }       
+
+
+    SECTION("stealSectionAndInsertAt")
+    {
+        SECTION("empty transfer")
         {
-            // insert was at the end of the original collection => the insert end in
-            // the resulting collection is its end
-            insertEnd = coll.end();            
-        }
-        else
-        {
-            // insertPos now points to the element following the inserted range
-            insertEnd = insertPos;
+            SECTION("List&")
+                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), other.begin() );
+
+            SECTION("List&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), other.begin()  );
+
+            SECTION("std::list&")
+                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), other.begin()  );
+
+            SECTION("std::list&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), other.begin()  );
+
+            transferCount = 0;
+            transferBeginIndex = 0;
         }
 
-        // insertPos now points to the end of the inserted range. We want it to point
-        // to the first inserted element.
-        insertPos = coll.begin();
-        std::advance( insertPos, std::distance(info.begin(), infoInsertPos) );
-        
-        _verifyElementRange( coll.begin(), insertPos, info.begin(), infoInsertPos );
-        _verifyElementRange( insertPos, insertEnd, otherInfo.begin(), otherInfo.end() );
-        _verifyElementRange( insertEnd, coll.end(), infoInsertPos, info.end() );
+        SECTION("partial transfer")
+        {
+            transferBeginIndex = 0;
+
+            typename CollType::ConstIterator transferEndIt = other.begin();
+            transferCount = other.size() / 2;
+            std::advance( transferEndIt, transferCount );
+
+            SECTION("List&")
+                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), transferEndIt );
+
+            SECTION("List&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), transferEndIt  );
+
+            SECTION("std::list&")
+                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), transferEndIt  );
+
+            SECTION("std::list&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), transferEndIt  );
+        }
+
+        SECTION("full transfer")
+        {
+            transferBeginIndex = 0;
+
+            typename CollType::ConstIterator transferEndIt = other.end();
+            transferCount = other.size();
+
+            SECTION("List&")
+                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), transferEndIt );
+
+            SECTION("List&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), transferEndIt  );
+
+            SECTION("std::list&")
+                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), transferEndIt  );
+
+            SECTION("std::list&&")
+                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), transferEndIt  );
+        }
     }
+        
+    if(otherInfo.size()>0)
+    {
+        SECTION("stealAndInsertAt")
+        {
+            transferCount = 1;
+
+            SECTION("first")
+            {            
+                transferBeginIndex = 0;
+
+                SECTION("List&")
+                    coll.stealAndInsertAt(insertPos, other, other.begin() );
+
+                SECTION("List&&")
+                    coll.stealAndInsertAt(insertPos, std::move(other), other.begin()  );
+
+                SECTION("std::list&")
+                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin()  );
+
+                SECTION("std::list&&")
+                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin()  );
+            }
+
+            SECTION("middle")
+            {            
+                transferBeginIndex = other.size()/2;
+
+                auto transferIt = other.begin();
+                std::advance(transferIt, transferBeginIndex);
+
+                SECTION("List&")
+                    coll.stealAndInsertAt(insertPos, other, transferIt );
+
+                SECTION("List&&")
+                    coll.stealAndInsertAt(insertPos, std::move(other), transferIt  );
+
+                SECTION("std::list&")
+                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), transferIt  );
+
+                SECTION("std::list&&")
+                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), transferIt  );
+            }
+
+            SECTION("last")
+            {            
+                transferBeginIndex = other.size()-1;
+
+                auto transferIt = other.end();
+                --transferIt;
+
+                SECTION("List&")
+                    coll.stealAndInsertAt(insertPos, other, transferIt );
+
+                SECTION("List&&")
+                    coll.stealAndInsertAt(insertPos, std::move(other), transferIt  );
+
+                SECTION("std::list&")
+                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), transferIt  );
+
+                SECTION("std::list&&")
+                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), transferIt  );
+            }
+        }
+    }
+
+    REQUIRE( other.getSize() == otherInfo.size()-transferCount );
+    REQUIRE( coll.getSize() == info.size()+transferCount );
+            
+    typename CollType::Iterator insertEnd;
+    if(infoInsertPos == info.end() )
+    {
+        // insert was at the end of the original collection => the insert end in
+        // the resulting collection is its end
+        insertEnd = coll.end();            
+    }
+    else
+    {
+        // insertPos now points to the element following the inserted range
+        insertEnd = insertPos;
+    }
+    
+    // insertPos now points to the end of the inserted range. We want it to point
+    // to the first inserted element.
+    insertPos = coll.begin();
+    std::advance( insertPos, insertIndex);
+
+    auto otherTransferBegin = other.begin();
+    std::advance( otherTransferBegin, transferBeginIndex );
+    
+    auto otherInfoTransferBegin = otherInfo.begin();
+    std::advance( otherInfoTransferBegin, transferBeginIndex );
+    
+    auto otherInfoTransferEnd = otherInfoTransferBegin;
+    std::advance( otherInfoTransferEnd, transferCount );
+                
+    _verifyElementRange( coll.begin(), insertPos, info.begin(), infoInsertPos );
+    _verifyElementRange( insertPos, insertEnd, otherInfoTransferBegin, otherInfoTransferEnd );
+    _verifyElementRange( insertEnd, coll.end(), infoInsertPos, info.end() );
+
+    _verifyElementRange( other.begin(), otherTransferBegin, otherInfo.begin(), otherInfoTransferBegin );
+
+    // note that the transferred items are now gone from other. So otherTransferBegin marks is
+    // the first element AFTER the removed section
+    _verifyElementRange( otherTransferBegin, other.end(), otherInfoTransferEnd, otherInfo.end() );
+
 }
 
 template<typename CollType>

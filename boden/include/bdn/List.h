@@ -613,6 +613,154 @@ public:
     
 
 
+
+    /** Transfers a section of elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition. \c transferBeginIt must be an iterator that points to the first element in \c otherList
+        to transfer. \c transferEndIt marks the end of the transfer range. It is exclusive, i.e. the element pointed to by transferEndIt is *not* transferred.
+        
+        The transferred elements are moved, not copied. They are removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealSectionAndInsertAt(
+        ConstIterator insertPosition,
+        List& otherList,
+        ConstIterator transferBeginIt,
+        ConstIterator transferEndIt)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
+    }
+
+
+    /** Transfers a section of elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition. \c transferBeginIt must be an iterator that points to the first element in \c otherList
+        to transfer. \c transferEndIt marks the end of the transfer range. It is exclusive, i.e. the element pointed to by transferEndIt is *not* transferred.
+        
+        The transferred elements are moved, not copied. They are removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealSectionAndInsertAt(
+        ConstIterator insertPosition,
+        std::list<ELTYPE, ALLOCATOR>& otherList,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
+    }
+
+    /** Transfers a section of elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition. \c transferBeginIt must be an iterator that points to the first element in \c otherList
+        to transfer. \c transferEndIt marks the end of the transfer range. It is exclusive, i.e. the element pointed to by transferEndIt is *not* transferred.
+        
+        The transferred elements are moved, not copied. They are removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealSectionAndInsertAt(
+        ConstIterator insertPosition,
+        List&& otherList,
+        ConstIterator transferBeginIt,
+        ConstIterator transferEndIt)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferBeginIt, transferEndIt );
+    }
+
+    /** Transfers a section of elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition. \c transferBeginIt must be an iterator that points to the first element in \c otherList
+        to transfer. \c transferEndIt marks the end of the transfer range. It is exclusive, i.e. the element pointed to by transferEndIt is *not* transferred.
+        
+        The transferred elements are moved, not copied. They are removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealSectionAndInsertAt(
+        ConstIterator insertPosition,
+        std::list<ELTYPE, ALLOCATOR>&& otherList,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferBeginIt, transferEndIt );
+    }
+
+
+
+
+    /** Transfers one element from \c otherList to this list and inserts it at the position
+        indicated by \c insertPosition. \c transferIt must be an iterator that points to the element in \c otherList
+        to transfer.
+        
+        The transferred element is moved, not copied. It is removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAndInsertAt(
+        ConstIterator insertPosition,
+        List& otherList,
+        ConstIterator transferIt )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
+    }
+
+    /** Transfers one element from \c otherList to this list and inserts it at the position
+        indicated by \c insertPosition. \c transferIt must be an iterator that points to the element in \c otherList
+        to transfer.
+        
+        The transferred element is moved, not copied. It is removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAndInsertAt(
+        ConstIterator insertPosition,
+        std::list<ELTYPE, ALLOCATOR>& otherList,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
+    }
+
+
+    /** Transfers one element from \c otherList to this list and inserts it at the position
+        indicated by \c insertPosition. \c transferIt must be an iterator that points to the element in \c otherList
+        to transfer.
+        
+        The transferred element is moved, not copied. It is removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAndInsertAt(
+        ConstIterator insertPosition,
+        List&& otherList,
+        ConstIterator transferIt )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferIt );
+    }
+
+    /** Transfers one element from \c otherList to this list and inserts it at the position
+        indicated by \c insertPosition. \c transferIt must be an iterator that points to the element in \c otherList
+        to transfer.
+        
+        The transferred element is moved, not copied. It is removed from \c otherList and inserted in this list, without copying or reallocation.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAndInsertAt(
+        ConstIterator insertPosition,
+        std::list<ELTYPE, ALLOCATOR>&& otherList,
+        typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferIt );
+    }
+
+
+
     /*
     splice => stealAndInsertAt, stealSectionAndInsertAt, stealAllAndInsertAt
     reverse => reverseOrder
