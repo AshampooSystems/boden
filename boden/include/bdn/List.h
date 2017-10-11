@@ -770,9 +770,36 @@ public:
         StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::reverse();
     }
 
+
+    /** Removes consecutive duplicates from the list.
+        This is intended to be used on sorted lists (since in sorted lists all duplicates
+        are next to each other).
+        
+        This version of the function considers to elements to be duplicates if their
+        == operator returns true. There is also a variant where you can pass a custom
+        duplicate check function.
+        */
+    void removeConsecutiveDuplicates()
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::unique();
+    }
+
+
+    /** Removes consecutive duplicates from the list.
+        This is intended to be used on sorted lists (since in sorted lists all duplicates
+        are next to each other).
+
+        The \c isDuplicate parameter must be a function that takes two element references as its
+        parameters and returns true if these elements are duplicates / equal.
+        */
+    template<class IsDuplicateFuncType>
+    void removeConsecutiveDuplicates( IsDuplicateFuncType isDuplicate )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::unique( isDuplicate );
+    }
+
+
     /*
-    reverse => reverseOrder
-    unique => removeConsecutiveDuplicates
         remove_if => removeCondition? removeMatching?
         remove => remove
         */

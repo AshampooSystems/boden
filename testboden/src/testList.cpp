@@ -593,6 +593,120 @@ static void _testReverseOrder( CollType& coll )
     }
 }
 
+template<class CollType>
+static void _verifyRemoveConsecutiveDuplicates( CollType& coll, int expectedRemoveIndex, int equalityVariant )
+{    
+    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+
+
+    if(equalityVariant==0)
+        coll.removeConsecutiveDuplicates();
+    
+    else if(equalityVariant==1)
+    {
+        // normal equality, but implemented by custom function
+        coll.removeConsecutiveDuplicates(
+            [](const typename CollType::Element& a, const typename CollType::Element& b)
+            {
+                return a==b;
+            } );
+    }
+
+    else if(equalityVariant==2)
+    {
+        // never consider two elements duplicates
+        // this verifies that the custom function is actually used
+        coll.removeConsecutiveDuplicates(
+            [](const typename CollType::Element& a, const typename CollType::Element& b)
+            {
+                return false;
+            } );
+
+        // sanity check: expectedRemoveIndex should be -1 since our custom function
+        // never considers two elements duplicates
+        REQUIRE( expectedRemoveIndex==-1 );
+    }
+
+    else
+        REQUIRE(false);
+
+    if(expectedRemoveIndex==-1)
+    {
+        REQUIRE( coll.getSize() == origInfo.size() );
+
+        _verifyElementRange( coll.begin(), coll.end(), origInfo.begin(), origInfo.end() );
+    }
+    else
+    {
+        REQUIRE( coll.getSize() == origInfo.size()-1 );
+
+        auto origInfoRemoveIt = origInfo.begin();
+        std::advance( origInfoRemoveIt, expectedRemoveIndex);
+
+        auto collRemoveIt = coll.begin();
+        std::advance( collRemoveIt, expectedRemoveIndex);
+
+        _verifyElementRange( coll.begin(), collRemoveIt, origInfo.begin(), origInfoRemoveIt );
+
+        auto origInfoAfterRemoveIt = origInfoRemoveIt;
+        ++origInfoAfterRemoveIt;
+
+        _verifyElementRange( collRemoveIt, coll.end(), origInfoAfterRemoveIt, origInfo.end() );
+    }
+}
+
+template<class CollType>
+static void _verifyRemoveConsecutiveDuplicates( CollType& coll, int expectedRemoveIndex )
+{    
+    SECTION("operator=")
+        _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 0);
+
+    SECTION("custom equality")
+        _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 1);
+
+    SECTION("never equal")
+        _verifyRemoveConsecutiveDuplicates(coll, -1, 2);
+}
+
+template<typename ElType>
+static void _testRemoveConsecutiveDuplicates( std::initializer_list<ElType> sortedElList )
+{
+    List<ElType> coll;
+
+    SECTION("empty")
+        _verifyRemoveConsecutiveDuplicates(coll, -1);        
+
+    SECTION("not empty")
+    {
+        coll.addSequence(sortedElList);
+
+        SECTION("with duplicate")
+        {
+            SECTION("consecutive")
+            {
+                // duplicate the second element
+                coll.insertAt( ++coll.begin(), *++coll.begin() );
+
+                _verifyRemoveConsecutiveDuplicates(coll, 2);        
+            }
+
+            SECTION("not consecutive")
+            {
+                // duplicate the second element, but insert it at the end
+                coll.add( *++coll.begin() );
+
+                _verifyRemoveConsecutiveDuplicates(coll, -1);        
+            }
+        }
+
+        SECTION("without duplicate")
+        {
+            _verifyRemoveConsecutiveDuplicates(coll, -1);        
+        }
+    }
+}
+
+
 template<typename ElType, typename... ConstructArgs>
 static void testList(
     std::initializer_list<ElType> initElList,
@@ -765,7 +879,7 @@ static void testList(
             _testStealAndInsert(coll, newElList);
 
         SECTION("reverseOrder")
-            _testReverseOrder(coll);
+            _testReverseOrder(coll);       
         
     }    
 }
@@ -789,6 +903,9 @@ TEST_CASE("List")
         _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
 
         _testStealAllAndMergeSorted<int>( {17, 42, 17, 3}, {99, 6, 2, 102} );
+
+        SECTION("removeConsecutiveDuplicates")
+            _testRemoveConsecutiveDuplicates( {3, 17, 42} );
     }
 
     SECTION("complex type")
@@ -842,6 +959,16 @@ TEST_CASE("List")
                     TestCollectionElement_OrderedComparable_(2, 2),
                     TestCollectionElement_OrderedComparable_(102, 103),
                 } );
+
+
+            SECTION("removeConsecutiveDuplicates")
+            {
+                _testRemoveConsecutiveDuplicates(
+                    { TestCollectionElement_OrderedComparable_(3, 103),
+                      TestCollectionElement_OrderedComparable_(17, 1),
+                      TestCollectionElement_OrderedComparable_(42, 142)
+                    } );
+            }
         }
 
         SECTION("unordered comparable")
@@ -871,6 +998,16 @@ TEST_CASE("List")
                 TestCollectionElement_UnorderedComparable_(400, 401) );
 
             // cannot sort because not ordered
+
+            SECTION("removeConsecutiveDuplicates")
+            {
+                _testRemoveConsecutiveDuplicates(
+                    { TestCollectionElement_OrderedComparable_(3, 103),
+                      TestCollectionElement_OrderedComparable_(17, 1),
+                      TestCollectionElement_OrderedComparable_(42, 142)
+                    } );
+            }
+
         }
 
         SECTION("unordered uncomparable")
