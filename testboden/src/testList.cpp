@@ -8,6 +8,403 @@
 using namespace bdn;
 using namespace bdn::test;
 
+template<class CollType>
+void _verifyIteratorsStillValid(CollType& coll, std::list<typename CollType::Iterator>& itList )
+{
+    for(auto& it: itList)
+    {
+        // compare the element pointers to check if the iterator still points
+        // to an element in the new list.
+        bool foundEl = false;
+        for( auto checkIt = coll.begin(); checkIt!=coll.end(); ++checkIt )
+        {
+            if( &*it == &*checkIt )
+            {
+                foundEl = true;
+                break;
+            }
+        }
+
+        REQUIRE( foundEl );
+    }
+}
+
+template<class CollType>
+void verifyStealAllAndMergeSorted(CollType& coll, CollType& other)
+{
+    CollType origColl(coll);
+    CollType origOther(other);
+
+    // make a list with all iterators from the two lists
+    std::list< typename CollType::Iterator > its;
+    std::list< typename CollType::Iterator > otherIts;
+    for( auto it = coll.begin(); it!=coll.end(); ++it)
+        its.push_back(it);
+    for( auto it = other.begin(); it!=other.end(); ++it)
+        otherIts.push_back(it);
+
+    SECTION("List&")
+        coll.stealAllAndMergeSorted(other);
+
+    SECTION("std::list&")
+        coll.stealAllAndMergeSorted( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) );
+
+    SECTION("List&&")
+        coll.stealAllAndMergeSorted( std::move(other) );
+
+    SECTION("std::list&&")
+        coll.stealAllAndMergeSorted( std::move( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) ) );
+
+    REQUIRE( other.isEmpty() );
+
+    // verify that the collection is sorted
+    for( auto it = coll.begin(); it!=coll.end(); ++it)
+    {
+        auto nextIt = it;
+        ++nextIt;
+
+        if(nextIt!=coll.end())
+            REQUIRE( ! (*nextIt < *it) );
+    }
+
+    // verify that no iterators have been invalidated
+    _verifyIteratorsStillValid( coll, its );
+    _verifyIteratorsStillValid( coll, otherIts );
+
+    // verify that all elements from the original lists are still there
+    for( auto& el: coll )
+    {
+        if( !origColl.isEmpty() && _isCollectionElementEqual(el, origColl.getFirst()) )
+            origColl.removeFirst();
+        else
+        {
+            REQUIRE( !origOther.isEmpty() );
+            REQUIRE( _isCollectionElementEqual(el, origOther.getFirst()) );
+            origOther.removeFirst();
+        }
+    }
+
+    // verify that all elements have been found
+    REQUIRE( origOther.isEmpty() );
+    REQUIRE( origColl.isEmpty() );
+}
+
+
+
+template<class CollType, typename ComesBeforeFuncType>
+void verifyStealAllAndMergeSorted(CollType& coll, CollType& other, ComesBeforeFuncType comesBefore)
+{
+    CollType origColl(coll);
+    CollType origOther(other);
+
+    // make a list with all iterators from the two lists
+    std::list< typename CollType::Iterator > its;
+    std::list< typename CollType::Iterator > otherIts;
+    for( auto it = coll.begin(); it!=coll.end(); ++it)
+        its.push_back(it);
+    for( auto it = other.begin(); it!=other.end(); ++it)
+        otherIts.push_back(it);
+
+    SECTION("List&")
+        coll.stealAllAndMergeSorted(other, comesBefore);
+
+    SECTION("std::list&")
+        coll.stealAllAndMergeSorted( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other), comesBefore );
+
+    SECTION("List&&")
+        coll.stealAllAndMergeSorted( std::move(other), comesBefore );
+
+    SECTION("std::list&&")
+        coll.stealAllAndMergeSorted( std::move( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) ), comesBefore );
+
+    REQUIRE( other.isEmpty() );
+
+    // verify that the collection is sorted
+    for( auto it = coll.begin(); it!=coll.end(); ++it)
+    {
+        auto nextIt = it;
+        ++nextIt;
+
+        if(nextIt!=coll.end())
+            REQUIRE( ! comesBefore(*nextIt, *it) );
+    }
+
+    // verify that no iterators have been invalidated
+    _verifyIteratorsStillValid( coll, its );
+    _verifyIteratorsStillValid( coll, otherIts );
+
+    // verify that all elements from the original lists are still there
+    for( auto& el: coll )
+    {
+        if( !origColl.isEmpty() && _isCollectionElementEqual(el, origColl.getFirst()) )
+            origColl.removeFirst();
+        else
+        {
+            REQUIRE( !origOther.isEmpty() );
+            REQUIRE( _isCollectionElementEqual(el, origOther.getFirst()) );
+            origOther.removeFirst();
+        }
+    }
+
+    // verify that all elements have been found
+    REQUIRE( origOther.isEmpty() );
+    REQUIRE( origColl.isEmpty() );
+}
+
+
+
+template<class CollType>
+void _testStealAllAndMergeSorted(CollType& coll, CollType& other)
+{
+    SECTION("both sorted")
+    {
+        SECTION("operator<")
+        {
+            coll.sort();
+            other.sort();
+
+            verifyStealAllAndMergeSorted(coll, other);
+        }
+
+        SECTION("custom order")
+        {
+            auto sortFunc = [](const typename CollType::Element& a, const typename CollType::Element& b)
+                {
+                    return (b<a);
+                };
+
+            coll.sort( sortFunc );
+            other.sort( sortFunc );
+
+            verifyStealAllAndMergeSorted(coll, other, sortFunc);
+        }
+    }
+
+    /* we cannot test the cases where the preconditions (both lists sorted) are
+       not met. In these cases some C++ std libs cause debug assertions to be triggered
+       and could potentially cause crashes.
+
+    SECTION("left sorted")
+    {
+        coll.sort();
+
+        _testStealAllAndMergeSorted(coll, other, false);
+    }
+
+    SECTION("right sorted")
+    {
+        other.sort();
+
+        _testStealAllAndMergeSorted(coll, other, false);
+    }
+
+    SECTION("none sorted")
+    {
+        _testStealAllAndMergeSorted(coll, other, false);
+    }*/
+}
+
+
+
+
+template<typename ElType>
+void _testStealAllAndMergeSorted(
+    std::initializer_list<ElType> initElList,
+    std::initializer_list<ElType> newElList)
+{
+    List<ElType> coll;
+    List<ElType> other;
+
+    SECTION("empty - empty")
+        _testStealAllAndMergeSorted(coll, other);
+
+    SECTION("empty - not empty")
+    {
+        other = newElList;
+        _testStealAllAndMergeSorted(coll, other);
+    }
+
+    SECTION("not empty - empty")
+    {
+        coll = initElList;
+        _testStealAllAndMergeSorted(coll, other);
+    }
+
+    SECTION("not empty - not empty")
+    {
+        coll = initElList;
+        other = newElList;
+        _testStealAllAndMergeSorted(coll, other);
+    }
+}
+
+
+template<class ItType>
+struct ElementInfo
+{
+    ElementInfo(ItType it)
+    {
+        _it = it;
+        _elPointer = &*it;
+        _elValue = *it;
+    }
+
+    void verify(ItType it)
+    {
+        REQUIRE( &*it == _elPointer );
+        REQUIRE( _isCollectionElementEqual(*it, _elValue) );
+        REQUIRE( &*_it == _elPointer );
+    }
+
+    ItType                          _it;
+    typename ItType::value_type*    _elPointer;
+    typename ItType::value_type     _elValue;
+};
+
+
+template<typename ItType>
+static void _verifyElementRange(
+    ItType beginIt,
+    ItType endIt,
+    typename std::list< ElementInfo<ItType> >::iterator expectedBeginIt,
+    typename std::list< ElementInfo<ItType> >::iterator expectedEndIt)
+{
+    ItType currIt = beginIt;
+    std::list< ElementInfo<ItType> >::iterator expectedCurrIt = expectedBeginIt;
+
+    while(currIt!=endIt)
+    {
+        REQUIRE( expectedCurrIt!=expectedEndIt );
+
+        expectedCurrIt->verify( currIt );
+
+        ++currIt;
+        ++expectedCurrIt;
+    }
+
+    REQUIRE( expectedCurrIt == expectedEndIt );
+}
+
+
+template<class CollType>
+static std::list< ElementInfo<typename CollType::Iterator> > _getCollElementInfo( CollType& coll )
+{
+    std::list< ElementInfo<typename CollType::Iterator> > infoList;
+
+    for( auto it = coll.begin(); it!=coll.end(); ++it)
+        infoList.push_back( it );
+
+    return infoList;
+}
+
+template<class CollType>
+static typename std::list< ElementInfo<typename CollType::Iterator> >::iterator _toElementInfoIt(
+    CollType& coll,
+    typename CollType::Iterator it,
+    std::list< ElementInfo<typename CollType::Iterator> >& infoList )
+{
+    if(it==coll.end())
+        return infoList.end();
+
+    for( auto infoIt = infoList.begin();
+         infoIt!=infoList.end();
+         ++infoIt)
+    {
+        if(infoIt->_elPointer == &*it)
+            return infoIt;
+    }
+
+    REQUIRE( false );
+
+    return infoList.end();
+}
+
+
+
+template<typename CollType>
+static void _verifyStealAndInsert( CollType& coll, CollType& other, typename CollType::Iterator insertPos)
+{
+    std::list< ElementInfo<typename CollType::Iterator> > info = _getCollElementInfo(coll);
+    std::list< ElementInfo<typename CollType::Iterator> > otherInfo = _getCollElementInfo(other);
+
+    std::list< ElementInfo<typename CollType::Iterator> >::iterator infoInsertPos = _toElementInfoIt(coll, insertPos, info);
+
+    SECTION("stealAllAndInsertAt")
+    {
+        SECTION("List&")
+            coll.stealAllAndInsertAt(insertPos, other);
+
+        SECTION("List&&")
+            coll.stealAllAndInsertAt(insertPos, std::move(other) );
+
+        SECTION("std::list&")
+            coll.stealAllAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other) );
+
+        SECTION("std::list&&")
+            coll.stealAllAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)) );
+
+        REQUIRE( other.isEmpty() );
+        REQUIRE( coll.getSize() == info.size() + otherInfo.size() );
+        
+        typename CollType::Iterator insertEnd = insertPos;
+        if(infoInsertPos == info.end() )
+        {
+            // insert was at the end of the original collection => the insert end in
+            // the resulting collection is its end
+            insertEnd = coll.end();            
+        }
+        else
+        {
+            // insertPos now points to the element following the inserted range
+            insertEnd = insertPos;
+        }
+
+        // insertPos now points to the end of the inserted range. We want it to point
+        // to the first inserted element.
+        insertPos = coll.begin();
+        std::advance( insertPos, std::distance(info.begin(), infoInsertPos) );
+        
+        _verifyElementRange( coll.begin(), insertPos, info.begin(), infoInsertPos );
+        _verifyElementRange( insertPos, insertEnd, otherInfo.begin(), otherInfo.end() );
+        _verifyElementRange( insertEnd, coll.end(), infoInsertPos, info.end() );
+    }
+}
+
+template<typename CollType>
+static void _verifyStealAndInsert( CollType& coll, CollType& other)
+{
+    SECTION("insert at begin")
+        _verifyStealAndInsert( coll, other, coll.begin() );
+
+    if( coll.getSize()>0 )
+    {
+        SECTION("insert in middle")
+        {
+            _verifyStealAndInsert( coll, other, ++coll.begin() );
+        }
+    }
+
+    SECTION("insert at end")
+        _verifyStealAndInsert( coll, other, coll.end() );
+}
+
+template<typename CollType>
+static void _testStealAndInsert( CollType& coll, std::initializer_list< typename CollType::Element> newElList)
+{
+    SECTION("other empty")
+    {
+        CollType otherColl;
+
+        _verifyStealAndInsert(coll, otherColl);
+    }
+
+    SECTION("other not empty")
+    {
+        CollType otherColl(newElList);
+
+        _verifyStealAndInsert(coll, otherColl);
+    }
+}
 
 
 template<typename ElType, typename... ConstructArgs>
@@ -154,6 +551,9 @@ static void testList(
 
         SECTION("prepareForSize")
             _testGenericCollectionPrepareForSize(coll);
+
+        SECTION("stealAndInsert")
+            _testStealAndInsert(coll, newElList);
     }
 
     SECTION("non-empty")
@@ -171,6 +571,10 @@ static void testList(
         
         SECTION("prepareForSize")
             _testGenericCollectionPrepareForSize(coll);
+
+        SECTION("stealAndInsert")
+            _testStealAndInsert(coll, newElList);
+        
     }    
 }
 
@@ -191,6 +595,8 @@ TEST_CASE("List")
 
         _testCollectionFind< List<int> >( {17, 42, 17, 3}, 88 );
         _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
+
+        _testStealAllAndMergeSorted<int>( {17, 42, 17, 3}, {99, 6, 2, 102} );
     }
 
     SECTION("complex type")
@@ -231,6 +637,18 @@ TEST_CASE("List")
                     TestCollectionElement_OrderedComparable_(17, 1),
                     TestCollectionElement_OrderedComparable_(17, 2),
                     TestCollectionElement_OrderedComparable_(42, 142),
+                } );
+
+            _testStealAllAndMergeSorted<TestCollectionElement_OrderedComparable_>(
+                { TestCollectionElement_OrderedComparable_(17, 1),
+                    TestCollectionElement_OrderedComparable_(42, 142),
+                    TestCollectionElement_OrderedComparable_(17, 2),
+                    TestCollectionElement_OrderedComparable_(3, 103),
+                },
+                { TestCollectionElement_OrderedComparable_(99, 1),
+                    TestCollectionElement_OrderedComparable_(6, 142),
+                    TestCollectionElement_OrderedComparable_(2, 2),
+                    TestCollectionElement_OrderedComparable_(102, 103),
                 } );
         }
 

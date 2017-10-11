@@ -34,7 +34,7 @@ public:
     Element& getFirst()
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
+    		throw OutOfRangeError("StdSequenceCollection::getFirst called on empty collection.");
 
         return BaseCollectionType::front();
     }
@@ -44,7 +44,7 @@ public:
     const Element& getFirst() const
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::firstElement called on empty array.");
+    		throw OutOfRangeError("StdSequenceCollection::getFirst called on empty collection.");
 
         return BaseCollectionType::front();
     }
@@ -56,7 +56,7 @@ public:
     Element& getLast()
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
+    		throw OutOfRangeError("StdSequenceCollection::getLast called on empty collection.");
 
         return BaseCollectionType::back();
     }
@@ -67,7 +67,7 @@ public:
     const Element& getLast() const
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::lastElement called on empty array.");
+    		throw OutOfRangeError("StdSequenceCollection::getLast called on empty collection.");
 
         return BaseCollectionType::back();
     }

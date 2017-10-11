@@ -365,15 +365,17 @@ public:
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted in ascending order (as defined by the list element's < operator)
-        before this is called.
+        Both lists *must* be sorted in ascending order (as defined by the list element's < operator)
+        before this is called. If this is not the case then undefined behaviour, including crashes, might occur.
 
         All elements from the other list are transferred to this list and inserted in the correct
         places so that the result is a properly sorted list again.
         
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
-        
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         */
     void stealAllAndMergeSorted( List& other )
     {
@@ -382,8 +384,8 @@ public:
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted in ascending order (as defined by the list element's < operator)
-        before this is called.
+        Both lists *must* be sorted in ascending order (as defined by the list element's < operator)
+        before this is called. If this is not the case then undefined behaviour, including crashes, might occur.
         All elements from the other list are transferred to this list and inserts them in the correct
         places so that the result is a properly sorted list again.
 
@@ -393,16 +395,19 @@ public:
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
 
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
+
         */
-    void stealAllAndMergeSorted( std::list& other )
+    void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>& other )
     {
         StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(other);
     }
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted in ascending order (as defined by the list element's < operator)
-        before this is called.
+        Both lists *must* be sorted in ascending order (as defined by the list element's < operator)
+        before this is called.  If this is not the case then undefined behaviour, including crashes, might occur.
         All elements from the other list are transferred to this list and inserts them in the correct
         places so that the result is a properly sorted list again.
 
@@ -411,17 +416,20 @@ public:
 
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         
         */
     void stealAllAndMergeSorted( List&& other )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list&&>(other) ) );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) );
     }
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted in ascending order (as defined by the list element's < operator)
-        before this is called.
+        Both lists *must* be sorted in ascending order (as defined by the list element's < operator)
+        before this is called. If this is not the case then undefined behaviour, including crashes, might occur.
         All elements from the other list are transferred to this list and inserts them in the correct
         places so that the result is a properly sorted list again.
 
@@ -429,9 +437,12 @@ public:
         places so that the result is a properly sorted list again.
         
         The elements from the \c other list are moved, not copied.
-        The \c other list will be empty after the function returns.        
+        The \c other list will be empty after the function returns.     
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         */
-    void stealAllAndMergeSorted( std::list&& other )
+    void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>&& other )
     {
         StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move(other) );
     }
@@ -439,8 +450,10 @@ public:
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted according to the order indicated by the \c comesBefore
-        parameter. comesBefore must be a function that takes references to two elements as parameters
+        Both lists *must* be sorted according to the order indicated by the \c comesBefore
+        parameter.  If this is not the case then undefined behaviour, including crashes, might occur.
+        
+        comesBefore must be a function that takes references to two elements as parameters
         and returns true if the first one should come before the second one. See sort() for more information.
 
         All elements from the other list are transferred to this list and inserted in the correct
@@ -448,18 +461,25 @@ public:
         
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         
         */
     template<typename ComesBeforeFuncType> 
     void stealAllAndMergeSorted( List& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( other, comp );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+            other,
+            comesBefore );
     }
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted according to the order indicated by the \c comesBefore
-        parameter. comesBefore must be a function that takes references to two elements as parameters
+        Both lists *must* be sorted according to the order indicated by the \c comesBefore
+        parameter. If this is not the case then undefined behaviour, including crashes, might occur.
+        
+        comesBefore must be a function that takes references to two elements as parameters
         and returns true if the first one should come before the second one. See sort() for more information.
 
         All elements from the other list are transferred to this list and inserted in the correct
@@ -467,18 +487,25 @@ public:
         
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         
         */
     template<typename ComesBeforeFuncType> 
-    void stealAllAndMergeSorted( std::list& other, ComesBeforeFuncType comesBefore )
+    void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list&&>(other) )z, comesBefore );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+            std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ),
+            comesBefore );
     }
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted according to the order indicated by the \c comesBefore
-        parameter. comesBefore must be a function that takes references to two elements as parameters
+        Both lists *must* be sorted according to the order indicated by the \c comesBefore
+        parameter. If this is not the case then undefined behaviour, including crashes, might occur.
+        
+        comesBefore must be a function that takes references to two elements as parameters
         and returns true if the first one should come before the second one. See sort() for more information.
 
         All elements from the other list are transferred to this list and inserted in the correct
@@ -486,18 +513,25 @@ public:
         
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         
         */
-    template <class Compare> 
+    template <class ComesBeforeFuncType> 
     void stealAllAndMergeSorted( List&& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list&&>(other) ), comesBefore );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+            std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ),
+            comesBefore );
     }
 
 
     /** Merges two sorted lists.
-        Both lists must be sorted according to the order indicated by the \c comesBefore
-        parameter. comesBefore must be a function that takes references to two elements as parameters
+        Both lists *must* be sorted according to the order indicated by the \c comesBefore
+        parameter.  If this is not the case then undefined behaviour, including crashes, might occur.
+        
+        comesBefore must be a function that takes references to two elements as parameters
         and returns true if the first one should come before the second one. See sort() for more information.
 
         All elements from the other list are transferred to this list and inserted in the correct
@@ -505,13 +539,78 @@ public:
         
         The elements from the \c other list are moved, not copied.
         The \c other list will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from the \c other list remain
+        valid and refer to the merged list afterwards.        
         
         */
-    template <class Compare> 
-    void stealAllAndMergeSorted( std::list&& other, ComesBeforeFuncType comesBefore )
+    template <class ComesBeforeFuncType> 
+    void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>&& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move(other), comesBefore );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+            std::move(other),
+            comesBefore );
     }
+
+
+    /** Transfers all elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition.
+        
+        The elements from \c otherList are moved, not copied.
+        \c otherList will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAllAndInsertAt(ConstIterator insertPosition, List& otherList)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
+    }
+
+
+    /** Transfers all elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition.
+        
+        The elements from \c otherList are moved, not copied.
+        \c otherList will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR>& otherList)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
+    }
+
+    /** Transfers all elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition.
+        
+        The elements from \c otherList are moved, not copied.
+        \c otherList will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAllAndInsertAt(ConstIterator insertPosition, List&& otherList)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&>(otherList) ) );
+    }
+
+
+    /** Transfers all elements from \c otherList to this list and inserts them at the position
+        indicated by \c insertPosition.
+        
+        The elements from \c otherList are moved, not copied.
+        \c otherList will be empty after the function returns.
+
+        This function does *not* invalidate any iterators. Iterators from \c otherList remain
+        valid and refer to the corresponding elements in the resulting combined list afterwards.        
+        */
+    void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR>&& otherList)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList) );
+    }
+    
 
 
     /*
