@@ -806,11 +806,19 @@ public:
         StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove( val );
     }
 
+
+    /** Removes all elements for which the specified function checkFunc returns true.
+    
+        checkFunc must be a function that takes a reference to a list element as its parameter
+        and returns true if the element should be removed.
+    */
+    template<typename CheckFuncType>
+    void findConditionAndRemove( CheckFuncType& checkFunc )
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( checkFunc );
+    }
+
         
-    /*
-        remove_if => removeCondition? removeMatching?
-        remove => remove
-        */
 
 };
 

@@ -891,7 +891,19 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
 
     SECTION("no match")
     {
-        coll.findAndRemove( elNotInList );
+        SECTION("find value")
+        {
+            coll.findAndRemove( elNotInList );
+        }
+
+        SECTION("check function")
+        {
+            coll.findConditionAndRemove( 
+                [](const CollType::Element& el)
+                {
+                    return false;
+                } );
+        }
 
         REQUIRE( coll.getSize() == origInfo.size() );
 
@@ -902,8 +914,21 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
     {
         SECTION("single match")
         {
-            // the second element is only once in the list
-            coll.findAndRemove( *++coll.begin() );
+            // the second element is only once in the list (no duplicates)
+
+            typename CollType::Element toFind = *++coll.begin();
+
+            SECTION("find value")
+                coll.findAndRemove( toFind );
+
+            SECTION("check function")
+            {   
+                coll.findConditionAndRemove( 
+                    [toFind](const CollType::Element& el)
+                    {
+                        return el==toFind;
+                    } );
+            }
 
             REQUIRE( coll.getSize() == origInfo.size()-1 );
 
@@ -915,8 +940,20 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
         SECTION("multiple matches")
         {
             // the first and third element are equal
-            coll.findAndRemove( *coll.begin() );
+            typename CollType::Element toFind = *coll.begin();
 
+            SECTION("find value")
+                coll.findAndRemove( toFind );
+
+            SECTION("check function")
+            {   
+                coll.findConditionAndRemove( 
+                    [toFind](const CollType::Element& el)
+                    {
+                        return el==toFind;
+                    } );
+            }
+                        
             REQUIRE( coll.getSize() == origInfo.size()-2 );
 
             // first and third should be removed
