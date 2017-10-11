@@ -355,7 +355,7 @@ void View::_deinitCore()
 {
     MutexLock		lock( getHierarchyAndCoreMutex() );
 		
-	std::list< P<View> > childViewsCopy;
+	List< P<View> > childViewsCopy;
 	getChildViews( childViewsCopy );
 
     P<IViewCore>	pCoreToReleaseFromMainThread;
@@ -457,7 +457,7 @@ void View::_initCore()
 			if(_pUiProvider!=nullptr)
 				_pCore = _pUiProvider->createViewCore( getCoreTypeName(), this);
 
-			std::list< P<View> > childViewsCopy;
+			List< P<View> > childViewsCopy;
 			getChildViews( childViewsCopy );			
 
 			for(auto pChildView: childViewsCopy)

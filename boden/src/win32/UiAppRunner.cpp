@@ -242,7 +242,7 @@ void UiAppRunner::initiateExitIfPossible(int exitCode)
 }
 
 
-bool UiAppRunner::executeAndRemoveItem( std::list< std::function<void()> >& queue, bool* pHaveMoreWaiting )
+bool UiAppRunner::executeAndRemoveItem( List< std::function<void()> >& queue, bool* pHaveMoreWaiting )
 {
     std::function<void()> func;
 

@@ -38,7 +38,7 @@ public:
     {    
         P<Window> pWindow = _pUi->getWindow();
 
-        std::list<P<View> > childList;
+        List<P<View> > childList;
         pWindow->getChildViews( childList );
 
         REQUIRE( childList.size() == 1);

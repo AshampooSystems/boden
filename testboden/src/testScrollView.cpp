@@ -252,7 +252,7 @@ TEST_CASE("ScrollView", "[ui]")
             {
                 SECTION("empty")
                 {
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pScrollView->getChildViews(childList);
 
                     REQUIRE( childList.empty() );
@@ -263,7 +263,7 @@ TEST_CASE("ScrollView", "[ui]")
                     P<Button> pChild = newObj<Button>();
                     pScrollView->setContentView(pChild);
 
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pScrollView->getChildViews(childList);
 
                     REQUIRE( childList.size() == 1);
@@ -277,7 +277,7 @@ TEST_CASE("ScrollView", "[ui]")
                 {
                     pScrollView->removeAllChildViews();
 
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pScrollView->getChildViews(childList);
 
                     REQUIRE( childList.empty() );
@@ -293,7 +293,7 @@ TEST_CASE("ScrollView", "[ui]")
                     REQUIRE( pScrollView->getContentView()==nullptr );
                     REQUIRE( pChild->getParentView() == nullptr );
 
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pScrollView->getChildViews(childList);
 
                     REQUIRE( childList.empty() );

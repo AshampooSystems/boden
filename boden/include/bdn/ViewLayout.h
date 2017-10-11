@@ -32,7 +32,7 @@ public:
     */
     virtual void applyTo(View* pParentView) const
     {
-        std::list< P<View> > childList;
+        List< P<View> > childList;
         pParentView->getChildViews(childList);
 
         for(auto& pChildView: childList)

@@ -424,7 +424,7 @@ protected:
                 // pre-adjust the bounds
                 bounds = _pCore->adjustBounds( bounds, RoundType::nearest, RoundType::nearest );
 
-                std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                 for(RoundType positionRoundType: roundTypes)
                 {
@@ -446,7 +446,7 @@ protected:
 
 			    Rect bounds(110.12345, 220.12345, 880.12345, 990.12345);
 
-                std::list<RoundType> roundTypes
+                List<RoundType> roundTypes
                 {
                     RoundType::down,
                     RoundType::nearest,

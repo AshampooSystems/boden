@@ -119,7 +119,7 @@ private:
     
     void handleAppMessage(MessageWindowBase::MessageContext& context, HWND windowHandle,  UINT message, WPARAM wParam, LPARAM lParam);
     
-    bool executeAndRemoveItem( std::list< std::function<void()> >& queue, bool* pHaveMoreWaiting=nullptr );
+    bool executeAndRemoveItem( List< std::function<void()> >& queue, bool* pHaveMoreWaiting=nullptr );
 
 
     AppMessageWindow _messageWindow;
@@ -130,8 +130,8 @@ private:
     bool    _haveIdleItemsWaiting_MainThread = false;
     
     Mutex                                _queueMutex;
-    std::list< std::function< void() > > _idleQueue;
-    std::list< std::function< void() > > _normalQueue;
+    List< std::function< void() > >     _idleQueue;
+    List< std::function< void() > >     _normalQueue;
 
 
     P<Thread>                            _pTimedEventThread;
