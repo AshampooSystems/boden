@@ -761,8 +761,16 @@ public:
 
 
 
+    /** Reverses the order of the list elements.
+    
+        This function does *not* invalidate any iterators. No elements are copied, constructed or destructed.
+        */
+    void reverseOrder() noexcept
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::reverse();
+    }
+
     /*
-    splice => stealAndInsertAt, stealSectionAndInsertAt, stealAllAndInsertAt
     reverse => reverseOrder
     unique => removeConsecutiveDuplicates
         remove_if => removeCondition? removeMatching?

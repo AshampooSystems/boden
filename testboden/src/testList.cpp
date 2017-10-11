@@ -558,6 +558,40 @@ static void _testStealAndInsert( CollType& coll, std::initializer_list< typename
     }
 }
 
+template<typename CollType>
+static void _testReverseOrder( CollType& coll )
+{
+    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+
+    auto initialFirstIt = coll.begin();
+    auto initialEnd = coll.end();
+    auto initialLastIt = coll.end();
+    if(!coll.isEmpty())
+        --initialLastIt;
+
+    coll.reverseOrder();
+
+    auto it = coll.begin();
+
+    for( auto origInfoIt = origInfo.rbegin(); origInfoIt!=origInfo.rend(); ++origInfoIt)
+    {
+        REQUIRE( it != coll.end() );
+
+        origInfoIt->verify(it);
+
+        ++it;
+    }
+
+    REQUIRE( it==coll.end() );
+
+    REQUIRE( coll.end() == initialEnd );
+
+    if( !coll.isEmpty() )  
+    {
+        REQUIRE( coll.begin() == initialLastIt );
+        REQUIRE( --coll.end() == initialFirstIt );
+    }
+}
 
 template<typename ElType, typename... ConstructArgs>
 static void testList(
@@ -706,6 +740,9 @@ static void testList(
 
         SECTION("stealAndInsert")
             _testStealAndInsert(coll, newElList);
+
+        SECTION("reverseOrder")
+            _testReverseOrder(coll);
     }
 
     SECTION("non-empty")
@@ -726,6 +763,9 @@ static void testList(
 
         SECTION("stealAndInsert")
             _testStealAndInsert(coll, newElList);
+
+        SECTION("reverseOrder")
+            _testReverseOrder(coll);
         
     }    
 }
