@@ -884,6 +884,69 @@ static void testList(
     }    
 }
 
+template<class CollType>
+static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNotInList)
+{
+    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+
+    SECTION("no match")
+    {
+        coll.findAndRemove( elNotInList );
+
+        REQUIRE( coll.getSize() == origInfo.size() );
+
+        _verifyElementRange(coll.begin(), coll.end(), origInfo.begin(), origInfo.end() );
+    }
+
+    if(!origInfo.empty())
+    {
+        SECTION("single match")
+        {
+            // the second element is only once in the list
+            coll.findAndRemove( *++coll.begin() );
+
+            REQUIRE( coll.getSize() == origInfo.size()-1 );
+
+            // second element should have been removed
+            _verifyElementRange(coll.begin(), ++coll.begin(), origInfo.begin(), ++origInfo.begin() );
+            _verifyElementRange(++coll.begin(), coll.end(), ++(++origInfo.begin()), origInfo.end() );
+        }
+
+        SECTION("multiple matches")
+        {
+            // the first and third element are equal
+            coll.findAndRemove( *coll.begin() );
+
+            REQUIRE( coll.getSize() == origInfo.size()-2 );
+
+            // first and third should be removed
+
+            // the first result element should be the original second
+            _verifyElementRange(coll.begin(), ++coll.begin(), ++origInfo.begin(), ++(++origInfo.begin()) );
+
+            // then the fourth and later should follow
+            _verifyElementRange(++coll.begin(), coll.end(), ++(++(++origInfo.begin())), origInfo.end() );
+        }
+    }
+}
+
+
+template<typename ElType>
+static void _testFindAndRemove(std::initializer_list<ElType> elList, ElType elNotInList)
+{
+    SECTION("empty")
+    {
+        List<ElType> coll;
+        _verifyFindAndRemove(coll, elNotInList);
+    }
+
+    SECTION("not empty")
+    {
+        List<ElType> coll(elList);
+        _verifyFindAndRemove(coll, elNotInList);
+    }
+}
+
 
 TEST_CASE("List")
 {
@@ -906,6 +969,9 @@ TEST_CASE("List")
 
         SECTION("removeConsecutiveDuplicates")
             _testRemoveConsecutiveDuplicates( {3, 17, 42} );
+
+        SECTION("findAndRemove")
+            _testFindAndRemove( {17, 42, 17, 3}, 88 );
     }
 
     SECTION("complex type")
@@ -969,6 +1035,17 @@ TEST_CASE("List")
                       TestCollectionElement_OrderedComparable_(42, 142)
                     } );
             }
+
+            SECTION("findAndRemove")
+            {
+                _testFindAndRemove(
+                    {   TestCollectionElement_OrderedComparable_(17, 117),
+                        TestCollectionElement_OrderedComparable_(42, 142),                
+                        TestCollectionElement_OrderedComparable_(17, 117),
+                        TestCollectionElement_OrderedComparable_(3, 103),
+                    },
+                    TestCollectionElement_OrderedComparable_(400, 401) );
+            }
         }
 
         SECTION("unordered comparable")
@@ -1008,6 +1085,17 @@ TEST_CASE("List")
                     } );
             }
 
+
+            SECTION("findAndRemove")
+            {
+                _testFindAndRemove(
+                    {   TestCollectionElement_UnorderedComparable_(17, 117),
+                        TestCollectionElement_UnorderedComparable_(42, 142),                
+                        TestCollectionElement_UnorderedComparable_(17, 117),
+                        TestCollectionElement_UnorderedComparable_(3, 103),
+                    },
+                    TestCollectionElement_UnorderedComparable_(400, 401) );
+            }
         }
 
         SECTION("unordered uncomparable")

@@ -799,6 +799,14 @@ public:
     }
 
 
+
+    /** Removes all elements that are equal to the specified one.*/
+    void findAndRemove(const Element& val)
+    {
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove( val );
+    }
+
+        
     /*
         remove_if => removeCondition? removeMatching?
         remove => remove
