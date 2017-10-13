@@ -9,7 +9,7 @@ namespace bdn
 {
 
 /** Implements a double linked list with elements of the type indicated by the first template
-    parameter. For example List<String> is an array of Strings.
+    parameter. For example List<String> is an list of Strings.
     
     The List class is derived from std::list and is 100 % compatible with it.
     It can be used as a drop-in replacement.
@@ -41,20 +41,20 @@ public:
     using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::ReverseIterator;
     using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
     
-    /** Creates an empty array.*/
+    /** Creates an empty list.*/
     List() noexcept( noexcept(ALLOCATOR()) )
      : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
     {
     }
 
-    /** Constructs an array that uses a specific allocator object.*/
+    /** Constructs a list that uses a specific allocator object.*/
     explicit List( const ALLOCATOR& alloc ) noexcept
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(alloc)
     {
     }
 
 
-    /** Initializes the array with \c count copies of \c el. 
+    /** Initializes the list with \c count copies of \c el. 
     
         Optionally, one can also pass an allocator object for custom memory management.
     */
@@ -64,7 +64,7 @@ public:
     }
 
 
-    /** Initializes the array with \c count default-constructed elements. 
+    /** Initializes the list with \c count default-constructed elements. 
     
         Optionally, one can also pass an allocator object for custom memory management.
     */
@@ -74,7 +74,7 @@ public:
     }
     
 
-    /** Initializes the array with copies of the elements from the iterator range [beginIt ... endIt) 
+    /** Initializes the list with copies of the elements from the iterator range [beginIt ... endIt) 
 
         Optionally, one can also pass an allocator object for custom memory management.
     */
@@ -84,7 +84,7 @@ public:
     {
     }
 
-    /** Initializes the List with copies of the elements from the specified other array.*/
+    /** Initializes the List with copies of the elements from the specified other list.*/
     List( const List& other )
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( static_cast<const std::list<ELTYPE, ALLOCATOR>&>(other) )
     {
@@ -100,30 +100,30 @@ public:
 
     /** Initializes the List with copies of the elements from the specified std::list or List object.
         
-        The specified allocator object is used to initialize the array's internal allocator.
+        The specified allocator object is used to initialize the list's internal allocator.
         */
     List( const std::list<ELTYPE, ALLOCATOR>& other, const ALLOCATOR& alloc )
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(other, alloc)
     {
     }
 
-    /** Moves the data from the specified other array to this array. The other array is invalidated by this.*/
+    /** Moves the data from the specified other list to this list. The other list is invalidated by this.*/
     List( List&& other ) noexcept
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) )
     {
     }
 
 
-    /** Moves the data from the specified other vector to this array. The other array is invalidated by this.*/
+    /** Moves the data from the specified other vector to this list. The other list is invalidated by this.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other ) noexcept
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::move(other) )
     {
     }
 
 
-    /** Moves the data from the specified other array to this array. The other array is invalidated by this.
+    /** Moves the data from the specified other list to this list. The other list is invalidated by this.
     
-        The specified allocator object is used to initialize the array's internal allocator.
+        The specified allocator object is used to initialize the list's internal allocator.
         */
     List( List&& other, const ALLOCATOR& alloc )
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
@@ -131,16 +131,16 @@ public:
     }
 
 
-    /** Moves the data from the specified other vector to this array. The other array is invalidated by this.
+    /** Moves the data from the specified other vector to this list. The other list is invalidated by this.
     
-        The specified allocator object is used to initialize the array's internal allocator.*/
+        The specified allocator object is used to initialize the list's internal allocator.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other, const ALLOCATOR& alloc )
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
 
-    /** Initializes the array with the specified initializer list. This is called by the compiler
+    /** Initializes the list with the specified initializer list. This is called by the compiler
         when {...} initialization is used (see example below).
 
         Optionally, one can also pass an allocator object for custom memory management.
@@ -149,7 +149,7 @@ public:
 
         \code
 
-        // initialize the array with these elements: 1, 13, 42
+        // initialize the list with these elements: 1, 13, 42
         List<int> ar { 1, 13, 42 };
 
         \endcode
@@ -160,7 +160,7 @@ public:
     }
 
 
-    /** Replaces the current contents of the array with copies of the elements from the specified other
+    /** Replaces the current contents of the list with copies of the elements from the specified other
         List.
         
         Returns a reference to this List object.
@@ -172,7 +172,7 @@ public:
     }
 
 
-    /** Replaces the current contents of the array with copies of the elements from the specified
+    /** Replaces the current contents of the list with copies of the elements from the specified
         vector.
         
         Returns a reference to this List object.
@@ -184,7 +184,7 @@ public:
     }
 
 
-     /** Replaces the current contents of the array with copies of the elements from the specified
+     /** Replaces the current contents of the list with copies of the elements from the specified
         initializer list. This is called by the compiler if a  "= {...} " statement is used. For example:
 
         \code
@@ -204,7 +204,7 @@ public:
 
 
 
-    /** Moves the data from the specified other List object to this array, replacing any current contents in the process.
+    /** Moves the data from the specified other List object to this list, replacing any current contents in the process.
         The other List object is invalidated by this operation.
         */
     List& operator=( List&& other )
@@ -215,7 +215,7 @@ public:
     }
     
 
-    /** Moves the data from the specified other List object to this array, replacing any current contents in the process.
+    /** Moves the data from the specified other List object to this list, replacing any current contents in the process.
         The other List object is invalidated by this operation.
         */
     List& operator=( std::list<ELTYPE, ALLOCATOR>&& other )
@@ -296,17 +296,17 @@ public:
 
         void doSort()
         {
-            Array<String> myArray = ...;
+            List<String> myList = ...;
 
             // sort in ascending order
-            myArray.sort(); 
+            myList.sort(); 
 
             // sort in descending order. bdn::descending() is a predefined
             // comparison function provided by the boden framework.
-            myArray.sort( descending );
+            myList.sort( descending );
 
             // sort in a custom order, defined by the custom myComparisonFunc.
-            myArray.sort( myComparisonFunc );
+            myList.sort( myComparisonFunc );
         }
 
         \endcode
