@@ -226,6 +226,8 @@ inline void _verifyEmptyCollection(CollType& coll)
         REQUIRE( coll.getMaxSize() >= 0x7ffffff );
         REQUIRE( coll.max_size() == coll.getMaxSize() );
     }
+
+
 }
 
 
@@ -234,6 +236,7 @@ inline void _verifyEmptySequence(CollType& coll)
 {
     _verifyEmptyCollection(coll);
     
+		
     SECTION("getFirst")
         REQUIRE_THROWS_AS( coll.getFirst(), OutOfRangeError );
 
@@ -282,7 +285,7 @@ inline void _verifyCollectionIteration(CollType& coll, const std::list<typename 
 
 
 template<class CollType>
-inline void _verifySequenceCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
+inline void _verifyGenericCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
 {
     SECTION("size")
     {
@@ -306,6 +309,15 @@ inline void _verifySequenceCollectionReadOnly(CollType& coll, std::list<typename
         REQUIRE( coll.isEmpty() == (expectedElementList.size()==0) );
     }
     
+    
+    SECTION("iteration")
+        _verifyCollectionIteration( coll, expectedElementList );
+}
+
+
+template<class CollType>
+inline void _verifyAdditionalSequenceCollectionFunctionalityReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
+{
     SECTION("getFirst")
     {
         if(expectedElementList.size() == 0)
@@ -322,8 +334,17 @@ inline void _verifySequenceCollectionReadOnly(CollType& coll, std::list<typename
             REQUIRE( _isCollectionElementEqual( coll.getLast(), expectedElementList.back() ) );
     }
     
-    SECTION("iteration")
-        _verifyCollectionIteration( coll, expectedElementList );
+}
+
+
+
+
+template<class CollType>
+inline void _verifySequenceCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
+{
+	_verifyGenericCollectionReadOnly(coll, expectedElementList);
+
+	_verifyAdditionalSequenceCollectionFunctionalityReadOnly(coll, expectedElementList);
 }
 
 
@@ -465,7 +486,7 @@ inline void _verifyCollectionAdd(
         coll.add( elToAdd );
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
     }
 
     SECTION("move")
@@ -473,7 +494,7 @@ inline void _verifyCollectionAdd(
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
         coll.add( std::move(elToAdd) );        
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
 
         // elToAdd should not have the same value anymore
         REQUIRE( isMovedRemnant(elToAdd) );
@@ -486,7 +507,7 @@ inline void _verifyCollectionAdd(
             SECTION("empty")
             {
                 coll.addSequence( newElList.begin(), newElList.begin() );
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -494,7 +515,7 @@ inline void _verifyCollectionAdd(
                 coll.addSequence( newElList.begin(), newElList.end() );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
             }
         }
 
@@ -504,7 +525,7 @@ inline void _verifyCollectionAdd(
             {
                 coll.addSequence( {} );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -512,34 +533,8 @@ inline void _verifyCollectionAdd(
                 coll.addSequence( newElList );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
             }
-        }
-    }
-
-    SECTION("multiple copies")
-    {
-        SECTION("0 times")
-        {
-            coll.addMultipleCopies( 0, *newElList.begin() );
-
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
-        }
-
-        SECTION("1 times")
-        {
-            coll.addMultipleCopies( 1, *newElList.begin() );
-            newExpectedElementList.insert( expectedInsertIt, *newElList.begin() );
-
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
-        }
-
-        SECTION("3 times")
-        {
-            coll.addMultipleCopies( 3, *newElList.begin() );
-            newExpectedElementList.insert( expectedInsertIt, 3, *newElList.begin() );
-
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
         }
     }
 
@@ -548,10 +543,46 @@ inline void _verifyCollectionAdd(
         coll.addNew( std::forward<ConstructArgs>(constructArgs)... );
         newExpectedElementList.insert( expectedInsertIt, expectedConstructedEl );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
     }
 }
 
+template<class CollType>
+inline void _verifyCollectionAddMultipleCopies(
+    CollType& coll,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList
+ )
+{
+	std::list<typename CollType::Element> newExpectedElementList = expectedElementList;
+
+    typename std::list<typename CollType::Element>::iterator expectedInsertIt = newExpectedElementList.end();
+    
+    typename CollType::Element elToAdd = *newElList.begin();
+
+    SECTION("0 times")
+    {
+        coll.addMultipleCopies( 0, *newElList.begin() );
+
+        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+    }
+
+    SECTION("1 times")
+    {
+        coll.addMultipleCopies( 1, *newElList.begin() );
+        newExpectedElementList.insert( expectedInsertIt, *newElList.begin() );
+
+        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+    }
+
+    SECTION("3 times")
+    {
+        coll.addMultipleCopies( 3, *newElList.begin() );
+        newExpectedElementList.insert( expectedInsertIt, 3, *newElList.begin() );
+
+        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+    }
+}
 
 
 template<class CollType, typename... ConstructArgs>
@@ -663,9 +694,8 @@ inline void _verifyCollectionInsertAtBegin(
 }
 
 
-    
 template<class CollType, typename... ConstructArgs>
-inline void _verifySequenceCollection(
+inline void _verifyGenericCollection(
     CollType& coll,
     std::list<typename CollType::Element> expectedElementList,
     std::initializer_list<typename CollType::Element> newElList,
@@ -674,7 +704,7 @@ inline void _verifySequenceCollection(
     ConstructArgs... constructArgs
     )
 {
-    _verifySequenceCollectionReadOnly(coll, expectedElementList);
+    _verifyGenericCollectionReadOnly(coll, expectedElementList);
 
     std::list<typename CollType::Element> newExpectedElementList( expectedElementList );
 
@@ -682,7 +712,7 @@ inline void _verifySequenceCollection(
     {
         coll.clear();
 
-        _verifySequenceCollectionReadOnly( coll, {});
+        _verifyGenericCollectionReadOnly( coll, {});
     }
 
     SECTION("operator=")
@@ -696,13 +726,13 @@ inline void _verifySequenceCollection(
                 SECTION("ref")
                 {
                     coll = otherColl;
-                    _verifySequenceCollectionReadOnly( coll, {});
+                    _verifyGenericCollectionReadOnly( coll, {});
                 }
 
                 SECTION("move")
                 {
                     coll = std::move(otherColl);
-                    _verifySequenceCollectionReadOnly( coll, {});
+                    _verifyGenericCollectionReadOnly( coll, {});
 
                     REQUIRE( otherColl.size() == 0);
                 }
@@ -716,13 +746,13 @@ inline void _verifySequenceCollection(
                 SECTION("ref")
                 {
                     coll = otherColl;
-                    _verifySequenceCollectionReadOnly( coll, {expectedConstructedEl} );
+                    _verifyGenericCollectionReadOnly( coll, {expectedConstructedEl} );
                 }
 
                 SECTION("move")
                 {
                     coll = std::move(otherColl);
-                    _verifySequenceCollectionReadOnly( coll, {expectedConstructedEl} );
+                    _verifyGenericCollectionReadOnly( coll, {expectedConstructedEl} );
 
                     REQUIRE( otherColl.size() == 0);
                 }
@@ -734,14 +764,14 @@ inline void _verifySequenceCollection(
             SECTION("empty")
             {
                 coll = {};
-                _verifySequenceCollectionReadOnly( coll, {});
+                _verifyGenericCollectionReadOnly( coll, {});
             }
 
             SECTION("non-empty")
             {
                 coll = {expectedConstructedEl};
 
-                _verifySequenceCollectionReadOnly( coll, {expectedConstructedEl} );
+                _verifyGenericCollectionReadOnly( coll, {expectedConstructedEl} );
             }
         }
     }
@@ -755,7 +785,7 @@ inline void _verifySequenceCollection(
                 coll.removeAt( coll.begin() );
                 newExpectedElementList.erase( newExpectedElementList.begin() );                   
                     
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
             }
 
             SECTION("last")
@@ -763,7 +793,7 @@ inline void _verifySequenceCollection(
                 coll.removeAt( --coll.end() );
                 newExpectedElementList.erase( --newExpectedElementList.end() );                   
                     
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
             }
 
             if( expectedElementList.size() > 1)
@@ -773,11 +803,37 @@ inline void _verifySequenceCollection(
                     coll.removeAt( ++coll.begin() );
                     newExpectedElementList.erase( ++newExpectedElementList.begin() );                   
                     
-                    _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+                    _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
                 }
             }
         }
+    }
 
+    SECTION("add")
+    {
+        _verifyCollectionAdd(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
+    }
+
+}
+    
+template<class CollType, typename... ConstructArgs>
+inline void _verifySequenceCollection(
+    CollType& coll,
+    std::list<typename CollType::Element> expectedElementList,
+    std::initializer_list<typename CollType::Element> newElList,
+    std::function< bool(const typename CollType::Element&) > isMovedRemnant,
+    typename CollType::Element expectedConstructedEl,
+    ConstructArgs... constructArgs
+    )
+{
+	_verifyGenericCollection(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
+
+	_verifyAdditionalSequenceCollectionFunctionalityReadOnly(coll, expectedElementList);
+	
+    std::list<typename CollType::Element> newExpectedElementList( expectedElementList );
+
+    if( expectedElementList.size() > 0 )
+    {
         SECTION("removeFirst")
         {
             coll.removeFirst();
@@ -791,6 +847,11 @@ inline void _verifySequenceCollection(
                     
             _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
         }
+    }
+
+	SECTION("addMultipleCopies")
+    {
+        _verifyCollectionAddMultipleCopies(coll, expectedElementList, newElList);
     }
 
     SECTION("insertAt")
@@ -807,12 +868,7 @@ inline void _verifySequenceCollection(
         SECTION("at end")
             _verifyCollectionInsertAt(coll, expectedElementList.size(), expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
     }
-
-    SECTION("add")
-    {
-        _verifyCollectionAdd(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
-    }
-
+	
     SECTION("insertAtBegin")
     {
         _verifyCollectionInsertAtBegin(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
@@ -919,7 +975,7 @@ inline void _testGenericCollectionPrepareForSize(CollType& coll)
     coll.prepareForSize( prepareFor );
 
     // prepareForSize should NEVER change the collection contents
-    _verifySequenceCollectionReadOnly( coll, origElements );
+    _verifyGenericCollectionReadOnly( coll, origElements );
 }
 
 template<class CollType, class ItType>
@@ -1139,13 +1195,13 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             coll.addSequence(elements);
 
             // the first element must equal the third one for these tests to work
-            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
-                _verifyCollectionFind( coll, coll.getFirst(), coll.begin() );
+                _verifyCollectionFind( coll, *coll.begin(), coll.begin() );
 
             SECTION("last")
-                _verifyCollectionFind( coll, coll.getLast(), --coll.end() );
+                _verifyCollectionFind( coll, *--coll.end(), --coll.end() );
 
             SECTION("second")
                 _verifyCollectionFind( coll, *++coll.begin(), ++coll.begin() );
@@ -1178,11 +1234,11 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             coll.addSequence(elements);
 
             // the first element must equal the third one for these tests to work
-            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
             {
-                typename CollType::Element toFind = coll.getFirst();
+                typename CollType::Element toFind = *coll.begin();
 
                 verifyFindCondition(
                     coll,
@@ -1195,7 +1251,7 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
 
             SECTION("last")
             {
-                typename CollType::Element toFind = coll.getLast();
+                typename CollType::Element toFind = *--coll.end();
 
                 verifyFindCondition(
                     coll,
@@ -1231,9 +1287,11 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             }
         }
     }
+}
 
-
-
+template<class CollType>
+inline void _testCollectionReverseFind(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
+{
     SECTION("reverseFind")
     {
         CollType coll;
@@ -1249,16 +1307,16 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             coll.addSequence(elements);
 
             // the first element must equal the third one for these tests to work
-            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
             {
                 // the first and the third element compare equal. So we expect to find the third one
-                verifyReverseFind( coll, coll.getFirst(), ++(++coll.begin()) );
+                verifyReverseFind( coll, *coll.begin(), ++(++coll.begin()) );
             }
 
             SECTION("last")
-                verifyReverseFind( coll, coll.getLast(), --coll.end() );
+                verifyReverseFind( coll, *--coll.end(), --coll.end() );
 
             SECTION("second")
                 verifyReverseFind( coll, *++coll.begin(), ++coll.begin() );
@@ -1291,11 +1349,11 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             coll.addSequence(elements);
 
             // the first element must equal the third one for these tests to work
-            REQUIRE( coll.getFirst() == *(++(++coll.begin())) );
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
             {
-                typename CollType::Element toFind = coll.getFirst();
+                typename CollType::Element toFind = *coll.begin();
 
                 verifyReverseFindCondition(
                     coll,
@@ -1309,7 +1367,7 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
 
             SECTION("last")
             {
-                typename CollType::Element toFind = coll.getLast();
+                typename CollType::Element toFind = *--coll.end();
 
                 verifyReverseFindCondition(
                     coll,

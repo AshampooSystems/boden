@@ -90,7 +90,7 @@ public:
 
 
     Set( const Set& other )
-        : StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >( other )
+        : Set( static_cast<const std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>&>( other ) )
     {
     }
 
@@ -274,36 +274,61 @@ public:
     }
 
 
-
-
-    /** Returns a reference to the first (=smallest) element of the set. Throws OutOfRangeError if the collection
-        is empty.*/
-    const Element& getFirst() const
-    {
-        if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getFirst called on empty collection.");
-
-        return *StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::begin();
-    }
-
-
-
-    /** Returns a reference to the last (biggest) element of the set. Throws OutOfRangeError if the collection
-        is empty.*/
-    const Element& getLast() const
-    {
-        if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getLast called on empty collection.");
-
-        return *--StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::end();
-    }
-
-
-
-    void removeFirst()
-    {
-    }
+		
+    /** Constructs a new element and adds it to the set, if it not yet in the set.
+        The arguments passed to addNew are passed on to the constructor of the
+        newly constructed element.
         
+        This function can be used instead of add() when one wants to add a newly
+        created value more efficiently. With add() the new value would initially be constructed
+        as a temporary variable and then a copy or move operation would be made 
+        to bring it into the collection. addNew constructs the new element directly inside
+        the collection, avoiding any copying or moving.
+
+        If a new element was added then a reference to that element is returned.
+		If the element was already in the set then a reference to the pre-existing element is returned.
+        */
+    template< class... Args > 
+    const Element& addNew( Args&&... args )
+    {
+        std::pair<iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::emplace( std::forward<Args>(args)... );
+
+		return *result.first;
+    }
+
+
+
+
+	/** In general, this collection operation prepares the collection for a bigger insert operation.
+        This function is provided for consistency with other collection types only - for bdn::List this
+        function has no effect and does nothing.
+    */
+    void prepareForSize(Size size)
+    {
+        // do nothing
+    }
+
+	
+    /** Searches for the first element for which the specified condition function returns true.        
+        conditionFunc must take a collection element reference as its only parameter and return a boolean.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    template<class ConditionFuncType>
+	Iterator findCondition(ConditionFuncType conditionFunc )
+	{
+        return std::find_if( this->begin(), this->end(), conditionFunc );
+	}
+
+
+    /** Const version of findCondition() - returns a read-only iterator.
+    */
+    template<class ConditionFuncType>
+	ConstIterator findCondition(ConditionFuncType conditionFunc ) const
+	{
+        return std::find_if( this->begin(), this->end(), conditionFunc );
+	}
+
 
 };
 

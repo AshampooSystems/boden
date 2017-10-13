@@ -1000,6 +1000,7 @@ TEST_CASE("List")
             345 );       
 
         _testCollectionFind< List<int> >( {17, 42, 17, 3}, 88 );
+		_testCollectionReverseFind< List<int> >( {17, 42, 17, 3}, 88 );
         _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
 
         _testStealAllAndMergeSorted<int>( {17, 42, 17, 3}, {99, 6, 2, 102} );
@@ -1032,6 +1033,13 @@ TEST_CASE("List")
                 345, 456 );
 
             _testCollectionFind< List<TestCollectionElement_OrderedComparable_> >(
+                { TestCollectionElement_OrderedComparable_(17, 117),
+                    TestCollectionElement_OrderedComparable_(42, 142),
+                    TestCollectionElement_OrderedComparable_(17, 117),
+                    TestCollectionElement_OrderedComparable_(3, 103),
+                },
+                TestCollectionElement_OrderedComparable_(400, 401) );
+			_testCollectionReverseFind< List<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
@@ -1104,6 +1112,13 @@ TEST_CASE("List")
                 345, 456 );
 
             _testCollectionFind< List<TestCollectionElement_UnorderedComparable_> >(
+                { TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(42, 142),                
+                    TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(3, 103),
+                },
+                TestCollectionElement_UnorderedComparable_(400, 401) );
+			_testCollectionReverseFind< List<TestCollectionElement_UnorderedComparable_> >(
                 { TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(42, 142),                
                     TestCollectionElement_UnorderedComparable_(17, 117),

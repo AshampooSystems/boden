@@ -260,6 +260,7 @@ TEST_CASE("Array")
             345 );       
 
         _testCollectionFind< Array<int> >( {17, 42, 17, 3}, 88 );
+		_testCollectionReverseFind< Array<int> >( {17, 42, 17, 3}, 88 );
         _testCollectionSort< Array<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
     }
 
@@ -284,6 +285,13 @@ TEST_CASE("Array")
                 345, 456 );
 
             _testCollectionFind< Array<TestCollectionElement_OrderedComparable_> >(
+                { TestCollectionElement_OrderedComparable_(17, 117),
+                    TestCollectionElement_OrderedComparable_(42, 142),
+                    TestCollectionElement_OrderedComparable_(17, 117),
+                    TestCollectionElement_OrderedComparable_(3, 103),
+                },
+                TestCollectionElement_OrderedComparable_(400, 401) );
+			_testCollectionReverseFind< Array<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
@@ -323,6 +331,13 @@ TEST_CASE("Array")
                 345, 456 );
 
             _testCollectionFind< Array<TestCollectionElement_UnorderedComparable_> >(
+                { TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(42, 142),                
+                    TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(3, 103),
+                },
+                TestCollectionElement_UnorderedComparable_(400, 401) );
+			_testCollectionReverseFind< Array<TestCollectionElement_UnorderedComparable_> >(
                 { TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(42, 142),                
                     TestCollectionElement_UnorderedComparable_(17, 117),
