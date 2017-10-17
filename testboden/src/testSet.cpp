@@ -135,107 +135,202 @@ static void testSet(
     }    
 }
 
-/*
+
 template<class CollType>
-static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNotInList)
+static void _verifySetFind( CollType& coll, std::initializer_list< typename CollType::Element > elList, const typename CollType::Element & elNotInList)
 {
-    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
-
-    SECTION("no match")
+    SECTION("found")
     {
-        SECTION("find value")
-        {
-            coll.findAndRemove( elNotInList );
+        SECTION("find")
+        {        
+            for(auto& el: elList)
+            {
+                auto it = coll.find(el);
+
+                REQUIRE( it!=coll.end() );
+                REQUIRE( _isCollectionElementEqual( *it, el) );
+            }
         }
 
-        SECTION("check function")
+        SECTION("contains")
         {
-            coll.findConditionAndRemove( 
-                [](const CollType::Element& el)
-                {
-                    return false;
-                } );
+            for(auto& el: elList)
+                REQUIRE( coll.contains(el) );
         }
 
-        REQUIRE( coll.getSize() == origInfo.size() );
+        SECTION("findCondition")
+        {
+            for(auto& el: elList)
+            {
+                auto it = coll.findCondition( 
+                    [el]( const typename CollType::Element& setEl )
+                    {
+                        return _isCollectionElementEqual(el, setEl);
+                    } );
 
-        _verifyElementRange(coll.begin(), coll.end(), origInfo.begin(), origInfo.end() );
+                REQUIRE( it!=coll.end() );
+                REQUIRE( _isCollectionElementEqual( *it, el) );
+            }
+        }
     }
 
-    if(!origInfo.empty())
+    SECTION("not found")
     {
-        SECTION("single match")
+        SECTION("find")
+            REQUIRE( coll.find(elNotInList) == coll.end() );
+
+        SECTION("contains")
+            REQUIRE( !coll.contains(elNotInList) );
+
+        SECTION("findCondition")
         {
-            // the second element is only once in the list (no duplicates)
-
-            typename CollType::Element toFind = *++coll.begin();
-
-            SECTION("find value")
-                coll.findAndRemove( toFind );
-
-            SECTION("check function")
-            {   
-                coll.findConditionAndRemove( 
-                    [toFind](const CollType::Element& el)
-                    {
-                        return el==toFind;
-                    } );
-            }
-
-            REQUIRE( coll.getSize() == origInfo.size()-1 );
-
-            // second element should have been removed
-            _verifyElementRange(coll.begin(), ++coll.begin(), origInfo.begin(), ++origInfo.begin() );
-            _verifyElementRange(++coll.begin(), coll.end(), ++(++origInfo.begin()), origInfo.end() );
-        }
-
-        SECTION("multiple matches")
-        {
-            // the first and third element are equal
-            typename CollType::Element toFind = *coll.begin();
-
-            SECTION("find value")
-                coll.findAndRemove( toFind );
-
-            SECTION("check function")
-            {   
-                coll.findConditionAndRemove( 
-                    [toFind](const CollType::Element& el)
-                    {
-                        return el==toFind;
-                    } );
-            }
-                        
-            REQUIRE( coll.getSize() == origInfo.size()-2 );
-
-            // first and third should be removed
-
-            // the first result element should be the original second
-            _verifyElementRange(coll.begin(), ++coll.begin(), ++origInfo.begin(), ++(++origInfo.begin()) );
-
-            // then the fourth and later should follow
-            _verifyElementRange(++coll.begin(), coll.end(), ++(++(++origInfo.begin())), origInfo.end() );
+            REQUIRE( coll.findCondition( 
+                        []( const typename CollType::Element& setEl )
+                        {
+                            return false;
+                        } )
+                    == coll.end() );
         }
     }
 }
 
-
-template<typename ElType>
-static void _testFindAndRemove(std::initializer_list<ElType> elList, ElType elNotInList)
+template<class ElType>
+static void _testSetFind( std::initializer_list<ElType> elList, const ElType& elNotInList )
 {
     SECTION("empty")
     {
         Set<ElType> coll;
-        _verifyFindAndRemove(coll, elNotInList);
+
+        SECTION("normal")
+            _verifySetFind( coll, {}, *elList.begin() );
+
+        SECTION("const")
+            _verifySetFind( (const Set<ElType>&)coll, {}, *elList.begin() );
     }
 
     SECTION("not empty")
     {
         Set<ElType> coll(elList);
-        _verifyFindAndRemove(coll, elNotInList);
+
+        SECTION("normal")
+            _verifySetFind(coll, elList, elNotInList);
+
+        SECTION("const")
+            _verifySetFind( (const Set<ElType>&)coll , elList, elNotInList);
     }
 }
-*/
+
+
+
+template<class ElType>
+static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const ElType& elNotInList)
+{
+    SECTION("empty")
+    {
+        Set<ElType> coll;
+
+        SECTION("findAndRemove")    
+        {
+            coll.findAndRemove(elNotInList);
+            _verifyGenericCollectionReadOnly( coll, {} );
+        }
+
+        SECTION("findConditionAndRemove")
+        {
+            coll.findConditionAndRemove(
+                [elNotInList](const ElType& el)
+                {
+                    return _isCollectionElementEqual(el, elNotInList);
+                } );
+            _verifyGenericCollectionReadOnly( coll, {} );
+        }        
+    }
+
+    SECTION("not empty")
+    {
+        SECTION("found")
+        {
+            int elIndex=0;
+
+            for(auto& el: elList)
+            {
+                SECTION( std::to_string(elIndex) )
+                {
+                    Set<ElType> coll(elList);
+
+                    size_t      sizeBefore = coll.getSize();
+
+                    std::list< ElType> expectedElements( elList );
+                    expectedElements.remove( el );
+                    expectedElements.sort();
+
+                    SECTION("findAndRemove")  
+                    {
+                        coll.findAndRemove(el);
+
+                        REQUIRE( coll.getSize() == sizeBefore-1 );
+                        _verifyGenericCollectionReadOnly( coll, expectedElements );
+                    }
+
+                    SECTION("findConditionAndRemove")  
+                    {
+                        coll.findConditionAndRemove(
+                            [el](const ElType& setEl)
+                            {
+                                return _isCollectionElementEqual( el, setEl );
+                            } );
+
+                        REQUIRE( coll.getSize() == sizeBefore-1 );
+                        _verifyGenericCollectionReadOnly( coll, expectedElements );
+                    }
+                }
+
+                elIndex++;
+            }
+        }
+
+        SECTION("not found")
+        {
+            Set<ElType> coll(elList);
+
+            std::list< ElType> expectedElements( elList );
+            expectedElements.sort();
+
+            SECTION("findAndRemove")
+            {
+                coll.findAndRemove(elNotInList);
+                _verifyGenericCollectionReadOnly( coll, expectedElements );
+            }
+
+            SECTION("findConditionAndRemove")
+            {
+                coll.findConditionAndRemove(
+                    [](const ElType& setEl)
+                    {
+                        return false;
+                    } );
+                _verifyGenericCollectionReadOnly( coll, expectedElements );
+            }
+        }
+
+        SECTION("all match")
+        {
+            Set<ElType> coll(elList);
+
+            SECTION("findConditionAndRemove")
+            {
+                coll.findConditionAndRemove(
+                    [](const ElType& setEl)
+                    {
+                        return true;
+                    } );
+
+                _verifyGenericCollectionReadOnly( coll, {} );
+            }
+        }
+    }
+
+}
 
 TEST_CASE("Set")
 {
@@ -251,6 +346,10 @@ TEST_CASE("Set")
             },
             345,
             345 );       
+
+        _testSetFind<int>( {17, 42, 3}, 78 );
+
+        _testSetFindAndRemove<int>( {17, 42, 3}, 78 );
 
         //_testCollectionFind< Set<int> >( {17, 42, 17, 3}, 88 );        
     }
@@ -279,13 +378,19 @@ TEST_CASE("Set")
                 TestCollectionElement_OrderedComparable_(345, 456),
                 345, 456 );
 
-            /*_testCollectionFind< Set<TestCollectionElement_OrderedComparable_> >(
+            _testSetFind<TestCollectionElement_OrderedComparable_>(
                 { TestCollectionElement_OrderedComparable_(17, 117),
-                    TestCollectionElement_OrderedComparable_(42, 142),
-                    TestCollectionElement_OrderedComparable_(17, 117),
-                    TestCollectionElement_OrderedComparable_(3, 103),
+                  TestCollectionElement_OrderedComparable_(42, 142),
+                  TestCollectionElement_OrderedComparable_(3, 103)
                 },
-                TestCollectionElement_OrderedComparable_(400, 401) );*/
+                TestCollectionElement_OrderedComparable_(400, 401) );
+
+            _testSetFindAndRemove<TestCollectionElement_OrderedComparable_>(
+                { TestCollectionElement_OrderedComparable_(17, 117),
+                  TestCollectionElement_OrderedComparable_(42, 142),
+                  TestCollectionElement_OrderedComparable_(3, 103)
+                },
+                TestCollectionElement_OrderedComparable_(400, 401) );
         }
 		/*
         SECTION("unordered comparable")

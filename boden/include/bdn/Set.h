@@ -308,10 +308,51 @@ public:
         // do nothing
     }
 
+
+    /** Returns true if the set contains the specified element.
+
+        The function uses the set's compare function to determine if a set element is equal to 
+        the \c el parameter. The two elements are considered to be equal if neither
+        one is "smaller" than the other.
+
+        Returns true if the element is found and false otherwise.
+    */
+    bool contains( const Element& el ) const
+    {
+        return ( StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::count(el) != 0);
+    }
+
+
+    /** Searches for the specified element in the set.
+        The search uses the set's compare function to determine if a set element is equal to 
+        the \c toFind parameter. The two elements are considered to be equal if neither
+        one is "smaller" than the other.
+
+        find is very fast in the Set class. Its complexity is logarithmic to the size of the set.
+            
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+	Iterator find( const Element& toFind )
+	{
+        return StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );
+	}
+
+
+    /** Const version of find() - returns a read-only iterator.
+    */
+	ConstIterator find( const Element& toFind ) const
+	{
+        return StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );
+	}
+
 	
     /** Searches for the first element for which the specified condition function returns true.        
         conditionFunc must take a collection element reference as its only parameter and return a boolean.
-    
+
+        Note that for the Set class findCondition() is a lot slower than find(). find can take advantage
+        of the internal data structures of the set to find the element in logarithmic time. findCondition 
+        on the other hand needs to check potentially all elements in the set (i.e. it has linear complexity).
+            
         Returns an iterator to the found element, or end() if no such element is found.
     */
     template<class ConditionFuncType>
@@ -329,6 +370,35 @@ public:
         return std::find_if( this->begin(), this->end(), conditionFunc );
 	}
 
+
+
+    /** If the set contains the specified element, remove it. Does nothing if the element
+        is not in the set.*/
+    void findAndRemove(const Element& val)
+    {
+        StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( val );
+    }
+
+
+    
+    /** Removes all elements for which the specified function checkFunc returns true.
+    
+        checkFunc must be a function that takes a reference to a set element as its parameter
+        and returns true if the element should be removed.
+    */
+    template<typename CheckFuncType>
+    void findConditionAndRemove( CheckFuncType& checkFunc )
+    {
+        for(auto it = begin(); it!=end(); )
+        {
+            if( checkFunc(*it) )
+                it = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
+            else
+                ++it;
+        }
+    }
+
+        
 
 };
 

@@ -128,9 +128,6 @@ public:
     {
         return ! operator==(o);
     }
-
-    int _a;
-    int _b;
 };
 
 class TestCollectionElement_OrderedComparable_ : public TestCollectionElement_UnorderedComparable_
@@ -1555,6 +1552,8 @@ inline void _testCollectionSort(
             coll.stableSort( ascending<typename CollType::Element> );
 
             _verifyCollectionSortResult( coll, elements );
+
+            _verifySequenceCollectionReadOnly( coll, stableSortedElements );
         }
 
         SECTION("stableSort(descending)")
@@ -1574,11 +1573,6 @@ inline void _testCollectionSort(
                 } );
 
             _verifyCollectionSortResult( coll, elements, true );
-
-            std::list<typename CollType::Element> expectedSortedElements( stableSortedElements.begin(), stableSortedElements.end() );
-            expectedSortedElements.reverse();
-
-            _verifySequenceCollectionReadOnly( coll, expectedSortedElements );
         }
     }
 }
