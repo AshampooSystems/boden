@@ -159,7 +159,7 @@ public:
 
 
     /** Replaces the current contents of the set with copies of the elements from the specified
-        vector.
+        std::set object.
         
         Returns a reference to this Set object.
         */
@@ -300,7 +300,7 @@ public:
 
 
 	/** In general, this collection operation prepares the collection for a bigger insert operation.
-        This function is provided for consistency with other collection types only - for bdn::List this
+        This function is provided for consistency with other collection types only - for bdn::Set this
         function has no effect and does nothing.
     */
     void prepareForSize(Size size)

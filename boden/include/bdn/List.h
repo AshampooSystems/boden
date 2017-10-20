@@ -114,7 +114,7 @@ public:
     }
 
 
-    /** Moves the data from the specified other vector to this list. The other list is invalidated by this.*/
+    /** Moves the data from the specified other list to this list. The other list is invalidated by this.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other ) noexcept
         : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::move(other) )
     {
@@ -131,7 +131,7 @@ public:
     }
 
 
-    /** Moves the data from the specified other vector to this list. The other list is invalidated by this.
+    /** Moves the data from the specified other list to this list. The other list is invalidated by this.
     
         The specified allocator object is used to initialize the list's internal allocator.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other, const ALLOCATOR& alloc )
@@ -173,7 +173,7 @@ public:
 
 
     /** Replaces the current contents of the list with copies of the elements from the specified
-        vector.
+        std::list object.
         
         Returns a reference to this List object.
         */
