@@ -136,90 +136,6 @@ static void testSet(
 }
 
 
-template<class CollType>
-static void _verifySetFind( CollType& coll, std::initializer_list< typename CollType::Element > elList, const typename CollType::Element & elNotInList)
-{
-    SECTION("found")
-    {
-        SECTION("find")
-        {        
-            for(auto& el: elList)
-            {
-                auto it = coll.find(el);
-
-                REQUIRE( it!=coll.end() );
-                REQUIRE( _isCollectionElementEqual( *it, el) );
-            }
-        }
-
-        SECTION("contains")
-        {
-            for(auto& el: elList)
-                REQUIRE( coll.contains(el) );
-        }
-
-        SECTION("findCondition")
-        {
-            for(auto& el: elList)
-            {
-                auto it = coll.findCondition( 
-                    [el]( const typename CollType::Element& setEl )
-                    {
-                        return _isCollectionElementEqual(el, setEl);
-                    } );
-
-                REQUIRE( it!=coll.end() );
-                REQUIRE( _isCollectionElementEqual( *it, el) );
-            }
-        }
-    }
-
-    SECTION("not found")
-    {
-        SECTION("find")
-            REQUIRE( coll.find(elNotInList) == coll.end() );
-
-        SECTION("contains")
-            REQUIRE( !coll.contains(elNotInList) );
-
-        SECTION("findCondition")
-        {
-            REQUIRE( coll.findCondition( 
-                        []( const typename CollType::Element& setEl )
-                        {
-                            return false;
-                        } )
-                    == coll.end() );
-        }
-    }
-}
-
-template<class ElType>
-static void _testSetFind( std::initializer_list<ElType> elList, const ElType& elNotInList )
-{
-    SECTION("empty")
-    {
-        Set<ElType> coll;
-
-        SECTION("normal")
-            _verifySetFind( coll, {}, *elList.begin() );
-
-        SECTION("const")
-            _verifySetFind( (const Set<ElType>&)coll, {}, *elList.begin() );
-    }
-
-    SECTION("not empty")
-    {
-        Set<ElType> coll(elList);
-
-        SECTION("normal")
-            _verifySetFind(coll, elList, elNotInList);
-
-        SECTION("const")
-            _verifySetFind( (const Set<ElType>&)coll , elList, elNotInList);
-    }
-}
-
 
 
 template<class ElType>
@@ -347,11 +263,9 @@ TEST_CASE("Set")
             345,
             345 );       
 
-        _testSetFind<int>( {17, 42, 3}, 78 );
+		_testCollectionFind< Set<int> >({17, 42, 3}, 78 );
 
         _testSetFindAndRemove<int>( {17, 42, 3}, 78 );
-
-        //_testCollectionFind< Set<int> >( {17, 42, 17, 3}, 88 );        
     }
 
     SECTION("complex type")
@@ -378,7 +292,7 @@ TEST_CASE("Set")
                 TestCollectionElement_OrderedComparable_(345, 456),
                 345, 456 );
 
-            _testSetFind<TestCollectionElement_OrderedComparable_>(
+            _testCollectionFind< Set<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                   TestCollectionElement_OrderedComparable_(42, 142),
                   TestCollectionElement_OrderedComparable_(3, 103)

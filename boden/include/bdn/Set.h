@@ -314,8 +314,6 @@ public:
         The function uses the set's compare function to determine if a set element is equal to 
         the \c el parameter. The two elements are considered to be equal if neither
         one is "smaller" than the other.
-
-        Returns true if the element is found and false otherwise.
     */
     bool contains( const Element& el ) const
     {

@@ -39,7 +39,11 @@ namespace bdn
     If you do not need that then you should ignore the ALLOCATOR template argument and leave it at the default. 
 
 */
-template<typename KEYTYPE, typename VALTYPE, typename COMPAREFUNCTYPE = std::less<KEYTYPE>, class ALLOCATOR = std::allocator<KEYTYPE> >
+template<
+	typename KEYTYPE,
+	typename VALTYPE,
+	typename COMPAREFUNCTYPE = std::less<KEYTYPE>,
+	class ALLOCATOR = std::allocator< std::pair<const KEYTYPE, VALTYPE> > >
 class Map : public StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >
 {
 public:
@@ -59,7 +63,7 @@ public:
     {
     }
 
-    explicit Map( const COMPAREFUNCTYPE& compareFunc, const ALLOCATOR& alloc = ALLOCATOR() )
+	explicit Map( const COMPAREFUNCTYPE& compareFunc, const ALLOCATOR& alloc = ALLOCATOR() )
         : StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >( compareFunc, alloc )
     {
     }
@@ -93,10 +97,12 @@ public:
     {
     }
 
+	
     Map( const std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>& other )
         : StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >( other )
     {
     }
+
 
     Map( const Map& other, const ALLOCATOR& alloc )
         : StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >( other, alloc )
@@ -172,7 +178,7 @@ public:
      /** Replaces the current contents of the set with copies of the elements from the specified
         initializer list. This is called by the compiler if a  "= {...} " statement is used.
 
-        Note that each element is a Key, Value pair (a std::pair<Key, Value> object).
+        Note that each element is a Key, Value pair (a std::pair<const Key, Value> object).
         
         For example:
 
@@ -224,25 +230,41 @@ public:
     
     
     /** Adds the specified element to the map. The element is a key value pair, i.e.
-        a std::pair<KEYTYPE, VALUETYPE> object.
+        a std::pair<const KEYTYPE, VALUETYPE> object.
 
         Note that there is also a version of add() that takes the key and value as separate parameters.
         
         If the map already has an entry for the key then the associated value is overwritten
         with the new value.
         */
-    void add( const std::pair<KEYTYPE, VALUETYPE>& keyValuePair )
+    void add( const std::pair<const KEYTYPE, VALTYPE>& keyValuePair )
     {
         // note that this implementation might be slightly faster than (*this)[key] = value, since for new elements
         // no initial default-constructed element needs to be constructed. Instead insert can directly construct the new
         // element.
 
-        std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert(el);
+        std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( keyValuePair );
 
         if(!result.second)
         {
             // element already existed in the map. Overwrite its value
             result.first->second = keyValuePair.second;
+        }
+    }
+
+
+	/** Like add(), but instead of the new element being a copy of the specified
+        element, the C++ move semantics are used to move the element data from the parameter
+        \c el to the new collection element.
+        */
+    void add( std::pair<const KEYTYPE, VALTYPE>&& keyValuePair )
+    {
+        std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( std::move(keyValuePair) );
+
+        if(!result.second)
+        {
+            // element already existed in the map. Overwrite its value
+            result.first->second = std::move(keyValuePair.second);
         }
     }
 
@@ -267,7 +289,7 @@ public:
         iterator range to the set.
         endIt points to the location just *after* the last element to add.
 
-        Each element must be a key value pair, i.e. a std::pair<KEYTYPE, VALUETYPE> object.
+        Each element must be a key value pair, i.e. a std::pair<const KEYTYPE, VALUETYPE> object.
 
         If the map already has an entry for one or more of the new element keys then the associated value is overwritten
         with the new value.
@@ -298,7 +320,7 @@ public:
 
     /** Adds the elements from the specified initializer list to the collection.
 
-        Each element must be a key value pair, i.e. a std::pair<KEYTYPE, VALUETYPE> object.
+        Each element must be a key value pair, i.e. a std::pair<const KEYTYPE, VALUETYPE> object.
 
         If the map already has an entry for one or more of the new element keys then the associated value is overwritten
         with the new value.
@@ -318,14 +340,14 @@ public:
     void addSequence( std::initializer_list<Element> initList )
     {
         // again, we cannot use the batch version of map::insert because of the overwrite semantics
-        for( auto it = beginIt; it!=endIt; ++it)
+        for( const Element& el: initList)
         {
-            std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( *it );
+            std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( el );
 
             if(!result.second)
             {
                 // element already existed in the map. Overwrite its value
-                result.first->second = it->second;
+                result.first->second = el.second;
             }
         }
     }
@@ -336,7 +358,7 @@ public:
         The arguments passed to addNew are passed on to the constructor of the
         newly constructed element.
 
-        Note that elements are key-value pairs (std::pair<Key,Value> objects). So the
+        Note that elements are key-value pairs (std::pair<const Key, Value> objects). So the
         arguments are passed to a std::pair constructor. Usually this means that
         one passes exactly two arguments: one for the key and one for the value.
 
@@ -362,7 +384,7 @@ public:
         {
             // this is quite inefficient - but there is probably no other way. We must construct a temporary
             // pair to get the value.
-            result.first->second = std::pair<Key,Value>( std::forward<Args>(args)... ).second;
+            result.first->second = std::pair<const Key,Value>( std::forward<Args>(args)... ).second;
         }            
 
 		return *result.first;
@@ -386,7 +408,7 @@ public:
         This function does not just check that the key is in the map - it also
         checks the associated value.
 
-        The parameter is a std::pair<KEYTYPE, VALTYPE> object.
+        The parameter is a std::pair<const KEYTYPE, VALTYPE> object.
 
         Returns true if the key/value pair is in the map and false otherwise.
     */
@@ -401,6 +423,7 @@ public:
     }
 
 
+
     /** Searches for the specified element in the set.
         The search uses the set's compare function to determine if a set element is equal to 
         the \c toFind parameter. The two elements are considered to be equal if neither
@@ -412,7 +435,12 @@ public:
     */
 	Iterator find( const Element& toFind )
 	{
-        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );
+        auto it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
+
+		if(it!=this->end() && it->second == toFind.second)
+			return it;
+		else
+			return this->end();
 	}
 
 
@@ -420,7 +448,12 @@ public:
     */
 	ConstIterator find( const Element& toFind ) const
 	{
-        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );
+		auto it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
+
+		if(it!=this->end() && it->second == toFind.second)
+			return it;
+		else
+			return this->end();
 	}
 
 	
@@ -454,7 +487,9 @@ public:
         is not in the set.*/
     void findAndRemove(const Element& val)
     {
-        StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( val );
+		auto it = find(val);
+		if( it!=this->end() )
+			StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
     }
 
 

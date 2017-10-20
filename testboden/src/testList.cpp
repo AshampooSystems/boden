@@ -999,7 +999,7 @@ TEST_CASE("List")
             345,
             345 );       
 
-        _testCollectionFind< List<int> >( {17, 42, 17, 3}, 88 );
+        _testCollectionFindWithStartPos< List<int> >( {17, 42, 17, 3}, 88 );
 		_testCollectionReverseFind< List<int> >( {17, 42, 17, 3}, 88 );
         _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
 
@@ -1032,7 +1032,7 @@ TEST_CASE("List")
                 TestCollectionElement_OrderedComparable_(345, 456),
                 345, 456 );
 
-            _testCollectionFind< List<TestCollectionElement_OrderedComparable_> >(
+            _testCollectionFindWithStartPos< List<TestCollectionElement_OrderedComparable_> >(
                 { TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
@@ -1111,7 +1111,7 @@ TEST_CASE("List")
                 TestCollectionElement_UnorderedComparable_(345, 456),
                 345, 456 );
 
-            _testCollectionFind< List<TestCollectionElement_UnorderedComparable_> >(
+            _testCollectionFindWithStartPos< List<TestCollectionElement_UnorderedComparable_> >(
                 { TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(42, 142),                
                     TestCollectionElement_UnorderedComparable_(17, 117),

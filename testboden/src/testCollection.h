@@ -11,6 +11,9 @@ namespace bdn
 namespace test
 {
 
+
+
+
 class TestCollectionElement_UnorderedUncomparable_
 {
 public:
@@ -197,6 +200,23 @@ inline bool _isCollectionElementEqual(int l, int r)
 }
 
 
+inline bool _isCollectionElementEqual(
+	const std::pair<const int,double>& l,
+	const std::pair<const int,double>& r )
+{
+    return (l.first == r.first
+			&& l.second == r.second );
+}
+
+
+inline bool _isCollectionElementEqual(
+	const std::pair<const TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>& l,
+	const std::pair<const TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>& r )
+{
+	return (_isCollectionElementEqual(l.first, r.first)
+			&& _isCollectionElementEqual(l.second, r.second) );
+}
+
 
 template<class CollType>
 inline void _verifyEmptyCollection(CollType& coll)
@@ -245,10 +265,10 @@ inline void _verifyEmptySequence(CollType& coll)
 template<class ElType, class ItType>
 inline void _verifyIteratorIntervalContents(ItType it, ItType end, const std::list<ElType>& expectedElementList )
 {
-    for( ElType expectedEl: expectedElementList )
+    for( const auto& expectedEl: expectedElementList )
     {
         REQUIRE( it!=end );
-        REQUIRE( _isCollectionElementEqual(*it, expectedEl ) );
+        REQUIRE( _isCollectionElementEqual( (const typename ItType::value_type&)*it, expectedEl ) );
         ++it;
     }
 
@@ -260,16 +280,16 @@ inline void _verifyCollectionIteration(CollType& coll, const std::list<typename 
 {
     SECTION("normal")
         _verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
-
+	
     SECTION("const coll")
         _verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
-
+	
     SECTION("constBegin/End")
         _verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
-
+	
     std::list< typename CollType::Element > reversedExpectedElementList( expectedElementList );
-    std::reverse( reversedExpectedElementList.begin(), reversedExpectedElementList.end() );
-        
+	reversedExpectedElementList.reverse();
+
     SECTION("reverse normal")
         _verifyIteratorIntervalContents<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
 
@@ -978,6 +998,44 @@ inline void _testGenericCollectionPrepareForSize(CollType& coll)
 template<class CollType, class ItType>
 inline void _verifyCollectionFindVariant(CollType& coll, typename CollType::Element toFind, ItType expectedResult )
 {
+    SECTION("find")
+    {
+        ItType it = coll.find( toFind );
+        REQUIRE( it == expectedResult );
+    }
+
+	SECTION("contains")
+	{
+		bool expectedContains = ( expectedResult!=coll.end() );
+		
+		REQUIRE( coll.contains(toFind) == expectedContains );
+	}
+}
+
+
+template<class CollType>
+inline void _verifyCollectionFind(CollType& coll, typename CollType::Element toFind, typename CollType::Iterator expectedResult )
+{
+    SECTION("normal")
+        _verifyCollectionFindVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult);
+    
+    SECTION("const")
+    {
+        const CollType& constColl(coll);
+
+        // convert the const iterator to non-const
+        typename CollType::ConstIterator constExpectedResult = constColl.begin();
+        std::advance( constExpectedResult, std::distance(coll.begin(), expectedResult ) );
+
+        _verifyCollectionFindVariant<const CollType, typename CollType::ConstIterator>( constColl, toFind, constExpectedResult);
+    }
+}
+
+
+
+template<class CollType, class ItType>
+inline void _verifyCollectionFindWithStartPosVariant(CollType& coll, typename CollType::Element toFind, ItType expectedResult )
+{
     SECTION("no startPos")
     {
         ItType it = coll.find( toFind );
@@ -1016,14 +1074,21 @@ inline void _verifyCollectionFindVariant(CollType& coll, typename CollType::Elem
             REQUIRE( it == coll.end() );
         }
     }
+
+	SECTION("contains")
+	{
+		bool expectedContains = ( expectedResult!=coll.end() );
+		
+		REQUIRE( coll.contains(toFind) == expectedContains );
+	}
 }
 
 
 template<class CollType>
-inline void _verifyCollectionFind(CollType& coll, typename CollType::Element toFind, typename CollType::Iterator expectedResult )
+inline void _verifyCollectionFindWithStartPos(CollType& coll, typename CollType::Element toFind, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
-        _verifyCollectionFindVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult);
+        _verifyCollectionFindWithStartPosVariant<CollType, typename CollType::Iterator>( coll, toFind, expectedResult);
     
     SECTION("const")
     {
@@ -1033,10 +1098,9 @@ inline void _verifyCollectionFind(CollType& coll, typename CollType::Element toF
         typename CollType::ConstIterator constExpectedResult = constColl.begin();
         std::advance( constExpectedResult, std::distance(coll.begin(), expectedResult ) );
 
-        _verifyCollectionFindVariant<const CollType, typename CollType::ConstIterator>( constColl, toFind, constExpectedResult);
+        _verifyCollectionFindWithStartPosVariant<const CollType, typename CollType::ConstIterator>( constColl, toFind, constExpectedResult);
     }
 }
-
 
 
 
@@ -1174,6 +1238,44 @@ inline void verifyReverseFindCondition(CollType& coll, std::function< bool(const
     }
 }
 
+
+template<class CollType>
+inline void _testCollectionFindWithStartPos(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
+{
+	_testCollectionFind<CollType>(elements, elNotInColl);
+
+    SECTION("find with start pos")
+    {
+        CollType coll;
+
+        SECTION("empty")
+        {
+            SECTION("not found")
+                _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
+        }
+
+        SECTION("not empty")
+        {        
+            coll.addSequence(elements);
+
+            // the first element must equal the third one for these tests to work
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
+
+            SECTION("first")
+                _verifyCollectionFindWithStartPos( coll, *coll.begin(), coll.begin() );
+
+            SECTION("last")
+                _verifyCollectionFindWithStartPos( coll, *--coll.end(), --coll.end() );
+
+            SECTION("second")
+                _verifyCollectionFindWithStartPos( coll, *++coll.begin(), ++coll.begin() );
+
+            SECTION("not found")
+                _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
+        }
+    }
+}
+
 template<class CollType>
 inline void _testCollectionFind(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
 {
@@ -1190,9 +1292,6 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
         SECTION("not empty")
         {        
             coll.addSequence(elements);
-
-            // the first element must equal the third one for these tests to work
-            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
                 _verifyCollectionFind( coll, *coll.begin(), coll.begin() );
@@ -1229,9 +1328,6 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
         SECTION("not empty")
         {        
             coll.addSequence(elements);
-
-            // the first element must equal the third one for these tests to work
-            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
 
             SECTION("first")
             {

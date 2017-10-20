@@ -450,6 +450,14 @@ public:
 	}
 
 
+	/** Returns true if the collection contains the specified element.	
+    */
+    bool contains( const Element& el ) const
+    {
+        return find(el) != end();
+    }
+
+
     /** Searches for the last element that compares equal to the specified \c el parameter.
     
         Returns an iterator to the found element, or end() if no such element is found.
