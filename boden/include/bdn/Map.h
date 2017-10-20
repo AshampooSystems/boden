@@ -423,82 +423,83 @@ public:
     }
 
 
+	class FindIterator
+	{
+	public:
+		FindIterator(Map& map, Iterator it )
+			: _map(map)
+			, _it(it)
+		{
+		}
+
+		typename const Map::Element& operator*() const
+		{
+			return *_it;
+		}
+
+		typename const Map::Element& operator*() const
+		{
+			return *_it;
+		}
+
+		typename Map::Element* operator->() const
+		{
+			return &*_it;
+		}
+
+		typename Map::Element& operator*() const
+		{
+			return *_it;
+		}
+
+		bool operator==(const ItWrapper& other)
+		{
+			return (_it == other._it );
+		}
+
+		bool operator!=(const ItWrapper& other)
+		{
+			return (_it != other._it );
+		}
+			
+		ItWrapper& operator++()
+		{
+			// the map can only have one matching element.
+			// So there can only be two iterators: a potential
+			// match iterator and end.
+			// ++ on end is undefined, so we do not care about the result.
+			// and ++ on a match iterator should set it to end.
+			// So we can just set the iterator to end in all cases.
+			_it = map.end();
+
+			return *this;
+		}
+
+		ItWrapper operator++(int)
+		{
+			ItWrapper oldVal = *this;
+			operator++();
+
+			return oldVal;
+		}
+
+	private:
+		Map&		_map;
+		Iterator	_it;
+	};
+
+
 	class Finder
 	{
 	public:
-		class ItWrapper_
+		FindIterator begin()
 		{
-		public:
-			ItWrapper_(Map& map, Iterator it )
-				: _map(map)
-				, _it(it)
-			{
-			}
-
-			typename const Map::Element& operator*() const
-			{
-				return *_it;
-			}
-
-			typename const Map::Element& operator*() const
-			{
-				return *_it;
-			}
-
-			typename Map::Element* operator->() const
-			{
-				return &*_it;
-			}
-
-			typename Map::Element& operator*() const
-			{
-				return *_it;
-			}
-
-			bool operator==(const ItWrapper& other)
-			{
-				return (_it == other._it );
-			}
-
-			bool operator!=(const ItWrapper& other)
-			{
-				return (_it != other._it );
-			}
-			
-			ItWrapper& operator++()
-			{
-				// the map can only have one matching element.
-				// So there can only be two iterators: a potential
-				// match iterator and end.
-				// ++ on end is undefined, so we do not care about the result.
-				// and ++ on a match iterator should set it to end.
-				// So we can just set the iterator to end in all cases.
-				_it = map.end();
-
-				return *this;
-			}
-
-			ItWrapper operator++(int)
-			{
-				ItWrapper oldVal = *this;
-				operator++();
-
-				return oldVal;
-			}
-
-		private:
-			Map&		_map;
-			Iterator	_it;
-		};
-
-		ItWrapper_ begin()
-		{
-			return ItWrapper_(_map, _foundIt);
+			return FindIterator(_map, _foundIt);
 		}
 
-		ItWrapper_ end()
+		FindIterator end()
 		{
-			return ItWrapper_(_map, _map.end() );
+			return FindIterator(_map, _map.end() );
 		}
 
 	private:		
