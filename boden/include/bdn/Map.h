@@ -423,6 +423,110 @@ public:
     }
 
 
+	class Finder
+	{
+	public:
+		class ItWrapper_
+		{
+		public:
+			ItWrapper_(Map& map, Iterator it )
+				: _map(map)
+				, _it(it)
+			{
+			}
+
+			typename const Map::Element& operator*() const
+			{
+				return *_it;
+			}
+
+			typename const Map::Element& operator*() const
+			{
+				return *_it;
+			}
+
+			typename Map::Element* operator->() const
+			{
+				return &*_it;
+			}
+
+			typename Map::Element& operator*() const
+			{
+				return *_it;
+			}
+
+			bool operator==(const ItWrapper& other)
+			{
+				return (_it == other._it );
+			}
+
+			bool operator!=(const ItWrapper& other)
+			{
+				return (_it != other._it );
+			}
+			
+			ItWrapper& operator++()
+			{
+				// the map can only have one matching element.
+				// So there can only be two iterators: a potential
+				// match iterator and end.
+				// ++ on end is undefined, so we do not care about the result.
+				// and ++ on a match iterator should set it to end.
+				// So we can just set the iterator to end in all cases.
+				_it = map.end();
+
+				return *this;
+			}
+
+			ItWrapper operator++(int)
+			{
+				ItWrapper oldVal = *this;
+				operator++();
+
+				return oldVal;
+			}
+
+		private:
+			Map&		_map;
+			Iterator	_it;
+		};
+
+		ItWrapper_ begin()
+		{
+			return ItWrapper_(_map, _foundIt);
+		}
+
+		ItWrapper_ end()
+		{
+			return ItWrapper_(_map, _map.end() );
+		}
+
+	private:		
+		Finder( const Map& map, const Element& toFind)
+			: _map(map)
+			, _foundIt( map->find(toFind) )
+		{
+		}
+
+		Map&		_map;
+		Iterator	_foundIt;
+
+		friend class Map;
+	};
+
+	XXX
+	Finder findElement(const Element& toFind)
+	{
+		return Finder(*this, toFind);
+	}
+
+
+	XXX
+	Finder findByKey(const Key& keyToFind)
+	{
+		return Finder(*this, toFind);
+	}
+
 
     /** Searches for the specified element in the set.
         The search uses the set's compare function to determine if a set element is equal to 
