@@ -423,75 +423,173 @@ public:
     }
 
 
-	class FindIterator
+	template<class MatchFuncType>
+	class FuncMatcher
 	{
 	public:
-		FindIterator(Map& map, Iterator it )
-			: _map(map)
-			, _it(it)
+		class It
 		{
-		}
+		public:
+			operator Iterator()
+			{
+				return _it;
+			}
 
-		typename const Map::Element& operator*() const
-		{
-			return *_it;
-		}
+			Iterator getIterator() const
+			{
+				return _it;
+			}
 
-		typename const Map::Element& operator*() const
-		{
-			return *_it;
-		}
-
-		typename Map::Element* operator->() const
-		{
-			return &*_it;
-		}
-
-		typename Map::Element& operator*() const
-		{
-			return *_it;
-		}
-
-		bool operator==(const ItWrapper& other)
-		{
-			return (_it == other._it );
-		}
-
-		bool operator!=(const ItWrapper& other)
-		{
-			return (_it != other._it );
-		}
+			typename const Map::Element& operator*() const
+			{
+				return *_it;
+			}
 			
-		ItWrapper& operator++()
-		{
-			// the map can only have one matching element.
-			// So there can only be two iterators: a potential
-			// match iterator and end.
-			// ++ on end is undefined, so we do not care about the result.
-			// and ++ on a match iterator should set it to end.
-			// So we can just set the iterator to end in all cases.
-			_it = map.end();
+			typename Map::Element* operator->() const
+			{
+				return &*_it;
+			}
 
-			return *this;
+			bool operator==(const ItWrapper& other)
+			{
+				return (_it == other._it );
+			}
+
+			bool operator!=(const ItWrapper& other)
+			{
+				return (_it != other._it );
+			}
+			
+			ItWrapper& operator++()
+			{
+				++_it;
+
+				_it = _matcher.findNext(_it);
+
+				return *this;
+			}
+
+			It operator++(int)
+			{
+				It oldVal = *this;
+				operator++();
+
+				return oldVal;
+			}
+
+		private:
+			It(  FuncMatcher& matcher, Iterator it )
+				: _matcher(matcher)
+				, _it(it)
+			{
+			}
+
+			Matcher&	_matcher;
+			Iterator	_it;		
+
+			friend class FuncMatcher;
+		};
+
+		friend class It;
+
+		It begin()
+		{
+			return It(*this, _findNext( _map.begin() ) );
 		}
 
-		ItWrapper operator++(int)
+		t end()
 		{
-			ItWrapper oldVal = *this;
-			operator++();
-
-			return oldVal;
+			return It(*this, _map.end() );
 		}
 
-	private:
-		Map&		_map;
-		Iterator	_it;
+	private:		
+
+		Iterator _findNext( Iterator fromIt )
+		{
+			return std::find_if( fromIt, map.end(), _matchFunc )
+		}
+
+		FuncMatcher( const Map& map, MatchFuncType matchFunc )
+			: _map(map)
+			, _matchFunc( std::forward(_matchFunc) )
+		{
+		}
+
+		Map&			_map;
+		MatchFuncType	_matchFunc;
+
+		friend class Map;
 	};
 
 
-	class Finder
+	class SingleResultMatcher_
 	{
 	public:
+		class It
+		{
+		public:
+			It(Map& map, Iterator it )
+				: _map(map)
+				, _it(it)
+			{
+			}
+
+			operator Iterator()
+			{
+				return _it;
+			}
+
+			Iterator getIterator() const
+			{
+				return _it;
+			}
+
+			typename const Map::Element& operator*() const
+			{
+				return *_it;
+			}
+			
+			typename Map::Element* operator->() const
+			{
+				return &*_it;
+			}
+
+			bool operator==(const ItWrapper& other)
+			{
+				return (_it == other._it );
+			}
+
+			bool operator!=(const ItWrapper& other)
+			{
+				return (_it != other._it );
+			}
+			
+			ItWrapper& operator++()
+			{
+				// the map can only have one matching element.
+				// So there can only be two iterators: a potential
+				// match iterator and end.
+				// ++ on end is undefined, so we do not care about the result.
+				// and ++ on a match iterator should set it to end.
+				// So we can just set the iterator to end in all cases.
+				_it = map.end();
+
+				return *this;
+			}
+
+			ItWrapper operator++(int)
+			{
+				ItWrapper oldVal = *this;
+				operator++();
+
+				return oldVal;
+			}
+
+		private:
+			Map&		_map;
+			Iterator	_it;
+		};
+
 		FindIterator begin()
 		{
 			return FindIterator(_map, _foundIt);
@@ -503,30 +601,39 @@ public:
 		}
 
 	private:		
-		Finder( const Map& map, const Element& toFind)
+		SingleResultMatcher_( const Map& map, Iterator resultIt)
 			: _map(map)
-			, _foundIt( map->find(toFind) )
+			, _resultIt( resultIt )
 		{
 		}
 
 		Map&		_map;
-		Iterator	_foundIt;
+		Iterator	_resultIt;
 
 		friend class Map;
 	};
 
-	XXX
-	Finder findElement(const Element& toFind)
+	typedef SingleResultMatcher_ KeyMatcher;
+	typedef SingleResultMatcher_ ElementMatcher;
+
+
+	template<class MatchFuncType>
+	FuncMatcher<MatchFuncType> findMatches( MatchFuncType matchFunction )
 	{
-		return Finder(*this, toFind);
+		return FuncMatcher<MatchFuncType>(*this, matchFunction);
+	}
+
+	KeyMatcher findMatches(const KeyType& keyToFind)
+	{
+		return KeyMatcher(*this, keyToFind);
+	}
+
+	ElementMatcher findMatches(const Element& elToFind)
+	{
+		return ElementMatcher(*this, elToFind);
 	}
 
 
-	XXX
-	Finder findByKey(const Key& keyToFind)
-	{
-		return Finder(*this, toFind);
-	}
 
 
     /** Searches for the specified element in the set.
