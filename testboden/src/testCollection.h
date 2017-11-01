@@ -1010,6 +1010,7 @@ inline void _verifyCollectionFindVariant(CollType& coll, typename CollType::Elem
 		
 		REQUIRE( coll.contains(toFind) == expectedContains );
 	}
+
 }
 
 
@@ -1276,8 +1277,146 @@ inline void _testCollectionFindWithStartPos(std::initializer_list<typename CollT
     }
 }
 
+template<class CollType, typename FindCaller >
+inline void _verifyCollectionFindXWithCaller(CollType& coll, const typename CollType::Element& elNotInColl, FindCaller findCaller)
+{
+	for( auto& elToFind: coll )
+	{
+		auto finder = findCaller(coll, elToFind);
+
+		REQUIRE( finder.begin() != finder.end() );
+			
+		auto finderIt = finder.begin();
+
+		auto baseIt = coll.begin();
+		while(baseIt != coll.end() )
+		{
+			auto& el = *baseIt;
+
+			if( elToFind == el )
+			{
+				REQUIRE( finderIt != finder.end() );
+				REQUIRE( *finderIt==el );
+				REQUIRE( finderIt.getBaseIterator() == baseIt );
+
+				// verify that implicit conversion works
+				typename CollType::Iterator conversionResultBaseIt = finderIt;
+				REQUIRE( conversionResultBaseIt == baseIt );
+
+				++finderIt;
+			}
+
+			++baseIt;
+		}
+
+		REQUIRE( finderIt == finder.end() );
+
+		// verify that the iterators of the returned finder objects
+		// support assignment of a base iterator.
+		for(int testPosition = 0; ; testPosition++)
+		{
+			finderIt = finder.begin();
+
+			for(int position=0; position<testPosition; position++)
+			{
+				if(finderIt == finder.end() )
+					break;
+
+				++finderIt;
+			}
+
+			if( finderIt == finder.end() )
+				break;
+			
+			// now we have a finder iterator at the desired position.
+			// Get its base iterator.
+			auto baseIt = finderIt.getBaseIterator();
+
+			// advance to the following base element.
+			++baseIt;
+
+			// assign this element to the finder element.
+			finderIt = baseIt;
+
+			// get the value of the base iterator that we expect the finder iterator to have
+			auto expectedBaseIt = baseIt;
+			while( expectedBaseIt != coll.end() && *expectedBaseIt!=elToFind )
+				++expectedBaseIt;
+
+			REQUIRE( finderIt.getBaseIterator() == expectedBaseIt );
+
+			if(expectedBaseIt == coll.end() )
+				REQUIRE( finderIt == finder.end() );
+			else
+				REQUIRE( finderIt != finder.end() );
+		}
+	}
+
+	auto finder = findCaller( coll, elNotInColl );
+    REQUIRE( finder.begin() == finder.end() );
+}
+
+
+template<class CollType, typename FindCaller >
+inline void _testCollectionFindXWithCaller(
+	std::initializer_list<typename CollType::Element> elements,
+	const typename CollType::Element& elNotInColl,
+	FindCaller findCaller )
+{	
+	SECTION("empty")
+	{
+		CollType coll;
+
+		_verifyCollectionFindXWithCaller(coll, elNotInColl, findCaller );
+	}
+
+	SECTION("not empty")
+	{
+		CollType coll{elements};
+
+		_verifyCollectionFindXWithCaller(coll, elNotInColl, findCaller );
+	}
+
+	SECTION("not empty with duplicates")
+	{
+		// double each second element
+		bool doubleEl = false;
+		std::list< typename CollType::Element > consecutiveDuplicates;
+		for( auto& el: elements)
+		{
+			consecutiveDuplicates.push_back(el);
+			if(doubleEl)
+				consecutiveDuplicates.push_back(el);
+
+			doubleEl = !doubleEl;
+		}
+
+		// now we have consecutive duplicates
+		// Append the whole list to itself to
+		// add some non-consecutive duplicates.
+		std::list< typename CollType::Element > consecutiveAndNonConsecutiveDuplicates( consecutiveDuplicates );
+		consecutiveAndNonConsecutiveDuplicates.insert(
+			consecutiveAndNonConsecutiveDuplicates.end(),
+			consecutiveDuplicates.begin(),
+			consecutiveDuplicates.end() );
+
+		// note that collections that do not support duplicate elements will simply
+		// filter out the duplicates and have only unique elements as a result.
+		// That is fine since for those collections there is no duplicate handling to test.
+
+		CollType coll( consecutiveAndNonConsecutiveDuplicates.begin(), consecutiveAndNonConsecutiveDuplicates.end() );
+			
+		_verifyCollectionFindXWithCaller(coll, elNotInColl, findCaller );
+	}
+
+}
+
+
+
 template<class CollType>
-inline void _testCollectionFind(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
+inline void _testCollectionFind(
+	std::initializer_list<typename CollType::Element> elements,
+	const typename CollType::Element& elNotInColl )
 {
     SECTION("find")
     {
@@ -1380,6 +1519,32 @@ inline void _testCollectionFind(std::initializer_list<typename CollType::Element
             }
         }
     }
+
+	SECTION("findAll(element)")
+	{
+		_testCollectionFindXWithCaller<CollType>(
+			elements,
+			elNotInColl,
+			[](CollType& coll, const typename CollType::Element& elToFind)
+			{
+				return coll.findAll(elToFind);
+			} );
+	}
+
+	SECTION("findAllCustom")
+	{
+		_testCollectionFindXWithCaller<CollType>(
+			elements,			
+			elNotInColl,
+			[](CollType& coll, const typename CollType::Element& elToFind)
+			{
+				return coll.findAllCustom(
+					[elToFind](const typename CollType::Element& el)
+					{
+						return el == elToFind;
+					} );
+			} );
+	}
 }
 
 template<class CollType>

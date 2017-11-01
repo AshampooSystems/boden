@@ -4,257 +4,11 @@
 #include <map>
 
 #include <bdn/StdCollection.h>
+#include <bdn/SequenceFilter.h>
 
 namespace bdn
 {
 
-
-/** Provides a filtered version of the specified base sequence, according to the specified filtering function.
-    The resulting sequence is "filtered" in the sense that some elements of the underlying sequence
-    may be skipped. The specified filtering function controls Which elements are skipped.
-
-    A "sequence" is simply an object that provides begin() and end() functions, which return iterator objects
-    to the elements of the sequence. All collection classes (bdn::Array, bdn::List, etc.) can be used in this way.
-    Another example are String objects, which are sequences of unicode characters (char32_t).
-
-    The returned object is itself a sequence, i.e. it also provides begin() and end() functions, which return
-    iterators to the filtered sequence of elements.
-
-    filterSequence is a template function with the following template parameters:
-    
-    - BaseSequenceType: the type of the base sequence. For example, if an array of integers is filtered then this would be bdn::Array<int>.
-    - FilterFuncType: the type of the filter function (see below)
-    
-    The filter function must take tweo parameters: a reference to the base sequence object and an iterator from the base sequence.
-    It must then examine the iterator and if it points to an element that should be skipped it should advance it to the next
-    element that should not be skipped (or set it to end() if all elements from the iterator position to the end should be skipped).
-    
-    Note that it is recommended to let the compiler deduce the types of the base sequence and the filter function automatically,
-    based on the provided parameters.
-
-    Example:
-
-    \code
-
-    // the base sequence consists of the numbers 1 to 5 in a random order
-    Array<int> baseSequence { 2, 5, 3, 4, 1 };
-
-    // now we create a filtered sequence that filters out all elements that are bigger than 3
-
-    auto filteredSequence = filterSequence( baseSequence,
-                                            []( Array<int>& baseSequence, Array<int>::Iterator it )
-                                            {
-                                                while( it!=baseSequence.end() && *it > 3 )
-                                                    ++it;
-                                                return it;
-                                            } );
-
-    // the filtered sequence will be 2, 3, 1 (the order from the original sequence).
-    // The 5 and 4 elements are skipped.
-
-    // we can now iterator over the filtered sequence, either by calling the
-    // filteredSequence.begin() and filteredSequence.end() methods.
-    // Even simpler, we can use the C++ range-based for-loop:
-
-    for( auto& element : filteredSequence )
-    {
-        ...
-    }
-
-    \endcode
-
-    */
-template<class BaseSequence, class FilterFuncType>
-SequenceFilter<BaseSequence, FilterFuncType> filterSequence( BaseSequence& baseSequence, FilterFuncType filterFunc)
-{
-    return SequenceFilter<BaseSequence, FilterFuncType>( baseSequence, filterFunc );
-}
-
-/** Implements a filter on top of a provided sequence of elements, using a provided filtering function.
-
-    A sequence is simply an object that provides begin() and end() functions, which return iterator objects
-    to the elements of the sequence. All collection classes (bdn::Array, bdn::List, etc.) can be used in this way.
-    Another example are String objects, which are sequences of unicode characters (char32_t).
-
-    The SequenceFilter class works on top of the provided base sequence, which can be of any type.
-    The SequenceFilter then uses the provided filtering function to filter out (skip) some of the elements
-    of the underlying base sequence. The result is a new sequence - i.e. SequenceFilter is itself a sequence
-    object that provides the begin() and end() functions to iterate of the the filtered elements.
-
-    SequenceFilter is a template with the following template parameters:
-    
-    - BaseSequenceType: the type of the base sequence. For example, if an Array is filtered then this would be bdn::Array.
-    - BaseIteratorType: the type of the Iterators returned by the begin() and end() functions of the base sequence.
-    - FilterFuncType: the type of the filter function (see below)
-
-    The filter function must take one parameter: an iterator from the base sequence. It must then skip over any
-    elements that should NOT be in the filtered sequence and return the resulting iterator to the next element
-    that is included in the filtered sequence. If no such element exists then the end iterator of the base sequence
-    should be returned.
-
-    The filter function is NEVER called with an iterator that points to the end of the base sequence. The iterator
-    passed as a parameter to the filter function ALWAYS initially points to a valid element of the base sequence.
-    I.e. it is NEVER the end() iterator of the base seqeunce.
-
-    Example:
-
-    \code
-
-    // the base sequence consists of the numbers 1 to 5
-    Array<int> baseSequence {1, 2, 3, 4, 5};
-
-    SequenceFilter< Array<int>, Array<int>::Iterator, 
-
-    */
-template<class BaseSequenceType, class FilterFuncType>
-class SequenceFilter
-{
-public:
-    typedef BaseSequenceType                                        BaseSequence;
-    typedef typename std::result_of<BaseSequence::begin>::type      BaseIterator;
-    typedef typename std::iterator_traits<BaseIterator>::value_type Element;
-    
-    class Iterator : public  std::iterator<	std::forward_iterator_tag,
-                                            std::iterator_traits<BaseIterator>::value_type,
-                                            std::iterator_traits<BaseIterator>::diff_type,
-                                            std::iterator_traits<BaseIterator>::pointer_type,
-                                            std::iterator_traits<BaseIterator>::reference_type >
-	{
-	public:
-        Iterator()
-            : _pFilter(nullptr)
-        {
-        }
-
-        Iterator(  SequenceFilter& filter, BaseIterator&& baseIt )
-			: _pFilter(&filter)
-			, _baseIt( std::move(baseIt) )
-		{
-		}
-
-        Iterator(  SequenceFilter& filter, BaseIterator baseIt )
-			: _pFilter(&filter)
-			, _baseIt(baseIt)
-		{
-		}
-
-		operator BaseIterator()
-		{
-			return _baseIt;
-		}
-        
-        Iterator& operator=(Iterator&& other)
-        {
-            _pFilter = other._pFilter;
-            _baseIt = std::move(other._baseIt);
-            return *this;
-        }        
-
-        Iterator& operator=(const Iterator& other)
-        {
-            _pFilter = other._pFilter;
-            _baseIt = other._baseIt;
-            return *this;
-        }        
-
-        Iterator& operator=(const BaseIterator&& baseIt)
-        {
-            if(_pFilter==nullptr)
-                programmingError("SequenceFilter::Iterator::operator=(const BaseIterator&&) called, but no filter object is associated with the iterator.")
-
-            _baseIt = std::forward(baseIt);
-            _pFilter->_skipExcluded(_baseIt);
-
-            return *this;
-        }
-
-        BaseIterator getBaseIterator() const
-		{
-			return _baseIt;
-		}
-
-
-		typename const typename std::iterator_traits<BaseIterator>::value_type& operator*() const
-		{
-			return *_baseIt;
-		}
-			
-		typename typename std::iterator_traits<BaseIterator>::value_type* operator->() const
-		{
-			return &*_baseIt;
-		}
-
-
-		bool operator==(const Iterator& other) const
-		{
-			return (_pFilter==other._pFilter
-                    && _baseIt == other._baseIt );
-		}
-
-		bool operator!=(const Iterator& other) const
-		{
-			return (_pFilter != other.pFiler
-                    || _baseIt != other._baseIt );
-		}
-			
-		It& operator++()
-		{
-			++_baseIt;
-
-			_pFilter->_skipExcluded(_baseIt);
-
-			return *this;
-		}
-
-		It operator++(int)
-		{
-			It oldVal = *this;
-			operator++();
-
-			return oldVal;
-		}
-
-	private:
-		SequenceFilter*	 _pFilter;
-		BaseIterator	 _baseIt;
-	};
-	friend class Iterator;
-
-
-    // aliases for compatibility with standard library
-    typedef Iterator iterator;
-    typedef Element  value_type;
-    
-    
-    SequenceFilter( BaseSequence& baseSequence, FilterFuncType filterFunc )
-		: _baseSequence(baseSequence)
-        , _filterFunc(filterFunc)
-	{
-	}
-    
-	Iterator begin()
-	{
-        BaseIterator initial = _baseSequence.begin();
-        _skipExcluded( initial );
-
-		return Iterator(*this, initial );
-	}
-
-	Iterator end()
-	{
-		return Iterator(*this, _baseSequence.end() );
-	}
-
-private:		
-    void _skipExcluded( Iterator& baseIt )
-	{
-        if( baseIt!=_baseSequence.end() )
-		    _filterFunc( _baseSequence, baseIt );
-	}	
-
-	BaseSequence&   _baseSequence;
-	FilterFuncType  _filterFunc;;
-};
 
 
 /** A container that stores key-value pairs. The key is used to access the value very efficiently.
@@ -655,9 +409,9 @@ public:
     /** Returns true if the map contains the specified key/value pair.
 
         This function does not just check that the key is in the map - it also
-        checks the associated value.
+        checks the associated value. The parameter is a std::pair<const KEYTYPE, VALTYPE> object.
 
-        The parameter is a std::pair<const KEYTYPE, VALTYPE> object.
+		Note that there is also an overload of contains() that checks only if the key is in the map.
 
         Returns true if the key/value pair is in the map and false otherwise.
     */
@@ -672,10 +426,20 @@ public:
     }
 
 
-    class KeyFinder_
+	/** Returns true if the map contains an entry with the specified key.
+	
+        Returns true if the key is in the map and false otherwise.
+    */
+    bool contains( const Key& key ) const
+    {
+		return (count(key) != 0);
+    }
+
+
+    class KeyMatcher_
     {
     public:
-        KeyFinder_(const Key& key)
+        KeyMatcher_(const Key& key)
             : _key( key )
         {
         }
@@ -688,7 +452,7 @@ public:
             if( it==map.begin() )
                 it = map.find( _key );
             else
-                it = map.end()
+                it = map.end();
         }
 
     private:
@@ -696,10 +460,10 @@ public:
     };
 
 
-    class ElementFinder_
+    class ElementMatcher_
     {
     public:
-        ElementFinder_(const Element& element)
+        ElementMatcher_(const Element& element)
             : _element( element )
         {
         }
@@ -716,27 +480,23 @@ public:
                 {
                     // found a matching key. But is the associated value also equal? 
 
-                    if( it.second != _element.second )
+                    if( it->second != _element.second )
                         it = map.end();
                 }
             }
             else
-                it = map.end()
+                it = map.end();
         }
 
     private:
         Element _element;
     };
 
-
-	typedef SequenceFilter<Map, KeyFinder_>         KeyMatcher;
-    typedef SequenceFilter<Map, ElementFinder_>     ElementMatcher;
-
-    template<typename MatchFuncType>
-    class FuncBasedFinder_
+	template<typename MatchFuncType>
+    class FuncMatcher_
     {
     public:
-        FuncBasedFinder_( MatchFuncType matchFunc )
+        FuncMatcher_( MatchFuncType matchFunc )
             : _matchFunc( matchFunc )
         {
         }
@@ -752,57 +512,79 @@ public:
                 if( it==map.end() )
                     break;
             }
-        }        
+        }    
+
+	private:
+		MatchFuncType _matchFunc;
     };
 
-    template<typename MatchFuncType>
-    class FuncMatcher : public SequenceFilter<Map, FuncBasedFinder_<MatchFuncType> >
-    {
-    public:
-        template<typename Args...>
-        FuncMatcher(Args... args)
-            : SequenceFilter<Map, FuncBasedFinder_<MatchFuncType> >( std::forward(args)... )
-        {
-        }
-    };
 
+	using KeyFinder = SequenceFilter<Map, KeyMatcher_>;
+	using ElementFinder = SequenceFilter<Map, ElementMatcher_>;
+
+	template<typename MatchFuncType>
+	using FuncFinder = SequenceFilter<Map, FuncMatcher_<MatchFuncType> >;
+
+
+
+	/** Searches for the specified key in the map and returns a finder object.
+		A finder object is a \ref sequence.md "sequence" with all matching elements.
+		
+		Since Map does not allow multiple entries with the same key the returned finder
+		can only return either 1 or 0 objects.
+		*/
+	KeyFinder findAll(const Key& keyToFind)
+	{
+		return KeyFinder(*this, KeyMatcher_(keyToFind) );
+	}
+
+	ElementFinder findAll(const Element& elToFind)
+	{
+        return ElementFinder(*this, ElementMatcher_(elToFind) );
+	}
 
 	template<class MatchFuncType>
-	FuncMatcher<MatchFuncType> findMatches( MatchFuncType matchFunction )
+	FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
 	{
-		return FuncMatcher<MatchFuncType>(*this, FuncBasedFinder_<MatchFunction>(matchFunction) );
+		return FuncFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
 	}
 
-	KeyMatcher findMatches(const KeyType& keyToFind)
-	{
-		return KeyMatcher(*this, KeyFinder_(keyToFind) );
-	}
+	
 
-	ElementMatcher findMatches(const Element& elToFind)
-	{
-        return ElementMatcher(*this, ElementFinder_(elToFind) );
-	}
+	
 
 
+    /** Searches for the specified key/value pair in the map.
 
+		This function does not just search for the key. If the key is in the map then
+		it also checks if the value associated with the key matches the one from the specified
+		element \c toFind.
 
-    /** Searches for the specified element in the set.
-        The search uses the set's compare function to determine if a set element is equal to 
-        the \c toFind parameter. The two elements are considered to be equal if neither
-        one is "smaller" than the other.
-
-        find is very fast in the Map class. Its complexity is logarithmic to the size of the set.
+		Note that there is also an overload of find() that only takes a Key object as its parameter.
+		That version only for the key.
+		
+        find is quite fast: its complexity is logarithmic to the size of the map.
             
         Returns an iterator to the found element, or end() if no such element is found.
     */
 	Iterator find( const Element& toFind )
 	{
-        auto it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
-
-		if(it!=this->end() && it->second == toFind.second)
+        Iterator it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
+		if( it!=this->end() && it->second==toFind.second )
 			return it;
-		else
+		else 
 			return this->end();
+	}
+
+	/** Searches for the specified key in the map.
+			
+        find is quite fast: its complexity is logarithmic to the size of the map.
+            
+        Returns an iterator to the element with the specified key, if one is found, or end() if no such element is found.
+    */
+	Iterator find( const Key& toFind )
+	{
+        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );
 	}
 
 
@@ -810,20 +592,27 @@ public:
     */
 	ConstIterator find( const Element& toFind ) const
 	{
-		auto it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
-
-		if(it!=this->end() && it->second == toFind.second)
+        ConstIterator it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );
+		if( it!=this->end() && it->second==toFind.second )
 			return it;
-		else
+		else 
 			return this->end();
 	}
 
-	
-    /** Searches for the first element for which the specified condition function returns true.        
-        conditionFunc must take a collection element reference as its only parameter and return a boolean.
+	/** Const version of find() - returns a read-only iterator.
+    */
+	ConstIterator find( const Key& toFind ) const
+	{
+        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );		
+	}
+
+
+	/** Searches for the first element (key/value pair) for which the specified condition function returns true.        
+        conditionFunc must take a collection element reference (a std::pair<Key,Value> object)
+		as its only parameter and return a boolean.
 
         Note that for the Map class findCondition() is a lot slower than find(). find can take advantage
-        of the internal data structures of the set to find the element in logarithmic time. findCondition 
+        of the internal data structures of the map to find the element in logarithmic time. findCondition 
         on the other hand needs to check potentially all elements in the set (i.e. it has linear complexity).
             
         Returns an iterator to the found element, or end() if no such element is found.
@@ -845,14 +634,27 @@ public:
 
 
 
-    /** If the set contains the specified element, remove it. Does nothing if the element
-        is not in the set.*/
+    /** If the map contains the specified key/value pair, remove it.
+
+		This only removes an element from the map if key AND its associated value match the specified one.
+		Note that there is also an overload of findAndRemove() that only searches for the key.
+	
+		Does nothing if the element is not found in the map.*/
     void findAndRemove(const Element& val)
     {
 		auto it = find(val);
 		if( it!=this->end() )
 			StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
     }
+
+	/** If the map contains the specified key, remove the corresponding entry.
+		
+		Does nothing if no element with the key is found in the map.*/
+    void findAndRemove(const Key& key)
+    {
+		StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( key );
+    }
+
 
 
     

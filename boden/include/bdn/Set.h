@@ -4,6 +4,7 @@
 #include <set>
 
 #include <bdn/StdCollection.h>
+#include <bdn/SequenceFilter.h>
 
 namespace bdn
 {
@@ -319,6 +320,78 @@ public:
     {
         return ( StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::count(el) != 0);
     }
+
+
+	
+    class ElementMatcher_
+    {
+    public:
+        ElementMatcher_(const Element& elementToFind)
+            : _element( elementToFind )
+        {
+        }
+
+        void operator() (Set& set, Iterator& it)
+        {
+            // note that the "it" parameter is NEVER equal to end() when we are called.
+            // That also means that we are never called for empty maps.
+
+            if( it==set.begin() )
+                it = set.find( _element );
+            else
+                it = set.end();
+        }
+
+    private:
+        Element _element;
+    };
+
+	template<typename MatchFuncType>
+    class FuncMatcher_
+    {
+    public:
+        FuncMatcher_( MatchFuncType matchFunc )
+            : _matchFunc( matchFunc )
+        {
+        }
+
+        void operator() (Set& set, Iterator& it)
+        {
+            // note that the "it" parameter is NEVER equal to end() when we are called.
+            // That also means that we are never called for empty maps.
+
+            while( ! _matchFunc(*it) )
+            {
+                ++it;
+                if( it==set.end() )
+                    break;
+            }
+        }    
+
+	private:
+		MatchFuncType _matchFunc;
+    };
+
+	using ElementFinder = SequenceFilter<Set, ElementMatcher_>;
+
+	template<typename MatchFuncType>
+	using FuncFinder = SequenceFilter<Set, FuncMatcher_<MatchFuncType> >;
+
+	
+	ElementFinder findAll(const Element& elToFind)
+	{
+        return ElementFinder(*this, ElementMatcher_(elToFind) );
+	}
+
+	
+	template<class MatchFuncType>
+	FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
+	{
+		return FuncFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+	}
+
+
+
 
 
     /** Searches for the specified element in the set.

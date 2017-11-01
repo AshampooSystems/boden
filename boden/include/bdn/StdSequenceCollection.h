@@ -2,7 +2,9 @@
 #define BDN_StdSequenceCollection_H_
 
 #include <bdn/StdCollection.h>
+#include <bdn/SequenceFilter.h>
 #include <bdn/sort.h>
+
 
 namespace bdn
 {
@@ -385,6 +387,69 @@ public:
     {
         BaseCollectionType::resize(count, padValue);
     }
+
+
+	
+    class ElementMatcher_
+    {
+    public:
+        ElementMatcher_(const Element& element)
+            : _element( element )
+        {
+        }
+
+        void operator() (StdSequenceCollection& coll, Iterator& it)
+        {
+			it = std::find( it, coll.end(), _element);
+        }
+
+    private:
+        Element _element;
+    };
+
+	template<typename MatchFuncType>
+    class FuncMatcher_
+    {
+    public:
+        FuncMatcher_( MatchFuncType matchFunc )
+            : _matchFunc( matchFunc )
+        {
+        }
+
+        void operator() (StdSequenceCollection& coll, Iterator& it)
+        {
+            // note that the "it" parameter is NEVER equal to end() when we are called.
+            // That also means that we are never called for empty maps.
+
+            while( ! _matchFunc(*it) )
+            {
+                ++it;
+                if( it==coll.end() )
+                    break;
+            }
+        }   
+
+	private:
+		MatchFuncType _matchFunc;
+    };
+	
+	using ElementFinder = SequenceFilter< StdSequenceCollection, ElementMatcher_>;
+
+	template<typename MatchFuncType>
+	using FuncFinder = SequenceFilter<StdSequenceCollection, FuncMatcher_<MatchFuncType> >;
+
+	ElementFinder findAll(const Element& elToFind)
+	{
+        return ElementFinder(*this, ElementMatcher_(elToFind) );
+	}
+
+	template<class MatchFuncType>
+	FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
+	{
+		return FuncFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+	}
+
+
     
 
     /** Searches for the first element that compares equal to the specified \c el parameter.

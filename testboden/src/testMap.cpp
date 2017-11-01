@@ -223,7 +223,7 @@ static void _testMapFind(
 	{
 		Map<KeyType, ValType> coll(elList);
 	
-		SECTION("contains")
+		SECTION("contains(element)")
 		{
 			SECTION("key in list, value in list")
 				REQUIRE( coll.contains( std::make_pair(elList.begin()->first, elList.begin()->second)  ) );
@@ -235,7 +235,7 @@ static void _testMapFind(
 				REQUIRE( ! coll.contains( std::make_pair(elNotInList.first, elNotInList.second ) ) );
 		}
 
-		SECTION("find")
+		SECTION("find(element)")
 		{
 			SECTION("key in list, value in list")
 				REQUIRE( coll.find( std::make_pair(elList.begin()->first, elList.begin()->second)  ) != coll.end() );
@@ -246,8 +246,99 @@ static void _testMapFind(
 			SECTION("key not in list, value not in list")
 				REQUIRE( coll.find( std::make_pair(elNotInList.first, elNotInList.second ) ) == coll.end() );
 		}
+
+		SECTION("findAndRemove(element)")
+		{
+			SECTION("key in list, value in list")
+			{
+				auto toFind = std::make_pair(elList.begin()->first, elList.begin()->second);
+
+				REQUIRE( coll.contains(toFind) );	// sanity check
+				size_t sizeBefore = coll.getSize();
+
+				coll.findAndRemove(toFind);
+
+				REQUIRE( !coll.contains(toFind) );
+				REQUIRE( coll.getSize() == sizeBefore-1 );
+			}
+
+			SECTION("key in list, value not in list")
+			{
+				auto toFind = std::make_pair(elList.begin()->first, elNotInList.second );
+
+				REQUIRE( !coll.contains(toFind) );	// sanity check
+				size_t sizeBefore = coll.getSize();
+
+				coll.findAndRemove(toFind);
+
+				REQUIRE( !coll.contains(toFind) );
+				REQUIRE( coll.getSize() == sizeBefore );
+			}
+
+			SECTION("key not in list, value in list")
+			{
+				auto toFind = std::make_pair(elNotInList.first, elList.begin()->second );
+
+				REQUIRE( !coll.contains(toFind) );	// sanity check
+				size_t sizeBefore = coll.getSize();
+
+				coll.findAndRemove(toFind);
+
+				REQUIRE( !coll.contains(toFind) );
+				REQUIRE( coll.getSize() == sizeBefore );
+			}
+
+			SECTION("key not in list, value not in list")
+			{
+				auto toFind = std::make_pair(elNotInList.first, elNotInList.second );
+
+				REQUIRE( !coll.contains(toFind) );	// sanity check
+				size_t sizeBefore = coll.getSize();
+
+				coll.findAndRemove(toFind);
+
+				REQUIRE( !coll.contains(toFind) );
+				REQUIRE( coll.getSize() == sizeBefore );
+			}
+		}
 	}
 
+	SECTION("contains(key)")
+	{		
+		Map<KeyType, ValType> coll(elList);
+
+		REQUIRE( coll.contains( elList.begin()->first ) );
+		REQUIRE( !coll.contains( elNotInList.first ) );
+	}
+
+	SECTION("findAll(key)")
+	{		
+		_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
+			elList,
+			elNotInList,
+			[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+			{
+				return coll.findAll( elToFind.first );
+			} );
+	}
+
+	SECTION("findAndRemove(key)")
+	{
+		Map<KeyType, ValType> coll(elList);
+
+		KeyType keyToFind = elList.begin()->first;
+
+		// sanity check
+		REQUIRE( coll.contains(keyToFind) );
+
+		size_t sizeBefore = coll.getSize();
+
+		coll.findAndRemove(keyToFind);
+
+		REQUIRE( !coll.contains(keyToFind) );
+
+		REQUIRE( coll.getSize() == sizeBefore-1 );
+	}
 }
 
 
