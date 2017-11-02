@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/Map.h>
+#include <bdn/HashMap.h>
 
 
 
@@ -12,9 +12,9 @@ using namespace bdn::test;
 
 
 template<typename KeyType, typename ValType, typename... ConstructArgs>
-static void testMap(
+static void testHashMap(
     std::initializer_list< std::pair<const KeyType,ValType> > initElList,
-	std::initializer_list< std::pair<const KeyType,ValType> > expectedInitElOrder,
+	std::list< std::pair<const KeyType,ValType> > expectedInitElOrder,
     std::initializer_list< std::pair<const KeyType,ValType> > newElList,
     std::function< bool(const std::pair<const KeyType,ValType>&) > isMovedRemnant,
     std::pair<const KeyType,ValType> expectedConstructedEl,
@@ -22,7 +22,7 @@ static void testMap(
 {
 	SECTION("test traits")
 	{
-		REQUIRE( (CollectionSupportsBiDirIteration_< Map<KeyType, ValType> >::value) );
+		REQUIRE( ! (bdn::test::CollectionSupportsBiDirIteration_< HashMap<KeyType, ValType> >::value) );
 	}
 
     SECTION("construct")
@@ -33,13 +33,13 @@ static void testMap(
         {
             SECTION("empty")
             {
-                Map<KeyType, ValType> coll( newElList.begin(), newElList.begin() );
+                HashMap<KeyType, ValType> coll( newElList.begin(), newElList.begin() );
                 _verifyGenericCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("non-empty")
             {
-                Map<KeyType, ValType> coll( newElList.begin(), newElList.end() );
+                HashMap<KeyType, ValType> coll( newElList.begin(), newElList.end() );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
@@ -49,22 +49,22 @@ static void testMap(
 
         SECTION("copy")
         {
-            SECTION("Map")
+            SECTION("HashMap")
             {
-                Map<KeyType, ValType> src( newElList );
+                HashMap<KeyType, ValType> src( newElList );
 
-                Map<KeyType, ValType> coll(src);
+                HashMap<KeyType, ValType> coll(src);
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
                 _verifyGenericCollectionReadOnly( coll, expectedElements );
             }
 
-            SECTION("std::map")
+            SECTION("std::unordered_map")
             {
-                std::map<KeyType, ValType> src( newElList );
+                std::unordered_map<KeyType, ValType> src( newElList );
 
-                Map<KeyType, ValType> coll( (const std::map<KeyType, ValType>&) src);
+                HashMap<KeyType, ValType> coll( (const std::unordered_map<KeyType, ValType>&) src);
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
@@ -74,11 +74,11 @@ static void testMap(
 
         SECTION("move")
         {
-            SECTION("Map")
+            SECTION("HashMap")
             {
-                Map<KeyType,ValType> src( newElList );
+                HashMap<KeyType,ValType> src( newElList );
 
-                Map<KeyType,ValType> coll( std::move(src) );
+                HashMap<KeyType,ValType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
                 _verifyGenericCollectionReadOnly( coll, expectedElements );
@@ -86,11 +86,11 @@ static void testMap(
                 REQUIRE( src.size()==0 );
             }
 
-            SECTION("std::map")
+            SECTION("std::unordered_map")
             {
-                std::map<KeyType,ValType> src( newElList );
+                std::unordered_map<KeyType,ValType> src( newElList );
 
-                Map<KeyType,ValType> coll( std::move(src) );
+                HashMap<KeyType,ValType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
                 _verifyGenericCollectionReadOnly( coll, expectedElements );
@@ -101,13 +101,13 @@ static void testMap(
 
         SECTION("initializer_list")
         {
-            Map<KeyType,ValType> coll( newElList );
+            HashMap<KeyType,ValType> coll( newElList );
 
             expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
             _verifyGenericCollectionReadOnly( coll, expectedElements );
         }
     }
-    Map<KeyType,ValType> coll;
+    HashMap<KeyType,ValType> coll;
 
     SECTION("empty")
     {
@@ -142,8 +142,8 @@ static void testMap(
 		
 		SECTION("add(key, value)")
 		{
-			typename Map<KeyType,ValType>::Element elToAdd = *newElList.begin();
-			std::list<typename Map<KeyType,ValType>::Element> newExpectedElementList = expectedInitElOrder;
+			typename HashMap<KeyType,ValType>::Element elToAdd = *newElList.begin();
+			std::list<typename HashMap<KeyType,ValType>::Element> newExpectedElementList = expectedInitElOrder;
 			newExpectedElementList.push_back( elToAdd );
 
 			coll.add( elToAdd.first, elToAdd.second);
@@ -162,7 +162,7 @@ static void testMap(
 				++secondNewElIt;
 				ValType val2 = secondNewElIt->second;
 
-				std::list<typename Map<KeyType,ValType>::Element> expectedElementList = expectedInitElOrder;
+				std::list<typename HashMap<KeyType,ValType>::Element> expectedElementList = expectedInitElOrder;
 				expectedElementList.push_back( std::make_pair(key, val2) );
 
 				SECTION("add(pair)")
@@ -199,7 +199,7 @@ static void testMap(
 
 			SECTION("iterators")
 			{
-				std::list<typename Map<KeyType,ValType>::Element> expectedElementList = expectedInitElOrder;
+				std::list<typename HashMap<KeyType,ValType>::Element> expectedElementList = expectedInitElOrder;
 				expectedElementList.insert(expectedElementList.end(), newElList.begin(), newElList.end() );
 
 				// first add the items with a default-constructed value
@@ -222,11 +222,11 @@ static void _testMapFind(
 	std::initializer_list< std::pair<const KeyType, ValType> > elList,
 	const std::pair<const KeyType, ValType>& elNotInList )
 {
-	_testCollectionFind< Map<KeyType, ValType> >( elList, elNotInList);
+	_testCollectionFind< HashMap<KeyType, ValType> >( elList, elNotInList);
 
 	SECTION("find functions use key AND value")
 	{
-		Map<KeyType, ValType> coll(elList);
+		HashMap<KeyType, ValType> coll(elList);
 	
 		SECTION("contains(element)")
 		{
@@ -310,7 +310,7 @@ static void _testMapFind(
 
 	SECTION("contains(key)")
 	{		
-		Map<KeyType, ValType> coll(elList);
+		HashMap<KeyType, ValType> coll(elList);
 
 		REQUIRE( coll.contains( elList.begin()->first ) );
 		REQUIRE( !coll.contains( elNotInList.first ) );
@@ -318,10 +318,10 @@ static void _testMapFind(
 
 	SECTION("findAll(key)")
 	{		
-		_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
+		_testCollectionFindXWithCaller< HashMap<KeyType, ValType> >(
 			elList,
 			elNotInList,
-			[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+			[elNotInList](HashMap<KeyType, ValType>& coll, const typename HashMap<KeyType, ValType>::Element& elToFind)
 			{
 				return coll.findAll( elToFind.first );
 			} );
@@ -329,7 +329,7 @@ static void _testMapFind(
 
 	SECTION("findAndRemove(key)")
 	{
-		Map<KeyType, ValType> coll(elList);
+		HashMap<KeyType, ValType> coll(elList);
 
 		KeyType keyToFind = elList.begin()->first;
 
@@ -352,7 +352,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
 {
     SECTION("empty")
     {
-        Map<KeyType,ValType> coll;
+        HashMap<KeyType,ValType> coll;
 
         SECTION("findAndRemove")    
         {
@@ -381,7 +381,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             {
                 SECTION( std::to_string(elIndex) )
                 {
-                    Map<KeyType,ValType> coll(elList);
+                    HashMap<KeyType,ValType> coll(elList);
 
                     size_t      sizeBefore = coll.getSize();
 
@@ -415,7 +415,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
 
         SECTION("not found")
         {
-            Map<KeyType,ValType> coll(elList);
+            HashMap<KeyType,ValType> coll(elList);
 
             std::list< std::pair<const KeyType, ValType> > expectedElements( elList );
 
@@ -456,7 +456,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
 
         SECTION("all match")
         {
-            Map<KeyType,ValType> coll(elList);
+            HashMap<KeyType,ValType> coll(elList);
 
             SECTION("findConditionAndRemove")
             {
@@ -472,19 +472,24 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
     }
 }
 
-TEST_CASE("Map")
+TEST_CASE("HashMap")
 {
     SECTION("key simple type")
     {
-        testMap<int, double>(
+		std::unordered_map<int, double> tempMapForOrder{
+				{17, 1.7},
+				{42, 4.2},
+				{3, 0.3} };
+
+		std::list< std::pair<const int, double> > expectedInitElOrder( tempMapForOrder.begin(), tempMapForOrder.end() );
+
+
+        testHashMap<int, double>(
 			{
 				{17, 1.7},
 				{42, 4.2},
 				{3, 0.3} },
-			{
-				{3, 0.3},
-				{17, 1.7},
-				{42, 4.2} },
+			expectedInitElOrder,
 			{
 				{100, 10.0},
 				{101, 10.1},
@@ -514,7 +519,7 @@ TEST_CASE("Map")
 
     SECTION("key complex type")
     {
-        testMap<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(
+        testHashMap<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(
             { 
 				{ TestCollectionElement_OrderedComparable_(17, 117), {333,333} },
 				{ TestCollectionElement_OrderedComparable_(42, 142), {111,111} },

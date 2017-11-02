@@ -188,6 +188,7 @@ public:
 };
 
 
+
 inline bool _isCollectionElementEqual(const TestCollectionElement_UnorderedUncomparable_& l, const TestCollectionElement_UnorderedUncomparable_& r)
 {
     return (l._a == r._a
@@ -275,31 +276,106 @@ inline void _verifyIteratorIntervalContents(ItType it, ItType end, const std::li
     REQUIRE( it==end );
 }
 
+
+
+template<class CollType>
+class CollectionSupportsBiDirIteration_
+{
+	// this function will be ignord if FuncCollType::reverse_iterator does not exist.
+    template <typename FuncCollType>
+	static typename FuncCollType::reverse_iterator test( int ) ;
+    
+	template <typename FuncCollType>
+	static char test( double );    
+
+public:
+    enum
+	{
+		// test(0) can match either function.
+		// The first one will be preferred to the second one since 0 is an int.
+		// So if rbegin is there then test(0) returns an iterator, otherwise it returns char.
+		value = sizeof( test<CollType>(0) ) != sizeof(char)
+
+		// note that we could also check the type of the Collection iterators, BUT that does
+		// not work for all collection. In VS2015 std::unordered_map uses std::list iterators,
+		// which are bidirectional. But that is an implementation detail --t std::unordered_map
+		// still does not have an rbegin function.
+		// If we could depend on the iterator type then we could check it with:
+		// std::is_base_of
+		// <
+		//		std::bidirectional_iterator_tag,
+		//		typename std::iterator_traits<typename CollType::iterator>::iterator_category
+		//	>::value
+	};
+};
+
+
+
+
+template<class CollType, bool supportsBiDir >
+class CollectionIterationVerifier_
+{
+public:
+	static void verify( CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
+	{
+		// verify that the correct version of verify was called
+		static_assert( ! CollectionSupportsBiDirIteration_<CollType>::value, "incorrect CollectionIterationVerifier_ chosen by compiler!"  );
+
+		// this is for iterators that do not support bidirectional_iterator_tag
+		SECTION("normal")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
+	
+		SECTION("const coll")
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
+	
+		SECTION("constBegin/End")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
+	}
+};
+
+template<class CollType>
+class CollectionIterationVerifier_<CollType, true>
+{
+public:
+	static void verify( CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
+	{
+		// verify that the correct version of verify was called
+		static_assert( CollectionSupportsBiDirIteration_<CollType>::value, "incorrect CollectionIterationVerifier_ chosen by compiler!"  );
+
+		SECTION("normal")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
+	
+		SECTION("const coll")
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
+	
+		SECTION("constBegin/End")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
+	
+		std::list< typename CollType::Element > reversedExpectedElementList( expectedElementList );
+		reversedExpectedElementList.reverse();
+
+		SECTION("reverse normal")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
+
+		SECTION("reverse const coll")
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList  );
+
+		SECTION("constReverseBegin/End")
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
+	}
+};
+
+
+
 template<class CollType>
 inline void _verifyCollectionIteration(CollType& coll, const std::list<typename CollType::Element>& expectedElementList)
 {
-    SECTION("normal")
-        _verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
-	
-    SECTION("const coll")
-        _verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
-	
-    SECTION("constBegin/End")
-        _verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
-	
-    std::list< typename CollType::Element > reversedExpectedElementList( expectedElementList );
-	reversedExpectedElementList.reverse();
-
-    SECTION("reverse normal")
-        _verifyIteratorIntervalContents<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
-
-    SECTION("reverse const coll")
-        _verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList  );
-
-    SECTION("constReverseBegin/End")
-        _verifyIteratorIntervalContents<typename CollType::Element>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
+	CollectionIterationVerifier_
+		<
+			CollType,
+			CollectionSupportsBiDirIteration_<CollType>::value
+		>::verify(coll, expectedElementList);
 }
-
 
 template<class CollType>
 inline void _verifyGenericCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
@@ -1841,6 +1917,23 @@ inline void _testCollectionSort(
 
 }
 }
+
+
+
+
+namespace std
+{
+
+	template<>
+	struct hash<bdn::test::TestCollectionElement_OrderedComparable_>
+	{
+		size_t operator()(const bdn::test::TestCollectionElement_OrderedComparable_& o) const
+		{
+			return std::hash<int>()(o._a) ^ std::hash<int>()(o._b);
+		}
+	};
+}
+
 
 
 #endif

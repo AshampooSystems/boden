@@ -58,6 +58,11 @@ static void testArray(
     ElType expectedConstructedEl,
     ConstructArgs... constructArgs )
 {
+	SECTION("test traits")
+	{
+		REQUIRE( CollectionSupportsBiDirIteration_< Array<ElType> >::value );
+	}
+
     SECTION("construct")
     {
         std::list<ElType> expectedElements;

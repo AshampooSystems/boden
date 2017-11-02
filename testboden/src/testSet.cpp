@@ -18,6 +18,11 @@ static void testSet(
     ElType expectedConstructedEl,
     ConstructArgs... constructArgs )
 {
+	SECTION("test traits")
+	{
+		REQUIRE( CollectionSupportsBiDirIteration_< Set<ElType> >::value );
+	}
+
     SECTION("construct")
     {
         std::list<ElType> expectedElements;

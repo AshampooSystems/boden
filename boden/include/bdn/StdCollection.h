@@ -29,12 +29,6 @@ public:
     typedef typename BaseCollectionType::const_iterator ConstIterator;
 
 
-    /** The class of iterator objects for iteration over the collection elements in reverse order (with read/write access to the elements).*/
-    typedef typename BaseCollectionType::reverse_iterator ReverseIterator;
-
-    /** The class of iterator objects for iteration over the collection elements in reverse order (with read-only access to the elements).*/
-    typedef typename BaseCollectionType::const_reverse_iterator ConstReverseIterator;
-
 
     template<class... Args>
     StdCollection(Args... args)
@@ -159,90 +153,6 @@ public:
     {
         return BaseCollectionType::cend();
     }
-
-
-    /** Returns an iterator that is intended for iteration over the collection elements
-        in reversed order.
-
-        The returned iterator points to the last element of the collection.
-
-        The directions of its ++ and -- operator are inverted: the ++ operator moves
-        the iterator to the previous element, -- moves it to the next element.
-
-        Reverse iterators should only be compared to other reverse iterators.
-        reverseEnd() returns an iterator that marks the end point of the reverse iteration
-        (analogous to end() for forward iteration).
-
-        The following code example iterates over the collection elements in reversed order:
-
-        \code
-
-        Array<int> ar = {1, 5, 7};
-
-        auto it = ar.reverseBegin();    // iterator initially points to the last element
-        while( it != ar.reverseEnd() )
-        {
-            // do something with the element
-            ...
-
-            // go to the previous element of the collection
-            ++it;
-        }       
-
-        \endcode
-
-        */
-    ReverseIterator reverseBegin() noexcept
-	{
-		return BaseCollectionType::rbegin();
-	}
-
-
-    /** Const version of reverseBegin() - returns an iterator for read-only access to the elements in reversed order.
-    */
-    ConstReverseIterator reverseBegin() const noexcept
-	{
-		return BaseCollectionType::rbegin();
-	}
-
-
-    /** Const version of reverseBegin() - returns an iterator for read-only access to the elements in reversed order.
-    */
-    ConstReverseIterator constReverseBegin() const noexcept
-	{
-		return BaseCollectionType::crbegin();
-	}
-
-
-    /** Marks the end point of a reverse iteration.
-
-        This is used together with reverseBegin() to iterate over the collection elements in reverse order.
-        It behaves analogous to end(): it points to a collection position just before the first element.
-        
-        Like end(), the iterator returned by reverseEnd() does not point to a valid element - it simply marks the
-        end position for the reverse iteration. See the documentation of reverseBegin() for more information
-        on how to use it.
-    */
-    ReverseIterator reverseEnd() noexcept
-	{
-		return BaseCollectionType::rend();
-	}
-
-
-    /** Const version of reverseEnd() - returns an iterator for read-only access to the elements in reversed order.
-    */
-    ConstReverseIterator reverseEnd() const noexcept
-	{
-		return BaseCollectionType::rend();
-	}
-
-
-    /** Const version of reverseEnd() - returns an iterator for read-only access to the elements in reversed order.
-    */
-    ConstReverseIterator constReverseEnd() const noexcept
-	{
-		return BaseCollectionType::crend();
-	}
 
 
 
