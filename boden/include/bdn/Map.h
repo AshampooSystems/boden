@@ -626,7 +626,7 @@ public:
     */
 	ConstIterator find( const Key& toFind ) const
 	{
-        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind.first );		
+        return StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::find( toFind );		
 	}
 
 

@@ -144,7 +144,7 @@ void LayoutCoordinator::mainThreadUpdateNow()
 			// note that the order in which we auto-size the windows
 			// does not matter, since all windows are top-level
 
-			std::set< P<Window> > toDoSet;
+			Set< P<Window> > toDoSet;
 			while(true)
 			{
 				{
@@ -209,7 +209,7 @@ void LayoutCoordinator::mainThreadUpdateNow()
                 // before we examine it.
                
                 {
-                    std::set< P<View> > layoutSetCopy;
+                    Set< P<View> > layoutSetCopy;
 
                     {
                         MutexLock lock( _mutex );
@@ -285,7 +285,7 @@ void LayoutCoordinator::mainThreadUpdateNow()
 					// note that the order in which we auto-size the windows
 					// does not matter, since all windows are top-level
 
-					std::set< P<Window> > toDoSet;
+					Set< P<Window> > toDoSet;
 					while(true)
 					{
 						{

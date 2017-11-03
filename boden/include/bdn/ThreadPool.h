@@ -9,7 +9,7 @@
 #include <bdn/Signal.h>
 
 #include <bdn/List.h>
-#include <set>
+#include <bdn/Set.h>
 
 namespace bdn
 {
@@ -88,7 +88,7 @@ private:
     mutable Mutex              _mutex;
 
     List< P<PoolRunner> >       _idleRunners;
-    std::set< P<PoolRunner> >   _busyRunners;
+    Set< P<PoolRunner> >		_busyRunners;
 
     List< P<IThreadRunnable> >  _queuedJobs;
 
