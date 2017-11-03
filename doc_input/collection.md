@@ -80,6 +80,17 @@ Boden collections all support the following functionality:
 | `void add( const Element& el)`                                        | Adds the specified element to the collection. The position at which it is inserted depends on
 |                                                                       | the collection type. For example, bdn::Array and bdn::List add it at the end. Other collections
 |                                                                       | automatically determine the position based on the internal data organization (like bdn::Map).
+|                                                                       | 
+|                                                                       | For key/value collection types (Map, HashMap) add() may overwrite an existing
+|                                                                       | element. This happens if there already is an element with the same key as
+|                                                                       | the newly added element. 
+|                                                                       | 
+|                                                                       | Note that the overwrite behaviour of add() for key/value collections is different than the behaviour
+|                                                                       | of insert in the corresponding standard C++ containers (for example std::map). insert() does NOT
+|                                                                       | update the value if the key is already in the collection. add() does update the value.
+|                                                                       | 
+|                                                                       | In general, after the add() returns there will always be an element in the collection
+|                                                                       | that compares equal to the added element.
 -------------------------------------------------------------
 | `template< class InputIt >`                                           |  Adds all elements between the two iterators beginIt and endIt to the collection.
 | `void addSequence( InputIt beginIt, InputIt endIt )`                  |  The iterators can come from any collection or [sequence.md](sequence).
