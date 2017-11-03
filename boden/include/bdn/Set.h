@@ -12,6 +12,9 @@ namespace bdn
 /** A container that holds a set of unique elements (without duplicates). New elements are only
     added when they are not yet in the set.
 
+	Element ordering
+	----------------
+
     The Set class requires that there is a well defined ordering among the elements. Any ordering is fine,
     but Set must be able to determine if element A comes before element B in that ordering.
     This information is used to optimize the element storage, and to determine if an element is a duplicate of one
@@ -28,6 +31,16 @@ namespace bdn
 
     Elements A and B are considered to be duplicates of each other, if neither A < B not B < A, with "<" being
     the ordering of the elements in the set.
+
+	Iteration order
+	---------------
+
+	Iterators of the Set class (see begin()) return the elements in "small first" order (according
+	to the element ordering that the Map uses - see above).
+
+
+	Base classes and std::set compatibility
+	---------------------------------------
         
     The Set class is derived from std::set and is 100 % compatible with it.
     It can be used as a drop-in replacement.
@@ -38,6 +51,9 @@ namespace bdn
     the C++ standard library.
 
     Note that Set is also derived from bdn::Base, so it can be used with smart pointers (see bdn::P).
+
+	Allocator
+	---------
     
     Like the C++ standard library collections, one can specify an "allocator" type as an optional
     third template argument. This is used when special custom memory management is needed.

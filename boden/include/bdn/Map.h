@@ -12,6 +12,9 @@ namespace bdn
 
 
 /** A container that stores key-value pairs. The key is used to access the value very efficiently.
+
+	Key ordering
+	------------
         
     The Map class requires that there is a well defined ordering among the keys. Any ordering is fine,
     but Map must be able to determine if key A comes before key B in that ordering.
@@ -26,6 +29,16 @@ namespace bdn
 
     Keys A and B are considered to be equal if neither one is smaller than the other.
     I.e. Neither A < B nor B < A is true with "<" being the ordering of the elements in the set.
+
+	Iteration order
+	---------------
+
+	Iterators of the Map class (see begin()) return the elements in "small first" order (according
+	to the key ordering that the Map uses - see above).
+
+	
+	Base classes and std::map compatibility
+	---------------------------------------
         
     The Map class is derived from std::map and is 100 % compatible with it.
     It can be used as a drop-in replacement.
@@ -36,6 +49,9 @@ namespace bdn
     the C++ standard library.
 
     Note that Map is also derived from bdn::Base, so it can be used with smart pointers (see bdn::P).
+
+	Allocator
+	---------
     
     Like the C++ standard library collections, one can specify an "allocator" type as an optional
     third template argument. This is used when special custom memory management is needed.

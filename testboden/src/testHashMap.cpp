@@ -3,9 +3,36 @@
 
 #include <bdn/HashMap.h>
 
-
-
 #include "testCollection.h"
+
+namespace bdn
+{
+namespace test
+{
+
+template<>
+struct CollectionElementOrderUndefined_< bdn::HashMap<int, double> >
+{
+	enum
+	{
+		value = 1
+	};
+};
+
+template<>
+struct CollectionElementOrderUndefined_< bdn::HashMap<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_> >
+{
+	enum
+	{
+		value = 1
+	};
+};
+
+
+}
+}
+
+
 
 using namespace bdn;
 using namespace bdn::test;

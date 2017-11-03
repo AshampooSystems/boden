@@ -22,6 +22,13 @@ namespace bdn
 	HashMap organizes elements based on their so-called "hash value". The hash value is a number
 	that is calculated based in the element's key using a configurable function (called the "hash function").
 
+	Iteration order
+	---------------
+
+	Iterators of the HashMap class return the elements in an implementation dependent order (see begin()).
+	Also, the order of all elements may completely change when elements are added to the HashMap.
+	So, you should not assume anything regarding the order in which the iterators return the HashMap element.
+
 
 	When to use HashMap
 	-------------------

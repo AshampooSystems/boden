@@ -11,6 +11,14 @@ namespace bdn
 namespace test
 {
 
+template<class CollType>
+struct CollectionElementOrderUndefined_
+{
+	enum
+	{
+		value = 0
+	};
+};
 
 
 
@@ -264,16 +272,42 @@ inline void _verifyEmptySequence(CollType& coll)
 
 
 template<class ElType, class ItType>
-inline void _verifyIteratorIntervalContents(ItType it, ItType end, const std::list<ElType>& expectedElementList )
+inline void _verifyIteratorIntervalContents(ItType it, ItType end, const std::list<ElType>& expectedElementList, bool mustHaveSameOrder )
 {
-    for( const auto& expectedEl: expectedElementList )
-    {
-        REQUIRE( it!=end );
-        REQUIRE( _isCollectionElementEqual( (const typename ItType::value_type&)*it, expectedEl ) );
-        ++it;
-    }
+	if(mustHaveSameOrder)
+	{
+		for( const auto& expectedEl: expectedElementList )
+		{
+			REQUIRE( it!=end );
+			REQUIRE( _isCollectionElementEqual( (const typename ItType::value_type&)*it, expectedEl ) );
+			++it;
+		}
 
-    REQUIRE( it==end );
+		REQUIRE( it==end );
+	}
+	else
+	{
+		std::list<ElType> remainingExpectedEls = expectedElementList;
+
+		while( it != end)
+		{
+			auto expectedIt = std::find_if(
+				remainingExpectedEls.begin(),
+				remainingExpectedEls.end(),
+				[it](const ElType& el)
+				{
+					return _isCollectionElementEqual(el, *it);
+				} );
+			REQUIRE( expectedIt != remainingExpectedEls.end() );
+			REQUIRE( _isCollectionElementEqual(*expectedIt, *it) );
+
+			remainingExpectedEls.erase( expectedIt );
+
+			++it;
+		}
+
+		REQUIRE( remainingExpectedEls.empty() );
+	}
 }
 
 
@@ -321,15 +355,18 @@ public:
 		// verify that the correct version of verify was called
 		static_assert( ! CollectionSupportsBiDirIteration_<CollType>::value, "incorrect CollectionIterationVerifier_ chosen by compiler!"  );
 
+		
+		bool mustHaveSameOrder = ! CollectionElementOrderUndefined_<CollType>::value;
+
 		// this is for iterators that do not support bidirectional_iterator_tag
 		SECTION("normal")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList, mustHaveSameOrder );
 	
 		SECTION("const coll")
-			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList, mustHaveSameOrder );
 	
 		SECTION("constBegin/End")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList, mustHaveSameOrder );
 	}
 };
 
@@ -342,26 +379,28 @@ public:
 		// verify that the correct version of verify was called
 		static_assert( CollectionSupportsBiDirIteration_<CollType>::value, "incorrect CollectionIterationVerifier_ chosen by compiler!"  );
 
+		bool mustHaveSameOrder = ! CollectionElementOrderUndefined_<CollType>::value;
+
 		SECTION("normal")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.begin(), coll.end(), expectedElementList, mustHaveSameOrder );
 	
 		SECTION("const coll")
-			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).begin(), ((const CollType&)coll).end(), expectedElementList, mustHaveSameOrder );
 	
 		SECTION("constBegin/End")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constBegin(), coll.constEnd(), expectedElementList, mustHaveSameOrder );
 	
 		std::list< typename CollType::Element > reversedExpectedElementList( expectedElementList );
 		reversedExpectedElementList.reverse();
 
 		SECTION("reverse normal")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.reverseBegin(), coll.reverseEnd(), reversedExpectedElementList, mustHaveSameOrder );
 
 		SECTION("reverse const coll")
-			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList  );
+			_verifyIteratorIntervalContents<typename CollType::Element>( ((const CollType&)coll).reverseBegin(), ((const CollType&)coll).reverseEnd(), reversedExpectedElementList, mustHaveSameOrder  );
 
 		SECTION("constReverseBegin/End")
-			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList );
+			_verifyIteratorIntervalContents<typename CollType::Element>( coll.constReverseBegin(), coll.constReverseEnd(), reversedExpectedElementList, mustHaveSameOrder );
 	}
 };
 
@@ -786,6 +825,48 @@ inline void _verifyCollectionInsertAtBegin(
     }
 }
 
+template<class IteratorType, typename ElementType >
+IteratorType _findCollectionElement(IteratorType beginIt, IteratorType endIt, const ElementType& el)
+{
+	for(auto it = beginIt; it!=endIt; ++it)
+	{
+		if( _isCollectionElementEqual(*it, el) )
+			return it;
+	}
+
+	return endIt;
+}
+
+template<class CollType >
+void _removeCollectionElement(CollType& coll, const typename CollType::value_type& el)
+{
+	auto it = _findCollectionElement( coll.begin(), coll.end(), el);
+	REQUIRE( it!=coll.end() );
+
+	coll.erase(it);
+}
+
+template<class CollType>
+typename CollType::iterator _getLastElementIterator(CollType& coll)
+{
+	// find the last element. Note that we cannot use --end() here because
+	// the collection might not support backwards iteration.
+	auto lastElementIt = coll.begin();				
+	if(lastElementIt != coll.end())
+	{
+		auto nextIt = lastElementIt;
+		while(true)
+		{
+			++nextIt;
+			if(nextIt == coll.end())
+				break;
+
+			lastElementIt = nextIt;
+		}
+	}
+
+	return lastElementIt;
+}
 
 template<class CollType, typename... ConstructArgs>
 inline void _verifyGenericCollection(
@@ -875,16 +956,18 @@ inline void _verifyGenericCollection(
         {
             SECTION("first")
             {
+				_removeCollectionElement( newExpectedElementList, *coll.begin() );
+
                 coll.removeAt( coll.begin() );
-                newExpectedElementList.erase( newExpectedElementList.begin() );                   
-                    
+
                 _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
             }
 
             SECTION("last")
             {
-                coll.removeAt( --coll.end() );
-                newExpectedElementList.erase( --newExpectedElementList.end() );                   
+				auto removeIt = _getLastElementIterator(coll);
+				_removeCollectionElement( newExpectedElementList, *removeIt );
+                coll.removeAt( removeIt );
                     
                 _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
             }
@@ -893,8 +976,11 @@ inline void _verifyGenericCollection(
             {
                 SECTION("mid")
                 {
-                    coll.removeAt( ++coll.begin() );
-                    newExpectedElementList.erase( ++newExpectedElementList.begin() );                   
+					auto removeIt = coll.begin();
+					++removeIt;
+				
+					_removeCollectionElement( newExpectedElementList, *removeIt );
+					coll.removeAt( removeIt );
                     
                     _verifyGenericCollectionReadOnly( coll, newExpectedElementList);
                 }
