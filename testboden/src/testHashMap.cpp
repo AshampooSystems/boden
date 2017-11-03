@@ -281,6 +281,9 @@ static void _testMapFind(
 
 		SECTION("findAndRemove(element)")
 		{
+			SECTION("generic tests")
+				_verifyCollectionFindAndRemove(coll, elList, elNotInList );
+
 			SECTION("key in list, value in list")
 			{
 				auto toFind = std::make_pair(elList.begin()->first, elList.begin()->second);

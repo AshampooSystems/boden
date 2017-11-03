@@ -672,7 +672,10 @@ inline void _verifyCollectionAdd(
 
     SECTION("new")
     {
-        coll.addNew( std::forward<ConstructArgs>(constructArgs)... );
+        const typename CollType::Element& addedEl = coll.addNew( std::forward<ConstructArgs>(constructArgs)... );
+
+		REQUIRE( _isCollectionElementEqual( addedEl, expectedConstructedEl) );
+
         newExpectedElementList.insert( expectedInsertIt, expectedConstructedEl );
 
         _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
@@ -840,10 +843,20 @@ IteratorType _findCollectionElement(IteratorType beginIt, IteratorType endIt, co
 template<class CollType >
 void _removeCollectionElement(CollType& coll, const typename CollType::value_type& el)
 {
-	auto it = _findCollectionElement( coll.begin(), coll.end(), el);
-	REQUIRE( it!=coll.end() );
+	int removedCount=0;
 
-	coll.erase(it);
+	while(true)
+	{
+		auto it = _findCollectionElement( coll.begin(), coll.end(), el);
+		if(it==coll.end())
+			break;
+		
+		coll.erase(it);
+
+		removedCount++;
+	}
+
+	REQUIRE( removedCount>0 );
 }
 
 template<class CollType>
@@ -867,6 +880,168 @@ typename CollType::iterator _getLastElementIterator(CollType& coll)
 
 	return lastElementIt;
 }
+
+template<class CollType>
+inline void _verifyCollectionRemoveSpecificSection(CollType& coll, int removeBeginIndex, int removeCount, std::list<typename CollType::Element> expectedElementList )
+{
+	auto removeBegin = coll.begin();
+	for(int i=0; i<removeBeginIndex && removeBegin!=coll.end(); i++)
+		++removeBegin;
+
+	auto removeEnd = removeBegin;
+	for( int i=0; i<removeCount && removeEnd!=coll.end(); i++)
+		++removeEnd;
+
+	for( auto it = removeBegin; it!=removeEnd; ++it)
+		_removeCollectionElement( expectedElementList, *it );
+
+	coll.removeSection( removeBegin, removeEnd );
+
+	_verifyGenericCollectionReadOnly( coll, expectedElementList);
+}
+
+template<class CollType>
+inline void _verifyCollectionRemoveSectionOfSize(CollType& coll, size_t removeCount, const std::list<typename CollType::Element>& expectedElementList )
+{
+	SECTION("from begin")
+		_verifyCollectionRemoveSpecificSection(coll, 0, removeCount, expectedElementList);
+
+	if(expectedElementList.size() >= removeCount )
+	{
+		SECTION("to end")
+			_verifyCollectionRemoveSpecificSection(coll, coll.size()-removeCount, removeCount, expectedElementList);
+	}
+
+	if(expectedElementList.size() >= removeCount+1 )
+	{
+		SECTION("from middle")
+			_verifyCollectionRemoveSpecificSection(coll, 1, removeCount, expectedElementList);
+	}
+}
+
+template<class CollType>
+inline void _verifyCollectionRemoveSection(CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
+{
+	SECTION("0 elements")
+		_verifyCollectionRemoveSectionOfSize(coll, 0, expectedElementList );
+
+	if(expectedElementList.size() >= 1)
+	{
+		SECTION("1 element")
+			_verifyCollectionRemoveSectionOfSize(coll, 1, expectedElementList );
+	}
+
+	if(expectedElementList.size() >= 2)
+	{
+		SECTION("2 elements")
+			_verifyCollectionRemoveSectionOfSize(coll, 2, expectedElementList );
+	}
+
+	SECTION("all elements")
+		_verifyCollectionRemoveSectionOfSize(coll, coll.size(), expectedElementList );
+}
+
+template<class CollType>
+inline void verifyCollectionFindAndRemoveAtIndex(CollType& coll, int removeIndex, std::list<typename CollType::Element> expectedElementList )
+{
+	auto removeIt = coll.begin();
+
+	for(int i=0; removeIt!=coll.end() && i<removeIndex; i++)
+		++removeIt;
+
+	// sanity check
+	REQUIRE( removeIt != coll.end() );
+
+	typename CollType::Element elToRemove = *removeIt;
+
+	_removeCollectionElement( expectedElementList, elToRemove );
+	
+	coll.findAndRemove(elToRemove);
+
+	_verifyGenericCollectionReadOnly( coll, expectedElementList);
+}
+
+
+template<class CollType>
+inline void _verifyCollectionFindAndRemove(CollType& coll, const std::list<typename CollType::Element>& expectedElementList, typename CollType::Element elNotInList )
+{
+	if(!expectedElementList.empty())
+	{
+		SECTION("first")
+			verifyCollectionFindAndRemoveAtIndex(coll, 0, expectedElementList );
+	
+		SECTION("last")
+			verifyCollectionFindAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
+	}
+
+	if(expectedElementList.size()>=2)
+	{
+		SECTION("middle")
+			verifyCollectionFindAndRemoveAtIndex(coll, 1, expectedElementList );
+	}
+
+	SECTION("not found")
+	{
+		coll.findAndRemove(elNotInList);
+
+		_verifyGenericCollectionReadOnly( coll, expectedElementList);
+	}
+}
+
+
+template<class CollType>
+inline void verifyCollectionFindConditionAndRemoveAtIndex(CollType& coll, int removeIndex, std::list<typename CollType::Element> expectedElementList )
+{
+	auto removeIt = coll.begin();
+
+	for(int i=0; removeIt!=coll.end() && i<removeIndex; i++)
+		++removeIt;
+
+	typename CollType::Element elToRemove = *removeIt;
+
+	_removeCollectionElement( expectedElementList, elToRemove );
+	
+	coll.findConditionAndRemove(
+		[elToRemove](const typename CollType::Element& el)
+		{
+			return _isCollectionElementEqual(el, elToRemove);
+		} );
+
+	_verifyGenericCollectionReadOnly( coll, expectedElementList);
+}
+
+
+template<class CollType>
+inline void verifyCollectionFindConditionAndRemove(CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
+{
+	if(!expectedElementList.empty())
+	{
+		SECTION("first")
+			verifyCollectionFindConditionAndRemoveAtIndex(coll, 0, expectedElementList );
+	
+		SECTION("last")
+			verifyCollectionFindConditionAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
+	}
+
+	if(expectedElementList.size()>=2)
+	{
+		SECTION("middle")
+			verifyCollectionFindConditionAndRemoveAtIndex(coll, 1, expectedElementList );
+	}
+
+	SECTION("not found")
+	{
+		coll.findConditionAndRemove(
+			[](const typename CollType::Element& el)
+			{
+				return false;
+			} );
+
+		_verifyGenericCollectionReadOnly( coll, expectedElementList);
+	}
+}
+
+
 
 template<class CollType, typename... ConstructArgs>
 inline void _verifyGenericCollection(
@@ -986,12 +1161,17 @@ inline void _verifyGenericCollection(
                 }
             }
         }
-    }
+	}
+
+	SECTION("removeSection")
+		_verifyCollectionRemoveSection(coll, expectedElementList);
+
+	SECTION("findConditionAndRemove")
+		verifyCollectionFindConditionAndRemove(coll, expectedElementList);
+
 
     SECTION("add")
-    {
         _verifyCollectionAdd(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
-    }
 
 }
     

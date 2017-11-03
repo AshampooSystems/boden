@@ -267,6 +267,13 @@ TEST_CASE("Array")
         _testCollectionFindWithStartPos< Array<int> >( {17, 42, 17, 3}, 88 );
 		_testCollectionReverseFind< Array<int> >( {17, 42, 17, 3}, 88 );
         _testCollectionSort< Array<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
+
+		SECTION("findAndRemove")
+		{
+			Array<int> coll( {17, 42, 17, 3} );
+						
+			_verifyCollectionFindAndRemove(coll, {17, 42, 17, 3} , 99 );
+		}
     }
 
     SECTION("complex type")
@@ -315,6 +322,23 @@ TEST_CASE("Array")
                     TestCollectionElement_OrderedComparable_(17, 2),
                     TestCollectionElement_OrderedComparable_(42, 142),
                 } );
+
+			SECTION("findAndRemove")
+			{
+				Array<TestCollectionElement_OrderedComparable_> coll(
+					{	TestCollectionElement_OrderedComparable_(17, 1),
+						TestCollectionElement_OrderedComparable_(42, 142),
+						TestCollectionElement_OrderedComparable_(17, 2),
+						TestCollectionElement_OrderedComparable_(3, 103) } );
+						
+				_verifyCollectionFindAndRemove(
+					coll,
+					{	TestCollectionElement_OrderedComparable_(17, 1),
+						TestCollectionElement_OrderedComparable_(42, 142),
+						TestCollectionElement_OrderedComparable_(17, 2),
+						TestCollectionElement_OrderedComparable_(3, 103) },
+					TestCollectionElement_OrderedComparable_(99, 99) );
+			}
         }
 
         SECTION("unordered comparable")
@@ -349,6 +373,23 @@ TEST_CASE("Array")
                     TestCollectionElement_UnorderedComparable_(3, 103),
                 },
                 TestCollectionElement_UnorderedComparable_(400, 401) );
+
+			SECTION("findAndRemove")
+			{
+				Array<TestCollectionElement_UnorderedComparable_> coll(
+					{	TestCollectionElement_UnorderedComparable_(17, 1),
+						TestCollectionElement_UnorderedComparable_(42, 142),
+						TestCollectionElement_UnorderedComparable_(17, 2),
+						TestCollectionElement_UnorderedComparable_(3, 103) } );
+						
+				_verifyCollectionFindAndRemove(
+					coll,
+					{	TestCollectionElement_UnorderedComparable_(17, 1),
+						TestCollectionElement_UnorderedComparable_(42, 142),
+						TestCollectionElement_UnorderedComparable_(17, 2),
+						TestCollectionElement_UnorderedComparable_(3, 103) },
+					TestCollectionElement_UnorderedComparable_(99, 99) );
+			}
 
             // cannot sort because not ordered
         }

@@ -894,6 +894,9 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
 {
     std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
 
+	SECTION("generic tests")
+		_verifyCollectionFindAndRemove(coll, coll, elNotInList );
+
     SECTION("no match")
     {
         SECTION("find value")

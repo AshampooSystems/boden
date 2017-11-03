@@ -452,6 +452,43 @@ public:
         std::stable_sort( this->begin(), this->end(), comesBeforeFunc );
     }
 
+
+
+	
+
+    /** Removes all elements that are equal to the specified one.*/
+    void findAndRemove(const Element& val)
+    {
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( *it == val )
+				it = this->removeAt(it);
+			else
+				++it;
+		}
+    }
+
+
+    /** Removes all elements for which the specified function checkFunc returns true.
+    
+        checkFunc must be a function that takes a reference to a list element as its parameter
+        and returns true if the element should be removed.
+    */
+    template<typename CheckFuncType>
+    void findConditionAndRemove( CheckFuncType& checkFunc )
+    {
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( checkFunc(*it) )
+				it = this->removeAt(it);
+			else
+				++it;
+		}
+    }
+
+
 };
 
 
