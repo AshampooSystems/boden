@@ -448,7 +448,7 @@ inline void _verifyGenericCollectionReadOnly(CollType& coll, std::list<typename 
 
 
 template<class CollType>
-inline void _verifyAdditionalSequenceCollectionFunctionalityReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
+inline void _verifyAdditionalPositionalCollectionFunctionalityReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
 {
     SECTION("getFirst")
     {
@@ -472,11 +472,11 @@ inline void _verifyAdditionalSequenceCollectionFunctionalityReadOnly(CollType& c
 
 
 template<class CollType>
-inline void _verifySequenceCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
+inline void _verifyPositionalCollectionReadOnly(CollType& coll, std::list<typename CollType::Element> expectedElementList )
 {
 	_verifyGenericCollectionReadOnly(coll, expectedElementList);
 
-	_verifyAdditionalSequenceCollectionFunctionalityReadOnly(coll, expectedElementList);
+	_verifyAdditionalPositionalCollectionFunctionalityReadOnly(coll, expectedElementList);
 }
 
 
@@ -508,7 +508,7 @@ inline void _verifyCollectionInsertAt(
         coll.insertAt( insertIt, elToAdd );
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 
     SECTION("move")
@@ -516,7 +516,7 @@ inline void _verifyCollectionInsertAt(
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
         coll.insertAt( insertIt, std::move(elToAdd) );        
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
 
         // elToAdd should not have the same value anymore
         REQUIRE( isMovedRemnant(elToAdd) );
@@ -529,7 +529,7 @@ inline void _verifyCollectionInsertAt(
             SECTION("empty")
             {
                 coll.insertSequenceAt( insertIt, newElList.begin(), newElList.begin() );
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -537,7 +537,7 @@ inline void _verifyCollectionInsertAt(
                 coll.insertSequenceAt( insertIt, newElList.begin(), newElList.end() );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
         }
 
@@ -547,7 +547,7 @@ inline void _verifyCollectionInsertAt(
             {
                 coll.insertSequenceAt( insertIt, {} );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -555,7 +555,7 @@ inline void _verifyCollectionInsertAt(
                 coll.insertSequenceAt( insertIt, newElList );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
         }
     }
@@ -566,7 +566,7 @@ inline void _verifyCollectionInsertAt(
         {
             coll.insertMultipleCopiesAt( insertIt, 0, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
 
         SECTION("1 times")
@@ -574,7 +574,7 @@ inline void _verifyCollectionInsertAt(
             coll.insertMultipleCopiesAt( insertIt, 1, *newElList.begin() );
             newExpectedElementList.insert( expectedInsertIt, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
 
         SECTION("3 times")
@@ -582,7 +582,7 @@ inline void _verifyCollectionInsertAt(
             coll.insertMultipleCopiesAt( insertIt, 3, *newElList.begin() );
             newExpectedElementList.insert( expectedInsertIt, 3, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
     }
 
@@ -591,7 +591,7 @@ inline void _verifyCollectionInsertAt(
         coll. template insertNewAt<ConstructArgs...>( insertIt, std::forward<ConstructArgs>(constructArgs)... );
         newExpectedElementList.insert( expectedInsertIt, expectedConstructedEl );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 }
 
@@ -699,7 +699,7 @@ inline void _verifyCollectionAddMultipleCopies(
     {
         coll.addMultipleCopies( 0, *newElList.begin() );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 
     SECTION("1 times")
@@ -707,7 +707,7 @@ inline void _verifyCollectionAddMultipleCopies(
         coll.addMultipleCopies( 1, *newElList.begin() );
         newExpectedElementList.insert( expectedInsertIt, *newElList.begin() );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 
     SECTION("3 times")
@@ -715,7 +715,7 @@ inline void _verifyCollectionAddMultipleCopies(
         coll.addMultipleCopies( 3, *newElList.begin() );
         newExpectedElementList.insert( expectedInsertIt, 3, *newElList.begin() );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 }
 
@@ -741,7 +741,7 @@ inline void _verifyCollectionInsertAtBegin(
         coll.insertAtBegin( elToAdd );
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 
     SECTION("move")
@@ -749,7 +749,7 @@ inline void _verifyCollectionInsertAtBegin(
         newExpectedElementList.insert( expectedInsertIt, elToAdd );
         coll.insertAtBegin( std::move(elToAdd) );        
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
 
         // elToAdd should not have the same value anymore
         REQUIRE( isMovedRemnant(elToAdd) );
@@ -762,7 +762,7 @@ inline void _verifyCollectionInsertAtBegin(
             SECTION("empty")
             {
                 coll.insertSequenceAtBegin( newElList.begin(), newElList.begin() );
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -770,7 +770,7 @@ inline void _verifyCollectionInsertAtBegin(
                 coll.insertSequenceAtBegin( newElList.begin(), newElList.end() );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
         }
 
@@ -780,7 +780,7 @@ inline void _verifyCollectionInsertAtBegin(
             {
                 coll.insertSequenceAtBegin( {} );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
 
             SECTION("non-empty")
@@ -788,7 +788,7 @@ inline void _verifyCollectionInsertAtBegin(
                 coll.insertSequenceAtBegin( newElList );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
             }
         }
     }
@@ -799,7 +799,7 @@ inline void _verifyCollectionInsertAtBegin(
         {
             coll.insertMultipleCopiesAtBegin( 0, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
 
         SECTION("1 times")
@@ -807,7 +807,7 @@ inline void _verifyCollectionInsertAtBegin(
             coll.insertMultipleCopiesAtBegin( 1, *newElList.begin() );
             newExpectedElementList.insert( expectedInsertIt, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
 
         SECTION("3 times")
@@ -815,7 +815,7 @@ inline void _verifyCollectionInsertAtBegin(
             coll.insertMultipleCopiesAtBegin( 3, *newElList.begin() );
             newExpectedElementList.insert( expectedInsertIt, 3, *newElList.begin() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
         }
     }
 
@@ -824,7 +824,7 @@ inline void _verifyCollectionInsertAtBegin(
         coll.insertNewAtBegin( std::forward<ConstructArgs>(constructArgs)... );
         newExpectedElementList.insert( expectedInsertIt, expectedConstructedEl );
 
-        _verifySequenceCollectionReadOnly( coll, newExpectedElementList );
+        _verifyPositionalCollectionReadOnly( coll, newExpectedElementList );
     }
 }
 
@@ -1176,7 +1176,7 @@ inline void _verifyGenericCollection(
 }
     
 template<class CollType, typename... ConstructArgs>
-inline void _verifySequenceCollection(
+inline void _verifyPositionalCollection(
     CollType& coll,
     std::list<typename CollType::Element> expectedElementList,
     std::initializer_list<typename CollType::Element> newElList,
@@ -1187,7 +1187,7 @@ inline void _verifySequenceCollection(
 {
 	_verifyGenericCollection(coll, expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
 
-	_verifyAdditionalSequenceCollectionFunctionalityReadOnly(coll, expectedElementList);
+	_verifyAdditionalPositionalCollectionFunctionalityReadOnly(coll, expectedElementList);
 	
     std::list<typename CollType::Element> newExpectedElementList( expectedElementList );
 
@@ -1204,7 +1204,7 @@ inline void _verifySequenceCollection(
             coll.removeLast();
             newExpectedElementList.erase( --newExpectedElementList.end() );                   
                     
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
         }
     }
 
@@ -1240,7 +1240,7 @@ inline void _verifySequenceCollection(
             coll.setSize(0);
             newExpectedElementList.clear();
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
         }
 
         if(expectedElementList.size()>0)
@@ -1250,7 +1250,7 @@ inline void _verifySequenceCollection(
                 coll.setSize( coll.size()-1 );
                 newExpectedElementList.erase( --newExpectedElementList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+                _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
             }
         }
 
@@ -1259,7 +1259,7 @@ inline void _verifySequenceCollection(
             coll.setSize( coll.size()+1 );
             newExpectedElementList.push_back( typename CollType::Element() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
         }
 
         SECTION("to 100 more")
@@ -1269,7 +1269,7 @@ inline void _verifySequenceCollection(
             for(int i=0; i<100; i++)
                 newExpectedElementList.push_back( typename CollType::Element() );
 
-            _verifySequenceCollectionReadOnly( coll, newExpectedElementList);
+            _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
         }
     }
 }
@@ -2046,19 +2046,19 @@ inline void _testCollectionSort(
         SECTION("sort")
         {
             coll.sort();
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("sort(ascending)")
         {
             coll.sort( ascending<typename CollType::Element> );
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("sort(descending)")
         {
             coll.sort( descending<typename CollType::Element> );
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("sort with compare func")
@@ -2070,25 +2070,25 @@ inline void _testCollectionSort(
                     return (b<a);
                 } );
 
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("stableSort")
         {
             coll.stableSort();
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("stableSort(ascending)")
         {
             coll.stableSort( ascending<typename CollType::Element> );
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("stableSort(descending)")
         {
             coll.stableSort( descending<typename CollType::Element> );
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("stableSort with compare func")
@@ -2100,7 +2100,7 @@ inline void _testCollectionSort(
                     return (b<a);
                 } );
 
-            _verifySequenceCollectionReadOnly( coll, {} );
+            _verifyPositionalCollectionReadOnly( coll, {} );
         }
     }
 
@@ -2147,7 +2147,7 @@ inline void _testCollectionSort(
 
             _verifyCollectionSortResult( coll, elements );
 
-            _verifySequenceCollectionReadOnly( coll, stableSortedElements );
+            _verifyPositionalCollectionReadOnly( coll, stableSortedElements );
         }
 
         SECTION("stableSort(ascending)")
@@ -2156,7 +2156,7 @@ inline void _testCollectionSort(
 
             _verifyCollectionSortResult( coll, elements );
 
-            _verifySequenceCollectionReadOnly( coll, stableSortedElements );
+            _verifyPositionalCollectionReadOnly( coll, stableSortedElements );
         }
 
         SECTION("stableSort(descending)")

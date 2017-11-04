@@ -37,7 +37,7 @@ inline void _testArrayPrepareForSize(CollType& coll)
     coll.prepareForSize( prepareFor );
 
     // prepareForSize should NEVER change the collection contents
-    _verifySequenceCollectionReadOnly( coll, origElements );
+    _verifyPositionalCollectionReadOnly( coll, origElements );
 
     typename CollType::Size newCapacity = coll.capacity();
 
@@ -73,7 +73,7 @@ static void testArray(
             {
                 Array<ElType> coll( 0, *newElList.begin() );
                 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
@@ -83,7 +83,7 @@ static void testArray(
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( *newElList.begin() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -92,7 +92,7 @@ static void testArray(
             SECTION("0")
             {
                 Array<ElType> coll( 0 );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
@@ -102,7 +102,7 @@ static void testArray(
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( ElType() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -111,7 +111,7 @@ static void testArray(
             SECTION("empty")
             {
                 Array<ElType> coll( newElList.begin(), newElList.begin() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("non-empty")
@@ -120,7 +120,7 @@ static void testArray(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -134,7 +134,7 @@ static void testArray(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("vector")
@@ -145,7 +145,7 @@ static void testArray(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -158,7 +158,7 @@ static void testArray(
                 Array<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
 
                 REQUIRE( src.size()==0 );
             }
@@ -170,7 +170,7 @@ static void testArray(
                 Array<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
 
                 REQUIRE( src.size()==0 );
             }
@@ -181,7 +181,7 @@ static void testArray(
             Array<ElType> coll( newElList );
 
             expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-            _verifySequenceCollectionReadOnly( coll, expectedElements );
+            _verifyPositionalCollectionReadOnly( coll, expectedElements );
         }
     }
 
@@ -189,7 +189,7 @@ static void testArray(
 
     SECTION("empty")
     {
-        _verifySequenceCollection(
+        _verifyPositionalCollection(
             coll,
             std::list<ElType>({}),
             newElList,
@@ -212,7 +212,7 @@ static void testArray(
         for(auto& el: initElList)
             coll.add( el );
 
-        _verifySequenceCollection(
+        _verifyPositionalCollection(
             coll,
             std::list<ElType>(initElList),
             newElList,

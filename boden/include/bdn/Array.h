@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <bdn/StdSequenceCollection.h>
+#include <bdn/StdPositionalCollection.h>
 
 namespace bdn
 {
@@ -30,26 +30,26 @@ namespace bdn
 
 */
 template<typename ELTYPE, class ALLOCATOR = std::allocator<ELTYPE> >
-class Array : public StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >
+class Array : public StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >
 {
 public:
     
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::Element;
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::Size;
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::Iterator;
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstIterator;
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ReverseIterator;
-    using typename StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::Element;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::Size;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::Iterator;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstIterator;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::ReverseIterator;
+    using typename StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
     
     /** Creates an empty array.*/
     Array() noexcept( noexcept(ALLOCATOR()) )
-     : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
+     : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
     {
     }
 
     /** Constructs an array that uses a specific allocator object.*/
     explicit Array( const ALLOCATOR& alloc ) noexcept
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(alloc)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(alloc)
     {
     }
 
@@ -59,7 +59,7 @@ public:
         Optionally, one can also pass an allocator object for custom memory management.
     */
     Array( Size count, const Element& el, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(count, el, alloc)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(count, el, alloc)
     {
     }
 
@@ -69,7 +69,7 @@ public:
         Optionally, one can also pass an allocator object for custom memory management.
     */
     explicit Array( Size count )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(count)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(count)
     {
     }
     
@@ -80,20 +80,20 @@ public:
     */
     template< class InputIt >
     Array( InputIt beginIt, InputIt endIt, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(beginIt, endIt, alloc)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(beginIt, endIt, alloc)
     {
     }
 
     /** Initializes the Array with copies of the elements from the specified other array.*/
     Array( const Array& other )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( static_cast<const std::vector<ELTYPE, ALLOCATOR>&>(other) )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( static_cast<const std::vector<ELTYPE, ALLOCATOR>&>(other) )
     {
     }
 
 
     /** Initializes the Array with copies of the elements from the specified std::vector object.*/
     Array( const std::vector<ELTYPE, ALLOCATOR>& other )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(other)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(other)
     {
     }
 
@@ -103,20 +103,20 @@ public:
         The specified allocator object is used to initialize the array's internal allocator.
         */
     Array( const std::vector<ELTYPE, ALLOCATOR>& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >(other, alloc)
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >(other, alloc)
     {
     }
 
     /** Moves the data from the specified other array to this array. The other array is invalidated by this.*/
     Array( Array&& other ) noexcept
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::move( static_cast<std::vector<ELTYPE, ALLOCATOR>&&>(other) ) )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( std::move( static_cast<std::vector<ELTYPE, ALLOCATOR>&&>(other) ) )
     {
     }
 
 
     /** Moves the data from the specified other vector to this array. The other array is invalidated by this.*/
     Array( std::vector<ELTYPE, ALLOCATOR>&& other ) noexcept
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::move(other) )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( std::move(other) )
     {
     }
 
@@ -126,7 +126,7 @@ public:
         The specified allocator object is used to initialize the array's internal allocator.
         */
     Array( Array&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -135,7 +135,7 @@ public:
     
         The specified allocator object is used to initialize the array's internal allocator.*/
     Array( std::vector<ELTYPE, ALLOCATOR>&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -155,7 +155,7 @@ public:
         \endcode
     */
     Array( std::initializer_list<Element> initList, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >( initList, alloc )
+        : StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >( initList, alloc )
     {
     }
 
@@ -277,13 +277,13 @@ public:
     /** Returns a pointer to the underlying raw array data.*/
     Element* getData() noexcept
     {
-        return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
+        return StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }
     
     /** Const version of getData() - returns a const pointer to the underlying raw array data.*/
     const Element* getData() const noexcept
     {
-        return StdSequenceCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
+        return StdPositionalCollection< std::vector<ELTYPE, ALLOCATOR> >::data();
     }
 
 

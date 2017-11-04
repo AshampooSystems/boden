@@ -1,5 +1,5 @@
-#ifndef BDN_StdSequenceCollection_H_
-#define BDN_StdSequenceCollection_H_
+#ifndef BDN_StdPositionalCollection_H_
+#define BDN_StdPositionalCollection_H_
 
 #include <bdn/StdCollection.h>
 #include <bdn/SequenceFilter.h>
@@ -10,10 +10,12 @@ namespace bdn
 {
 
 
-/** Helper for collections that organize their elements in a user-specified sequence (like arrays, lists, etc.).
+/** Base class for collections based on standard C++ collections 
+	which give the user complete control over the position of each eleemnt 
+	(std::vector, std::list, ...)
 */
 template<class BaseCollectionType >
-class StdSequenceCollection : public StdCollection< BaseCollectionType >
+class StdPositionalCollection : public StdCollection< BaseCollectionType >
 {
 public:
     
@@ -30,7 +32,7 @@ public:
 
     
     template<class... Args>
-    StdSequenceCollection(Args... args)
+    StdPositionalCollection(Args... args)
      : StdCollection<BaseCollectionType>( std::forward<Args>(args)... )
     {
     }
@@ -41,7 +43,7 @@ public:
     Element& getFirst()
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getFirst called on empty collection.");
+    		throw OutOfRangeError("StdPositionalCollection::getFirst called on empty collection.");
 
         return BaseCollectionType::front();
     }
@@ -51,7 +53,7 @@ public:
     const Element& getFirst() const
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getFirst called on empty collection.");
+    		throw OutOfRangeError("StdPositionalCollection::getFirst called on empty collection.");
 
         return BaseCollectionType::front();
     }
@@ -63,7 +65,7 @@ public:
     Element& getLast()
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getLast called on empty collection.");
+    		throw OutOfRangeError("StdPositionalCollection::getLast called on empty collection.");
 
         return BaseCollectionType::back();
     }
@@ -74,7 +76,7 @@ public:
     const Element& getLast() const
     {
         if( this->isEmpty() )
-    		throw OutOfRangeError("StdSequenceCollection::getLast called on empty collection.");
+    		throw OutOfRangeError("StdPositionalCollection::getLast called on empty collection.");
 
         return BaseCollectionType::back();
     }
@@ -349,7 +351,7 @@ public:
     void removeLast()
     {
         if( this->isEmpty())
-    		throw OutOfRangeError("StdSequenceCollection::removeLast called on empty array.");
+    		throw OutOfRangeError("StdPositionalCollection::removeLast called on empty array.");
 
         this->pop_back();
     }
@@ -359,7 +361,7 @@ public:
     void removeFirst()
     {
         if( this->isEmpty())
-    		throw OutOfRangeError("StdSequenceCollection::removeFirst called on empty array.");
+    		throw OutOfRangeError("StdPositionalCollection::removeFirst called on empty array.");
 
         BaseCollectionType::erase( BaseCollectionType::begin() );
     }
@@ -403,7 +405,7 @@ public:
         {
         }
 
-        void operator() (StdSequenceCollection& coll, Iterator& it)
+        void operator() (StdPositionalCollection& coll, Iterator& it)
         {
 			it = std::find( it, coll.end(), _element);
         }
@@ -421,7 +423,7 @@ public:
         {
         }
 
-        void operator() (StdSequenceCollection& coll, Iterator& it)
+        void operator() (StdPositionalCollection& coll, Iterator& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
@@ -438,10 +440,10 @@ public:
 		MatchFuncType _matchFunc;
     };
 	
-	using ElementFinder = SequenceFilter< StdSequenceCollection, ElementMatcher_>;
+	using ElementFinder = SequenceFilter< StdPositionalCollection, ElementMatcher_>;
 
 	template<typename MatchFuncType>
-	using FuncFinder = SequenceFilter<StdSequenceCollection, FuncMatcher_<MatchFuncType> >;
+	using FuncFinder = SequenceFilter<StdPositionalCollection, FuncMatcher_<MatchFuncType> >;
 
 	ElementFinder findAll(const Element& elToFind)
 	{

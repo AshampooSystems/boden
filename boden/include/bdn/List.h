@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include <bdn/StdSequenceCollection.h>
+#include <bdn/StdPositionalCollection.h>
 
 namespace bdn
 {
@@ -30,26 +30,26 @@ namespace bdn
 
 */
 template<typename ELTYPE, class ALLOCATOR = std::allocator<ELTYPE> >
-class List : public StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >
+class List : public StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >
 {
 public:
     
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::Element;
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::Size;
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::Iterator;
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::ConstIterator;
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::ReverseIterator;
-    using typename StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::Element;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::Size;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::Iterator;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::ConstIterator;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::ReverseIterator;
+    using typename StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::ConstReverseIterator;
     
     /** Creates an empty list.*/
     List() noexcept( noexcept(ALLOCATOR()) )
-     : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
+     : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( ALLOCATOR() )
     {
     }
 
     /** Constructs a list that uses a specific allocator object.*/
     explicit List( const ALLOCATOR& alloc ) noexcept
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(alloc)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(alloc)
     {
     }
 
@@ -59,7 +59,7 @@ public:
         Optionally, one can also pass an allocator object for custom memory management.
     */
     List( Size count, const Element& el, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(count, el, alloc)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(count, el, alloc)
     {
     }
 
@@ -69,7 +69,7 @@ public:
         Optionally, one can also pass an allocator object for custom memory management.
     */
     explicit List( Size count )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(count)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(count)
     {
     }
     
@@ -80,20 +80,20 @@ public:
     */
     template< class InputIt >
     List( InputIt beginIt, InputIt endIt, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(beginIt, endIt, alloc)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(beginIt, endIt, alloc)
     {
     }
 
     /** Initializes the List with copies of the elements from the specified other list.*/
     List( const List& other )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( static_cast<const std::list<ELTYPE, ALLOCATOR>&>(other) )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( static_cast<const std::list<ELTYPE, ALLOCATOR>&>(other) )
     {
     }
 
 
     /** Initializes the List with copies of the elements from the specified std::list object.*/
     List( const std::list<ELTYPE, ALLOCATOR>& other )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(other)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(other)
     {
     }
 
@@ -103,20 +103,20 @@ public:
         The specified allocator object is used to initialize the list's internal allocator.
         */
     List( const std::list<ELTYPE, ALLOCATOR>& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >(other, alloc)
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >(other, alloc)
     {
     }
 
     /** Moves the data from the specified other list to this list. The other list is invalidated by this.*/
     List( List&& other ) noexcept
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) )
     {
     }
 
 
     /** Moves the data from the specified other list to this list. The other list is invalidated by this.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other ) noexcept
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::move(other) )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( std::move(other) )
     {
     }
 
@@ -126,7 +126,7 @@ public:
         The specified allocator object is used to initialize the list's internal allocator.
         */
     List( List&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -135,7 +135,7 @@ public:
     
         The specified allocator object is used to initialize the list's internal allocator.*/
     List( std::list<ELTYPE, ALLOCATOR>&& other, const ALLOCATOR& alloc )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( std::forward(other), alloc )
     {
     }
 
@@ -155,7 +155,7 @@ public:
         \endcode
     */
     List( std::initializer_list<Element> initList, const ALLOCATOR& alloc = ALLOCATOR() )
-        : StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >( initList, alloc )
+        : StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >( initList, alloc )
     {
     }
 
@@ -274,7 +274,7 @@ public:
         */
     void sort()
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::sort();
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::sort();
     }
 
 
@@ -326,7 +326,7 @@ public:
     template<class ComesBeforeFuncType>
     void sort(ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::sort(comesBefore);
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::sort(comesBefore);
     }
 
 
@@ -336,7 +336,7 @@ public:
     void stableSort()
     {
         // std::list::sort is always stable.
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::sort();
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::sort();
     }
 
 
@@ -347,7 +347,7 @@ public:
     void stableSort( ComesBeforeFuncType comesBeforeFunc )
     {
         // std::list::sort is always stable.
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::sort(comesBeforeFunc);
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::sort(comesBeforeFunc);
     }
     
 
@@ -379,7 +379,7 @@ public:
         */
     void stealAllAndMergeSorted( List& other )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(other);
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(other);
     }
 
 
@@ -401,7 +401,7 @@ public:
         */
     void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>& other )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(other);
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(other);
     }
 
 
@@ -423,7 +423,7 @@ public:
         */
     void stealAllAndMergeSorted( List&& other )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ) );
     }
 
 
@@ -444,7 +444,7 @@ public:
         */
     void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>&& other )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move(other) );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge( std::move(other) );
     }
 
 
@@ -469,7 +469,7 @@ public:
     template<typename ComesBeforeFuncType> 
     void stealAllAndMergeSorted( List& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
             other,
             comesBefore );
     }
@@ -495,7 +495,7 @@ public:
     template<typename ComesBeforeFuncType> 
     void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
             std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ),
             comesBefore );
     }
@@ -521,7 +521,7 @@ public:
     template <class ComesBeforeFuncType> 
     void stealAllAndMergeSorted( List&& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
             std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(other) ),
             comesBefore );
     }
@@ -547,7 +547,7 @@ public:
     template <class ComesBeforeFuncType> 
     void stealAllAndMergeSorted( std::list<ELTYPE, ALLOCATOR>&& other, ComesBeforeFuncType comesBefore )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::merge(
             std::move(other),
             comesBefore );
     }
@@ -564,7 +564,7 @@ public:
         */
     void stealAllAndInsertAt(ConstIterator insertPosition, List& otherList)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
     }
 
 
@@ -579,7 +579,7 @@ public:
         */
     void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR>& otherList)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList );
     }
 
     /** Transfers all elements from \c otherList to this list and inserts them at the position
@@ -593,7 +593,7 @@ public:
         */
     void stealAllAndInsertAt(ConstIterator insertPosition, List&& otherList)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&>(otherList) ) );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&>(otherList) ) );
     }
 
 
@@ -608,7 +608,7 @@ public:
         */
     void stealAllAndInsertAt(ConstIterator insertPosition, std::list<ELTYPE, ALLOCATOR>&& otherList)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList) );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList) );
     }
     
 
@@ -629,7 +629,7 @@ public:
         ConstIterator transferBeginIt,
         ConstIterator transferEndIt)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
     }
 
 
@@ -648,7 +648,7 @@ public:
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferBeginIt, transferEndIt );
     }
 
     /** Transfers a section of elements from \c otherList to this list and inserts them at the position
@@ -666,7 +666,7 @@ public:
         ConstIterator transferBeginIt,
         ConstIterator transferEndIt)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferBeginIt, transferEndIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferBeginIt, transferEndIt );
     }
 
     /** Transfers a section of elements from \c otherList to this list and inserts them at the position
@@ -684,7 +684,7 @@ public:
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferBeginIt,
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferEndIt)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferBeginIt, transferEndIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferBeginIt, transferEndIt );
     }
 
 
@@ -704,7 +704,7 @@ public:
         List& otherList,
         ConstIterator transferIt )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
     }
 
     /** Transfers one element from \c otherList to this list and inserts it at the position
@@ -721,7 +721,7 @@ public:
         std::list<ELTYPE, ALLOCATOR>& otherList,
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, otherList, transferIt );
     }
 
 
@@ -739,7 +739,7 @@ public:
         List&& otherList,
         ConstIterator transferIt )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move( static_cast<std::list<ELTYPE, ALLOCATOR>&&>(otherList) ), transferIt );
     }
 
     /** Transfers one element from \c otherList to this list and inserts it at the position
@@ -756,7 +756,7 @@ public:
         std::list<ELTYPE, ALLOCATOR>&& otherList,
         typename std::list<ELTYPE, ALLOCATOR>::const_iterator transferIt )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferIt );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::splice( insertPosition, std::move(otherList), transferIt );
     }
 
 
@@ -767,7 +767,7 @@ public:
         */
     void reverseOrder() noexcept
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::reverse();
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::reverse();
     }
 
 
@@ -781,7 +781,7 @@ public:
         */
     void removeConsecutiveDuplicates()
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::unique();
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::unique();
     }
 
 
@@ -795,7 +795,7 @@ public:
     template<class IsDuplicateFuncType>
     void removeConsecutiveDuplicates( IsDuplicateFuncType isDuplicate )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::unique( isDuplicate );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::unique( isDuplicate );
     }
 
 
@@ -803,7 +803,7 @@ public:
     /** Removes all elements that are equal to the specified one.*/
     void findAndRemove(const Element& val)
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove( val );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::remove( val );
     }
 
 
@@ -815,7 +815,7 @@ public:
     template<typename MatchFuncType>
     void findCustomAndRemove( MatchFuncType& matchFunc )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( matchFunc );
+        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( matchFunc );
     }
 
         

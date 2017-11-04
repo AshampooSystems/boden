@@ -730,7 +730,7 @@ static void testList(
             {
                 List<ElType> coll( 0, *newElList.begin() );
                 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
@@ -740,7 +740,7 @@ static void testList(
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( *newElList.begin() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -749,7 +749,7 @@ static void testList(
             SECTION("0")
             {
                 List<ElType> coll( 0 );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("3")
@@ -759,7 +759,7 @@ static void testList(
                 for(int i=0; i<3; i++)
                     expectedElements.push_back( ElType() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -768,7 +768,7 @@ static void testList(
             SECTION("empty")
             {
                 List<ElType> coll( newElList.begin(), newElList.begin() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("non-empty")
@@ -777,7 +777,7 @@ static void testList(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -791,7 +791,7 @@ static void testList(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
 
             SECTION("std::list")
@@ -802,7 +802,7 @@ static void testList(
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
 
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
             }
         }
 
@@ -815,7 +815,7 @@ static void testList(
                 List<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
 
                 REQUIRE( src.size()==0 );
             }
@@ -827,7 +827,7 @@ static void testList(
                 List<ElType> coll( std::move(src) );
 
                 expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifySequenceCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly( coll, expectedElements );
 
                 REQUIRE( src.size()==0 );
             }
@@ -838,7 +838,7 @@ static void testList(
             List<ElType> coll( newElList );
 
             expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-            _verifySequenceCollectionReadOnly( coll, expectedElements );
+            _verifyPositionalCollectionReadOnly( coll, expectedElements );
         }
     }
 
@@ -846,7 +846,7 @@ static void testList(
 
     SECTION("empty")
     {
-        _verifySequenceCollection(
+        _verifyPositionalCollection(
             coll,
             std::list<ElType>({}),
             newElList,
@@ -869,7 +869,7 @@ static void testList(
         for(auto& el: initElList)
             coll.add( el );
 
-        _verifySequenceCollection(
+        _verifyPositionalCollection(
             coll,
             std::list<ElType>(initElList),
             newElList,
