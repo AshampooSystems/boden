@@ -677,7 +677,7 @@ public:
 
         This version of addSequence can be used to add multiple elements with the {...} notation. For example:
 
-        \begin
+        \code
         HashMap<int, String> myMap;
 
         // we now add three elements to the map. Each is a pair of an integer and a string.
@@ -686,11 +686,54 @@ public:
                                 {42, "fortytwo"}
                            }  );    
 
+		\endcode
+
         */
     void addSequence( std::initializer_list<Element> initList )
     {
         // again, we cannot use the batch version of map::insert because of the overwrite semantics
         for( const Element& el: initList)
+        {
+            std::pair<Iterator, bool> result = StdCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::insert( el );
+
+            if(!result.second)
+            {
+                // element already existed in the map. Overwrite its value
+                result.first->second = el.second;
+            }
+        }
+    }
+
+	/** Adds the elements from the specified source \ref sequence.md "sequence" to the collection.
+		
+		Since all collections are also sequences, this can be used to copy all elements from
+		any other collection of any type, as long as it has a compatible element type.
+
+        Each element must be a key value pair, i.e. a std::pair<const KEYTYPE, VALUETYPE> object.
+
+        If the map already has an entry for one or more of the new element keys then the associated value is overwritten
+        with the new value.
+
+		\code
+
+		HashMap< int, String > myMap;
+
+		List< std::pair<int, String > > sourceList(
+			{   {1, "one"}
+                {17, "seventeen"}
+                {42, "fortytwo"}
+            } );
+
+
+		// add all elements from sourceList to myMap
+		myMap.addSequence( sourceList );
+		
+		\endcode
+        */
+	template<class SequenceType>
+    void addSequence( const SequenceType& sequence )
+    {
+        for( const Element& el: sequence)
         {
             std::pair<Iterator, bool> result = StdCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::insert( el );
 

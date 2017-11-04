@@ -547,6 +547,27 @@ TEST_CASE("HashMap")
 
     }
 
+	SECTION("addSequence with compatible but different type")
+	{
+		// String objects can be implicitly converted to std::string.
+		// Passing a source sequence with String objects to a collection with std::string
+		// elements should work.
+
+		HashMap< int, std::string > coll;
+
+		SECTION("initializer_list")
+		{
+			coll.addSequence( { {1, String("hello")}, {2, String("world") } } );
+			_verifyGenericCollectionReadOnly( coll, { {1, std::string("hello") }, {2, std::string("world") } } );
+		}
+
+		SECTION("std::list")
+		{
+			coll.addSequence( std::list< std::pair<int, String> >( { {1, String("hello")}, {2, String("world") } } ) );
+			_verifyGenericCollectionReadOnly( coll, { {1, std::string("hello") }, {2, std::string("world") } } );
+		}
+	}
+
     SECTION("key complex type")
     {
         testHashMap<TestCollectionElement_OrderedComparable_, TestCollectionElement_UnorderedComparable_>(

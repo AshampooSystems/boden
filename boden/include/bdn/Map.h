@@ -379,6 +379,48 @@ public:
     }
 
 
+	/** Adds the elements from the specified source \ref sequence.md "sequence" to the collection.
+		
+		Since all collections are also sequences, this can be used to copy all elements from
+		any other collection of any type, as long as it has a compatible element type.
+
+        Each element must be a key value pair, i.e. a std::pair<const KEYTYPE, VALUETYPE> object.
+
+        If the map already has an entry for one or more of the new element keys then the associated value is overwritten
+        with the new value.
+
+		\code
+
+		Map< int, String > myMap;
+
+		List< std::pair<int, String > > sourceList(
+			{   {1, "one"}
+                {17, "seventeen"}
+                {42, "fortytwo"}
+            } );
+
+
+		// add all elements from sourceList to myMap
+		myMap.addSequence( sourceList );
+		
+		\endcode
+        */
+	template<class SequenceType>
+    void addSequence( const SequenceType& sequence )
+    {
+        for( const Element& el: sequence)
+        {
+            std::pair<Iterator, bool> result = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( el );
+
+            if(!result.second)
+            {
+                // element already existed in the map. Overwrite its value
+                result.first->second = el.second;
+            }
+        }
+    }
+
+
 		
     /** Constructs a new element and adds it to the set, if it not yet in the set.
         The arguments passed to addNew are passed on to the constructor of the

@@ -276,6 +276,39 @@ TEST_CASE("Array")
 		}
     }
 
+	SECTION("addSequence with compatible but different type")
+	{
+		// String objects can be implicitly converted to std::string.
+		// Passing a source sequence with String objects to a collection with std::string
+		// elements should work.
+
+		Array< std::string > coll;
+
+		SECTION("initializer_list")
+		{
+			coll.addSequence( { String("hello"), String("world") } );
+			_verifyGenericCollectionReadOnly( coll, { std::string("hello"), std::string("world") } );
+		}
+
+		SECTION("std::list")
+		{
+			coll.addSequence( std::list<String>( { String("hello"), String("world") } ) );
+			_verifyGenericCollectionReadOnly( coll, { std::string("hello"), std::string("world") } );
+		}
+	}
+
+	SECTION("addSequence with initializer list of compatible but different type")
+	{
+		// String objects can be implicitly converted to std::string. Verify
+		// that this works when passing an initializer list to addSequence.
+
+		Array< std::string > myArray;
+
+		myArray.addSequence( { String("hello"), String("world") } );
+
+		_verifyGenericCollectionReadOnly( myArray, { std::string("hello"), std::string("world") } );
+	}
+
     SECTION("complex type")
     {
         SECTION("ordered")

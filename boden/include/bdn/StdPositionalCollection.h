@@ -142,6 +142,32 @@ public:
     }
 
 
+	/** Adds the elements from the specified source \ref sequence.md "sequence" to the collection.
+		
+		Since all collections are also sequences, this can be used to copy all elements from
+		any other collection of any type, as long as it has a compatible element type.
+		
+		\code
+
+		Array< long > myArray;
+
+		// note that the element types do not even have to be equal, only compatible.
+		// Here the source list uses int, while the destination array uses long.
+		List< int > sourceList( { 1, 9, 3} );
+		
+		// add all elements from sourceList to myArray
+		myArray.addSequence( sourceList );
+		
+		\endcode
+        */
+	template<class SequenceType>
+    void addSequence( const SequenceType& sequence )
+    {
+        BaseCollectionType::insert( this->end(), sequence.begin(), sequence.end() );
+    }
+
+
+
     /** Constructs a new element and adds it to the collection (at the end).
         The arguments passed to addNew are passed on to the constructor of the
         newly constructed element.

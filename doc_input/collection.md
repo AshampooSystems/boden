@@ -99,6 +99,10 @@ Boden collections all support the following functionality:
 |                                                                       | This allows elements to be added with the {} notation. For example:
 |                                                                       | `addSequence( {element1, element2, element3} )`
 -----------------------------------------------------------------------
+| `template< class SequenceType >`                                      | Adds the elements from the specified source [sequence.md](sequence) to the collection.
+| `void addSequence( const SequenceType& sequence )`                    | Since all collections are also sequences, this can be used to copy all elements from
+|                                                                       | any other collection of any type, as long as it has a compatible element type.
+-----------------------------------------------------------------------
 | `template< typename... Args >`                                        | Constructs a new element with the specified arguments as constructor parameters
 | `[const] Element& addNew( Args&&... args )`                           | and adds it to the collection. Returns a reference to the added element.
 |                                                                       | For most collection types the returned reference is a read/write reference.

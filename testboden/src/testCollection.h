@@ -209,6 +209,11 @@ inline bool _isCollectionElementEqual(int l, int r)
 }
 
 
+inline bool _isCollectionElementEqual(const std::string& l, const std::string& r)
+{
+    return (l==r);
+}
+
 inline bool _isCollectionElementEqual(
 	const std::pair<const int,double>& l,
 	const std::pair<const int,double>& r )
@@ -225,6 +230,16 @@ inline bool _isCollectionElementEqual(
 	return (_isCollectionElementEqual(l.first, r.first)
 			&& _isCollectionElementEqual(l.second, r.second) );
 }
+
+
+inline bool _isCollectionElementEqual(
+	const std::pair<const int,String>& l,
+	const std::pair<const int,String>& r )
+{
+    return (l.first == r.first
+			&& l.second == r.second );
+}
+
 
 
 template<class CollType>
@@ -650,7 +665,7 @@ inline void _verifyCollectionAdd(
                 _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
             }
         }
-
+		
         SECTION("initializer_list")
         {
             SECTION("empty")
@@ -663,6 +678,27 @@ inline void _verifyCollectionAdd(
             SECTION("non-empty")
             {            
                 coll.addSequence( newElList );
+                newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
+
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+            }
+        }
+				
+		SECTION("std::list")
+        {
+			SECTION("empty")
+            {
+				std::list< typename CollType::Element> sourceList;
+
+                coll.addSequence( sourceList );
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+            }
+
+            SECTION("non-empty")
+            {
+				std::list< typename CollType::Element> sourceList( newElList );
+
+                coll.addSequence( sourceList );
                 newExpectedElementList.insert( expectedInsertIt, newElList.begin(), newElList.end() );
 
                 _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
