@@ -156,9 +156,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
             _verifyGenericCollectionReadOnly( coll, {} );
         }
 
-        SECTION("findConditionAndRemove")
+        SECTION("findCustomAndRemove")
         {
-            coll.findConditionAndRemove(
+            coll.findCustomAndRemove(
                 [elNotInList](const ElType& el)
                 {
                     return _isCollectionElementEqual(el, elNotInList);
@@ -193,9 +193,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
                         _verifyGenericCollectionReadOnly( coll, expectedElements );
                     }
 
-                    SECTION("findConditionAndRemove")  
+                    SECTION("findCustomAndRemove")  
                     {
-                        coll.findConditionAndRemove(
+                        coll.findCustomAndRemove(
                             [el](const ElType& setEl)
                             {
                                 return _isCollectionElementEqual( el, setEl );
@@ -223,9 +223,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
                 _verifyGenericCollectionReadOnly( coll, expectedElements );
             }
 
-            SECTION("findConditionAndRemove")
+            SECTION("findCustomAndRemove")
             {
-                coll.findConditionAndRemove(
+                coll.findCustomAndRemove(
                     [](const ElType& setEl)
                     {
                         return false;
@@ -238,9 +238,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
         {
             Set<ElType> coll(elList);
 
-            SECTION("findConditionAndRemove")
+            SECTION("findCustomAndRemove")
             {
-                coll.findConditionAndRemove(
+                coll.findCustomAndRemove(
                     [](const ElType& setEl)
                     {
                         return true;

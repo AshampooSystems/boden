@@ -807,15 +807,15 @@ public:
     }
 
 
-    /** Removes all elements for which the specified function checkFunc returns true.
+    /** Removes all elements for which the specified function matchFunc returns true.
     
-        checkFunc must be a function that takes a reference to a list element as its parameter
+        matchFunc must be a function that takes a reference to a collection element as its parameter
         and returns true if the element should be removed.
     */
-    template<typename CheckFuncType>
-    void findConditionAndRemove( CheckFuncType& checkFunc )
+    template<typename MatchFuncType>
+    void findCustomAndRemove( MatchFuncType& matchFunc )
     {
-        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( checkFunc );
+        StdSequenceCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( matchFunc );
     }
 
         

@@ -4154,28 +4154,28 @@ public:
 
 
 
-	/** Searches for the first position at which the specified condition is true.
+	/** Searches for the first position at which the specified match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
-		bool myCondition(const Iterator& it);
+		bool myMatchFunction(const Iterator& it);
 		\endcode
 
-		findCondition returns an iterator to the first position at which the condition
-		object returned true.
-		It returns end() if the condition did not return true for any checked string position.
+		findCustom returns an iterator to the first position at which the match function
+		returned true.
+		It returns end() if the match function did not return true for any checked string position.
 
 		searchStartPosIt is an iterator to the position at which the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is called).
 	*/
-	template<class Predicate>
-	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt ) const
+	template<typename MatchFuncType >
+	Iterator findCustom( MatchFuncType matchFunc, const Iterator& searchStartPosIt ) const
 	{
 		for( auto it=searchStartPosIt; it!=_endIt; ++it)
 		{
-			if( condition(it) )
+			if( matchFunc(it) )
 				return it;
 		}
 
@@ -4184,24 +4184,25 @@ public:
 
 
 
-	/** Searches for the first position at which the specified condition is true.
+	
+	/** Searches for the first position at which the specified match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
-		bool myCondition(const Iterator& it);
+		bool myMatchFunction(const Iterator& it);
 		\endcode
 
-		findCondition returns an iterator to the first position at which the condition
-		object returned true.
-		It returns end() if the condition did not return true for any checked string position.
-
+		findCustom returns an iterator to the first position at which the match function
+		returned true.
+		It returns end() if the match function did not return true for any checked string position.
+		
 		searchStartIndex is the character index where the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is called).
 	*/
-	template<class Predicate>
-	size_t findCondition(Predicate condition, size_t searchStartIndex=0 ) const
+	template<typename MatchFuncType >
+	size_t findCustom(MatchFuncType matchFunc, size_t searchStartIndex=0 ) const
 	{
 		size_t myLength = getLength();
 		if(searchStartIndex==npos || searchStartIndex>=myLength)
@@ -4211,7 +4212,7 @@ public:
 
 		while( it.getInner()!=_endIt )
 		{
-			if( condition(it.getInner() ) )
+			if( matchFunc(it.getInner() ) )
 				return it.getIndex();
 
 			++it;
@@ -4222,25 +4223,26 @@ public:
 
 
 
-	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	/** Searches backwards from the end of the string for the LAST position at which the specified 
+		match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
 		bool myCondition(const Iterator& it);
 		\endcode
 
-		reverseFindCondition returns an iterator to the last position at which the condition
+		reverseFindCustom returns an iterator to the last position at which the condition
 		object returned true.
 		It returns end() if the condition did not return true for any checked string position.
 
 		searchStartPosIt is an iterator to the position at which the search should start
-		(i.e. the first position at which the condition is checked). The search moves backwards through
+		(i.e. the first position at which the match function is checked). The search moves backwards through
 		the string from the start position.
 	*/
-	template<class Predicate>
-	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt ) const
+	template<typename MatchFuncType>
+	Iterator reverseFindCustom(MatchFuncType matchFunc, const Iterator& searchStartPosIt ) const
 	{
 		if(_beginIt == _endIt)
 			return _endIt;
@@ -4252,7 +4254,7 @@ public:
 
 		while(true)
 		{
-			if( condition(it) )
+			if( matchFunc(it) )
 				return it;
 
 			if(it==_beginIt)
@@ -4266,24 +4268,25 @@ public:
 
 
 
-	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	/** Searches backwards from the end of the string for the LAST position at which the specified 
+		match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
 		bool myCondition(const Iterator& it);
 		\endcode
 
-		reverseFindCondition returns an iterator to the last position at which the condition
+		reverseFindCustom returns an iterator to the last position at which the condition
 		object returned true.
 		It returns end() if the condition did not return true for any checked string position.
 
 		searchStartIndex is the character index where the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is checked).
 	*/
-	template<class Predicate>
-	size_t reverseFindCondition(Predicate condition, size_t searchStartIndex=npos ) const
+	template<typename MatchFuncType>
+	size_t reverseFindCustom(MatchFuncType matchFunc, size_t searchStartIndex=npos ) const
 	{
 		size_t myLength = getLength();
 		if(myLength==0)
@@ -4296,7 +4299,7 @@ public:
 
 		while(true)
 		{
-			if( condition(it.getInner()) )
+			if( matchFunc(it.getInner()) )
 				return it.getIndex();
 
 			if(it.getInner()==_beginIt)
@@ -4322,7 +4325,7 @@ public:
 	template <class InputIterator>
 	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4344,7 +4347,7 @@ public:
 	template<class InputIterator>
 	size_t findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4611,7 +4614,7 @@ public:
 	template <class InputIterator>
 	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -4633,7 +4636,7 @@ public:
 	template<class InputIterator>
 	size_t findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -4893,7 +4896,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4915,7 +4918,7 @@ public:
 	template<class InputIterator>
 	size_t reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -5190,7 +5193,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -5213,7 +5216,7 @@ public:
 	template<class InputIterator>
 	size_t reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -5473,7 +5476,7 @@ public:
 	/** Searches for the last character in the string that is NOT the specified blackListChar. */
 	size_t find_last_not_of(char32_t blackListChar, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(	[&blackListChar](const Iterator& it)
+		return reverseFindCustom(	[&blackListChar](const Iterator& it)
 										{
 											return (*it!=blackListChar);
 										},

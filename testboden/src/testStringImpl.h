@@ -5889,7 +5889,7 @@ inline void testReverseFind()
 
 
 template<class DATATYPE, class Predicate>
-inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
+inline void testFindCustomWithPred(Predicate pred, bool shouldMatch)
 {
 	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
@@ -5898,7 +5898,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromStart")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin());
+		typename StringImpl<DATATYPE>::Iterator it = s.findCustom(pred, s.begin());
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5909,7 +5909,7 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromMatch")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+2);
+		typename StringImpl<DATATYPE>::Iterator it = s.findCustom(pred, s.begin()+2);
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -5919,13 +5919,13 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromAfterMatch")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.begin()+3);
+		typename StringImpl<DATATYPE>::Iterator it = s.findCustom(pred, s.begin()+3);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.findCondition(pred, s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.findCustom(pred, s.end() );
 		REQUIRE( it==s.end() );
 	}
 
@@ -5933,13 +5933,13 @@ inline void testFindConditionWithPred(Predicate pred, bool shouldMatch)
 	{
 		StringImpl<DATATYPE> empty;
 
-		typename StringImpl<DATATYPE>::Iterator it = empty.findCondition(pred, empty.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = empty.findCustom(pred, empty.begin() );
 		REQUIRE( it==empty.end() );
 	}
 }
 
 template<class DATATYPE, class Predicate>
-inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
+inline void testFindCustomIndexWithPred(Predicate pred, bool shouldMatch)
 {
 	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
@@ -5947,7 +5947,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromStart")
 	{
-		size_t result = s.findCondition(pred, 0);
+		size_t result = s.findCustom(pred, 0);
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -5957,7 +5957,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromStart-defaultArg")
 	{
-		size_t result = s.findCondition(pred);
+		size_t result = s.findCustom(pred);
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -5968,7 +5968,7 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.findCondition(pred, 2);
+		size_t result = s.findCustom(pred, 2);
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -5978,25 +5978,25 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromAfterMatch")
 	{
-		size_t result = s.findCondition(pred, 3);
+		size_t result = s.findCustom(pred, 3);
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.findCondition(pred, s.getLength() );
+		size_t result = s.findCustom(pred, s.getLength() );
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.findCondition(pred, s.npos );
+		size_t result = s.findCustom(pred, s.npos );
 		REQUIRE( result==s.noMatch );
 	}
 
 	SECTION("fromAfter")
 	{
-		size_t result = s.findCondition(pred, s.getLength()+1 );
+		size_t result = s.findCustom(pred, s.getLength()+1 );
 		REQUIRE( result==s.noMatch );
 	}
 
@@ -6004,30 +6004,30 @@ inline void testFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
 	{
 		StringImpl<DATATYPE> empty;
 
-		size_t result = empty.findCondition(pred, 0 );
+		size_t result = empty.findCustom(pred, 0 );
 		REQUIRE( result==s.noMatch );
 	}
 }
 
 template<class DATATYPE>
-inline void testFindCondition()
+inline void testFindCustom()
 {
 	SECTION("iterator")
 	{
 		SECTION("match")
-        testFindConditionWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
+        testFindCustomWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testFindConditionWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
+			testFindCustomWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
 	}
 
 	SECTION("index")
 	{
 		SECTION("match")
-			testFindConditionIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
+			testFindCustomIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testFindConditionIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
+			testFindCustomIndexWithPred<DATATYPE>( [](typename StringImpl<DATATYPE>::Iterator it){ return false; }, false );
 	}
 }
 
@@ -6035,7 +6035,7 @@ inline void testFindCondition()
 
 
 template<class DATATYPE, class Predicate>
-inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
+inline void testReverseFindCustomWithPred(Predicate pred, bool shouldMatch)
 {
 	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
@@ -6043,7 +6043,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromEnd")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end());
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCustom(pred, s.end());
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -6054,7 +6054,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromMatch")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+2);
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCustom(pred, s.begin()+2);
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -6064,13 +6064,13 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 	SECTION("fromBeforeMatch")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.begin()+1);
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCustom(pred, s.begin()+1);
 		REQUIRE( it==s.end() );
 	}
 
 	SECTION("fromEnd")
 	{
-		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCondition(pred, s.end() );
+		typename StringImpl<DATATYPE>::Iterator it = s.reverseFindCustom(pred, s.end() );
 
 		if(shouldMatch)
 			REQUIRE( it==s.begin()+2 );
@@ -6082,7 +6082,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 	{
 		StringImpl<DATATYPE> empty;
 
-		typename StringImpl<DATATYPE>::Iterator it = empty.reverseFindCondition(pred, empty.begin() );
+		typename StringImpl<DATATYPE>::Iterator it = empty.reverseFindCustom(pred, empty.begin() );
 		REQUIRE( it==empty.end() );
 	}
 }
@@ -6092,7 +6092,7 @@ inline void testReverseFindConditionWithPred(Predicate pred, bool shouldMatch)
 
 
 template<class DATATYPE, class Predicate>
-inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMatch)
+inline void testReverseFindCustomIndexWithPred(Predicate pred, bool shouldMatch)
 {
 	StringImpl<DATATYPE>			stringObj(U"he\U00012345loworld");
 	// use const references for the test to ensure that the functions are const
@@ -6100,7 +6100,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromEnd")
 	{
-		size_t result = s.reverseFindCondition(pred, s.getLength() );
+		size_t result = s.reverseFindCustom(pred, s.getLength() );
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -6110,7 +6110,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromEnd-npos")
 	{
-		size_t result = s.reverseFindCondition(pred, s.npos );
+		size_t result = s.reverseFindCustom(pred, s.npos );
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -6120,7 +6120,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromAfterEnd")
 	{
-		size_t result = s.reverseFindCondition(pred, s.getLength()+1 );
+		size_t result = s.reverseFindCustom(pred, s.getLength()+1 );
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -6130,7 +6130,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromEnd-defaultArg")
 	{
-		size_t result = s.reverseFindCondition(pred);
+		size_t result = s.reverseFindCustom(pred);
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -6140,7 +6140,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromMatch")
 	{
-		size_t result = s.reverseFindCondition(pred, 2);
+		size_t result = s.reverseFindCustom(pred, 2);
 
 		if(shouldMatch)
 			REQUIRE( result==2 );
@@ -6150,7 +6150,7 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 
 	SECTION("fromBeforeMatch")
 	{
-		size_t result = s.reverseFindCondition(pred, 1);
+		size_t result = s.reverseFindCustom(pred, 1);
 		REQUIRE( result==s.npos );
 	}
 
@@ -6159,30 +6159,30 @@ inline void testReverseFindConditionIndexWithPred(Predicate pred, bool shouldMat
 	{
 		StringImpl<DATATYPE> empty;
 
-		size_t result = empty.reverseFindCondition(pred, 0 );
+		size_t result = empty.reverseFindCustom(pred, 0 );
 		REQUIRE( result==empty.npos );
 	}
 }
 
 template<class DATATYPE>
-inline void testReverseFindCondition()
+inline void testReverseFindCustom()
 {
 	SECTION("iterator")
 	{
 		SECTION("match")
-        testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
+        testReverseFindCustomWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testReverseFindConditionWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
+			testReverseFindCustomWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
 
 	SECTION("index")
 	{
 		SECTION("match")
-			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
+			testReverseFindCustomIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return *it == U'\U00012345'; }, true );
 
 		SECTION("noMatch")
-			testReverseFindConditionIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
+			testReverseFindCustomIndexWithPred<DATATYPE>( [](const typename StringImpl<DATATYPE>::Iterator& it){ return false; }, false );
 	}
 
 }
@@ -9321,11 +9321,11 @@ inline void testStringImpl()
 
 
 
-	SECTION("findCondition")
-		testFindCondition<DATATYPE>();
+	SECTION("findCustom")
+		testFindCustom<DATATYPE>();
 
-	SECTION("reverseFindCondition")
-		testReverseFindCondition<DATATYPE>();
+	SECTION("reverseFindCustom")
+		testReverseFindCustom<DATATYPE>();
 
 	SECTION("findOneOf")
 		testFindOneOf<DATATYPE>();

@@ -363,9 +363,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             _verifyGenericCollectionReadOnly( coll, {} );
         }
 
-        SECTION("findConditionAndRemove")
+        SECTION("findCustomAndRemove")
         {
-            coll.findConditionAndRemove(
+            coll.findCustomAndRemove(
                 [elNotInList](const std::pair<const KeyType, ValType>& el)
                 {
                     return _isCollectionElementEqual(el, elNotInList);
@@ -399,9 +399,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
                         _verifyGenericCollectionReadOnly( coll, expectedElements );
                     }
 
-                    SECTION("findConditionAndRemove")  
+                    SECTION("findCustomAndRemove")  
                     {
-                        coll.findConditionAndRemove(
+                        coll.findCustomAndRemove(
                             [el](const std::pair<const KeyType, ValType>& setEl)
                             {
                                 return _isCollectionElementEqual( el, setEl );
@@ -446,9 +446,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
 				}
             }
 
-            SECTION("findConditionAndRemove")
+            SECTION("findCustomAndRemove")
             {
-                coll.findConditionAndRemove(
+                coll.findCustomAndRemove(
                     [](const std::pair<const KeyType, ValType>& setEl)
                     {
                         return false;
@@ -461,9 +461,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
         {
             Map<KeyType,ValType> coll(elList);
 
-            SECTION("findConditionAndRemove")
+            SECTION("findCustomAndRemove")
             {
-                coll.findConditionAndRemove(
+                coll.findCustomAndRemove(
                     [](const std::pair<const KeyType, ValType>& setEl)
                     {
                         return true;

@@ -990,7 +990,7 @@ inline void _verifyCollectionFindAndRemove(CollType& coll, const std::list<typen
 
 
 template<class CollType>
-inline void verifyCollectionFindConditionAndRemoveAtIndex(CollType& coll, int removeIndex, std::list<typename CollType::Element> expectedElementList )
+inline void verifyCollectionFindCustomAndRemoveAtIndex(CollType& coll, int removeIndex, std::list<typename CollType::Element> expectedElementList )
 {
 	auto removeIt = coll.begin();
 
@@ -1001,7 +1001,7 @@ inline void verifyCollectionFindConditionAndRemoveAtIndex(CollType& coll, int re
 
 	_removeCollectionElement( expectedElementList, elToRemove );
 	
-	coll.findConditionAndRemove(
+	coll.findCustomAndRemove(
 		[elToRemove](const typename CollType::Element& el)
 		{
 			return _isCollectionElementEqual(el, elToRemove);
@@ -1012,26 +1012,26 @@ inline void verifyCollectionFindConditionAndRemoveAtIndex(CollType& coll, int re
 
 
 template<class CollType>
-inline void verifyCollectionFindConditionAndRemove(CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
+inline void verifyCollectionFindCustomAndRemove(CollType& coll, const std::list<typename CollType::Element>& expectedElementList )
 {
 	if(!expectedElementList.empty())
 	{
 		SECTION("first")
-			verifyCollectionFindConditionAndRemoveAtIndex(coll, 0, expectedElementList );
+			verifyCollectionFindCustomAndRemoveAtIndex(coll, 0, expectedElementList );
 	
 		SECTION("last")
-			verifyCollectionFindConditionAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
+			verifyCollectionFindCustomAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
 	}
 
 	if(expectedElementList.size()>=2)
 	{
 		SECTION("middle")
-			verifyCollectionFindConditionAndRemoveAtIndex(coll, 1, expectedElementList );
+			verifyCollectionFindCustomAndRemoveAtIndex(coll, 1, expectedElementList );
 	}
 
 	SECTION("not found")
 	{
-		coll.findConditionAndRemove(
+		coll.findCustomAndRemove(
 			[](const typename CollType::Element& el)
 			{
 				return false;
@@ -1166,8 +1166,8 @@ inline void _verifyGenericCollection(
 	SECTION("removeSection")
 		_verifyCollectionRemoveSection(coll, expectedElementList);
 
-	SECTION("findConditionAndRemove")
-		verifyCollectionFindConditionAndRemove(coll, expectedElementList);
+	SECTION("findCustomAndRemove")
+		verifyCollectionFindCustomAndRemove(coll, expectedElementList);
 
 
     SECTION("add")
@@ -1533,11 +1533,11 @@ inline void verifyReverseFind(CollType& coll, typename CollType::Element toFind,
 }
 
 template<class CollType>
-inline void verifyFindCondition(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
+inline void verifyFindCustom(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
-        typename CollType::Iterator it = coll.findCondition( conditionFunc );
+        typename CollType::Iterator it = coll.findCustom( conditionFunc );
         REQUIRE( it == expectedResult );
     }
 
@@ -1545,7 +1545,7 @@ inline void verifyFindCondition(CollType& coll, std::function< bool(const typena
     {
         const CollType& constColl(coll);
 
-        typename CollType::ConstIterator it = constColl.findCondition( conditionFunc );
+        typename CollType::ConstIterator it = constColl.findCustom( conditionFunc );
 
         if(expectedResult==coll.end())
             REQUIRE( it == constColl.end() );
@@ -1558,11 +1558,11 @@ inline void verifyFindCondition(CollType& coll, std::function< bool(const typena
 
 
 template<class CollType>
-inline void verifyReverseFindCondition(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
+inline void verifyReverseFindCustom(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
-        typename CollType::Iterator it = coll.reverseFindCondition( conditionFunc );
+        typename CollType::Iterator it = coll.reverseFindCustom( conditionFunc );
         REQUIRE( it == expectedResult );
     }
 
@@ -1570,7 +1570,7 @@ inline void verifyReverseFindCondition(CollType& coll, std::function< bool(const
     {
         const CollType& constColl(coll);
 
-        typename CollType::ConstIterator it = constColl.reverseFindCondition( conditionFunc );
+        typename CollType::ConstIterator it = constColl.reverseFindCustom( conditionFunc );
 
         if(expectedResult==coll.end())
             REQUIRE( it == constColl.end() );
@@ -1788,7 +1788,7 @@ inline void _testCollectionFind(
         }
     }
 
-    SECTION("findCondition")
+    SECTION("findCustom")
     {
         CollType coll;
 
@@ -1796,7 +1796,7 @@ inline void _testCollectionFind(
         {
             SECTION("not found")
             {
-                verifyFindCondition(
+                verifyFindCustom(
                     coll,
                     [](const typename CollType::Element& el)
                     {
@@ -1814,7 +1814,7 @@ inline void _testCollectionFind(
             {
                 typename CollType::Element toFind = *coll.begin();
 
-                verifyFindCondition(
+                verifyFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1827,7 +1827,7 @@ inline void _testCollectionFind(
             {
                 typename CollType::Element toFind = *--coll.end();
 
-                verifyFindCondition(
+                verifyFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1840,7 +1840,7 @@ inline void _testCollectionFind(
             {
                 typename CollType::Element toFind = *++coll.begin();
 
-                verifyFindCondition(
+                verifyFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1851,7 +1851,7 @@ inline void _testCollectionFind(
 
             SECTION("not found")
             {
-                verifyFindCondition(
+                verifyFindCustom(
                     coll,
                     [](const typename CollType::Element& el)
                     {
@@ -1926,7 +1926,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
         }
     }
 
-    SECTION("reverseFindCondition")
+    SECTION("reverseFindCustom")
     {
         CollType coll;
 
@@ -1934,7 +1934,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
         {
             SECTION("not found")
             {
-                verifyReverseFindCondition(
+                verifyReverseFindCustom(
                     coll,
                     [](const typename CollType::Element& el)
                     {
@@ -1955,7 +1955,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
             {
                 typename CollType::Element toFind = *coll.begin();
 
-                verifyReverseFindCondition(
+                verifyReverseFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1969,7 +1969,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
             {
                 typename CollType::Element toFind = *--coll.end();
 
-                verifyReverseFindCondition(
+                verifyReverseFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1982,7 +1982,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
             {
                 typename CollType::Element toFind = *++coll.begin();
 
-                verifyReverseFindCondition(
+                verifyReverseFindCustom(
                     coll,
                     [toFind](const typename CollType::Element& el)
                     {
@@ -1993,7 +1993,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
 
             SECTION("not found")
             {
-                verifyReverseFindCondition(
+                verifyReverseFindCustom(
                     coll,
                     [](const typename CollType::Element& el)
                     {

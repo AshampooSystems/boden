@@ -630,29 +630,29 @@ public:
 	}
 
 
-	/** Searches for the first element (key/value pair) for which the specified condition function returns true.        
-        conditionFunc must take a collection element reference (a std::pair<Key,Value> object)
+	/** Searches for the first element (key/value pair) for which the specified match function returns true.        
+        matchFunc must take a collection element reference (a std::pair<Key,Value> object)
 		as its only parameter and return a boolean.
 
-        Note that for the Map class findCondition() is a lot slower than find(). find can take advantage
-        of the internal data structures of the map to find the element in logarithmic time. findCondition 
+        Note that for the Map class findCustom() is a lot slower than find(). find can take advantage
+        of the internal data structures of the map to find the element in logarithmic time. findCustom 
         on the other hand needs to check potentially all elements in the set (i.e. it has linear complexity).
             
         Returns an iterator to the found element, or end() if no such element is found.
     */
-    template<class ConditionFuncType>
-	Iterator findCondition(ConditionFuncType conditionFunc )
+    template<typename MatchFuncType>
+	Iterator findCustom(MatchFuncType matchFunc )
 	{
-        return std::find_if( this->begin(), this->end(), conditionFunc );
+        return std::find_if( this->begin(), this->end(), matchFunc );
 	}
 
 
-    /** Const version of findCondition() - returns a read-only iterator.
+    /** Const version of findCustom() - returns a read-only iterator.
     */
-    template<class ConditionFuncType>
-	ConstIterator findCondition(ConditionFuncType conditionFunc ) const
+    template<typename MatchFuncType>
+	ConstIterator findCustom( MatchFuncType matchFunc ) const
 	{
-        return std::find_if( this->begin(), this->end(), conditionFunc );
+        return std::find_if( this->begin(), this->end(), matchFunc );
 	}
 
 
@@ -681,17 +681,17 @@ public:
 
 
     
-    /** Removes all elements for which the specified function checkFunc returns true.
+    /** Removes all elements for which the specified function matchFunc returns true.
     
-        checkFunc must be a function that takes a reference to a set element as its parameter
+        matchFunc must be a function that takes a reference to a collection element as its parameter
         and returns true if the element should be removed.
     */
-    template<typename CheckFuncType>
-    void findConditionAndRemove( CheckFuncType& checkFunc )
+    template<typename MatchFuncType>
+    void findCustomAndRemove( MatchFuncType& matchFunc )
     {
         for(auto it = begin(); it!=end(); )
         {
-            if( checkFunc(*it) )
+            if( matchFunc(*it) )
                 it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
             else
                 ++it;
