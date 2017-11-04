@@ -57,7 +57,7 @@ Boden collections all support the following functionality:
 | `void findAndRemove( const Element& toRemove )`                       | Removes all elements from the collection that compare equal to `toRemove`.
 -------------------------------------------------------------
 | `template<typename MatchFuncType>`                                    | Removes all elements for which the specified match function returns true.
-| `void findConditionAndRemove( MatchFuncType matchFunc )`              | The match function can be any function that takes an Element reference as its parameter
+| `void findCustomAndRemove( MatchFuncType matchFunc )`                 | The match function can be any function that takes an Element reference as its parameter
 |                                                                       | and returns either true or false.
 -------------------------------------------------------------
 | `void clear()`                                                        | Remove all elements from the collection
