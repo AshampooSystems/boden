@@ -343,6 +343,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s("helloworld");
 
 			REQUIRE( s.getLength()==10 );
+			REQUIRE( s.getSize()==10 );
 			REQUIRE( s.length()==10 );
 			REQUIRE( s.size()==10 );
 		}
@@ -352,6 +353,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s("helloworld", 7);
 
 			REQUIRE( s.getLength()==7 );
+			REQUIRE( s.getSize()==7 );
 			REQUIRE( s.length()==7 );
 			REQUIRE( s.size()==7 );
 		}
@@ -363,6 +365,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s( source.begin(), source.end() );
 
 			REQUIRE( s.getLength()==10 );
+			REQUIRE( s.getSize()==10 );
 			REQUIRE( s.length()==10 );
 			REQUIRE( s.size()==10 );
 		}
@@ -374,6 +377,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s = source.subString(2, 10);
 
 			REQUIRE( s.getLength()==10 );
+			REQUIRE( s.getSize()==10 );
 			REQUIRE( s.length()==10 );
 			REQUIRE( s.size()==10 );
 		}
@@ -386,6 +390,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s;
 
 			REQUIRE(s.getLength()==0);
+			REQUIRE(s.getSize()==0);
 			REQUIRE( s.length()==0 );
 			REQUIRE( s.size()==0 );
 		}
@@ -395,6 +400,7 @@ inline void testLength()
 			StringImpl<DATATYPE> s("");
 
 			REQUIRE(s.getLength()==0);
+			REQUIRE(s.getSize()==0);
 			REQUIRE( s.length()==0 );
 			REQUIRE( s.size()==0 );
 		}
@@ -408,6 +414,7 @@ inline void testLength()
 		const StringImpl<DATATYPE>& s = o;
 
 		REQUIRE( s.getLength()==10 );
+		REQUIRE( s.getSize()==10 );
 		REQUIRE( s.length()==10 );
 		REQUIRE( s.size()==10 );
 	}
@@ -595,6 +602,7 @@ inline void testIterators()
 		REQUIRE( checkEquality(s.begin(), s.end(), true) );
 		REQUIRE( checkEquality(s.reverseBegin(), s.reverseEnd(), true) );
 		REQUIRE( checkEquality(s.cbegin(), s.cend(), true) );
+		REQUIRE( checkEquality(s.constBegin(), s.constEnd(), true) );
 		REQUIRE( checkEquality(s.rbegin(), s.rend(), true) );
 		REQUIRE( checkEquality(s.crbegin(), s.crend(), true) );
 	}
@@ -614,8 +622,10 @@ inline void testIterators()
 		verifyIterators( s.begin(), s.end(), U"hello" );
 		verifyIterators( s.reverseBegin(), s.reverseEnd(), U"olleh" );
 		verifyIterators( s.cbegin(), s.cend(), U"hello" );
+		verifyIterators( s.constBegin(), s.constEnd(), U"hello" );
 		verifyIterators( s.rbegin(), s.rend(), U"olleh" );
 		verifyIterators( s.crbegin(), s.crend(), U"olleh" );
+		verifyIterators( s.constReverseBegin(), s.constReverseEnd(), U"olleh" );
 	}
 }
 
@@ -1798,13 +1808,17 @@ inline void verifyAppendPlus(StringType& s, SuffixArg suffix, const StringType& 
 		REQUIRE( s==expected );
     }
 
+	SECTION("addSequence")
+	{
+		s.addSequence( suffix );
+		REQUIRE( s==expected );
+    }
+
 	SECTION("operator+=")
 	{
 		s += suffix;
 		REQUIRE( s==expected );
     }
-
-
 }
 
 
@@ -1813,16 +1827,34 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 {
 	SECTION("iterators")
 	{
-		s.append( suffix.begin(), suffix.end() );
-		REQUIRE( s==expected );
+		SECTION("append")
+		{
+			s.append( suffix.begin(), suffix.end() );
+			REQUIRE( s==expected );
+		}
+
+		SECTION("addSequence")
+		{
+			s.addSequence( suffix.begin(), suffix.end() );
+			REQUIRE( s==expected );
+		}
 	}
 
 	SECTION("iteratorsFromOtherClass")
 	{
 		std::u32string suf = suffix.asUtf32();
 
-		s.append( suf.begin(), suf.end() );
-		REQUIRE( s==expected );
+		SECTION("append")
+		{
+			s.append( suf.begin(), suf.end() );
+			REQUIRE( s==expected );
+		}
+
+		SECTION("addSequence")
+		{
+			s.addSequence( suf.begin(), suf.end() );
+			REQUIRE( s==expected );
+		}
 	}
 
 	SECTION("String")
@@ -1944,6 +1976,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 					subSectionEntered1 = true;
                 }
 
+				SECTION("addSequence")
+				{
+					s.addSequence( {'B', 'L', 'A'} );
+					subSectionEntered1 = true;
+                }
+
 				SECTION("operator+=")
 				{
 					s += {'B', 'L', 'A'};
@@ -1967,6 +2005,12 @@ inline void verifyAppend(StringType& s, const StringType& suffix, const StringTy
 				SECTION("append")
 				{
 					s.append( {U'B', U'L', U'\U00013333', U'A'} );
+					subSectionEntered2 = true;
+                }
+
+				SECTION("addSequence")
+				{
+					s.addSequence( {U'B', U'L', U'\U00013333', U'A'} );
 					subSectionEntered2 = true;
                 }
 
@@ -2068,6 +2112,18 @@ inline void testAppendSingleChar( StringImpl<DATATYPE>& s)
 
 	SECTION("append")
 		s.append(U'\U00012345');
+
+	SECTION("add")
+		s.add(U'\U00012345');
+
+	SECTION("addNew")
+	{
+		// XXX this will not work, since addNew does not
+		// return a reference
+		const char32_t& charRef = s.addNew(U'\U00012345');
+
+		REQUIRE( charRef == U'\U00012345' );
+	}
 
 	SECTION("push_back")
 		s.push_back(U'\U00012345');
@@ -2448,18 +2504,27 @@ inline void testInsert()
 template<class DATATYPE>
 inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t eraseLength)
 {
+	int origLength = s.size();
+
 	std::u32string expected = s.asUtf32();
 
 	expected.erase(atPos, eraseLength);
 
-	SECTION("index")
+	SECTION("erase(index)")
 		s.erase(atPos, eraseLength);
 
-	if(eraseLength==1 && atPos<(int)s.getLength())
+	if(eraseLength==1 && atPos<origLength)
 	{
-		SECTION("itOneChar")
+		SECTION("erase(it)")
 		{
 			typename StringImpl<DATATYPE>::Iterator resultIt = s.erase( s.begin()+atPos );
+
+			REQUIRE( resultIt==s.begin()+atPos );
+		}
+
+		SECTION("removeAt(it)")
+		{
+			typename StringImpl<DATATYPE>::Iterator resultIt = s.removeAt( s.begin()+atPos );
 
 			REQUIRE( resultIt==s.begin()+atPos );
 		}
@@ -2475,8 +2540,17 @@ inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t erase
 		else
 			endIt = beginIt+eraseLength;
 
-		typename StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);
-		REQUIRE( resultIt==s.begin()+atPos );
+		SECTION("erase(begin, end)")
+		{
+			typename StringImpl<DATATYPE>::Iterator resultIt = s.erase(beginIt, endIt);
+			REQUIRE( resultIt==s.begin()+atPos );
+		}
+
+		SECTION("removeSection(begin, end)")
+		{
+			typename StringImpl<DATATYPE>::Iterator resultIt = s.removeSection(beginIt, endIt);
+			REQUIRE( resultIt==s.begin()+atPos );
+		}
 	}
 
 
@@ -3022,6 +3096,7 @@ inline void testRemoveLast()
 }
 
 
+
 template<class DATATYPE>
 inline void testReserveCapacity()
 {
@@ -3038,6 +3113,13 @@ inline void testReserveCapacity()
 			REQUIRE( s.capacity()>=20 );
 			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
 		}
+
+		SECTION("prepareForSize")
+		{
+			s.prepareForSize(20);
+			REQUIRE( s.capacity()>=20 );
+			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+		}
 	}
 
 	SECTION("nonEmpty")
@@ -3051,14 +3133,24 @@ inline void testReserveCapacity()
 			REQUIRE( s.capacity()<=16 );	// sanity check - not actually forbidden to have bigger values
 		}
 
-		SECTION("reserve")
+		SECTION("increase")
 		{
-			s.reserve(20);
-			REQUIRE( s.capacity()>=20 );
-			REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+			SECTION("reserve")
+			{
+				s.reserve(20);
+				REQUIRE( s.capacity()>=20 );
+				REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+			}
+
+			SECTION("prepareForSize")
+			{
+				s.prepareForSize(20);
+				REQUIRE( s.capacity()>=20 );
+				REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
+			}
 		}
 
-		SECTION("reserveReduce")
+		SECTION("reduce, but bigger than length")
 		{
 			s.reserve(20);
 
@@ -3066,7 +3158,11 @@ inline void testReserveCapacity()
 			REQUIRE( cap>=20 );
 			REQUIRE( cap<=30 );	// sanity check - not actually forbidden to have bigger values
 
-			s.reserve(15);
+			SECTION("reserve")
+				s.reserve(15);
+
+			SECTION("prepareForSize")
+				s.prepareForSize(15);
 
 			// the second call should have had no effect, since the second value is bigger than the length.
             // However, some implementations reduce the capacity whenever any value is passed that is smaller
@@ -3075,12 +3171,16 @@ inline void testReserveCapacity()
             REQUIRE( s.capacity()>=10 );
 		}
 
-		SECTION("reserveReduceToLess")
+		SECTION("reduce to less than length")
 		{
 			s.reserve(20);
 			size_t cap = s.capacity();
 
-			s.reserve(5);
+			SECTION("reserve")
+				s.reserve(5);
+
+			SECTION("prepareForSize")
+				s.prepareForSize(5);
 
 			// the request to reduce the space is actually non-binding. So all we can test that it either stayed the same or got reduced.
 			REQUIRE( s.capacity()<=cap );
@@ -3119,7 +3219,12 @@ inline void testReserveCapacity()
 				REQUIRE( s2.capacity()==10 );
 				REQUIRE( s.capacity()==10 );
 
-				s.reserve(20);
+				SECTION("reserve")
+					s.reserve(20);
+
+				SECTION("prepareForSize")
+					s.prepareForSize(20);
+
 				REQUIRE( s.capacity()>=20 );
 				REQUIRE( s.capacity()<=30 );	// sanity check - not actually forbidden to have bigger values
 
@@ -4476,6 +4581,139 @@ inline void testFindIterators()
 }
 
 
+template<class StringType, class FinderType>
+inline void verifyFindAllResult(StringType& s, const FinderType& finder, const std::vector<size_t>& expectedIndices )
+{
+	int occurrenceNum = 0;
+
+	auto finderIt = finder.begin();
+	while( finderIt != finder.end() )
+	{
+		REQUIRE( occurrenceNum < expectedIndices.size() );
+
+		size_t expectedIndex = expectedIndices[occurrenceNum];
+
+		auto baseIt = finderIt.getBaseIterator();
+
+		size_t actualIndex = baseIt - s.begin();
+
+		REQUIRE( actualIndex == expectedIndex );
+
+		occurrenceNum++;
+		++finderIt;
+	}
+
+	REQUIRE( occurrenceNum == expectedIndices.size() );
+}
+
+
+template<class StringType, class ArgType>
+inline void verifyFindAllWithArg(StringType& s, const ArgType& arg, const std::vector<size_t>& expectedIndices )
+{
+	verifyFindAllResult(s, s.findAll(arg), expectedIndices );	
+}
+
+template<class StringType>
+inline void verifyFindAll(StringType& s, const String& arg, std::vector<size_t> expectedIndices )
+{
+	SECTION("String")
+		verifyFindAllWithArg(s, arg, expectedIndices);
+
+	SECTION("std::string")
+		verifyFindAllWithArg(s, arg.asUtf8(), expectedIndices);
+
+	SECTION("std::wstring")
+		verifyFindAllWithArg(s, arg.asWide(), expectedIndices);
+
+	SECTION("std::u16string")
+		verifyFindAllWithArg(s, arg.asUtf16(), expectedIndices);
+
+	SECTION("std::u32string")
+		verifyFindAllWithArg(s, arg.asUtf32(), expectedIndices);
+
+	SECTION("const char*")
+		verifyFindAllWithArg(s, arg.asUtf8Ptr(), expectedIndices);
+
+	SECTION("const wchar_t*")
+		verifyFindAllWithArg(s, arg.asWidePtr(), expectedIndices);
+
+	SECTION("const char16_t*")
+		verifyFindAllWithArg(s, arg.asUtf16Ptr(), expectedIndices);
+
+	SECTION("const char32_t*")
+		verifyFindAllWithArg(s, arg.asUtf32Ptr(), expectedIndices);
+
+	if(arg.getLength() == 1)
+	{
+		SECTION("char32_t")
+			verifyFindAllWithArg(s, arg[0], expectedIndices);
+	}
+
+	SECTION("findAllCustom")
+	{
+		verifyFindAllResult(
+			s,
+			s.findAllCustom(
+				[&s, arg](typename StringType::Iterator it)
+				{
+					for( char32_t chr: arg )
+					{
+						if( it == s.end() || *it != chr)
+							return false;
+
+						++it;
+					}
+
+					return true;
+				} ),
+			expectedIndices );
+	}
+}
+
+
+template<class DATATYPE>
+inline void testFindAll()
+{	
+	StringImpl<DATATYPE>		stringObj(U"he\U00012345loworld");
+
+	// use const references for the test to ensure that the functions are const
+	const StringImpl<DATATYPE>&	s = stringObj;
+
+	SECTION("empty string")
+		verifyFindAll(s, "", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} );
+
+	SECTION("single char")
+	{
+		SECTION("found")
+		{
+			SECTION("ascii")
+				verifyFindAll(s, "o", {4, 6} );
+
+			SECTION("non-ascii")
+				verifyFindAll(s, U"\U00012345", {4, 6} );
+		}
+				
+
+		SECTION("not found")
+			verifyFindAll(s, "x", {} );
+	}
+
+	SECTION("three chars")
+	{
+		SECTION("found")
+			verifyFindAll(s, U"\U00012345lo", {2} );
+
+		SECTION("first not found")
+			verifyFindAll(s, U"xlo", {} );
+
+		SECTION("mid not found")
+			verifyFindAll(s, U"\U00012345xo", {} );
+
+		SECTION("last not found")
+			verifyFindAll(s, U"\U00012345lx", {} );
+	}
+}
+
 template<class DATATYPE>
 inline void testFind()
 {
@@ -4548,6 +4786,9 @@ inline void testFind()
 		SECTION("charFromIndexInU32String")
 			testFindCharFromIndex< std::u32string >();
 	}
+
+	SECTION("findAll")
+		testFindAll<DATATYPE>();
 }
 
 
@@ -8514,7 +8755,38 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 {
 	StringType s = inString;
 
-	int replacedCount = s.findReplace( (ArgType)toFind, (ArgType)replaceWith);
+	int replacedCount=0;
+
+	SECTION("findReplace")
+		replacedCount = s.findReplace( (ArgType)toFind, (ArgType)replaceWith);
+
+	if(toFind.length()==1 && replaceWith.isEmpty())
+	{
+		char32_t charToFind = toFind[0];
+
+		SECTION("findAndRemove")
+		{
+			size_t sizeBefore = s.getLength();
+
+			s.findAndRemove( charToFind );
+
+			replacedCount = sizeBefore - s.getLength();
+		}
+
+		SECTION("findCustomAndRemove")
+		{
+			size_t sizeBefore = s.getLength();
+
+			s.findCustomAndRemove(
+				[charToFind](char32_t& chr)
+				{
+					return chr==charToFind;
+				} );
+
+			replacedCount = sizeBefore - s.getLength();
+		}
+	}
+
 	REQUIRE( s==expectedResult );
 	REQUIRE( replacedCount==expectedReplacedCount );
 }
@@ -8575,12 +8847,17 @@ inline void testFindReplace()
 	SECTION("none")
 		testFindReplace( s, U"x", U"y", 0, U"he\U00012345loworld" );
 
+	SECTION("oneOccurrenceOneCharWithEmpty")
+		testFindReplace( s, U"\U00012345", U"", 1, U"heloworld" );
+
 	SECTION("oneOccurrenceOneCharWithOne")
 		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );
 
 	SECTION("oneOccurrenceOneCharWithMulti")
 		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );
 
+	SECTION("twoOccurrencesOneCharWithEmpty")
+		testFindReplace( s, U"o", U"", 2, U"helwrld" );
 
 	SECTION("twoOccurrencesOneCharWithOne")
 		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );
@@ -8590,6 +8867,13 @@ inline void testFindReplace()
 
 	SECTION("oneOccurrenceMultiCharsWithMulti")
 		testFindReplace( s, U"\U00012345low", U"\U00023456xy", 1, U"he\U00023456xyorld" );
+
+	SECTION("multiOccurrencesMultiCharsWithEmpty")
+	{
+		s = U"\U00012345low\U00012345low\U00012345low";
+
+		testFindReplace( s, U"\U00012345low", U"", 3, U"" );
+	}
 
 	SECTION("multiOccurrencesMultiCharsWithMulti")
 	{
@@ -8656,7 +8940,7 @@ void verifyContains(const StringType& s, const char32_t* arg, bool expectedResul
 {
 	StringType a(arg);
 
-	SECTION("iterators")
+	SECTION("iterators")f
 		REQUIRE( s.contains(a.begin(), a.end()) == expectedResult );
 
 	SECTION("String")
@@ -9237,11 +9521,13 @@ inline void testStringImpl()
 		}
 	}
 
-	SECTION("max_size")
+	SECTION("max size")
 	{
 		StringImpl<DATATYPE> s;
 
-		size_t m = s.max_size();
+		size_t m = s.getMaxSize();
+
+		REQUIRE( m == s.max_size() );
 
 		// max_size should not be bigger than INT_MAX,
 		// since we use int for lengths and indices

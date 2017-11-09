@@ -7,6 +7,7 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/WideStringData.h>
 #include <bdn/OutOfRangeError.h>
+#include <bdn/SequenceFilter.h>
 
 #include <iterator>
 #include <list>
@@ -114,9 +115,18 @@ public:
 	/** Type of the character iterators used by this string.*/
 	typedef typename MainDataType::Iterator Iterator;
 
+	
+	/** An alias to Iterator, since all string iterators are read-only.
+		*/
+	typedef Iterator ConstIterator;
+
 
 	/** Iterator type for reverse iterators of this String (see rbegin()).*/
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
+	
+
+	/** An alias of ReverseIterator, since all string iterators are read-only.*/
+    typedef ReverseIterator ConstReverseIterator;
 
 
 	/** iterator is an alias to Iterator. This is included for std::string compatibility.
@@ -128,9 +138,12 @@ public:
 	typedef Iterator iterator;
 
 
-	/** const_iterator is an alias to Iterator. This is included for std::string compatibility.
+	/** const_iterator is an alias to ConstIterator. This is included for std::string compatibility.
 		*/
 	typedef Iterator const_iterator;
+
+
+	
 
 
 
@@ -202,9 +215,16 @@ public:
 	typedef const char32_t& const_reference;
 
 
-	/** Included with compatibility for std::string only.*/
+	/** Same as Size. Included with compatibility for std::string only.*/
 	typedef size_t size_type;
 
+
+	/** The integer type used to represent string sizes and indices. This is an alias for size_t.*/
+	typedef size_t Size;
+
+	/** The type of a string element. Strings are treated as collections of 32 bit unicode characters
+		(even though the internal data encoding might not be UTF-32), so this is an alias to char32_t. */
+	typedef char32_t Element;
 
 
 	/** Contructor for an empty string.*/
@@ -546,18 +566,32 @@ public:
 	}
 
 
-	/** Same as getLength. This is included for compatibility with std::string.*/
+	/** Same as getLength(). This is included for compatibility with std::string.*/
 	size_t length() const noexcept
 	{
 		return getLength();
 	}
 
-	/** Same as getLength. This is included for compatibility with std::string.*/
+	/** Same as getLength(). This is included for compatibility with std::string.*/
 	size_t size() const noexcept
 	{
 		return getLength();
 	}
 
+	/** Same as getLength(). This is included so that String conforms to the collection protocol.*/
+	size_t getSize() const noexcept
+	{
+		return getLength();
+	}
+
+
+
+	/** Same as prepareForSize() - included for compatibility with std::string.
+		*/
+	void reserve(size_t reserveChars = 0)
+	{
+		prepareForSize(reserveChars);
+	}
 
 
 	/** Used to reserve space for future modifications of the string, or to free previously reserved extra space.
@@ -572,7 +606,7 @@ public:
 		enough space for a string of that length (in characters).
 
 		*/
-	void reserve(size_t reserveChars = 0)
+	void prepareForSize(size_t reserveChars)
 	{
 		typename MainDataType::EncodedString::difference_type excessCapacityCharacters = reserveChars-length();
 		if(excessCapacityCharacters<0)
@@ -635,19 +669,29 @@ public:
 	}
 
 
-
-
-
-	/** Returns the theoretical maximum size of a string, given an infinite amount of memory.
-		This is included for compatibility with std::string.
+	/** Returns the maximum size of a string, given a sufficient amount of memory.
+		Note that this is the maximum size that can be guaranteed to work under all circumstances.
+		Strings might be able to get bigger than this depending on the actual characters in the string.
 		*/
-	size_t max_size() const noexcept
+	size_t getMaxSize() const noexcept
 	{
 		size_t m = _pData->getEncodedString().max_size();
+
+		m /= MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 
 		return (m>INT_MAX) ? (size_t)INT_MAX : m;
 	}
 
+
+
+	/** Alias for getMaxSize() - this exists for compatibility with std::string.
+		*/
+	size_t max_size() const noexcept
+	{
+		return getMaxSize();
+	}
+
+	
 
 	/** Resizes the string to the specified number of characters.
 
@@ -739,10 +783,17 @@ public:
 		return end();
 	}
 
+	/** Same as begin(). This is included for compatibility with the collection protocol.*/
+	Iterator constBegin() const noexcept
+	{
+		return begin();
+	}
 
-
-
-
+	/** Same as end(). This is included for compatibility with the collection protocol.*/
+	Iterator constEnd() const noexcept
+	{
+		return end();
+	}
 
 	/** Same as rbegin(). This is included for compatibility with std::string.*/
 	ReverseIterator crbegin() const noexcept
@@ -756,6 +807,17 @@ public:
 		return rend();
 	}
 
+	/** Same as rbegin(). This is included for compatibility with the collection protocol.*/
+	ReverseIterator constReverseBegin() const noexcept
+	{
+		return rbegin();
+	}
+
+	/** Same as rend(). This is included for compatibility with the collection protocol.*/
+	ReverseIterator constReverseEnd() const noexcept
+	{
+		return rend();
+	}
 
 
 	/** Returns a sub string of this string, starting at the character that beginIt points to
@@ -2209,6 +2271,50 @@ public:
 		append(chr);
 	}
 
+
+	/** Same as append(). Included for compatibility with the collection protocol.*/
+	void add(char32_t chr)
+	{
+		append(chr);
+	}
+
+	/** Similar to append(). Included for compatibility with the collection protocol.
+	
+		Returns a copy of the added character.
+	*/
+	char32_t addNew(char32_t chr)
+	{
+		append(chr);
+
+		return chr;
+	}
+
+
+	/** Appends the string data between the specified two iterators to the end of this string.
+	
+		Same as append - this is included for compatibility with the collection protocol.
+	*/
+	template<class InputIterator>
+	void addSequence(const InputIterator& beginIt, const InputIterator& endIt)
+	{
+		append( beginIt, endIt);
+	}
+
+
+	/** Appends the specified sequence of characters to the string.
+
+		This is included for compatibility with the collection protocol.
+	
+		This can be used to add characters with the curly brace notation:
+
+		\code
+			s.addSequence( { 'a', 'x', 'M' } );	// appends "axM" to the string.
+		\endcode
+		*/
+	void addSequence( std::initializer_list<char32_t> initList)
+	{
+		append( initList.begin(), initList.end() );
+	}
 
 
 
@@ -6223,6 +6329,79 @@ public:
 		size_t   _index;
 	};
 
+
+
+	
+	
+
+	template<typename MatchFuncType>
+    class FuncMatcher_
+    {
+    public:
+        FuncMatcher_( MatchFuncType matchFunc )
+            : _matchFunc( matchFunc )
+        {
+        }
+
+        void operator() (StringImpl& s, Iterator& it)
+        {
+            // note that the "it" parameter is NEVER equal to end() when we are called.
+            // That also means that we are never called for empty maps.
+
+            while( ! _matchFunc(it) )
+            {
+                ++it;
+                if( it==s.end() )
+                    break;
+            }
+        }    
+
+	private:
+		MatchFuncType _matchFunc;
+    };
+
+	template<typename MatchFuncType>
+	using CustomFinder = SequenceFilter<StringImpl, FuncMatcher_<MatchFuncType> >;
+
+
+	
+    class ElementMatcher_
+    {
+    public:
+        ElementMatcher_(const Element& element)
+            : _element( element )
+        {
+        }
+
+        void operator() (StringImpl& s, Iterator& it)
+        {
+			it = std::find( it, s.end(), _element);
+        }
+
+    private:
+        Element _element;
+    };
+	
+	using ElementFinder = SequenceFilter< StringImpl, ElementMatcher_>;
+
+
+	
+	ElementFinder findAll(const Element& elToFind)
+	{
+        return ElementFinder(*this, ElementMatcher_(elToFind) );
+	}
+
+	template<typename MatchFuncType >
+	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunc ) const
+	{
+		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+	}
+
+	
+	/** Removes all occurrences of the specified character.*/
+	void findAndRemove(char32_t chr)
+	{}
+
 protected:
 
 
@@ -6387,6 +6566,8 @@ protected:
         // the locale does not influence the UTF-32 encoding
         return asUtf32();
     }
+
+
 
 	mutable P<MainDataType>	_pData;
 	mutable Iterator		_beginIt;
