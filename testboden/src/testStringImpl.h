@@ -8940,7 +8940,7 @@ void verifyContains(const StringType& s, const char32_t* arg, bool expectedResul
 {
 	StringType a(arg);
 
-	SECTION("iterators")f
+	SECTION("iterators")
 		REQUIRE( s.contains(a.begin(), a.end()) == expectedResult );
 
 	SECTION("String")

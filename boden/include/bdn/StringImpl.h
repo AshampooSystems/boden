@@ -2317,6 +2317,19 @@ public:
 	}
 
 
+    
+	/** Adds the elements from the specified source character \ref sequence.md "sequence" to the collection.
+		
+		Since all collections are also sequences, this can be used to copy all elements from
+		any char32_t collection (for example, bdn::Array, bdn::List, etc.).
+        */
+	template<class SequenceType>
+    void addSequence( const SequenceType& sequence )
+    {
+        append( sequence.begin(), sequence.end() );
+    }
+
+
 
 	/** Inserts the specified string at the specified character index.
 
@@ -2646,6 +2659,34 @@ public:
 		// we must return an iterator to the erased position
 		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());
 	}
+
+
+
+    /** Removes the character at the position of the specified iterator.
+		Returns an iterator to the character that now occupies the position of the removed
+		character (or end() if it was the last character).
+        
+        Same as erase(it). This alias is included for compatibility with the collection protocol.
+        */
+	Iterator removeAt(const Iterator& it)
+	{
+        return erase(it);
+	}
+
+
+    /** Removes a part of the string, starting at the position indicated by
+		the \c beginIt iterator and ending at the point just before the position indicated by \c endIt.
+
+		Returns an iterator to the character that now occupies the position of the first removed
+		character (or end() if the removed part extended to the end of the string).
+        
+        Same as erase(beginIt, endIt). This alias is included for compatibility with the collection protocol.
+        */
+	Iterator removeSection(const Iterator& beginIt, const Iterator& endIt)
+	{
+        return erase(beginIt, endIt);
+	}
+
 
 
 	/** Erases the entire contents of the string. The string becomes an empty string.*/
@@ -6386,7 +6427,7 @@ public:
 
 
 	
-	ElementFinder findAll(const Element& elToFind)
+	ElementFinder findAll(const Element& elToFind) const
 	{
         return ElementFinder(*this, ElementMatcher_(elToFind) );
 	}
@@ -6400,7 +6441,36 @@ public:
 	
 	/** Removes all occurrences of the specified character.*/
 	void findAndRemove(char32_t chr)
-	{}
+	{
+        findReplace(&chr, (&chr)+1, (const char32_t*)nullptr, (const char32_t*)nullptr );
+    }
+
+
+    /** Removes all characters for which the specified match function returns true.
+
+        matchFunc must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myMatchFunction(const Iterator& it);
+		\endcode
+
+        */
+    template<typename MatchFuncType>
+	void findCustomAndRemove( MatchFuncType matchFunc )
+	{
+        Iterator pos = this->_beginIt;
+
+        while(true)
+        {
+            pos = findCustom(matchFunc, pos);
+            if(pos == this->_endIt )
+                break;
+            
+            pos = erase(pos);
+        }
+    }
+
 
 protected:
 
