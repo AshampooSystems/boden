@@ -588,7 +588,7 @@ public:
 	using ElementFinder = SequenceFilter<Map, ElementMatcher_>;
 
 	template<typename MatchFuncType>
-	using FuncFinder = SequenceFilter<Map, FuncMatcher_<MatchFuncType> >;
+	using CustomFinder = SequenceFilter<Map, FuncMatcher_<MatchFuncType> >;
 
 
 
@@ -608,10 +608,17 @@ public:
         return ElementFinder(*this, ElementMatcher_(elToFind) );
 	}
 
+
+	/** Searches for all elements for which the specified match function returns true.
+		The match function can be any function that takes an Element reference as its parameter
+		and returns either true or false.
+
+		findAllCustom returns a \ref finder.md "finder object" with the results.
+		*/
 	template<class MatchFuncType>
-	FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
+	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
 	{
-		return FuncFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
 	}
 
 	

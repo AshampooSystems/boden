@@ -424,7 +424,7 @@ public:
 	using ElementFinder = SequenceFilter<Set, ElementMatcher_>;
 
 	template<typename MatchFuncType>
-	using FuncFinder = SequenceFilter<Set, FuncMatcher_<MatchFuncType> >;
+	using CustomFinder = SequenceFilter<Set, FuncMatcher_<MatchFuncType> >;
 
 	
 	ElementFinder findAll(const Element& elToFind)
@@ -434,9 +434,9 @@ public:
 
 	
 	template<class MatchFuncType>
-	FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
+	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
 	{
-		return FuncFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
 	}
 
 
