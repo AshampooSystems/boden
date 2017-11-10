@@ -104,13 +104,13 @@ public:
         {
         }
 
-		 Iterator(  SequenceFilter& filter, const BaseIterator& baseIt )
+		 Iterator(  const SequenceFilter& filter, const BaseIterator& baseIt )
 			: _pFilter(&filter)
 			, _baseIt(baseIt)
 		{
 		}
 
-        Iterator(  SequenceFilter& filter, BaseIterator&& baseIt )
+        Iterator( const SequenceFilter& filter, BaseIterator&& baseIt )
 			: _pFilter(&filter)
 			, _baseIt( std::move(baseIt) )
 		{
@@ -205,8 +205,8 @@ public:
 		}
 
 	private:
-		SequenceFilter*	 _pFilter;
-		BaseIterator	 _baseIt;
+		const SequenceFilter*	_pFilter;
+		BaseIterator			_baseIt;
 	};
 	friend class Iterator;
 
@@ -222,7 +222,7 @@ public:
 	{
 	}
     
-	Iterator begin()
+	Iterator begin() const
 	{
         BaseIterator initial = _baseSequence.begin();
         _skipExcluded( initial );
@@ -230,20 +230,20 @@ public:
 		return Iterator{*this, initial };
 	}
 
-	Iterator end()
+	Iterator end() const
 	{
 		return Iterator{*this, _baseSequence.end() };
 	}
 
 private:		
-    void _skipExcluded( BaseIterator& baseIt )
+    void _skipExcluded( BaseIterator& baseIt ) const
 	{
         if( baseIt!=_baseSequence.end() )
 		    _filterFunc( _baseSequence, baseIt );
 	}	
 
-	BaseSequence&   _baseSequence;
-	FilterFuncType  _filterFunc;
+	BaseSequence&			_baseSequence;
+	mutable FilterFuncType  _filterFunc;
 };
 
 

@@ -321,13 +321,27 @@ static void _testMapFind(
 
 	SECTION("findAll(key)")
 	{		
-		_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
-			elList,
-			elNotInList,
-			[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
-			{
-				return coll.findAll( elToFind.first );
-			} );
+		SECTION("non const")
+		{
+			_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
+				elList,
+				elNotInList,
+				[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+				{
+					return coll.findAll( elToFind.first );
+				} );
+		}
+
+		SECTION("const")
+		{
+			_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
+				elList,
+				elNotInList,
+				[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+				{
+					return ((const Map<KeyType, ValType>&)coll).findAll( elToFind.first );
+				} );
+		}
 	}
 
 	SECTION("findAndRemove(key)")
@@ -366,9 +380,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
         SECTION("findCustomAndRemove")
         {
             coll.findCustomAndRemove(
-                [elNotInList](const std::pair<const KeyType, ValType>& el)
+                [elNotInList](const Map<KeyType, ValType>::Iterator& it)
                 {
-                    return _isCollectionElementEqual(el, elNotInList);
+                    return _isCollectionElementEqual( *it, elNotInList);
                 } );
             _verifyGenericCollectionReadOnly( coll, {} );
         }        
@@ -402,9 +416,9 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
                     SECTION("findCustomAndRemove")  
                     {
                         coll.findCustomAndRemove(
-                            [el](const std::pair<const KeyType, ValType>& setEl)
+                            [el](const Map<KeyType, ValType>::Iterator& it)
                             {
-                                return _isCollectionElementEqual( el, setEl );
+                                return _isCollectionElementEqual( el, *it );
                             } );
 
                         REQUIRE( coll.getSize() == sizeBefore-1 );
@@ -449,7 +463,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const std::pair<const KeyType, ValType>& setEl)
+                    [](const Map<KeyType, ValType>::Iterator& it)
                     {
                         return false;
                     } );
@@ -464,7 +478,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const std::pair<const KeyType, ValType>& setEl)
+                    [](const Map<KeyType, ValType>::Iterator& it)
                     {
                         return true;
                     } );

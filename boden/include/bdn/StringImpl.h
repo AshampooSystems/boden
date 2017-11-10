@@ -2330,6 +2330,65 @@ public:
     }
 
 
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char* s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const wchar_t* s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char16_t* s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char32_t* s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::string& s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::wstring& s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::u16string& s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::u32string& s )
+    {
+        append( s );
+    }
+
 
 	/** Inserts the specified string at the specified character index.
 
@@ -6384,7 +6443,7 @@ public:
         {
         }
 
-        void operator() (StringImpl& s, Iterator& it)
+        void operator() (const StringImpl& s, Iterator& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
@@ -6402,43 +6461,131 @@ public:
     };
 
 	template<typename MatchFuncType>
-	using CustomFinder = SequenceFilter<StringImpl, FuncMatcher_<MatchFuncType> >;
+	using CustomFinder = SequenceFilter<const StringImpl, FuncMatcher_<MatchFuncType> >;
 
 
 	
-    class ElementMatcher_
+	template<class ToFindType>
+    class ElementAndSubStringMatcher_
     {
     public:
-        ElementMatcher_(const Element& element)
-            : _element( element )
+        ElementAndSubStringMatcher_(const ToFindType& toFind)
+            : _toFind( toFind )
         {
         }
 
-        void operator() (StringImpl& s, Iterator& it)
+        void operator() (const StringImpl& s, Iterator& it)
         {
-			it = std::find( it, s.end(), _element);
+			it = s.find( _toFind, it );
         }
 
     private:
-        Element _element;
+        ToFindType _toFind;
     };
 	
-	using ElementFinder = SequenceFilter< StringImpl, ElementMatcher_>;
+	template<typename ToFindType>
+	using ElementAndSubStringFinder = SequenceFilter< const StringImpl, ElementAndSubStringMatcher_<ToFindType> >;
+
+	template<typename ToFindType>
+	using SubStringFinder = ElementAndSubStringFinder<ToFindType>;
 
 
-	
-	ElementFinder findAll(const Element& elToFind) const
+	using ElementFinder = ElementAndSubStringFinder<Element>;
+
+
+	/** Searches for all occurrences of the specified character and returns a \ref finder.md "finder object"
+		with the results.*/
+	ElementFinder findAll(char32_t charToFind) const
 	{
-        return ElementFinder(*this, ElementMatcher_(elToFind) );
+        return ElementFinder(*this, ElementAndSubStringMatcher_<char32_t>(charToFind) );
 	}
 
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<StringImpl> findAll(const StringImpl& toFind) const
+	{
+        return SubStringFinder<StringImpl>(*this, ElementAndSubStringMatcher_<StringImpl>(toFind) );
+	}
+	
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char*> findAll(const char* toFind) const
+	{
+        return SubStringFinder<const char*>(*this, ElementAndSubStringMatcher_<const char*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const wchar_t*> findAll(const wchar_t* toFind) const
+	{
+        return SubStringFinder<const wchar_t*>(*this, ElementAndSubStringMatcher_<const wchar_t*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char16_t*> findAll(const char16_t* toFind) const
+	{
+        return SubStringFinder<const char16_t*>(*this, ElementAndSubStringMatcher_<const char16_t*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char32_t*> findAll(const char32_t* toFind) const
+	{
+        return SubStringFinder<const char32_t*>(*this, ElementAndSubStringMatcher_<const char32_t*>(toFind) );
+	}
+	
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::string> findAll(const std::string& toFind) const
+	{
+        return SubStringFinder<std::string>(*this, ElementAndSubStringMatcher_<std::string>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::wstring> findAll(const std::wstring& toFind) const
+	{
+        return SubStringFinder<std::wstring>(*this, ElementAndSubStringMatcher_<std::wstring>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::u16string> findAll(const std::u16string& toFind) const
+	{
+        return SubStringFinder<std::u16string>(*this, ElementAndSubStringMatcher_<std::u16string>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::u32string> findAll(const std::u32string& toFind) const
+	{
+        return SubStringFinder<std::u32string>(*this, ElementAndSubStringMatcher_<std::u32string>(toFind) );
+	}
+
+
+	/** Searches for all places in the string for which the specified match function returns true.
+		Returns a a \ref finder.md "finder object" with the results.
+	
+		matchFunc must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myMatchFunction(const Iterator& it);
+		\endcode
+	*/
 	template<typename MatchFuncType >
 	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunc ) const
 	{
-		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunc) );
 	}
 
 	
+
 	/** Removes all occurrences of the specified character.*/
 	void findAndRemove(char32_t chr)
 	{
@@ -6459,15 +6606,14 @@ public:
     template<typename MatchFuncType>
 	void findCustomAndRemove( MatchFuncType matchFunc )
 	{
-        Iterator pos = this->_beginIt;
+        Iterator it = this->_beginIt;
 
-        while(true)
-        {
-            pos = findCustom(matchFunc, pos);
-            if(pos == this->_endIt )
-                break;
-            
-            pos = erase(pos);
+		while( it != this->_endIt )
+		{
+			if( matchFunc(it) )
+				it = this->erase(it);
+			else
+				++it;
         }
     }
 

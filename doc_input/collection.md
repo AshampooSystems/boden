@@ -57,7 +57,7 @@ Boden collections all support the following functionality:
 | `void findAndRemove( const Element& toRemove )`                       | Removes all elements from the collection that compare equal to `toRemove`.
 -------------------------------------------------------------
 | `template<typename MatchFuncType>`                                    | Removes all elements for which the specified match function returns true.
-| `void findCustomAndRemove( MatchFuncType matchFunc )`                 | The match function can be any function that takes an Element reference as its parameter
+| `void findCustomAndRemove( MatchFuncType matchFunc )`                 | The match function can be any function that takes an iterator as its parameter
 |                                                                       | and returns either true or false.
 -------------------------------------------------------------
 | `void clear()`                                                        | Remove all elements from the collection
@@ -104,10 +104,12 @@ Boden collections all support the following functionality:
 |                                                                       | any other collection of any type, as long as it has a compatible element type.
 -----------------------------------------------------------------------
 | `template< typename... Args >`                                        | Constructs a new element with the specified arguments as constructor parameters
-| `[const] Element& addNew( Args&&... args )`                           | and adds it to the collection. Returns a reference to the added element.
-|                                                                       | For most collection types the returned reference is a read/write reference.
-|                                                                       | But for some collections (like bdn::Set) it is a const reference, since elements
-|                                                                       | cannot be changed after being added to the set.
+| `[Element& | const Element& | const Element] addNew( Args&&... args )`| and adds it to the collection
+|                                                                       | Most collection types return a normal reference to the element.
+|                                                                       | However, some collections like bdn::Set return a const reference instead, since elements
+|                                                                       | cannot be changed after being added to the set. If Element is a simple type ("int", for example)
+|                                                                       | then some collection types might also return a const copy of the element instead of a reference.
+|                                                                       | `String` for example simply returns a copy of the character that was added.
 |                                                                       | 
 |                                                                       | addNew is useful mainly for performance optimization. It can be used when a brand new element
 |                                                                       | is to be added to the collection. Then addNew constructs the new element directly constructed
@@ -126,7 +128,7 @@ Boden collections all support the following functionality:
 |                                                                       | Returns a [finder.md](finder object) with the results.
 -----------------------------------------------------------------------
 | `template<class MatchFuncType>`                                           | Searches for all elements for which the specified match function returns true.
-| `FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )`  | The match function can be any function that takes an Element reference as its parameter
+| `FuncFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )`  | The match function can be any function that takes an iterator as its parameter
 |                                                                           | and returns either true or false.
 |                                                                           | findAllCustom returns a [finder.md](finder object) with the results.
 -----------------------------------------------------------------------

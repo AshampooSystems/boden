@@ -509,7 +509,10 @@ public:
         {
         }
 
-        void operator() (Map& map, Iterator& it)
+        // this is a template function so that it works with both normal and const iterators
+		// and set references
+		template<class CollType, class IteratorType>
+		void operator() (CollType& map, IteratorType& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
@@ -533,7 +536,10 @@ public:
         {
         }
 
-        void operator() (Map& map, Iterator& it)
+        // this is a template function so that it works with both normal and const iterators
+		// and set references
+		template<class CollType, class IteratorType>
+		void operator() (CollType& map, IteratorType& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
@@ -566,12 +572,15 @@ public:
         {
         }
 
-        void operator() (Map& map, Iterator& it)
+        // this is a template function so that it works with both normal and const iterators
+		// and set references
+		template<class CollType, class IteratorType>
+		void operator() (CollType& map, IteratorType& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
 
-            while( ! _matchFunc(*it) )
+            while( ! _matchFunc(it) )
             {
                 ++it;
                 if( it==map.end() )
@@ -585,10 +594,16 @@ public:
 
 
 	using KeyFinder = SequenceFilter<Map, KeyMatcher_>;
+	using ConstKeyFinder = SequenceFilter<const Map, KeyMatcher_>;
+
 	using ElementFinder = SequenceFilter<Map, ElementMatcher_>;
+	using ConstElementFinder = SequenceFilter<const Map, ElementMatcher_>;
 
 	template<typename MatchFuncType>
 	using CustomFinder = SequenceFilter<Map, FuncMatcher_<MatchFuncType> >;
+
+	template<typename MatchFuncType>
+	using ConstCustomFinder = SequenceFilter<const Map, FuncMatcher_<MatchFuncType> >;
 
 
 
@@ -603,15 +618,45 @@ public:
 		return KeyFinder(*this, KeyMatcher_(keyToFind) );
 	}
 
+	/** Searches for the specified key in the map and returns a finder object.
+		A finder object is a \ref sequence.md "sequence" with all matching elements.
+		
+		Since Map does not allow multiple entries with the same key the returned finder
+		can only return either 1 or 0 objects.
+		*/
+	ConstKeyFinder findAll(const Key& keyToFind) const
+	{
+		return ConstKeyFinder(*this, KeyMatcher_(keyToFind) );
+	}
+
+	/** Searches for the specified element (key/value pair) in the map and returns a \ref finder.md "finder object"
+		with the results.
+		
+		Since HashMap does not allow multiple entries with the same key the returned finder
+		can only return either 1 or 0 objects.
+		*/
 	ElementFinder findAll(const Element& elToFind)
 	{
         return ElementFinder(*this, ElementMatcher_(elToFind) );
 	}
 
 
+	/** Searches for the specified element (key/value pair) in the map and returns a \ref finder.md "finder object"
+		with the results.
+		
+		Since HashMap does not allow multiple entries with the same key the returned finder
+		can only return either 1 or 0 objects.
+		*/
+	ConstElementFinder findAll(const Element& elToFind) const
+	{
+        return ConstElementFinder(*this, ElementMatcher_(elToFind) );
+	}
+
+
 	/** Searches for all elements for which the specified match function returns true.
-		The match function can be any function that takes an Element reference as its parameter
-		and returns either true or false.
+		
+		The match function can be any function that takes a Map iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
 
 		findAllCustom returns a \ref finder.md "finder object" with the results.
 		*/
@@ -619,6 +664,19 @@ public:
 	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
 	{
 		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+	}
+
+	/** Searches for all elements for which the specified match function returns true.
+		
+		The match function can be any function that takes a Map iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
+
+		findAllCustom returns a \ref finder.md "finder object" with the results.
+		*/
+	template<class MatchFuncType>
+	ConstCustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction ) const
+	{
+		return ConstCustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
 	}
 
 	
@@ -680,8 +738,9 @@ public:
 
 
 	/** Searches for the first element (key/value pair) for which the specified match function returns true.        
-        matchFunc must take a collection element reference (a std::pair<Key,Value> object)
-		as its only parameter and return a boolean.
+        
+		The match function can be any function that takes a Map iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
 
         Note that for the Map class findCustom() is a lot slower than find(). find can take advantage
         of the internal data structures of the map to find the element in logarithmic time. findCustom 
@@ -692,7 +751,16 @@ public:
     template<typename MatchFuncType>
 	Iterator findCustom(MatchFuncType matchFunc )
 	{
-        return std::find_if( this->begin(), this->end(), matchFunc );
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
 	}
 
 
@@ -701,7 +769,16 @@ public:
     template<typename MatchFuncType>
 	ConstIterator findCustom( MatchFuncType matchFunc ) const
 	{
-        return std::find_if( this->begin(), this->end(), matchFunc );
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
 	}
 
 
@@ -732,15 +809,15 @@ public:
     
     /** Removes all elements for which the specified function matchFunc returns true.
     
-        matchFunc must be a function that takes a reference to a collection element as its parameter
-        and returns true if the element should be removed.
+        The match function can be any function that takes a Map iterator as its parameter
+		and returns true if the element at the corresponding position should be removed.
     */
     template<typename MatchFuncType>
     void findCustomAndRemove( MatchFuncType& matchFunc )
     {
         for(auto it = begin(); it!=end(); )
         {
-            if( matchFunc(*it) )
+            if( matchFunc(it) )
                 it = StdCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
             else
                 ++it;

@@ -4584,7 +4584,11 @@ inline void testFindIterators()
 template<class StringType, class FinderType>
 inline void verifyFindAllResult(StringType& s, const FinderType& finder, const std::vector<size_t>& expectedIndices )
 {
-	int occurrenceNum = 0;
+	// For string classes all iterators are const iterators.
+	REQUIRE( typeid(typename FinderType::BaseIterator) == typeid(StringType::Iterator) );
+	REQUIRE( typeid(typename FinderType::BaseIterator) == typeid(StringType::ConstIterator) );
+
+	size_t occurrenceNum = 0;
 
 	auto finderIt = finder.begin();
 	while( finderIt != finder.end() )
@@ -4595,7 +4599,7 @@ inline void verifyFindAllResult(StringType& s, const FinderType& finder, const s
 
 		auto baseIt = finderIt.getBaseIterator();
 
-		size_t actualIndex = baseIt - s.begin();
+		size_t actualIndex = std::distance(s.begin(), baseIt);
 
 		REQUIRE( actualIndex == expectedIndex );
 
@@ -4610,14 +4614,18 @@ inline void verifyFindAllResult(StringType& s, const FinderType& finder, const s
 template<class StringType, class ArgType>
 inline void verifyFindAllWithArg(StringType& s, const ArgType& arg, const std::vector<size_t>& expectedIndices )
 {
-	verifyFindAllResult(s, s.findAll(arg), expectedIndices );	
+	SECTION("non const")
+		verifyFindAllResult(s, s.findAll(arg), expectedIndices );	
+
+	SECTION("const")
+		verifyFindAllResult(s, ((const StringType&)s).findAll(arg), expectedIndices );	
 }
 
 template<class StringType>
 inline void verifyFindAll(StringType& s, const String& arg, std::vector<size_t> expectedIndices )
 {
-	SECTION("String")
-		verifyFindAllWithArg(s, arg, expectedIndices);
+	SECTION("StringType")
+		verifyFindAllWithArg(s, StringType(arg.begin(), arg.end()), expectedIndices);
 
 	SECTION("std::string")
 		verifyFindAllWithArg(s, arg.asUtf8(), expectedIndices);
@@ -4651,22 +4659,43 @@ inline void verifyFindAll(StringType& s, const String& arg, std::vector<size_t> 
 
 	SECTION("findAllCustom")
 	{
-		verifyFindAllResult(
-			s,
-			s.findAllCustom(
-				[&s, arg](typename StringType::Iterator it)
-				{
-					for( char32_t chr: arg )
+		SECTION("non const")
+		{
+			auto finder = s.findAllCustom(
+					[&s, arg](typename StringType::Iterator it)
 					{
-						if( it == s.end() || *it != chr)
-							return false;
+						for( char32_t chr: arg )
+						{
+							if( it == s.end() || *it != chr)
+								return false;
 
-						++it;
-					}
+							++it;
+						}
 
-					return true;
-				} ),
-			expectedIndices );
+						return true;
+					} );
+
+			verifyFindAllResult(s, finder, expectedIndices );
+		}
+
+		SECTION("const")
+		{
+			auto finder = ((const StringType&)s).findAllCustom(
+					[&s, arg](typename StringType::Iterator it)
+					{
+						for( char32_t chr: arg )
+						{
+							if( it == s.end() || *it != chr)
+								return false;
+
+							++it;
+						}
+
+						return true;
+					} );
+
+			verifyFindAllResult(s, finder, expectedIndices );
+		}
 	}
 }
 
@@ -8778,8 +8807,10 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 			size_t sizeBefore = s.getLength();
 
 			s.findCustomAndRemove(
-				[charToFind](char32_t& chr)
+				[charToFind]( const typename StringType::Iterator& it )
 				{
+					char32_t chr = *it;
+
 					return chr==charToFind;
 				} );
 

@@ -58,6 +58,11 @@ baseIt is used as the name fpr an iterator of the base sequence.
 
 | Operation                         | Description
 -------------------------------------------------------------
+| BaseIterator                      | A typedef to the iterator type of the base sequence.
+|                                   | This can be either Iterator or ConstIterator of the base sequence,
+|                                   | depending on whether or not the finder was created by a const or non-const
+|                                   | find method.
+-------------------------------------------------------------
 | `++it`                            | Advance the iterator to the next matching element
 |                                   |
 | `it++`                            | 

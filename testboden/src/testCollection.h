@@ -1038,9 +1038,9 @@ inline void verifyCollectionFindCustomAndRemoveAtIndex(CollType& coll, int remov
 	_removeCollectionElement( expectedElementList, elToRemove );
 	
 	coll.findCustomAndRemove(
-		[elToRemove](const typename CollType::Element& el)
+		[elToRemove](const typename CollType::Iterator& it )
 		{
-			return _isCollectionElementEqual(el, elToRemove);
+			return _isCollectionElementEqual( *it, elToRemove);
 		} );
 
 	_verifyGenericCollectionReadOnly( coll, expectedElementList);
@@ -1068,7 +1068,7 @@ inline void verifyCollectionFindCustomAndRemove(CollType& coll, const std::list<
 	SECTION("not found")
 	{
 		coll.findCustomAndRemove(
-			[](const typename CollType::Element& el)
+			[](const typename CollType::Iterator& it )
 			{
 				return false;
 			} );
@@ -1569,7 +1569,7 @@ inline void verifyReverseFind(CollType& coll, typename CollType::Element toFind,
 }
 
 template<class CollType>
-inline void verifyFindCustom(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
+inline void verifyFindCustom(CollType& coll, std::function< bool(const typename CollType::ConstIterator&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
@@ -1594,7 +1594,7 @@ inline void verifyFindCustom(CollType& coll, std::function< bool(const typename 
 
 
 template<class CollType>
-inline void verifyReverseFindCustom(CollType& coll, std::function< bool(const typename CollType::Element&) > conditionFunc, typename CollType::Iterator expectedResult )
+inline void verifyReverseFindCustom(CollType& coll, std::function< bool(const typename CollType::ConstIterator&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
     SECTION("normal")
     {
@@ -1677,8 +1677,13 @@ inline void _verifyCollectionFindXWithCaller(CollType& coll, const typename Coll
 				REQUIRE( *finderIt==el );
 				REQUIRE( finderIt.getBaseIterator() == baseIt );
 
+				// verify that the BaseIterator typedef is either Iterator or ConstIterator
+				REQUIRE( ( typeid( typename decltype(finder)::BaseIterator ) == typeid(CollType::Iterator)
+							|| typeid( typename decltype(finder)::BaseIterator ) == typeid(CollType::ConstIterator) ) );
+						
+
 				// verify that implicit conversion works
-				typename CollType::Iterator conversionResultBaseIt = finderIt;
+				typename decltype(finder)::BaseIterator conversionResultBaseIt = finderIt;
 				REQUIRE( conversionResultBaseIt == baseIt );
 
 				++finderIt;
@@ -1834,7 +1839,7 @@ inline void _testCollectionFind(
             {
                 verifyFindCustom(
                     coll,
-                    [](const typename CollType::Element& el)
+                    [](const typename CollType::ConstIterator& it)
                     {
                         return false;
                     },
@@ -1852,9 +1857,9 @@ inline void _testCollectionFind(
 
                 verifyFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it)
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     coll.begin() );
             }
@@ -1865,9 +1870,9 @@ inline void _testCollectionFind(
 
                 verifyFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it )
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     --coll.end() );
             }
@@ -1878,9 +1883,9 @@ inline void _testCollectionFind(
 
                 verifyFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it )
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     ++coll.begin() );
             }
@@ -1889,7 +1894,7 @@ inline void _testCollectionFind(
             {
                 verifyFindCustom(
                     coll,
-                    [](const typename CollType::Element& el)
+                    [](const typename CollType::ConstIterator& it )
                     {
                         return false;
                     },
@@ -1900,28 +1905,60 @@ inline void _testCollectionFind(
 
 	SECTION("findAll(element)")
 	{
-		_testCollectionFindXWithCaller<CollType>(
-			elements,
-			elNotInColl,
-			[](CollType& coll, const typename CollType::Element& elToFind)
-			{
-				return coll.findAll(elToFind);
-			} );
+		SECTION("non const")
+		{
+			_testCollectionFindXWithCaller<CollType>(
+				elements,
+				elNotInColl,
+				[](CollType& coll, const typename CollType::Element& elToFind)
+				{
+					return coll.findAll(elToFind);
+				} );
+		}
+
+		SECTION("const")
+		{
+			_testCollectionFindXWithCaller<CollType>(
+				elements,
+				elNotInColl,
+				[](CollType& coll, const typename CollType::Element& elToFind)
+				{
+					return ((const CollType&)coll).findAll(elToFind);
+				} );
+		}
 	}
 
 	SECTION("findAllCustom")
 	{
-		_testCollectionFindXWithCaller<CollType>(
-			elements,			
-			elNotInColl,
-			[](CollType& coll, const typename CollType::Element& elToFind)
-			{
-				return coll.findAllCustom(
-					[elToFind](const typename CollType::Element& el)
-					{
-						return el == elToFind;
-					} );
-			} );
+		SECTION("non const")
+		{
+			_testCollectionFindXWithCaller<CollType>(
+				elements,			
+				elNotInColl,
+				[](CollType& coll, const typename CollType::Element& elToFind)
+				{
+					return coll.findAllCustom(
+						[elToFind](const typename CollType::Iterator& it)
+						{
+							return (*it) == elToFind;
+						} );
+				} );
+		}
+
+		SECTION("const")
+		{
+			_testCollectionFindXWithCaller<CollType>(
+				elements,			
+				elNotInColl,
+				[](CollType& coll, const typename CollType::Element& elToFind)
+				{
+					return ((const CollType&)coll).findAllCustom(
+						[elToFind](const typename CollType::ConstIterator& it)
+						{
+							return (*it) == elToFind;
+						} );
+				} );
+		}
 	}
 }
 
@@ -1972,7 +2009,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
             {
                 verifyReverseFindCustom(
                     coll,
-                    [](const typename CollType::Element& el)
+                    [](const typename CollType::ConstIterator& it)
                     {
                         return false;
                     },
@@ -1993,9 +2030,9 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
 
                 verifyReverseFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it)
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     // the first element in the sequence is also the third one. So we should find that
                     ++(++coll.begin()) );
@@ -2007,9 +2044,9 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
 
                 verifyReverseFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it)
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     --coll.end() );
             }
@@ -2020,9 +2057,9 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
 
                 verifyReverseFindCustom(
                     coll,
-                    [toFind](const typename CollType::Element& el)
+                    [toFind](const typename CollType::ConstIterator& it )
                     {
-                        return (el == toFind);
+                        return ( (*it) == toFind);
                     },
                     ++coll.begin() );
             }
@@ -2031,7 +2068,7 @@ inline void _testCollectionReverseFind(std::initializer_list<typename CollType::
             {
                 verifyReverseFindCustom(
                     coll,
-                    [](const typename CollType::Element& el)
+                    [](const typename CollType::ConstIterator& it )
                     {
                         return false;
                     },

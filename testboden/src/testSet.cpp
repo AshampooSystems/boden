@@ -159,9 +159,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
         SECTION("findCustomAndRemove")
         {
             coll.findCustomAndRemove(
-                [elNotInList](const ElType& el)
+                [elNotInList](const Set<ElType>::Iterator& it )
                 {
-                    return _isCollectionElementEqual(el, elNotInList);
+                    return _isCollectionElementEqual(*it, elNotInList);
                 } );
             _verifyGenericCollectionReadOnly( coll, {} );
         }        
@@ -196,9 +196,9 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
                     SECTION("findCustomAndRemove")  
                     {
                         coll.findCustomAndRemove(
-                            [el](const ElType& setEl)
+                            [el](const Set<ElType>::Iterator& it )
                             {
-                                return _isCollectionElementEqual( el, setEl );
+                                return _isCollectionElementEqual( el, *it );
                             } );
 
                         REQUIRE( coll.getSize() == sizeBefore-1 );
@@ -226,7 +226,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const ElType& setEl)
+                    [](const Set<ElType>::Iterator& it )
                     {
                         return false;
                     } );
@@ -241,7 +241,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const ElType& setEl)
+                    [](const Set<ElType>::Iterator& it )
                     {
                         return true;
                     } );

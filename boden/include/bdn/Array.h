@@ -472,7 +472,7 @@ public:
 
     /** Removes all elements for which the specified function matchFunc returns true.
     
-        matchFunc must be a function that takes a reference to a collection element as its parameter
+        matchFunc must be a function that takes a collection iterator as its parameter
         and returns true if the element should be removed.
     */
     template<typename MatchFuncType>
@@ -481,7 +481,7 @@ public:
 		auto it = this->begin();
 		while( it != this->end() )
 		{
-			if( matchFunc(*it) )
+			if( matchFunc(it) )
 				it = this->removeAt(it);
 			else
 				++it;

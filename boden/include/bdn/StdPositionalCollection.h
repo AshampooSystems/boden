@@ -431,7 +431,10 @@ public:
         {
         }
 
-        void operator() (StdPositionalCollection& coll, Iterator& it)
+		// this is a template function so that it works with both normal and const iterators
+		// and set references
+		template<class CollType, class IteratorType>
+		void operator() (CollType& coll, IteratorType& it)
         {
 			it = std::find( it, coll.end(), _element);
         }
@@ -449,12 +452,16 @@ public:
         {
         }
 
-        void operator() (StdPositionalCollection& coll, Iterator& it)
+
+		// this is a template function so that it works with both normal and const iterators
+		// and set references
+		template<class CollType, class IteratorType>
+		void operator() (CollType& coll, IteratorType& it)
         {
             // note that the "it" parameter is NEVER equal to end() when we are called.
             // That also means that we are never called for empty maps.
 
-            while( ! _matchFunc(*it) )
+            while( ! _matchFunc(it) )
             {
                 ++it;
                 if( it==coll.end() )
@@ -462,24 +469,41 @@ public:
             }
         }   
 
+
 	private:
 		MatchFuncType _matchFunc;
     };
 	
 	using ElementFinder = SequenceFilter< StdPositionalCollection, ElementMatcher_>;
+	using ConstElementFinder = SequenceFilter< const StdPositionalCollection, ElementMatcher_>;
 
 	template<typename MatchFuncType>
-	using CustomFinder = SequenceFilter<StdPositionalCollection, FuncMatcher_<MatchFuncType> >;
+	using CustomFinder = SequenceFilter< StdPositionalCollection, FuncMatcher_<MatchFuncType> >;
 
+	template<typename MatchFuncType>
+	using ConstCustomFinder = SequenceFilter< const StdPositionalCollection, FuncMatcher_<MatchFuncType> >;
+
+	/** Searches for the specified element in the collection and returns a \ref finder.md "finder object"
+		with the results.		
+		*/
 	ElementFinder findAll(const Element& elToFind)
 	{
         return ElementFinder(*this, ElementMatcher_(elToFind) );
 	}
 
+	/** Searches for the specified element in the collection and returns a \ref finder.md "finder object"
+		with the results.		
+		*/
+	ConstElementFinder findAll(const Element& elToFind) const
+	{
+        return ConstElementFinder(*this, ElementMatcher_(elToFind) );
+	}
+
 
 	/** Searches for all elements for which the specified match function returns true.
-		The match function can be any function that takes an Element reference as its parameter
-		and returns either true or false.
+		
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
 
 		findAllCustom returns a \ref finder.md "finder object" with the results.
 		*/
@@ -487,6 +511,19 @@ public:
 	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction )
 	{
 		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
+	}
+
+	/** Searches for all elements for which the specified match function returns true.
+		
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
+
+		findAllCustom returns a \ref finder.md "finder object" with the results.
+		*/
+	template<class MatchFuncType>
+	ConstCustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunction ) const
+	{
+		return ConstCustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunction) );
 	}
 
 
@@ -535,14 +572,25 @@ public:
 
 
     /** Searches for the first element for which the specified match function returns true.        
-        matchFunc must take a collection element reference as its only parameter and return a boolean.
+        
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
     
         Returns an iterator to the found element, or end() if no such element is found.
     */
     template<typename MatchFuncType>
 	Iterator findCustom( MatchFuncType matchFunc )
 	{
-        return std::find_if( this->begin(), this->end(), matchFunc );
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
 	}
 
 
@@ -551,7 +599,16 @@ public:
     template<typename MatchFuncType>
 	ConstIterator findCustom( MatchFuncType matchFunc ) const
 	{
-        return std::find_if( this->begin(), this->end(), matchFunc );
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
 	}
 
 
@@ -649,20 +706,25 @@ public:
 
 
     /** Searches for the last element for which the specified match function returns true.        
-        matchFunc must take a collection element reference as its only parameter and return a boolean.
+        
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
     
         Returns an iterator to the found element, or end() if no such element is found.    
     */
     template<typename MatchFuncType>
 	Iterator reverseFindCustom(MatchFuncType matchFunc )
 	{
-        ReverseIterator endIt = this->reverseEnd();
-        ReverseIterator it = std::find_if( this->reverseBegin(), endIt, matchFunc );
-        if(it==endIt)
-            return this->end();
+		auto it = this->end();
+		while( it != this->begin() )
+		{
+			--it;
 
-        // it.base is the iterator of the element AFTER the one it points to
-        return --it.base();
+			if( matchFunc(it) )
+				return it;
+		}
+
+		return this->end();
 	}
 
 
@@ -671,13 +733,16 @@ public:
     template<typename MatchFuncType>
 	ConstIterator reverseFindCustom(MatchFuncType matchFunc ) const
 	{
-        ConstReverseIterator endIt = this->reverseEnd();
-        ConstReverseIterator it = std::find_if( this->reverseBegin(), endIt, matchFunc );
-        if(it==endIt)
-            return this->end();
+		auto it = this->end();
+		while( it != this->begin() )
+		{
+			--it;
 
-        // it.base is the iterator of the element AFTER the one it points to
-        return --it.base();
+			if( matchFunc(it) )
+				return it;
+		}
+
+		return this->end();
 	}
     
 

@@ -907,7 +907,7 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
         SECTION("check function")
         {
             coll.findCustomAndRemove( 
-                [](const CollType::Element& el)
+                [](const CollType::Iterator& it)
                 {
                     return false;
                 } );
@@ -932,9 +932,9 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             SECTION("check function")
             {   
                 coll.findCustomAndRemove( 
-                    [toFind](const CollType::Element& el)
+                    [toFind](const CollType::Iterator& it )
                     {
-                        return el==toFind;
+                        return (*it)==toFind;
                     } );
             }
 
@@ -956,9 +956,9 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             SECTION("check function")
             {   
                 coll.findCustomAndRemove( 
-                    [toFind](const CollType::Element& el)
+                    [toFind](const CollType::Iterator& it )
                     {
-                        return el==toFind;
+                        return (*it)==toFind;
                     } );
             }
                         

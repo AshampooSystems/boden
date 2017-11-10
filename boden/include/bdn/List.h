@@ -809,13 +809,20 @@ public:
 
     /** Removes all elements for which the specified function matchFunc returns true.
     
-        matchFunc must be a function that takes a reference to a collection element as its parameter
+        matchFunc must be a function that takes a reference to a List iterator as its parameter
         and returns true if the element should be removed.
     */
     template<typename MatchFuncType>
     void findCustomAndRemove( MatchFuncType& matchFunc )
     {
-        StdPositionalCollection< std::list<ELTYPE, ALLOCATOR> >::remove_if( matchFunc );
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				it = this->erase(it);
+			else
+				++it;
+		}
     }
 
         
