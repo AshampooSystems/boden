@@ -8786,8 +8786,8 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 
 	int replacedCount=0;
 
-	SECTION("findReplace")
-		replacedCount = s.findReplace( (ArgType)toFind, (ArgType)replaceWith);
+	SECTION("findAndReplace")
+		replacedCount = s.findAndReplace( (ArgType)toFind, (ArgType)replaceWith);
 
 	if(toFind.length()==1 && replaceWith.isEmpty())
 	{
@@ -8863,7 +8863,7 @@ inline void testFindReplace(const StringType& inString, const char32_t* toFindAr
 	{
 		StringType s = inString;
 
-		int replacedCount = s.findReplace( toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		int replacedCount = s.findAndReplace( toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 		REQUIRE( s==expectedResult );
 		REQUIRE( replacedCount==expectedReplacedCount );
 	}
@@ -8935,21 +8935,21 @@ inline void testFindReplace()
 	{
 		SECTION("noMatch")
 		{
-			int replacedCount = s.findReplace( 'x', 'y' );
+			int replacedCount = s.findAndReplace( 'x', 'y' );
 			REQUIRE( s==U"he\U00012345loworld" );
 			REQUIRE( replacedCount==0 );
 		}
 
 		SECTION("oneMatch")
 		{
-			int replacedCount = s.findReplace( 'w', U'\U00014567' );
+			int replacedCount = s.findAndReplace( 'w', U'\U00014567' );
 			REQUIRE( s==U"he\U00012345lo\U00014567orld" );
 			REQUIRE( replacedCount==1 );
 		}
 
 		SECTION("multiMatches")
 		{
-			int replacedCount = s.findReplace( 'o', U'\U00014567' );
+			int replacedCount = s.findAndReplace( 'o', U'\U00014567' );
 			REQUIRE( s==U"he\U00012345l\U00014567w\U00014567rld" );
 			REQUIRE( replacedCount==2 );
 		}
@@ -8958,7 +8958,7 @@ inline void testFindReplace()
 		{
 			s = U"";
 
-			int replacedCount = s.findReplace( 'x', 'y' );
+			int replacedCount = s.findAndReplace( 'x', 'y' );
 			REQUIRE( s==U"" );
 			REQUIRE( replacedCount==0 );
 		}
@@ -9656,7 +9656,7 @@ inline void testStringImpl()
 	SECTION("reverseFindNotOneOf")
 		testReverseFindNotOneOf<DATATYPE>();
 
-	SECTION("findReplace")
+	SECTION("findAndReplace")
 		testFindReplace<DATATYPE>();
 
 	SECTION("contains")

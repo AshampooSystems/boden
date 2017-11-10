@@ -1481,7 +1481,7 @@ public:
 
 	/** Replaces a section of the string (defined by two iterators) with the data between two
 		other iterators.
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
@@ -1506,7 +1506,7 @@ public:
 
 	/** Replaces a section of the string (defined by two iterators) with the data between two
 		other iterators.
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeBegin,
                             const Iterator& rangeEnd,
                             const Iterator& replaceWithBegin,
@@ -1536,7 +1536,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
@@ -1567,7 +1567,7 @@ public:
 		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd
 		or String::npos, then only the part replaceWith up to its end is used.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
 						const StringImpl& replaceWith,
@@ -1607,7 +1607,7 @@ public:
 		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd or String::npos,
 		then only the part replaceWith up to its end is used.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(size_t rangeStartIndex,
 						size_t rangeLength,
 						const StringImpl& replaceWith,
@@ -1641,7 +1641,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replaceEncoded(	const CODEC& codec,
 								size_t rangeStartIndex,
@@ -1659,7 +1659,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the data between iterators that provide
 		encoded string data in the format indicated by \c codec.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replaceEncoded(	const CODEC& codec,
 								const Iterator& rangeStart,
@@ -1685,7 +1685,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in bytes.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char* replaceWith,
@@ -1705,7 +1705,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in bytes.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char* replaceWith,
@@ -1727,7 +1727,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::string& replaceWith )
@@ -1743,7 +1743,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-8 format.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::string& replaceWith )
@@ -1768,7 +1768,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 16 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char16_t* replaceWith,
@@ -1788,7 +1788,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 16 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char16_t* replaceWith,
@@ -1810,7 +1810,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u16string& replaceWith )
@@ -1826,7 +1826,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-16 format.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u16string& replaceWith )
@@ -1851,7 +1851,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char32_t* replaceWith,
@@ -1870,7 +1870,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char32_t* replaceWith,
@@ -1892,7 +1892,7 @@ public:
 		of the string.
 
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u32string& replaceWith )
@@ -1908,7 +1908,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u32string& replaceWith )
@@ -1931,7 +1931,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in wchar_t elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const wchar_t* replaceWith,
@@ -1950,7 +1950,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in wchar_t elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const wchar_t* replaceWith,
@@ -1971,7 +1971,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::wstring& replaceWith )
@@ -1986,7 +1986,7 @@ public:
 
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::wstring& replaceWith )
@@ -2010,7 +2010,7 @@ public:
 		replace(start, end, {'a', 'b', 'c'} );
 		\endcode
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeStart, const Iterator& rangeEnd, std::initializer_list<char32_t> charList)
 	{
 		return replace(rangeStart, rangeEnd, charList.begin(), charList.end());
@@ -2033,7 +2033,7 @@ public:
 		replace(start, end, {'a', 'b', 'c'} );
 		\endcode
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							std::initializer_list<char32_t> charList)
@@ -2046,7 +2046,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with \c numChars occurrences of
 		the character \c chr.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeBegin,
 							const Iterator& rangeEnd,
 							size_t numChars,
@@ -2113,7 +2113,7 @@ public:
 		If rangeLength is String::toEnd or String::npos3 or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							size_t numChars,
@@ -5902,9 +5902,9 @@ public:
 
 		Returns the number of occurrences that were replaced.
 		*/
-	int findReplace(char32_t toFind, char32_t replaceWith)
+	int findAndReplace(char32_t toFind, char32_t replaceWith)
 	{
-		return findReplace(&toFind, (&toFind)+1, &replaceWith, (&replaceWith)+1 );
+		return findAndReplace(&toFind, (&toFind)+1, &replaceWith, (&replaceWith)+1 );
 	}
 
 
@@ -5915,9 +5915,9 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const StringImpl& toFind, const StringImpl& replaceWith)
+	int findAndReplace(const StringImpl& toFind, const StringImpl& replaceWith)
 	{
-		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5929,7 +5929,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::string& toFind, const std::string& replaceWith)
+	int findAndReplace(const std::string& toFind, const std::string& replaceWith)
 	{
 		return findReplaceEncoded(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5942,7 +5942,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::wstring& toFind, const std::wstring& replaceWith)
+	int findAndReplace(const std::wstring& toFind, const std::wstring& replaceWith)
 	{
 		return findReplaceEncoded(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5955,7 +5955,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::u16string& toFind, const std::u16string& replaceWith)
+	int findAndReplace(const std::u16string& toFind, const std::u16string& replaceWith)
 	{
 		return findReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5968,9 +5968,9 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::u32string& toFind, const std::u32string& replaceWith)
+	int findAndReplace(const std::u32string& toFind, const std::u32string& replaceWith)
 	{
-		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5981,7 +5981,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const char* toFind, const char* replaceWith)
+	int findAndReplace(const char* toFind, const char* replaceWith)
 	{
 		return findReplaceEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -5994,7 +5994,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const wchar_t* toFind, const wchar_t* replaceWith)
+	int findAndReplace(const wchar_t* toFind, const wchar_t* replaceWith)
 	{
 		return findReplaceEncoded(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -6007,7 +6007,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const char16_t* toFind, const char16_t* replaceWith)
+	int findAndReplace(const char16_t* toFind, const char16_t* replaceWith)
 	{
 		return findReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -6021,9 +6021,9 @@ public:
 		If \c toFind is empty then the function does nothing and returns 0.
 
 		*/
-	int findReplace(const char32_t* toFind, const char32_t* replaceWith)
+	int findAndReplace(const char32_t* toFind, const char32_t* replaceWith)
 	{
-		return findReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith) );
+		return findAndReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -6037,7 +6037,7 @@ public:
 		If \c toFindBegin equals toFindEnd (i.e. the toFind string is empty) then the function does nothing and returns 0.
 		*/
 	template<class ToFindIterator, class ReplaceWithIterator>
-	int findReplace(const ToFindIterator& toFindBegin, const ToFindIterator& toFindEnd, const ReplaceWithIterator& replaceWithBegin, const ReplaceWithIterator& replaceWithEnd)
+	int findAndReplace(const ToFindIterator& toFindBegin, const ToFindIterator& toFindEnd, const ReplaceWithIterator& replaceWithBegin, const ReplaceWithIterator& replaceWithEnd)
 	{
 		int	matchCount=0;
 
@@ -6090,7 +6090,7 @@ public:
 							const ReplaceWithIterator& replaceWithEncodedBegin,
 							const ReplaceWithIterator& replaceWithEncodedEnd)
 	{
-		return findReplace( typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
+		return findAndReplace( typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
 							typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
 							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
 							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd) );
@@ -6589,7 +6589,7 @@ public:
 	/** Removes all occurrences of the specified character.*/
 	void findAndRemove(char32_t chr)
 	{
-        findReplace(&chr, (&chr)+1, (const char32_t*)nullptr, (const char32_t*)nullptr );
+        findAndReplace(&chr, (&chr)+1, (const char32_t*)nullptr, (const char32_t*)nullptr );
     }
 
 

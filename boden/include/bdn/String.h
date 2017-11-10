@@ -94,7 +94,7 @@ namespace bdn
 	- String provides more user-friendly method names than std::string (in addition to the std::string names). It tries to
 	  avoid excessive abbreviations (for example, subString() is an alias to substr() ).
 
-	- String provides additional ease-of-use functions that make the programmer's life easier (like findReplace() ).
+	- String provides additional ease-of-use functions that make the programmer's life easier (like findAndReplace() ).
 
 
 	Implementation notes:
