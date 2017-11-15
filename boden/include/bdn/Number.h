@@ -19,15 +19,15 @@ namespace bdn
 	base types:
 	
 	- \ref Int
-	- \ref Uint
+	- \ref UInt
 	- \ref Int8
-	- \ref Uint8
+	- \ref UInt8
 	- \ref Int16
-	- \ref Uint16
+	- \ref UInt16
 	- \ref Int32
-	- \ref Uint32
+	- \ref UInt32
 	- \ref Int64
-	- \ref Uint64
+	- \ref UInt64
 	- \ref Float
 	- \ref Double
 */
@@ -218,18 +218,18 @@ private:
 
 
 using Int = Number<int>;
-using Uint = Number<unsigned>;
+using UInt = Number<unsigned>;
 using Long = Number<long>;
 using ULong = Number<unsigned long>;
 
 using Int8 = Number<int8_t>;
-using Uint8 = Number<uint8_t>;
+using UInt8 = Number<uint8_t>;
 using Int16 = Number<int16_t>;
-using Uint16 = Number<uint16_t>;
+using UInt16 = Number<uint16_t>;
 using Int32 = Number<int32_t>;
-using Uint32 = Number<uint32_t>;
+using UInt32 = Number<uint32_t>;
 using Int64 = Number<int64_t>;
-using Uint64 = Number<uint64_t>;
+using UInt64 = Number<uint64_t>;
 using Float = Number<float>;
 using Double = Number<double>;
 using LongDouble = Number<long double>;
@@ -610,11 +610,11 @@ struct hash< bdn::Int8 >
 };
 
 template <>
-struct hash< bdn::Uint8 >
+struct hash< bdn::UInt8 >
 {
-	size_t operator()(const bdn::Uint8& key) const
+	size_t operator()(const bdn::UInt8& key) const
 	{
-		return std::hash< typename bdn::Uint8::SimpleType >()( key.getValue() );		
+		return std::hash< typename bdn::UInt8::SimpleType >()( key.getValue() );		
 	}
 };
 
@@ -628,11 +628,11 @@ struct hash< bdn::Int16 >
 };
 
 template <>
-struct hash< bdn::Uint16 >
+struct hash< bdn::UInt16 >
 {
-	size_t operator()(const bdn::Uint16& key) const
+	size_t operator()(const bdn::UInt16& key) const
 	{
-		return std::hash< typename bdn::Uint16::SimpleType >()( key.getValue() );		
+		return std::hash< typename bdn::UInt16::SimpleType >()( key.getValue() );		
 	}
 };
 
@@ -646,11 +646,11 @@ struct hash< bdn::Int32 >
 };
 
 template <>
-struct hash< bdn::Uint32 >
+struct hash< bdn::UInt32 >
 {
-	size_t operator()(const bdn::Uint32& key) const
+	size_t operator()(const bdn::UInt32& key) const
 	{
-		return std::hash< typename bdn::Uint32::SimpleType >()( key.getValue() );		
+		return std::hash< typename bdn::UInt32::SimpleType >()( key.getValue() );		
 	}
 };
 
@@ -664,11 +664,11 @@ struct hash< bdn::Int64 >
 };
 
 template <>
-struct hash< bdn::Uint64 >
+struct hash< bdn::UInt64 >
 {
-	size_t operator()(const bdn::Uint64& key) const
+	size_t operator()(const bdn::UInt64& key) const
 	{
-		return std::hash< typename bdn::Uint64::SimpleType >()( key.getValue() );		
+		return std::hash< typename bdn::UInt64::SimpleType >()( key.getValue() );		
 	}
 };
 

@@ -816,25 +816,25 @@ TEST_CASE("Number")
 		_testIntNumber<int8_t, Int8>();
 
 	SECTION("uint8_t")
-		_testIntNumber<uint8_t, Uint8>();
+		_testIntNumber<uint8_t, UInt8>();
 
 	SECTION("int16_t")
 		_testIntNumber<int16_t, Int16>();
 
 	SECTION("uint16_t")
-		_testIntNumber<uint16_t, Uint16>();
+		_testIntNumber<uint16_t, UInt16>();
 
 	SECTION("int32_t")
 		_testIntNumber<int32_t, Int32>();
 
 	SECTION("uint32_t")
-		_testIntNumber<uint32_t, Uint32>();
+		_testIntNumber<uint32_t, UInt32>();
 
 	SECTION("int64_t")
 		_testIntNumber<int64_t, Int64>();
 
 	SECTION("uint64_t")
-		_testIntNumber<uint64_t, Uint64>();
+		_testIntNumber<uint64_t, UInt64>();
 
 	SECTION("int8_t")
 		_testIntNumber<int8_t, Int8>();
