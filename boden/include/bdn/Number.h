@@ -1,12 +1,11 @@
 #ifndef BDN_Number_H_
 #define BDN_Number_H_
 
+// needed so that we can provide specializations for std::hash
+#include <functional>
+
 namespace bdn
 {
-
-
-
-
 
 
 /** A template class for representing integer and floating point values as objects.
@@ -30,6 +29,13 @@ namespace bdn
 	- \ref UInt64
 	- \ref Float
 	- \ref Double
+
+	std::hash support
+	-----------------
+
+	std::hash can be used to calculate hashes for Number objects of the standard types listed above.
+	The resulting hash value is identical to the value one would get by applying std::hash directly to the wrapped
+	inner integer or floating point value.
 */
 template<typename BaseType>
 class Number : public Base
