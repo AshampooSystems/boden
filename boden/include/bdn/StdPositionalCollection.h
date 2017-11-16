@@ -32,7 +32,7 @@ public:
 
     
     template<class... Args>
-    StdPositionalCollection(Args... args)
+    StdPositionalCollection(Args&&... args)
      : StdCollection<BaseCollectionType>( std::forward<Args>(args)... )
     {
     }

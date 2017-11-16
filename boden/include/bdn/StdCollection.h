@@ -31,7 +31,7 @@ public:
 
 
     template<class... Args>
-    StdCollection(Args... args)
+    StdCollection(Args&&... args)
      : BaseCollectionType( std::forward<Args>(args)... )
     {
     }
