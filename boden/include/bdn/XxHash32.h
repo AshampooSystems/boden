@@ -38,7 +38,7 @@ public:
 		size_t tailSizeBytes;
 
 		/** Must point to an external uint32_t array that contains the remaining
-			4 byte values in the tail data. The array must have tailSizeBytes/4
+			32 bit values in the tail data. The array must have tailSizeBytes/4
 			(rounded down) entries. So depending on the value of tailSizeBytes,
 			this array can have between 0 and 3 entries.
 			*/
@@ -57,7 +57,7 @@ public:
 		or if the data is not available in the form of a single buffer.
 
 		xxHash internally regards the input data as a stream of blocks of four uint32_t values (16 bytes).
-		After these blocks there can be an optional tail data block, consisting of 0-3 uint32_t values
+		After these blocks there can be an optional tail data block, consisting of 0-3 uint32_t values and
 		0-3 individual bytes. So the tail data can have a total size between 0 and 15 bytes.
 				
 		The data provider can be any object that provides the same functions as the
@@ -72,7 +72,7 @@ public:
 			// point to an array of 4 uint32_t values. The memory of this array must be managed
 			// by the data provider and must remain valid until the next data provider call.
 			// Returns nullptr at the end, when no full 16 byte block is available anymore.
-			const uint32* next4x4ByteBlock()
+			const uint32_t* next4x4ByteBlock()
 			{
 				...
 			}
@@ -231,9 +231,9 @@ private:
 			memcpy( _4ByteValues, _pNextData, _bytesLeft );
 
 #if BDN_IS_BIG_ENDIAN
-			int fourByteValueCount = _bytesLeft / 4;
-			for(int i=0; i<fourByteValueCount; i++)
-				swapByteOrder( _4ByteValues[i] );
+			swapByteOrder( _4ByteValues[0] );
+			swapByteOrder( _4ByteValues[1] );
+			swapByteOrder( _4ByteValues[2] );
 #endif
 
 			return TailData
