@@ -1178,5 +1178,22 @@ namespace bdn
 
 
 
+namespace std
+{
+
+// specializations of std::hash template for String objects
+
+template <>
+struct hash< bdn::String >
+{
+	size_t operator()(const bdn::String& key) const
+	{
+		return key.calcHash();
+	}
+};
+
+}
+
+
 #endif
 

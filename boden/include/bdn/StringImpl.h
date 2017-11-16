@@ -8,6 +8,8 @@
 #include <bdn/WideStringData.h>
 #include <bdn/OutOfRangeError.h>
 #include <bdn/SequenceFilter.h>
+#include <bdn/XxHash32.h>
+#include <bdn/XxHash64.h>
 
 #include <iterator>
 #include <list>
@@ -110,7 +112,7 @@ public:
 		static StringImpl whitespace( U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029\u202F\u205F\u3000" );
 		return whitespace;
 	}
-
+	
 
 	/** Type of the character iterators used by this string.*/
 	typedef typename MainDataType::Iterator Iterator;
@@ -184,7 +186,7 @@ public:
 		- Windows: NativeEncodedElement is an alias for wchar_t
 		- Other platforms: NativeEncodedElement is an alias char
 		*/
-	typedef NativeStringData::EncodedElement NativeEncodedElement;
+	typedef typename NativeStringData::EncodedElement NativeEncodedElement;
 
 
 	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
@@ -6618,7 +6620,114 @@ public:
     }
 
 
-protected:
+	/** Calculates a hash value from this string.
+
+		This hash is calculated in an optimized way that may depend on the internally
+		used string encoding, the operating system and CPU architecture. The hash algorithm may also change between different
+		versions of the Boden framework.
+
+		Use calcPortableHash() instead if you need a hash that is the same everywhere,
+		on all platforms and on all versions of the framework.
+		*/
+	size_t calcHash() const
+	{
+		// we want this hash calculation to be as fast as possible. So instead of hashing
+		// the decoded characters (like we do in calcPortableHash) we simply hash the
+		// encoded string data as a binary blob.
+		auto encodedBegin = _beginIt.getInner();
+		auto encodedEnd = _endIt.getInner();
+		
+		const typename MainDataType::EncodedElement*	pEncodedData = &*encodedBegin;
+		size_t											encodedDataLengthBytes = std::distance( encodedBegin, encodedEnd ) * sizeof(typename MainDataType::EncodedElement);
+
+		if( sizeof(size_t) > 4 )
+			return (size_t)XxHash64::calcHash( pEncodedData, encodedDataLengthBytes );
+		else
+			return (size_t)XxHash32::calcHash( pEncodedData, encodedDataLengthBytes );
+	}
+
+
+	/** Calculates a hash value from this string. The way this is calculated
+		is standardized so that you will always get the same hash for the same string,
+		no matter which encoding it uses internally or which platform or CPU architecture
+		the program runs on.
+		*/
+	uint32_t calcPortableHash() const
+	{
+		// we cannot hash the encoded data here, since the used encoding may differ
+		// on some platforms.
+		// We also have to make sure that endianness is not an issue.
+		// And last but not least we have to ensure that the hash can be represented
+		// as a size_t on all platforms - meaning that the hash should be 32 bit.
+		
+		// We use xxHash32 to calculate the hash. It has the advantage that it internally
+		// treats the data as a stream of 32 bit values - so we can simply feed it decoded
+		// unicode characters. That takes care of encoding differences and of endianness at
+		// the same time.
+
+		XxHash32DataProvider_ dataProvider( _beginIt, length() );
+
+		return XxHash32::calcHashWithDataProvider( dataProvider );
+	}
+
+
+private:
+
+	class XxHash32DataProvider_
+	{
+	public:
+		XxHash32DataProvider_(const Iterator& it, size_t charCount )
+			: _it( it )
+			, _charsLeft( charCount )
+		{
+		}
+
+		const uint32_t* next4x4ByteBlock()
+		{
+			if(_charsLeft<4)
+				return nullptr;
+
+			_4CharBlock[0] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[1] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[2] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[3] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_charsLeft -= 4;
+
+			return _4CharBlock;
+		}
+
+
+		XxHash32::TailData getTailData()
+		{
+			for(size_t i=0; i<_charsLeft; i++)
+			{
+				_4CharBlock[i] = static_cast<uint32_t>( *_it );
+				++_it;
+			}
+
+			return XxHash32::TailData{
+					_charsLeft*4,
+					_4CharBlock,
+					nullptr
+				};
+		}
+
+	private:
+		Iterator	_it;
+		size_t		_charsLeft;
+		uint32_t	_4CharBlock[4];
+	};
+	friend class XxHash32;
+
+
 
 
 	template<class T>

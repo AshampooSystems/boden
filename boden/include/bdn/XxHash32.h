@@ -83,7 +83,7 @@ public:
 			//
 			// See TailData for information on the individual fields.
 			//
-			TailData getTailData()
+			XxHash32::TailData getTailData()
 			{
 				...
 			}

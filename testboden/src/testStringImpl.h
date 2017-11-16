@@ -7,6 +7,8 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/Utf32StringData.h>
 
+#include <bdn/XxHash32.h>
+
 #include <cstring>
 
 #include <iostream>
@@ -4719,7 +4721,7 @@ inline void testFindAll()
 				verifyFindAll(s, "o", {4, 6} );
 
 			SECTION("non-ascii")
-				verifyFindAll(s, U"\U00012345", {4, 6} );
+				verifyFindAll(s, U"\U00012345", {2} );
 		}
 				
 
@@ -8888,7 +8890,7 @@ inline void testFindReplace()
 		testFindReplace( s, U"\U00012345", U"\U00023456", 1, U"he\U00023456loworld" );
 
 	SECTION("twoOccurrencesOneCharWithEmpty")
-		testFindReplace( s, U"o", U"", 2, U"helwrld" );
+		testFindReplace( s, U"o", U"", 2, U"he\U00012345lwrld" );
 
 	SECTION("twoOccurrencesOneCharWithOne")
 		testFindReplace( s, U"o", U"\U00023456", 2, U"he\U00012345l\U00023456w\U00023456rld" );
@@ -9464,6 +9466,87 @@ inline void testSplitOffWord()
 }
 
 
+template<class StringType>
+inline void _verifyHashWithStrings(StringType& stringA, StringType& stringB)
+{
+	SECTION("normal hash")
+	{
+		size_t hashA = stringA.calcHash();
+		size_t hashB = stringB.calcHash();
+
+		REQUIRE( hashA != hashB );
+
+		// verify that the top bytes of the hash are actually used.
+		// Note that this can theoretically fail if the top two bytes
+		// happen to be 0 by accident - but that is very unlikely.
+		// And since the hashing is deterministic, we can adapt the test
+		// and use a different input string if that happens.
+		size_t top2Bytes = hashA;
+		top2Bytes >>= (sizeof(hashA)-2) * 8;
+		top2Bytes &= 0xffff;
+
+		REQUIRE( top2Bytes != 0);
+	}
+
+	SECTION("portable hash")
+	{
+		// the portable hash must be the same for the same input string on ALL platforms.
+		// It must be the hash of the UTF-32 representation of the string (i.e. the pure decoded unicode
+		// characters).
+		// Also, the portable hash must be 32 bit, so that it can be represented as size_t
+		// on all platforms.
+
+		// If the hash is calculated from a byte buffer then the UTF-32 chars must be in little endian order.
+		// Note that the actual implementation of calcPortable hash can avoid endian conversion because it feeds
+		// the algorithm uint32_t values, rather than a byte stream. But for our test we verify that the result
+		// is equivalent.
+				
+		std::u32string			utf32( U"hello\U00012345world" );
+		std::vector<uint8_t>	utf32Bytes;
+
+		for( char32_t chr: utf32)
+		{
+			// must be in little endian byte order
+			utf32Bytes.push_back( (((uint32_t)chr) & 0x000000ff) );
+			utf32Bytes.push_back( (((uint32_t)chr) & 0x0000ff00) >> 8 );
+			utf32Bytes.push_back( (((uint32_t)chr) & 0x00ff0000) >> 16 );
+			utf32Bytes.push_back( (((uint32_t)chr) & 0xff000000) >> 24 );
+		}
+		
+		uint32_t expectedHash = XxHash32::calcHash( utf32Bytes.data(), utf32Bytes.size() );
+
+		// Sanity check: we know what the expected hash should be for the string provided above.
+		REQUIRE( expectedHash == 0x46cc7602 );
+			
+		auto actualHash = stringA.calcPortableHash();
+		REQUIRE( actualHash == expectedHash );
+
+		REQUIRE( sizeof(actualHash) == 4);		
+	}
+}
+
+template<class DATATYPE>
+inline void testHash()
+{
+	SECTION("normal string")
+	{
+		StringImpl<DATATYPE> stringA(U"hello\U00012345world");
+		StringImpl<DATATYPE> stringB(U"hello\U00012345worlX");
+
+		_verifyHashWithStrings( stringA, stringB );
+	}
+
+	SECTION("slices")
+	{
+		StringImpl<DATATYPE> stringA(U"xyzhello\U00012345worldxyz");
+		StringImpl<DATATYPE> stringB(U"xyzhello\U00012345worlXxyz");
+
+		_verifyHashWithStrings(
+			stringA.subString(3, stringA.length()-6),
+			stringB.subString(3, stringB.length()-6) );
+	}
+		
+}
 
 
 template<class DATATYPE>
@@ -9565,7 +9648,11 @@ inline void testStringImpl()
 		REQUIRE( m<=INT_MAX );
 
 		// but it should have a "reasonably high" value.
-		REQUIRE( m>=0x40000000/sizeof(typename DATATYPE::EncodedElement) );
+		size_t maxEncodedCharSizeInBytes = sizeof(typename DATATYPE::EncodedElement) * DATATYPE::Codec::getMaxEncodedElementsPerCharacter();
+		
+		size_t maxSizeLowerLimit = 0x40000000 / maxEncodedCharSizeInBytes;
+
+		REQUIRE( m >= maxSizeLowerLimit );
 	}
 
 	SECTION("replace")
@@ -9603,6 +9690,9 @@ inline void testStringImpl()
 
 	SECTION("swap")
 		testSwap<DATATYPE>();
+
+	SECTION("hash")
+		testHash<DATATYPE>();
 
 	SECTION("removeLast")
 		testRemoveLast<DATATYPE>();
@@ -9667,7 +9757,8 @@ inline void testStringImpl()
 
 	SECTION("endsWith")
 		testEndsWith<DATATYPE>();
-
+	
+	
 }
 
 

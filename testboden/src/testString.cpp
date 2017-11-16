@@ -368,6 +368,39 @@ void testStdSwap()
 	REQUIRE( b==U"\U00012345hello");
 }
 
+void testStdHash()
+{
+	String stringA(U"hello\U00012345world");
+	String stringB(U"hello\U00012345worlX");
+
+	size_t hashA = std::hash<String>()( stringA );
+	size_t hashB = std::hash<String>()( stringB );
+
+	REQUIRE( hashA != hashB );
+
+	// verify that the top bytes of the hash are actually used.
+	// Note that this can theoretically fail if the top two bytes
+	// happen to be 0 by accident - but that is very unlikely.
+	// And since the hashing is deterministic, we can adapt the test
+	// and use a different input string if that happens.
+	size_t top2Bytes = hashA;
+	top2Bytes >>= (sizeof(hashA)-2) * 8;
+	top2Bytes &= 0xffff;
+
+	REQUIRE( top2Bytes != 0);
+
+
+	String stringC(U"xyzhello\U00012345worldxyz");
+	String sliceStringA = stringC.subString(3, stringC.length()-6);
+
+	// sanity check
+	REQUIRE( sliceStringA == stringA );
+
+	size_t hashAFromSlice = std::hash<String>()( sliceStringA );
+
+	REQUIRE( hashAFromSlice == hashA );
+}
+
 
 TEST_CASE("String", "[String]")
 {
@@ -382,5 +415,8 @@ TEST_CASE("String", "[String]")
 
 	SECTION("std::swap")
 		testStdSwap();
+
+	SECTION("std::hash")
+		testStdHash();
 }
 

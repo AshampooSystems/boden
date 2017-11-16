@@ -1,5 +1,5 @@
-#ifndef BDN_XxHash32_H_
-#define BDN_XxHash32_H_
+#ifndef BDN_XxHash64_H_
+#define BDN_XxHash64_H_
 
 #include <bdn/Number.h>
 
@@ -91,7 +91,7 @@ public:
 			//
 			// See TailData for information on the individual fields.
 			//
-			TailData getTailData()
+			XxHash64::TailData getTailData()
 			{
 				...
 			}
