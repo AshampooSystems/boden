@@ -227,7 +227,7 @@ TEST_CASE("ColumnView")
                     {
                         for(int vertAlign = (int)View::VerticalAlignment::top; vertAlign<=(int)View::VerticalAlignment::expand; vertAlign++)
                         {
-                            SECTION( toString(horzAlign)+", "+toString(vertAlign) )
+                            SECTION( std::to_string(horzAlign)+", "+std::to_string(vertAlign) )
                             {
                                 SECTION("no margin")
                                     testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );

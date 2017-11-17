@@ -409,7 +409,7 @@ namespace bdn {
         bool operator == ( SourceLineInfo const& other ) const;
         bool operator < ( SourceLineInfo const& other ) const;
 
-        std::string toString() const;
+        std::string toStringForTest() const;
 
         std::string file;
         std::size_t line;
@@ -919,7 +919,7 @@ namespace Matchers {
         virtual ~Matcher() {}
         virtual Ptr<Matcher> clone() const = 0;
         virtual bool match( ExpressionT const& expr ) const = 0;
-        virtual std::string toString() const = 0;
+        virtual std::string toStringForTest() const = 0;
 
         Generic::AllOf<ExpressionT> operator && ( Matcher<ExpressionT> const& other ) const;
         Generic::AnyOf<ExpressionT> operator || ( Matcher<ExpressionT> const& other ) const;
@@ -945,8 +945,8 @@ namespace Matchers {
                 return !m_matcher->match( expr );
             }
 
-            virtual std::string toString() const BDN_OVERRIDE {
-                return "not " + m_matcher->toString();
+            virtual std::string toStringForTest() const BDN_OVERRIDE {
+                return "not " + m_matcher->toStringForTest();
             }
         private:
             Ptr< Matcher<ExpressionT> > m_matcher;
@@ -970,13 +970,13 @@ namespace Matchers {
                         return false;
                 return true;
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 std::ostringstream oss;
                 oss << "( ";
                 for( std::size_t i = 0; i < m_matchers.size(); ++i ) {
                     if( i != 0 )
                         oss << " and ";
-                    oss << m_matchers[i]->toString();
+                    oss << m_matchers[i]->toStringForTest();
                 }
                 oss << " )";
                 return oss.str();
@@ -1010,13 +1010,13 @@ namespace Matchers {
                         return true;
                 return false;
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 std::ostringstream oss;
                 oss << "( ";
                 for( std::size_t i = 0; i < m_matchers.size(); ++i ) {
                     if( i != 0 )
                         oss << " or ";
-                    oss << m_matchers[i]->toString();
+                    oss << m_matchers[i]->toStringForTest();
                 }
                 oss << " )";
                 return oss.str();
@@ -1093,7 +1093,7 @@ namespace Matchers {
             virtual bool match( std::string const& expr ) const {
                 return m_data.m_str == m_data.adjustString( expr );;
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 return "equals: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
             }
 
@@ -1110,7 +1110,7 @@ namespace Matchers {
             virtual bool match( std::string const& expr ) const {
                 return m_data.adjustString( expr ).find( m_data.m_str ) != std::string::npos;
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 return "contains: \"" + m_data.m_str  + "\"" + m_data.toStringSuffix();
             }
 
@@ -1128,7 +1128,7 @@ namespace Matchers {
             virtual bool match( std::string const& expr ) const {
                 return m_data.adjustString( expr ).find( m_data.m_str ) == 0;
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 return "starts with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
             }
 
@@ -1145,7 +1145,7 @@ namespace Matchers {
             virtual bool match( std::string const& expr ) const {
                 return m_data.adjustString( expr ).find( m_data.m_str ) == expr.size() - m_data.m_str.size();
             }
-            virtual std::string toString() const {
+            virtual std::string toStringForTest() const {
                 return "ends with: \"" + m_data.m_str + "\"" + m_data.toStringSuffix();
             }
 
@@ -1594,69 +1594,69 @@ namespace bdn {
 
 // Why we're here.
 template<typename T>
-std::string toString( T const& value );
+std::string toStringForTest( T const& value );
 
 // Built in overloads
 
-std::string toString( StringImpl<Utf8StringData> const& value );
-std::string toString( StringImpl<Utf16StringData> const& value );
-std::string toString( StringImpl<WideStringData> const& value );
-std::string toString( StringImpl<Utf32StringData> const& value );
-std::string toString( std::string const& value );
-std::string toString( std::wstring const& value );
-std::string toString( std::u16string const& value );
-std::string toString( std::u32string const& value );
-std::string toString( const char* const value );
-std::string toString( char* const value );
-std::string toString( const wchar_t* const value );
-std::string toString( wchar_t* const value );
-std::string toString( const char16_t* const value );
-std::string toString( char16_t* const value );
-std::string toString( const char32_t* const value );
-std::string toString( char32_t* const value );
-std::string toString( int value );
-std::string toString( unsigned long value );
-std::string toString( unsigned int value );
-std::string toString( const double value );
-std::string toString( const float value );
-std::string toString( bool value );
-std::string toString( char value );
-std::string toString( signed char value );
-std::string toString( unsigned char value );
+std::string toStringForTest( StringImpl<Utf8StringData> const& value );
+std::string toStringForTest( StringImpl<Utf16StringData> const& value );
+std::string toStringForTest( StringImpl<WideStringData> const& value );
+std::string toStringForTest( StringImpl<Utf32StringData> const& value );
+std::string toStringForTest( std::string const& value );
+std::string toStringForTest( std::wstring const& value );
+std::string toStringForTest( std::u16string const& value );
+std::string toStringForTest( std::u32string const& value );
+std::string toStringForTest( const char* const value );
+std::string toStringForTest( char* const value );
+std::string toStringForTest( const wchar_t* const value );
+std::string toStringForTest( wchar_t* const value );
+std::string toStringForTest( const char16_t* const value );
+std::string toStringForTest( char16_t* const value );
+std::string toStringForTest( const char32_t* const value );
+std::string toStringForTest( char32_t* const value );
+std::string toStringForTest( int value );
+std::string toStringForTest( unsigned long value );
+std::string toStringForTest( unsigned int value );
+std::string toStringForTest( const double value );
+std::string toStringForTest( const float value );
+std::string toStringForTest( bool value );
+std::string toStringForTest( char value );
+std::string toStringForTest( signed char value );
+std::string toStringForTest( unsigned char value );
 
 #ifdef BDN_CONFIG_CPP11_LONG_LONG
-std::string toString( long long value );
-std::string toString( unsigned long long value );
+std::string toStringForTest( long long value );
+std::string toStringForTest( unsigned long long value );
 #endif
 
 #ifdef BDN_CONFIG_CPP11_NULLPTR
-std::string toString( std::nullptr_t );
+std::string toStringForTest( std::nullptr_t );
 #endif
 
 #ifdef __OBJC__
-    std::string toString( NSString const * const& nsstring );
-    std::string toString( NSString * BDN_ARC_STRONG const& nsstring );
-    std::string toString( NSObject* const& nsObject );
+    std::string toStringForTest( NSString const * const& nsstring );
+    std::string toStringForTest( NSString * BDN_ARC_STRONG const& nsstring );
+    std::string toStringForTest( NSObject* const& nsObject );
 #endif
 
-std::string toString( const Point& point);
-std::string toString( const Size& size);
-std::string toString( const Rect& rect);
-std::string toString( const Margin& margin);
-std::string toString( const UiLength& length);
-std::string toString( const UiMargin& margin);
-std::string toString( const UiSize& size);
+std::string toStringForTest( const Point& point);
+std::string toStringForTest( const Size& size);
+std::string toStringForTest( const Rect& rect);
+std::string toStringForTest( const Margin& margin);
+std::string toStringForTest( const UiLength& length);
+std::string toStringForTest( const UiMargin& margin);
+std::string toStringForTest( const UiSize& size);
 
 template<class PropValueType>
-inline std::string toString( const ReadProperty<PropValueType>& prop)
+inline std::string toStringForTest( const ReadProperty<PropValueType>& prop)
 {
-    return toString(prop.get());
+    return toStringForTest(prop.get());
 }
 
 template<class PropValueType>
-inline std::string toString( const Property<PropValueType>& prop)
+inline std::string toStringForTest( const Property<PropValueType>& prop)
 {
-    return toString(prop.get());
+    return toStringForTest(prop.get());
 }
 
 
@@ -1697,7 +1697,7 @@ namespace Detail {
     {
         static std::string convert( T const& v )
         {
-            return ::bdn::toString(
+            return ::bdn::toStringForTest(
                 static_cast<typename std::underlying_type<T>::type>(v)
                 );
         }
@@ -1774,13 +1774,13 @@ namespace Detail {
 //};
 
 template<typename T, typename Allocator>
-std::string toString( std::vector<T,Allocator> const& v ) {
+std::string toStringForTest( std::vector<T,Allocator> const& v ) {
     return Detail::rangeToString( v.begin(), v.end() );
 }
 
 #ifdef BDN_CONFIG_CPP11_TUPLE
 
-// toString for tuples
+// toStringForTest for tuples
 namespace TupleDetail {
   template<
       typename Tuple,
@@ -1791,7 +1791,7 @@ namespace TupleDetail {
       static void print( const Tuple& tuple, std::ostream& os )
       {
           os << ( N ? ", " : " " )
-             << bdn::toString(std::get<N>(tuple));
+             << bdn::toStringForTest(std::get<N>(tuple));
           ElementPrinter<Tuple,N+1>::print(tuple,os);
       }
   };
@@ -1835,7 +1835,7 @@ namespace Detail {
 /// Overload (not specialise) this template for custom typs that you don't want
 /// to provide an ostream overload for.
 template<typename T>
-std::string toString( T const& value ) {
+std::string toStringForTest( T const& value ) {
     return StringMaker<T>::convert( value );
 }
 
@@ -1845,9 +1845,9 @@ std::string toString( T const& value ) {
         std::ostringstream oss;
         oss << "{ ";
         if( first != last ) {
-            oss << bdn::toString( *first );
+            oss << bdn::toStringForTest( *first );
             for( ++first ; first != last ; ++first )
-                oss << ", " << bdn::toString( *first );
+                oss << ", " << bdn::toStringForTest( *first );
         }
         oss << " }";
         return oss.str();
@@ -1955,7 +1955,7 @@ public:
     void endExpression() {
         bool value = m_lhs ? true : false;
         m_rb
-            .setLhs( bdn::toString( value ) )
+            .setLhs( bdn::toStringForTest( value ) )
             .setResultType( value )
             .endExpression();
     }
@@ -1974,8 +1974,8 @@ private:
     ResultBuilder& captureExpression( RhsT const& rhs ) {
         return m_rb
             .setResultType( Internal::compare<Op>( m_lhs, rhs ) )
-            .setLhs( bdn::toString( m_lhs ) )
-            .setRhs( bdn::toString( rhs ) )
+            .setLhs( bdn::toStringForTest( m_lhs ) )
+            .setRhs( bdn::toStringForTest( rhs ) )
             .setOp( Internal::OperatorTraits<Op>::getName() );
     }
 
@@ -2222,10 +2222,10 @@ namespace bdn {
 					_result = true; \
 				if(!_rhs.empty()) \
 					_rhs += ", "; \
-				_rhs += bdn::toString(item); \
+				_rhs += bdn::toStringForTest(item); \
 			} \
 			_rhs = "["+_rhs+"]"; \
-			__catchResult.setLhs(bdn::toString(val) ); \
+			__catchResult.setLhs(bdn::toStringForTest(val) ); \
 			__catchResult.setRhs(_rhs ); \
 			__catchResult.setOp( negate ? "not in" : "in");  \
 			if(negate) \
@@ -2249,8 +2249,8 @@ namespace bdn {
             auto _expectedVal = expectedValue; \
             auto _dev = maxDeviation; \
 			bool _result = (_val>=_expectedVal-_dev && _val<=_expectedVal+_dev); \
-			__catchResult.setLhs(bdn::toString(_val) ); \
-			__catchResult.setRhs(bdn::toString(_expectedVal) ); \
+			__catchResult.setLhs(bdn::toStringForTest(_val) ); \
+			__catchResult.setRhs(bdn::toStringForTest(_expectedVal) ); \
 			__catchResult.setOp( "~~");  \
 			__catchResult.captureResult( _result ? bdn::ResultWas::Ok : bdn::ResultWas::ExpressionFailed ); \
         } \
@@ -2289,9 +2289,9 @@ namespace bdn {
     do { \
         bdn::ResultBuilder __catchResult( macroName, BDN_INTERNAL_LINEINFO, #arg ", " #matcher, resultDisposition ); \
         try { \
-            std::string matcherAsString = (matcher).toString(); \
+            std::string matcherAsString = (matcher).toStringForTest(); \
             __catchResult \
-                .setLhs( bdn::toString( arg ) ) \
+                .setLhs( bdn::toStringForTest( arg ) ) \
                 .setRhs( matcherAsString == bdn::Detail::getUnprintableString() ? #matcher : matcherAsString ) \
                 .setOp( "matches" ) \
                 .setResultType( (matcher).match( arg ) ); \
@@ -2836,9 +2836,9 @@ namespace Detail {
             return *this;
         }
 
-        std::string toString() const {
+        std::string toStringForTest() const {
             std::ostringstream oss;
-            oss << "Approx( " << bdn::toString( m_value ) << " )";
+            oss << "Approx( " << bdn::toStringForTest( m_value ) << " )";
             return oss.str();
         }
 
@@ -2850,8 +2850,8 @@ namespace Detail {
 }
 
 template<>
-inline std::string toString<Detail::Approx>( Detail::Approx const& value ) {
-    return value.toString();
+inline std::string toStringForTest<Detail::Approx>( Detail::Approx const& value ) {
+    return value.toStringForTest();
 }
 
 } // end namespace bdn
@@ -3157,8 +3157,8 @@ namespace bdn {
                             [str isEqualToString:m_substr];
                 }
 
-                virtual std::string toString() const {
-                    return "equals string: " + bdn::toString( m_substr );
+                virtual std::string toStringForTest() const {
+                    return "equals string: " + bdn::toStringForTest( m_substr );
                 }
             };
 
@@ -3170,8 +3170,8 @@ namespace bdn {
                             [str rangeOfString:m_substr].location != NSNotFound;
                 }
 
-                virtual std::string toString() const {
-                    return "contains string: " + bdn::toString( m_substr );
+                virtual std::string toStringForTest() const {
+                    return "contains string: " + bdn::toStringForTest( m_substr );
                 }
             };
 
@@ -3183,8 +3183,8 @@ namespace bdn {
                             [str rangeOfString:m_substr].location == 0;
                 }
 
-                virtual std::string toString() const {
-                    return "starts with: " + bdn::toString( m_substr );
+                virtual std::string toStringForTest() const {
+                    return "starts with: " + bdn::toStringForTest( m_substr );
                 }
             };
             struct EndsWith : StringHolder<EndsWith> {
@@ -3195,8 +3195,8 @@ namespace bdn {
                             [str rangeOfString:m_substr].location == [str length] - [m_substr length];
                 }
 
-                virtual std::string toString() const {
-                    return "ends with: " + bdn::toString( m_substr );
+                virtual std::string toStringForTest() const {
+                    return "ends with: " + bdn::toStringForTest( m_substr );
                 }
             };
 

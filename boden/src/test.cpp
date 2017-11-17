@@ -832,7 +832,7 @@ public:
 	std::string const& last() const { return lines.back(); }
 	std::size_t size() const { return lines.size(); }
 	std::string const& operator[]( std::size_t _index ) const { return lines[_index]; }
-	std::string toString() const {
+	std::string toStringForTest() const {
 		std::ostringstream oss;
 		oss << *this;
 		return oss.str();
@@ -1862,7 +1862,7 @@ public:
 	std::string const& last() const { return lines.back(); }
 	std::size_t size() const { return lines.size(); }
 	std::string const& operator[]( std::size_t _index ) const { return lines[_index]; }
-	std::string toString() const {
+	std::string toStringForTest() const {
 		std::ostringstream oss;
 		oss << *this;
 		return oss.str();
@@ -3104,7 +3104,7 @@ private: // IResultCapture
                     statusText += " ";
 
                 if(sectionInfo.name.empty())
-                    statusText += "@" + sectionInfo.lineInfo.toString();
+                    statusText += "@" + sectionInfo.lineInfo.toStringForTest();
                 else
                     statusText += sectionInfo.name;
 
@@ -4553,7 +4553,7 @@ public:
 				return tryTranslators();
 			}
 			@catch (NSException *exception) {
-				return bdn::toString( [exception description] );
+				return bdn::toStringForTest( [exception description] );
 			}
 #else
 			return tryTranslators();
@@ -5701,7 +5701,7 @@ bool SourceLineInfo::operator < ( SourceLineInfo const& other ) const {
 	return line < other.line || ( line == other.line  && file < other.file );
 }
 
-std::string SourceLineInfo::toString() const
+std::string SourceLineInfo::toStringForTest() const
 {
 #ifndef __GNUG__
 	return file + "(" + std::to_string(line) + ")";
@@ -5722,7 +5722,7 @@ unsigned int rngSeed() {
 
 std::ostream& operator << ( std::ostream& os, SourceLineInfo const& info )
 {
-	os << info.toString();
+	os << info.toStringForTest();
 	return os;
 }
 
@@ -5829,7 +5829,7 @@ std::string rawMemoryToString( const void *object, std::size_t size )
 
 
 
-std::string toString( std::string const& value ) {
+std::string toStringForTest( std::string const& value ) {
 	std::string s = value;
 	if( getCurrentContext().getConfig()->showInvisibles() ) {
 		for(size_t i = 0; i < s.size(); ++i ) {
@@ -5847,77 +5847,77 @@ std::string toString( std::string const& value ) {
 	}
 	return "\"" + s + "\"";
 }
-std::string toString( std::wstring const& value ) {
+std::string toStringForTest( std::wstring const& value ) {
 
-	return toString(String(value) );
+	return toStringForTest(String(value) );
 }
 
-std::string toString( std::u16string const& value ) {
+std::string toStringForTest( std::u16string const& value ) {
 
-	return toString(String(value) );
+	return toStringForTest(String(value) );
 }
 
-std::string toString( std::u32string const& value ) {
+std::string toStringForTest( std::u32string const& value ) {
 
-	return toString(String(value) );
+	return toStringForTest(String(value) );
 }
 
-std::string toString( StringImpl<Utf8StringData> const& value ) {
-	return bdn::toString(value.asUtf8());
+std::string toStringForTest( StringImpl<Utf8StringData> const& value ) {
+	return bdn::toStringForTest(value.asUtf8());
 }
 
-std::string toString( StringImpl<Utf16StringData> const& value ) {
-	return bdn::toString(value.asUtf8());
+std::string toStringForTest( StringImpl<Utf16StringData> const& value ) {
+	return bdn::toStringForTest(value.asUtf8());
 }
 
-std::string toString( StringImpl<Utf32StringData> const& value ) {
-	return bdn::toString(value.asUtf8());
+std::string toStringForTest( StringImpl<Utf32StringData> const& value ) {
+	return bdn::toStringForTest(value.asUtf8());
 }
 
-std::string toString( StringImpl<WideStringData> const& value ) {
-	return bdn::toString(value.asUtf8());
+std::string toStringForTest( StringImpl<WideStringData> const& value ) {
+	return bdn::toStringForTest(value.asUtf8());
 }
 
-std::string toString( const char* const value ) {
-	return value ? bdn::toString( std::string( value ) ) : std::string( "{null string}" );
+std::string toStringForTest( const char* const value ) {
+	return value ? bdn::toStringForTest( std::string( value ) ) : std::string( "{null string}" );
 }
 
-std::string toString( char* const value ) {
-	return bdn::toString( static_cast<const char*>( value ) );
+std::string toStringForTest( char* const value ) {
+	return bdn::toStringForTest( static_cast<const char*>( value ) );
 }
 
-std::string toString( const wchar_t* const value )
+std::string toStringForTest( const wchar_t* const value )
 {
-	return value ? bdn::toString( std::wstring(value) ) : std::string( "{null string}" );
+	return value ? bdn::toStringForTest( std::wstring(value) ) : std::string( "{null string}" );
 }
 
-std::string toString( wchar_t* const value )
+std::string toStringForTest( wchar_t* const value )
 {
-	return bdn::toString( static_cast<const wchar_t*>( value ) );
+	return bdn::toStringForTest( static_cast<const wchar_t*>( value ) );
 }
 
-std::string toString( const char16_t* const value )
+std::string toStringForTest( const char16_t* const value )
 {
-	return value ? bdn::toString( std::u16string(value) ) : std::string( "{null string}" );
+	return value ? bdn::toStringForTest( std::u16string(value) ) : std::string( "{null string}" );
 }
 
-std::string toString( char16_t* const value )
+std::string toStringForTest( char16_t* const value )
 {
-	return bdn::toString( static_cast<const char16_t*>( value ) );
+	return bdn::toStringForTest( static_cast<const char16_t*>( value ) );
 }
 
 
-std::string toString( const char32_t* const value )
+std::string toStringForTest( const char32_t* const value )
 {
-	return value ? bdn::toString( std::u32string(value) ) : std::string( "{null string}" );
+	return value ? bdn::toStringForTest( std::u32string(value) ) : std::string( "{null string}" );
 }
 
-std::string toString( char32_t* const value )
+std::string toStringForTest( char32_t* const value )
 {
-	return bdn::toString( static_cast<const char32_t*>( value ) );
+	return bdn::toStringForTest( static_cast<const char32_t*>( value ) );
 }
 
-std::string toString( int value ) {
+std::string toStringForTest( int value ) {
 	std::ostringstream oss;
 	oss << value;
 	if( value > Detail::hexThreshold )
@@ -5925,7 +5925,7 @@ std::string toString( int value ) {
 	return oss.str();
 }
 
-std::string toString( unsigned long value ) {
+std::string toStringForTest( unsigned long value ) {
 	std::ostringstream oss;
 	oss << value;
 	if( value > Detail::hexThreshold )
@@ -5933,8 +5933,8 @@ std::string toString( unsigned long value ) {
 	return oss.str();
 }
 
-std::string toString( unsigned int value ) {
-	return bdn::toString( static_cast<unsigned long>( value ) );
+std::string toStringForTest( unsigned int value ) {
+	return bdn::toStringForTest( static_cast<unsigned long>( value ) );
 }
 
 template<typename T>
@@ -5953,40 +5953,40 @@ std::string fpToString( T value, int precision ) {
 	return d;
 }
 
-std::string toString( const double value ) {
+std::string toStringForTest( const double value ) {
 	return fpToString( value, 10 );
 }
-std::string toString( const float value ) {
+std::string toStringForTest( const float value ) {
 	return fpToString( value, 5 ) + "f";
 }
 
-std::string toString( bool value ) {
+std::string toStringForTest( bool value ) {
 	return value ? "true" : "false";
 }
 
-std::string toString( char value ) {
+std::string toStringForTest( char value ) {
 	return value < ' '
-		? toString( static_cast<unsigned int>( value ) )
+		? toStringForTest( static_cast<unsigned int>( value ) )
 		: Detail::makeString( value );
 }
 
-std::string toString( signed char value ) {
-	return toString( static_cast<char>( value ) );
+std::string toStringForTest( signed char value ) {
+	return toStringForTest( static_cast<char>( value ) );
 }
 
-std::string toString( unsigned char value ) {
-	return toString( static_cast<char>( value ) );
+std::string toStringForTest( unsigned char value ) {
+	return toStringForTest( static_cast<char>( value ) );
 }
 
 #ifdef BDN_CONFIG_CPP11_LONG_LONG
-std::string toString( long long value ) {
+std::string toStringForTest( long long value ) {
 	std::ostringstream oss;
 	oss << value;
 	if( value > Detail::hexThreshold )
 		oss << " (0x" << std::hex << value << ")";
 	return oss.str();
 }
-std::string toString( unsigned long long value ) {
+std::string toStringForTest( unsigned long long value ) {
 	std::ostringstream oss;
 	oss << value;
 	if( value > Detail::hexThreshold )
@@ -5996,50 +5996,50 @@ std::string toString( unsigned long long value ) {
 #endif
 
 #ifdef BDN_CONFIG_CPP11_NULLPTR
-std::string toString( std::nullptr_t ) {
+std::string toStringForTest( std::nullptr_t ) {
 	return "nullptr";
 }
 #endif
 
 #ifdef __OBJC__
-std::string toString( NSString const * const& nsstring ) {
+std::string toStringForTest( NSString const * const& nsstring ) {
 	if( !nsstring )
 		return "nil";
-	return "@" + toString([nsstring UTF8String]);
+	return "@" + toStringForTest([nsstring UTF8String]);
 }
-std::string toString( NSString * BDN_ARC_STRONG const& nsstring ) {
+std::string toStringForTest( NSString * BDN_ARC_STRONG const& nsstring ) {
 	if( !nsstring )
 		return "nil";
-	return "@" + toString([nsstring UTF8String]);
+	return "@" + toStringForTest([nsstring UTF8String]);
 }
-std::string toString( NSObject* const& nsObject ) {
-	return toString( [nsObject description] );
+std::string toStringForTest( NSObject* const& nsObject ) {
+	return toStringForTest( [nsObject description] );
 }
 #endif
 
-std::string toString( const Point& point)
+std::string toStringForTest( const Point& point)
 {
-    return "("+toString(point.x)+", "+toString(point.y)+")";
+    return "("+toStringForTest(point.x)+", "+toStringForTest(point.y)+")";
 }
 
-std::string toString( const Size& size)
+std::string toStringForTest( const Size& size)
 {
-	return "("+toString(size.width)+" x "+toString(size.height)+")";
+	return "("+toStringForTest(size.width)+" x "+toStringForTest(size.height)+")";
 }
 
-std::string toString( const Rect& rect)
+std::string toStringForTest( const Rect& rect)
 {
-	return "("+toString(rect.x)+", "+toString(rect.y)+"; "+toString(rect.width)+" x "+toString(rect.height)+")";
-}
-
-
-std::string toString( const Margin& margin)
-{
-	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
+	return "("+toStringForTest(rect.x)+", "+toStringForTest(rect.y)+"; "+toStringForTest(rect.width)+" x "+toStringForTest(rect.height)+")";
 }
 
 
-std::string toString( const UiLength& length)
+std::string toStringForTest( const Margin& margin)
+{
+	return "("+toStringForTest(margin.top)+", "+toStringForTest(margin.right)+", "+toStringForTest(margin.bottom)+", "+toStringForTest(margin.left)+")";
+}
+
+
+std::string toStringForTest( const UiLength& length)
 {
     std::string unit;
     switch(length.unit)
@@ -6055,17 +6055,17 @@ std::string toString( const UiLength& length)
     default:    unit = "unit"+std::to_string((int)length.unit);
         break;
     }
-	return toString(length.value) + " " + unit;
+	return toStringForTest(length.value) + " " + unit;
 }
 
-std::string toString( const UiMargin& margin)
+std::string toStringForTest( const UiMargin& margin)
 {
-	return "("+toString(margin.top)+", "+toString(margin.right)+", "+toString(margin.bottom)+", "+toString(margin.left)+")";
+	return "("+toStringForTest(margin.top)+", "+toStringForTest(margin.right)+", "+toStringForTest(margin.bottom)+", "+toStringForTest(margin.left)+")";
 }
 
-std::string toString( const UiSize& size)
+std::string toStringForTest( const UiSize& size)
 {
-	return "("+toString(size.width)+" x "+toString(size.height)+")";
+	return "("+toStringForTest(size.width)+" x "+toStringForTest(size.height)+")";
 }
 
 
@@ -7323,7 +7323,7 @@ public:
 				xml.writeAttribute( "classname", className );
 				xml.writeAttribute( "name", name );
 			}
-			xml.writeAttribute( "time", bdn::toString( sectionNode.stats.durationInSeconds ) );
+			xml.writeAttribute( "time", bdn::toStringForTest( sectionNode.stats.durationInSeconds ) );
 
 			writeAssertions( sectionNode );
 
