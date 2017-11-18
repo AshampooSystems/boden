@@ -6,40 +6,47 @@
 using namespace bdn;
 using namespace bdn::test;
 
-class StringifierTestDummyBaseClass_
-{
-};
-
-class StringifierTestObjectWithTag_ : public StringifierTestDummyBaseClass_, public ToStringTag
+class WithToString_
 {
 public:
 
 	String toString() const
 	{
-		return "test";
+		return "ok";
 	}
 };
 
-class StringifierTestObjectWithBaseClassWithTag_ : public StringifierTestObjectWithTag_
+class WithToStringInBaseClass_ : public WithToString_
 {
-public:
 };
 
-class StringifierTestObjectWithoutTagButWithToStringMethod_
+class NoToString_
+{
+};
+
+class WithToStringOverloaded_
 {
 public:
-
 	String toString() const
 	{
-		return "test";
+		return "const";
+	}
+
+	String toString()
+	{
+		return "non const";
 	}
 };
 
 
-class StringifierTestObjectWithoutTag_
+class WithToStringNonConst_
 {
 public:
 
+	String toString()
+	{
+		return "non const";
+	}
 };
 
 
@@ -61,7 +68,7 @@ void _verifyStringify( VALUE_TYPE value, const String& expectedString, bool expe
 }
 
 template<class CLS>
-void _verifyStringifyUnknownObject()
+void _verifyStringifyUnknownObject(const String& expectedConstResult, const String& expectedNonConstResult)
 {
 	CLS obj;
 
@@ -74,77 +81,63 @@ void _verifyStringifyUnknownObject()
 
 	SECTION("value")	
 	{
-		// note that since we pass a copy of the object, the address
-		// will be different. So we match only the prefix
-		_verifyStringify<CLS>(obj, expectedPrefix, true);
+		if(expectedNonConstResult.isEmpty())
+		{
+			// note that since we pass a copy of the object, the address
+			// will be different. So we match only the prefix
+			_verifyStringify<CLS>(obj, expectedPrefix, true);
+		}
+		else
+			_verifyStringify<CLS>(obj, expectedNonConstResult);
 	}
 
 	SECTION("const value")	
 	{
-		// note that since we pass a copy of the object, the address
-		// will be different. So we match only the prefix
-		_verifyStringify<const CLS>(obj, expectedPrefix, true);
+		if(expectedConstResult.isEmpty())
+		{
+			// note that since we pass a copy of the object, the address
+			// will be different. So we match only the prefix
+			_verifyStringify<const CLS>(obj, expectedPrefix, true);
+		}
+		else
+			_verifyStringify<const CLS>(obj, expectedConstResult);
 	}
 
 	SECTION("reference")	
-		_verifyStringify<CLS&>(obj, expectedWithAddress);
+	{
+		if(expectedNonConstResult.isEmpty())
+			_verifyStringify<CLS&>(obj, expectedWithAddress);
+		else
+			_verifyStringify<CLS&>(obj, expectedNonConstResult);
+	}
+
 
 	SECTION("const reference")	
-		_verifyStringify<const CLS&>(obj, expectedWithAddress);
+	{
+		if(expectedConstResult.isEmpty())
+			_verifyStringify<const CLS&>(obj, expectedWithAddress);
+		else
+			_verifyStringify<const CLS&>(obj, expectedConstResult);
+	}
 }
 
 void _testStringifyUnknownObject()
 {
+	SECTION("no toString method ")
+		_verifyStringifyUnknownObject< NoToString_ >("", "");
+
 	SECTION("with toString method")
-		_verifyStringifyUnknownObject< StringifierTestObjectWithoutTagButWithToStringMethod_ >();
+		_verifyStringifyUnknownObject< WithToString_ >("ok", "ok");
 
-	SECTION("without toString method")
-		_verifyStringifyUnknownObject< StringifierTestObjectWithoutTag_ >();
-}
+	SECTION("with toString method in base class")
+		_verifyStringifyUnknownObject< WithToStringInBaseClass_ >("ok", "ok");
 
-template<class CLS>
-void _verifyStringifyUnknownObjectWithTag(CLS& obj)
-{
-	SECTION("value")
-		_verifyStringify<CLS>( obj, "test" );
+	SECTION("overloaded toString method")
+		_verifyStringifyUnknownObject< WithToStringOverloaded_ >("const", "non const");
 
-	SECTION("const value")
-		_verifyStringify<const CLS>( obj, "test" );
+	SECTION("with non-const toString method")
+		_verifyStringifyUnknownObject< WithToStringNonConst_ >("", "non const");
 
-	SECTION("reference")
-		_verifyStringify<CLS&>( obj, "test" );
-
-	SECTION("const reference")
-		_verifyStringify<const CLS&>( obj, "test" );
-}
-
-void _testStringifyUnknownObjectWithTag()
-{
-	SECTION("tag on object directly")
-	{
-		SECTION("existing object")
-		{
-			StringifierTestObjectWithTag_ obj;
-	
-			_verifyStringify(obj, "test");
-		}
-
-		SECTION("ad hoc object")
-			_verifyStringify(StringifierTestObjectWithTag_(), "test");
-	}
-
-	SECTION("tag on base class")
-	{
-		SECTION("existing object")
-		{
-			StringifierTestObjectWithBaseClassWithTag_ obj;
-	
-			_verifyStringify(obj, "test");
-		}
-
-		SECTION("ad hoc object")
-			_verifyStringify(StringifierTestObjectWithBaseClassWithTag_(), "test");
-	}
 }
 
 template<typename CHAR_TYPE>
@@ -668,10 +661,7 @@ TEST_CASE("Stringifier")
 	SECTION("pointer")
 		_testStringifyPointer();
 
-	SECTION("unknown object with tag")
-		_testStringifyUnknownObjectWithTag();
-
 	SECTION("unknown object")
 		_testStringifyUnknownObject();
-
 }
+

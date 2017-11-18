@@ -5,43 +5,6 @@ namespace bdn
 {
 
 
-/** An empty class that is used as a "tag" to indicate that a
-    type has a toString() method.
-
-	To add the tag to your class, simply add ToStringTag as one of
-	its base classes. When you add the tag then your class must also
-	have a toString() method that returns a string representation of
-	the object.
-
-	The global bdn::toString() function checks for the tag when it is called
-	with any value. If ToStringTag is one of the base classes of the value's type
-	then the global toString() function simply calls the toString method of
-	the value. See \ref bdn::toString() for more information./
-
-	Example:
-
-	\code
-
-	// note that ToStringTag is simply added in addition to the "real" base
-	// class here.
-	class MyClass : public MyBaseClass, public ToStringTag
-	{
-	public:
-	
-		String toString() const
-		{
-			// this will be called when a MyClass object is passed to the
-			// global bdn::toString() function.
-			// We should return a string representation of this object here.
-			return "something";
-		}
-	};
-
-	\endcode
-	*/
-class ToStringTag
-{
-};
 
 
 template<
@@ -174,27 +137,54 @@ private:
 };
 
 
-template< bool HAS_TO_STRING_TAG >
+
+template<class CLS>
+struct HasToString_
+{
+private:
+	// the following _hasToStringTest overload takes a pointer to the
+	// return type of toString as its argument.
+	// Note that this is not valid if the toString method returns void, but
+	// that is exactly what we want. A toString method MUST exist and it MUST
+	// return a value, otherwise we want HasToString_::value to be 0.
+	template<typename TEST_CLS>
+	static uint8_t _hasToStringTest( decltype(std::declval<TEST_CLS>().toString())* );
+
+    template <typename TEST_CLS>
+	static uint16_t _hasToStringTest(...);
+
+public:
+    enum
+	{
+		value = sizeof( _hasToStringTest<CLS>(nullptr) ) == sizeof(uint8_t) ? 1 : 0
+	};
+
+
+};
+
+
 struct UnknownObjectStringifier_
 {
 	template< typename VALUE_TYPE >
-	String operator()( const VALUE_TYPE& value ) const
+	typename std::enable_if<
+		HasToString_<VALUE_TYPE>::value,
+		String
+		>::type
+		operator()( VALUE_TYPE&& value ) const
+	{
+		return value.toString();
+	}
+
+	template< typename VALUE_TYPE >
+	typename std::enable_if<
+		! HasToString_<VALUE_TYPE>::value,
+		String
+		>::type
+		operator()( VALUE_TYPE&& value ) const
 	{
 		return String("<") + typeid(VALUE_TYPE).name() + " @ "+  toString(&value) + ">";
 	}
 };
-
-template<>
-struct UnknownObjectStringifier_<true>
-{
-	template< typename VALUE_TYPE >
-	String operator()( VALUE_TYPE&& value ) const
-	{
-		return value.toString();
-	}
-};
-
-
 
 
 /** A template class that is used to convert values and objects to strings.
@@ -219,8 +209,9 @@ struct UnknownObjectStringifier_<true>
 	String s = stringifier( value );		// call the stringifier instance like a function
 
 	\endcode
-	
-	Support for additional custom classes and types can be added by providing a specialization for the
+
+	Stringifier automatically supports all objects that have a toString() method.	
+	Support for additional custom classes and types can also be added by providing a specialization for the
 	Stringifier template.
 
 	There are already specializations for various types. The following are supported out
@@ -235,17 +226,18 @@ struct UnknownObjectStringifier_<true>
 	- standard library string objects: std::string, std::wstring, std::u16string, std::u32string
 	- C style strings: const char*, const wchar_t*, const char16_t*, const char32_t*
 	- individual characters: char, wchar_t, char16_t, char32_t
-	- all objects that are derived from ToStringTag. These objects must provide a toString() method.
-	  See \ref ToStringTag for more information.
+	- all objects that have a toString() method (it is not necessary to implement any interfaces
+	  or have a special base class for this - any object with a toString method will work).
 
 	If there is no specialization for the given input type then the default implementation
-	returns a string of the form "<typename @ 0x123456>" where typename is the name of the input type
-	as returned by typeid(type).name() and 0x123456 is the address of the object.
+	checks if the value is an object with a toString() method. If so then the toString method is called and the result is
+	returned. If no toString method exists then a string of the form "<typename @ 0x123456>" is returned, 
+	where typename is the name of the input type as returned by typeid(type).name() and 0x123456 is the address of the object.
 
 	If you want your custom types and classes to be supported by Stringifier then you have two options:
 
-	1) You can add ToStringTag as a base class to your class (in addition to other base classes)
-	   and give it a toString method.
+	1) Implement a toString() method in your class. Nothing else is necessary - Stringifier will detect the presence
+	   of toString automatically.
 
 	2) Or you can provide your own template specialization for Stringifier. The following example demonstrates
 	   how to add support for "Pet" instances:
@@ -283,7 +275,7 @@ struct UnknownObjectStringifier_<true>
 		\endcode
 */
 template<typename VALUE_TYPE>
-struct Stringifier : public UnknownObjectStringifier_< std::is_base_of<ToStringTag, VALUE_TYPE>::value >
+struct Stringifier : public UnknownObjectStringifier_
 {};
 
 
@@ -564,8 +556,11 @@ struct Stringifier<InputType*>
 	toString uses \ref Stringifier internally, so it supports all types
 	supported by that. See \ref Stringifier for a full list.
 
-	You can also add support for your custom objects and types. See 
-	\ref Stringifier for information on how to do that.
+	Note that the global toString function automatically supports all objects that have a toString()
+	method. The global function simply calls the method and returns its result.
+
+	You can also add support for other custom types and classes that do not have a toString method.
+	See \ref Stringifier for information on how to do that.
 
 */
 template<typename InputType>
