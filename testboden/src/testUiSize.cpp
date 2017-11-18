@@ -71,6 +71,18 @@ TEST_CASE("UiSize")
         checkEquality( a, UiSize( 1.1, UiLength::sem(2.2)), false );
 	}
 
+	
+	SECTION("toString")
+	{
+		UiSize m( 1.125, -345.125 );
+
+		SECTION("method")
+			REQUIRE( m.toString() == "1.125 dip x -345.125 dip" );
+
+		SECTION("global function")
+			REQUIRE( toString(m) == "1.125 dip x -345.125 dip" );
+	}
+
 }
 
 

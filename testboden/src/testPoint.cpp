@@ -160,6 +160,18 @@ TEST_CASE("Point")
         REQUIRE( ! (a >= Point(11, 20)) );
         REQUIRE( ! (a >= Point(11, 21)) );
     }
+
+	
+	SECTION("toString")
+	{
+		Point p( 1.125, -345.125 );
+
+		SECTION("method")
+			REQUIRE( p.toString() == "1.125, -345.125" );
+
+		SECTION("global function")
+			REQUIRE( toString(p) == "1.125, -345.125" );
+	}
 }
 
 

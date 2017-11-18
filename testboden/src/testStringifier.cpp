@@ -660,7 +660,7 @@ TEST_CASE("Stringifier")
 
 	SECTION("pointer")
 		_testStringifyPointer();
-
+	
 	SECTION("unknown object")
 		_testStringifyUnknownObject();
 }

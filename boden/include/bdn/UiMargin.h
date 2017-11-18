@@ -45,6 +45,13 @@ public:
 	{		
 	}
 
+	
+	/** Returns a locale-independent string representation of the margin.
+		*/
+	String toString() const
+	{
+		return bdn::toString(top) +", "+ bdn::toString(right) +", "+ bdn::toString(bottom) +", "+ bdn::toString(left);
+	}
 
 	UiLength top;
 	UiLength right;

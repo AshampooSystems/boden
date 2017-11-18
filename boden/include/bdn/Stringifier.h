@@ -1,11 +1,10 @@
 #ifndef BDN_Stringifier_H_
 #define BDN_Stringifier_H_
 
+#include <sstream>
+
 namespace bdn
 {
-
-
-
 
 template<
 	typename INT_TYPE,		

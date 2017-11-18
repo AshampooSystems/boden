@@ -101,9 +101,34 @@ public:
     {
         return (unit==UiLength::Unit::none);
     }
+
+
+	/** Returns a locale-independent string representation of the UI length.
+		*/
+	String toString() const
+	{
+		if(unit==Unit::none)
+			return "none";
+		else
+			return bdn::toString(value)+" "+unitToString(unit);
+	}
 	
 	Unit	unit;	
 	double	value;	
+
+
+private:
+	static String unitToString(Unit unit)
+	{
+		if(unit==Unit::dip)
+			return "dip";
+		else if(unit==Unit::sem)
+			return "sem";
+		else if(unit==Unit::em)
+			return "em";
+		else
+			return "";
+	}
 };
 
 

@@ -6,6 +6,7 @@
 #include <limits>
 #include <cmath>
 
+
 namespace bdn
 {
 	
@@ -175,6 +176,13 @@ public:
             height = maxSize.height;            
     }
 
+
+	/** Returns a locale-independent string representation of the size.
+		*/
+	String toString() const
+	{
+		return bdn::toString(width) + " x " + bdn::toString(height);
+	}
 	
 };
 

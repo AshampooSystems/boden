@@ -7,6 +7,17 @@
 
 using namespace bdn;
 
+static void _verifyUiLengthToString(double value, UiLength::Unit unit, String expectedString)
+{
+	UiLength len(value, unit);
+	
+	SECTION("method")
+		REQUIRE( len.toString() == expectedString );
+
+	SECTION("global function")
+		REQUIRE( toString(len) == expectedString );
+}
+
 TEST_CASE("UiLength")
 {
 	SECTION("defaultConstruct")
@@ -127,6 +138,15 @@ TEST_CASE("UiLength")
 
         checkEquality( a, UiLength::sem(12.3456), false );
         checkEquality( a, UiLength::em(12.3456), false );
+	}
+
+	
+	SECTION("toString")
+	{
+		_verifyUiLengthToString( 1.25, UiLength::Unit::none, "none" );
+		_verifyUiLengthToString( 1.25, UiLength::Unit::dip, "1.25 dip" );
+		_verifyUiLengthToString( 1.25, UiLength::Unit::sem, "1.25 sem" );
+		_verifyUiLengthToString( 1.25, UiLength::Unit::em, "1.25 eem" );		
 	}
 
 }
