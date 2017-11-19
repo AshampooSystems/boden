@@ -64,6 +64,11 @@ public:
         
         set( sourceProperty.get() );
     }    
+
+	String toString() const
+	{
+		return bdn::toString( _value );
+	}
     
 protected:
 
@@ -407,6 +412,17 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 	}
     
 #endif
+
+	SECTION("toString")
+	{
+		String expected = bdn::toString(prop.get());
+			
+		SECTION("method")
+			REQUIRE( prop.toString() == expected );
+
+		SECTION("global function")
+			REQUIRE( bdn::toString(prop) == expected );
+	}
 }
 
 

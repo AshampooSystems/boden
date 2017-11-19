@@ -5,6 +5,7 @@
 #include <bdn/Property.h>
 #include <bdn/func.h>
 #include <bdn/DefaultNotifier.h>
+#include <bdn/Stringifier.h>
 
 namespace bdn
 {
@@ -58,6 +59,11 @@ public:
 	{
         _pImpl->bind(sourceProperty);
     }
+
+	String toString() const
+	{
+		return _pImpl->toString();
+	}
     
     
 private:    
@@ -116,6 +122,11 @@ private:
         
             bindSourceChanged( &sourceProperty );
         }
+
+		String toString() const
+		{
+			return bdn::toString( _value );
+		}
         
     private:
         void bindSourceChanged( P<const IValueAccessor<ValType>> pValue )
