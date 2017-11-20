@@ -307,19 +307,19 @@ void _testStringifyBool()
 
 void _testStringifyNullptr()
 {
-	nullptr_t p = nullptr;
+    std::nullptr_t p = nullptr;
 
 	SECTION("value")
-		_verifyStringify<nullptr_t>( p, "nullptr");
+		_verifyStringify<std::nullptr_t>( p, "nullptr");
 
 	SECTION("const value")
-		_verifyStringify<const nullptr_t>( p, "nullptr");
+		_verifyStringify<const std::nullptr_t>( p, "nullptr");
 
 	SECTION("reference")
-		_verifyStringify<nullptr_t&>( p, "nullptr");
+		_verifyStringify<std::nullptr_t&>( p, "nullptr");
 
 	SECTION("const reference")
-		_verifyStringify<const nullptr_t&>( p, "nullptr");
+		_verifyStringify<const std::nullptr_t&>( p, "nullptr");
 }
 	
 
@@ -604,8 +604,21 @@ void _verifyStringifyPointer()
 #pragma warning(push)
 #pragma warning(disable: 4996)
 #endif
-
-		sprintf( expectedBuf, "0x%p", p);
+        // note that we cannot use %p here because the output is implementation
+        // defined. In particular, some C++ standard library implementation output
+        // a base hex number, while others prepend 0x by themselves.
+        
+        if( sizeof(uintptr_t)==sizeof(unsigned) )
+            std::sprintf( expectedBuf, "0x%x", (unsigned)(uintptr_t)p);
+        else if( sizeof(uintptr_t)==sizeof(unsigned long) )
+            std::sprintf( expectedBuf, "0x%lx", (unsigned long)(uintptr_t)p);
+        else if( sizeof(uintptr_t)==sizeof(unsigned long long) )
+            std::sprintf( expectedBuf, "0x%llx", (unsigned long long)(uintptr_t)p);
+        else
+        {
+            // unexpected size of uintptr_t
+            REQUIRE( false );
+        }
 
 #ifdef _MSC_VER
 #pragma warning(pop)

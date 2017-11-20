@@ -475,8 +475,8 @@ public:
         matchFunc must be a function that takes a collection iterator as its parameter
         and returns true if the element should be removed.
     */
-    template<typename MatchFuncType>
-    void findCustomAndRemove( MatchFuncType& matchFunc )
+    template<typename MATCH_FUNC_TYPE>
+    void findCustomAndRemove( MATCH_FUNC_TYPE&& matchFunc )
     {
 		auto it = this->begin();
 		while( it != this->end() )

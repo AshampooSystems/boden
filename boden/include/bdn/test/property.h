@@ -65,7 +65,7 @@ public:
         set( sourceProperty.get() );
     }    
 
-	String toString() const
+	String toString() const override
 	{
 		return bdn::toString( _value );
 	}

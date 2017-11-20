@@ -244,7 +244,7 @@ public:
         */
     bool add( const Element& value )
     {
-        std::pair<iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert(value);
+        std::pair<Iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert(value);
 
         return result.second;
     }
@@ -258,7 +258,7 @@ public:
         */
     bool add( Element&& value )
     {
-        std::pair<iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( std::move(value) );
+        std::pair<Iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::insert( std::move(value) );
 
         return result.second;
     }
@@ -341,7 +341,7 @@ public:
     template< class... Args > 
     const Element& addNew( Args&&... args )
     {
-        std::pair<iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::emplace( std::forward<Args>(args)... );
+        std::pair<Iterator,bool> result = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::emplace( std::forward<Args>(args)... );
 
 		return *result.first;
     }
@@ -531,10 +531,10 @@ public:
         The match function can be any function that takes a Set iterator as its parameter
 		and returns true if the element at the corresponding position should be removed.
     */
-    template<typename MatchFuncType>
-    void findCustomAndRemove( MatchFuncType& matchFunc )
+    template<typename MATCH_FUNC_TYPE>
+    void findCustomAndRemove( MATCH_FUNC_TYPE&& matchFunc )
     {
-        for(auto it = begin(); it!=end(); )
+        for(auto it = this->begin(); it != this->end(); )
         {
             if( matchFunc(it) )
                 it = StdCollection< std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::erase( it );
@@ -635,7 +635,7 @@ public:
 	/** Returns a locale independent string representation of the set.*/
 	String toString() const
 	{
-		if(isEmpty())
+		if( this->isEmpty() )
 			return "{}";
 		else
 		{

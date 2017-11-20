@@ -270,7 +270,7 @@ static void _verifyElementRange(
     typename std::list< ElementInfo<ItType> >::iterator expectedEndIt)
 {
     ItType currIt = beginIt;
-    std::list< ElementInfo<ItType> >::iterator expectedCurrIt = expectedBeginIt;
+    typename std::list< ElementInfo<ItType> >::iterator expectedCurrIt = expectedBeginIt;
 
     while(currIt!=endIt)
     {
@@ -329,7 +329,7 @@ static void _verifyStealAndInsert( CollType& coll, CollType& other, typename Col
 
     size_t insertIndex = std::distance(coll.begin(), insertPos);
 
-    std::list< ElementInfo<typename CollType::Iterator> >::iterator infoInsertPos = _toElementInfoIt(coll, insertPos, info);
+    typename std::list< ElementInfo<typename CollType::Iterator> >::iterator infoInsertPos = _toElementInfoIt(coll, insertPos, info);
 
     size_t                      transferCount = 0;
     size_t                      transferBeginIndex = 0;
@@ -907,7 +907,7 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
         SECTION("check function")
         {
             coll.findCustomAndRemove( 
-                [](const CollType::Iterator& it)
+                [](const typename CollType::Iterator& it)
                 {
                     return false;
                 } );
@@ -932,7 +932,7 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             SECTION("check function")
             {   
                 coll.findCustomAndRemove( 
-                    [toFind](const CollType::Iterator& it )
+                    [toFind](const typename CollType::Iterator& it )
                     {
                         return (*it)==toFind;
                     } );
@@ -956,7 +956,7 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             SECTION("check function")
             {   
                 coll.findCustomAndRemove( 
-                    [toFind](const CollType::Iterator& it )
+                    [toFind](const typename CollType::Iterator& it )
                     {
                         return (*it)==toFind;
                     } );

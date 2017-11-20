@@ -9,6 +9,7 @@
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/Button.h>
 #include <bdn/ColumnView.h>
+#include <bdn/Array.h>
 
 namespace bdn
 {

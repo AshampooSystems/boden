@@ -194,7 +194,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
         SECTION("findCustomAndRemove")
         {
             coll.findCustomAndRemove(
-                [elNotInList](const Set<ElType>::Iterator& it )
+                [elNotInList](const typename Set<ElType>::Iterator& it )
                 {
                     return _isCollectionElementEqual(*it, elNotInList);
                 } );
@@ -231,7 +231,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
                     SECTION("findCustomAndRemove")  
                     {
                         coll.findCustomAndRemove(
-                            [el](const Set<ElType>::Iterator& it )
+                            [el](const typename Set<ElType>::Iterator& it )
                             {
                                 return _isCollectionElementEqual( el, *it );
                             } );
@@ -261,7 +261,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const Set<ElType>::Iterator& it )
+                    [](const typename Set<ElType>::Iterator& it )
                     {
                         return false;
                     } );
@@ -276,7 +276,7 @@ static void _testSetFindAndRemove( std::initializer_list< ElType > elList, const
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const Set<ElType>::Iterator& it )
+                    [](const typename Set<ElType>::Iterator& it )
                     {
                         return true;
                     } );
@@ -367,55 +367,6 @@ TEST_CASE("Set")
                 },
                 TestCollectionElement_OrderedComparable_(400, 401) );
         }
-		/*
-        SECTION("unordered comparable")
-        {
-            testSet<TestCollectionElement_UnorderedComparable_>(
-                { TestCollectionElement_UnorderedComparable_(17, 117),
-                  TestCollectionElement_UnorderedComparable_(42, 142),
-                  TestCollectionElement_UnorderedComparable_(3, 103)
-                },
-                { TestCollectionElement_UnorderedComparable_(100, 201),
-                  TestCollectionElement_UnorderedComparable_(102, 202),
-                  TestCollectionElement_UnorderedComparable_(103, 203)
-                },
-                [](const TestCollectionElement_UnorderedComparable_& el)
-                {
-                    return el._a==-2 && el._b==-2;
-                },
-                TestCollectionElement_UnorderedComparable_(345, 456),
-                345, 456 );
-
-            /*_testCollectionFind< Set<TestCollectionElement_UnorderedComparable_> >(
-                { TestCollectionElement_UnorderedComparable_(17, 117),
-                    TestCollectionElement_UnorderedComparable_(42, 142),                
-                    TestCollectionElement_UnorderedComparable_(17, 117),
-                    TestCollectionElement_UnorderedComparable_(3, 103),
-                },
-                TestCollectionElement_UnorderedComparable_(400, 401) );*/
-		/*
-        }*/
-		/*
-        SECTION("unordered uncomparable")
-        {
-            testSet<TestCollectionElement_UnorderedUncomparable_>(
-                { TestCollectionElement_UnorderedUncomparable_(17, 117),
-                  TestCollectionElement_UnorderedUncomparable_(42, 142),
-                  TestCollectionElement_UnorderedUncomparable_(3, 103)
-                },
-                { TestCollectionElement_UnorderedUncomparable_(100, 201),
-                  TestCollectionElement_UnorderedUncomparable_(102, 202),
-                  TestCollectionElement_UnorderedUncomparable_(103, 203)
-                },
-                [](const TestCollectionElement_UnorderedUncomparable_& el)
-                {
-                    return el._a==-2 && el._b==-2;
-                },
-                TestCollectionElement_UnorderedUncomparable_(345, 456),
-                345, 456 );
-
-            // cannot use Set::find, since elements are not comparable
-        }*/
     }
 }
 

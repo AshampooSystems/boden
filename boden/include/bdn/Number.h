@@ -3,6 +3,7 @@
 
 // needed so that we can provide specializations for std::hash
 #include <functional>
+#include <cmath>
 
 namespace bdn
 {

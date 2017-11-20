@@ -66,7 +66,10 @@ class Map : public StdMapCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE,
 {
 public:
 
-	
+    using typename StdMapCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::Element;
+    using typename StdMapCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::Iterator;
+    using typename StdMapCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::ConstIterator;
+    
     /** The class of iterator objects for iteration over the collection elements in reverse order (with read/write access to the elements).*/
     using ReverseIterator = typename StdMapCollection< std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR> >::reverse_iterator;
 

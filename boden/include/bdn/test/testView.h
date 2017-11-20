@@ -13,13 +13,13 @@ namespace test
 {
 
 template<class ViewType>
-static void _initViewTestPreparerTestView(ViewType* pView)
+inline void _initViewTestPreparerTestView(ViewType* pView)
 {
 	// do nothing by default
 }
     
 template<>
-void _initViewTestPreparerTestView<TextView>(TextView* pView)
+inline void _initViewTestPreparerTestView<TextView>(TextView* pView)
 {
 	// must have a text set so that the preferred size hint will have a measurable effect
 	pView->text() = "hello world";

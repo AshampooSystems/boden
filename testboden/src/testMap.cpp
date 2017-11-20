@@ -413,7 +413,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
         SECTION("findCustomAndRemove")
         {
             coll.findCustomAndRemove(
-                [elNotInList](const Map<KeyType, ValType>::Iterator& it)
+                [elNotInList](const typename Map<KeyType, ValType>::Iterator& it)
                 {
                     return _isCollectionElementEqual( *it, elNotInList);
                 } );
@@ -449,7 +449,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
                     SECTION("findCustomAndRemove")  
                     {
                         coll.findCustomAndRemove(
-                            [el](const Map<KeyType, ValType>::Iterator& it)
+                            [el](const typename Map<KeyType, ValType>::Iterator& it)
                             {
                                 return _isCollectionElementEqual( el, *it );
                             } );
@@ -496,7 +496,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const Map<KeyType, ValType>::Iterator& it)
+                    [](const typename Map<KeyType, ValType>::Iterator& it)
                     {
                         return false;
                     } );
@@ -511,7 +511,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const Map<KeyType, ValType>::Iterator& it)
+                    [](const typename Map<KeyType, ValType>::Iterator& it)
                     {
                         return true;
                     } );

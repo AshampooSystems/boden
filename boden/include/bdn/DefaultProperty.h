@@ -60,7 +60,7 @@ public:
         _pImpl->bind(sourceProperty);
     }
 
-	String toString() const
+	String toString() const override
 	{
 		return _pImpl->toString();
 	}

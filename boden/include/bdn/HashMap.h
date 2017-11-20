@@ -260,6 +260,12 @@ class HashMap : public StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HA
 {
 public:
 
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::Allocator;
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::Iterator;
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::ConstIterator;
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::Element;
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::Key;
+    using typename StdMapCollection< std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR> >::Value;
 
 	HashMap()
 	{

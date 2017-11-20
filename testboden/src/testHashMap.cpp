@@ -441,7 +441,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
         SECTION("findCustomAndRemove")
         {
             coll.findCustomAndRemove(
-                [elNotInList](const HashMap<KeyType, ValType>::Iterator& it )
+                [elNotInList](const typename HashMap<KeyType, ValType>::Iterator& it )
                 {
                     return _isCollectionElementEqual(*it, elNotInList);
                 } );
@@ -477,7 +477,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
                     SECTION("findCustomAndRemove")  
                     {
                         coll.findCustomAndRemove(
-                            [el](const HashMap<KeyType, ValType>::Iterator& it)
+                            [el](const typename HashMap<KeyType, ValType>::Iterator& it)
                             {
                                 return _isCollectionElementEqual( el, *it );
                             } );
@@ -524,7 +524,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const HashMap<KeyType, ValType>::Iterator& it)
+                    [](const typename HashMap<KeyType, ValType>::Iterator& it)
                     {
                         return false;
                     } );
@@ -539,7 +539,7 @@ static void _testMapFindAndRemove( std::initializer_list< std::pair<const KeyTyp
             SECTION("findCustomAndRemove")
             {
                 coll.findCustomAndRemove(
-                    [](const HashMap<KeyType, ValType>::Iterator& it)
+                    [](const typename HashMap<KeyType, ValType>::Iterator& it)
                     {
                         return true;
                     } );
@@ -602,17 +602,29 @@ TEST_CASE("HashMap")
 		// elements should work.
 
 		HashMap< int, std::string > coll;
+        
+        // the ordering is implementation defined, so we must use a temporary hashmap
+        // to get it.
+        std::list< std::pair<const int, std::string> > expectedElementList;
+        {
+            HashMap<int,std::string> tempMap( { {1, std::string("hello") }, {2, std::string("world") } } );
+            
+            expectedElementList.insert(expectedElementList.begin(), tempMap.begin(), tempMap.end() );
+            
+            // sanity check
+            REQUIRE( expectedElementList.size() == 2);
+        }
 
 		SECTION("initializer_list")
 		{
 			coll.addSequence( { {1, String("hello")}, {2, String("world") } } );
-			_verifyGenericCollectionReadOnly( coll, { {1, std::string("hello") }, {2, std::string("world") } } );
+			_verifyGenericCollectionReadOnly( coll, expectedElementList );
 		}
 
 		SECTION("std::list")
 		{
 			coll.addSequence( std::list< std::pair<int, String> >( { {1, String("hello")}, {2, String("world") } } ) );
-			_verifyGenericCollectionReadOnly( coll, { {1, std::string("hello") }, {2, std::string("world") } } );
+			_verifyGenericCollectionReadOnly( coll, expectedElementList );
 		}
 	}
 

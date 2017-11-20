@@ -3,16 +3,18 @@
 
 #include <bdn/Number.h>
 
+#include <type_traits>
+
 
 using namespace bdn;
 
-template<typename BaseType, typename ArgNumberType, std::enable_if_t<sizeof(ArgNumberType)<=sizeof(BaseType), int> = 0>
+template<typename BaseType, typename ArgNumberType, typename std::enable_if<sizeof(ArgNumberType)<=sizeof(BaseType), int>::type = 0>
 ArgNumberType _downCastIfNotImplicitlyConvertible(ArgNumberType arg)
 {
 	return arg;
 }
 
-template<typename BaseType, typename ArgNumberType, std::enable_if_t<sizeof(BaseType) < sizeof(ArgNumberType), int> = 0>
+template<typename BaseType, typename ArgNumberType, typename std::enable_if<sizeof(BaseType) < sizeof(ArgNumberType), int>::type = 0>
 BaseType _downCastIfNotImplicitlyConvertible(ArgNumberType arg)
 {
 	return (BaseType)arg;
@@ -102,11 +104,11 @@ static void _verifyNumber(ValueType value )
 		// However, it is necessary to avoid a compiler warning in case ValueType
 		// is unsigned. While we will not enter this "if" branch in that case, the compiler
 		// does not know that and may complain that we are doing a sign inversion on an unsigned type.
-		value = - (MakeSigned_<ValueType>::Type)value;
+		value = - (typename MakeSigned_<ValueType>::Type)value;
 	}
 
 	auto arg = _downCastIfNotImplicitlyConvertible<typename ObjectType::SimpleType, ValueType>( value );	
-	using ArgTypeWithSameSign = MakeSameSign_<typename ObjectType::SimpleType, decltype(arg) >::Type;	
+	using ArgTypeWithSameSign = typename MakeSameSign_<typename ObjectType::SimpleType, decltype(arg) >::Type;
 
 	ArgTypeWithSameSign				argWithSameSign = (ArgTypeWithSameSign)arg;
 
@@ -361,7 +363,7 @@ static void _testNumberBase()
 		REQUIRE( ObjectType::minValue() == limits.lowest() );
 		REQUIRE( ObjectType::maxValue() == limits.max() );
 
-		REQUIRE( ObjectType::maxValue() > 0);
+		REQUIRE( ObjectType::maxValue() > (uint64_t)0);
 
 		REQUIRE( ObjectType::hasInfinity() == limits.has_infinity );
 		REQUIRE( ObjectType::hasNan() == limits.has_quiet_NaN );

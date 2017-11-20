@@ -4,6 +4,7 @@
 #include "testCollection.h"
 
 #include <bdn/Array.h>
+#include <bdn/sort.h>
 
 using namespace bdn;
 using namespace bdn::test;

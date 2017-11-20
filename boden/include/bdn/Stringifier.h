@@ -2,9 +2,14 @@
 #define BDN_Stringifier_H_
 
 #include <sstream>
+#include <cstddef>
 
 namespace bdn
 {
+    
+template<typename InputType>
+inline String toString(InputType&& inputValue);
+    
 
 template<
 	typename INT_TYPE,		
@@ -374,9 +379,9 @@ struct Stringifier<bool>
 
 
 template<>
-struct Stringifier<nullptr_t>
+struct Stringifier<std::nullptr_t>
 {
-	String operator()(nullptr_t inputValue) const
+    String operator()(std::nullptr_t inputValue) const
 	{
 		return "nullptr";
 	}

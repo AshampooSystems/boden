@@ -8,7 +8,7 @@ namespace bdn
 {
 
 #if defined(_MSC_VER) && _MSC_VER<=1900
-
+    
 /** Helper used to work around a compiler bug in Visual Studio 2015. Do not use.*/
 template<typename BaseSequence>
 struct MSCSequenceFilterIteratorTypedefHelper_
@@ -60,7 +60,8 @@ public:
     using BaseSequence = BaseSequenceType;
 
 
-	#if defined(_MSC_VER) && _MSC_VER<=1900  // Visual Studio 2015 and below
+	#if defined(_MSC_VER) && _MSC_VER<=1900
+        // Visual Studio 2015 and below
 		// this is a workaround for a bug in VS2015. The commented out line is
 		// the simple, normal type alias we want: BaseIterator should be the result
 		// of the begin function for the given sequence.
@@ -74,7 +75,7 @@ public:
 		using BaseIterator = typename MSCSequenceFilterIteratorTypedefHelper_<BaseSequence>::type;
 
 	#else
-		using BaseIterator = decltype( std::begin( std::declval<BaseSequence>() ) );	
+		using BaseIterator = decltype( std::begin( *((BaseSequence*)nullptr) ) );
 
 	#endif
 		
@@ -139,7 +140,7 @@ public:
         Iterator& advanceAfterRemoval(const BaseIterator& baseIt)
         {
             if(_pFilter==nullptr)
-                programmingError("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
+                throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
 
             _baseIt = baseIt;
             _pFilter->_skipExcluded(_baseIt);
@@ -150,7 +151,7 @@ public:
 		Iterator& advanceAfterRemoval(BaseIterator&& baseIt)
         {
             if(_pFilter==nullptr)
-                programmingError("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
+                throw std::logic_error("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
 
 			_baseIt = std::move(baseIt);
 			_pFilter->_skipExcluded(_baseIt);
@@ -164,12 +165,12 @@ public:
 		}
 
 
-		typename const typename std::iterator_traits<BaseIterator>::value_type& operator*() const
+        const typename std::iterator_traits<BaseIterator>::value_type& operator*() const
 		{
 			return *_baseIt;
 		}
 			
-		typename typename std::iterator_traits<BaseIterator>::value_type* operator->() const
+		typename std::iterator_traits<BaseIterator>::value_type* operator->() const
 		{
 			return &*_baseIt;
 		}
@@ -198,7 +199,7 @@ public:
 
 		Iterator operator++(int)
 		{
-			It oldVal = *this;
+			Iterator oldVal = *this;
 			operator++();
 
 			return oldVal;

@@ -225,7 +225,7 @@ public:
     template< class... ARGS > 
     Element& addNew( ARGS&&... args )
     {
-        std::pair<iterator,bool> result = StdCollection< BASE_COLLECTION_TYPE >::emplace( std::forward<ARGS>(args)... );
+        std::pair<Iterator,bool> result = StdCollection< BASE_COLLECTION_TYPE >::emplace( std::forward<ARGS>(args)... );
 
         if(!result.second)
         {
@@ -276,7 +276,7 @@ public:
     */
     bool contains( const Key& key ) const
     {
-		return (count(key) != 0);
+		return (this->count(key) != 0);
     }
 
 
@@ -547,8 +547,6 @@ public:
 		StdCollection< BASE_COLLECTION_TYPE >::erase( key );
     }
 
-
-
     
     /** Removes all elements for which the specified function matchFunc returns true.
     
@@ -556,9 +554,9 @@ public:
 		and returns true if the element at the corresponding position should be removed.
     */
     template<typename MATCH_FUNC_TYPE>
-    void findCustomAndRemove( MATCH_FUNC_TYPE& matchFunc )
+    void findCustomAndRemove( MATCH_FUNC_TYPE&& matchFunc )
     {
-        for(auto it = begin(); it!=end(); )
+        for(auto it = StdCollection< BASE_COLLECTION_TYPE >::begin(); it!=StdCollection< BASE_COLLECTION_TYPE >::end(); )
         {
             if( matchFunc(it) )
                 it = StdCollection< BASE_COLLECTION_TYPE >::erase( it );
@@ -568,16 +566,10 @@ public:
     }
 
 
-
-
-	
-
-
-
 	/** Returns a locale independent string representation of the map.*/
 	String toString() const
 	{
-		if(isEmpty())
+		if( StdCollection< BASE_COLLECTION_TYPE >::isEmpty() )
 			return "{}";
 		else
 		{

@@ -2,6 +2,7 @@
 #define BDN_testCollection_H_
 
 #include <bdn/test.h>
+#include <bdn/sort.h>
 
 #include <vector>
 #include <list>
@@ -895,27 +896,6 @@ void _removeCollectionElement(CollType& coll, const typename CollType::value_typ
 	REQUIRE( removedCount>0 );
 }
 
-template<class CollType>
-typename CollType::iterator _getLastElementIterator(CollType& coll)
-{
-	// find the last element. Note that we cannot use --end() here because
-	// the collection might not support backwards iteration.
-	auto lastElementIt = coll.begin();				
-	if(lastElementIt != coll.end())
-	{
-		auto nextIt = lastElementIt;
-		while(true)
-		{
-			++nextIt;
-			if(nextIt == coll.end())
-				break;
-
-			lastElementIt = nextIt;
-		}
-	}
-
-	return lastElementIt;
-}
 
 template<class CollType>
 inline void _verifyCollectionRemoveSpecificSection(CollType& coll, int removeBeginIndex, int removeCount, std::list<typename CollType::Element> expectedElementList )
@@ -1078,6 +1058,27 @@ inline void verifyCollectionFindCustomAndRemove(CollType& coll, const std::list<
 }
 
 
+template<class CollType>
+typename CollType::iterator _getLastElementIterator(CollType& coll)
+{
+    // find the last element. Note that we cannot use --end() here because
+    // the collection might not support backwards iteration.
+    auto lastElementIt = coll.begin();
+    if(lastElementIt != coll.end())
+    {
+        auto nextIt = lastElementIt;
+        while(true)
+        {
+            ++nextIt;
+            if(nextIt == coll.end())
+                break;
+            
+            lastElementIt = nextIt;
+        }
+    }
+    
+    return lastElementIt;
+}
 
 template<class CollType, typename... ConstructArgs>
 inline void _verifyGenericCollection(
@@ -1731,42 +1732,6 @@ inline void verifyReverseFindCustom(CollType& coll, std::function< bool(const ty
 }
 
 
-template<class CollType>
-inline void _testCollectionFindWithStartPos(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
-{
-	_testCollectionFind<CollType>(elements, elNotInColl);
-
-    SECTION("find with start pos")
-    {
-        CollType coll;
-
-        SECTION("empty")
-        {
-            SECTION("not found")
-                _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
-        }
-
-        SECTION("not empty")
-        {        
-            coll.addSequence(elements);
-
-            // the first element must equal the third one for these tests to work
-            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
-
-            SECTION("first")
-                _verifyCollectionFindWithStartPos( coll, *coll.begin(), coll.begin() );
-
-            SECTION("last")
-                _verifyCollectionFindWithStartPos( coll, *--coll.end(), --coll.end() );
-
-            SECTION("second")
-                _verifyCollectionFindWithStartPos( coll, *++coll.begin(), ++coll.begin() );
-
-            SECTION("not found")
-                _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
-        }
-    }
-}
 
 template<class CollType, typename FindCaller >
 inline void _verifyCollectionFindXWithCaller(CollType& coll, const typename CollType::Element& elNotInColl, FindCaller findCaller)
@@ -1791,8 +1756,8 @@ inline void _verifyCollectionFindXWithCaller(CollType& coll, const typename Coll
 				REQUIRE( finderIt.getBaseIterator() == baseIt );
 
 				// verify that the BaseIterator typedef is either Iterator or ConstIterator
-				REQUIRE( ( typeid( typename decltype(finder)::BaseIterator ) == typeid(CollType::Iterator)
-							|| typeid( typename decltype(finder)::BaseIterator ) == typeid(CollType::ConstIterator) ) );
+				REQUIRE( ( typeid( typename decltype(finder)::BaseIterator ) == typeid(typename CollType::Iterator)
+							|| typeid( typename decltype(finder)::BaseIterator ) == typeid(typename CollType::ConstIterator) ) );
 						
 
 				// verify that implicit conversion works
@@ -1932,7 +1897,7 @@ inline void _testCollectionFind(
                 _verifyCollectionFind( coll, *coll.begin(), coll.begin() );
 
             SECTION("last")
-                _verifyCollectionFind( coll, *--coll.end(), --coll.end() );
+                _verifyCollectionFind( coll, *_getLastElementIterator(coll), _getLastElementIterator(coll) );
 
             SECTION("second")
                 _verifyCollectionFind( coll, *++coll.begin(), ++coll.begin() );
@@ -1979,7 +1944,7 @@ inline void _testCollectionFind(
 
             SECTION("last")
             {
-                typename CollType::Element toFind = *--coll.end();
+                typename CollType::Element toFind = *_getLastElementIterator(coll);
 
                 verifyFindCustom(
                     coll,
@@ -1987,7 +1952,7 @@ inline void _testCollectionFind(
                     {
                         return ( (*it) == toFind);
                     },
-                    --coll.end() );
+                    _getLastElementIterator(coll) );
             }
 
             SECTION("second")
@@ -2073,6 +2038,44 @@ inline void _testCollectionFind(
 				} );
 		}
 	}
+}
+
+
+template<class CollType>
+inline void _testCollectionFindWithStartPos(std::initializer_list<typename CollType::Element> elements, const typename CollType::Element& elNotInColl )
+{
+    _testCollectionFind<CollType>(elements, elNotInColl);
+    
+    SECTION("find with start pos")
+    {
+        CollType coll;
+        
+        SECTION("empty")
+        {
+            SECTION("not found")
+            _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
+        }
+        
+        SECTION("not empty")
+        {
+            coll.addSequence(elements);
+            
+            // the first element must equal the third one for these tests to work
+            REQUIRE( *coll.begin() == *(++(++coll.begin())) );
+            
+            SECTION("first")
+            _verifyCollectionFindWithStartPos( coll, *coll.begin(), coll.begin() );
+            
+            SECTION("last")
+            _verifyCollectionFindWithStartPos( coll, *--coll.end(), --coll.end() );
+            
+            SECTION("second")
+            _verifyCollectionFindWithStartPos( coll, *++coll.begin(), ++coll.begin() );
+            
+            SECTION("not found")
+            _verifyCollectionFindWithStartPos( coll, elNotInColl, coll.end() );
+        }
+    }
 }
 
 template<class CollType>
@@ -2237,13 +2240,13 @@ inline void _testCollectionSort(
 
         SECTION("sort(ascending)")
         {
-            coll.sort( ascending<typename CollType::Element> );
+            coll.sort( bdn::ascending<typename CollType::Element> );
             _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("sort(descending)")
         {
-            coll.sort( descending<typename CollType::Element> );
+            coll.sort( bdn::descending<typename CollType::Element> );
             _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
@@ -2267,13 +2270,13 @@ inline void _testCollectionSort(
 
         SECTION("stableSort(ascending)")
         {
-            coll.stableSort( ascending<typename CollType::Element> );
+            coll.stableSort( bdn::ascending<typename CollType::Element> );
             _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
         SECTION("stableSort(descending)")
         {
-            coll.stableSort( descending<typename CollType::Element> );
+            coll.stableSort( bdn::descending<typename CollType::Element> );
             _verifyPositionalCollectionReadOnly( coll, {} );
         }
 
@@ -2303,14 +2306,14 @@ inline void _testCollectionSort(
 
         SECTION("sort(ascending)")
         {
-            coll.sort( ascending<typename CollType::Element> );
+            coll.sort( bdn::ascending<typename CollType::Element> );
 
             _verifyCollectionSortResult( coll, elements );
         }
 
         SECTION("sort(descending)")
         {
-            coll.sort( descending<typename CollType::Element> );
+            coll.sort( bdn::descending<typename CollType::Element> );
 
             _verifyCollectionSortResult( coll, elements, true );
         }
@@ -2338,7 +2341,7 @@ inline void _testCollectionSort(
 
         SECTION("stableSort(ascending)")
         {
-            coll.stableSort( ascending<typename CollType::Element> );
+            coll.stableSort( bdn::ascending<typename CollType::Element> );
 
             _verifyCollectionSortResult( coll, elements );
 

@@ -5,6 +5,7 @@
 #include <bdn/SequenceFilter.h>
 #include <bdn/sort.h>
 
+#include <algorithm>
 
 namespace bdn
 {
@@ -433,10 +434,10 @@ public:
 
 		// this is a template function so that it works with both normal and const iterators
 		// and set references
-		template<class CollType, class IteratorType>
-		void operator() (CollType& coll, IteratorType& it)
+		template<class COLL, class ITERATOR>
+		void operator() (COLL& coll, ITERATOR& it)
         {
-			it = std::find( it, coll.end(), _element);
+			it = std::find<ITERATOR, Element>( it, coll.end(), _element);
         }
 
     private:
@@ -576,7 +577,7 @@ public:
     */
     bool contains( const Element& el ) const
     {
-        return find(el) != end();
+        return find(el) != this->end();
     }
 
 
@@ -586,8 +587,8 @@ public:
     */
     Iterator reverseFind( const Element& el )
     {
-        Iterator it = end();
-        Iterator beginIt = begin();
+        Iterator it = this->end();
+        Iterator beginIt = this->begin();
 
         while( it!=beginIt )
         {
@@ -597,7 +598,7 @@ public:
                 return it;
         }
 
-        return end();
+        return this->end();
     }
 
     /** Searches backwards from the specified start position for
@@ -610,9 +611,9 @@ public:
     Iterator reverseFind( const Element& el, Iterator startPos )
     {
         Iterator it = startPos;
-        if( it!=end() )
+        if( it!=this->end() )
             ++it;
-        Iterator beginIt = begin();
+        Iterator beginIt = this->begin();
 
         while( it!=beginIt )
         {
@@ -622,7 +623,7 @@ public:
                 return it;
         }
 
-        return end();
+        return this->end();
     }
 
 
@@ -630,8 +631,8 @@ public:
     */
     ConstIterator reverseFind( const Element& el ) const
     {
-        ConstIterator it = end();
-        ConstIterator beginIt = begin();
+        ConstIterator it = this->end();
+        ConstIterator beginIt = this->begin();
 
         while( it!=beginIt )
         {
@@ -641,7 +642,7 @@ public:
                 return it;
         }
 
-        return end();
+        return this->end();
     }    
 
     /** Const version of reverseFind() - returns a read-only iterator.
@@ -649,9 +650,9 @@ public:
     ConstIterator reverseFind( const Element& el, ConstIterator startPos ) const
     {
         ConstIterator it = startPos;
-        if( it!=end() )
+        if( it!=this->end() )
             ++it;
-        ConstIterator beginIt = begin();
+        ConstIterator beginIt = this->begin();
 
         while( it!=beginIt )
         {
@@ -661,7 +662,7 @@ public:
                 return it;
         }
 
-        return end();
+        return this->end();
     }    
 
 
@@ -795,7 +796,7 @@ public:
 	/** Returns a locale-independent string representation of the collection.*/
 	String toString() const
 	{
-		if(isEmpty())
+		if(this->isEmpty())
 			return "[]";
 		else
 		{
