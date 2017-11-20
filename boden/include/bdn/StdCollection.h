@@ -213,6 +213,98 @@ public:
 
 
 
+	
+    /** Searches for the first element for which the specified match function returns true.        
+        
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    template<typename MATCH_FUNC_TYPE>
+	Iterator findCustom( MATCH_FUNC_TYPE matchFunc )
+	{
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
+	}
+
+	
+
+
+    /** Const version of findCustom() - returns a read-only iterator.
+    */
+    template<typename MATCH_FUNC_TYPE>
+	ConstIterator findCustom( MATCH_FUNC_TYPE matchFunc ) const
+	{
+		auto it = this->begin();
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
+	}
+
+
+
+	
+    /** Searches for the first element for which the specified match function returns true,
+		starting from the position indicated by \c startPos.
+
+        The first possible hit is at \c startPos.
+        
+		The match function can be any function that takes a collection iterator as its parameter
+		and returns true if the element at the corresponding position should be in the find results.
+    
+        Returns an iterator to the found element, or end() if no such element is found.
+    */
+    template<typename MATCH_FUNC_TYPE>
+	Iterator findCustom( MATCH_FUNC_TYPE matchFunc, Iterator startPos )
+	{
+		auto it = startPos;
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
+	}
+		
+
+    /** Const version of findCustom() - returns a read-only iterator.
+    */
+    template<typename MATCH_FUNC_TYPE>
+	ConstIterator findCustom( MATCH_FUNC_TYPE matchFunc, ConstIterator startPos ) const
+	{
+		auto it = startPos;
+		while( it != this->end() )
+		{
+			if( matchFunc(it) )
+				break;
+
+			++it;
+		}
+
+		return it;
+	}
+
+
+
+
 
 };
 

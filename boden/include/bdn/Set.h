@@ -515,50 +515,6 @@ public:
 	}
 
 	
-    /** Searches for the first element for which the specified match function returns true.        
-        
-		The match function can be any function that takes a Set iterator as its parameter
-		and returns true if the element at the corresponding position should be in the find results.
-
-        Note that for the Set class findCustom() is a lot slower than find(). find can take advantage
-        of the internal data structures of the set to find the element in logarithmic time. findCustom 
-        on the other hand needs to check potentially all elements in the set (i.e. it has linear complexity).
-            
-        Returns an iterator to the found element, or end() if no such element is found.
-    */
-    template<typename MatchFuncType>
-	Iterator findCustom( MatchFuncType matchFunc )
-	{
-		auto it = this->begin();
-		while( it != this->end() )
-		{
-			if( matchFunc(it) )
-				break;
-
-			++it;
-		}
-
-		return it;
-	}
-
-
-    /** Const version of findCustom() - returns a read-only iterator.
-    */
-    template<typename MatchFuncType>
-	ConstIterator findCustom( MatchFuncType matchFunc ) const
-	{
-		auto it = this->begin();
-		while( it != this->end() )
-		{
-			if( matchFunc(it) )
-				break;
-
-			++it;
-		}
-
-		return it;
-	}
-
 
 
     /** If the set contains the specified element, remove it. Does nothing if the element

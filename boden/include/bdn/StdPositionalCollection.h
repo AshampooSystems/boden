@@ -571,46 +571,6 @@ public:
     }
 
 
-    /** Searches for the first element for which the specified match function returns true.        
-        
-		The match function can be any function that takes a collection iterator as its parameter
-		and returns true if the element at the corresponding position should be in the find results.
-    
-        Returns an iterator to the found element, or end() if no such element is found.
-    */
-    template<typename MatchFuncType>
-	Iterator findCustom( MatchFuncType matchFunc )
-	{
-		auto it = this->begin();
-		while( it != this->end() )
-		{
-			if( matchFunc(it) )
-				break;
-
-			++it;
-		}
-
-		return it;
-	}
-
-
-    /** Const version of findCustom() - returns a read-only iterator.
-    */
-    template<typename MatchFuncType>
-	ConstIterator findCustom( MatchFuncType matchFunc ) const
-	{
-		auto it = this->begin();
-		while( it != this->end() )
-		{
-			if( matchFunc(it) )
-				break;
-
-			++it;
-		}
-
-		return it;
-	}
-
 
 	/** Returns true if the collection contains the specified element.	
     */

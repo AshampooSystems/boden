@@ -132,6 +132,21 @@ Boden collections all support the following functionality:
 |                                                                           | and returns either true or false.
 |                                                                           | findAllCustom returns a [finder.md](finder object) with the results.
 -----------------------------------------------------------------------
+| `template<typename MatchFuncType>`                                    | Searches for the first element in the collection for which the specified match function returns true.
+| `Iterator findCustom( MatchFuncType matchFunc )`                      | If one is found then an iterator to it is returned, otherwise the functions returns end().
+|                                                                       | 
+| `template<typename MatchFuncType>`                                    | The match function can be any function that takes an iterator as its parameter and returns either true or false.
+| `ConstIterator findCustom( MatchFuncType matchFunc ) const`           |
+-----------------------------------------------------------------------
+| `template<typename MatchFuncType>`                                                   | Searches for the first element in the collection, starting at (and including) startPos,
+| `Iterator findCustom( MatchFuncType matchFunc, Iterator startPos )`                  | for which the specified match function returns true. 
+|                                                                                      |
+| `template<typename MatchFuncType>`                                                   | If one is found then an iterator to it is returned, otherwise the functions returns end().
+| `ConstIterator findCustom( MatchFuncType matchFunc, ConstIterator startPos ) const`  | If startPos equals end() then the always returns end().
+|                                                                                      | 
+|                                                                                      | The match function can be any function that takes an iterator as its parameter and
+|                                                                                      | returns either true or false.
+-----------------------------------------------------------------------
 | `String toString() const`                                           | Returns a locale-independent string representation of the collection and its elements.
 -----------------------------------------------------------------------
 

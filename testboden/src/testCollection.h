@@ -1594,28 +1594,115 @@ inline void verifyReverseFind(CollType& coll, typename CollType::Element toFind,
     }
 }
 
+template<class COLL, typename FIND_FUNC, typename CONST_FIND_FUNC>
+inline void verifyFindCustomWithFindFunc(COLL& coll, FIND_FUNC findFunc, CONST_FIND_FUNC constFindFunc, typename COLL::Iterator expectedResult )
+{
+	SECTION("normal")
+	{
+		typename COLL::Iterator it = findFunc(coll);
+		REQUIRE( it == expectedResult );
+	}
+
+	SECTION("const")
+	{
+		const COLL& constColl(coll);
+
+		typename COLL::ConstIterator it = constFindFunc(constColl);
+
+		if(expectedResult==coll.end())
+			REQUIRE( it == constColl.end() );
+		else
+		{
+			REQUIRE( &*it == &*expectedResult );
+		}
+	}
+}
+
+
 template<class CollType>
 inline void verifyFindCustom(CollType& coll, std::function< bool(const typename CollType::ConstIterator&) > conditionFunc, typename CollType::Iterator expectedResult )
 {
-    SECTION("normal")
-    {
-        typename CollType::Iterator it = coll.findCustom( conditionFunc );
-        REQUIRE( it == expectedResult );
-    }
+	SECTION("without startPos")
+	{
+		verifyFindCustomWithFindFunc(
+			coll,
+			[conditionFunc](CollType& coll)
+			{
+				return coll.findCustom(conditionFunc);
+			},
+			[conditionFunc](const CollType& constColl)
+			{
+				return constColl.findCustom(conditionFunc);
+			},
+			expectedResult
+			);		
+	}
+				
+	SECTION("with startPos")
+	{
+		SECTION("begin")
+		{
+			verifyFindCustomWithFindFunc(
+				coll,
+				[conditionFunc](CollType& coll)
+				{
+					return coll.findCustom(conditionFunc, coll.begin());
+				},
+				[conditionFunc](const CollType& constColl)
+				{
+					return constColl.findCustom(conditionFunc, constColl.begin());
+				},
+				expectedResult
+				);	
+		}
 
-    SECTION("const")
-    {
-        const CollType& constColl(coll);
+		SECTION("hitPos")
+		{
+			verifyFindCustomWithFindFunc(
+				coll,
+				[conditionFunc, expectedResult](CollType& coll)
+				{
+					return coll.findCustom(conditionFunc, expectedResult);
+				},
+				[conditionFunc, expectedResult](const CollType& constColl)
+				{
+					return constColl.findCustom(conditionFunc, expectedResult);
+				},
+				expectedResult
+				);	
+		}
 
-        typename CollType::ConstIterator it = constColl.findCustom( conditionFunc );
+		if(expectedResult!=coll.end())
+		{
+			SECTION("after hitPos")
+			{
+				typename CollType::Iterator startPos = expectedResult;
+				++startPos;
 
-        if(expectedResult==coll.end())
-            REQUIRE( it == constColl.end() );
-        else
-        {
-            REQUIRE( &*it == &*expectedResult );
-        }
-    }
+				typename CollType::Iterator expectedResultAfterStartPos = startPos;
+				while( expectedResultAfterStartPos != coll.end() )
+				{
+					if(conditionFunc(expectedResultAfterStartPos))
+						break;			
+
+					++expectedResultAfterStartPos;
+				}				
+			
+				verifyFindCustomWithFindFunc(
+					coll,
+					[conditionFunc, startPos](CollType& coll)
+					{
+						return coll.findCustom(conditionFunc, startPos);
+					},
+					[conditionFunc, startPos](const CollType& constColl)
+					{
+						return constColl.findCustom(conditionFunc, startPos);
+					},
+					expectedResultAfterStartPos
+					);	
+			}
+		}		
+	}
 }
 
 
