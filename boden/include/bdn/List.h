@@ -208,7 +208,6 @@ public:
         The other List object is invalidated by this operation.
         */
     List& operator=( List&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::list<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
@@ -219,7 +218,6 @@ public:
         The other List object is invalidated by this operation.
         */
     List& operator=( std::list<ELTYPE, ALLOCATOR>&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::list<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;

@@ -553,9 +553,6 @@ public:
         The other HashMap object is invalidated by this operation.
         */
     HashMap& operator=( HashMap&& other )
-        noexcept( std::allocator_traits<Allocator>::is_always_equal::value
-				&& std::is_nothrow_move_assignable<HASHERTYPE>::value
-				&& std::is_nothrow_move_assignable<EQUALITYCHECKERTYPE>::value )
     {
         std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
@@ -566,9 +563,6 @@ public:
         The other HashMap object is invalidated by this operation.
         */
     HashMap& operator=( std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>&& other )
-        noexcept( std::allocator_traits<Allocator>::is_always_equal::value
-				&& std::is_nothrow_move_assignable<HASHERTYPE>::value
-				&& std::is_nothrow_move_assignable<EQUALITYCHECKERTYPE>::value )
     {
         std::unordered_map<KEYTYPE, VALTYPE, HASHERTYPE, EQUALITYCHECKERTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;

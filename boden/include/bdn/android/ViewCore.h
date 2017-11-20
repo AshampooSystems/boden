@@ -336,7 +336,7 @@ public:
             _uiScaleFactor = scaleFactor;
 
             P<View> pView = getOuterViewIfStillAttached();
-            std::list<P<View> > childList;
+            List< P<View> > childList;
             if(pView!=nullptr)
                 pView->getChildViews(childList);
 

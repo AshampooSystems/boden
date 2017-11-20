@@ -229,7 +229,6 @@ public:
         The other Map object is invalidated by this operation.
         */
     Map& operator=( Map&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
@@ -240,7 +239,6 @@ public:
         The other Map object is invalidated by this operation.
         */
     Map& operator=( std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::map<KEYTYPE, VALTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;

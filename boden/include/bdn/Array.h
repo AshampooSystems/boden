@@ -208,7 +208,6 @@ public:
         The other Array object is invalidated by this operation.
         */
     Array& operator=( Array&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::vector<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
@@ -219,7 +218,6 @@ public:
         The other Array object is invalidated by this operation.
         */
     Array& operator=( std::vector<ELTYPE, ALLOCATOR>&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::vector<ELTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;

@@ -218,7 +218,6 @@ public:
         The other Set object is invalidated by this operation.
         */
     Set& operator=( Set&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;
@@ -229,7 +228,6 @@ public:
         The other Set object is invalidated by this operation.
         */
     Set& operator=( std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>&& other )
-        noexcept( ALLOCATOR::propagate_on_container_move_assignment::value || ALLOCATOR::is_always_equal::value )
     {
         std::set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>::operator=( std::move(other) );
         return *this;

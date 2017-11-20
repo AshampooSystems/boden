@@ -97,7 +97,7 @@ public:
         if(!_nameInSlashNotationInitialized)
         {
             _nameInSlashNotation = getCanonicalName();
-            _nameInSlashNotation.findReplace('.', '/');
+            _nameInSlashNotation.findAndReplace('.', '/');
             _nameInSlashNotationInitialized = true;
         }
 
