@@ -2506,7 +2506,7 @@ inline void testInsert()
 template<class DATATYPE>
 inline void testEraseWithString(StringImpl<DATATYPE>& s, int atPos, size_t eraseLength)
 {
-	int origLength = s.size();
+	int origLength = (int)s.size();
 
 	std::u32string expected = s.asUtf32();
 
@@ -8801,7 +8801,7 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 
 			s.findAndRemove( charToFind );
 
-			replacedCount = sizeBefore - s.getLength();
+			replacedCount = (int)(sizeBefore - s.getLength());
 		}
 
 		SECTION("findCustomAndRemove")
@@ -8816,7 +8816,7 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 					return chr==charToFind;
 				} );
 
-			replacedCount = sizeBefore - s.getLength();
+			replacedCount = (int)(sizeBefore - s.getLength());
 		}
 	}
 

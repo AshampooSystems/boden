@@ -25,7 +25,7 @@ public:
 		case to predictably alter the result. If you hash the same data with a different seed then
 		you will get a different hash. 
 	*/
-	static uint64_t calcHash( const void* pData, int bytes, uint64_t seed = 0 )
+	static uint64_t calcHash( const void* pData, size_t bytes, uint64_t seed = 0 )
 	{
 		SimpleDataProvider dataProvider( (const uint8_t*)pData, bytes );
 

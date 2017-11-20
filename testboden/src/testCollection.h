@@ -917,7 +917,7 @@ inline void _verifyCollectionRemoveSpecificSection(CollType& coll, int removeBeg
 }
 
 template<class CollType>
-inline void _verifyCollectionRemoveSectionOfSize(CollType& coll, size_t removeCount, const std::list<typename CollType::Element>& expectedElementList )
+inline void _verifyCollectionRemoveSectionOfSize(CollType& coll, int removeCount, const std::list<typename CollType::Element>& expectedElementList )
 {
 	SECTION("from begin")
 		_verifyCollectionRemoveSpecificSection(coll, 0, removeCount, expectedElementList);
@@ -925,7 +925,7 @@ inline void _verifyCollectionRemoveSectionOfSize(CollType& coll, size_t removeCo
 	if(expectedElementList.size() >= removeCount )
 	{
 		SECTION("to end")
-			_verifyCollectionRemoveSpecificSection(coll, coll.size()-removeCount, removeCount, expectedElementList);
+			_verifyCollectionRemoveSpecificSection(coll, ((int)coll.size())-removeCount, removeCount, expectedElementList);
 	}
 
 	if(expectedElementList.size() >= removeCount+1 )
@@ -954,7 +954,7 @@ inline void _verifyCollectionRemoveSection(CollType& coll, const std::list<typen
 	}
 
 	SECTION("all elements")
-		_verifyCollectionRemoveSectionOfSize(coll, coll.size(), expectedElementList );
+		_verifyCollectionRemoveSectionOfSize(coll, (int)coll.size(), expectedElementList );
 }
 
 template<class CollType>
@@ -987,7 +987,7 @@ inline void _verifyCollectionFindAndRemove(CollType& coll, const std::list<typen
 			verifyCollectionFindAndRemoveAtIndex(coll, 0, expectedElementList );
 	
 		SECTION("last")
-			verifyCollectionFindAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
+			verifyCollectionFindAndRemoveAtIndex(coll, ((int)expectedElementList.size())-1, expectedElementList );
 	}
 
 	if(expectedElementList.size()>=2)
@@ -1036,7 +1036,7 @@ inline void verifyCollectionFindCustomAndRemove(CollType& coll, const std::list<
 			verifyCollectionFindCustomAndRemoveAtIndex(coll, 0, expectedElementList );
 	
 		SECTION("last")
-			verifyCollectionFindCustomAndRemoveAtIndex(coll, expectedElementList.size()-1, expectedElementList );
+			verifyCollectionFindCustomAndRemoveAtIndex(coll, ((int)expectedElementList.size())-1, expectedElementList );
 	}
 
 	if(expectedElementList.size()>=2)
@@ -1262,7 +1262,7 @@ inline void _verifyPositionalCollection(
         }
 
         SECTION("at end")
-            _verifyCollectionInsertAt(coll, expectedElementList.size(), expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
+            _verifyCollectionInsertAt(coll, (int)expectedElementList.size(), expectedElementList, newElList, isMovedRemnant, expectedConstructedEl, std::forward<ConstructArgs>(constructArgs)... );
     }
 	
     SECTION("insertAtBegin")
@@ -1366,10 +1366,10 @@ inline void _testCollectionIndexedAccess(CollType& coll)
         _verifyIndexedCollectionAccess( coll, 1, ++coll.begin() );
 
     SECTION("last")
-        _verifyIndexedCollectionAccess( coll, coll.size()-1, --coll.end() );
+        _verifyIndexedCollectionAccess( coll, ((int)coll.size())-1, --coll.end() );
 
     SECTION("end")
-        _verifyIndexedCollectionAccess( coll, coll.size(), coll.end() );
+        _verifyIndexedCollectionAccess( coll, (int)coll.size(), coll.end() );
 }
 
 template<class CollType>
