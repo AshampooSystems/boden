@@ -1745,7 +1745,7 @@ inline void _verifyCollectionFindXWithCaller(CollType& coll, const typename Coll
 			++baseIt;
 
 			// assign this element to the finder element.
-			finderIt = baseIt;
+			finderIt.advanceAfterRemoval( baseIt );
 
 			// get the value of the base iterator that we expect the finder iterator to have
 			auto expectedBaseIt = baseIt;

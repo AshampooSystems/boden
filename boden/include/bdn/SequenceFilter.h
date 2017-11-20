@@ -104,7 +104,7 @@ public:
         {
         }
 
-		 Iterator(  const SequenceFilter& filter, const BaseIterator& baseIt )
+		Iterator(  const SequenceFilter& filter, const BaseIterator& baseIt )
 			: _pFilter(&filter)
 			, _baseIt(baseIt)
 		{
@@ -136,24 +136,24 @@ public:
             return *this;
         }        
 
-        Iterator& operator=(const BaseIterator& baseIt)
+        Iterator& advanceAfterRemoval(const BaseIterator& baseIt)
         {
             if(_pFilter==nullptr)
-                programmingError("SequenceFilter::Iterator::operator=(const BaseIterator&&) called, but no filter object is associated with the iterator.");
+                programmingError("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
 
             _baseIt = baseIt;
             _pFilter->_skipExcluded(_baseIt);
 
-            return *this;
+			return *this;
         }
 
-		Iterator& operator=(BaseIterator&& baseIt)
+		Iterator& advanceAfterRemoval(BaseIterator&& baseIt)
         {
             if(_pFilter==nullptr)
-                programmingError("SequenceFilter::Iterator::operator=(const BaseIterator&&) called, but no filter object is associated with the iterator.");
+                programmingError("SequenceFilter::Iterator::advanceAfterRemoval() called, but no filter object is associated with the iterator.");
 
-            _baseIt = std::move(baseIt);
-            _pFilter->_skipExcluded(_baseIt);
+			_baseIt = std::move(baseIt);
+			_pFilter->_skipExcluded(_baseIt);
 
             return *this;
         }

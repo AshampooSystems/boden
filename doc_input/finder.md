@@ -77,9 +77,32 @@ baseIt is used as the name fpr an iterator of the base sequence.
 | `baseIt = it`                     | Implicit conversion to a base sequence iterator. Has the same effect
 |                                   | as calling getBaseIterator.
 -------------------------------------------------------------
-| `it = baseIt`                     | Sets the finder iterator to the same position as the specified base iterator.
-|                                   | If the base iterator does not point to an element that matches the search criteria
-|                                   | of the Finder then it automatically advances itself to the next matching element.
+| `it.advanceAfterRemoval( nextBaseIt )`  | Notifies the iterator that the element it currently points to was removed
+|                                         | from the collection. nextBaseIt must be the base sequence iterator of the element
+|                                         | directly following the removed element. The element pointed to by nextBaseIt does
+|                                         | not have to match the finder's search criteria - it should simply be the
+|                                         | element directly following the removed element (or end() if it was the last element).
+|                                         | 
+|                                         | The finder iterator will adjust its position and automatically move to the next
+|                                         | element matching the search criteria automatically.
+|                                         | 
+|                                         | The advanceAfterRemoval method can be used to keep iterating when elements are removed.
+|                                         | 
+|                                         | advanceAfterRemoval returns a reference to the finder iterator.
+|                                         | 
+|                                         | Example:
+|                                         | 
+|                                         | ```
+|                                         | // find all elements equal to someElement
+|                                         | auto finder = myCollection.findAll( someElement );  
+|                                         | auto finderIt = finder.begin();
+|                                         | while( finderIt != finder.end() )
+|                                         | {
+|                                         |     // delete the found element and update finderIt to point to
+|                                         |     // the following element
+|                                         |     finderIt.advanceAfterRemoval( myCollection.erase(finderIt) );
+|                                         | }
+|                                         | ```
 -------------------------------------------------------------
 | itA == itB                        | Returns true if the iterators point to the same place.
 |                                   | The iterators do not have to be from the same search operation.

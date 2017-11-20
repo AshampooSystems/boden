@@ -371,6 +371,16 @@ public:
 		MATCH_FUNC_TYPE _matchFunc;
     };
 
+	
+	// note that in C++11 there is a theoretical problem here (though not one in practice).
+	// The advanceAfterRemoval method of the SequenceFilter Iterators assumes that the order
+	// of the elements does not change when an element is removed. In C++11 this is not
+	// guaranteed for std::unordered_map. In C++14 it IS guaranteed.
+	// Luckily, it seems that all known implementations in C++11 do NOT reorder the elements
+	// when one is removed. So in practice this is not a problem. And since C++14 guarantees
+	// that the ordering remains the same, this will also not become a problem in the future.
+	// Also see
+	// https://stackoverflow.com/questions/25047241/c11-is-it-safe-to-remove-individual-elements-from-stdunordered-map-while-it
 
 	using KeyFinder = SequenceFilter< StdMapCollection, KeyMatcher_>;
 	using ConstKeyFinder = SequenceFilter<const StdMapCollection, KeyMatcher_>;
