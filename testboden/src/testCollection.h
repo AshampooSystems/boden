@@ -1308,6 +1308,32 @@ inline void _verifyPositionalCollection(
             _verifyPositionalCollectionReadOnly( coll, newExpectedElementList);
         }
     }
+
+	SECTION("toString")
+	{
+		String expected;
+		
+		if(coll.isEmpty())
+			expected = "[]";
+		else
+		{
+			expected = "[ ";
+
+			bool first = true;
+			for( auto& el: coll )
+			{
+				if(!first)
+					expected += ",\n  ";
+				expected += bdn::toString(el);
+
+				first = false;
+			}
+
+			expected += " ]";
+		}
+
+		REQUIRE( coll.toString() == expected );
+	}
 }
 
 template<class CollType, class ItType >
