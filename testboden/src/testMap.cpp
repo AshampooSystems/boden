@@ -11,6 +11,33 @@ using namespace bdn;
 using namespace bdn::test;
 
 
+template< typename COLL >
+static void _testMapToString(COLL& coll)
+{	
+	String expected;
+		
+	if(coll.isEmpty())
+		expected = "{}";
+	else
+	{
+		expected = "{ ";
+
+		bool first = true;
+		for( auto& el: coll )
+		{
+			if(!first)
+				expected += ",\n  ";
+			expected += bdn::toString(el.first)+": "+bdn::toString(el.second);
+
+			first = false;
+		}
+
+		expected += " }";
+	}
+
+	REQUIRE( coll.toString() == expected );
+}
+
 template<typename KeyType, typename ValType, typename... ConstructArgs>
 static void testMap(
     std::initializer_list< std::pair<const KeyType,ValType> > initElList,
@@ -120,7 +147,10 @@ static void testMap(
             std::forward<ConstructArgs>(constructArgs)... );
 
         SECTION("prepareForSize")
-            _testGenericCollectionPrepareForSize(coll);        
+            _testGenericCollectionPrepareForSize(coll);    
+
+		SECTION("toString")
+			_testMapToString(coll);
     }
 
     SECTION("non-empty")
@@ -138,6 +168,9 @@ static void testMap(
         
         SECTION("prepareForSize")
             _testGenericCollectionPrepareForSize(coll);        
+
+		SECTION("toString")
+			_testMapToString(coll);
 
 		
 		SECTION("add(key, value)")
