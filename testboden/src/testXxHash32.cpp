@@ -15,7 +15,7 @@ TEST_CASE("XxHash32")
         uint32_t    hashWithSeed;
     };
 
-    uint64_t seed = 0x12345678;
+    uint32_t seed = 0x12345678;
 
     Array< XxHash32TestData > allTestData 
         {
