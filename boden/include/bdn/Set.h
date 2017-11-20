@@ -674,6 +674,32 @@ public:
 	}
 
 
+
+	
+	/** Returns a locale independent string representation of the set.*/
+	String toString() const
+	{
+		if(isEmpty())
+			return "{}";
+		else
+		{
+			String s = "{ ";
+
+			bool first = true;
+			for(auto& el: *this)
+			{
+				if(!first)
+					s += ",\n  ";
+				s += bdn::toString(el);
+				first = false;
+			}
+
+			s += " }";
+
+			return s;
+		}
+	}
+
 };
 
 

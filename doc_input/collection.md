@@ -132,6 +132,8 @@ Boden collections all support the following functionality:
 |                                                                           | and returns either true or false.
 |                                                                           | findAllCustom returns a [finder.md](finder object) with the results.
 -----------------------------------------------------------------------
+| `String toString() const`                                           | Returns a locale-independent string representation of the collection and its elements.
+-----------------------------------------------------------------------
 
 
 

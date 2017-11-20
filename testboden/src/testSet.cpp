@@ -9,6 +9,35 @@ using namespace bdn;
 using namespace bdn::test;
 
 
+
+template< typename COLL >
+static void _testSetToString(COLL& coll)
+{	
+	String expected;
+		
+	if(coll.isEmpty())
+		expected = "{}";
+	else
+	{
+		expected = "{ ";
+
+		bool first = true;
+		for( auto& el: coll )
+		{
+			if(!first)
+				expected += ",\n  ";
+			expected += bdn::toString(el);
+
+			first = false;
+		}
+
+		expected += " }";
+	}
+
+	REQUIRE( coll.toString() == expected );
+}
+
+
 template<typename ElType, typename... ConstructArgs>
 static void testSet(
     std::initializer_list<ElType> initElList,
@@ -120,6 +149,9 @@ static void testSet(
 
         SECTION("prepareForSize")
             _testGenericCollectionPrepareForSize(coll);        
+
+		SECTION("toString")
+            _testSetToString(coll);        
     }
 
     SECTION("non-empty")
@@ -136,7 +168,10 @@ static void testSet(
             std::forward<ConstructArgs>(constructArgs)... );        
         
         SECTION("prepareForSize")
-            _testGenericCollectionPrepareForSize(coll);        
+            _testGenericCollectionPrepareForSize(coll);     
+
+		SECTION("toString")
+            _testSetToString(coll);        
     }    
 }
 
