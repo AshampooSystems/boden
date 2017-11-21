@@ -233,12 +233,6 @@ static void testHashMap(
 					// this should overwrite the value
 					coll.add( std::make_pair(key, val2) );	
 
-// XXX
-std::cout << bdn::toString(key) << std::endl;
-std::cout << bdn::toString(val1) << std::endl;
-std::cout << bdn::toString(val2) << std::endl;
-std::cout << coll.toString() << std::endl;		
-
 					_verifyGenericCollectionReadOnly( coll, expectedElementList );
 				}
 
