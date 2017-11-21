@@ -13,13 +13,13 @@ namespace test
 {
 
 template<class ViewType>
-static void _initViewTestPreparerTestView(ViewType* pView)
+inline void _initViewTestPreparerTestView(ViewType* pView)
 {
 	// do nothing by default
 }
     
 template<>
-void _initViewTestPreparerTestView<TextView>(TextView* pView)
+inline void _initViewTestPreparerTestView<TextView>(TextView* pView)
 {
 	// must have a text set so that the preferred size hint will have a measurable effect
 	pView->text() = "hello world";
@@ -449,7 +449,7 @@ inline void testView()
 
 
                     // the view should not have any child views
-                    std::list< P<View> > childViews;
+                    List< P<View> > childViews;
                     pView->getChildViews(childViews);
                     BDN_REQUIRE( childViews.empty() );
 
@@ -859,7 +859,7 @@ inline void testView()
                             Rect bounds(1, 2, 3, 4);
                             Rect origBounds = pCore->getBounds();
 
-                            std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                            List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                             for(RoundType positionRoundType: roundTypes)
                             {
@@ -888,7 +888,7 @@ inline void testView()
                             Rect bounds(1.3, 2.4, 3.1, 4.9);
                             Rect origBounds = pCore->getBounds();
 
-                            std::list<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
+                            List<RoundType> roundTypes{RoundType::nearest, RoundType::up, RoundType::down};
 
                             for(RoundType positionRoundType: roundTypes)
                             {

@@ -44,7 +44,7 @@ void ViewTextUi::write(const String& s)
 
     String remaining = s;
     // normalize linebreaks
-    remaining.findReplace("\r\n", "\n");
+    remaining.findAndReplace("\r\n", "\n");
 
     while(!remaining.isEmpty())
     {

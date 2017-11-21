@@ -5,7 +5,7 @@
 #include <bdn/Window.h>
 #include <bdn/View.h>
 
-#include <set>
+#include <bdn/Set.h>
 
 namespace bdn
 {
@@ -94,10 +94,10 @@ protected:
 
 	Mutex				_mutex;
 	
-	std::set< P<View> > _layoutSet;
+	Set< P<View> >		_layoutSet;
 
-	std::set< P<Window> > _windowAutoSizeSet;
-	std::set< P<Window> > _windowCenterSet;
+	Set< P<Window> >	_windowAutoSizeSet;
+	Set< P<Window> >	_windowCenterSet;
 
 	bool _updateScheduled = false;
 

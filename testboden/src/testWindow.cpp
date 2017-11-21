@@ -229,7 +229,7 @@ TEST_CASE("Window", "[ui]")
         {
             SECTION("empty")
             {
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pWindow->getChildViews(childList);
 
                 REQUIRE( childList.empty() );
@@ -240,7 +240,7 @@ TEST_CASE("Window", "[ui]")
                 P<Button> pChild = newObj<Button>();
                 pWindow->setContentView(pChild);
 
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pWindow->getChildViews(childList);
 
                 REQUIRE( childList.size() == 1);
@@ -254,7 +254,7 @@ TEST_CASE("Window", "[ui]")
             {
                 pWindow->removeAllChildViews();
 
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pWindow->getChildViews(childList);
 
                 REQUIRE( childList.empty() );
@@ -270,7 +270,7 @@ TEST_CASE("Window", "[ui]")
                 REQUIRE( pWindow->getContentView()==nullptr );
                 REQUIRE( pChild->getParentView() == nullptr );
 
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pWindow->getChildViews(childList);
 
                 REQUIRE( childList.empty() );

@@ -133,7 +133,7 @@ public:
 		String remaining(s);
 
         // normalize line breaks
-        remaining.findReplace("\r\n", "\n");
+        remaining.findAndReplace("\r\n", "\n");
 
         // our fake font has a size of 9.75 x 19 2/3 DIPs for each character.
         double charWidth = 9.75;

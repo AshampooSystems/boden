@@ -113,7 +113,7 @@ bool GenericDispatcher::getNextReady(std::function< void() >& func, bool remove)
 	// go through the queues in priority order and handle one item
 	for( int priorityIndex = priorityCount-1; priorityIndex>=0; priorityIndex--)
 	{
-		std::list< std::function< void() > >& queue = _queues[priorityIndex];
+		List< std::function< void() > >& queue = _queues[priorityIndex];
 
 		if(!queue.empty())
 		{

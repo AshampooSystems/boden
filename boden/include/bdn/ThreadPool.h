@@ -8,7 +8,8 @@
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/Signal.h>
 
-#include <set>
+#include <bdn/List.h>
+#include <bdn/Set.h>
 
 namespace bdn
 {
@@ -86,10 +87,10 @@ private:
 
     mutable Mutex              _mutex;
 
-    std::list< P<PoolRunner> > _idleRunners;
-    std::set< P<PoolRunner> >  _busyRunners;
+    List< P<PoolRunner> >       _idleRunners;
+    Set< P<PoolRunner> >		_busyRunners;
 
-    std::list< P<IThreadRunnable> > _queuedJobs;
+    List< P<IThreadRunnable> >  _queuedJobs;
 
     int                        _minThreadCount;
     int                        _maxThreadCount;

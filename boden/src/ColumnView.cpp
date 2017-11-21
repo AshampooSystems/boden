@@ -55,7 +55,7 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
         effectiveAvailableSpace.applyMaximum( prefSizeMax );
     }
 
-    std::list< P<View> > childViews;
+    List< P<View> > childViews;
 	getChildViews(childViews);
 
     double contentAvailableWidth = effectiveAvailableSpace.width;

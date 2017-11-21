@@ -6,6 +6,7 @@
 #include <bdn/ThreadRunnableBase.h>
 #include <bdn/log.h>
 #include <bdn/IAppRunner.h>
+#include <bdn/List.h>
 
 #include <chrono>
 #include <functional>
@@ -35,7 +36,7 @@ public:
         
         for(int priorityQueueIndex=0; priorityQueueIndex<priorityCount; priorityQueueIndex++)
         {
-            std::list< std::function< void() > >& queue = _queues[priorityQueueIndex];
+            List< std::function< void() > >& queue = _queues[priorityQueueIndex];
 
             // remove the objects one by one so that we can ignore exceptions that happen in
             // the destructor.            
@@ -218,7 +219,7 @@ private:
         throw InvalidArgumentError("Invalid dispatcher item priority: "+std::to_string((int)priority) );
     }
 
-	std::list< std::function< void() > >& getQueue(Priority priority)
+	List< std::function< void() > >& getQueue(Priority priority)
 	{
 		return _queues[ priorityToQueueIndex(priority) ];
 	}
@@ -392,7 +393,7 @@ private:
     
     Mutex                                _mutex;
 
-    std::list< std::function< void() > > _queues[ priorityCount ];
+    List< std::function< void() > >      _queues[ priorityCount ];
 
 	std::map<  TimedItemKey, TimedItem > _timedItemMap;
 	int64_t								 _timedItemCounter = 0;

@@ -4,7 +4,7 @@
 #include <bdn/ITextUi.h>
 #include <bdn/NotImplementedError.h>
 
-#include <vector>
+#include <bdn/Array.h>
 
 namespace bdn
 {
@@ -23,7 +23,7 @@ public:
         creates a new entry in this list. The writeLine routines add a newline at the
         end of the written text.
         */
-    const std::vector< String >& getWrittenChunks() const
+    const Array< String >& getWrittenChunks() const
     {
         return  _writtenChunks;
     }
@@ -33,7 +33,7 @@ public:
         creates a new entry in this list. The writeLine routines add a newline at the
         end of the written text.
         */
-    const std::vector< String >& getWrittenErrorChunks() const
+    const Array< String >& getWrittenErrorChunks() const
     {
         return  _writtenErrorChunks;
     }
@@ -48,32 +48,32 @@ public:
 	
 	void write(const String& s) override
     {
-        _writtenChunks.push_back(s);
+        _writtenChunks.add(s);
     }
 
 	
 	void writeLine(const String& s) override
     {
-        _writtenChunks.push_back(s+"\n");
+        _writtenChunks.add(s+"\n");
     }
 
 
 	void writeError(const String& s) override
     {
-        _writtenErrorChunks.push_back(s);
+        _writtenErrorChunks.add(s);
     }
 	
     
 	void writeErrorLine(const String& s) override
     {
-        _writtenErrorChunks.push_back(s+"\n");
+        _writtenErrorChunks.add(s+"\n");
     }
 
 private:
     
 
-    std::vector< String > _writtenChunks;
-    std::vector< String > _writtenErrorChunks;
+    Array< String > _writtenChunks;
+    Array< String > _writtenErrorChunks;
 };
 
 

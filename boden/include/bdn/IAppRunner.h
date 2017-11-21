@@ -4,8 +4,6 @@
 #include <bdn/AppLaunchInfo.h>
 #include <bdn/IDispatcher.h>
 
-#include <vector>
-#include <map>
 
 namespace bdn
 {

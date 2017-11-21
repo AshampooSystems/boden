@@ -427,11 +427,11 @@ public:
     static String htmlEscape(const String& text)
     {
         String escaped = text;
-        escaped.findReplace("&", "&amp;");
-        escaped.findReplace("\'", "&apos;");
-        escaped.findReplace("\"", "&quot;");
-        escaped.findReplace(">", "&gt;");
-        escaped.findReplace("<", "&lt;");
+        escaped.findAndReplace("&", "&amp;");
+        escaped.findAndReplace("\'", "&apos;");
+        escaped.findAndReplace("\"", "&quot;");
+        escaped.findAndReplace(">", "&gt;");
+        escaped.findAndReplace("<", "&lt;");
 
         return escaped;
     }
@@ -445,8 +445,8 @@ public:
         String html = htmlEscape(text);
 
         // replace line breaks with <br> tags
-        html.findReplace("\r\n", "<br>");
-        html.findReplace("\n", "<br>");
+        html.findAndReplace("\r\n", "<br>");
+        html.findAndReplace("\n", "<br>");
 
         return html;
     }

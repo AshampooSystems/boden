@@ -5,7 +5,6 @@
 #include <bdn/IAppRunner.h>
 #include <bdn/AppControllerBase.h>
 
-#include <vector>
 #include <functional>
 
 namespace bdn

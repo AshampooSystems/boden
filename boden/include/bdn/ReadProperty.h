@@ -41,6 +41,12 @@ public:
 		*/
 	virtual INotifier< P<const IValueAccessor<ValType>> >& onChange() const=0;
 
+
+	/** Returns a string representation of the property value.
+		This usually gives the same result as calling the global
+		bdn::toString() function on the property value.*/
+	virtual String toString() const=0;
+
 };
 
 }

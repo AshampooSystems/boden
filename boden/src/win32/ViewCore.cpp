@@ -68,7 +68,7 @@ void ViewCore::setUiScaleFactor(double factor)
 
         // and we must also notify our child views.
         P<View> pOuter = getOuterViewIfStillAttached();
-		std::list< P<View> > childViews;
+		List< P<View> > childViews;
         if(pOuter!=nullptr)
 		    pOuter->getChildViews(childViews);
 

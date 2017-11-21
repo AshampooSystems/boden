@@ -94,7 +94,12 @@ public:
 		return *this;
 	}
 
-	
+	/** Returns a locale-independent string representation of the point.
+		*/
+	String toString() const
+	{
+		return bdn::toString(x) +", "+ bdn::toString(y) +"; "+ bdn::toString(width) +" x "+ bdn::toString(height);
+	}
 };
 
 

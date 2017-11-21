@@ -8,7 +8,7 @@
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/mainThread.h>
 
-#include <map>
+#include <bdn/Map.h>
 
 namespace bdn
 {
@@ -110,7 +110,7 @@ private:
     {
         NotificationState* pNext = nullptr;
 
-        typename std::map<int64_t, Sub_ >::iterator   nextItemIt;        
+        typename Map<int64_t, Sub_ >::Iterator   nextItemIt;        
     };
     
 
@@ -287,7 +287,7 @@ private:
     
     Mutex                               _mutex;
     int64_t                             _nextSubId = 1;
-    std::map<int64_t,  Sub_>            _subMap;
+    Map<int64_t,  Sub_>					_subMap;
     NotificationState*                  _pFirstNotificationState = nullptr;
 };
     

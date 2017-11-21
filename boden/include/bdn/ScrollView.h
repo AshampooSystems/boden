@@ -147,7 +147,7 @@ public:
 	}
 
 
-	void getChildViews(std::list< P<View> >& childViews) const override
+	void getChildViews( List< P<View> >& childViews) const override
 	{
 		MutexLock lock( getHierarchyAndCoreMutex() );
 

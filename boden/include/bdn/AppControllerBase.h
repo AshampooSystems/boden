@@ -5,9 +5,6 @@
 #include <bdn/IUnhandledProblem.h>
 #include <bdn/IUiProvider.h>
 
-#include <vector>
-#include <map>
-
 namespace bdn
 {
     

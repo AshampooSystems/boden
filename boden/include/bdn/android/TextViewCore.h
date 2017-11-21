@@ -61,7 +61,7 @@ public:
     {
         // Android treats carriage return like a space. So we filter those out.
         String textToSet = text;
-        textToSet.findReplace("\r", "");
+        textToSet.findAndReplace("\r", "");
 
         _pJTextView->setText( textToSet );
 

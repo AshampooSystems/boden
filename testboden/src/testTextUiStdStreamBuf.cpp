@@ -143,7 +143,7 @@ void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestDa
 template<class CharType>
 static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, TextUiStdStreamBuf<CharType>& buf, bool multiByteIsUtf8 )
 {  
-    const std::vector<String>& writtenChunks = pUi->getWrittenChunks();
+    const Array<String>& writtenChunks = pUi->getWrittenChunks();
 
     SECTION("sputc auto flush")
     {
@@ -155,7 +155,7 @@ static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, Te
             expectedDataA += "a";
         }
 
-        const std::vector<String>& writtenChunks = pUi->getWrittenChunks();
+        const Array<String>& writtenChunks = pUi->getWrittenChunks();
 
         // nothing should have been written yet
         REQUIRE( writtenChunks.size() == 0);

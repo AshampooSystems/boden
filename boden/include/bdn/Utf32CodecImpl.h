@@ -26,7 +26,7 @@ public:
 
 
 	/** Returns the maximum number of encoded elements that can be needed for a character.*/
-	static int getMaxEncodedElementsPerCharacter()
+	constexpr static int getMaxEncodedElementsPerCharacter()
 	{
 		return 1;
 	}

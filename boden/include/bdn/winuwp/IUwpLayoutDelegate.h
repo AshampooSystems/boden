@@ -38,7 +38,7 @@ public:
         // The layout was already done at the end of the measure phase.
 		// All we need to do here is call Arrange on our child views to activate the layout changes.
 
-		std::list< P<View> > childViews;
+		List< P<View> > childViews;
 		pView->getChildViews( childViews );
 
 		for(auto& pChildView: childViews)

@@ -511,6 +511,17 @@ TEST_CASE("Size")
 
     }
 
+	SECTION("toString")
+	{
+		Size s( 1.125, -345.125 );
+
+		SECTION("method")
+			REQUIRE( s.toString() == "1.125 x -345.125" );
+
+		SECTION("global function")
+			REQUIRE( toString(s) == "1.125 x -345.125" );
+	}
+
 }
 
 

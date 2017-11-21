@@ -137,7 +137,10 @@ public:
     virtual void bind(const ReadProperty<ValType>& sourceProperty)=0;        
     
 
+	
 };
+
+
 
 
 }

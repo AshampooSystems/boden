@@ -5,6 +5,7 @@
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/ISimpleCallable.h>
 
+#include <bdn/List.h>
 
 namespace bdn
 {
@@ -71,7 +72,7 @@ protected:
 	virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
     Mutex _idleMutex;
-    std::list< P<ISimpleCallable> > _callOnceWhenIdleList;
+    List< P<ISimpleCallable> > _callOnceWhenIdleList;
 };
 
 

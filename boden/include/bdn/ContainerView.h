@@ -77,13 +77,13 @@ public:
 			pOldParentView->_childViewStolen(pChildView);
 		}
 
-		std::list< P<View> >::iterator it;
+		List< P<View> >::Iterator it;
 		if(pInsertBeforeChildView==nullptr)
 			it = _childViews.end();
 		else		
-			it = std::find( _childViews.begin(), _childViews.end(), pInsertBeforeChildView );
+			it = _childViews.find( pInsertBeforeChildView );
 
-		_childViews.insert(it, pChildView);
+		_childViews.insertAt(it, pChildView);
 
 		pChildView->_setParentView(this);
 
@@ -119,7 +119,7 @@ public:
         _childViews.clear();
     }
 
-	void getChildViews(std::list< P<View> >& childViews) const override
+	void getChildViews( List< P<View> >& childViews) const override
 	{
 		// we use a single global mutex to synchronize changes to parent-child relationships.
 		// See getHierarchyMutex() for more info.
@@ -183,7 +183,7 @@ public:
 
 	
 protected:
-	std::list< P<View> > _childViews;
+	List< P<View> > _childViews;
 };
 
 

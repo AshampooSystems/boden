@@ -48,8 +48,7 @@ namespace bdn
 #include <bdn/SafeInit.h>
 
 #include <bdn/String.h>
-
-#include <bdn/ErrorImpl.h>
+#include <bdn/Stringifier.h>
 
 #include <bdn/ProgrammingError.h>
 #include <bdn/InvalidArgumentError.h>

@@ -1,7 +1,7 @@
 #ifndef BDN_AppLaunchInfo_H_
 #define BDN_AppLaunchInfo_H_
 
-#include <vector>
+#include <bdn/Array.h>
 
 namespace bdn
 {
@@ -28,14 +28,14 @@ public:
 		is a relative path or just a file name. On some platforms it can also simply be an empty string.
 
 		The remaining items are the parameters passed to the app by the caller.*/
-	const std::vector<String>& getArguments() const
+	const Array<String>& getArguments() const
 	{
 		return _arguments;
 	}
 
 
 	/** Sets the commandline arguments - see getArguments().*/
-	void setArguments(const std::vector<String>& args)
+	void setArguments(const Array<String>& args)
 	{
 		_arguments = args;
 	}
@@ -77,7 +77,7 @@ public:
 	
 
 protected:
-	std::vector<String> _arguments;
+	Array<String> _arguments;
 
 #if BDN_PLATFORM_WIN32
 	int _windowsShowCommand;

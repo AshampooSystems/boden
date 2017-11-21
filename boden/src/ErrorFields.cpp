@@ -83,9 +83,9 @@ String ErrorFields::escapeName(const String& name)
 {
 	String result = name;
 
-	result.findReplace("%", "%25");
-	result.findReplace("]]", "%5d%5d");
-	result.findReplace(":", "%3a");
+	result.findAndReplace("%", "%25");
+	result.findAndReplace("]]", "%5d%5d");
+	result.findAndReplace(":", "%3a");
 
 	return result;
 }
@@ -94,9 +94,9 @@ String ErrorFields::escapeValue(const String& value)
 {
 	String result = value;
 
-	result.findReplace("%", "%25");
-	result.findReplace("]]", "%5d%5d");
-	result.findReplace("\"", "%22");
+	result.findAndReplace("%", "%25");
+	result.findAndReplace("]]", "%5d%5d");
+	result.findAndReplace("\"", "%22");
 
 	return result;
 }

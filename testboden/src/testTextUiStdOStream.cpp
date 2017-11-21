@@ -13,7 +13,7 @@ static void testTextUiStdOStream()
 {    
     P<bdn::test::MockTextUi> pUi = newObj<bdn::test::MockTextUi>();
 
-    const std::vector<String>& writtenChunks = pUi->getWrittenChunks();
+    const Array<String>& writtenChunks = pUi->getWrittenChunks();
 
     TextUiStdOStream<CharType> streamObj(pUi);
 

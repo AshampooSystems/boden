@@ -147,7 +147,7 @@ TEST_CASE("ColumnView")
         {   
             SECTION("getChildList")
             {
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pColumnView->getChildViews(childList);
 
                 REQUIRE( childList.empty() );
@@ -157,7 +157,7 @@ TEST_CASE("ColumnView")
             {
                 pColumnView->removeAllChildViews();
 
-                std::list< P<View> > childList;
+                List< P<View> > childList;
                 pColumnView->getChildViews(childList);
 
                 REQUIRE( childList.empty() );
@@ -227,7 +227,7 @@ TEST_CASE("ColumnView")
                     {
                         for(int vertAlign = (int)View::VerticalAlignment::top; vertAlign<=(int)View::VerticalAlignment::expand; vertAlign++)
                         {
-                            SECTION( toString(horzAlign)+", "+toString(vertAlign) )
+                            SECTION( std::to_string(horzAlign)+", "+std::to_string(vertAlign) )
                             {
                                 SECTION("no margin")
                                     testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
@@ -292,7 +292,7 @@ TEST_CASE("ColumnView")
                 
                 SECTION("getChildList")
                 {
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pColumnView->getChildViews(childList);
 
                     REQUIRE( childList.size() == 1);
@@ -303,7 +303,7 @@ TEST_CASE("ColumnView")
                 {
                     pColumnView->removeAllChildViews();
 
-                    std::list< P<View> > childList;
+                    List< P<View> > childList;
                     pColumnView->getChildViews(childList);
 
                     REQUIRE( childList.empty() );
@@ -329,7 +329,7 @@ TEST_CASE("ColumnView")
                             pData->destructorRun = true;
                             pData->childParentStillSet = (pButton->getParentView()!=nullptr) ? 1 : 0;
 
-                            std::list< P<View> > childList;
+                            List< P<View> > childList;
                             pColView->getChildViews(childList);
                             pData->childListEmpty = (childList.empty() ? 1 : 0);
                         } );

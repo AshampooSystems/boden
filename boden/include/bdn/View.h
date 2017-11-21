@@ -17,6 +17,7 @@ namespace bdn
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
 #include <bdn/PreferredViewSizeManager.h>
+#include <bdn/List.h>
 
 
 namespace bdn
@@ -315,7 +316,7 @@ public:
 
 	
 	/** Stores a list with all the child views in the target list object.*/
-	virtual void getChildViews(std::list< P<View> >& childViews) const
+	virtual void getChildViews( List< P<View> >& childViews) const
 	{
 		// no child views by default. So nothing to do.
 	}

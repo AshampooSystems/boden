@@ -46,7 +46,7 @@ void GlobalMessageWindow::callOnceWhenIdle( ISimpleCallable* pCallable )
 
 void GlobalMessageWindow::notifyIdleBegun()
 {
-    std::list< P<ISimpleCallable> > toCallList;
+    List< P<ISimpleCallable> > toCallList;
 
     {
         MutexLock lock( _idleMutex );

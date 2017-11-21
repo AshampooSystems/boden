@@ -7,6 +7,9 @@
 #include <bdn/Utf16StringData.h>
 #include <bdn/WideStringData.h>
 #include <bdn/OutOfRangeError.h>
+#include <bdn/SequenceFilter.h>
+#include <bdn/XxHash32.h>
+#include <bdn/XxHash64.h>
 
 #include <iterator>
 #include <list>
@@ -109,14 +112,23 @@ public:
 		static StringImpl whitespace( U"\u0009\u000A\u000B\u000c\u000D\u0020\u0085\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u2028\u2029\u202F\u205F\u3000" );
 		return whitespace;
 	}
-
+	
 
 	/** Type of the character iterators used by this string.*/
 	typedef typename MainDataType::Iterator Iterator;
 
+	
+	/** An alias to Iterator, since all string iterators are read-only.
+		*/
+	typedef Iterator ConstIterator;
+
 
 	/** Iterator type for reverse iterators of this String (see rbegin()).*/
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
+	
+
+	/** An alias of ReverseIterator, since all string iterators are read-only.*/
+    typedef ReverseIterator ConstReverseIterator;
 
 
 	/** iterator is an alias to Iterator. This is included for std::string compatibility.
@@ -128,9 +140,12 @@ public:
 	typedef Iterator iterator;
 
 
-	/** const_iterator is an alias to Iterator. This is included for std::string compatibility.
+	/** const_iterator is an alias to ConstIterator. This is included for std::string compatibility.
 		*/
 	typedef Iterator const_iterator;
+
+
+	
 
 
 
@@ -171,7 +186,7 @@ public:
 		- Windows: NativeEncodedElement is an alias for wchar_t
 		- Other platforms: NativeEncodedElement is an alias char
 		*/
-	typedef NativeStringData::EncodedElement NativeEncodedElement;
+	typedef typename NativeStringData::EncodedElement NativeEncodedElement;
 
 
 	/** Included with compatibility for std::string only. Conceptually, the string is a sequence of
@@ -202,9 +217,16 @@ public:
 	typedef const char32_t& const_reference;
 
 
-	/** Included with compatibility for std::string only.*/
+	/** Same as Size. Included with compatibility for std::string only.*/
 	typedef size_t size_type;
 
+
+	/** The integer type used to represent string sizes and indices. This is an alias for size_t.*/
+	typedef size_t Size;
+
+	/** The type of a string element. Strings are treated as collections of 32 bit unicode characters
+		(even though the internal data encoding might not be UTF-32), so this is an alias to char32_t. */
+	typedef char32_t Element;
 
 
 	/** Contructor for an empty string.*/
@@ -546,18 +568,32 @@ public:
 	}
 
 
-	/** Same as getLength. This is included for compatibility with std::string.*/
+	/** Same as getLength(). This is included for compatibility with std::string.*/
 	size_t length() const noexcept
 	{
 		return getLength();
 	}
 
-	/** Same as getLength. This is included for compatibility with std::string.*/
+	/** Same as getLength(). This is included for compatibility with std::string.*/
 	size_t size() const noexcept
 	{
 		return getLength();
 	}
 
+	/** Same as getLength(). This is included so that String conforms to the collection protocol.*/
+	size_t getSize() const noexcept
+	{
+		return getLength();
+	}
+
+
+
+	/** Same as prepareForSize() - included for compatibility with std::string.
+		*/
+	void reserve(size_t reserveChars = 0)
+	{
+		prepareForSize(reserveChars);
+	}
 
 
 	/** Used to reserve space for future modifications of the string, or to free previously reserved extra space.
@@ -572,7 +608,7 @@ public:
 		enough space for a string of that length (in characters).
 
 		*/
-	void reserve(size_t reserveChars = 0)
+	void prepareForSize(size_t reserveChars)
 	{
 		typename MainDataType::EncodedString::difference_type excessCapacityCharacters = reserveChars-length();
 		if(excessCapacityCharacters<0)
@@ -635,19 +671,29 @@ public:
 	}
 
 
-
-
-
-	/** Returns the theoretical maximum size of a string, given an infinite amount of memory.
-		This is included for compatibility with std::string.
+	/** Returns the maximum size of a string, given a sufficient amount of memory.
+		Note that this is the maximum size that can be guaranteed to work under all circumstances.
+		Strings might be able to get bigger than this depending on the actual characters in the string.
 		*/
-	size_t max_size() const noexcept
+	size_t getMaxSize() const noexcept
 	{
 		size_t m = _pData->getEncodedString().max_size();
+
+		m /= MainDataType::Codec::getMaxEncodedElementsPerCharacter();
 
 		return (m>INT_MAX) ? (size_t)INT_MAX : m;
 	}
 
+
+
+	/** Alias for getMaxSize() - this exists for compatibility with std::string.
+		*/
+	size_t max_size() const noexcept
+	{
+		return getMaxSize();
+	}
+
+	
 
 	/** Resizes the string to the specified number of characters.
 
@@ -739,10 +785,17 @@ public:
 		return end();
 	}
 
+	/** Same as begin(). This is included for compatibility with the collection protocol.*/
+	Iterator constBegin() const noexcept
+	{
+		return begin();
+	}
 
-
-
-
+	/** Same as end(). This is included for compatibility with the collection protocol.*/
+	Iterator constEnd() const noexcept
+	{
+		return end();
+	}
 
 	/** Same as rbegin(). This is included for compatibility with std::string.*/
 	ReverseIterator crbegin() const noexcept
@@ -756,6 +809,17 @@ public:
 		return rend();
 	}
 
+	/** Same as rbegin(). This is included for compatibility with the collection protocol.*/
+	ReverseIterator constReverseBegin() const noexcept
+	{
+		return rbegin();
+	}
+
+	/** Same as rend(). This is included for compatibility with the collection protocol.*/
+	ReverseIterator constReverseEnd() const noexcept
+	{
+		return rend();
+	}
 
 
 	/** Returns a sub string of this string, starting at the character that beginIt points to
@@ -1419,7 +1483,7 @@ public:
 
 	/** Replaces a section of the string (defined by two iterators) with the data between two
 		other iterators.
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
@@ -1444,7 +1508,7 @@ public:
 
 	/** Replaces a section of the string (defined by two iterators) with the data between two
 		other iterators.
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeBegin,
                             const Iterator& rangeEnd,
                             const Iterator& replaceWithBegin,
@@ -1474,7 +1538,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class InputIterator>
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
@@ -1505,7 +1569,7 @@ public:
 		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd
 		or String::npos, then only the part replaceWith up to its end is used.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeBegin,
 						const Iterator& rangeEnd,
 						const StringImpl& replaceWith,
@@ -1545,7 +1609,7 @@ public:
 		If \c replaceWith is not long enough for \c replaceWithLength characters to be copied, or if \c replaceWithLength is String::toEnd or String::npos,
 		then only the part replaceWith up to its end is used.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(size_t rangeStartIndex,
 						size_t rangeLength,
 						const StringImpl& replaceWith,
@@ -1579,7 +1643,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replaceEncoded(	const CODEC& codec,
 								size_t rangeStartIndex,
@@ -1597,7 +1661,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the data between iterators that provide
 		encoded string data in the format indicated by \c codec.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	template<class CODEC, class InputIterator>
 	StringImpl& replaceEncoded(	const CODEC& codec,
 								const Iterator& rangeStart,
@@ -1623,7 +1687,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in bytes.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char* replaceWith,
@@ -1643,7 +1707,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in bytes.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char* replaceWith,
@@ -1665,7 +1729,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::string& replaceWith )
@@ -1681,7 +1745,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-8 format.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::string& replaceWith )
@@ -1706,7 +1770,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 16 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char16_t* replaceWith,
@@ -1726,7 +1790,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 16 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char16_t* replaceWith,
@@ -1748,7 +1812,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u16string& replaceWith )
@@ -1764,7 +1828,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-16 format.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u16string& replaceWith )
@@ -1789,7 +1853,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const char32_t* replaceWith,
@@ -1808,7 +1872,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in 32 bit elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const char32_t* replaceWith,
@@ -1830,7 +1894,7 @@ public:
 		of the string.
 
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::u32string& replaceWith )
@@ -1846,7 +1910,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 		replaceWith must be in UTF-32 format (i.e. unencoded Unicode characters).
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::u32string& replaceWith )
@@ -1869,7 +1933,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in wchar_t elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const wchar_t* replaceWith,
@@ -1888,7 +1952,7 @@ public:
 		If replaceWithLength is not specified then replaceWith must be a zero terminated string.
 		If it is specified then it indicates the length of the string in wchar_t elements.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const wchar_t* replaceWith,
@@ -1909,7 +1973,7 @@ public:
 		If rangeLength is String::toEnd or String::npos or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							const std::wstring& replaceWith )
@@ -1924,7 +1988,7 @@ public:
 
 	/** Replaces a section of this string (defined by two iterators) with the contents of replaceWith.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeStart,
 							const Iterator& rangeEnd,
 							const std::wstring& replaceWith )
@@ -1948,7 +2012,7 @@ public:
 		replace(start, end, {'a', 'b', 'c'} );
 		\endcode
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(const Iterator& rangeStart, const Iterator& rangeEnd, std::initializer_list<char32_t> charList)
 	{
 		return replace(rangeStart, rangeEnd, charList.begin(), charList.end());
@@ -1971,7 +2035,7 @@ public:
 		replace(start, end, {'a', 'b', 'c'} );
 		\endcode
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							std::initializer_list<char32_t> charList)
@@ -1984,7 +2048,7 @@ public:
 	/** Replaces a section of this string (defined by two iterators) with \c numChars occurrences of
 		the character \c chr.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	const Iterator& rangeBegin,
 							const Iterator& rangeEnd,
 							size_t numChars,
@@ -2051,7 +2115,7 @@ public:
 		If rangeLength is String::toEnd or String::npos3 or exceeds the end of the string then the end of the range is the end
 		of the string.
 
-		Use findReplace() instead, if you want to search for and replace a certain substring.*/
+		Use findAndReplace() instead, if you want to search for and replace a certain substring.*/
 	StringImpl& replace(	size_t rangeStartIndex,
 							size_t rangeLength,
 							size_t numChars,
@@ -2210,6 +2274,122 @@ public:
 	}
 
 
+	/** Same as append(). Included for compatibility with the collection protocol.*/
+	void add(char32_t chr)
+	{
+		append(chr);
+	}
+
+	/** Similar to append(). Included for compatibility with the collection protocol.
+	
+		Returns a copy of the added character.
+	*/
+	char32_t addNew(char32_t chr)
+	{
+		append(chr);
+
+		return chr;
+	}
+
+
+	/** Appends the string data between the specified two iterators to the end of this string.
+	
+		Same as append - this is included for compatibility with the collection protocol.
+	*/
+	template<class InputIterator>
+	void addSequence(const InputIterator& beginIt, const InputIterator& endIt)
+	{
+		append( beginIt, endIt);
+	}
+
+
+	/** Appends the specified sequence of characters to the string.
+
+		This is included for compatibility with the collection protocol.
+	
+		This can be used to add characters with the curly brace notation:
+
+		\code
+			s.addSequence( { 'a', 'x', 'M' } );	// appends "axM" to the string.
+		\endcode
+		*/
+	void addSequence( std::initializer_list<char32_t> initList)
+	{
+		append( initList.begin(), initList.end() );
+	}
+
+
+    
+	/** Adds the elements from the specified source character \ref sequence.md "sequence" to the collection.
+		
+		Since all collections are also sequences, this can be used to copy all elements from
+		any char32_t collection (for example, bdn::Array, bdn::List, etc.).
+        */
+	template<class SequenceType>
+    void addSequence( const SequenceType& sequence )
+    {
+        append( sequence.begin(), sequence.end() );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char* s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const wchar_t* s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char16_t* s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const char32_t* s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::string& s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::wstring& s )
+    {
+        append( s );
+    }
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::u16string& s )
+    {
+        append( s );
+    }
+
+
+	/** Appends the specified string to this string (same as append()).		
+        */
+	void addSequence( const std::u32string& s )
+    {
+        append( s );
+    }
 
 
 	/** Inserts the specified string at the specified character index.
@@ -2540,6 +2720,34 @@ public:
 		// we must return an iterator to the erased position
 		return Iterator(_beginIt.getInner() + encodedEraseIndex, _beginIt.getInner(), _endIt.getInner());
 	}
+
+
+
+    /** Removes the character at the position of the specified iterator.
+		Returns an iterator to the character that now occupies the position of the removed
+		character (or end() if it was the last character).
+        
+        Same as erase(it). This alias is included for compatibility with the collection protocol.
+        */
+	Iterator removeAt(const Iterator& it)
+	{
+        return erase(it);
+	}
+
+
+    /** Removes a part of the string, starting at the position indicated by
+		the \c beginIt iterator and ending at the point just before the position indicated by \c endIt.
+
+		Returns an iterator to the character that now occupies the position of the first removed
+		character (or end() if the removed part extended to the end of the string).
+        
+        Same as erase(beginIt, endIt). This alias is included for compatibility with the collection protocol.
+        */
+	Iterator removeSection(const Iterator& beginIt, const Iterator& endIt)
+	{
+        return erase(beginIt, endIt);
+	}
+
 
 
 	/** Erases the entire contents of the string. The string becomes an empty string.*/
@@ -4154,28 +4362,28 @@ public:
 
 
 
-	/** Searches for the first position at which the specified condition is true.
+	/** Searches for the first position at which the specified match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
-		bool myCondition(const Iterator& it);
+		bool myMatchFunction(const Iterator& it);
 		\endcode
 
-		findCondition returns an iterator to the first position at which the condition
-		object returned true.
-		It returns end() if the condition did not return true for any checked string position.
+		findCustom returns an iterator to the first position at which the match function
+		returned true.
+		It returns end() if the match function did not return true for any checked string position.
 
 		searchStartPosIt is an iterator to the position at which the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is called).
 	*/
-	template<class Predicate>
-	Iterator findCondition(Predicate condition, const Iterator& searchStartPosIt ) const
+	template<typename MatchFuncType >
+	Iterator findCustom( MatchFuncType matchFunc, const Iterator& searchStartPosIt ) const
 	{
 		for( auto it=searchStartPosIt; it!=_endIt; ++it)
 		{
-			if( condition(it) )
+			if( matchFunc(it) )
 				return it;
 		}
 
@@ -4184,24 +4392,25 @@ public:
 
 
 
-	/** Searches for the first position at which the specified condition is true.
+	
+	/** Searches for the first position at which the specified match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
-		bool myCondition(const Iterator& it);
+		bool myMatchFunction(const Iterator& it);
 		\endcode
 
-		findCondition returns an iterator to the first position at which the condition
-		object returned true.
-		It returns end() if the condition did not return true for any checked string position.
-
+		findCustom returns an iterator to the first position at which the match function
+		returned true.
+		It returns end() if the match function did not return true for any checked string position.
+		
 		searchStartIndex is the character index where the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is called).
 	*/
-	template<class Predicate>
-	size_t findCondition(Predicate condition, size_t searchStartIndex=0 ) const
+	template<typename MatchFuncType >
+	size_t findCustom(MatchFuncType matchFunc, size_t searchStartIndex=0 ) const
 	{
 		size_t myLength = getLength();
 		if(searchStartIndex==npos || searchStartIndex>=myLength)
@@ -4211,7 +4420,7 @@ public:
 
 		while( it.getInner()!=_endIt )
 		{
-			if( condition(it.getInner() ) )
+			if( matchFunc(it.getInner() ) )
 				return it.getIndex();
 
 			++it;
@@ -4222,25 +4431,26 @@ public:
 
 
 
-	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	/** Searches backwards from the end of the string for the LAST position at which the specified 
+		match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
 		bool myCondition(const Iterator& it);
 		\endcode
 
-		reverseFindCondition returns an iterator to the last position at which the condition
+		reverseFindCustom returns an iterator to the last position at which the condition
 		object returned true.
 		It returns end() if the condition did not return true for any checked string position.
 
 		searchStartPosIt is an iterator to the position at which the search should start
-		(i.e. the first position at which the condition is checked). The search moves backwards through
+		(i.e. the first position at which the match function is checked). The search moves backwards through
 		the string from the start position.
 	*/
-	template<class Predicate>
-	Iterator reverseFindCondition(Predicate condition, const Iterator& searchStartPosIt ) const
+	template<typename MatchFuncType>
+	Iterator reverseFindCustom(MatchFuncType matchFunc, const Iterator& searchStartPosIt ) const
 	{
 		if(_beginIt == _endIt)
 			return _endIt;
@@ -4252,7 +4462,7 @@ public:
 
 		while(true)
 		{
-			if( condition(it) )
+			if( matchFunc(it) )
 				return it;
 
 			if(it==_beginIt)
@@ -4266,24 +4476,25 @@ public:
 
 
 
-	/** Searches backwards from the end of the string for the LAST position at which the specified condition is true.
+	/** Searches backwards from the end of the string for the LAST position at which the specified 
+		match function returns true.
 
-		condition must be a callable object (like a function object or a lambda function).
+		matchFunc must be a callable object (like a function object or a lambda function).
 		It must take an Iterator object as its only parameter and return a bool.
 
 		\code
 		bool myCondition(const Iterator& it);
 		\endcode
 
-		reverseFindCondition returns an iterator to the last position at which the condition
+		reverseFindCustom returns an iterator to the last position at which the condition
 		object returned true.
 		It returns end() if the condition did not return true for any checked string position.
 
 		searchStartIndex is the character index where the search should start
-		(i.e. the first position at which the condition is checked).
+		(i.e. the first position at which the match function is checked).
 	*/
-	template<class Predicate>
-	size_t reverseFindCondition(Predicate condition, size_t searchStartIndex=npos ) const
+	template<typename MatchFuncType>
+	size_t reverseFindCustom(MatchFuncType matchFunc, size_t searchStartIndex=npos ) const
 	{
 		size_t myLength = getLength();
 		if(myLength==0)
@@ -4296,7 +4507,7 @@ public:
 
 		while(true)
 		{
-			if( condition(it.getInner()) )
+			if( matchFunc(it.getInner()) )
 				return it.getIndex();
 
 			if(it.getInner()==_beginIt)
@@ -4322,7 +4533,7 @@ public:
 	template <class InputIterator>
 	Iterator findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4344,7 +4555,7 @@ public:
 	template<class InputIterator>
 	size_t findOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4611,7 +4822,7 @@ public:
 	template <class InputIterator>
 	Iterator findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -4633,7 +4844,7 @@ public:
 	template<class InputIterator>
 	size_t findNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=0) const noexcept
 	{
-		return findCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return findCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -4893,7 +5104,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -4915,7 +5126,7 @@ public:
 	template<class InputIterator>
 	size_t reverseFindOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)!=charsEndIt);
 								},
@@ -5190,7 +5401,7 @@ public:
 	template <class InputIterator>
 	Iterator reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, const Iterator& searchStartPosIt ) const
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -5213,7 +5424,7 @@ public:
 	template<class InputIterator>
 	size_t reverseFindNotOneOf(const InputIterator& charsBeginIt, const InputIterator& charsEndIt, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(   [&charsBeginIt, &charsEndIt](const Iterator& it)
+		return reverseFindCustom(   [&charsBeginIt, &charsEndIt](const Iterator& it)
 								{
 									return (std::find(charsBeginIt, charsEndIt, *it)==charsEndIt);
 								},
@@ -5473,7 +5684,7 @@ public:
 	/** Searches for the last character in the string that is NOT the specified blackListChar. */
 	size_t find_last_not_of(char32_t blackListChar, size_t searchStartIndex=npos) const noexcept
 	{
-		return reverseFindCondition(	[&blackListChar](const Iterator& it)
+		return reverseFindCustom(	[&blackListChar](const Iterator& it)
 										{
 											return (*it!=blackListChar);
 										},
@@ -5693,9 +5904,9 @@ public:
 
 		Returns the number of occurrences that were replaced.
 		*/
-	int findReplace(char32_t toFind, char32_t replaceWith)
+	int findAndReplace(char32_t toFind, char32_t replaceWith)
 	{
-		return findReplace(&toFind, (&toFind)+1, &replaceWith, (&replaceWith)+1 );
+		return findAndReplace(&toFind, (&toFind)+1, &replaceWith, (&replaceWith)+1 );
 	}
 
 
@@ -5706,9 +5917,9 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const StringImpl& toFind, const StringImpl& replaceWith)
+	int findAndReplace(const StringImpl& toFind, const StringImpl& replaceWith)
 	{
-		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5720,7 +5931,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::string& toFind, const std::string& replaceWith)
+	int findAndReplace(const std::string& toFind, const std::string& replaceWith)
 	{
 		return findReplaceEncoded(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5733,7 +5944,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::wstring& toFind, const std::wstring& replaceWith)
+	int findAndReplace(const std::wstring& toFind, const std::wstring& replaceWith)
 	{
 		return findReplaceEncoded(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5746,7 +5957,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::u16string& toFind, const std::u16string& replaceWith)
+	int findAndReplace(const std::u16string& toFind, const std::u16string& replaceWith)
 	{
 		return findReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(), replaceWith.end() );
 	}
@@ -5759,9 +5970,9 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const std::u32string& toFind, const std::u32string& replaceWith)
+	int findAndReplace(const std::u32string& toFind, const std::u32string& replaceWith)
 	{
-		return findReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplace(toFind.begin(), toFind.end(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5772,7 +5983,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const char* toFind, const char* replaceWith)
+	int findAndReplace(const char* toFind, const char* replaceWith)
 	{
 		return findReplaceEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -5785,7 +5996,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const wchar_t* toFind, const wchar_t* replaceWith)
+	int findAndReplace(const wchar_t* toFind, const wchar_t* replaceWith)
 	{
 		return findReplaceEncoded(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -5798,7 +6009,7 @@ public:
 
 		If \c toFind is empty then the function does nothing and returns 0.
 		*/
-	int findReplace(const char16_t* toFind, const char16_t* replaceWith)
+	int findAndReplace(const char16_t* toFind, const char16_t* replaceWith)
 	{
 		return findReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
@@ -5812,9 +6023,9 @@ public:
 		If \c toFind is empty then the function does nothing and returns 0.
 
 		*/
-	int findReplace(const char32_t* toFind, const char32_t* replaceWith)
+	int findAndReplace(const char32_t* toFind, const char32_t* replaceWith)
 	{
-		return findReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith) );
+		return findAndReplace(toFind, getStringEndPtr(toFind), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -5828,7 +6039,7 @@ public:
 		If \c toFindBegin equals toFindEnd (i.e. the toFind string is empty) then the function does nothing and returns 0.
 		*/
 	template<class ToFindIterator, class ReplaceWithIterator>
-	int findReplace(const ToFindIterator& toFindBegin, const ToFindIterator& toFindEnd, const ReplaceWithIterator& replaceWithBegin, const ReplaceWithIterator& replaceWithEnd)
+	int findAndReplace(const ToFindIterator& toFindBegin, const ToFindIterator& toFindEnd, const ReplaceWithIterator& replaceWithBegin, const ReplaceWithIterator& replaceWithEnd)
 	{
 		int	matchCount=0;
 
@@ -5881,7 +6092,7 @@ public:
 							const ReplaceWithIterator& replaceWithEncodedBegin,
 							const ReplaceWithIterator& replaceWithEncodedEnd)
 	{
-		return findReplace( typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
+		return findAndReplace( typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedBegin, toFindEncodedBegin, toFindEncodedEnd),
 							typename ToFindCodec::template DecodingIterator<ToFindIterator>( toFindEncodedEnd, toFindEncodedBegin, toFindEncodedEnd),
 							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedBegin, replaceWithEncodedBegin, replaceWithEncodedEnd),
 							typename ReplaceWithCodec::template DecodingIterator<ReplaceWithIterator>( replaceWithEncodedEnd, replaceWithEncodedBegin, replaceWithEncodedEnd) );
@@ -6220,7 +6431,303 @@ public:
 		size_t   _index;
 	};
 
-protected:
+
+
+	
+	
+
+	template<typename MatchFuncType>
+    class FuncMatcher_
+    {
+    public:
+        FuncMatcher_( MatchFuncType matchFunc )
+            : _matchFunc( matchFunc )
+        {
+        }
+
+        void operator() (const StringImpl& s, Iterator& it)
+        {
+            // note that the "it" parameter is NEVER equal to end() when we are called.
+            // That also means that we are never called for empty maps.
+
+            while( ! _matchFunc(it) )
+            {
+                ++it;
+                if( it==s.end() )
+                    break;
+            }
+        }    
+
+	private:
+		MatchFuncType _matchFunc;
+    };
+
+	template<typename MatchFuncType>
+	using CustomFinder = SequenceFilter<const StringImpl, FuncMatcher_<MatchFuncType> >;
+
+
+	
+	template<class ToFindType>
+    class ElementAndSubStringMatcher_
+    {
+    public:
+        ElementAndSubStringMatcher_(const ToFindType& toFind)
+            : _toFind( toFind )
+        {
+        }
+
+        void operator() (const StringImpl& s, Iterator& it)
+        {
+			it = s.find( _toFind, it );
+        }
+
+    private:
+        ToFindType _toFind;
+    };
+	
+	template<typename ToFindType>
+	using ElementAndSubStringFinder = SequenceFilter< const StringImpl, ElementAndSubStringMatcher_<ToFindType> >;
+
+	template<typename ToFindType>
+	using SubStringFinder = ElementAndSubStringFinder<ToFindType>;
+
+
+	using ElementFinder = ElementAndSubStringFinder<Element>;
+
+
+	/** Searches for all occurrences of the specified character and returns a \ref finder.md "finder object"
+		with the results.*/
+	ElementFinder findAll(char32_t charToFind) const
+	{
+        return ElementFinder(*this, ElementAndSubStringMatcher_<char32_t>(charToFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<StringImpl> findAll(const StringImpl& toFind) const
+	{
+        return SubStringFinder<StringImpl>(*this, ElementAndSubStringMatcher_<StringImpl>(toFind) );
+	}
+	
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char*> findAll(const char* toFind) const
+	{
+        return SubStringFinder<const char*>(*this, ElementAndSubStringMatcher_<const char*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const wchar_t*> findAll(const wchar_t* toFind) const
+	{
+        return SubStringFinder<const wchar_t*>(*this, ElementAndSubStringMatcher_<const wchar_t*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char16_t*> findAll(const char16_t* toFind) const
+	{
+        return SubStringFinder<const char16_t*>(*this, ElementAndSubStringMatcher_<const char16_t*>(toFind) );
+	}
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<const char32_t*> findAll(const char32_t* toFind) const
+	{
+        return SubStringFinder<const char32_t*>(*this, ElementAndSubStringMatcher_<const char32_t*>(toFind) );
+	}
+	
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::string> findAll(const std::string& toFind) const
+	{
+        return SubStringFinder<std::string>(*this, ElementAndSubStringMatcher_<std::string>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::wstring> findAll(const std::wstring& toFind) const
+	{
+        return SubStringFinder<std::wstring>(*this, ElementAndSubStringMatcher_<std::wstring>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::u16string> findAll(const std::u16string& toFind) const
+	{
+        return SubStringFinder<std::u16string>(*this, ElementAndSubStringMatcher_<std::u16string>(toFind) );
+	}
+
+
+	/** Searches for all occurrences of the specified substring and returns a \ref finder.md "finder object"
+		with the results.*/
+	SubStringFinder<std::u32string> findAll(const std::u32string& toFind) const
+	{
+        return SubStringFinder<std::u32string>(*this, ElementAndSubStringMatcher_<std::u32string>(toFind) );
+	}
+
+
+	/** Searches for all places in the string for which the specified match function returns true.
+		Returns a a \ref finder.md "finder object" with the results.
+	
+		matchFunc must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myMatchFunction(const Iterator& it);
+		\endcode
+	*/
+	template<typename MatchFuncType >
+	CustomFinder<MatchFuncType> findAllCustom( MatchFuncType matchFunc ) const
+	{
+		return CustomFinder<MatchFuncType>(*this, FuncMatcher_<MatchFuncType>(matchFunc) );
+	}
+
+	
+
+	/** Removes all occurrences of the specified character.*/
+	void findAndRemove(char32_t chr)
+	{
+        findAndReplace(&chr, (&chr)+1, (const char32_t*)nullptr, (const char32_t*)nullptr );
+    }
+
+
+    /** Removes all characters for which the specified match function returns true.
+
+        matchFunc must be a callable object (like a function object or a lambda function).
+		It must take an Iterator object as its only parameter and return a bool.
+
+		\code
+		bool myMatchFunction(const Iterator& it);
+		\endcode
+
+        */
+    template<typename MatchFuncType>
+	void findCustomAndRemove( MatchFuncType matchFunc )
+	{
+        Iterator it = this->_beginIt;
+
+		while( it != this->_endIt )
+		{
+			if( matchFunc(it) )
+				it = this->erase(it);
+			else
+				++it;
+        }
+    }
+
+
+	/** Calculates a hash value from this string.
+
+		This hash is calculated in an optimized way that may depend on the internally
+		used string encoding, the operating system and CPU architecture. The hash algorithm may also change between different
+		versions of the Boden framework.
+
+		Use calcPortableHash() instead if you need a hash that is the same everywhere,
+		on all platforms and on all versions of the framework.
+		*/
+	size_t calcHash() const
+	{
+		// we want this hash calculation to be as fast as possible. So instead of hashing
+		// the decoded characters (like we do in calcPortableHash) we simply hash the
+		// encoded string data as a binary blob.
+		auto encodedBegin = _beginIt.getInner();
+		auto encodedEnd = _endIt.getInner();
+		
+		const typename MainDataType::EncodedElement*	pEncodedData = &*encodedBegin;
+		size_t											encodedDataLengthBytes = std::distance( encodedBegin, encodedEnd ) * sizeof(typename MainDataType::EncodedElement);
+
+		if( sizeof(size_t) > 4 )
+			return (size_t)XxHash64::calcHash( pEncodedData, encodedDataLengthBytes );
+		else
+			return (size_t)XxHash32::calcHash( pEncodedData, encodedDataLengthBytes );
+	}
+
+
+	/** Calculates a hash value from this string. The way this is calculated
+		is standardized so that you will always get the same hash for the same string,
+		no matter which encoding it uses internally or which platform or CPU architecture
+		the program runs on.
+		*/
+	uint32_t calcPortableHash() const
+	{
+		// we cannot hash the encoded data here, since the used encoding may differ
+		// on some platforms.
+		// We also have to make sure that endianness is not an issue.
+		// And last but not least we have to ensure that the hash can be represented
+		// as a size_t on all platforms - meaning that the hash should be 32 bit.
+		
+		// We use xxHash32 to calculate the hash. It has the advantage that it internally
+		// treats the data as a stream of 32 bit values - so we can simply feed it decoded
+		// unicode characters. That takes care of encoding differences and of endianness at
+		// the same time.
+
+		XxHash32DataProvider_ dataProvider( _beginIt, length() );
+
+		return XxHash32::calcHashWithDataProvider( dataProvider );
+	}
+
+
+private:
+
+	class XxHash32DataProvider_
+	{
+	public:
+		XxHash32DataProvider_(const Iterator& it, size_t charCount )
+			: _it( it )
+			, _charsLeft( charCount )
+		{
+		}
+
+		const uint32_t* next4x4ByteBlock()
+		{
+			if(_charsLeft<4)
+				return nullptr;
+
+			_4CharBlock[0] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[1] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[2] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_4CharBlock[3] = static_cast<uint32_t>( *_it );
+			++_it;
+
+			_charsLeft -= 4;
+
+			return _4CharBlock;
+		}
+
+
+		XxHash32::TailData getTailData()
+		{
+			for(size_t i=0; i<_charsLeft; i++)
+			{
+				_4CharBlock[i] = static_cast<uint32_t>( *_it );
+				++_it;
+			}
+
+			return XxHash32::TailData{
+					_charsLeft*4,
+					_4CharBlock,
+					nullptr
+				};
+		}
+
+	private:
+		Iterator	_it;
+		size_t		_charsLeft;
+		uint32_t	_4CharBlock[4];
+	};
+	friend class XxHash32;
+
+
 
 
 	template<class T>
@@ -6384,6 +6891,8 @@ protected:
         // the locale does not influence the UTF-32 encoding
         return asUtf32();
     }
+
+
 
 	mutable P<MainDataType>	_pData;
 	mutable Iterator		_beginIt;
