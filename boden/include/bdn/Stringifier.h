@@ -32,7 +32,8 @@ public:
 			// note: the division and % operations below also work for negative numbers.
 			// The only difference is that the % operation will give us a negative remainder.
 			// To handle that we ensure that we have the same digits in both directions.
-			const char32_t* pDigits = U"zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" + 35;
+			const char32_t* pDigits = U"zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz";
+			pDigits += 35;
 			bool negative = (number<0);
 						
 			do
@@ -152,7 +153,7 @@ private:
 	// that is exactly what we want. A toString method MUST exist and it MUST
 	// return a value, otherwise we want HasToString_::value to be 0.
 	template<typename TEST_CLS>
-	static uint8_t _hasToStringTest( decltype(std::declval<TEST_CLS>().toString())* );
+	static uint8_t _hasToStringTest( int dummy, decltype(std::declval<TEST_CLS>().toString())* pDummy=nullptr );
 
     template <typename TEST_CLS>
 	static uint16_t _hasToStringTest(...);
@@ -160,7 +161,7 @@ private:
 public:
     enum
 	{
-		value = sizeof( _hasToStringTest<CLS>(nullptr) ) == sizeof(uint8_t) ? 1 : 0
+		value = sizeof( _hasToStringTest<CLS>(0) ) == sizeof(uint8_t) ? 1 : 0
 	};
 
 

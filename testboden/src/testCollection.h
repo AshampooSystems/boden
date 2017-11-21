@@ -938,13 +938,13 @@ inline void _verifyCollectionRemoveSectionOfSize(CollType& coll, int removeCount
 	SECTION("from begin")
 		_verifyCollectionRemoveSpecificSection(coll, 0, removeCount, expectedElementList);
 
-	if(expectedElementList.size() >= removeCount )
+	if(expectedElementList.size() >= (size_t)removeCount )
 	{
 		SECTION("to end")
 			_verifyCollectionRemoveSpecificSection(coll, ((int)coll.size())-removeCount, removeCount, expectedElementList);
 	}
 
-	if(expectedElementList.size() >= removeCount+1 )
+	if(expectedElementList.size() >= (size_t)removeCount+1 )
 	{
 		SECTION("from middle")
 			_verifyCollectionRemoveSpecificSection(coll, 1, removeCount, expectedElementList);

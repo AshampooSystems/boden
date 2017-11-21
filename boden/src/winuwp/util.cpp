@@ -16,7 +16,7 @@ void layoutViewTree(View* pView)
     {
         pCore->layout();
 
-        std::list< P<View> > childViews;
+        List< P<View> > childViews;
         pView->getChildViews(childViews);
 
         for( auto& pChildView: childViews)

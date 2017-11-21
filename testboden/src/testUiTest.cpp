@@ -861,7 +861,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
             {
                 zeroContinuationCalled = true;
 
-                REQUIRE( pWatch->getMillis() < 500);
+                REQUIRE( pWatch->getMillis() < 900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -901,18 +901,21 @@ TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
 
     SECTION("millis")
     {
+		// here we test that the wait actually has a finder resolution
+		// than full seconds
+
         static bool millisContinuationCalled = false;
 
         SECTION("actualTest")
         {
             P<StopWatch> pWatch = newObj<StopWatch>();
 
-            CONTINUE_SECTION_AFTER_SECONDS( 0.2, pWatch)
+			CONTINUE_SECTION_AFTER_SECONDS( 0.1, pWatch)
             {
                 millisContinuationCalled = true;
 
-                REQUIRE( pWatch->getMillis() >= 200-10);
-                REQUIRE( pWatch->getMillis() < 700);
+                REQUIRE( pWatch->getMillis() >= 50);
+                REQUIRE( pWatch->getMillis() < 900);
 
                 REQUIRE_IN_MAIN_THREAD();
             };
@@ -936,7 +939,7 @@ TEST_CASE("CONTINUE_SECTION_AFTER_SECONDS")
             {
                 twoSecondsContinuationCalled = true;
 
-                REQUIRE( pWatch->getMillis() >= 2000-10);
+                REQUIRE( pWatch->getMillis() >= 1900);
                 REQUIRE( pWatch->getMillis() < 2500);
 
                 REQUIRE_IN_MAIN_THREAD();
