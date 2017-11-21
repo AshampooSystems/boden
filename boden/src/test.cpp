@@ -2909,6 +2909,10 @@ public:
 		m_reporter->testRunStarting( m_runInfo );
 
         m_printLevel = m_config->printLevel();
+
+		// start with a pause, because startup may have left stuff in the event
+		// queue that needs to be handled.
+		_nextPauseTime = std::chrono::steady_clock::now();
 	}
 
 	virtual ~RunContext() {
@@ -3550,7 +3554,14 @@ private:
 
         MutexLock lock( _runTestMutex );
 
-		do
+		// we must allow the operating system to handle events from time to time.
+		// So we should not simply keep looping here until the test case is done.
+		// At the same time, we do not want to go back to the main thread event
+		// queue after every section. That might just kill overall performance.
+		// So we go the middle road, track the time that has elapsed, and 
+		// interrupt our loop regularly.
+
+		while(true)
 		{
 			m_trackerContext.startCycle();
 
@@ -3565,8 +3576,18 @@ private:
 				// So, return here.
 				return;
 			}
+
+			if(!shouldContinueTestCaseIteration())
+				break;
+
+			auto nowTime = std::chrono::steady_clock::now();
+			if( nowTime >= _nextPauseTime )
+			{
+				_nextPauseTime = nowTime + std::chrono::milliseconds(500);
+				asyncCallFromMainThreadWhenIdle( std::bind(&RunContext::runTestCase_Continue, this ) );
+				return;
+			}
 		}
-		while(shouldContinueTestCaseIteration());
 
 		// the test case has finished. Finalize it.
 		runTestCase_Finalize();
@@ -3945,6 +3966,8 @@ private:
 
     std::list< std::function<void()> >              _postponedSectionEvents;
     std::list< std::function<void()> >::iterator    _postponedSectionEventsInsertPos;
+
+	std::chrono::steady_clock::time_point _nextPauseTime;
 };
 
 IResultCapture& getResultCapture() {
@@ -8315,6 +8338,8 @@ protected:
 	{
 		// note: we use idle priority here to ensure that all pending UI events (like graphics
 		// updates, etc.) have been finished.
+		// Also note that this is called at the end of the full test case, not after each section.
+		// See RunContext for the loop that iterates through the sections.
 		asyncCallFromMainThreadWhenIdle( std::bind(&TestAppController::Impl::runNextTest, this) );
 	}
 
@@ -8333,7 +8358,7 @@ protected:
 
 protected:
 	Session*    _pTestSession;
-    TestRunner* _pTestRunner;
+    TestRunner* _pTestRunner;	
 };
 
 

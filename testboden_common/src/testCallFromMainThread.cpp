@@ -814,7 +814,7 @@ protected:
     void continueTest()
     {
         int64_t expectedMillis = (int64_t)(_seconds * 1000);
-        int64_t maxMillis = expectedMillis + 1000;
+        int64_t maxMillis = expectedMillis + 2000;
         
         int64_t elapsedMillis = _pStopWatch->getMillis();        
 

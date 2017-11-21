@@ -188,13 +188,13 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
 
             std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
-            CONTINUE_SECTION_AFTER_SECONDS(1, pData, waitStartTime)
+            CONTINUE_SECTION_AFTER_SECONDS(2, pData, waitStartTime)
             {
                 std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
                 std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
 
                 // sanity check: verify that we have waited the expected amount of time.
-                REQUIRE( waitDurationMillis.count() >= 900 );
+                REQUIRE( waitDurationMillis.count() >= 1900 );
         
                 REQUIRE( pData->callOrder.size()==1 );
                 REQUIRE( pData->callableDestroyedCount==1 );
