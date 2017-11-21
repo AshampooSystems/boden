@@ -64,13 +64,24 @@ public:
         */
     void add( std::pair<const Key, Value>&& keyValuePair )
     {
-        std::pair<Iterator, bool> result = StdCollection< BASE_COLLECTION_TYPE >::insert( std::move(keyValuePair) );
-
-        if(!result.second)
-        {
-            // element already existed in the map. Overwrite its value
-            result.first->second = std::move(keyValuePair.second);
-        }
+        // we have these options here:
+        // 1) we can use insert, and if that returns false (key existed)
+        //    then we can assign the value.
+        //    This has the drawback that we actually cannot use move semantics
+        //    in the initial insert because we might need the value again for
+        //    the manual assign.
+        //    So with this we always copy key and value, BUT we prevemt
+        //    a temporary default-constructed element to be created.
+        // 2) we can use [key] = value. This allows us to use move semantics,
+        //    but for new elements a temporary default constructed element is
+        //    created
+        // 3) we use c++17 insert_or_assign. This is out at the moment
+        //    because we only require C++11
+        
+        // The move semantics have more general potential to improve performance,
+        // compared to having one less default construction. So we use option 2.
+        
+        (*this)[ std::move(keyValuePair.first) ] = std::move(keyValuePair.second);
     }
 
      
@@ -87,7 +98,36 @@ public:
         // operations do not overwrite if the element is already in the collection.
         (*this)[key] = value;
     }
-
+    
+    /** Like add(), but instead of the new element being copied,
+        the C++ move semantics are used to move the key and value
+        to the new collection element.
+        */
+    void add( Key&& key, Value&& value )
+    {
+        (*this)[ std::move(key) ] = std::move(value);
+    }
+    
+    
+    /** Like add(), but instead of the new element being copied,
+        the C++ move semantics are used to move the value
+        to the new collection element.
+        */
+    void add( const Key& key, Value&& value )
+    {
+        (*this)[key] = std::move(value);
+    }
+    
+    
+    /** Like add(), but instead of the new element being copied,
+        the C++ move semantics are used to move the value
+        to the new collection element.
+        */
+    void add( Key&& key, const Value& value )
+    {
+        (*this)[ std::move(key) ] = value;
+    }
+    
        
 
     /** Adds the elements from the specified [beginIt ... endIt)

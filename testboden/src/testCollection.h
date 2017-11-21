@@ -75,6 +75,11 @@ public:
 
     int _a;
     int _b;
+    
+    String toString() const
+    {
+        return bdn::toString(_a)+", "+bdn::toString(_b);
+    }
 };
 
 
@@ -140,6 +145,12 @@ public:
     {
         return ! operator==(o);
     }
+    
+    String toString() const
+    {
+        return bdn::toString(_a)+", "+bdn::toString(_b);
+    }
+
 };
 
 class TestCollectionElement_OrderedComparable_ : public TestCollectionElement_UnorderedComparable_
@@ -193,6 +204,11 @@ public:
         // the ordering is only based on the "a" component, so that
         // we can have elements that are not equal, but have the same ordering position
         return (_a < o._a);
+    }
+    
+    String toString() const
+    {
+        return bdn::toString(_a)+", "+bdn::toString(_b);
     }
 };
 

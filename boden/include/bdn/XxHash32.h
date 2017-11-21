@@ -3,6 +3,8 @@
 
 #include <bdn/Number.h>
 
+#include <cstring>
+
 namespace bdn
 {
 
@@ -204,7 +206,7 @@ private:
 			if( _bytesLeft < 16)
 				return nullptr;
 			
-			memcpy( _4ByteValues, _pNextData, 16 );
+			std::memcpy( _4ByteValues, _pNextData, 16 );
 
 #if BDN_IS_BIG_ENDIAN
 			// in order for the hash to be the same on every system

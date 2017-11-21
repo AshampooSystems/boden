@@ -322,42 +322,39 @@ struct IntegerStringifier_
 	}
 };
 
+// the fundamental integer types are
+// - signed/unsigned char (which are always different from char without the signed/unsigned prefix)
+// - short
+// - int
+// - long
+// - long long
+// The fixed width types are simply typedefs to these.
+
+
 template<>
-struct Stringifier<int8_t> : public IntegerStringifier_
+struct Stringifier<signed char> : public IntegerStringifier_
+{};
+
+
+template<>
+struct Stringifier<unsigned char> : public IntegerStringifier_
 {};
 
 template<>
-struct Stringifier<int8_t&> : public IntegerStringifier_
+struct Stringifier<short> : public IntegerStringifier_
 {};
 
 template<>
-struct Stringifier<uint8_t> : public IntegerStringifier_
+struct Stringifier<unsigned short> : public IntegerStringifier_
 {};
 
 template<>
-struct Stringifier<int16_t> : public IntegerStringifier_
+struct Stringifier<int> : public IntegerStringifier_
 {};
 
 template<>
-struct Stringifier<uint16_t> : public IntegerStringifier_
+struct Stringifier<unsigned int> : public IntegerStringifier_
 {};
-
-template<>
-struct Stringifier<int32_t> : public IntegerStringifier_
-{};
-
-template<>
-struct Stringifier<uint32_t> : public IntegerStringifier_
-{};
-
-template<>
-struct Stringifier<int64_t> : public IntegerStringifier_
-{};
-
-template<>
-struct Stringifier<uint64_t> : public IntegerStringifier_
-{};
-
 
 template<>
 struct Stringifier<long> : public IntegerStringifier_
@@ -365,6 +362,15 @@ struct Stringifier<long> : public IntegerStringifier_
 
 template<>
 struct Stringifier<unsigned long> : public IntegerStringifier_
+{};
+
+
+template<>
+struct Stringifier<long long> : public IntegerStringifier_
+{};
+
+template<>
+struct Stringifier<unsigned long long> : public IntegerStringifier_
 {};
 
 

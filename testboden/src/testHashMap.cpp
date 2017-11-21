@@ -231,7 +231,13 @@ static void testHashMap(
 					coll.add( std::make_pair(key, val1) );
 
 					// this should overwrite the value
-					coll.add( std::make_pair(key, val2) );			
+					coll.add( std::make_pair(key, val2) );	
+
+// XXX
+std::cout << bdn::toString(key) << std::endl;
+std::cout << bdn::toString(val1) << std::endl;
+std::cout << bdn::toString(val2) << std::endl;
+std::cout << coll.toString() << std::endl;		
 
 					_verifyGenericCollectionReadOnly( coll, expectedElementList );
 				}
@@ -245,6 +251,52 @@ static void testHashMap(
 
 					_verifyGenericCollectionReadOnly( coll, expectedElementList );
 				}
+                        
+                        
+                SECTION("add(key, value) movable")
+                {
+                    typename HashMap<KeyType,ValType>::Element elToAdd = *newElList.begin();
+                    
+                    
+                    std::list<typename HashMap<KeyType,ValType>::Element> newExpectedElementList = expectedInitElOrder;
+                    newExpectedElementList.push_back( elToAdd );
+                    
+                    SECTION("both")
+                    {
+                        coll.add( std::move(elToAdd.first), std::move(elToAdd.second) );
+                    
+                        REQUIRE( isMovedRemnant(elToAdd));
+                        
+                        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+                    }
+                    
+                    SECTION("key")
+                    {
+                        coll.add( std::move(elToAdd.first), elToAdd.second );
+                        
+                        // we must manually move the value away so that isMovedRemnant can
+                        // be used
+                        ValType dummy( std::move(elToAdd.second) );
+                    
+                        REQUIRE( isMovedRemnant(elToAdd));
+                        
+                        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+                    }
+                    
+                    SECTION("value")
+                    {
+                        coll.add( elToAdd.first, std::move(elToAdd.second) );
+                        
+                        // we must manually move the key away so that isMovedRemnant can
+                        // be used
+                        KeyType dummy( std::move(elToAdd.first) );
+                    
+                        REQUIRE( isMovedRemnant(elToAdd) );
+                        
+                        _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+                    }		
+                }
+                
 
 				SECTION("addNew")
 				{

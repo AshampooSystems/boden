@@ -224,10 +224,20 @@ private:
 };
 
 
+// note that signed char and unsigned char
+// are always different types than just plain char
+using SignedChar = Number<signed char>;
+using UnsignedChar = Number<unsigned char>;
+
+using Short = Number<short>;
+using UShort = Number<unsigned short>;
 using Int = Number<int>;
 using UInt = Number<unsigned>;
 using Long = Number<long>;
 using ULong = Number<unsigned long>;
+using LongLong = Number<long long>;
+using ULongLong = Number<unsigned long long>;
+
 
 using Int8 = Number<int8_t>;
 using UInt8 = Number<uint8_t>;
@@ -586,96 +596,103 @@ namespace std
 
 // specializations of std::hash template for Number objects
 
+// the fundamental integer types are
+// - signed/unsigned char (which are always different from char without the signed/unsigned prefix)
+// - short
+// - int
+// - long
+// - long long
+// The fixed width types are simply typedefs to these.
+
 
 template <>
-struct hash< bdn::Long >
+struct hash< bdn::Number<signed char> >
 {
-	size_t operator()(const bdn::Long& key) const
+	size_t operator()(const bdn::Number<signed char>& key) const
 	{
-		return std::hash< typename bdn::Long::SimpleType >()( key.getValue() );		
+		return std::hash< signed char >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<unsigned char> >
+{
+	size_t operator()(const bdn::Number<unsigned char>& key) const
+	{
+		return std::hash< unsigned char >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<short> >
+{
+	size_t operator()(const bdn::Number<short>& key) const
+	{
+		return std::hash< short >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<unsigned short> >
+{
+	size_t operator()(const bdn::Number<unsigned short>& key) const
+	{
+		return std::hash< unsigned short >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<int> >
+{
+	size_t operator()(const bdn::Number<int>& key) const
+	{
+		return std::hash< int >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<unsigned int> >
+{
+	size_t operator()(const bdn::Number<unsigned int>& key) const
+	{
+		return std::hash< unsigned int >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<long> >
+{
+	size_t operator()(const bdn::Number<long>& key) const
+	{
+		return std::hash< long >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<unsigned long> >
+{
+	size_t operator()(const bdn::Number<unsigned long>& key) const
+	{
+		return std::hash< unsigned long >()( key.getValue() );		
+	}
+};
+
+template <>
+struct hash< bdn::Number<long long> >
+{
+	size_t operator()(const bdn::Number<long long>& key) const
+	{
+		return std::hash< long long >()( key.getValue() );		
 	}
 };
 
 
 template <>
-struct hash< bdn::ULong >
+struct hash< bdn::Number<unsigned long long> >
 {
-	size_t operator()(const bdn::ULong& key) const
+	size_t operator()(const bdn::Number<unsigned long long >& key) const
 	{
-		return std::hash< typename bdn::ULong::SimpleType >()( key.getValue() );		
-	}
-};
-
-
-template <>
-struct hash< bdn::Int8 >
-{
-	size_t operator()(const bdn::Int8& key) const
-	{
-		return std::hash< typename bdn::Int8::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::UInt8 >
-{
-	size_t operator()(const bdn::UInt8& key) const
-	{
-		return std::hash< typename bdn::UInt8::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::Int16 >
-{
-	size_t operator()(const bdn::Int16& key) const
-	{
-		return std::hash< typename bdn::Int16::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::UInt16 >
-{
-	size_t operator()(const bdn::UInt16& key) const
-	{
-		return std::hash< typename bdn::UInt16::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::Int32 >
-{
-	size_t operator()(const bdn::Int32& key) const
-	{
-		return std::hash< typename bdn::Int32::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::UInt32 >
-{
-	size_t operator()(const bdn::UInt32& key) const
-	{
-		return std::hash< typename bdn::UInt32::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::Int64 >
-{
-	size_t operator()(const bdn::Int64& key) const
-	{
-		return std::hash< typename bdn::Int64::SimpleType >()( key.getValue() );		
-	}
-};
-
-template <>
-struct hash< bdn::UInt64 >
-{
-	size_t operator()(const bdn::UInt64& key) const
-	{
-		return std::hash< typename bdn::UInt64::SimpleType >()( key.getValue() );		
+		return std::hash< unsigned long long >()( key.getValue() );		
 	}
 };
 

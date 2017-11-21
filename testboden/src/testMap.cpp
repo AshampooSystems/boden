@@ -183,7 +183,51 @@ static void testMap(
 
 			_verifyGenericCollectionReadOnly( coll, newExpectedElementList );			
 		}
-
+        
+        SECTION("add(key, value) movable")
+		{
+			typename Map<KeyType,ValType>::Element elToAdd = *newElList.begin();
+            
+            
+			std::list<typename Map<KeyType,ValType>::Element> newExpectedElementList = expectedInitElOrder;
+			newExpectedElementList.push_back( elToAdd );
+            
+            SECTION("both")
+            {
+                coll.add( std::move(elToAdd.first), std::move(elToAdd.second) );
+            
+                REQUIRE( isMovedRemnant(elToAdd));
+                
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+            }
+            
+            SECTION("key")
+            {
+                coll.add( std::move(elToAdd.first), elToAdd.second );
+                
+                // we must manually move the value away so that isMovedRemnant can
+                // be used
+                ValType dummy( std::move(elToAdd.second) );
+            
+                REQUIRE( isMovedRemnant(elToAdd));
+                
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+            }
+            
+            SECTION("value")
+            {
+                coll.add( elToAdd.first, std::move(elToAdd.second) );
+                
+                // we must manually move the key away so that isMovedRemnant can
+                // be used
+                KeyType dummy( std::move(elToAdd.first) );
+            
+                REQUIRE( isMovedRemnant(elToAdd) );
+                
+                _verifyGenericCollectionReadOnly( coll, newExpectedElementList );
+            }
+		}
+        
 		
 		SECTION("add ops with existing key")
 		{
