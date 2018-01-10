@@ -500,7 +500,7 @@ static inline ArgIntType rotateBitsRight(ArgIntType value, int bits)
 }
 
 
-#if defined(_MSC_VER) && _MSC_VER<=1900 
+#if defined(_MSC_VER) && _MSC_VER<=1912 
 
 template<bool IsFloatingPoint>
 struct MscNumberUtilHelper_
@@ -548,7 +548,7 @@ struct MscNumberUtilHelper_<true>
 template<typename ValueType>
 static inline bool isNan(ValueType value)
 {
-#if defined(_MSC_VER) && _MSC_VER<=1900 
+#if defined(_MSC_VER) && _MSC_VER<=1912 
 	// Visual Studio 2015 and below did not provide an implementation of std::isnan for integers
 	// (even though C++17 mandates it).
 	// So we have to use a workaround here.
@@ -574,7 +574,7 @@ static inline bool isNan(ValueType value)
 template<typename ValueType>
 static inline bool isFinite(ValueType value)
 {
-#if defined(_MSC_VER) && _MSC_VER<=1900 
+#if defined(_MSC_VER) && _MSC_VER<=1912 
 	// Visual Studio 2015 and below did not provide an implementation of std::isfinite for integers
 	// (even though C++17 mandates it).
 	// So we have to use a workaround here.

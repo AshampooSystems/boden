@@ -7,7 +7,7 @@
 namespace bdn
 {
 
-#if defined(_MSC_VER) && _MSC_VER<=1900
+#if defined(_MSC_VER) && _MSC_VER<=1912
     
 /** Helper used to work around a compiler bug in Visual Studio 2015. Do not use.*/
 template<typename BaseSequence>
@@ -60,7 +60,7 @@ public:
     using BaseSequence = BaseSequenceType;
 
 
-	#if defined(_MSC_VER) && _MSC_VER<=1900
+	#if defined(_MSC_VER) && _MSC_VER<=1912
         // Visual Studio 2015 and below
 		// this is a workaround for a bug in VS2015. The commented out line is
 		// the simple, normal type alias we want: BaseIterator should be the result
