@@ -1,15 +1,17 @@
 #ifndef BDN_SequenceFilter_H_
 #define BDN_SequenceFilter_H_
 
+#include <bdn/config.h>
+
 #include <iterator>
 #include <type_traits>
 
 namespace bdn
 {
 
-#if defined(_MSC_VER) && _MSC_VER<=1912
+#if SEQUENCE_FILTER_COMPILER_BUG
     
-/** Helper used to work around a compiler bug in Visual Studio 2015. Do not use.*/
+/** Helper used to work around a compiler bug in Visual Studio 2015 and 2017. Do not use.*/
 template<typename BaseSequence>
 struct MSCSequenceFilterIteratorTypedefHelper_
 {
@@ -60,8 +62,8 @@ public:
     using BaseSequence = BaseSequenceType;
 
 
-	#if defined(_MSC_VER) && _MSC_VER<=1912
-        // Visual Studio 2015 and below
+	#if SEQUENCE_FILTER_COMPILER_BUG
+        // Visual Studio 2017 and below
 		// this is a workaround for a bug in VS2015. The commented out line is
 		// the simple, normal type alias we want: BaseIterator should be the result
 		// of the begin function for the given sequence.

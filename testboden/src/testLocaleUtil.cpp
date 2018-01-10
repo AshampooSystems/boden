@@ -162,7 +162,7 @@ TEST_CASE("localeUtil")
         REQUIRE( typeid( locWideCodec ) == typeid( std::codecvt_utf8<wchar_t> ) );
 
         
-#if defined(_MSC_VER) && _MSC_VER>=1900 && _MSC_VER<=1912  // Visual Studio 2015 and 2017
+#if STD_USE_FACET_MISSING  // Visual Studio 2015 and 2017
         // the necessary specializations for std::use_facet for char16_t and char32_t are missing
         // in Visual Studio 2015 and 2017 (even though these are standard facets defined by the standard).
         // Note that there is also no use_facet specialization for the alternative codecvt implementations

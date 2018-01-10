@@ -1,6 +1,8 @@
 #ifndef BDN_Number_H_
 #define BDN_Number_H_
 
+#include <bdn/config.h>
+
 // needed so that we can provide specializations for std::hash
 #include <functional>
 #include <cmath>
@@ -500,7 +502,7 @@ static inline ArgIntType rotateBitsRight(ArgIntType value, int bits)
 }
 
 
-#if defined(_MSC_VER) && _MSC_VER<=1912 
+#if STD_ISNAN_MISSING
 
 template<bool IsFloatingPoint>
 struct MscNumberUtilHelper_
@@ -548,8 +550,8 @@ struct MscNumberUtilHelper_<true>
 template<typename ValueType>
 static inline bool isNan(ValueType value)
 {
-#if defined(_MSC_VER) && _MSC_VER<=1912 
-	// Visual Studio 2015 and below did not provide an implementation of std::isnan for integers
+#if STD_ISNAN_MISSING
+	// Visual Studio 2017 and below did not provide an implementation of std::isnan for integers
 	// (even though C++17 mandates it).
 	// So we have to use a workaround here.
 	return MscNumberUtilHelper_< ! std::numeric_limits<ValueType>::is_integer >::template isNan<ValueType>( value );
@@ -574,8 +576,8 @@ static inline bool isNan(ValueType value)
 template<typename ValueType>
 static inline bool isFinite(ValueType value)
 {
-#if defined(_MSC_VER) && _MSC_VER<=1912 
-	// Visual Studio 2015 and below did not provide an implementation of std::isfinite for integers
+#if STD_ISFINITE_INT_MISSING 
+	// Visual Studio 2017 and below did not provide an implementation of std::isfinite for integers
 	// (even though C++17 mandates it).
 	// So we have to use a workaround here.
 	return MscNumberUtilHelper_< ! std::numeric_limits<ValueType>::is_integer >::template isFinite<ValueType>( value );

@@ -254,7 +254,25 @@
 	#define BDN_IS_LITTLE_ENDIAN 1
 #endif
 
+// Compiler Issue Workarounds
 
+// Visual Studio 2015 to 2017 (v15.5)
+#if defined(_MSC_VER) && _MSC_VER>=1900 && _MSC_VER<=1912
+	// Missing specializations for std::use_facet for char16_t and char32_t
+	#define STD_USE_FACET_MISSING 1
+	// Bug when using char16_t and char32_t with std::codecvt
+	#define STD_CODECVT_CHAR16_T_CHAR32_T_BUG 1
+#endif
+
+// Visual Studio up to 2017 (v15.5)
+#if defined(_MSC_VER) && _MSC_VER<=1912
+	// Compiler bug with VS2015/VS2017 in SequenceFilter
+	#define SEQUENCE_FILTER_COMPILER_BUG 1
+	// std::isnan missing
+	#define STD_ISNAN_MISSING 1
+	// std::isfinite missing for type int
+	#define STD_ISFINITE_INT_MISSING 1
+#endif
 
 #endif
 
