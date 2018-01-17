@@ -116,11 +116,7 @@ TEST_CASE("Rect")
 	{
 		Rect r( 1.125, -345.125, 2.775, 3.5 );
 
-		SECTION("method")
-			REQUIRE( r.toString() == "1.125, -345.125; 2.775 x 3.5" );
-
-		SECTION("global function")
-			REQUIRE( toString(r) == "1.125, -345.125; 2.775 x 3.5" );
+		REQUIRE( toString(r) == "(1.125, -345.125 | 2.775 x 3.5)" );
 	}
 
 }

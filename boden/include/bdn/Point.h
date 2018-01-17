@@ -7,6 +7,10 @@ namespace bdn
 	
 
 /** Represents a 2-D point (x, y)
+
+	Point objects are supported by the global function bdn::toString().
+	They can also be written to standard output streams (std::basic_ostream,
+	bdn::TextOutStream, bdn::StringBuffer) with the << operator.
 	*/
 struct Point
 {
@@ -63,15 +67,17 @@ public:
 	}
 
 
-	/** Returns a locale-independent string representation of the point.
-		*/
-	String toString() const
-	{
-		return bdn::toString(x) + ", " + bdn::toString(y);
-	}
-	
 
 };
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const Point& p )
+{
+	return stream << "(" << p.x << ", " << p.y << ")";
+}
 
 
 }

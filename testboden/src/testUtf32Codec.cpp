@@ -8,8 +8,109 @@
 namespace bdn
 {
 
+
+
+template<class CATEGORY>
+class DummyUtf32TestIterator_
+{
+public:
+	using iterator_category = CATEGORY;
+	using value_type = char32_t;
+	using difference_type = size_t;
+	using pointer = char32_t*;
+	using reference = const char32_t&;
+
+	DummyUtf32TestIterator_& operator++()
+	{
+		return *this;
+	}
+
+	DummyUtf32TestIterator_ operator++(int)
+	{
+		return DummyUtf32TestIterator_();
+	}
+
+	reference operator*() const
+	{
+		return *(char32_t*)nullptr;
+	}
+};
+
 TEST_CASE( "Utf32Codec", "[string]" )
 {
+	
+
+	SECTION("iterator category")
+	{
+		SECTION("decoding")
+		{
+			SECTION("inner input")
+			{
+				REQUIRE( typeid( typename Utf32Codec::DecodingIterator< DummyUtf32TestIterator_<std::input_iterator_tag> >::iterator_category )
+						== typeid( std::input_iterator_tag ) );
+			}
+
+			SECTION("inner forward")
+			{
+				REQUIRE( typeid( typename Utf32Codec::DecodingIterator< DummyUtf32TestIterator_<std::forward_iterator_tag> >::iterator_category )
+						== typeid( std::forward_iterator_tag ) );
+			}
+
+			SECTION("inner bidir")
+			{
+				REQUIRE( typeid( typename Utf32Codec::DecodingIterator< DummyUtf32TestIterator_<std::bidirectional_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner random")
+			{
+				// with UTF-32 the iterator is random access if the source iterator
+				// is random access (since we have a 1:1 relationship between input and output)
+				REQUIRE( typeid( typename Utf32Codec::DecodingIterator< DummyUtf32TestIterator_<std::random_access_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner pointer")
+			{
+				REQUIRE( typeid( typename Utf32Codec::DecodingIterator< char32_t* >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+		}
+
+		SECTION("encoding")
+		{
+			SECTION("inner input")
+			{
+				REQUIRE( typeid( typename Utf32Codec::EncodingIterator< DummyUtf32TestIterator_<std::input_iterator_tag> >::iterator_category )
+						== typeid( std::input_iterator_tag ) );
+			}
+
+			SECTION("inner forward")
+			{
+				REQUIRE( typeid( typename Utf32Codec::EncodingIterator< DummyUtf32TestIterator_<std::forward_iterator_tag> >::iterator_category )
+						== typeid( std::forward_iterator_tag ) );
+			}
+
+			SECTION("inner bidir")
+			{
+				REQUIRE( typeid( typename Utf32Codec::EncodingIterator< DummyUtf32TestIterator_<std::bidirectional_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner random")
+			{
+				REQUIRE( typeid( typename Utf32Codec::EncodingIterator< DummyUtf32TestIterator_<std::random_access_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner pointer")
+			{
+				REQUIRE( typeid( typename Utf32Codec::EncodingIterator< char32_t* >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+		}
+	}
+
 	struct SubTestData
 	{
 		const std::u32string    utf32;

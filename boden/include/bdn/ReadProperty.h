@@ -10,7 +10,13 @@ namespace bdn
 /** Base class for properties which only allow the value to be read. See Property for
 	more information.
 	
-	
+	Property objects are supported by the global function bdn::toString()
+	if their inner value (see template parameter ValType) is supported.
+
+	Likewise, Property objects can also be written to standard output streams (std::basic_ostream,
+	bdn::TextOutStream, bdn::StringBuffer) with the << operator, if their value
+	can be written to such a stream.
+
 	*/
 template<class ValType>
 class ReadProperty : public Base, BDN_IMPLEMENTS IValueAccessor<ValType>
@@ -42,12 +48,21 @@ public:
 	virtual INotifier< P<const IValueAccessor<ValType>> >& onChange() const=0;
 
 
-	/** Returns a string representation of the property value.
-		This usually gives the same result as calling the global
-		bdn::toString() function on the property value.*/
-	virtual String toString() const=0;
-
 };
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS, typename PROP_VALUE >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const ReadProperty<PROP_VALUE>& s )
+{
+	// note that if there is no << operator for PROP_VALUE then that is not a problem.
+	// Since this << operator is a template all that does is remove the operator from the
+	// list of possible overloads. So it would be as if there was no << operator for DefaultProperty<PROP_VALUE>,
+	// which is exactly what we would want in this case.
+
+	return stream << s.get();
+}
 
 }
 

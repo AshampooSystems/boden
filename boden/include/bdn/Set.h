@@ -657,6 +657,31 @@ public:
 };
 
 
+template< typename CHAR_TYPE, class CHAR_TRAITS, typename ELTYPE, typename COMPAREFUNCTYPE, class ALLOCATOR >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const Set<ELTYPE, COMPAREFUNCTYPE, ALLOCATOR>& s )
+{
+	if( s.isEmpty() )
+		return stream << "{}";
+	else
+	{
+		stream << "{ ";
+
+		bool first = true;
+		for(auto& el: s)
+		{
+			if(!first)
+				stream << "," << std::endl << "  ";
+			stream << el;
+			first = false;
+		}
+
+		return stream << " }";
+	}
+}
+
+
 }
 
 

@@ -3929,12 +3929,12 @@ namespace bdn
 		\endcode
 		*/
 	template<typename A, typename B>
-	bool checkEquality(A a, B b, bool expectedResult)
+	bool checkEquality(A&& a, B&& b, bool expectedResult)
 	{
-		return (		(a==b)==expectedResult
-					&&  (b==a)==expectedResult
-					&& (!(a!=b)) == expectedResult
-					&& (!(b!=a)) == expectedResult
+		return (		( std::forward<A>(a) == std::forward<B>(b) )==expectedResult
+					&&  ( std::forward<B>(b) ==  std::forward<A>(a)  )==expectedResult
+					&& (!( std::forward<A>(a) != std::forward<B>(b) )) == expectedResult
+					&& (!( std::forward<B>(b) != std::forward<A>(a) )) == expectedResult
 				);
 	}
 

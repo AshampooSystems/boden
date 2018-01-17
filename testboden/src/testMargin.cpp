@@ -180,11 +180,8 @@ TEST_CASE("Margin")
 	{
 		Margin m( 1.125, -345.125, 2.775, 3.5 );
 
-		SECTION("method")
-			REQUIRE( m.toString() == "1.125, -345.125, 2.775, 3.5" );
+		REQUIRE( toString(m) == "(1.125, -345.125, 2.775, 3.5)" );
 
-		SECTION("global function")
-			REQUIRE( toString(m) == "1.125, -345.125, 2.775, 3.5" );
 	}
 }
 

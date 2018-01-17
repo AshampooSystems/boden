@@ -65,10 +65,6 @@ public:
         set( sourceProperty.get() );
     }    
 
-	String toString() const override
-	{
-		return bdn::toString( _value );
-	}
     
 protected:
 
@@ -81,6 +77,8 @@ protected:
     
 	mutable P< DefaultNotifier< P<const IValueAccessor<ValType> > > >	_pOnChange;
 };
+
+
 
 template<class PropertyType, typename ValType>
 void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, std::function<ValType(int)> valueGeneratorFunc )
@@ -415,13 +413,10 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 
 	SECTION("toString")
 	{
-		String expected = bdn::toString(prop.get());
+		String expected = toString(prop.get());
 			
-		SECTION("method")
-			REQUIRE( prop.toString() == expected );
-
-		SECTION("global function")
-			REQUIRE( bdn::toString(prop) == expected );
+		String actual = toString(prop);
+		REQUIRE( actual==expected );
 	}
 }
 

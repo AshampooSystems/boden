@@ -103,33 +103,37 @@ public:
     }
 
 
-	/** Returns a locale-independent string representation of the UI length.
-		*/
-	String toString() const
-	{
-		if(unit==Unit::none)
-			return "none";
-		else
-			return bdn::toString(value)+" "+unitToString(unit);
-	}
 	
 	Unit	unit;	
 	double	value;	
 
 
-private:
-	static String unitToString(Unit unit)
-	{
-		if(unit==Unit::dip)
-			return "dip";
-		else if(unit==Unit::sem)
-			return "sem";
-		else if(unit==Unit::em)
-			return "em";
-		else
-			return "";
-	}
 };
+
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const UiLength& l )
+{
+	if(l.unit==UiLength::Unit::none)
+		return stream << "none";
+	else
+	{
+		stream << l.value;
+		
+		if(l.unit==UiLength::Unit::dip)
+			stream << " dip";
+		else if(l.unit==UiLength::Unit::sem)
+			stream << " sem";
+		else if(l.unit==UiLength::Unit::em)
+			stream << " em";
+		
+		return stream;
+	}
+}
+
 
 
 }

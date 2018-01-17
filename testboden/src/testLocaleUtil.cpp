@@ -161,7 +161,24 @@ TEST_CASE("localeUtil")
 
         REQUIRE( typeid( locWideCodec ) == typeid( std::codecvt_utf8<wchar_t> ) );
 
-        
+        // verify that encoding is really utf8
+        {
+            std::mbstate_t state = std::mbstate_t();
+
+            const wchar_t	wideIn[] = L"\u0345";
+            char			utf8Out[8+1];
+            char			expectedUtf8Out[] = u8"\u0345";
+
+            const wchar_t*  pWideInNext = wideIn;
+            char*		pUtf8OutNext = utf8Out;
+
+            auto res = locWideCodec.out(state, wideIn, wideIn+1, pWideInNext, utf8Out, utf8Out+8, pUtf8OutNext );
+            REQUIRE( res==0 );
+
+            REQUIRE( pUtf8OutNext-utf8Out == sizeof(expectedUtf8Out)-1 );
+            REQUIRE( std::memcmp(utf8Out, expectedUtf8Out, sizeof(expectedUtf8Out)-1) == 0 );
+        }
+
 #if STD_USE_FACET_MISSING  // Visual Studio 2015 and 2017
         // the necessary specializations for std::use_facet for char16_t and char32_t are missing
         // in Visual Studio 2015 and 2017 (even though these are standard facets defined by the standard).
@@ -170,6 +187,7 @@ TEST_CASE("localeUtil")
         // So we cannot test this if we have these compiler versions.
 
         // So, do nothing here.
+      
 #else
         const std::codecvt<char16_t,char,mbstate_t>& locUtf16Codec = std::use_facet< std::codecvt<char16_t,char,mbstate_t> >(loc);
         REQUIRE( typeid( locUtf16Codec  ) == typeid( CodecVtUtf8Utf16 ) );

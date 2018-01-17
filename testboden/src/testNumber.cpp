@@ -363,7 +363,7 @@ static void _testNumberBase()
 		REQUIRE( ObjectType::minValue() == limits.lowest() );
 		REQUIRE( ObjectType::maxValue() == limits.max() );
 
-		REQUIRE( ObjectType::maxValue() > (uint64_t)0);
+		REQUIRE( ObjectType::maxValue() > (typename ObjectType::SimpleType)0);
 
 		REQUIRE( ObjectType::hasInfinity() == limits.has_infinity );
 		REQUIRE( ObjectType::hasNan() == limits.has_quiet_NaN );

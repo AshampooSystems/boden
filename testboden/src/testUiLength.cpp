@@ -11,11 +11,7 @@ static void _verifyUiLengthToString(double value, UiLength::Unit unit, String ex
 {
 	UiLength len(value, unit);
 	
-	SECTION("method")
-		REQUIRE( len.toString() == expectedString );
-
-	SECTION("global function")
-		REQUIRE( toString(len) == expectedString );
+	REQUIRE( toString(len) == expectedString );
 }
 
 TEST_CASE("UiLength")
@@ -146,7 +142,7 @@ TEST_CASE("UiLength")
 		_verifyUiLengthToString( 1.25, UiLength::Unit::none, "none" );
 		_verifyUiLengthToString( 1.25, UiLength::Unit::dip, "1.25 dip" );
 		_verifyUiLengthToString( 1.25, UiLength::Unit::sem, "1.25 sem" );
-		_verifyUiLengthToString( 1.25, UiLength::Unit::em, "1.25 eem" );		
+		_verifyUiLengthToString( 1.25, UiLength::Unit::em, "1.25 em" );		
 	}
 
 }

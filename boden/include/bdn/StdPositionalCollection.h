@@ -793,32 +793,33 @@ public:
 	}
 
 
-	/** Returns a locale-independent string representation of the collection.*/
-	String toString() const
-	{
-		if(this->isEmpty())
-			return "[]";
-		else
-		{
-			String s = "[ ";
-
-			bool first = true;
-			for(auto& el: *this)
-			{
-				if(!first)
-					s +=",\n  ";
-				s += bdn::toString(el);
-
-				first = false;
-			}
-
-			s += " ]";
-
-			return s;
-		}
-	}
-
 };
+
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS, class BASE_COLLECTION_TYPE >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const StdPositionalCollection<BASE_COLLECTION_TYPE>& m )
+{
+	if( m.isEmpty() )
+		return stream << "[]";
+	else
+	{
+		stream << "[ ";
+
+		bool first = true;
+		for(auto& el: m)
+		{
+			if(!first)
+				stream << "," << std::endl << "  ";
+			stream << el;
+			first = false;
+		}
+
+		return stream << " ]";
+	}
+}
 
 
 }

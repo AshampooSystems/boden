@@ -47,8 +47,9 @@ namespace bdn
 
 #include <bdn/SafeInit.h>
 
+#include <bdn/TextOutStream.h>
+
 #include <bdn/String.h>
-#include <bdn/Stringifier.h>
 
 #include <bdn/ProgrammingError.h>
 #include <bdn/InvalidArgumentError.h>
@@ -64,5 +65,9 @@ namespace bdn
 #include <bdn/WeakP.h>
 
 #include <bdn/func.h>
+
+// StringBuffer provides global operators for String
+// that allow convenient formatting. So we always need it.
+#include <bdn/StringBuffer.h>
 
 #endif

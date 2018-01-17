@@ -239,7 +239,62 @@ public:
 		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
 		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
 
-		_encodedString = typename Codec::EncodedString(encodingBeginIt, encodingEndIt );
+		_encodedString.assign( encodingBeginIt, encodingEndIt );
+	}
+
+
+private:
+	template<class InputDecodedCharIterator>
+	StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount, const std::input_iterator_tag& tag )
+	{
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
+
+		// we have input iterators. That means that the _encodedString implementation cannot
+		// do multiple passes over the data - thus it cannot determine the necessary memory
+		// requirements. To avoid copying the data multiple times we reserve the memory.
+
+		if(charCount!=(size_t)-1)
+		{
+			size_t maxSize = charCount * Codec::getMaxEncodedElementsPerCharacter();
+			_encodedString.reserve( maxSize );
+
+			_encodedString.assign( encodingBeginIt, encodingEndIt );
+
+			// if we waste more than 25% of memory then we reallocate
+			if(_encodedString.length() < maxSize - maxSize/4 )
+				_encodedString.shrink_to_fit();
+		}
+		else
+			_encodedString.assign( encodingBeginIt, encodingEndIt );
+	}
+
+	template<class InputDecodedCharIterator>
+	StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount, const std::forward_iterator_tag& tag )
+	{
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingBeginIt(beginIt);
+		typename Codec::template EncodingIterator<InputDecodedCharIterator> encodingEndIt(endIt);
+
+		// the iterators are forward iterators or above. That means that the String implementation can
+		// determine the memory requirements correctly. So we can ignore the charCount parameter.
+		_encodedString.assign( encodingBeginIt, encodingEndIt );
+	}
+
+public:
+    
+
+	/** Initializes the object with the data between two character iterators.
+		The iterators must return fully decoded 32 bit Unicode characters.
+		
+		The third parameter charCount can be used to indicate the number of characters
+		that the iterator will return. This information is used to optimize memory allocation.
+		charCount can be (size_t)-1 if the number of characters is unknown.
+		
+		*/
+	template<class InputDecodedCharIterator>
+	StringData(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount )
+		: StringData( beginIt, endIt, charCount, typename std::iterator_traits<InputDecodedCharIterator>::iterator_category() )
+	{
 	}
     
     
@@ -249,7 +304,7 @@ public:
     */
     StringData(const Codec& codec, typename Codec::EncodedString::iterator inputEncodedBeginIt, typename Codec::EncodedString::iterator inputEncodedEndIt)
     {
-        _encodedString = typename Codec::EncodedString(inputEncodedBeginIt, inputEncodedEndIt);
+        _encodedString.assign( inputEncodedBeginIt, inputEncodedEndIt);
     }
     
     
@@ -258,7 +313,7 @@ public:
     */
     StringData(const Codec& codec, typename Codec::EncodedElement* pBegin, typename Codec::EncodedElement* pEnd)
     {
-        _encodedString = typename Codec::EncodedString(pBegin, (pEnd-pBegin) );
+        _encodedString.assign( pBegin, (pEnd-pBegin) );
     }
 
 
@@ -280,7 +335,7 @@ public:
 		typename Codec::template EncodingIterator<typename InputCodec::template DecodingIterator<InputEncodedIterator> > encodingBeginIt(inputBeginIt);
 		typename Codec::template EncodingIterator<typename InputCodec::template DecodingIterator<InputEncodedIterator> > encodingEndIt(inputEndIt);
 
-		_encodedString = typename Codec::EncodedString(encodingBeginIt, encodingEndIt);
+		_encodedString.assign( encodingBeginIt, encodingEndIt );
 	}
 
 

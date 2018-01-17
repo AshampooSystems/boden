@@ -45,19 +45,22 @@ public:
 	{		
 	}
 
-	
-	/** Returns a locale-independent string representation of the margin.
-		*/
-	String toString() const
-	{
-		return bdn::toString(top) +", "+ bdn::toString(right) +", "+ bdn::toString(bottom) +", "+ bdn::toString(left);
-	}
-
 	UiLength top;
 	UiLength right;
 	UiLength bottom;
 	UiLength left;
 };
+
+
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const UiMargin& m )
+{
+	return stream << "(" << m.top << ", " << m.right << ", " << m.bottom << ", " << m.left << ")";
+}
 
 
 }

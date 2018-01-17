@@ -286,15 +286,15 @@ inline void verifyStreamIntegration()
 	{
 		std::basic_ostringstream<CharType>	stream;
 		String								s(U"\U00012345hello");
-
+        
 		stream << s;
-
+        
 		std::basic_string<CharType> streamData = stream.str();
-
+        
 		REQUIRE( streamData==toStreamData<CharType>(s, stream.getloc()) );
-
+        
 		String fromStream = fromStreamData(streamData, stream.getloc());
-		verifyStringFromStream<CharType>(fromStream, s, stream.getloc());
+        verifyStringFromStream<CharType>(fromStream, s, stream.getloc());        
 	}
 
 	SECTION("input")
@@ -402,6 +402,20 @@ void testStdHash()
 }
 
 
+
+
+struct StringShiftOperatorTest_
+{
+};
+
+template<typename CHAR_TYPE, typename TRAITS>
+std::basic_ostream<CHAR_TYPE, TRAITS>& operator<<( std::basic_ostream<CHAR_TYPE, TRAITS>& os, const StringShiftOperatorTest_& o)
+{
+	return os << "shiftoptest";
+}
+
+
+
 TEST_CASE("String", "[String]")
 {
 	SECTION("globalConcatenation")
@@ -418,5 +432,6 @@ TEST_CASE("String", "[String]")
 
 	SECTION("std::hash")
 		testStdHash();
+
 }
 

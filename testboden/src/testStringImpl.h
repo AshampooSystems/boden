@@ -121,6 +121,71 @@ inline void verifyContents(STRINGIMPL& s, const std::u32string& expectedResult)
 }
 
 template<class DATATYPE>
+void _verifyStringStreamConstruct(const char32_t* pChunkData)
+{
+	std::basic_stringbuf<char32_t, UnicodeCharTraits> buf;
+	TextOutStream stream(&buf);
+
+	std::u32string expected;
+	for(int i=0; i<100; i++)
+	{
+		stream << pChunkData;
+		expected += pChunkData;
+	}
+	stream.flush();
+
+	SECTION("basic_streambuf<char32_t>")
+	{
+		StringImpl<DATATYPE> s( &buf );
+		verifyContents(s, expected);
+	}
+
+	SECTION("basic_ostream<char32_t>")
+	{
+		SECTION("normal reference")
+		{
+			StringImpl<DATATYPE> s(stream);
+			verifyContents(s, expected);
+		}
+
+		SECTION("move reference")
+		{
+			StringImpl<DATATYPE> s( std::move(stream) );
+			verifyContents(s, expected);
+		}
+
+		SECTION("const reference")
+		{
+			StringImpl<DATATYPE> s( (const TextOutStream&)stream );
+			verifyContents(s, expected);
+		}
+	}
+
+	SECTION("basic_istream<char32_t>")
+	{
+		std::basic_istream<char32_t, UnicodeCharTraits> inStream(&buf);
+
+		SECTION("normal reference")
+		{
+			StringImpl<DATATYPE> s(inStream);
+			verifyContents(s, expected);
+		}
+
+		SECTION("move reference")
+		{
+			StringImpl<DATATYPE> s( std::move(inStream) );
+			verifyContents(s, expected);
+		}
+
+		SECTION("const reference")
+		{
+			StringImpl<DATATYPE> s( (const std::basic_istream<char32_t, UnicodeCharTraits>&)inStream );
+			verifyContents(s, expected);
+		}
+	}
+}
+
+template<class DATATYPE>
 void testConstruct()
 {
 	SECTION("empty")
@@ -331,6 +396,20 @@ void testConstruct()
 		}
 	}
 
+	SECTION("stream")
+	{	
+		SECTION("ascii")
+			_verifyStringStreamConstruct<DATATYPE>(  U"hello world" );
+
+		SECTION("ascii uni mix")
+			_verifyStringStreamConstruct<DATATYPE>(  U"hello\U00012345world" );
+
+		// these are high unicode chars that will all end up
+		// taking lots of encoded elements
+		SECTION("only high unicode")
+			_verifyStringStreamConstruct<DATATYPE>(  U"\U00012341\U00012342\U00012343\U00012344\U00012345\U00012346\U00012347\U00012348\U00012349" );
+
+	}
 
 }
 
@@ -2120,11 +2199,9 @@ inline void testAppendSingleChar( StringImpl<DATATYPE>& s)
 
 	SECTION("addNew")
 	{
-		// XXX this will not work, since addNew does not
-		// return a reference
-		const char32_t& charRef = s.addNew(U'\U00012345');
+		char32_t chr = s.addNew(U'\U00012345');
 
-		REQUIRE( charRef == U'\U00012345' );
+		REQUIRE( chr == U'\U00012345' );
 	}
 
 	SECTION("push_back")
@@ -8791,6 +8868,48 @@ inline void verifyFindReplace(const StringType& inString, const StringType& toFi
 	SECTION("findAndReplace")
 		replacedCount = s.findAndReplace( (ArgType)toFind, (ArgType)replaceWith);
 
+	/* operator% has been removed for the time being, while it is being
+	evaluated whether other alternatives are better (like << plus a string buffer
+	replace function).
+	SECTION("operator %=")
+	{
+		s %= std::make_pair((ArgType)toFind, (ArgType)replaceWith);
+
+		// we do not get a replacedCount from the operator. So we just set it to the
+		// expected value.
+		replacedCount = expectedReplacedCount;
+	}
+
+	SECTION("operator %")
+	{
+		SECTION("on self")
+			s = s % std::make_pair((ArgType)toFind, (ArgType)replaceWith);
+
+		SECTION("on copy")
+		{
+			StringType copy = s;
+			
+			s = copy % std::make_pair((ArgType)toFind, (ArgType)replaceWith);
+		}
+
+		SECTION("on different object")
+		{
+			// make sure we do not share data between the two strings
+			StringType copy = s.asUtf32();
+			s = StringType();
+
+			SECTION("non const")
+				s = copy % std::make_pair((ArgType)toFind, (ArgType)replaceWith);
+
+			SECTION("const")
+				s = ((const StringType&)copy) % std::make_pair((ArgType)toFind, (ArgType)replaceWith);
+		}
+
+		// we do not get a replacedCount from the operator. So we just set it to the
+		// expected value.
+		replacedCount = expectedReplacedCount;
+	}*/
+
 	if(toFind.length()==1 && replaceWith.isEmpty())
 	{
 		char32_t charToFind = toFind[0];
@@ -9758,6 +9877,7 @@ inline void testStringImpl()
 
 	SECTION("endsWith")
 		testEndsWith<DATATYPE>();
+
 	
 	
 }

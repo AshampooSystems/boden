@@ -6,6 +6,34 @@
 namespace bdn
 {
 
+template<class INPUT_CATEGORY>
+struct Utf16CodecImplIteratorCategory_
+{
+	using Type = std::input_iterator_tag;
+};
+
+template<>
+struct Utf16CodecImplIteratorCategory_<std::forward_iterator_tag>
+{
+	using Type = std::forward_iterator_tag;
+};
+
+template<>
+struct Utf16CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
+{
+	using Type = std::bidirectional_iterator_tag;
+};
+
+template<>
+struct Utf16CodecImplIteratorCategory_<std::random_access_iterator_tag>
+{
+	// when the source iterator is random access then the resulting
+	// iterator is bidir (since we do not know the size of the encoded
+	// characters ahead of time).
+	using Type = std::bidirectional_iterator_tag;
+};
+
+
 /** Implements the Utf-16 string codec.
 
 	See also Utf16Codec.
@@ -38,23 +66,36 @@ public:
 		arbitrary source iterator into Unicode characters (char32_t).
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<std::bidirectional_iterator_tag,
-													char32_t,
-													std::ptrdiff_t,
-													char32_t*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
-													char32_t >
+	class DecodingIterator
 	{
 	public:
+
+		using iterator_category = typename Utf16CodecImplIteratorCategory_< typename std::iterator_traits<SourceIterator>::iterator_category >::Type;
+		using value_type = char32_t;
+		using difference_type = std::ptrdiff_t;
+		using pointer = const char32_t*;
+
+		// this is a bit of a hack. We define Reference to be a value, not
+		// an actual reference. That is necessary, because we return values
+		// generated on the fly that are not actually stored by the underlying
+		// container. While we could return a reference to a member of the iterator,
+		// that would only remain valid while the iterator is alive. And parts of
+		// the standard library (for example std::reverse_iterator) will create
+		// temporary local iterators and return their value references, which would
+		// cause a crash.
+		// By defining reference as a value, we ensure that the standard library functions
+		// return valid objects.
+		// Note that defining reference as a value is allowed for input iterators,
+		// but not for forward or bidirectional iterators, according to the standard.
+		// However, input iterators are single pass only, so if we were to define our
+		// category as input iterator then a lot of algorithms would be less efficient.
+		// For example, in string construction the memory would be reallocated several times
+		// because the string constructor thinks that it can only go over the data once.
+		// So, to avoid that, we define our category as forward or bidir (depending on the source
+		// iterator category) and break standard compliance by defining reference as a value.
+		// In practice this is usually not a problem.
+		using reference = char32_t;
+
 		/** @param sourceIt the source iterator that provides the UTF-16 data.
 			@param beginSourceIt an iterator that points to the beginning of the valid source data.
 				The implementation uses this to avoid overshooting the data boundaries if the UTF-16 data is corrupted.
@@ -258,23 +299,37 @@ public:
 
 	/** Encodes unicode characters to UTF-16.*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<	std::bidirectional_iterator_tag,
-													EncodedElement,
-													std::ptrdiff_t,
-													EncodedElement*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
-													EncodedElement >
+	class EncodingIterator
 	{
 	public:
+		
+		using iterator_category = typename Utf16CodecImplIteratorCategory_< typename std::iterator_traits<SourceIterator>::iterator_category >::Type;
+		using value_type = EncodedElement;
+		using difference_type = std::ptrdiff_t;
+		using pointer = const EncodedElement*;
+
+		// this is a bit of a hack. We define Reference to be a value, not
+		// an actual reference. That is necessary, because we return values
+		// generated on the fly that are not actually stored by the underlying
+		// container. While we could return a reference to a member of the iterator,
+		// that would only remain valid while the iterator is alive. And parts of
+		// the standard library (for example std::reverse_iterator) will create
+		// temporary local iterators and return their value references, which would
+		// cause a crash.
+		// By defining reference as a value, we ensure that the standard library functions
+		// return valid objects.
+		// Note that defining reference as a value is allowed for input iterators,
+		// but not for forward or bidirectional iterators, according to the standard.
+		// However, input iterators are single pass only, so if we were to define our
+		// category as input iterator then a lot of algorithms would be less efficient.
+		// For example, in string construction the memory would be reallocated several times
+		// because the string constructor thinks that it can only go over the data once.
+		// So, to avoid that, we define our category as forward or bidir (depending on the source
+		// iterator category) and break standard compliance by defining reference as a value.
+		// In practice this is usually not a problem.
+		using reference = EncodedElement;
+
+
 		EncodingIterator(const SourceIterator& sourceIt)
 		{
 			_sourceIt = sourceIt;
@@ -349,6 +404,17 @@ public:
 				encode();
 
 			return (EncodedElement)_encoded[_offset];
+		}
+
+		/** Returns true if a character ends with the current UTF-16 code value.
+			This is true for all UTF-16 code values, except the starting value
+			of a surrogate pair.*/
+		bool isEndOfCharacter() const
+		{
+			if(_offset==-1)
+				encode();
+
+			return (_offset+1 >= _encodedLength);
 		}
 
 		bool operator==(const EncodingIterator<SourceIterator>& o) const

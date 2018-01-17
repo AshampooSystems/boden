@@ -606,32 +606,33 @@ public:
     }
 
 
-	/** Returns a locale independent string representation of the map.*/
-	String toString() const
-	{
-		if( StdCollection< BASE_COLLECTION_TYPE >::isEmpty() )
-			return "{}";
-		else
-		{
-			String s = "{ ";
-
-			bool first = true;
-			for(auto& el: *this)
-			{
-				if(!first)
-					s += ",\n  ";
-				s += bdn::toString(el.first)+": "+bdn::toString(el.second);
-				first = false;
-			}
-
-			s += " }";
-
-			return s;
-		}
-	}
 
 };
 
+
+template< typename CHAR_TYPE, class CHAR_TRAITS, class BASE_COLLECTION_TYPE >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const StdMapCollection<BASE_COLLECTION_TYPE>& m )
+{
+	if( m.isEmpty() )
+		return stream << "{}";
+	else
+	{
+		stream << "{ ";
+
+		bool first = true;
+		for(auto& el: m)
+		{
+			if(!first)
+				stream << "," << std::endl << "  ";
+			stream << el.first << ": " << el.second;
+			first = false;
+		}
+
+		return stream << " }";
+	}
+}
 
 }
 

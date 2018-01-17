@@ -10,12 +10,16 @@
 #include <bdn/SequenceFilter.h>
 #include <bdn/XxHash32.h>
 #include <bdn/XxHash64.h>
+#include <bdn/LocaleEncoder.h>
+#include <bdn/LocaleDecoder.h>
 
 #include <iterator>
 #include <list>
 #include <locale>
 #include <algorithm>
 #include <string>
+#include <ostream>
+#include <istream>
 
 
 namespace bdn
@@ -384,12 +388,110 @@ public:
 
 
 
+	/** Initializes the object with the data between two character iterators.
+		The iterators must return fully decoded 32 bit Unicode characters.
+		
+		The third parameter charCount can be used to indicate the number of characters
+		that the iterator will return. This information may be used to optimize memory allocation.
+		charCount can be (size_t)-1 if the number of characters is unknown.
+
+		Note that passing the charCount parameter is only useful if the iterators
+		are of the std::input_iterator_tag category. For all other iterator types the memory
+		allocation is optimal even without the charCount parameter.
+
+		*/
+	template<class InputDecodedCharIterator>
+	StringImpl(InputDecodedCharIterator beginIt, InputDecodedCharIterator endIt, size_t charCount )
+		: StringImpl( newObj<MainDataType>(beginIt, endIt, charCount) )
+	{
+	}
+
+
+
 	/** Initializes the string to be \c numChars times the \c chr character.
 		*/
 	StringImpl(size_t numChars, char32_t chr)
 		: StringImpl()
 	{
 		assign(numChars, chr);
+	}
+
+private:
+	template< class STREAM_BUFFER >
+	static size_t tryDetermineStreamBufferSize(STREAM_BUFFER* pBuffer)
+	{
+		if(pBuffer!=nullptr)
+		{
+			pBuffer->pubsync();
+
+			typename STREAM_BUFFER::pos_type currPos = pBuffer->pubseekoff(
+				0,
+				std::ios_base::cur,
+				std::ios_base::in );
+
+			if( currPos != (typename STREAM_BUFFER::pos_type)-1 )
+			{
+				// seek to end to get the size
+				typename STREAM_BUFFER::pos_type endPos = pBuffer->pubseekoff(
+					0,
+					std::ios_base::end,
+					std::ios_base::in );
+
+				if( endPos != (typename STREAM_BUFFER::pos_type)-1 )
+				{
+					// seek back to old position
+					currPos = pBuffer->pubseekpos( currPos, std::ios_base::in );
+
+					if( currPos != (typename STREAM_BUFFER::pos_type)-1 )
+						return (size_t)(endPos-currPos);
+				}
+			}
+		}
+
+		return (size_t)-1;
+	}
+public:
+
+	
+
+	/** Initializes the string with the data from a char32_t stream buffer.*/
+	template<class CHAR_TRAITS>
+	StringImpl( std::basic_streambuf<char32_t, CHAR_TRAITS>* pBuffer )
+		: StringImpl(
+			(pBuffer->pubsync(), std::istreambuf_iterator<char32_t, CHAR_TRAITS>(pBuffer) ),
+			std::istreambuf_iterator<char32_t, CHAR_TRAITS>(),
+			// istreambuf iterators are input iterators. That means that only a single
+			// pass can be made over their data. Because of this, the string memory
+			// cannot be allocated correctly in advance, since we do not yet know
+			// how big the resulting string will be. So we try to get the number of chars
+			// from the buffer, to give the string implementation some help for optimizing
+			// the memory allocation.
+			tryDetermineStreamBufferSize( pBuffer ) )
+	{
+	}
+
+
+	/** Initializes the string with the data from the stream buffer of the
+		specified char32_t input stream.*/
+	template<class CHAR_TRAITS>
+	StringImpl( const std::basic_istream<char32_t, CHAR_TRAITS>& stream )
+		: StringImpl( stream.rdbuf() )
+	{
+	}
+
+
+	/** Initializes the string with the data from the stream buffer of the
+		specified char32_t output stream.
+		
+		This constructor accesses the output stream's internal stream buffer object
+		( stream.rdbuf() ) and tries to read the stream's written data back from it.
+		Note that there are output stream buffers that
+		do not support reading the written data back. The resulting
+		string will be empty in those cases.*/
+	template<class CHAR_TRAITS>
+	StringImpl( const std::basic_ostream<char32_t, CHAR_TRAITS>& stream )
+		: StringImpl( stream.rdbuf() )
+	{
 	}
 
 
@@ -426,14 +528,18 @@ public:
 		string in the locale-dependent multibyte encoding.*/
 	static StringImpl fromLocaleEncoding(const char* s, const std::locale& loc = std::locale(), size_t lengthElements=toEnd)
 	{
-		return localeEncodingToWide( (lengthElements==toEnd) ? std::string(s) : std::string(s, lengthElements), loc );
+		LocaleDecoder decoder( s, getStringEndPtr(s, lengthElements)-s, loc );
+
+		return StringImpl( decoder.begin(), decoder.end() );
 	}
 
 	/** Static construction method. Creates a String object from a std::string
 	in the locale-dependent multibyte encoding.*/
 	static StringImpl fromLocaleEncoding(const std::string& s, const std::locale& loc = std::locale() )
 	{
-		return localeEncodingToWide( s, loc );
+		LocaleDecoder decoder( s.c_str(), s.length(), loc );
+
+		return StringImpl( decoder.begin(), decoder.end() );
 	}
 
 
@@ -1108,10 +1214,10 @@ public:
 		Note that in contrast to the asXYZ conversion routines this function always
 		returns a new copy of the data.
 	*/
-    template<typename CharType = char>
-	std::basic_string<CharType> toLocaleEncoding(const std::locale& loc = std::locale()) const
+    template<typename CHAR_TYPE = char >
+	std::basic_string<CHAR_TYPE> toLocaleEncoding(const std::locale& loc = std::locale()) const
 	{
-        return _toLocaleEncodingImpl((const CharType*)0, loc);		
+        return _toLocaleEncodingImpl((const CHAR_TYPE*)0, loc);		
 	}
 
 	/** Compares this string with the specified other string.
@@ -5933,7 +6039,7 @@ public:
 		*/
 	int findAndReplace(const std::string& toFind, const std::string& replaceWith)
 	{
-		return findReplaceEncoded(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplaceEncoded(Utf8Codec(), toFind.begin(), toFind.end(), Utf8Codec(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5946,7 +6052,7 @@ public:
 		*/
 	int findAndReplace(const std::wstring& toFind, const std::wstring& replaceWith)
 	{
-		return findReplaceEncoded(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplaceEncoded(WideCodec(), toFind.begin(), toFind.end(), WideCodec(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5959,7 +6065,7 @@ public:
 		*/
 	int findAndReplace(const std::u16string& toFind, const std::u16string& replaceWith)
 	{
-		return findReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(), replaceWith.end() );
+		return findAndReplaceEncoded(Utf16Codec(), toFind.begin(), toFind.end(), Utf16Codec(), replaceWith.begin(), replaceWith.end() );
 	}
 
 
@@ -5985,7 +6091,7 @@ public:
 		*/
 	int findAndReplace(const char* toFind, const char* replaceWith)
 	{
-		return findReplaceEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith, getStringEndPtr(replaceWith) );
+		return findAndReplaceEncoded(Utf8Codec(), toFind, getStringEndPtr(toFind), Utf8Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -5998,7 +6104,7 @@ public:
 		*/
 	int findAndReplace(const wchar_t* toFind, const wchar_t* replaceWith)
 	{
-		return findReplaceEncoded(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith, getStringEndPtr(replaceWith) );
+		return findAndReplaceEncoded(WideCodec(), toFind, getStringEndPtr(toFind), WideCodec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -6011,7 +6117,7 @@ public:
 		*/
 	int findAndReplace(const char16_t* toFind, const char16_t* replaceWith)
 	{
-		return findReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith, getStringEndPtr(replaceWith) );
+		return findAndReplaceEncoded(Utf16Codec(), toFind, getStringEndPtr(toFind), Utf16Codec(), replaceWith, getStringEndPtr(replaceWith) );
 	}
 
 
@@ -6085,7 +6191,7 @@ public:
 		If \c toFindEncodedBegin equals toFindEncodedBegin (i.e. the toFind string is empty) then the function does nothing and returns 0.
 		*/
 	template<class ToFindCodec, class ToFindIterator, class ReplaceWithCodec, class ReplaceWithIterator>
-	int findReplaceEncoded(	const ToFindCodec& toFindCodec,
+	int findAndReplaceEncoded(	const ToFindCodec& toFindCodec,
 							const ToFindIterator& toFindEncodedBegin,
 							const ToFindIterator& toFindEncodedEnd,
 							const ReplaceWithCodec& replaceWithCodec,
@@ -6099,7 +6205,69 @@ public:
 	}
 
 
+	/* operator% has been removed for the time being, while it is being
+	evaluated whether other alternatives are better (like << plus a string buffer
+	replace function).
 
+	/ ** An operator that works similar to findAndReplace().
+		Searches for occurrences of replacePair.first and replaces them with replacePair.second.
+		The types of the first and second value must be string types that are supported by findAndReplace().
+
+		This operator modifies the string that the operator is called on (the left side of the operator). Returns a reference to that string.
+
+		Example:
+
+		\code
+
+		String s = "hello";
+
+		s %= std::make_pair("ello", "i");
+
+		// s now equals "hi".
+
+		\endcode
+	* /
+	template<typename TO_FIND_TYPE, typename REPLACE_WITH_TYPE>
+	StringImpl& operator%=( const std::pair<TO_FIND_TYPE, REPLACE_WITH_TYPE> replacePair )
+	{
+		findAndReplace( replacePair.first, replacePair.second );
+		return *this;
+	}
+
+
+	/ ** An operator that works similar to findAndReplace().
+
+		Creates a copy of the left side string and replaces all occurrences of the string replacePair.first 
+		with the string replacePair.second.
+		The types of the first and second value of the pair must be string types that are supported by findAndReplace().
+
+		This operator does not modify the string that the operator is called on (the left side of the operator).
+		It makes a copy and then modifies that.
+
+		Example:
+
+		\code
+
+		String s = "hello";
+
+		String result = s % std::make_pair("ello", "i");
+
+		// s still equals "hello"
+		// result equals "hi"
+
+		\endcode
+	* /
+	template<typename TO_FIND_TYPE, typename REPLACE_WITH_TYPE>
+	StringImpl operator%( const std::pair<TO_FIND_TYPE, REPLACE_WITH_TYPE> replacePair ) const
+	{
+		StringImpl result(*this);
+
+		result.findAndReplace( replacePair.first, replacePair.second );
+
+		return result;
+	}
+
+	*/
 
 
 
@@ -6865,13 +7033,11 @@ private:
 	};
 	friend struct Modify;
 
-
-    std::string _toLocaleEncodingImpl(const char*, const std::locale& loc) const
+	std::string _toLocaleEncodingImpl(const char*, const std::locale& loc) const
     {
-        // note: we must use the wide char encoding as a basis, because that is the
-		// only facet provided by the locale object that converts to the locale-specific
-		// multibyte encoding. All other facets only convert to UTF-8.
-		return wideToLocaleEncoding(asWide(), loc);
+		LocaleEncoder<Iterator> encoder( begin(), end(), loc );
+        
+		return std::string( encoder.begin(), encoder.end() );
     }
 
     const std::wstring& _toLocaleEncodingImpl(const wchar_t*, const std::locale& loc) const
@@ -6902,6 +7068,91 @@ private:
 
 	mutable size_t			_lengthIfKnown;
 };
+
+
+	template<typename CHAR_TYPE>
+	struct StringImplStreamWriterImpl_;
+
+	template<>
+	struct StringImplStreamWriterImpl_<char32_t>
+	{
+		template<typename CHAR_TRAITS, class STRING_DATA>
+		static inline void write(
+			std::basic_ostream<char32_t, CHAR_TRAITS>& stream,
+			const bdn::StringImpl<STRING_DATA>& s)
+		{
+			bdn::streamPutCharSequence( stream, s.begin(), s.end() );
+		}
+	};
+
+	template<>
+	struct StringImplStreamWriterImpl_<char16_t>
+	{
+		template<typename CHAR_TRAITS, class STRING_DATA>
+		static inline void write(
+			std::basic_ostream<char16_t, CHAR_TRAITS>& stream,
+			const bdn::StringImpl<STRING_DATA>& s)
+		{
+			Utf16Codec::EncodingIterator< typename bdn::StringImpl<STRING_DATA>::Iterator > beginIt( s.begin() );
+			Utf16Codec::EncodingIterator< typename bdn::StringImpl<STRING_DATA>::Iterator > endIt( s.end() );
+
+			bdn::streamPutCharSequence( stream, beginIt, endIt );
+		}
+	};
+
+	template<>
+	struct StringImplStreamWriterImpl_<wchar_t>
+	{
+		template<typename CHAR_TRAITS, typename STRING_DATA>
+		static inline void write(
+			std::basic_ostream<wchar_t, CHAR_TRAITS>& stream,
+			const bdn::StringImpl<STRING_DATA>& s)
+		{
+			WideCodec::EncodingIterator< typename bdn::StringImpl<STRING_DATA>::Iterator > beginIt( s.begin() );
+			WideCodec::EncodingIterator< typename bdn::StringImpl<STRING_DATA>::Iterator > endIt( s.end() );
+
+			bdn::streamPutCharSequence( stream, beginIt, endIt );
+		}
+	};
+
+
+	template<>
+	struct StringImplStreamWriterImpl_<char>
+	{
+		template<typename CHAR_TRAITS, typename STRING_DATA>
+		static inline void write(
+			std::basic_ostream<char, CHAR_TRAITS>& stream,
+			const bdn::StringImpl<STRING_DATA>& s)
+		{
+			LocaleEncoder<typename bdn::StringImpl<STRING_DATA>::Iterator> encoder( s.begin(), s.end(), stream.getloc() );
+
+			bdn::streamPutCharSequence( stream, encoder.begin(), encoder.end() );
+		}
+	};
+
+
+	/** Writes the string to the specified output stream.
+	
+		If the stream uses the "char" character type then the string
+		is written in the encoding of the locale that is associated with the stream
+		(as returned by std::basic_ostream::getloc() ).
+
+		If the stream uses a different character type (wchar_t, char16_t, char32_t)
+		then the string is written in the appropriate encoding.
+
+		Behaves the same way as the corresponding stream << operators for std::basic_string and const char_t*
+	*/
+	template<typename CHAR_TYPE, typename CHAR_TRAITS, class STRING_DATA>
+	inline std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+		operator<<(
+			std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+			const bdn::StringImpl<STRING_DATA>& s)
+	{
+		StringImplStreamWriterImpl_<CHAR_TYPE>::template write<CHAR_TRAITS, STRING_DATA>(stream, s);
+		return stream;
+	}
+
+
 
 }
 

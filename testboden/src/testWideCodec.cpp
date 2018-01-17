@@ -8,20 +8,123 @@
 namespace bdn
 {
 
-TEST_CASE( "WideCodecType", "[string]" )
+
+template<typename VALUE, class CATEGORY>
+class DummyWideTestIterator_
 {
-#if BDN_PLATFORM_WINDOWS || BDN_PLATFORM_DOTNET
-    REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
+public:
+	using iterator_category = CATEGORY;
+	using value_type = VALUE;
+	using difference_type = size_t;
+	using pointer = VALUE*;
+	using reference = const VALUE&;
 
-#else
-    REQUIRE( typeid(WideCodec) == typeid(Utf32CodecImpl<wchar_t>) );
+	DummyWideTestIterator_& operator++()
+	{
+		return *this;
+	}
 
-#endif
-}
+	DummyWideTestIterator_ operator++(int)
+	{
+		return DummyWideTestIterator_();
+	}
+
+	reference operator*() const
+	{
+		return *(VALUE*)nullptr;
+	}
+};
 
 
 TEST_CASE( "WideCodec", "[string]" )
 {
+	
+	SECTION( "typedef" )
+	{
+	#if BDN_PLATFORM_WINDOWS || BDN_PLATFORM_DOTNET
+		REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
+
+	#else
+		REQUIRE( typeid(WideCodec) == typeid(Utf32CodecImpl<wchar_t>) );
+
+	#endif
+	}
+
+
+
+	SECTION("iterator category")
+	{
+		SECTION("decoding")
+		{
+			SECTION("inner input")
+			{
+				REQUIRE( typeid( typename WideCodec::DecodingIterator< DummyWideTestIterator_<wchar_t, std::input_iterator_tag> >::iterator_category )
+						== typeid( std::input_iterator_tag ) );
+			}
+
+			SECTION("inner forward")
+			{
+				REQUIRE( typeid( typename WideCodec::DecodingIterator< DummyWideTestIterator_<wchar_t, std::forward_iterator_tag> >::iterator_category )
+						== typeid( std::forward_iterator_tag ) );
+			}
+
+			SECTION("inner bidir")
+			{
+				REQUIRE( typeid( typename WideCodec::DecodingIterator< DummyWideTestIterator_<wchar_t, std::bidirectional_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner random")
+			{
+				// the result should still be bidir, since we do not support 
+				// random access for utf-16
+				REQUIRE( typeid( typename WideCodec::DecodingIterator< DummyWideTestIterator_<wchar_t, std::random_access_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner pointer")
+			{
+				REQUIRE( typeid( typename WideCodec::DecodingIterator< wchar_t* >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+		}
+
+		SECTION("encoding")
+		{
+			SECTION("inner input")
+			{
+				REQUIRE( typeid( typename WideCodec::EncodingIterator< DummyWideTestIterator_<char32_t , std::input_iterator_tag> >::iterator_category )
+						== typeid( std::input_iterator_tag ) );
+			}
+
+			SECTION("inner forward")
+			{
+				REQUIRE( typeid( typename WideCodec::EncodingIterator< DummyWideTestIterator_<char32_t, std::forward_iterator_tag> >::iterator_category )
+						== typeid( std::forward_iterator_tag ) );
+			}
+
+			SECTION("inner bidir")
+			{
+				REQUIRE( typeid( typename WideCodec::EncodingIterator< DummyWideTestIterator_<char32_t, std::bidirectional_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner random")
+			{
+				// the result should still be bidir, since we do not support 
+				// random access for utf-16
+				REQUIRE( typeid( typename WideCodec::EncodingIterator< DummyWideTestIterator_<char32_t, std::random_access_iterator_tag> >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+
+			SECTION("inner pointer")
+			{
+				REQUIRE( typeid( typename WideCodec::EncodingIterator< char32_t* >::iterator_category )
+						== typeid( std::bidirectional_iterator_tag ) );
+			}
+		}
+	}
+
 	struct SubTestData
 	{
 		std::wstring	wdata;

@@ -166,11 +166,7 @@ TEST_CASE("Point")
 	{
 		Point p( 1.125, -345.125 );
 
-		SECTION("method")
-			REQUIRE( p.toString() == "1.125, -345.125" );
-
-		SECTION("global function")
-			REQUIRE( toString(p) == "1.125, -345.125" );
+		REQUIRE( toString(p) == "(1.125, -345.125)" );
 	}
 }
 

@@ -33,18 +33,21 @@ public:
 	{		
 	}
 
-	
-	/** Returns a locale-independent string representation of the size.
-		*/
-	String toString() const
-	{
-		return bdn::toString(width) +" x "+ bdn::toString(height);
-	}
+
 	
     
     UiLength width;
 	UiLength height;
 };
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const UiSize& s )
+{
+	return stream << "(" << s.width << " x " << s.height << ")";
+}
 
 
 }

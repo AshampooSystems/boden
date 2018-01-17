@@ -35,7 +35,9 @@ static void _testMapToString(COLL& coll)
 		expected += " }";
 	}
 
-	REQUIRE( coll.toString() == expected );
+	String actual = bdn::toString(coll);
+
+	REQUIRE( actual == expected );
 }
 
 template<typename KeyType, typename ValType, typename... ConstructArgs>

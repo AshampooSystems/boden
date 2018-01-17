@@ -54,7 +54,7 @@ static void _testHashMapToString(COLL& coll)
 		{
 			if(!first)
 				expected += ",\n  ";
-			expected += bdn::toString(el.first)+": "+bdn::toString(el.second);
+			expected += toString(el.first) + ": " + toString(el.second);
 
 			first = false;
 		}
@@ -62,7 +62,9 @@ static void _testHashMapToString(COLL& coll)
 		expected += " }";
 	}
 
-	REQUIRE( coll.toString() == expected );
+	String actual = toString(coll);
+
+	REQUIRE( actual == expected );
 }
 
 

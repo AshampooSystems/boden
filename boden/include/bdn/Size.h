@@ -12,6 +12,10 @@ namespace bdn
 	
 
 /** Represents the a size (width and height).
+
+	Size objects are supported by the global function bdn::toString().
+	They can also be written to standard output streams (std::basic_ostream,
+	bdn::TextOutStream, bdn::StringBuffer) with the << operator.
 	
 	*/
 struct Size
@@ -177,17 +181,22 @@ public:
     }
 
 
-	/** Returns a locale-independent string representation of the size.
-		*/
-	String toString() const
-	{
-		return bdn::toString(width) + " x " + bdn::toString(height);
-	}
+	
 	
 };
 
 
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream, const Size& s )
+{
+	return stream << "(" << s.width << " x " << s.height << ")";
 }
+
+
+}
+
 
 
 inline bool operator==(const bdn::Size& a, const bdn::Size& b)

@@ -69,25 +69,49 @@ void testCodecEncodingIterator(const std::u32string& input, const ENCSTRING& exp
 	{
 		typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = begin;
 
+		bool lastWasEndOfCharacter = true;  // we want this to be true for empty strings.
+		int  endOfCharacterCount=0;
 		for( auto expectedIt = expectedEncoded.begin(); expectedIt!=expectedEncoded.end(); ++expectedIt)
 		{
 			REQUIRE( checkEquality(it, end, false) );
 
 			REQUIRE( *it == *expectedIt );
+
+			lastWasEndOfCharacter = it.isEndOfCharacter();
+			if(lastWasEndOfCharacter)
+				endOfCharacterCount++;
+
 			it++;
 		}
 
 		REQUIRE( checkEquality(it, end, true) );
+
+		REQUIRE( lastWasEndOfCharacter );
+		REQUIRE( endOfCharacterCount==input.length() );
+
+		bool firstElement = true;
+		endOfCharacterCount = 0;
 
 		for( auto expectedIt = expectedEncoded.rbegin(); expectedIt!=expectedEncoded.rend(); ++expectedIt)
 		{
 			REQUIRE( checkEquality(it, begin, false) );
 			it--;
 
+			if(firstElement)
+			{
+				REQUIRE( it.isEndOfCharacter() );
+				firstElement=false;
+			}
+
 			REQUIRE( *it == *expectedIt );
+
+			if(it.isEndOfCharacter())
+				endOfCharacterCount++;
 		}
 
 		REQUIRE( checkEquality(it, begin, true) );
+
+		REQUIRE( endOfCharacterCount==input.length() );
 	}
 
 
@@ -95,24 +119,50 @@ void testCodecEncodingIterator(const std::u32string& input, const ENCSTRING& exp
 	{
 		typename CODEC::template EncodingIterator<std::u32string::const_iterator> it = end;
 
+		bool firstElement = true;
+		int endOfCharacterCount = 0;
+
 		for( auto expectedIt = expectedEncoded.rbegin(); expectedIt!=expectedEncoded.rend(); ++expectedIt)
 		{
 			REQUIRE( checkEquality(it, begin, false) );
 			it--;
 
+			if(firstElement)
+			{
+				REQUIRE( it.isEndOfCharacter() );
+				firstElement=false;
+			}
+
 			REQUIRE( *it == *expectedIt );
+
+			if(it.isEndOfCharacter())
+				endOfCharacterCount++;
 		}
 
 		REQUIRE( checkEquality(it, begin, true) );
 
+		REQUIRE( endOfCharacterCount==input.length() );
+
+		endOfCharacterCount=0;
+
+		bool lastWasEndOfCharacter = true; // we want this to be true for empty strings.
 		for( auto expectedIt = expectedEncoded.begin(); expectedIt!=expectedEncoded.end(); ++expectedIt)
 		{
 			REQUIRE( checkEquality(it, end, false) );
+
 			REQUIRE( *it == *expectedIt );
+
+			lastWasEndOfCharacter = it.isEndOfCharacter();
+			if(lastWasEndOfCharacter)
+				endOfCharacterCount++;
+
 			it++;
 		}
 
 		REQUIRE( checkEquality(it, end, true) );
+
+		REQUIRE( lastWasEndOfCharacter );
+		REQUIRE( endOfCharacterCount==input.length() );
 	}
 }
 

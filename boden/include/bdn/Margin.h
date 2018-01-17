@@ -12,6 +12,10 @@ namespace bdn
 	top, right, bottom, left
 
 	This is also the same order that is used in the CSS standard.	
+
+	Margin objects are supported by the global function bdn::toString().
+	They can also be written to standard output streams (std::basic_ostream,
+	bdn::TextOutStream, bdn::StringBuffer) with the << operator.
 	*/
 struct Margin
 {
@@ -88,15 +92,19 @@ public:
         return *this;
     }
         
-	/** Returns a locale-independent string representation of the margin.
-		*/
-	String toString() const
-	{
-		return bdn::toString(top) +", "+ bdn::toString(right) +", "+ bdn::toString(bottom) +", "+ bdn::toString(left);
-	}
-
 	
 };
+
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const Margin& m )
+{
+	return stream << "(" << m.top << ", " << m.right << ", " << m.bottom << ", " << m.left << ")";
+}
+
 
 
 }

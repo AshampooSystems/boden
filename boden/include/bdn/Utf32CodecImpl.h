@@ -6,6 +6,37 @@
 namespace bdn
 {
 
+
+
+template<class INPUT_CATEGORY>
+struct Utf32CodecImplIteratorCategory_
+{
+	using Type = std::input_iterator_tag;
+};
+
+template<>
+struct Utf32CodecImplIteratorCategory_<std::forward_iterator_tag>
+{
+	using Type = std::forward_iterator_tag;
+};
+
+template<>
+struct Utf32CodecImplIteratorCategory_<std::bidirectional_iterator_tag>
+{
+	using Type = std::bidirectional_iterator_tag;
+};
+
+template<>
+struct Utf32CodecImplIteratorCategory_<std::random_access_iterator_tag>
+{
+	// we COULD implement a random access UTF-32 iterator. However,
+	// for consistency with the other codecs we do not. We want the codecs
+	// to be interchangeable, so we do not support random access for utf-32 either.
+	using Type = std::bidirectional_iterator_tag;
+};
+
+
+
 /** Implements the Utf-32 string codec.
 
 	\tparam ElementType specifies the type of the encoded elements. It
@@ -39,23 +70,22 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class DecodingIterator : public std::iterator<	std::bidirectional_iterator_tag,
-													char32_t,
-													std::ptrdiff_t,
-													char32_t*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
-													char32_t >
+	class DecodingIterator
 	{
 	public:
+
+		// note: we could pretty much pass the traits of the source iterator
+		// through directly. However, for consistency with the other codecs we do
+		// not do this. We want the codecs to be interchangeable, so we restrict the
+		// Utf32Codec to the same implementation that we use for the other codecs
+		
+		using iterator_category = typename Utf32CodecImplIteratorCategory_< typename std::iterator_traits<SourceIterator>::iterator_category >::Type;
+		using value_type = char32_t;
+		using difference_type = std::ptrdiff_t;
+		using pointer = const char32_t*;
+		using reference = char32_t;
+
+
 		DecodingIterator(const SourceIterator& sourceIt, const SourceIterator& beginSourceIt, const SourceIterator& endSourceIt)
 		{
 			_sourceIt = sourceIt;
@@ -141,23 +171,17 @@ public:
 		So this class simply passes the UTF-32 elements (=characters) through.
 	*/
 	template<class SourceIterator>
-	class EncodingIterator : public std::iterator<std::bidirectional_iterator_tag,
-													EncodedElement,
-													std::ptrdiff_t,
-													EncodedElement*,
-													// this is a bit of a hack. We define Reference to be a value, not
-													// an actual reference. That is necessary, because we return values
-													// generated on the fly that are not actually stored by the underlying
-													// container. While we could return a reference to a member of the iterator,
-													// that would only remain valid while the iterator is alive. And parts of
-													// the standard library (for example std::reverse_iterator) will create
-													// temporary local iterators and return their value references, which would
-													// cause a crash.
-													// By defining reference as a value, we ensure that the standard library functions
-													// return valid objects.
-													EncodedElement >
+	class EncodingIterator
 	{
 	public:
+		
+		using iterator_category = typename Utf32CodecImplIteratorCategory_< typename std::iterator_traits<SourceIterator>::iterator_category >::Type;
+		using value_type = EncodedElement;
+		using difference_type = std::ptrdiff_t;
+		using pointer = const EncodedElement*;
+		using reference = EncodedElement;
+
+
 		EncodingIterator(const SourceIterator& sourceIt)
 		{
 			_sourceIt = sourceIt;
@@ -200,6 +224,14 @@ public:
 		EncodedElement operator*() const
 		{
 			return *_sourceIt;
+		}
+
+		/** Returns true if a character ends with the current encoded element.
+			Since UTF-32 encodes every character as exactly one element this always
+			returns true.*/
+		bool isEndOfCharacter() const
+		{
+			return true;
 		}
 
 		bool operator==(const EncodingIterator& o) const

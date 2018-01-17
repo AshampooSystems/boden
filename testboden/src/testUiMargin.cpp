@@ -93,15 +93,11 @@ TEST_CASE("UiMargin")
 
 
 	
-	SECTION("toString")
+	SECTION("stream <<")
 	{
 		UiMargin m( 1.125, -345.125, 2.775, 3.5 );
 
-		SECTION("method")
-			REQUIRE( m.toString() == "1.125 dip, -345.125 dip, 2.775 dip, 3.5 dip" );
-
-		SECTION("global function")
-			REQUIRE( toString(m) == "1.125 dip, -345.125 dip, 2.775 dip, 3.5 dip" );
+		REQUIRE( toString(m) == "(1.125 dip, -345.125 dip, 2.775 dip, 3.5 dip)" );
 	}
 
 }

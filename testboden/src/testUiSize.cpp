@@ -72,15 +72,11 @@ TEST_CASE("UiSize")
 	}
 
 	
-	SECTION("toString")
+	SECTION("stream <<")
 	{
 		UiSize m( 1.125, -345.125 );
 
-		SECTION("method")
-			REQUIRE( m.toString() == "1.125 dip x -345.125 dip" );
-
-		SECTION("global function")
-			REQUIRE( toString(m) == "1.125 dip x -345.125 dip" );
+		REQUIRE( toString(m) == "(1.125 dip x -345.125 dip)" );
 	}
 
 }

@@ -987,63 +987,35 @@ inline bool operator>=(const char32_t* a, const bdn::String& b)
 
 
 
-/** Writes the string to the specified char output stream. The string
-	is written in the encoding of the locale that is associated with the stream
-    (as returned by std::ostream::getloc() )
-
-    Behaves the same way as the corresponding operators for std::string and const char_t*
-*/
-inline std::ostream& operator<<(std::ostream& stream, const bdn::String& s)
-{
-	return stream << s.toLocaleEncoding( stream.getloc() );
-}
-
-
-
-/** Writes the string to the specified wide char output stream.
-
-    Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
-*/
-inline std::wostream& operator<<(std::wostream& stream, const bdn::String& s)
-{
-	return stream << s.asWide();
-}
-
-
-
-
-
-/** Reads a string from the specified stream.
-    Behaves the same way as the corresponding operators for std::string and const char*. The string
-	is read in the encoding of the locale that is associated with the stream
-    (as returned by std::istream::getloc() )
-*/
-inline std::istream& operator>>(std::istream& stream, bdn::String& s)
-{
-	std::string temp;
-	stream >> temp;
-	s = bdn::String::fromLocaleEncoding(temp, stream.getloc() );
-
-	return stream;
-}
-
-
-
-/** Reads a string from the specified stream.
-    Behaves the same way as the corresponding operators for std::wstring and const wchar_t*
-*/
-inline std::wistream& operator>>(std::wistream& stream, bdn::String& s)
-{
-	std::wstring temp;
-	stream >> temp;
-	s = temp;
-
-	return stream;
-}
-
-
 namespace bdn
 {
+
+
+
+	/** Reads a string from the specified stream.
+
+		The string is automatically transcoded from the character encoding of the stream to 
+		the internal unicode format used by String.
+
+		If the stream's character type is "char" then the stream' encoding depends on the locale
+		that is selected into the stream (see std::basic_istream::getloc() ).
+	*/
+	template<typename CHAR_TYPE, typename CHAR_TRAITS>
+	inline std::basic_istream<CHAR_TYPE, CHAR_TRAITS>& operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>& stream, bdn::String& s)
+	{
+		std::basic_string<CHAR_TYPE, CHAR_TRAITS> temp;
+		stream >> temp;
+		
+		// note: we use data()+length here rather than passing the basic_string
+		// directly. That ensures that this will also work if CHAR_TRAITS is not
+		// the default
+		s = bdn::String::fromLocaleEncoding(temp.data(), stream.getloc(), temp.length() );
+
+		return stream;
+	}
+
+
+
 
 	/** Reads a line of text from the stream.
         Behaves the same way as std::getline for std::string, except that the result is stored

@@ -75,12 +75,16 @@ public:
 
     int _a;
     int _b;
-    
-    String toString() const
-    {
-        return bdn::toString(_a)+", "+bdn::toString(_b);
-    }
 };
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const TestCollectionElement_UnorderedUncomparable_& el )
+{
+	return stream << el._a << ", " << el._b;
+}
 
 
 
@@ -145,13 +149,18 @@ public:
     {
         return ! operator==(o);
     }
-    
-    String toString() const
-    {
-        return bdn::toString(_a)+", "+bdn::toString(_b);
-    }
 
 };
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const TestCollectionElement_UnorderedComparable_& el )
+{
+	return stream << el._a << ", " << el._b;
+}
+
 
 class TestCollectionElement_OrderedComparable_ : public TestCollectionElement_UnorderedComparable_
 {
@@ -206,12 +215,17 @@ public:
         return (_a < o._a);
     }
     
-    String toString() const
-    {
-        return bdn::toString(_a)+", "+bdn::toString(_b);
-    }
 };
 
+
+
+template< typename CHAR_TYPE, class CHAR_TRAITS >
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+	std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+	const TestCollectionElement_OrderedComparable_& el )
+{
+	return stream << el._a << ", " << el._b;
+}
 
 
 inline bool _isCollectionElementEqual(const TestCollectionElement_UnorderedUncomparable_& l, const TestCollectionElement_UnorderedUncomparable_& r)
@@ -1349,7 +1363,8 @@ inline void _verifyPositionalCollection(
 			expected += " ]";
 		}
 
-		REQUIRE( coll.toString() == expected );
+		String actual = toString(coll);
+		REQUIRE( actual == expected );
 	}
 }
 

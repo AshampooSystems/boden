@@ -87,6 +87,16 @@ namespace bdn
 
 	At the point in time when you really need a  setter and/or getter, switch the actual implementation
 	Property class to DelegatingProperty. Then you can set your setter and getter functions.
+
+	toString and streams
+	====================
+
+	Property objects are supported by the global function bdn::toString()
+	if their inner value (see template parameter ValType) is supported.
+
+	Likewise, Property objects can also be written to standard output streams (std::basic_ostream,
+	bdn::TextOutStream, bdn::StringBuffer) with the << operator, if their value
+	can be written to such a stream.
 	
 
 	Thread safety
