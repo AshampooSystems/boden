@@ -502,7 +502,7 @@ static inline ArgIntType rotateBitsRight(ArgIntType value, int bits)
 }
 
 
-#if BDN_BDN_STD_ISNAN_INT_MISSING
+#if BDN_STD_ISNAN_INT_MISSING
 
 template<bool IsFloatingPoint>
 struct MscNumberUtilHelper_
@@ -550,7 +550,7 @@ struct MscNumberUtilHelper_<true>
 template<typename ValueType>
 static inline bool isNan(ValueType value)
 {
-#if BDN_BDN_STD_ISNAN_INT_MISSING
+#if BDN_STD_ISNAN_INT_MISSING
 	// Visual Studio 2017 and below did not provide an implementation of std::isnan for integers
 	// (even though C++17 mandates it).
 	// So we have to use a workaround here.

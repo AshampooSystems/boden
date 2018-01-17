@@ -269,7 +269,7 @@
 	// Compiler bug with VS2015/VS2017 in SequenceFilter
 	#define BDN_SEQUENCE_FILTER_COMPILER_BUG 1
 	// std::isnan missing
-	#define BDN_BDN_STD_ISNAN_INT_MISSING 1
+	#define BDN_STD_ISNAN_INT_MISSING 1
 	// std::isfinite missing for type int
 	#define BDN_STD_ISFINITE_INT_MISSING 1
 #endif
