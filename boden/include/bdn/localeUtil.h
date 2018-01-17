@@ -36,7 +36,7 @@ std::locale deriveUtf8Locale(const std::locale& baseLocale);
     do not provide std::codecvt_utf8_utf16<char16_t>.  Instead they only provide
     std::codecvt_utf8_utf16<unsigned short> - which is functionally equivalent but a different type.    
     */
-#if STD_CODECVT_CHAR16_T_CHAR32_T_BUG  // Visual Studio 2015 and 2017
+#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG  // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8_utf16<unsigned short> CodecVtUtf8Utf16;
 
 #else
@@ -56,7 +56,7 @@ std::locale deriveUtf8Locale(const std::locale& baseLocale);
     do not provide std::codecvt_utf8<char16_t>.  Instead they only provide
     std::codecvt_utf8<unsigned short> - which is functionally equivalent but a different type.    
     */
-#if STD_CODECVT_CHAR16_T_CHAR32_T_BUG  // Visual Studio 2015 and 2017
+#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG  // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8<unsigned short> CodecVtUtf8Ucs2;
 
 #else
@@ -75,7 +75,7 @@ std::locale deriveUtf8Locale(const std::locale& baseLocale);
     do not provide std::codecvt_utf8<char32_t>.  Instead they only provide
     std::codecvt_utf8<unsigned int> - which is functionally equivalent but a different type.    
     */
-#if STD_CODECVT_CHAR16_T_CHAR32_T_BUG  // Visual Studio 2015 and 2017
+#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG  // Visual Studio 2015 and 2017
     typedef std::codecvt_utf8<unsigned int> CodecVtUtf8Utf32;
 
 #else
@@ -102,7 +102,7 @@ typedef CodecVtUtf8Utf32 CodecVtUtf8Ucs4;
     do not provide std::codecvt<char16_t, char, mbstate_t>.  Instead they only provide
     std::codecvt<unsigned short, char, mbstate_t> - which is functionally equivalent but a different type.    
     */
-#if STD_CODECVT_CHAR16_T_CHAR32_T_BUG  // Visual Studio 2015 and 2017
+#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG  // Visual Studio 2015 and 2017
     typedef std::codecvt<unsigned short, char, std::mbstate_t> CodecVtChar16Char;
 
 #else
@@ -119,7 +119,7 @@ typedef CodecVtUtf8Utf32 CodecVtUtf8Ucs4;
     do not provide std::codecvt<char16_t, char, mbstate_t>.  Instead they only provide
     std::codecvt<unsigned short, char, mbstate_t> - which is functionally equivalent but a different type.    
     */
-#if STD_CODECVT_CHAR16_T_CHAR32_T_BUG  // Visual Studio 2015 and 2017
+#if BDN_STD_CODECVT_CHAR16_CHAR32_BUG  // Visual Studio 2015 and 2017
     typedef std::codecvt<unsigned int, char, std::mbstate_t> CodecVtChar32Char;
 
 #else

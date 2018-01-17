@@ -179,7 +179,7 @@ TEST_CASE("localeUtil")
             REQUIRE( std::memcmp(utf8Out, expectedUtf8Out, sizeof(expectedUtf8Out)-1) == 0 );
         }
 
-#if STD_USE_FACET_MISSING  // Visual Studio 2015 and 2017
+#if BDN_STD_USE_FACET_MISSING_SPECIALIZATION  // Visual Studio 2015 and 2017
         // the necessary specializations for std::use_facet for char16_t and char32_t are missing
         // in Visual Studio 2015 and 2017 (even though these are standard facets defined by the standard).
         // Note that there is also no use_facet specialization for the alternative codecvt implementations
