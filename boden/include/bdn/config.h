@@ -262,6 +262,9 @@
 	#define BDN_STD_USE_FACET_MISSING_SPECIALIZATION 1
 	// Bug when using char16_t and char32_t with std::codecvt
 	#define BDN_STD_CODECVT_CHAR16_CHAR32_BUG 1
+#else
+	#define BDN_STD_USE_FACET_MISSING_SPECIALIZATION 0
+	#define BDN_STD_CODECVT_CHAR16_CHAR32_BUG 0
 #endif
 
 // Visual Studio up to 2017 (v15.5)
@@ -272,6 +275,10 @@
 	#define BDN_STD_ISNAN_INT_MISSING 1
 	// std::isfinite missing for type int
 	#define BDN_STD_ISFINITE_INT_MISSING 1
+#else
+	#define BDN_SEQUENCE_FILTER_COMPILER_BUG 0
+	#define BDN_STD_ISNAN_INT_MISSING 0
+	#define BDN_STD_ISFINITE_INT_MISSING 0
 #endif
 
 #endif
