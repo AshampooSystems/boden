@@ -21,7 +21,7 @@ class ViewCore;
 #include <bdn/android/JNativeViewCoreClickListener.h>
 #include <bdn/android/JView.h>
 #include <bdn/android/JNativeViewGroup.h>
-#include <bdn/android/UIProvider.h>
+#include <bdn/android/UiProvider.h>
 #include <bdn/android/IParentViewCore.h>
 
 #include <bdn/log.h>

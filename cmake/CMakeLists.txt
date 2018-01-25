@@ -84,7 +84,9 @@ set(ANDROID_LIBS "")
 if( "${BODEN_TARGET}" STREQUAL "android")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-	set(ANDROID_LIBS "")
+    find_library(ANDROID_LOG_LIB log)
+
+	set(ANDROID_LIBS "${ANDROID_LOG_LIB}")
 
 else()
 

@@ -448,7 +448,7 @@ class AndroidStudioProjectGenerator(object):
 
         
     def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle:2.2.0-alpha6'"
+        return "classpath 'com.android.tools.build:gradle:3.0.1'"
 
 
     def generateTopLevelProject(self, moduleNameList):
@@ -457,25 +457,33 @@ class AndroidStudioProjectGenerator(object):
 
         with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
             f.write("""\
-    // Top-level build file where you can add configuration options common to all sub-projects/modules.
-    buildscript {
-        repositories {
-           jcenter()
-        }
-        dependencies {
-            $$GradleDependency$$
-        }
-    }
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-    allprojects {
-        repositories {
-            jcenter()
-        }
+buildscript {
+    
+    repositories {
+        google()
+        jcenter()
     }
+    dependencies {
+        $$GradleDependency$$
+        
 
-    task clean(type: Delete) {
-        delete rootProject.buildDir
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
     }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
 
     """.replace("$$GradleDependency$$", self.getGradleDependency()) )
 
@@ -501,7 +509,10 @@ class AndroidStudioProjectGenerator(object):
             os.makedirs(moduleDir);
 
         with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-            f.write( self.getModuleBuildGradleCode(packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
+            f.write( self.getModuleBuildGradleCode(projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
+
+        #with open( os.path.join(moduleDir, "CMakeLists.txt"), "w" ) as f:
+        #    f.write( self.getModuleCMakeListsCode(packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
             
 
         srcMainDir = os.path.join(moduleDir, "src", "main");
@@ -534,20 +545,21 @@ class AndroidStudioProjectGenerator(object):
         code = """\
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="$$PackageId$$"
-          android:versionCode="1"
-          android:versionName="1.0">
-    
+    package="$$PackageId$$">
+
           """;
 
         if not isLibrary:
             code += """
-
-      <application
-          android:allowBackup="false"
-          android:fullBackupContent="false"      
-          android:label="@string/app_name">
-      
+            <!-- project files generated manually with android studio
+                would also have the following <application> attributed:
+                android:icon="@mipmap/ic_launcher"
+                android:roundIcon="@mipmap/ic_launcher_round"
+                android:theme="@style/AppTheme"
+                android:supportsRtl="true" -->
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name" >
         <activity android:name="io.boden.android.NativeRootActivity"
                   android:label="@string/app_name"
                   android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">
@@ -559,8 +571,8 @@ class AndroidStudioProjectGenerator(object):
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
-        </activity>  
-      </application>
+        </activity>         
+    </application>
       """;
 
         code += """    
@@ -572,7 +584,7 @@ class AndroidStudioProjectGenerator(object):
 
 
 
-    def getModuleBuildGradleCode(self, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
+    def getModuleBuildGradleCode(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
 
 
         if isLibrary:
@@ -586,107 +598,7 @@ class AndroidStudioProjectGenerator(object):
         for dep in dependencyList:            
             moduleDependencyCode += "    compile project(':%s')\n" % dep;
 
-        cmakeTargets = '"%s"' % moduleName;
-
-
-        return """
-apply plugin: '$$PluginName$$'
-
-android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.2'
-    defaultConfig {
-        applicationId $$AppIdCode$$
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-        externalNativeBuild {
-            cmake {
-                targets $$CmakeTargets$$
-                arguments "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_CPP_FEATURES=rtti exceptions"
-                /*cppFlags '-fexceptions', '-frtti' */
-                abiFilters 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
-            }
-        }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path "../../../cmake/CMakeLists.txt"
-        }
-    }
-    // Documentation purpose: app/src/main/jni is reserved for deprecated native build system;
-    // Steer away from this directory by DELETING it for ndk-build/cmake + android studio usage.
-    // Otherwise you need to
-    //    add android.useDeprecatedNdk=true to gradle.properties
-    //    enable the following line to silence android studio complaint
-    // sourceSets.main.jni.srcDirs = []
-
-
-    sourceSets {
-        main {
-            java {
-                srcDir '../../../$$ModuleName$$/java'
-            }
-        }
-    }
-    
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.4.0'
-
-$$ModuleDependencyCode$$
-}
-""" .replace("$$AppIdCode$$", appIdCode) \
-    .replace("$$PluginName$$", pluginName) \
-    .replace("$$CmakeTargets$$", cmakeTargets) \
-    .replace("$$ModuleName$$", moduleName) \
-    .replace("$$ModuleDependencyCode$$", moduleDependencyCode)
-
-
-
-class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
-    """ Generates a gradle project files that use the gradle experimental plugin. This does not fully work yet, as of the time of
-        this writing (gradle experimental plugin version 0.7.2). While building the packages once works, the plugin does not
-        recompile the native code when the source files change - making it necessary to rebuild every time.
-        Because of this, this code is not currently used.
-        But with a future android experimental release we might switch to it again.
-        """
-
-    def __init__(self, platformBuildDir):
-        AndroidStudioProjectGenerator.__init__(self, platformBuildDir);
-
-
-    def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle-experimental:0.7.2'";
-
-
-    def getModuleBuildGradleCode(self, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
-
-        jniDependencyCode = "";
-        moduleDependencyCode = "    compile fileTree(dir: 'libs', include: ['*.jar'])\n";
-        repositoriesCode = "";
-        for dep in dependencyList:
-
-            jniDependencyCode += '                        project ":%s"\n' % dep;
-
-            moduleDependencyCode += "    compile project(':%s')\n" % dep;
-            moduleDependencyCode += "    compile(name:'%s-_x86-debug', ext:'aar')\n" % dep;
-
-            repositoriesCode += """\
-         flatDir{
-             dirs '../%s/build/outputs/aar'
-     	}
-     """ % dep
-
+        cmakeTargets = '"%s"' % (moduleName);
         
         excludeSourceDirCode = "";
 
@@ -706,17 +618,9 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
 
         
         for entry in excludeEntries:
-            excludeSourceDirCode += '                        exclude "%s"\n' % (entry);
+            excludeSourceDirCode += '                exclude "%s"\n' % (entry);
 
-        if isLibrary:
-        	pluginName = "com.android.model.library";
-        	appIdCode = "";	# libraries do not have an application id
-        else:
-        	pluginName = "com.android.model.application";
-        	appIdCode = "applicationId = '%s'" % packageId
-
-
-        srcDirCode = "srcDirs = [ ";
+        srcDirCode = "                srcDirs = [ ";
 
         sourceModuleNames = [moduleName];
         sourceModuleNames.extend( additionalSourceModuleNames );
@@ -733,126 +637,202 @@ class AndroidStudioProjectGenerator_Experimental(AndroidStudioProjectGenerator):
 
         srcDirCode += " ]";
 
-        return """\
+
+
+        return """
 apply plugin: '$$PluginName$$'
 
-model {
-    android {
-        compileSdkVersion = 23
-        buildToolsVersion = '23.0.2'
-
-        defaultConfig {
-            $$AppIdCode$$
-            minSdkVersion.apiLevel = 15
-            targetSdkVersion.apiLevel = 23
-        }
-
-
-
-        sources {
-            main {
-                jni {
-                    source {
-$$SrcDirCode$$
-                        
-$$ExcludeSourceDirCode$$
-                    }
-
-                    dependencies {
-$$JniDependencyCode$$
-                    }
-
-                    /* this is important to ensure that the IDE will rebuild the module when
-                       one of the headers changes. It also ensures that another module that imports
-                       this has its include directories set automatically to find our headers.*/
-                    exportedHeaders {
-                        srcDir "../../../$$ModuleName$$/include"
-                    }
-                }
-
-                java {
-                    source {
-                        srcDir "../../../$$ModuleName$$/java"
-                    }
-                }
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        $$AppIdCode$$
+        minSdkVersion 16
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                targets $$CmakeTargets$$
+                arguments "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"
+                cppFlags "-std=c++11 -frtti -fexceptions"     
+                abiFilters 'x86' //, 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
             }
         }
-
-        ndk {
-            moduleName = '$$ModuleName$$'
-            toolchain = 'clang'
-            stl = "c++_shared"
-
-            CFlags.addAll(['-Wall'])
-            cppFlags.addAll(['-std=c++11', '-fexceptions', '-frtti', "-I${project.projectDir}/../../../boden/include".toString() ])
-
-            /* Passing this flag to the linker is important. Otherwise RTTI will not work properly across module
-               boundaries (dynamic_casts will fail, exception catch clauses might not work, etc.)
-               Update: not actually needed?
-                ldFlags.add("-Wl,-E")*/
-
-            ldLibs.addAll([
-                    "android",
-                    "c++abi",
-                    "atomic",
-                    "log"
-            ])
-
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        buildTypes {
-            release {
-                minifyEnabled true
-                proguardFiles.add(file('proguard-rules.txt'))
-            }
+    }
+    externalNativeBuild {
+        cmake {            
+            path "../../../cmake/CMakeLists.txt"
+        }
+    }
 
-            debug {
-                applicationIdSuffix ".debug"
+
+    sourceSets {
+        main {
+            java {
+                srcDir '../../../$$ModuleName$$/java'
+            }
+            jni {
+                srcDirs = ['../../../$$ModuleName$$/src',
+                           '../../../$$ModuleName$$/include' ]
             }
         }
-        productFlavors {
-
-            // Android studio simply selects the first build variant in alphabetical order
-            // as the initial default build variant. Build variants are the combinations of
-            // all buildTypes with all productFlavors and their name consists of the name of
-            // the flavor with the name of the build type appended.
-
-            // By default we want the debug build type. That is easy, since "debug" comes before
-            // "release" in alphabetical order.
-
-            // As for the supported ABIs we want only one ABI since rebuilding
-            // the native code for all abis takes a long time.
-            // So we add two flavors: one just for x86 and one for "all". Here it is important
-            // that the x86 flavor has a name that comes before the "all" flavor, so we start the
-            // x86 name with an underscore (which come before the lower case letters in
-            // alphabetical order).
-
-            create("_x86") {
-                ndk.abiFilters.add("x86")
-             }
-
-            // To include all cpu architectures, leaves abiFilters empty
-            create("all")
-        }
-    }    
+    }
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
 $$ModuleDependencyCode$$
 }
 
 
-repositories{    
-$$RepositoriesCode$$
-}
+""" .replace("$$AppIdCode$$", appIdCode) \
+    .replace("$$PluginName$$", pluginName) \
+    .replace("$$CmakeTargets$$", cmakeTargets) \
+    .replace("$$ModuleName$$", moduleName) \
+    .replace("$$SrcDirCode$$", srcDirCode) \
+    .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
+    .replace("$$ModuleDependencyCode$$", moduleDependencyCode)
 
-""" .replace("$$SrcDirCode$$", srcDirCode) \
-        .replace("$$AppIdCode$$", appIdCode) \
-    	.replace("$$PluginName$$", pluginName) \
-        .replace("$$ModuleName$$", moduleName) \
-        .replace("$$JniDependencyCode$$", jniDependencyCode) \
-        .replace("$$ExcludeSourceDirCode$$", excludeSourceDirCode) \
-        .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \
-        .replace("$$RepositoriesCode$$", repositoriesCode)       
+
+    def makeCMakePath(self, path):
+        # we want the path to be relative to the CMakeLists file.
+        # Note that the project dir is one level below the CMakeLists parent
+        # dir, so we add another .. path component
+        return os.path.join(  "..", os.path.relpath(path, self._projectDir) )
+
+
+    def makeFileListForCMake(self, dirPathList, extensionList):
+        fileList = []
+
+        toDoDirPathList = dirPathList[:]
+        while len(toDoDirPathList)!=0:
+            dirPath = toDoDirPathList[0]
+            del toDoDirPathList[0]
+
+            if os.path.isdir(dirPath):
+
+                for itemName in os.listdir( dirPath ):                    
+
+                    itemPath = os.path.join(dirPath, itemName) 
+
+                    if not os.path.isdir(itemPath):
+                        ext = os.path.splitext(itemName)[1].lower()
+                        if ext in extensionList:
+                            relItemPath = self.makeCMakePath( itemPath )
+                            fileList.append(relItemPath)
+
+        return fileList
+
+
+    def getModuleCMakeListsCode(self, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
+
+        srcDirList = []
+        headerDirList = []
+        includeDirList = []
+        for srcModuleName in [moduleName]+additionalSourceModuleNames:
+
+            baseSrcDir = os.path.join(self._projectDir, "..", "..", srcModuleName, "src" )
+            srcDirList.append( baseSrcDir )
+
+            baseIncludeDir = os.path.join(self._projectDir, "..", "..", srcModuleName, "include" )
+            includeDirList.append( baseIncludeDir )
+
+            baseHeaderDir = os.path.join(baseIncludeDir, "bdn")
+            headerDirList.append( baseHeaderDir )
+
+            for name in ("android", "java", "pthread", "test"):
+                srcDirList.append( os.path.join(baseSrcDir, name) )
+                headerDirList.append( os.path.join(baseHeaderDir, name) )
+
+
+        for depModuleName in dependencyList:
+            baseIncludeDir = os.path.join(self._projectDir, "..", "..", depModuleName, "include" )
+            includeDirList.append( baseIncludeDir )
+
+
+        srcFileList = self.makeFileListForCMake(srcDirList, [".cpp", ".c", ".cxx"]  )
+        headerFileList = self.makeFileListForCMake(headerDirList, [".h", ".hpp" ] )
+
+        srcFileCode = "\n  ".join(srcFileList)
+        headerFileCode = "\n  ".join(headerFileList)
+
+        includeDirCode = ""
+        for includeDir in includeDirList:
+            if os.path.exists(includeDir):
+                includeDirCode += "\n  "+self.makeCMakePath( includeDir )
+
+
+        # Note that AndroidStudio 3.0 (and at least early versions of 3.1) has
+        # a bug that it does not show header files in the tree on the left, unless
+        # a .cpp file with the same name is in the same directory.
+        # Listing header files in CMakeLists as source files does not help.
+        # See doc_input/android_studio_header_files_bug.md for more information.
+
+
+        return """ \
+# For more information about using CMake with Android Studio, read the
+# documentation: https://d.android.com/studio/projects/add-native-code.html
+
+# Sets the minimum version of CMake required to build the native library.
+
+cmake_minimum_required(VERSION 3.4.1)
+
+add_definitions( -DUNICODE -D_UNICODE )
+
+include_directories( $$IncludeDirCode$$ )
+
+# Creates and names a library, sets it as either STATIC
+# or SHARED, and provides the relative paths to its source code.
+# You can define multiple libraries, and CMake builds them for you.
+# Gradle automatically packages shared libraries with your APK.
+
+add_library( # Sets the name of the library.
+             $$ModuleName$$
+
+             # Sets the library as a shared library.
+             SHARED
+
+  $$SrcFileCode$$ )
+
+set_property(TARGET $$ModuleName$$ APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
+
+
+# Searches for a specified prebuilt library and stores the path as a
+# variable. Because CMake includes system libraries in the search path by
+# default, you only need to specify the name of the public NDK library
+# you want to add. CMake verifies that the library exists before
+# completing its build.
+
+find_library( # Sets the name of the path variable.
+              ANDROID_LOG_LIB
+
+              # Specifies the name of the NDK library that
+              # you want CMake to locate.
+              log )
+
+# Specifies libraries CMake should link to your target library. You
+# can link multiple libraries, such as libraries you define in this
+# build script, prebuilt third-party libraries, or system libraries.
+
+target_link_libraries( # Specifies the target library.
+                       $$ModuleName$$
+
+                       # Links the target library to the log library
+                       # included in the NDK.
+                       ${ANDROID_LOG_LIB} )
+
+""" .replace("$$ModuleName$$", moduleName) \
+    .replace("$$SrcFileCode$$", srcFileCode) \
+    .replace("$$IncludeDirCode$$", includeDirCode )
 
 
 
@@ -860,36 +840,17 @@ $$RepositoriesCode$$
 
 def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
 
-    # There are several ways to build android apps.
-    # We want support for developing with an IDE that allows for debugging and convenient editing.
-    # Android Studio is the official android IDE and it is pretty full-featured. So we generate AndroidStudio projects.
-    #
-    # We cannot do this via Cmake in the normal way, since Cmake does not have an AndroidStudio    
-    # generator (in fact it does not have ANY generator for an IDE with android projects - only
-    # a plugin add-on that generates plain make files).
-    # BUT fortunately Android Studio supports using cmake as a build system for the native code
-    # parts of the app.
-    # So we can generate android studio projects manually and then connect our existing cmake files
-    # as the build system into the android studio project.
+    # The way Android Studio builds projects with native code has changed
+    # quite a bit over time. It used to be very messy, requiring experimental
+    # plugins to work properly.
+    # Since AndroidStudio 3.0 this has changed and there is a "standard" way
+    # to do this. AndroidStudio now includes a custom, forked CMake
+    # that actually works - and this builds the native code side.
+    # We only support the new style projects now (see git history if
+    # you want to know what it used to look like).
 
-    # The cmake setup has a considerable disadvantage, though: the IDE will only show the cpp files, not
-    # the header files. So editing the project with this setup requires opening files manually, or using
-    # a second editor in parallel.
-    # Another problem is that any error output that cmake generates is not parsed, so one cannot jump
-    # directly to the problematic line. Instead one has to sift through the logs and manually find the problem.
 
-    # There is actually another way to do this: there is a "gradle experimental" plugin that supports
-    # building native android modules completely from within Android Studio (without cmake).
-    # This variant also has a few hiccups. For example, the java classes of a lib are only imported into the
-    # app if we add an explicit dependency to the .aar file (a normal "project" dependency will only import the
-    # native libraries). But the aar file will not yet exist on the first build, so this line has to be commented
-    # out for the first build and during rebuilds. Then it has to be commented in again and then one has to do another
-    # build to get a proper application package.
-    # This is as of gradle experimental plugin version 0.7.2.
-    # Also, using cmake has the advantage that this creates a single point at which settings and source
-    # information about the projects can be kept (for all platforms). And that is a considerable advantage.
-
-    gen = AndroidStudioProjectGenerator_Experimental(platformBuildDir);
+    gen = AndroidStudioProjectGenerator(platformBuildDir);
 
     gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui"]);
     gen.generateModule("boden", "io.boden.android.boden", "boden", [], "Boden", [], True)
