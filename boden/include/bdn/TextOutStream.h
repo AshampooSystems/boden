@@ -921,7 +921,7 @@ namespace bdn
 using TextOutStream = std::basic_ostream<char32_t, UnicodeCharTraits>;
 
 
-#if defined(_MSC_VER) && _MSC_VER<=1900
+#if defined(_MSC_VER) && _MSC_VER<=1912
 
 // This is a TextOutStream version of the normal << overload for std::basic_ostream
 // rvalue references.
