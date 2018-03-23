@@ -19,6 +19,8 @@ ScrollView::ScrollView()
 
 void ScrollView::scrollClientRectToVisible(const Rect& area)
 {
+	Thread::assertInMainThread();
+
     if( isBeingDeletedBecauseReferenceCountReachedZero() )
 	{
 		// this happens when invalidateSizingInfo is called during the destructor.
@@ -29,24 +31,10 @@ void ScrollView::scrollClientRectToVisible(const Rect& area)
         return;
 	}
 
-    if( Thread::isCurrentMain() )
-    {
-        P<IScrollViewCore> pCore = cast<IScrollViewCore>( getViewCore() );
-        if(pCore!=nullptr)
-            pCore->scrollClientRectToVisible(area);
-    }
-    else
-    {
-		// schedule the invalidation to be done from the main thread.
-		P<ScrollView> pThis = this;
 
-		asyncCallFromMainThread(
-				[pThis, area]()
-				{
-					pThis->scrollClientRectToVisible(area);
-				}
-		);
-    }
+    P<IScrollViewCore> pCore = cast<IScrollViewCore>( getViewCore() );
+    if(pCore!=nullptr)
+        pCore->scrollClientRectToVisible(area);
 }
 
 }

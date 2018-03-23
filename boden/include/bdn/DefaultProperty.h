@@ -95,7 +95,7 @@ private:
 			    if(_value!=val)
 			    {
 				    _value = val;
-				    changed = true;
+				    changed = true;  
 			    }
 		    }
 

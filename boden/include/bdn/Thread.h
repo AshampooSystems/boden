@@ -299,6 +299,21 @@ public:
      
      */
     static bool isCurrentMain();
+
+
+	/** Static function that verifies that the current thread is the main thread
+		if the code is built in debug mode. If the function
+		is called from another thread then a debug assertion is fired.
+
+		Does nothing when the code is built in in release mode (i.e. if NDEBUG is defined)-
+		*/
+#ifdef NDEBUG
+	static void assertInMainThread()
+	{
+	}
+#else
+	static void assertInMainThread();
+#endif
     
 
     

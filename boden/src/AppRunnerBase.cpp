@@ -21,10 +21,6 @@ void AppRunnerBase::prepareLaunch()
 	// mark the current thread as the main thread
 	Thread::_setMainId( Thread::getCurrentId() );	
 
-    // the view's "hierarchy and core mutex" is accessed in View destructors.
-    // That means that we should ensure that it is created very early, so
-    // that it is destructed as one of the last objects.
-    View::getHierarchyAndCoreMutex();
 
     // do additional platform-specific initialization (if needed)
     platformSpecificInit();

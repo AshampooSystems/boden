@@ -3,6 +3,7 @@
 
 #include <bdn/ColumnView.h>
 #include <bdn/NotImplementedError.h>
+#include <bdn/Thread.h>
 
 
 namespace bdn
@@ -10,26 +11,58 @@ namespace bdn
 
 ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 {
-    _pWindow = newObj<Window>(pUiProvider);
+    _initialized = false;
+    _flushPendingScheduled = false;
 
-    _pWindow->padding() = UiMargin(10);
+    _pUiProvider = pUiProvider;
 
-    _pScrollView = newObj<ScrollView>();
+    if(Thread::isCurrentMain())
+    {
+        MutexLock lock(_mutex);
 
-    _pScrolledColumnView = newObj<ColumnView>();
+        _ensureInitializedWhileMutexLocked();
+    }
+    else
+    {
+        P<ViewTextUi> pThis = this;
 
-    _pScrolledColumnView->size().onChange().subscribeParamless( weakMethod(this, &ViewTextUi::scrolledSizeChanged ) );
+        asyncCallFromMainThread(
+            [this, pThis]()
+            {
+                MutexLock lock(_mutex);
 
-    _pScrollView->setContentView( _pScrolledColumnView );
+                _ensureInitializedWhileMutexLocked();
+            } );
+    }
+}
+
+void ViewTextUi::_ensureInitializedWhileMutexLocked()
+{
+    if(!_initialized)
+    {
+        _initialized = true;
+                
+        _pWindow = newObj<Window>(_pUiProvider);
+
+        _pWindow->padding() = UiMargin(10);
+
+        _pScrollView = newObj<ScrollView>();
+
+        _pScrolledColumnView = newObj<ColumnView>();
+
+        _pScrolledColumnView->size().onChange().subscribeParamless( weakMethod(this, &ViewTextUi::scrolledSizeChanged ) );
+
+        _pScrollView->setContentView( _pScrolledColumnView );
     
-    _pWindow->setContentView(_pScrollView);
+        _pWindow->setContentView(_pScrollView);
 
-    _pWindow->preferredSizeMinimum() = Size(600, 400);
+        _pWindow->preferredSizeMinimum() = Size(600, 400);
 
-    _pWindow->visible() = true;
+        _pWindow->visible() = true;
 
-    _pWindow->requestAutoSize();
-    _pWindow->requestCenter();
+        _pWindow->requestAutoSize();
+        _pWindow->requestCenter();
+    }
 }
 
 P< IAsyncOp<String> > ViewTextUi::readLine()
@@ -41,6 +74,39 @@ P< IAsyncOp<String> > ViewTextUi::readLine()
 void ViewTextUi::write(const String& s)
 {
     MutexLock lock(_mutex);
+
+    if(Thread::isCurrentMain())
+    {
+        // we want the ordering of multithreaded writes to be honored.
+        // So we have to make sure that any pending writes from other threads
+        // are made before we do any writes in the main thread directly.
+
+        _flushPendingWhileMutexLocked();
+
+        _doWriteWhileMutexLocked(s);
+    }
+    else
+    {
+        _pendingList.add( s );
+
+        if(!_flushPendingScheduled)
+        {
+            P<ViewTextUi> pThis = this;
+
+            _flushPendingScheduled = true;
+            asyncCallFromMainThread(
+                [this, pThis]()
+                {                    
+                    MutexLock lock( _mutex );
+                    _flushPendingWhileMutexLocked();
+                } );            
+        }
+    }
+}
+
+void ViewTextUi::_doWriteWhileMutexLocked(const String& s)
+{
+    _ensureInitializedWhileMutexLocked();
 
     String remaining = s;
     // normalize linebreaks
@@ -67,6 +133,14 @@ void ViewTextUi::write(const String& s)
     }    
 }
 
+void ViewTextUi::_flushPendingWhileMutexLocked()
+{    
+    _flushPendingScheduled = false;
+
+    for( auto& s: _pendingList )
+        _doWriteWhileMutexLocked(s);
+    _pendingList.clear();
+}
 
 void ViewTextUi::writeLine(const String& s)
 {

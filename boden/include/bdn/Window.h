@@ -53,7 +53,7 @@ public:
 		This can be nullptr if no content view has been set yet.*/
 	P<View> getContentView()
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		return _pContentView;
 	}
@@ -63,7 +63,7 @@ public:
 		This can be nullptr if no content view has been set yet.*/
 	P<const View> getContentView() const
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		return _pContentView;
 	}
@@ -127,7 +127,7 @@ public:
 
 	void getChildViews( List< P<View> >& childViews) const override
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		if(_pContentView!=nullptr)
 			childViews.push_back(_pContentView);	
@@ -147,7 +147,7 @@ public:
 
 	void _childViewStolen(View* pChildView) override
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		if(pChildView==_pContentView)
 			_pContentView = nullptr;

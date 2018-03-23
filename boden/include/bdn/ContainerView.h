@@ -4,6 +4,7 @@
 #include <bdn/View.h>
 #include <bdn/ViewLayout.h>
 
+
 namespace bdn
 {
 	
@@ -60,9 +61,8 @@ public:
 		*/
 	void insertChildView(View* pInsertBeforeChildView, View* pChildView)
 	{
-		// we use a single global mutex to synchronize changes to parent-child relationships.
-		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
+
 
 		P<View> pOldParentView = pChildView->getParentView();
 		if(pOldParentView!=nullptr)
@@ -97,9 +97,7 @@ public:
 	*/
 	void removeChildView(View* pChildView)
 	{
-		// we use a single global mutex to synchronize changes to parent-child relationships.
-		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		auto it = std::find( _childViews.begin(), _childViews.end(), pChildView );
 		if(it!=_childViews.end())
@@ -111,7 +109,7 @@ public:
 
     void removeAllChildViews() override
     {
-        MutexLock lock( getHierarchyAndCoreMutex() );
+        Thread::assertInMainThread();
 
         for(auto& pChildView: _childViews)            
 			pChildView->_setParentView(nullptr);
@@ -121,9 +119,7 @@ public:
 
 	void getChildViews( List< P<View> >& childViews) const override
 	{
-		// we use a single global mutex to synchronize changes to parent-child relationships.
-		// See getHierarchyMutex() for more info.
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		childViews = _childViews;
 	}
@@ -132,7 +128,7 @@ public:
 
 	P<View> findPreviousChildView(View* pChildView) override
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		View* pPrevChildView = nullptr;
 		for( const P<View>& pCurrView: _childViews)
@@ -149,7 +145,7 @@ public:
 
 	void _childViewStolen(View* pChildView) override
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
+		Thread::assertInMainThread();
 
 		auto it = std::find( _childViews.begin(), _childViews.end(), pChildView);
 		if(it!=_childViews.end())

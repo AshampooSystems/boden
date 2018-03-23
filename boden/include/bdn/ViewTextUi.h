@@ -44,11 +44,21 @@ private:
 
     void scrolledSizeChanged();
 
+    void _ensureInitializedWhileMutexLocked();
+    void _flushPendingWhileMutexLocked();
+    void _doWriteWhileMutexLocked(const String& s);
+
+    P<IUiProvider>  _pUiProvider;
+
     Mutex           _mutex;
     P< Window >     _pWindow;
     P< ScrollView > _pScrollView;
     P< ColumnView > _pScrolledColumnView;
     P< TextView >   _pCurrParagraphView;
+
+    bool            _initialized;
+    List<String>    _pendingList;
+    bool            _flushPendingScheduled;
 };
 
 

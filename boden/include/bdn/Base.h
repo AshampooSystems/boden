@@ -35,6 +35,16 @@ public:
 
 	virtual ~Base();
 
+    /** Increases the object's reference count by one. This should normally NOT be called
+		directly. Instead you should use #P smart pointers, which take care of this
+		automatically.
+		
+		addRef implementations MUST be thread-safe.
+    
+        If this is overridden in a derived class then the override MUST call the base
+        implementation to ensure that reference counting and weak pointers
+        work correctly.
+    */
 	void addRef() const override
 	{
 #if BDN_PLATFORM_DOTNET
@@ -44,6 +54,16 @@ public:
 #endif
 	}
 
+
+    /** Decreases the object's reference count by one. When it reaches 0 then
+		the object will delete itself.
+		
+		releaseRef implementations MUST be thread-safe.
+    
+        If this is overridden in a derived class then the override MUST call the base
+        implementation to ensure that reference counting and weak pointers
+        work correctly.
+    */
 	void releaseRef() const override
 	{
 #if BDN_PLATFORM_DOTNET
@@ -55,7 +75,7 @@ public:
 		{
 			// the reference count has reached 0.
 
-			const_cast<Base*>(this)->refCountReachedZero();
+			const_cast<Base*>(this)->_refCountReachedZero();
 		}
 
 	}
@@ -146,11 +166,6 @@ protected:
 	{
 		return ::operator new(size);
 	}
-
-
-    /** Called when our reference count reaches zero. This initiates the destruction of the
-        object and will eventually call deleteThis()*/
-    void refCountReachedZero();
     
 
 
@@ -158,7 +173,7 @@ protected:
 		reached 0). This can be overloaded to do custom cleanup or prevent normal
         deletion with the delete operator.
 
-        Note that when deleteThis is called at a point in time when all ex�sting weak pointers
+        Note that when deleteThis is called at a point in time when all existing weak pointers
         (see WeakP) to the object have already been invalidated / set to null. So the object is
         actually already considered "dead" at this point.
 
@@ -194,6 +209,10 @@ protected:
 
 private:
 
+    void _refCountReachedZero();
+
+
+
 #if BDN_PLATFORM_DOTNET
 	mutable int _refCount;
 #else
@@ -201,6 +220,7 @@ private:
 #endif
 
     struct WeakReferenceState_;
+    friend struct WeakReferenceState_;
 
     std::atomic<WeakReferenceState_*> _weakReferenceState;
 };

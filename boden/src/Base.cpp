@@ -20,7 +20,56 @@ public:
         // _pObject will be null if the object was already deleted.
         // That is exactly what we want.
 
-        return pObject;
+        // However, there is another edge case here that we need to handle.
+        // The reference count might just have reached zero for the object
+        // in another thread. In that case Base::_refCountReachedZero may be just
+        // starting to execute, but it may not have updated pObject yet.
+        // In these cases it is imperative that we do not add create a new strong
+        // reference here, since the destruction has begun.
+
+        if(pObject!=nullptr)
+        {
+            // increase the object's reference count again
+            int refCountBefore = pObject->_refCount.fetch_add(1);
+
+            if(refCountBefore<=0)
+            {
+                // the refcount had already reached zero. So we have the case mentioned above, that
+                // Base::refCountReachedZero has started, but has not yet set pObject to null.
+                // Undo the refcount modification.
+                _refCount -= 1;
+
+                // Note that no one else can have modified the reference count. Other weak references
+                // to the same object cannot enter this code block since we are holding the mutex.
+                // And strong references do not exist (ref count is zero).
+                
+                // So we know that our temporary increase and decrease cannot have caused bad effects
+                // on some other thread.
+
+                // return null since the object is already in the process of being destroyed.
+                return nullptr;
+            }
+            else
+            {
+                // we have a small problem here. Base::addRef may have been overridden. The override
+                // may do additional stuff - and the derived class will expect it to be called any
+                // time a reference is added.
+                // So we SHOULD call addRef here to be consistent with normal strong references.
+                // So we do that and afterwards we decrement the reference count again (to undo the additional
+                // increment).
+                // Note that the initial direct ref count incrementation we do above is necessary to ensure
+                // that we do not increment a reference count that is zero. We cannot do that just by calling
+                // addRef.
+                
+                P<IBase> pResult(pObject);
+
+                pObject->_refCount -= 1;
+
+                return pResult;
+            }
+        }
+        else
+            return nullptr;
     }
 
     Mutex mutex;
@@ -44,22 +93,18 @@ Base::~Base()
 
         // Why should this never be done? Could we not simply mark the object
         // as deleted here in the destructor, the same way we do in refCountReachedZero?
-        // Yes, we could, but we have to keep in mind that new strong references can be
-        // created at any point before we mark the object as deleted. This causes two problems:
+        // Yes, we could, but we have to keep in mind that weak references exist for the purpose
+        // of creating temporary strong references. And while these strong references exist
+        // the object must be guaranteed to be kept alive. For a stack object the strong references
+        // do not keep the object alive, thus crashes may occur.
+        
+        // However, this is completely analogous to directly creating strong pointers to the stack object.
+        // Those also cannot keep the stack object alive, thus they might cause a crash. So this is essentially
+        // the same case as with the weak pointers, except that for weak pointers we can see that
+        // a weak pointer was created at some point and we cannot see that for strong pointers.
 
-        // 1) This object is probably actually a subclass of Base. When the Base destructor
-        //    is called then the sub-class destructors have already been executed. So at this
-        //    point the object is actually already half-destructed. If someone creates a new
-        //    strong reference and accesses the object at any point between the time the initial
-        //    sub-class destructor was called and the time we mark the object as deleted then
-        //    the access uses a half-destroyed object. That can cause crashes and other bad stuff.
-
-        // 2) When someone creates a new strong reference after the destruction was initiated then
-        //    the caller expects the object to stay alive while he holds the reference.
-        //    But the destruction cannot be stopped or aborted and the object will be deleted.
-
-        // nevertheless, it may sometimes be useful to create a weak pointer to an object when
-        // one knows that it will not be accessed while destruction is in progress.
+        // Despite all that, it may sometimes be useful to create a weak pointer to an object when
+        // one knows that it will not be accessed before the object is destructed.
         // So we allow it, even though it is not recommended.
 
         // In any case, we have to mark the object as deleted here.
@@ -73,25 +118,28 @@ Base::~Base()
 	}
 }
 
-void Base::refCountReachedZero()
+void Base::_refCountReachedZero()
 {
-    if(_refCount>0)
-    {
-        // object has been revived. Do not actually delete it.
-        return;
-    }
-        
-    // The object WILL be deleted. Notify our weak references
-    // that it will be gone soon.
+    // the reference count has reached zero. That means that no more strong references exist.
+    // BUT, weak references may still exist.
 
-    // Note that at this point new strong references (and new weak ones from the the strong ones)
-    // could still be created from another thread. So we have to expect that.
+    // It might seem that a weak reference could create a new strong reference in another thread
+    // while we execute here. BUT the weak reference implementation makes sure that no new
+    // references can be created when the reference count has reached zero. So no new strong
+    // references can be created.
 
-    // Note that if the header is null then we know that we have never had any weak references. We also know
-    // we currently do not have any strong references. So if the header is null then we know that there are
-    // no references AT ALL to this object. That means that we do not have to worry about new references
-    // being created, since for that we would need at least one weak or strong reference.
-    // So there are no concurrency issued if the header is null.
+    // Because of this it also means that the destruction of the object has already "officially" begun
+    // when refCountReachedZero is called. Since weak references already consider the object gone,
+    // we should not do anything here that aborts the deinitialization of the object. One exception to
+    // this is the freedom we give deleteThis to prevent the actual deletion of the object and the release
+    // of its memory. However, the semantics of this are that the original object is still considered to be gone,
+    // but deleteThis can prevent the memory release to support efficient recycling of object resources. So whatever
+    // the deleteThis function does, the result is always considered to be a new
+    // object, even if it is at the same memory location.
+
+    // Note that if _weakReferenceState is null here then we know that we have never had any weak references. We also know
+    // we currently do not have any strong references. So if the _weakReferenceState is null then we know that there are
+    // no references AT ALL to this object.
 
     WeakReferenceState_* pWeakRefState = _weakReferenceState.load();
     if(pWeakRefState!=nullptr)
@@ -101,23 +149,12 @@ void Base::refCountReachedZero()
         // ourselves. We must hold a mutex during this.
         {
             MutexLock lock( pWeakRefState->mutex );
-
-            // While the mutex is locked no new strong references can be created
-            // from the existing weak references.
-            // So here we will do another check to see what the current refCount is. If it
-            // is still 0 then we know that we can proceed to delete ourselves. Otherwise we abort
-            // the process.
-            if(_refCount>0)
-            {
-                // abort deletion - we got a new reference.
-                return;
-            }
-
+            
             // at this point we know that we will be deleted. Set the pointer to ourselves in the
             // shared weak reference state to null.
             pWeakRefState->pObject = nullptr;
 
-            // we can release the mutex now. pObject is null, so no new strong references will be created.
+            // we can release the mutex now. pObject is null
         }
 
         // release our reference to the shared data. If there are weak pointers to us then they

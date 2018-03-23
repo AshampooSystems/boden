@@ -26,6 +26,10 @@ public:
     DefaultNotifier()
     {
     }
+
+    ~DefaultNotifier()
+    {
+    }
         
     P<INotifierSubControl> subscribe(const std::function<void(ArgTypes...)>& func) override
     {

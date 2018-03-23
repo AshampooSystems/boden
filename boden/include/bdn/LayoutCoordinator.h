@@ -30,8 +30,6 @@ namespace bdn
 
     The view core objects that use the layout coordinator need to implement IViewCoreExtension.
     or IWindowCoreExtension (depending on the the type of core object).
-
-	This class is thread-safe.
 */
 class LayoutCoordinator : public Base
 {
@@ -78,7 +76,7 @@ public:
 protected:
 	void needUpdate();
 
-	void mainThreadUpdateNow();
+	void updateNow();
 
     /** This function is called when an exception occurs during while a
         view is being updated. The default implementation logs the exception
@@ -91,9 +89,7 @@ protected:
 
         */
     virtual void handleException(const std::exception* pExceptionIfAvailable, const String& functionName);
-
-	Mutex				_mutex;
-	
+		
 	Set< P<View> >		_layoutSet;
 
 	Set< P<Window> >	_windowAutoSizeSet;

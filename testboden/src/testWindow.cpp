@@ -302,25 +302,9 @@ TEST_CASE("Window", "[ui]")
             Point positionBefore = pWindow->position();
             Size  sizeBefore = pWindow->size();
 
-		    SECTION("mainThread")
-		    {
-			    pWindow->requestAutoSize();
-		    }
+		    pWindow->requestAutoSize();		    
 
-    #if BDN_HAVE_THREADS
-		    SECTION("otherThread")
-		    {
-			    Thread::exec(
-				    [pWindow]()
-				    {
-					    pWindow->requestAutoSize();				
-				    } )
-				    .get(); // wait for thread to finish.
-		    }
-    #endif
-
-		    // auto-sizing is ALWAYS done asynchronously, no matter
-		    // which thread the request is coming from.
+		    // auto-sizing is ALWAYS done asynchronously.
 		    // So nothing should have happened yet.
 
 		    REQUIRE( pWindow->position() == positionBefore );
@@ -339,25 +323,9 @@ TEST_CASE("Window", "[ui]")
 	    {
 		    pWindow->adjustAndSetBounds( Rect(0, 0, 200, 200) );
 
-		    SECTION("mainThread")
-		    {
-			    pWindow->requestCenter();
-		    }
+            pWindow->requestCenter();
 
-    #if BDN_HAVE_THREADS
-		    SECTION("otherThread")
-		    {
-			    Thread::exec(
-				    [pWindow]()
-				    {
-					    pWindow->requestCenter();				
-				    } )
-				    .get(); // wait for thread to finish.
-		    }
-    #endif
-
-		    // centering is ALWAYS done asynchronously, no matter
-		    // which thread the request is coming from.
+		    // centering is ALWAYS done asynchronously.
 		    // So nothing should have happened yet.
 
 		    REQUIRE( pWindow->position() == Point(0, 0) );

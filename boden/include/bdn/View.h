@@ -52,8 +52,6 @@ public:
 		*/
 	P<IViewCore> getViewCore() const
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
 		return _pCore;		
 	}
 
@@ -65,18 +63,14 @@ public:
         the screen if one of its parents is invisible. In other words:
         this visible property only raefers to the view itself, not
         the parent hierarchy.
-
-		It is safe to access this from any thread.
 		*/
 	virtual Property<bool>& visible()
 	{
-		// no need for mutex locking. Properties are thread-safe.
 		return _visible;
 	}
 
 	virtual const ReadProperty<bool>& visible() const
 	{
-		// no need for mutex locking. Properties are thread-safe.
 		return _visible;
 	}
 
@@ -163,9 +157,7 @@ public:
     /** Sets the view's position and size, after adjusting the specified values
         to ones that are compatible with the underlying view implementation. The bounds are specified in DIP units
         and refer to the parent view's coordinate system.
-
-        IMPORTANT: This function must only be called from the main thread.
-
+        
         See adjustBounds() for more information about the adjustments that are made.
         
         Note that the adjustments are made with a "nearest valid" policy. I.e. the position and size are set
@@ -190,9 +182,7 @@ public:
 
     /** Adjusts the specified bounds to values that are compatible with the underlying view implementation
         and returns the result. The bounds are specified in DIP units and refer to the parent view's coordinate system.
-
-        IMPORTANT: This function must only be called from the main thread.
-
+        
         Not all positions and sizes are necessarily valid for all view implementations. For example,
         the backend might need to round the abstract DIP coordinates to the nearest physical pixel boundary.
 
@@ -291,9 +281,6 @@ public:
 		*/
 	P<IUiProvider> getUiProvider()
 	{
-		// the UI provider depends on the hierarchy
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
 		return _pUiProvider;
 	}
 
@@ -305,13 +292,14 @@ public:
 	virtual String getCoreTypeName() const=0;
 	
 
-	/** Returns the view's parent view. This can be null if the view was not yet
-		added to a parent, or if the view is a top level window.*/
+	/** Returns the view's parent view. This can be null under any of the following circumstances:
+    
+        - the view is a top level window and does not have a parent
+        - the view was not added to a parent yet
+        - the parent was deleted or is about to be deleted.*/
 	virtual P<View> getParentView()
 	{
-		MutexLock lock( getHierarchyAndCoreMutex() );
-
-		return _pParentViewWeak;
+		return _parentViewWeak.toStrong();
 	}
 
 	
@@ -352,8 +340,6 @@ public:
 		pParentView can be nullptr if the view was removed from a parent
 		and does not currently have one.
 
-		Note that any modifications to the view hierarchy should only be done while
-		the mutex returned by getHierarchyAndCoreMutex() is locked.
 		*/
 	void _setParentView(View* pParentView);
 
@@ -364,9 +350,6 @@ public:
 		
 		This must be called when another view container "steals" a view that
 		was formerly a child of this view.		
-
-		Note that any modifications to the view hierarchy should only be done while
-		the mutex returned by getHierarchyAndCoreMutex() is locked.
 		*/
 	virtual void _childViewStolen(View* pChildView)
 	{
@@ -412,9 +395,7 @@ public:
 
         Invalidating the sizing info also invalidates the layout and sizing info of any direct
         or indirect parent view(s).
-
-        It is safe to call this from any thread.
-        
+                
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
             View::InvalidateReason::customDataChanged
@@ -428,9 +409,7 @@ public:
 		
 		Note that it is usually NOT necessary to call this as a user of a view object. The view object
 		will automatically schedule re-layout operations when its layout parameters or child views change.
-
-        It is safe to call this from any thread.
-
+        
         \param reason the reason for the update. If the function is called by the application
             (rather than the framework itself) then this should usually be set to
             View::InvalidateReason::customDataChanged
@@ -529,8 +508,6 @@ public:
 		for different view objects.
 		The result can differ when this function is called again at a later time with the same view object
 		(if the view's parameters or the operating systems settings have changed).
-
-		IMPORTANT: This function must only be called from the main thread.
 		*/
 	double uiLengthToDips( const UiLength& length) const;
 
@@ -543,8 +520,6 @@ public:
 		for different view objects.
 		The result can differ when this function is called again at a later time with the same view object
 		(if the view's parameters or the operating systems settings have changed).
-
-		IMPORTANT: This function must only be called from the main thread.
 		*/
 	Margin uiMarginToDipMargin( const UiMargin& uiMargin) const;
 
@@ -606,62 +581,12 @@ public:
         IMPORTANT: It is perfectly ok (even recommended) for the view to return a preferred size
         that is not adjusted for the properties of the current display / monitor yet. I.e. it may not be rounded
         to full physical pixels yet. The size will be adapted to the display properties in adjustAndSetBounds().        
-
-        IMPORTANT: This function must only called be called from the main thread.
 		*/		
     virtual Size calcPreferredSize( const Size& availableSpace = Size::none() ) const;
+	
 
     
-    
-	/** Returns the global mutex object that is used to synchronize changes in the
-		UI hierarchy (parent-child relationships) and replacement of view core objects.
-
-        Why a single global mutex?
-        ---------------------------
-
-		The reason why we use a single global mutex for hierarchy changes is that otherwise deadlocks
-		could occur. We need to lock the old parent, the child and the new parent.
-		If multiple changes with the same objects are done in different threads
-		then it could potentially happen that the same two objects are locked in inverse order
-		in two threads, creating a deadlock.
-		For example, consider this UI hierarchy:
-
-		A
-		  B
-			C
-		D
-
-		Lets say we want to move B to D and C to D at the same time. Since B is the child-to-be-moved
-		for one operation and the old parent for another, the locking order could easily be inverse
-		and thus a deadlock could occur.
-
-		To avoid all this we use a single mutex for all hierarchy modifications. The impact on parallel
-		performance should be negligible, since the operations are short (just setting a parent pointer or
-		adding to a child list). Also, it should be a rare case when the hierarchy is modified from two
-		threads at the same time.
-
-		The same mutex is used to guard changes to the view cores. The reason is that hierarchy changes
-		sometimes cause creation, destruction or replacement of view cores. And these changes can also
-		propagate down the UI hierarchy (if a parent core is destroyed then all child cores must also
-		be destroyed). Because of this, the hierarchy mutex must be locked whenever a core is updated
-		(so that it does not change during the update operation). And if we had multiple mutexes
-		for cores and the hierarchy, then such operations would again be very sensitive to locking order
-		and could create potential deadlocks.
-		*/
-	static Mutex& getHierarchyAndCoreMutex();
-
-
-    
-
-
-protected:
-    
-
-	/** Verifies that the current thread is the main thread.
-		Throws a ProgrammingError if that is not the case.
-		The methodName parameter should be the name of the method that was called
-		that should have been called from the main thread.*/
-	void verifyInMainThread(const String& methodName) const;
+protected:    
 
 
     /** This is called when the sizing information of a child view has changed.
@@ -741,21 +666,21 @@ protected:
 	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType&), int propertyInfluences >	
 	void propertyChanged( P<const IValueAccessor<ValueType> > pValue )
 	{
+        // our properties may only be changed from the main thread
+        Thread::assertInMainThread();
+
 		// note that our object is guaranteed to be fully alive during this function call.
 		// That is guaranteed because we subscribed using a weak method. And during the call
         // a weak method holds a strong reference.
 
         // get the core. Note that it is OK if the core object
-		// is replaced directly after this during this call.
+		// is replaced directly after this during this call (for example, from an event listener)
 		// We will update an outdated core, but thats should have no effect.
 		// And the new core will automatically get the up-to-date value from
 		// the property.
 		P<CoreInterfaceType>	pCore = cast<CoreInterfaceType>( _pCore );
 		if(pCore!=nullptr)
 		{			
-            // note that we can call the core functions directly. Notifiers always call the
-            // subscribed functions from the main thread. And they also guarantee that no
-            // mutexes are locked during the call. So there are no restrictions on what we can call here.
 			if(CoreFunc!=nullptr)
                 (pCore->*CoreFunc)( pValue->get() );
 
@@ -764,8 +689,8 @@ protected:
             // notified of the change (CoreFunc==null).
 
             // Also note that if multiple properties get changed then their change notifications
-            // will already be in the queue at the point when we are called. That means that
-            // layout updates that are triggered by these changes are automatically batched
+            // will fire before any triggered layout updates happen, since layout update requests are always
+            // posted asynchronously to the main thread's event queue. So the layout updates are automatically batched
             // together, since the layout update is posted to the end of the queue.
             handlePropertyInfluences(propertyInfluences);
 		}        
@@ -784,13 +709,8 @@ protected:
 		If the view is part of a UI hierarchy that is connected to a top level window then a new
 		core will be created shortly thereafter.
 
-		If reinitCore is called from the main thread then a new core is immediately created and
-		attached, before reinitCore returns.
-
-		If reinitCore is called from some other thread then the core will be initially null
-		when the function returns. A new core will be created asynchronously and will be set shortly
-		thereafter.
-
+		A new core is immediately created and attached, before reinitCore returns.
+        
 		reinitCore also causes the reinitialization of the cores of all child views.
 		*/
 	void reinitCore();
@@ -803,7 +723,9 @@ protected:
 		*/
 	virtual P<IUiProvider> determineUiProvider()
 	{
-		return (_pParentViewWeak != nullptr) ? _pParentViewWeak->getUiProvider() : nullptr;
+        P<View> pParentView = getParentView();
+        
+		return (pParentView != nullptr) ? pParentView->getUiProvider() : nullptr;
 	}
 
 private:
@@ -829,11 +751,12 @@ protected:
 
 	P<IUiProvider>			                _pUiProvider;
 
-	void deleteThis() override;
+
+    void deleteThis() override;
 
 
 private:
-	View*					        _pParentViewWeak = nullptr;
+	WeakP<View>					    _parentViewWeak = nullptr;
 	P<IViewCore>			        _pCore;
 
     DefaultProperty<Size>           _preferredSizeHint;

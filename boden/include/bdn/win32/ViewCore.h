@@ -200,10 +200,9 @@ private:
 	WeakP<View> _outerViewWeak;	// weak by design
 
 	/** See setUiScaleFactor() */
-	double _uiScaleFactor;
+	double      _uiScaleFactor;
 
-	P<Font> _pFont;
-
+	P<Font>     _pFont;
 
     mutable double _emSizeDips = 0;
     mutable double _semSizeDipsIfInitialized = -1;

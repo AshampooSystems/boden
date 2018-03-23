@@ -154,55 +154,60 @@ public:
             thread2Result.get();
             thread3Result.get();
 
-            String result = getWrittenText();
+            // write requests from other threads are posted to the main queue
 
-            REQUIRE( result.startsWith(",") );
-            result = result.subString(1);
-
-            bool gotFirst = false;
-            bool gotSecond = false;
-            bool gotThird = false;
-
-            char32_t lastSep=1;
-            int      tokenNum=1;
-
-            while(!result.isEmpty())
+            CONTINUE_SECTION_WHEN_IDLE(this, pThis, expectedWriteSuffix)
             {
-                String token = result.splitOffToken(",", true, &lastSep);
+                String result = getWrittenText();
 
-                if(tokenNum==3)
+                REQUIRE( result.startsWith(",") );
+                result = result.subString(1);
+
+                bool gotFirst = false;
+                bool gotSecond = false;
+                bool gotThird = false;
+
+                char32_t lastSep=1;
+                int      tokenNum=1;
+
+                while(!result.isEmpty())
                 {
-                    // the expected write suffix of each token only takes effect when
-                    // the next line is started. So the last one will not have it.
-                    // Add it to simplify the test
-                    token += expectedWriteSuffix;
+                    String token = result.splitOffToken(",", true, &lastSep);
+
+                    if(tokenNum==3)
+                    {
+                        // the expected write suffix of each token only takes effect when
+                        // the next line is started. So the last one will not have it.
+                        // Add it to simplify the test
+                        token += expectedWriteSuffix;
+                    }
+
+                    if(token=="first"+expectedWriteSuffix)
+                    {
+                        REQUIRE( !gotFirst );
+                        gotFirst = true;
+                    }
+                    if(token=="second"+expectedWriteSuffix)
+                    {
+                        REQUIRE( !gotSecond );
+                        gotSecond = true;
+                    }
+
+                    if(token=="third"+expectedWriteSuffix)
+                    {
+                        REQUIRE( !gotThird );
+                        gotThird = true;
+                    }
+
+                    tokenNum++;
                 }
 
-                if(token=="first"+expectedWriteSuffix)
-                {
-                    REQUIRE( !gotFirst );
-                    gotFirst = true;
-                }
-                if(token=="second"+expectedWriteSuffix)
-                {
-                    REQUIRE( !gotSecond );
-                    gotSecond = true;
-                }
+                REQUIRE( gotFirst );
+                REQUIRE( gotSecond );
+                REQUIRE( gotThird );
 
-                if(token=="third"+expectedWriteSuffix)
-                {
-                    REQUIRE( !gotThird );
-                    gotThird = true;
-                }
-
-                tokenNum++;
-            }
-
-            REQUIRE( gotFirst );
-            REQUIRE( gotSecond );
-            REQUIRE( gotThird );
-
-            REQUIRE( lastSep==0 );
+                REQUIRE( lastSep==0 );
+            };
         }
 #endif
     }

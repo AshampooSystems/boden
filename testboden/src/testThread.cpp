@@ -487,6 +487,40 @@ void testExec()
         verifyExec(true);
 }
 
+void testMainThreadFunctions()
+{
+	SECTION("main")
+	{
+		SECTION("isCurrentMain")
+			REQUIRE( Thread::isCurrentMain() );
+
+		SECTION("assertInMainThread")
+			Thread::assertInMainThread();
+	}
+
+	SECTION("not main")
+	{
+		BDN_CONTINUE_SECTION_IN_THREAD()
+		{
+			SECTION("isCurrentMain")
+				REQUIRE( !Thread::isCurrentMain() );
+
+			SECTION("assertInMainThread")
+			{			
+#ifdef NDEBUG
+				// assertInMainThread should NOT do anythin,
+				// since we are in release mode.
+				Thread::assertInMainThread();
+#else
+				// we are in debug mode and assertInMainThread should
+				// create an assertion here. However, that would abort
+				// the test process, so we cannot test this.
+				// We do nothing here.
+#endif
+			}
+		};
+	}
+}
 
 TEST_CASE( "Thread", "[.][long]" )
 {
@@ -514,6 +548,9 @@ TEST_CASE( "Thread", "[.][long]" )
     SECTION("exec")
         testExec();
 
+	SECTION("main thread functions")
+		testMainThreadFunctions();
+
 }
 
 #else
@@ -524,6 +561,7 @@ TEST_CASE("Thread")
     REQUIRE( Thread::getCurrentId()==0 );
     REQUIRE( Thread::getMainId()==0 );
     REQUIRE( Thread::isCurrentMain() );
+	REQUIRE( Thread::assertInMainThread() );
 }
 
 #endif

@@ -23,7 +23,7 @@ Window::Window(IUiProvider* pUiProvider)
 
 void Window::setContentView(View* pContentView)
 {
-	MutexLock lock( getHierarchyAndCoreMutex() );
+	Thread::assertInMainThread();
 
 	if(pContentView!=_pContentView)
 	{

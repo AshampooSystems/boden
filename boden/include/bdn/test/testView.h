@@ -181,9 +181,6 @@ inline int operator & (int left, ExpectedSideEffect_ right)
     
     Helper function that performs an operation on a view object and verifies the result afterwards.
 
-    The operation is performed twice: once from the main thread and once from another thread (if the target
-    platform supports multithreading).
-
     _testViewOp may schedule parts of the test to be continued later
     after pending UI events have been handled (see CONTINUE_SECTION_WHEN_IDLE). If this happens then
     the _testViewOp function returns before the test has actually finished. The Boden test system will
@@ -270,76 +267,6 @@ inline void _testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
         };
 	};
 
-#if BDN_HAVE_THREADS
-
-    // schedule the test asynchronously, so that the layout update from the view construction is already done.
-	ASYNC_SECTION("otherThread", pView, pKeepAliveDuringContinuations, opFunc, verifyFunc, expectedSideEffects)
-	{
-        int initialNeedLayoutCount = cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount();
-        int initialSizingInvalidatedCount = cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount();
-
-        P<View> pParent = pView->getParentView();
-        int initialParentLayoutInvalidatedCount = 0;
-        int initialParentLayoutCount = 0;
-        if(pParent!=nullptr)
-        {
-            initialParentLayoutInvalidatedCount = cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount();
-            initialParentLayoutCount = cast<MockViewCore>(pParent->getViewCore())->getLayoutCount();
-        }
-
-		// note that we call get on the future object, so that we wait until the
-		// other thread has finished (so that any changes have been scheduled)
-		Thread::exec( opFunc ).get();		
-
-		// any changes made to properties by the opFunc are asynchronously scheduled.
-		// So they have not actually been made in the core yet,
-
-		// we want to wait until the changes have actually been made in the core.
-		// So do another async call. That one will be executed after the property
-		// changes.
-
-        BDN_CONTINUE_SECTION_WHEN_IDLE( pView, pParent, pKeepAliveDuringContinuations, verifyFunc, initialNeedLayoutCount, initialSizingInvalidatedCount, initialParentLayoutInvalidatedCount, initialParentLayoutCount, expectedSideEffects )
-		{
-            // the results of the change may depend on notification calls. Those are posted
-            // to the main event queue. So we need to process those now before we verify.
-            BDN_CONTINUE_SECTION_WHEN_IDLE(pView, pParent, pKeepAliveDuringContinuations, initialNeedLayoutCount, initialSizingInvalidatedCount, initialParentLayoutInvalidatedCount, initialParentLayoutCount, expectedSideEffects, verifyFunc)
-            {
-		        verifyFunc();
-
-                bool expectSizingInfoInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateSizingInfo)!=0;
-                bool expectLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateLayout)!=0;
-                bool expectParentLayoutInvalidation = (expectedSideEffects & ExpectedSideEffect_::invalidateParentLayout)!=0;
-
-                 // if the parent layout is being invalidated then that can cause the view's size to change, which can also trigger
-                // a child layout invalidation. So if the parent layout is invalidated then we allow (but do not require)
-                // the child layout to be invalidated as wenn.
-                bool mightInvalidateLayout = expectParentLayoutInvalidation || expectLayoutInvalidation;
-
-		        BDN_REQUIRE( ( cast<MockViewCore>(pView->getViewCore())->getInvalidateSizingInfoCount() > initialSizingInvalidatedCount ) == expectSizingInfoInvalidation );
-
-                if( expectLayoutInvalidation )
-                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() > initialNeedLayoutCount );
-                else if(!mightInvalidateLayout)
-                    BDN_REQUIRE( cast<MockViewCore>(pView->getViewCore())->getNeedLayoutCount() == initialNeedLayoutCount );
-
-
-                // if the parent should be invalidated and the view is not a top level
-                // window then it MUST have a parent.
-                if(expectParentLayoutInvalidation && tryCast<Window>(pView)==nullptr )
-                    REQUIRE( pParent!=nullptr );
-
-                if(pParent!=nullptr)
-                {
-                    BDN_REQUIRE( ( cast<MockViewCore>(pParent->getViewCore())->getNeedLayoutCount() > initialParentLayoutInvalidatedCount ) == expectParentLayoutInvalidation );
-
-                    // verify that the layout was only updates once in total (if an update was expected)
-                    BDN_REQUIRE( cast<MockViewCore>(pParent->getViewCore())->getLayoutCount() == initialParentLayoutCount + (expectParentLayoutInvalidation ? 1 : 0) );
-                }
-            };
-        };
-	};
-
-#endif
 
 }
 
@@ -960,7 +887,7 @@ inline void testView()
 
 
 #if BDN_HAVE_THREADS
-                SECTION("core deinit called from main thread")
+                SECTION("View released from other thread")
                 {
                     struct Data : public Base
                     {
@@ -985,21 +912,22 @@ inline void testView()
                         // in the main thread.
                         pData->pPreparer2 = nullptr;
                         pData->pView = nullptr;
+
+                        // the view is released asynchronously.
+                        // Wait until we are idle to ensure that the release
+                        // code is executed before the test ends.
+
+                        CONTINUE_SECTION_AFTER_SECONDS( 2, pData )
+                        {
+                            CONTINUE_SECTION_WHEN_IDLE( pData )
+                            {
+                                // nothing to do here - we only wanted to keep the test alive
+                                // until all pending events have been handled.
+                                int x=0;
+                                x++;
+                            };
+                        };
                     };
-                }
-
-                SECTION("core initialized from main thread")
-                {
-                    CONTINUE_SECTION_IN_THREAD()
-                    {
-                        P< ViewTestPreparer<ViewType> > pPreparer2 = newObj< ViewTestPreparer<ViewType> >();
-
-                        // create the view. The core creation should be moved to the main thread
-                        // automatically. The mock core constructor will verify this, so we will get
-                        // a failed REQUIRE here if the view calls the constructor from the main thread.
-                        P<ViewType> pView = pPreparer2->createView();
-                    };
-
                 }
 #endif
 

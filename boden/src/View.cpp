@@ -4,10 +4,9 @@
 #include <bdn/LayoutCoordinator.h>
 #include <bdn/debug.h>
 
+
 namespace bdn
 {
-
-BDN_SAFE_STATIC_IMPL(Mutex, View::getHierarchyAndCoreMutex );
 
 View::View()
 	: _visible(true) // most views are initially visible
@@ -34,34 +33,68 @@ View::View()
 
 View::~View()
 {
-	// We have to be careful here to ensure that the last reference to the core object is not deleted
-    // from some other thread (this destructor might be called from another thread).
-    // _deinitCore takes care of this.
-
+    // the core should already be deinitialized at this point (since deleteThis should have run).
+    // But we call it again anyway for safety.
     _deinitCore();
 }
 
 void View::deleteThis()
-{
-	// this is called when the view is DEFINITELY going to be deleted.
-	// Weak references have already been detached.
+{       
+    // Note that deleteThis can be called from ANY thread (we allow view object references to be
+    // passed to other threads, even though they are not allowed to access them directly
+    // from the other thread).
 
-	// this is called when the reference count reaches zero.
-
-	// Note that this may happen in ANY thread.
-
-	// Because of this it is important that we detach all child views BEFORE
-	// our destructor starts to execute. That is because the parentView references to us
-	// are weak and
-	// and must be set to null before the destruction starts. Otherwise a getParentView()
-	// call in another thread might return a strong pointer to an object that has already
-	// started destruction. And since it is a strong pointer the caller will assume that
-	// it remains valid as long as the pointer exists - so crashes may occur.
-
-	// To avoid that we must first detach the child views.
-    removeAllChildViews();
+    // Also note that when this is called, weak pointers to this view already consider the View to be
+    // gone. I.e. WeakP::toStrong already returns null, so no new strong references can be created.
     
-	RequireNewAlloc<Base, View>::deleteThis();
+    // For views we have the special case that we allow their last reference to be released from any
+    // thread, even though the view itself can only be used from the main thread. That allows view
+    // objects to be passed to background threads without having to think about who releases the last reference.
+
+    // When a view is destructed then we need to do a lot of things: we need to remove the child views
+    // and ensure that their parent pointer is null. We also need to remove / reinit their core.
+    // Those are all operations that can only be done from the main thread. So we do not want the
+    // destruction to begin in any other thread.
+    if( ! Thread::isCurrentMain() )
+    {
+        // we are not in the main thread. So we need to stop here and continue the destruction in the main thread.
+        
+        // note that the lambda function we post here may be executed
+        // in the main thread immediately. I.e. even before we exit
+        // deleteThis. However, that is OK, since we do not
+        // access our object after the asyncCallFromMainThread call. The caller of deleteThis
+        // also does not access the object, since deleteThis has the task of deleting
+        // the object.
+
+        // Also note that we do not need to increase the reference count when we pass "this"
+        // to the main thread, since the object is already on track for deletion and no one else
+        // can have or obtain a strong reference to it.
+        
+        asyncCallFromMainThread(
+            [this]()
+            {   
+                deleteThis();
+            } );
+
+        return;
+    }
+
+    // We want to detach our child views before we start to destruct ourselves.
+    // That ensures that the parent is still fully intact at the time when the child views
+    // are destroyed. While the child views cannot access the parent itself anymore at this point
+    // (since their weak parent pointers already return null), the child views might still interact
+    // with the parent's sub-objects in some way. For example, they might have references to
+    // the parent's properties or event notifiers. Note that event notifier references often exist implicitly
+    // when an event has been posted but not yet executed.
+    // So, to avoid any weird interactions we make sure that the children are fully detached before
+    // we start destruction (and before our member objects start to destruct).
+
+    removeAllChildViews();
+
+    // also deinit our core before we start destruction (since the core might still try to access us).
+    _deinitCore();
+
+    RequireNewAlloc<Base, View>::deleteThis();
 }
 
 
@@ -128,6 +161,8 @@ Rect View::adjustBounds(const Rect& requestedBounds, RoundType positionRoundType
 
 void View::invalidateSizingInfo( InvalidateReason reason )
 {
+	Thread::assertInMainThread();
+
     if( isBeingDeletedBecauseReferenceCountReachedZero() )
 	{
 		// this happens when invalidateSizingInfo is called during the destructor.
@@ -138,38 +173,25 @@ void View::invalidateSizingInfo( InvalidateReason reason )
         return;
 	}
 
-    if( Thread::isCurrentMain() )
-    {
-        // clear cached sizing data
-        _preferredSizeManager.clear();
+    // clear cached sizing data
+    _preferredSizeManager.clear();
 
-        // pass the operation to the core. The core will take care
-        // of invalidating the layout, if necessary
-        P<IViewCore> pCore = getViewCore();
-        if(pCore!=nullptr)
-            pCore->invalidateSizingInfo(reason);
+    // pass the operation to the core. The core will take care
+    // of invalidating the layout, if necessary
+    P<IViewCore> pCore = getViewCore();
+    if(pCore!=nullptr)
+        pCore->invalidateSizingInfo(reason);
 
-        P<View> pParentView = getParentView();
-        if(pParentView!=nullptr)
-            pParentView->childSizingInfoInvalidated( this );
-    }
-    else
-    {
-		// schedule the invalidation to be done from the main thread.
-		P<View> pThis = this;
-
-		asyncCallFromMainThread(
-				[pThis, reason]()
-				{
-					pThis->invalidateSizingInfo(reason);
-				}
-		);
-    }
+    P<View> pParentView = getParentView();
+    if(pParentView!=nullptr)
+        pParentView->childSizingInfoInvalidated( this );
 }
 
 
 void View::needLayout( InvalidateReason reason )
 {
+	Thread::assertInMainThread();
+
     if( isBeingDeletedBecauseReferenceCountReachedZero() )
 	{
 		// this happens when invalidateSizingInfo is called during the destructor.
@@ -180,40 +202,22 @@ void View::needLayout( InvalidateReason reason )
         return;
 	}
 
-    if( Thread::isCurrentMain() )
-    {
-        P<IViewCore> pCore = getViewCore();
+    P<IViewCore> pCore = getViewCore();
 
-        // forward the request to the core. Depending on the platform
-        // it may be that the UI uses a layout coordinator provided by the system,
-        // rather than our own.
-        if(pCore!=nullptr)
-            pCore->needLayout(reason);
-    }
-    else
-    {
-		// schedule the invalidation to be done from the main thread.
-		P<View> pThis = this;
-
-		asyncCallFromMainThread(
-				[pThis, reason]()
-				{
-					pThis->needLayout(reason);
-				});
-    }
+    // forward the request to the core. Depending on the platform
+    // it may be that the UI uses a layout coordinator provided by the system,
+    // rather than our own.
+    if(pCore!=nullptr)
+        pCore->needLayout(reason);
 }
 
 
-void View::verifyInMainThread(const String& methodName) const
-{
-	if(!Thread::isCurrentMain())
-		programmingError(methodName + " must be called from main thread.");
-}
+
 
 
 double View::uiLengthToDips( const UiLength& length) const
 {
-	verifyInMainThread("View::uiLengthToDips");	
+	Thread::assertInMainThread();
 
     if(length.isNone())
         return 0;
@@ -234,7 +238,7 @@ double View::uiLengthToDips( const UiLength& length) const
 
 Margin View::uiMarginToDipMargin( const UiMargin& uiMargin) const
 {
-	verifyInMainThread("View::uiMarginToPixelMargin");	
+	Thread::assertInMainThread();
 
 	P<IViewCore> pCore = getViewCore();
 
@@ -265,7 +269,7 @@ void View::childSizingInfoInvalidated(View* pChild)
 
 void View::_setParentView(View* pParentView)
 {
-	MutexLock lock( getHierarchyAndCoreMutex() );
+	Thread::assertInMainThread();
 
 	bool callReinitCoreHere = true;
 
@@ -276,7 +280,7 @@ void View::_setParentView(View* pParentView)
 	// And the core gets the opportunity to deny that, causing us to recreate the core
 	// (maybe in some cases the core cannot change the order of existing views).
 
-	_pParentViewWeak = pParentView;
+	_parentViewWeak = pParentView;
 
 	P<IUiProvider>	pNewUiProvider = determineUiProvider();
 			
@@ -289,40 +293,13 @@ void View::_setParentView(View* pParentView)
 	// use the same UI provider.
 	if(_pUiProvider==pNewUiProvider
 		&& _pUiProvider!=nullptr
-		&& _pParentViewWeak!=nullptr
+		&& pParentView!=nullptr
 		&& _pCore!=nullptr)
 	{
 		// we try to move the core to the new parent.	
 
-		if(Thread::isCurrentMain())
-		{
-			// directly call this here. We treat this case differently
-			// (rather than just always calling callFromMainThread) because
-			// we need to handle the locking differently when we are already in the main thread.
-			if(_pCore->tryChangeParentView(_pParentViewWeak) )
-				callReinitCoreHere = false;
-		}
-		else
-		{
-			// schedule the update to happen in the main thread.
-			// Do not reinit the core from THIS thread.
+		if(_pCore->tryChangeParentView(pParentView) )
 			callReinitCoreHere = false;
-
-			P<IViewCore>	pCore = _pCore;
-			P<View>			pThis = this;
-			P<View>			pParentView = _pParentViewWeak;	// strong reference - we need to keep this alive during the call
-			asyncCallFromMainThread(
-				[pThis, pCore, pParentView]()
-				{
-					MutexLock( pThis->getHierarchyAndCoreMutex() );
-
-					if(pThis->_pCore == pCore && pThis->_pParentViewWeak==pParentView)
-					{
-						if(! pThis->_pCore->tryChangeParentView(pThis->_pParentViewWeak) )
-							pThis->reinitCore();
-					}
-			} );
-		}
 	}
 
 	if(callReinitCoreHere)
@@ -337,73 +314,24 @@ void View::_setParentView(View* pParentView)
 	
 void View::reinitCore()
 {
-    MutexLock		lock( getHierarchyAndCoreMutex() );
-
 	_deinitCore();
 
 	// at this point our core and the core of our child views is null.
-	// The referenced core objects might still exist for a few moments (pending
-	// to be destroyed from the main thread), but they are not connected to us
-	// anymore.
 
-	// now schedule a new core to be created from the main thread. Keep ourselves alive while we do that.
 	_initCore();
 }
 
 
 void View::_deinitCore()
 {
-    MutexLock		lock( getHierarchyAndCoreMutex() );
-		
-	List< P<View> > childViewsCopy;
+    List< P<View> > childViewsCopy;
 	getChildViews( childViewsCopy );
 
-    P<IViewCore>	pCoreToReleaseFromMainThread;
-    
-    if(_pCore!=nullptr && !Thread::isCurrentMain())
-    {
-        // we cannot release our reference to the old core from here.
-        // Cores must ONLY be deleted from the main thread.
-        // So we schedule it to be released later.
-        pCoreToReleaseFromMainThread = _pCore;
-
-        // note that it is not harmful for the old core to still exist
-        // a few moments longer. When a new core is to be created then
-        // that new core is significantly different (other UI provider or
-        // other parent), so it will not "overlap" with the old core.
-        // And if the core is deinitialized because this object is about
-        // to be deleted then that is not harmful either because the
-        // Cores use WeakP to access the outer view. So it will safely
-        // detect if this outer view object is already gone.
-    }
-        
     _pCore = nullptr;
     	
 	// also release the core of all child views
 	for( auto pChildView: childViewsCopy )
-		pChildView->_deinitCore();
-
-    
-    // If we need to release the old core from the main thread then we schedule
-    // that here now.
-    if(pCoreToReleaseFromMainThread!=nullptr)
-	{
-		// schedule the core to be released from the main thread.
-		// IMPORTANT: there is a possible race condition here: if the main thread
-		// executes the lambda before this function here finishes, then WE have the
-		// last reference and will destruct the object from this thread.
-		// To avoid that we have to ensure that our reference is released before
-		// the mainthread call is scheduled.
-
-		IViewCore* pCore = pCoreToReleaseFromMainThread.detachPtr();
-
-		asyncCallFromMainThread(
-				[pCore]()
-				{
-					pCore->releaseRef();
-				}
-		);
-	}
+		pChildView->_deinitCore();    
 }
 
 
@@ -411,69 +339,32 @@ void View::_initCore()
 {
 	// initCore might throw an exception in some cases (for example if the view type
 	// is not supported).
-	// If it is called from the main thread then we want to propagate that exception upwards.
-	// If it is not called from the main thread then we simply can't propagate exceptions,
-	// since the execution happens asynchronously. So in that case we silently ignore it.
+	// we want to propagate that exception upwards.
+    
+    // If the core is not null then we already have a core. We do nothing in that case.
+	if(_pCore==nullptr)
+	{			
+		_pUiProvider = determineUiProvider();
 
-	if( ! Thread::isCurrentMain() )
-	{
-		// keep ourselves alive during this call
-		P<View> pThis = this;
+		if(_pUiProvider!=nullptr)
+			_pCore = _pUiProvider->createViewCore( getCoreTypeName(), this);
 
-		asyncCallFromMainThread( [pThis]()
-								{
-									pThis->_initCore();
-								} );
-	}
-	else
-	{
-		// note that there is no need to protect against race conditions here,
-		// even though the actual init might be done asynchronously at a later time
-		// from another thread.
+		List< P<View> > childViewsCopy;
+		getChildViews( childViewsCopy );			
 
-		// Cores are ONLY created in the main thread.
-		// So if another worker thread calls _initCore then that change will also
-		// be scheduled and executed AFTER the our scheduled init. So the order is ok.
+		for(auto pChildView: childViewsCopy)
+			pChildView->_initCore();
 
-		// The only tricky thing here is if _initCore is called from the main thread.
-		// In that case the call is NOT scheduled and will execute immediately.
-		// So it could potentially execute before our scheduled init and ordering
-		// would be incorrect.
-
-		// BUT it does not matter wether ordering is correct. The first init to executed
-		// after a deinit will do the work with up-to-date parameters. And any pending
-		// scheduled init will then see that the core is already there and simply do nothing.
-
-		MutexLock		lock( getHierarchyAndCoreMutex() );
-
-		// If the core is not null then someone else called init while we were
-		// scheduled. That is ok, since the core creation always uses up-to-date
-		// parameters. So everything is already done the way we would have done it.
-		// So only proceed if the core is null.
-		if(_pCore==nullptr)
-		{			
-			_pUiProvider = determineUiProvider();
-
-			if(_pUiProvider!=nullptr)
-				_pCore = _pUiProvider->createViewCore( getCoreTypeName(), this);
-
-			List< P<View> > childViewsCopy;
-			getChildViews( childViewsCopy );			
-
-			for(auto pChildView: childViewsCopy)
-				pChildView->_initCore();
-
-			// our old sizing info is obsolete when the core has changed.
-			invalidateSizingInfo( View::InvalidateReason::standardPropertyChanged );
-		}		
-	}
+		// our old sizing info is obsolete when the core has changed.
+		invalidateSizingInfo( View::InvalidateReason::standardPropertyChanged );
+	}		
 }
 
 
 
 Size View::calcPreferredSize( const Size& availableSpace ) const
 {
-	verifyInMainThread("View::calcPreferredSize");
+	Thread::assertInMainThread();
 	
 	Size preferredSize;
 	if( ! _preferredSizeManager.get(availableSpace, preferredSize) )

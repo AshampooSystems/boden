@@ -28,7 +28,7 @@ public:
 	}
 
 
-	/** Adds 1 to the internal reference count. This should normally NOT be called
+	/** Increases the object's reference count by one. This should normally NOT be called
 		directly. Instead you should use #P smart pointers, which take care of this
 		automatically.
 		
@@ -37,7 +37,7 @@ public:
 	virtual void addRef() const=0;
 
 
-	/** Removes 1 from the internal reference count. When it reaches 0 then
+	/** Decreases the object's reference count by one. When it reaches 0 then
 		the object will delete itself.
 		
 		releaseRef implementations MUST be thread-safe.

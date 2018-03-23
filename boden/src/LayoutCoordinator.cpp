@@ -15,7 +15,7 @@ LayoutCoordinator::LayoutCoordinator()
 
 void LayoutCoordinator::windowNeedsAutoSizing(Window* pWindow)
 {
-	MutexLock lock( _mutex );
+	Thread::assertInMainThread();
 
 	_windowAutoSizeSet.insert( pWindow );
 
@@ -25,7 +25,7 @@ void LayoutCoordinator::windowNeedsAutoSizing(Window* pWindow)
 
 void LayoutCoordinator::windowNeedsCentering(Window* pWindow)
 {
-	MutexLock lock( _mutex );
+	Thread::assertInMainThread();
 
 	_windowCenterSet.insert( pWindow );
 
@@ -35,7 +35,7 @@ void LayoutCoordinator::windowNeedsCentering(Window* pWindow)
 
 void LayoutCoordinator::viewNeedsLayout(View* pView)
 {
-	MutexLock lock( _mutex );
+	Thread::assertInMainThread();
 
 	_layoutSet.insert( pView );
 
@@ -46,6 +46,8 @@ void LayoutCoordinator::viewNeedsLayout(View* pView)
 
 void LayoutCoordinator::needUpdate()
 {
+	Thread::assertInMainThread();
+
 	if(!_updateScheduled)
 	{
 		if(isBeingDeletedBecauseReferenceCountReachedZero())
@@ -72,12 +74,9 @@ void LayoutCoordinator::needUpdate()
 		asyncCallFromMainThread(
 			[pThis]()
 			{
-				{
-					MutexLock lock( pThis->_mutex );
-					pThis->_updateScheduled = false;
-				}
+				pThis->_updateScheduled = false;
 
-				pThis->mainThreadUpdateNow();
+				pThis->updateNow();
 			} );
 	}
 }
@@ -86,7 +85,7 @@ void LayoutCoordinator::needUpdate()
 	
 
 
-void LayoutCoordinator::mainThreadUpdateNow()
+void LayoutCoordinator::updateNow()
 {
 	if(_inUpdateNow)
 	{
@@ -147,11 +146,8 @@ void LayoutCoordinator::mainThreadUpdateNow()
 			Set< P<Window> > toDoSet;
 			while(true)
 			{
-				{
-					MutexLock lock( _mutex );
-					toDoSet.insert( _windowAutoSizeSet.begin(), _windowAutoSizeSet.end() );
-					_windowAutoSizeSet.clear();
-				}				
+				toDoSet.insert( _windowAutoSizeSet.begin(), _windowAutoSizeSet.end() );
+				_windowAutoSizeSet.clear();
 
 				if(toDoSet.empty())
 				{
@@ -200,25 +196,15 @@ void LayoutCoordinator::mainThreadUpdateNow()
 			{
 				ToDo nextToDo;
 
-                // We have to hold the hierarchy and core mutex when we construct ToDo instances.
-                // The ToDo constructor checks the parent view and that can change at any time.
-                // So we must hold the mutex to prevent it from being changed in another thread.
 
-                // Since we should not lock our own mutex and the hierarchy and core mutex at the same
-                // time (to prevent deadlocks), that means that we must copy the layout set first,
-                // before we examine it.
-               
                 {
                     Set< P<View> > layoutSetCopy;
 
                     {
-                        MutexLock lock( _mutex );
                         layoutSetCopy = _layoutSet;
                     }
                     
                     {
-                        MutexLock lock( View::getHierarchyAndCoreMutex() );
-
                         // note that we only remove one view at a time from the pending set.
                         // The reason is that we need to handle pending events after each
                         // layout.
@@ -237,9 +223,7 @@ void LayoutCoordinator::mainThreadUpdateNow()
                 }
 
                 if(nextToDo.pView!=nullptr)
-                {
-                    MutexLock lock( _mutex );
-                
+                {                
                     // remove the view we selected from the set
                     _layoutSet.erase( nextToDo.pView );
                 }
@@ -288,11 +272,8 @@ void LayoutCoordinator::mainThreadUpdateNow()
 					Set< P<Window> > toDoSet;
 					while(true)
 					{
-						{
-							MutexLock lock( _mutex );
-							toDoSet.insert( _windowCenterSet.begin(), _windowCenterSet.end() );
-							_windowCenterSet.clear();
-						}				
+						toDoSet.insert( _windowCenterSet.begin(), _windowCenterSet.end() );
+						_windowCenterSet.clear();
 
 						if(toDoSet.empty())
 						{

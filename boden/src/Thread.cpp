@@ -5,6 +5,8 @@
 #include <bdn/java/Env.h>
 #endif
 
+#include <cassert>
+
 namespace bdn
 {
 
@@ -150,6 +152,11 @@ void Thread::sleepMillis( int64_t millis)
 void Thread::yield() noexcept
 {
 	std::this_thread::yield();
+}
+
+void Thread::assertInMainThread()
+{
+	assert( isCurrentMain() );
 }
 
 Thread::Id Thread::getCurrentId()
