@@ -15,7 +15,7 @@ public:
 
     P<IBase> newStrongReference()
     {
-        MutexLock lock(mutex);
+        Mutex::Lock lock(mutex);
 
         // _pObject will be null if the object was already deleted.
         // That is exactly what we want.
@@ -109,7 +109,7 @@ Base::~Base()
 
         // In any case, we have to mark the object as deleted here.
         {
-            MutexLock lock( pWeakReferenceState->mutex );
+            Mutex::Lock lock( pWeakReferenceState->mutex );
             pWeakReferenceState->pObject = nullptr;
         }
 
@@ -148,7 +148,7 @@ void Base::_refCountReachedZero()
         // to ourselves in the shared state to null now, before we continue deleting
         // ourselves. We must hold a mutex during this.
         {
-            MutexLock lock( pWeakRefState->mutex );
+            Mutex::Lock lock( pWeakRefState->mutex );
             
             // at this point we know that we will be deleted. Set the pointer to ourselves in the
             // shared weak reference state to null.

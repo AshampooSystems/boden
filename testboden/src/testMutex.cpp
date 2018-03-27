@@ -103,13 +103,13 @@ TEST_CASE("Mutex")
 
 #if BDN_HAVE_THREADS
 
-TEST_CASE("MutexLock")
+TEST_CASE("Mutex::Lock")
 {
 	Mutex mutex;
 	bool  threadLocked = false;
 
 	{
-		MutexLock lock(mutex);
+		Mutex::Lock lock(mutex);
 
 		Thread::exec(	[&threadLocked, &mutex]()
 						{
@@ -138,14 +138,14 @@ TEST_CASE("MutexLock")
 }
 
 
-TEST_CASE("MutexUnlock")
+TEST_CASE("Mutex::Unlock")
 {
 	Mutex mutex;
 	bool  threadLocked = false;
 	bool  threadLocked2 = false;
 
 	{
-		MutexLock lock(mutex);
+		Mutex::Lock lock(mutex);
 
 		Thread::exec(	[&threadLocked, &mutex]()
 						{
@@ -163,7 +163,7 @@ TEST_CASE("MutexUnlock")
 		StopWatch watch;
 
 		{
-			MutexUnlock unlock(mutex);
+			Mutex::Unlock unlock(mutex);
 
 			Thread::sleepMillis(1000);
 

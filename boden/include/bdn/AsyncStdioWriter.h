@@ -39,7 +39,7 @@ public:
 
 #if BDN_HAVE_THREADS
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             // we need a thread with a queue that we can have execute our jobs one by one.
             // We can use a thread pool with a single thread for that.
@@ -88,7 +88,7 @@ public:
 
 #if BDN_HAVE_THREADS
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             // we need a thread with a queue that we can have execute our jobs one by one.
             // We can use a thread pool with a single thread for that.

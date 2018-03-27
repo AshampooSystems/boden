@@ -1,7 +1,7 @@
 #ifndef BDN_OneShotStateNotifier_H_
 #define BDN_OneShotStateNotifier_H_
 
-#include <bdn/INotifier.h>
+#include <bdn/IAsyncNotifier.h>
 #include <bdn/RequireNewAlloc.h>
 #include <bdn/mainThread.h>
 
@@ -17,17 +17,18 @@ namespace bdn
     - Subscribed functions are removed after the single notify call, so their
       resources are released.
 
-    - Any functions that are subscribed after the single notify call happened will be called immediately, with the parameters
-      of the original notify call. These parameters are copied, unless they are pointers (see below for details).
+    - Any functions that are subscribed after the single notify call happened will be called automatically, with the parameters
+      of the original notify call. This automatic call is always posted to the main thread, as if by using postNotification.
+	  These parameters of the original notify call are copied, unless they are pointers (see below for details).
 
 
-    *IMPORTANT*: DefaultNotifier objects MUST be allocated with newObj / new.
+    *IMPORTANT*: OneShotStateNotifier objects MUST be allocated with newObj / new.
 
-    This kind of notifier is well suited for "finished" notifications. I.e. notifications
-    that indicate that some process is done.    
+    This kind of notifier is well suited for notifications happen only once,
+	for example, ones that indicate that some process is done.    
     
     The fact that subscribed functions that are added after notify was already called will
-    also be executed is a convenient property for "finished" notifications of background
+    also be executed is a convenient property for "done" notifications of background
     processes. It means that there are no race conditions for these events.
     The subscribed functions are all guaranteed to be called, even if the background
     process finishes very quickly, before the subscription is created.
@@ -43,8 +44,8 @@ namespace bdn
     --------------------------------
 
     The argument types of the notifier (the template parameters) need some special consideration.
-    In most cases, the parameters passed to notify are copied so that they can be passed on 
-    to late subscribers (subscribers that are added after the initial notify() call).
+    In most cases, the parameters passed to postNotification and notify are copied so that they can be passed on 
+    to late subscribers (subscribers that are added after the initial notification call).
     This is also true for reference parameters - their value is also copied and the late subscriber
     will get passed a reference to the copied object.
     If you want late subscribers and initial subscribers to get the exact same object instance as a parameter
@@ -53,8 +54,11 @@ namespace bdn
     
 */
 template<class... ArgTypes>
-class OneShotStateNotifier : public RequireNewAlloc<Base, OneShotStateNotifier<ArgTypes...> >
-    , BDN_IMPLEMENTS INotifier<ArgTypes...>
+class OneShotStateNotifier :
+    // note that we do not derive from NotifierBase because we need very fine
+    // control over each individual subscriber call.
+    public RequireNewAlloc<Base, OneShotStateNotifier<ArgTypes...> >
+    , BDN_IMPLEMENTS IAsyncNotifier<ArgTypes...>
 {
 public:    
     OneShotStateNotifier()
@@ -69,7 +73,7 @@ public:
     }
     
 
-    INotifier<ArgTypes...>& operator+=(const std::function<void(ArgTypes...)>& func) override
+    INotifierBase<ArgTypes...>& operator+=(const std::function<void(ArgTypes...)>& func) override
     {
         subscribeInternal(func);
 
@@ -82,16 +86,17 @@ public:
         return subscribe( ParamlessFunctionAdapter(func) );
     }
     
-        
+    
+
     
     void postNotification(ArgTypes... args) override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_postNotificationCalled)
         {
             // should not happen
-            programmingError("OneShotStateNotifier::postNotification was called multiple times. It should only be called once.");
+            programmingError("OneShotStateNotifier notification was triggered multiple times. It should only be done once.");
         }
 
         _postNotificationCalled = true;
@@ -106,7 +111,7 @@ public:
    
     void unsubscribeAll() override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _subMap.clear();
 
@@ -123,7 +128,7 @@ private:
 
     int64_t subscribeInternal(const std::function<void(ArgTypes...)>& func)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         // always add the subscriber to the map. If postNotification has already been called
         // then it is still correct (see below)
@@ -176,8 +181,8 @@ private:
 
     void scheduleNotifyCall()
     {
-        asyncCallFromMainThread( strongMethod(this, &OneShotStateNotifier::doNotifyFromMainThread) );
-        _notificationPending = true;
+		_notificationPending = true;
+        asyncCallFromMainThread( strongMethod(this, &OneShotStateNotifier::doNotify) );        
     }
             
     struct Sub_
@@ -203,7 +208,7 @@ private:
 
     void unsubscribe(int64_t subId)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         auto it = _subMap.find(subId);
         if(it!=_subMap.end())
@@ -217,9 +222,9 @@ private:
     }
 
         
-    void doNotifyFromMainThread()
+    void doNotify()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
         
         // We also need to ensure that subscribers that are removed while our notification call
         // is running are not called after they are removed (unless their specific call has already started).
@@ -257,7 +262,7 @@ private:
 
                 try
                 {                
-                    MutexUnlock unlock(_mutex);
+                    Mutex::Unlock unlock(_mutex);
 
                     // note that _subscribedFuncCaller has the notification parameters bound to it.
                     // So we do not need to pass them here.

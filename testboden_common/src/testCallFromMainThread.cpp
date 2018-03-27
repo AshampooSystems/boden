@@ -174,7 +174,7 @@ public:
 
         // add a call from the main thread first
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             _expectedOrder.push_back(-1);
 
             scheduleCall([pThis]()
@@ -190,7 +190,7 @@ public:
             futures.push_back( Thread::exec(
                     [i, pThis]()
                     {
-                        MutexLock lock(pThis->_mutex);
+                        Mutex::Lock lock(pThis->_mutex);
                         pThis->_expectedOrder.push_back(i);
 
                         pThis->scheduleCall([i, pThis]()
@@ -204,7 +204,7 @@ public:
 
         // also add a call from the main thread
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             scheduleCall([pThis]()
                           {

@@ -34,7 +34,7 @@ void GlobalMessageWindow::postCall(ISimpleCallable* pCallable)
 void GlobalMessageWindow::callOnceWhenIdle( ISimpleCallable* pCallable )
 {
     {
-        MutexLock lock( _idleMutex );
+        Mutex::Lock lock( _idleMutex );
     
         _callOnceWhenIdleList.push_back( pCallable );
     }       
@@ -49,7 +49,7 @@ void GlobalMessageWindow::notifyIdleBegun()
     List< P<ISimpleCallable> > toCallList;
 
     {
-        MutexLock lock( _idleMutex );
+        Mutex::Lock lock( _idleMutex );
 
         toCallList = _callOnceWhenIdleList;
         _callOnceWhenIdleList.clear();

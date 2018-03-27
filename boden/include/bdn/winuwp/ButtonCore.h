@@ -140,7 +140,7 @@ protected:
         if(pOuterView!=nullptr)
         {
 		    ClickEvent evt(pOuterView);
-		    cast<Button>(pOuterView)->onClick().postNotification(evt);
+		    cast<Button>(pOuterView)->onClick().notify(evt);
         }
 	}
 

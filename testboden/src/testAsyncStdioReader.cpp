@@ -37,7 +37,7 @@ public:
     
     void readDone(IAsyncOp<String>* pOp)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _results.push_back(pOp->getResult() );
         nextStep();
@@ -45,7 +45,7 @@ public:
 
     void continueTest()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_results.size()==3)
         {
@@ -109,14 +109,14 @@ public:
     
     void readDone(IAsyncOp<String>* pOp)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _results.push_back(pOp->getResult() );
     }
 
     void continueTest()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_results.size()>=100)
         {

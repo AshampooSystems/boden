@@ -330,19 +330,8 @@ inline void testView()
             BDN_REQUIRE( pCore!=nullptr );
 
             P<Window> pWindow = pPreparer->getWindow();
-
         
-            // Normally the default for a view's visible property is true.
-            // But for top level Windows, for example, the default is false. This is a change that is done in the constructor
-            // of the Window object. At that point there are no subscribers for the property's change event, BUT a notification
-            // is still scheduled. And if there are subscribers at the point when the notification
-            // is actually handled then we will get a visibility change recorded. So the expected
-            // value here is 1.
-            // In general that means that we expect a visible change count of 0 for views that
-            // are initially visible and a change count of 1 for those that are initially invisible.
-            int initialVisibleChangeCount = shouldViewBeInitiallyVisible<ViewType>() ? 0 : 1;
-        
-            BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore, initialVisibleChangeCount )
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore )
             {
                 SECTION("initialViewState")
                 {
@@ -351,7 +340,7 @@ inline void testView()
                     BDN_REQUIRE( pCore->getPaddingChangeCount()==0 );
                     BDN_REQUIRE( pCore->getParentViewChangeCount()==0 );
 
-                    BDN_REQUIRE( pCore->getVisibleChangeCount()==initialVisibleChangeCount );
+                    BDN_REQUIRE( pCore->getVisibleChangeCount()==0 );
                     
                     BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
                     
@@ -553,9 +542,9 @@ inline void testView()
                             {
                                 pView->visible() = !shouldViewBeInitiallyVisible<ViewType>();
                             },
-                            [pCore, pView, pWindow, initialVisibleChangeCount]()
+                            [pCore, pView, pWindow]()
                             {
-                                BDN_REQUIRE( pCore->getVisibleChangeCount()==initialVisibleChangeCount+1 );
+                                BDN_REQUIRE( pCore->getVisibleChangeCount()==1 );
                                 BDN_REQUIRE( pCore->getVisible() == !shouldViewBeInitiallyVisible<ViewType>() );
                             },
                             0   // no layout invalidations

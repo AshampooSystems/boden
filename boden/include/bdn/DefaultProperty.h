@@ -4,7 +4,7 @@
 
 #include <bdn/Property.h>
 #include <bdn/func.h>
-#include <bdn/DefaultNotifier.h>
+#include <bdn/SimpleNotifier.h>
 
 namespace bdn
 {
@@ -49,7 +49,7 @@ public:
         return *this;
     }
 
-	INotifier< P<const IValueAccessor<ValType>> >& onChange() const override
+	ISyncNotifier< P<const IValueAccessor<ValType>> >& onChange() const override
 	{
         return _pImpl->onChange();
 	}
@@ -74,13 +74,13 @@ private:
     public:
         Impl(ValType value )
 	    {
-            _pOnChange = newObj< DefaultNotifier< P<const IValueAccessor<ValType>> > >();
+            _pOnChange = newObj< SimpleNotifier< P<const IValueAccessor<ValType>> > >();
 		    _value = value;
 	    }
 
         ValType get() const override
 	    {
-		    MutexLock lock(_mutex);
+		    Mutex::Lock lock(_mutex);
 
 		    return _value;
 	    }
@@ -90,7 +90,7 @@ private:
 		    bool changed = false;
 
 		    {
-			    MutexLock lock(_mutex);
+			    Mutex::Lock lock(_mutex);
 
 			    if(_value!=val)
 			    {
@@ -100,11 +100,11 @@ private:
 		    }
 
 		    if(changed)
-			    _pOnChange->postNotification(this);
+			    _pOnChange->notify(this);
 	    }
 
 
-	    INotifier< P<const IValueAccessor<ValType>> >& onChange() const
+	    ISyncNotifier< P<const IValueAccessor<ValType>> >& onChange() const
 	    {
 		    return *_pOnChange;
 	    }
@@ -126,7 +126,7 @@ private:
 	    mutable Mutex					_mutex;
 	    ValType							_value;
     
-        mutable P< DefaultNotifier< P<const IValueAccessor<ValType>> >	> _pOnChange;
+        mutable P< SimpleNotifier< P<const IValueAccessor<ValType>> >	> _pOnChange;
     };
 
 

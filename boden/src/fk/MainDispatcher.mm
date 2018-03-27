@@ -127,7 +127,7 @@ MainDispatcher::~MainDispatcher()
 
 void MainDispatcher::dispose()
 {
-    MutexLock lock(_queueMutex);
+    Mutex::Lock lock(_queueMutex);
     
     // empty our idle queue.
     _pIdleQueue->dispose();
@@ -216,7 +216,7 @@ void MainDispatcher::enqueueInSeconds(double                   seconds,
         if(seconds<=0)
         {
             {
-                MutexLock lock(_queueMutex);
+                Mutex::Lock lock(_queueMutex);
                 _normalQueue.push_back(func);
             }
             
@@ -230,7 +230,7 @@ void MainDispatcher::enqueueInSeconds(double                   seconds,
         {
             std::list< std::function<void()> >::iterator it;
             {
-                MutexLock lock(_queueMutex);
+                Mutex::Lock lock(_queueMutex);
                 _timedNormalQueue.push_back(func);
                 it = _timedNormalQueue.end();
                 --it;
@@ -297,7 +297,7 @@ void MainDispatcher::createTimer(   double                  intervalSeconds,
 {
     std::list< std::function<bool()> >::iterator it;
     {
-        MutexLock lock(_queueMutex);
+        Mutex::Lock lock(_queueMutex);
         _pTimerFuncList->funcList.push_back(func);
         it = _pTimerFuncList->funcList.end();
         --it;

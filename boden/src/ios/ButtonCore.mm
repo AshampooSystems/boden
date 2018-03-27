@@ -74,7 +74,7 @@ void ButtonCore::_clicked()
 	{
 		ClickEvent evt(pView);
     
-		cast<Button>(pView)->onClick().postNotification(evt);
+		cast<Button>(pView)->onClick().notify(evt);
 	}
 }
         

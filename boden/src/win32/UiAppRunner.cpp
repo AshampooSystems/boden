@@ -30,7 +30,7 @@ void UiAppRunner::enqueue(
 	std::function< void() > func,
 	Priority priority)
 {
-    MutexLock lock( _queueMutex );
+    Mutex::Lock lock( _queueMutex );
 
     if(priority == Priority::idle)
     {
@@ -120,7 +120,7 @@ bool UiAppRunner::Timer::timerEventFromHelperThread()
 
     // this is called from the helper thread that implements the timing.
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_ended)
         {
@@ -164,7 +164,7 @@ void UiAppRunner::Timer::timerEventFromMainThread()
             continueTimer = _func();
 
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             _callPending = false;
 
@@ -199,7 +199,7 @@ void UiAppRunner::Timer::timerEventFromMainThread()
     catch(...)
     {
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             _callPending = false;
         }
 
@@ -247,7 +247,7 @@ bool UiAppRunner::executeAndRemoveItem( List< std::function<void()> >& queue, bo
     std::function<void()> func;
 
     {
-        MutexLock lock(_queueMutex);
+        Mutex::Lock lock(_queueMutex);
 
         if(queue.empty())
             return false;
@@ -288,7 +288,7 @@ void UiAppRunner::handleAppMessage(MessageWindowBase::MessageContext& context, H
             // past or just now. So the item might actually have already been handled.
             // BUT for us this means that we need to check again if the idle queue is empty 
             // or not. We can do that by just breaking the loop here.                        
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             _haveIdleItemsWaiting_MainThread = !_idleQueue.empty();
         }
 
@@ -313,7 +313,7 @@ void UiAppRunner::mainLoop()
     bool exit = false;
 
     {
-        MutexLock lock(_queueMutex);
+        Mutex::Lock lock(_queueMutex);
         _haveIdleItemsWaiting_MainThread = !_idleQueue.empty();
     }
             
@@ -376,7 +376,7 @@ void UiAppRunner::disposeMainDispatcher()
     _pTimedEventThread->stop( Thread::ExceptionIgnore );
     _pTimedEventThreadDispatcher->dispose();
 
-    MutexLock lock(_queueMutex);
+    Mutex::Lock lock(_queueMutex);
         
     // remove the objects one by one so that we can ignore exceptions that happen in
     // the destructor.            

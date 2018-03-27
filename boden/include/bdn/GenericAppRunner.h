@@ -60,7 +60,7 @@ public:
 
 	void initiateExitIfPossible(int exitCode) override
 	{
-		MutexLock lock(_exitMutex);
+		Mutex::Lock lock(_exitMutex);
 
 		_exitRequested = true;
 		_exitCode = exitCode;
@@ -75,7 +75,7 @@ public:
 		terminating();
 
 		{
-			MutexLock lock(_exitMutex);
+			Mutex::Lock lock(_exitMutex);
 
 			return _exitCode;
 		}
@@ -92,7 +92,7 @@ protected:
 	
 	virtual bool shouldExit() const
 	{
-		MutexLock lock(_exitMutex);
+		Mutex::Lock lock(_exitMutex);
 		return _exitRequested;
 	}
 

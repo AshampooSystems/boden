@@ -45,7 +45,7 @@ public:
 	/** Writes the specified text (without adding a linebreak).*/
 	void write(const String& s) override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         (*_pOutStream) << s.toLocaleEncoding<CharType>( _pOutStream->getloc() );        
     }
@@ -53,7 +53,7 @@ public:
 	/** Writes the specified line of text. A linebreak is automatically added.*/
 	void writeLine(const String& s) override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         (*_pOutStream)
             << s.toLocaleEncoding<CharType>( _pOutStream->getloc() )
@@ -72,7 +72,7 @@ public:
         text to be written to stderr. */
 	void writeError(const String& s) override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         (*_pErrStream) << s.toLocaleEncoding<CharType>( _pErrStream->getloc() );                
     }
@@ -81,7 +81,7 @@ public:
 	/** Like writeError(), but also writes a line break after the text.*/
 	void writeErrorLine(const String& s) override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         (*_pErrStream)
             << s.toLocaleEncoding<CharType>( _pErrStream->getloc() )

@@ -31,7 +31,7 @@ bool GenericDispatcher::waitForNext(double timeoutSeconds)
         double currWaitSeconds=0;
 
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             std::function< void() > func;
 
@@ -106,7 +106,7 @@ bool GenericDispatcher::waitForNext(double timeoutSeconds)
 
 bool GenericDispatcher::getNextReady(std::function< void() >& func, bool remove)
 {	
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
 	enqueueTimedItemsIfTimeReached();
 

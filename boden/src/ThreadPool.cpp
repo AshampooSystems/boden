@@ -27,7 +27,7 @@ ThreadPool::ThreadPool(int minThreadCount, int maxThreadCount)
 
 ThreadPool::~ThreadPool()
 {
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
     // signal the idle runners to stop.
     // They are currently waiting for new jobs - this will make them wake up
@@ -64,7 +64,7 @@ ThreadPool::~ThreadPool()
 
 bool ThreadPool::runnerFinishedJob( PoolRunner* pRunner )
 {
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
     if(!_queuedJobs.empty())
     {
@@ -108,7 +108,7 @@ bool ThreadPool::runnerFinishedJob( PoolRunner* pRunner )
 
 void ThreadPool::addJob(IThreadRunnable* pRunnable)
 {
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
     if(_idleRunners.empty())
     {
@@ -155,7 +155,7 @@ void ThreadPool::addJob(IThreadRunnable* pRunnable)
 
  int ThreadPool::getBusyThreadCount() const
  {
-     MutexLock lock(_mutex);
+     Mutex::Lock lock(_mutex);
 
      return (int)_busyRunners.size();
  }
@@ -163,7 +163,7 @@ void ThreadPool::addJob(IThreadRunnable* pRunnable)
 
 int ThreadPool::getIdleThreadCount() const
 {
-     MutexLock lock(_mutex);
+     Mutex::Lock lock(_mutex);
 
      return (int)_idleRunners.size();
 }
@@ -175,7 +175,7 @@ void ThreadPool::PoolRunner::signalStop()
     // this is called when the thread pool shuts down.
 
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _shouldStop = true;
 
@@ -190,7 +190,7 @@ void ThreadPool::PoolRunner::signalStop()
 
 void ThreadPool::PoolRunner::startJob(IThreadRunnable* pJob)
 {
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
     if(_pJob!=nullptr)
         throw ProgrammingError("ThreadPool::PoolRunnable::startJob was called while the thread was still busy.");
@@ -207,7 +207,7 @@ void ThreadPool::PoolRunner::run()
         _wakeSignal.wait();
                 
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             _wakeSignal.clear();
 

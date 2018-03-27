@@ -4,6 +4,7 @@
 #include <bdn/View.h>
 #include <bdn/IButtonCore.h>
 #include <bdn/ClickEvent.h>
+#include <bdn/SimpleNotifier.h>
 
 namespace bdn
 {
@@ -14,7 +15,7 @@ class Button :	public View
 public:
 	Button()
 	{
-        _pOnClick = newObj< DefaultNotifier<const ClickEvent&> >();
+        _pOnClick = newObj< SimpleNotifier<const ClickEvent&> >();
 
 		initProperty<String, IButtonCore, &IButtonCore::setLabel, (int)PropertyInfluence_::preferredSize>(_label);
 	}
@@ -33,7 +34,7 @@ public:
 	}
 		
 
-	INotifier<const ClickEvent&>& onClick()
+	ISyncNotifier<const ClickEvent&>& onClick()
 	{
 		return *_pOnClick;
 	}
@@ -53,7 +54,7 @@ public:
 
 	DefaultProperty<String>		            _label;
 
-	P< DefaultNotifier<const ClickEvent&> > _pOnClick;
+	P< SimpleNotifier<const ClickEvent&> >  _pOnClick;
 };
 
 

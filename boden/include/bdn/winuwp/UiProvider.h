@@ -80,7 +80,7 @@ public:
     P<ITextUi> getTextUi() override
     {
         {
-            MutexLock lock( _textUiInitMutex );
+            Mutex::Lock lock( _textUiInitMutex );
             if(_pTextUi==nullptr)
                 _pTextUi = newObj< ViewTextUi >();
         }
@@ -110,7 +110,7 @@ protected:
 		{
             BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-			MutexLock lock(_parentMutex);
+			Mutex::Lock lock(_parentMutex);
 			
 			if(_pParentWeak!=nullptr)
 				_pParentWeak->updateUiScaleFactor(pDisplayInfo);
@@ -120,7 +120,7 @@ protected:
 
 		void dispose()
 		{
-			MutexLock lock(_parentMutex);
+			Mutex::Lock lock(_parentMutex);
 			_pParentWeak = nullptr;
 		}
 

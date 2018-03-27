@@ -59,7 +59,7 @@ void Dispatcher::enqueue(
     // having the callbacks hold a reference. That is necessary so
     // that we can release all pending callbacks in dispose().
     {
-        MutexLock lock(_queueMutex);
+        Mutex::Lock lock(_queueMutex);
 
         getQueue(priority).push_back(func);       
     }
@@ -98,7 +98,7 @@ void Dispatcher::executeItem(Priority priority)
     std::function<void()> func;
 
     {
-        MutexLock lock(_queueMutex);
+        Mutex::Lock lock(_queueMutex);
 
         std::list< std::function<void()> >& queue = getQueue(priority);
 
@@ -200,7 +200,7 @@ void Dispatcher::createTimer(
     if(intervalSeconds <= 0.002 )
         intervalSeconds = 0.002;
 
-    MutexLock lock(_queueMutex);
+    Mutex::Lock lock(_queueMutex);
 
     std::list< P<Timer> >::iterator it = _timerList.insert( _timerList.end(), nullptr );
 
@@ -259,7 +259,7 @@ void Dispatcher::Timer::dispose()
 	bool	 cleanUp = false;
 
 	{
-		MutexLock lock( _pDispatcher->_queueMutex );
+		Mutex::Lock lock( _pDispatcher->_queueMutex );
 
 		if(!_disposed)
 		{
@@ -296,7 +296,7 @@ void Dispatcher::Timer::dispose()
 void Dispatcher::Timer::call()
 {
 	{
-		MutexLock lock(_callPendingMutex);
+		Mutex::Lock lock(_callPendingMutex);
 
 		if(_callPending)
 		{
@@ -320,7 +320,7 @@ void Dispatcher::Timer::call()
 				std::function< bool() > func;
 
 				{
-					MutexLock lock( pThis->_pDispatcher->_queueMutex );
+					Mutex::Lock lock( pThis->_pDispatcher->_queueMutex );
 
 					// do nothing if we have been disposed.
 					if(!pThis->_disposed)
@@ -343,12 +343,12 @@ void Dispatcher::Timer::call()
 			}
 			catch(...)
 			{
-				MutexLock lock(pThis->_callPendingMutex);
+				Mutex::Lock lock(pThis->_callPendingMutex);
 				pThis->_callPending = false;
 				throw;
 			}
 
-			MutexLock lock(pThis->_callPendingMutex);
+			Mutex::Lock lock(pThis->_callPendingMutex);
 			pThis->_callPending = false;
 		} );
 }
@@ -375,7 +375,7 @@ void Dispatcher::disposeTimers()
 
 void Dispatcher::dispose()
 {
-    MutexLock lock(_queueMutex);
+    Mutex::Lock lock(_queueMutex);
 
     disposeQueue(_idleQueue);
     disposeQueue(_normalQueue);

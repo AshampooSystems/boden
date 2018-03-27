@@ -2934,7 +2934,7 @@ public:
 
 	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
 	{
-        MutexLock lock(_runTestMutex);
+        Mutex::Lock lock(_runTestMutex);
 
 		_testPrevTotals = m_totals;
 
@@ -2976,7 +2976,7 @@ private: // IResultCapture
 
 	virtual void assertionEnded( AssertionResult const& result ) override
 	{
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
 		const AssertionResult*	pResultToReport = &result;
 		AssertionResult			changedResult;
@@ -3014,7 +3014,7 @@ private: // IResultCapture
     
 	bool testForMissingAssertions( Counts& assertions )
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
 		if( assertions.total() != 0 )
 			return false;
@@ -3042,7 +3042,7 @@ private: // IResultCapture
 		Counts& assertions
 		) override
 	{
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
         if(_currentTestWillContinueLater)
         {
@@ -3127,7 +3127,7 @@ private: // IResultCapture
 
 	virtual void sectionEnded( SectionEndInfo const& endInfo ) override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
         if(_currentTestWillContinueLater)
         {
@@ -3168,7 +3168,7 @@ private: // IResultCapture
 
 	virtual void sectionEndedEarly( SectionEndInfo const& endInfo )  override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
         if(_currentTestWillContinueLater)
         {
@@ -3211,19 +3211,19 @@ private: // IResultCapture
 
 	virtual void pushScopedMessage( MessageInfo const& message ) override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 		m_messages.push_back( message );
 	}
 
 	virtual void popScopedMessage( MessageInfo const& message ) override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 		m_messages.erase( std::remove( m_messages.begin(), m_messages.end(), message ), m_messages.end() );
 	}
 
 	virtual std::string getCurrentTestName() const override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
 		return m_activeTestCase
 			? m_activeTestCase->getTestCaseInfo().name
@@ -3232,7 +3232,7 @@ private: // IResultCapture
 
 	virtual bool isCurrentTestExpectedToFail() const override
 	{
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 		return !_currentTestIgnoreExpectedToFail && (m_activeTestCase ? m_activeTestCase->expectedToFail() : false);
 	}
 
@@ -3243,7 +3243,7 @@ private: // IResultCapture
 
 	virtual void handleFatalErrorCondition( std::string const& message ) override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 
 		ResultBuilder resultBuilder = makeUnexpectedResultBuilder();
 		resultBuilder.setResultType( ResultWas::FatalErrorCondition );
@@ -3279,7 +3279,7 @@ public:
 	// !TBD We need to do this another way!
 	bool aborting() const override
     {
-        MutexLock lock( _resultCaptureMutex );
+        Mutex::Lock lock( _resultCaptureMutex );
 		return m_totals.assertions.failed == static_cast<std::size_t>( m_config->abortAfter() );
 	}
 
@@ -3367,13 +3367,13 @@ public:
 
         bool wasContinuationDataReleased()
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             return _continuationDataReleased;
         }
 
         void notifyContinuationDataReleased()
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             _continuationDataReleased = true;
         }
 
@@ -3477,7 +3477,7 @@ public:
     {
         // lock the mutex to ensure that the code that scheduled the continuation
         // has exited.
-        MutexLock lock( _runTestMutex );
+        Mutex::Lock lock( _runTestMutex );
         
         bool testDone = continueCurrentTest(continuationFunc);
 
@@ -3552,7 +3552,7 @@ private:
         // functions from SECTION_CONTINUE_ASYNC and SECTION_CONTINUE_THREAD
         // cannot start before the previous test case code has exited.
 
-        MutexLock lock( _runTestMutex );
+        Mutex::Lock lock( _runTestMutex );
 
 		// we must allow the operating system to handle events from time to time.
 		// So we should not simply keep looping here until the test case is done.
@@ -3739,7 +3739,7 @@ private:
         CurrentTestResult actualCurrentResult = result;
 
         {
-			MutexLock lock(_currentTestResultMutex);
+			Mutex::Lock lock(_currentTestResultMutex);
 
 			if(_currentTestResult != CurrentTestResult::Unfinished)
 			{

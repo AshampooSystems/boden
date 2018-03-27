@@ -63,8 +63,10 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
 				
 				pTestData->callCount1++;
 			};
-        
+
         pNotifier->postNotification(args...);
+
+        REQUIRE(pTestData->callCount1==0);
 
         CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
         {
@@ -82,16 +84,15 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
 				pTestData->callCount1++;
 			};
 
-        pNotifier->postNotification(args...);
 
-        
+        pNotifier->postNotification(args...);
 
         CONTINUE_SECTION_WHEN_IDLE_WITH(
             std::bind(
                 [pNotifier, pTestData](ArgTypes... args)
                 {
                     REQUIRE(pTestData->callCount1==1);
-    
+
                     REQUIRE_THROWS_PROGRAMMING_ERROR( pNotifier->postNotification(args...) );
                 },
                 std::forward<ArgTypes>(args)... ) );
@@ -100,16 +101,16 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
     SECTION("late subscription")
     {
         pNotifier->postNotification(args...);
-        
-        *pNotifier += 
-			[pTestData, args...](ArgTypes... callArgs)
-			{
-				verifySame(callArgs..., args...);
-				
-				pTestData->callCount1++;
-			};
+    
+        *pNotifier +=
+            [pTestData, args...](ArgTypes... callArgs)
+            {
+                verifySame(callArgs..., args...);
+            
+                pTestData->callCount1++;
+            };
 
-        
+    
         // the subscription should not have been called immediately.
         REQUIRE(pTestData->callCount1==0);
 
@@ -120,7 +121,7 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
                 [pNotifier, pTestData](ArgTypes... args)
                 {
                     REQUIRE(pTestData->callCount1==1);
-            
+        
                     REQUIRE_THROWS_PROGRAMMING_ERROR( pNotifier->postNotification(args...) );
                 },
                 std::forward<ArgTypes>(args)... ) );
@@ -130,15 +131,18 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
     SECTION("subscriptions are released after notify")
     {
         P<Signal>                           pDestructedSignal = newObj<Signal>();
-        P<OneShotStateNotifierDestructTest> pDestructTest = newObj<OneShotStateNotifierDestructTest>(pDestructedSignal);
+        
+		{
+			P<OneShotStateNotifierDestructTest> pDestructTest = newObj<OneShotStateNotifierDestructTest>(pDestructedSignal);
 
-        *pNotifier += 
-			[pDestructTest, pTestData, args...](ArgTypes... callArgs)
-			{
-				verifySame(callArgs..., args...);
+			*pNotifier += 
+				[pDestructTest, pTestData, args...](ArgTypes... callArgs)
+				{
+					verifySame(callArgs..., args...);
 				
-				pTestData->callCount1++;
-			};
+					pTestData->callCount1++;
+				};
+		}
 
         REQUIRE( ! pDestructedSignal->isSet() );
 
@@ -150,7 +154,7 @@ void testOneShotStateNotifier(P<OneShotNotifierTestData> pTestData, ArgTypes... 
 
             // the reference held by the lambda function should have been released.
             REQUIRE(pDestructedSignal->isSet());
-        };        
+        };
     }
 }
 
@@ -190,7 +194,7 @@ TEST_CASE("OneShotStateNotifier")
 		    testOneShotStateNotifier<String&>(pTestData, pTestData->stringParam );
         }
 
-        SECTION("param changed between notify and late subscribe")
+        SECTION("param changed between postNotification and late subscribe")
         {
             P< OneShotStateNotifier<String&> > pNotifier = newObj< OneShotStateNotifier<String&> >();
 
@@ -229,7 +233,7 @@ TEST_CASE("OneShotStateNotifier")
 		    testOneShotStateNotifier<String*>(pTestData, &pTestData->stringParam );
         }
 
-        SECTION("param changed between notify and late subscribe")
+        SECTION("param changed between postNotification and late subscribe")
         {
             P< OneShotStateNotifier<String*> > pNotifier = newObj< OneShotStateNotifier<String*> >();
 

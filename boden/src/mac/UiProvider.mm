@@ -56,7 +56,7 @@ String UiProvider::getName() const
 P<ITextUi> UiProvider::getTextUi()
 {
     {
-        MutexLock lock( _textUiInitMutex );
+        Mutex::Lock lock( _textUiInitMutex );
         if(_pTextUi==nullptr)
             _pTextUi = newObj< ViewTextUi >();
     }

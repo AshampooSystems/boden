@@ -18,21 +18,21 @@ public:
 
 	void registerWindow(HWND hwnd, Win32Window* pWindow)
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		_windowMap[hwnd] = pWindow;
 	}
 
 	void unregisterWindow(HWND hwnd)
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		_windowMap.erase(hwnd);
 	}
 
 	Win32Window* getObjectFromHwnd(HWND hwnd)
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		auto it = _windowMap.find(hwnd);
 		if(it==_windowMap.end())

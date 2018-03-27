@@ -64,7 +64,7 @@ void Thread::run( P<ThreadData> pThreadData )
     }
 
     {
-        MutexLock lock(pThreadData->runnableMutex);
+        Mutex::Lock lock(pThreadData->runnableMutex);
 
         try
         {
@@ -126,7 +126,7 @@ void Thread::signalStop()
     {
         // lock a mutex here because the runnable object is automatically
         // released at the end of the thread.
-        MutexLock lock(_pThreadData->runnableMutex);
+        Mutex::Lock lock(_pThreadData->runnableMutex);
 
         if(_pThreadData->pRunnable!=nullptr)
             _pThreadData->pRunnable->signalStop();

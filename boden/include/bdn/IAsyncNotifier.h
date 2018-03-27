@@ -1,21 +1,25 @@
-#ifndef BDN_INotifier_H_
-#define BDN_INotifier_H_
+#ifndef BDN_IAsyncNotifier_H_
+#define BDN_IAsyncNotifier_H_
 
-#include <bdn/init.h>
-
-#include <bdn/INotifierSubControl.h>
-
-#include <functional>
+#include <bdn/INotifierBase.h>
 
 namespace bdn
 {
 
 
-/** Interface for objects that manages notifications for arbitrary "events".
+/** Base interface for objects that manages notifications for arbitrary "events".
 
-    You can subscribe functions and methods to the notifier. When the corresponding event
+	You can subscribe functions and methods to the notifier. When the corresponding event
 	happens (i.e. when someone calls the postNotification() method), then all subscribed functions
-	and methods are called.
+	and methods are called shortly afterwards.
+		
+	IAsyncNotifier implementations call the subscribed functions in an asynchronous way. I.e. the
+	calls are posted to the application's main even queue and are executed during normal
+	event processing from the main thread. This is especially useful for events that come from
+	background threads: with asynchronous execution the subscriber does not have to deal with multithreading and
+	knows that he is only called from the main thread.
+
+	See ISyncNotifier for an alternative that calls subscribed functions in an synchronous way (immediately).
 
 	It is possible to pass arguments to postNotification(), which it will in turn pass on to each of
 	the functions it calls. The number and types of these arguments are defined by the
@@ -25,7 +29,7 @@ namespace bdn
     associated object is deleted then this will be detected and the subscribtion will be removed
     the next time a notification happens.
 
-	All INotifier implementations must be thread safe. In particular, notifications can be triggered from any thread.
+	All IAsyncNotifier implementations must be thread safe. In particular, notifications can be triggered from any thread.
     However, the subscribed functions will ONLY be called from the main thread. So subscribers
     usually do not need to be concerned with threading issues.
     
@@ -42,7 +46,7 @@ namespace bdn
 		... handle notification
 	}
 
-	// The INotifier instance manages the notifications of certain events. These are usually
+	// The IAsyncNotifier instance manages the notifications of certain events. These are usually
     // returned by methods that are called onXYZ.
 
 	// Subscribe myFunc to the notifier returned by an imaginary function onSomeEvent().
@@ -127,57 +131,9 @@ namespace bdn
 
 */
 template<class... ArgTypes>
-class INotifier : BDN_IMPLEMENTS IBase
+class IAsyncNotifier : BDN_IMPLEMENTS INotifierBase<ArgTypes...>
 {
 public:
-
-    /** Subscribes a function to the notifier. While subscribed, the function will be called
-		whenever the notifier's postNotification() function is called.	
-
-		The parameter list of \c func must match the template parameters of the notifier object.
-		Note that for convenience there is also a variant called subscribeParamless() that subscribes a function
-		without parameters. You can use that if your notification function does not care about the
-		event parameters.
-
-        The returned INotifierSubControl object can optionally be used to remove the subscription later. However, in many
-        cases this is not necessary and the control object is not needed.
-
-        For example, you can subscribe a weak method (see weakMethod()). If the object that the method belongs to is deleted
-        then the subscription will automatically and silently be deleted the next time a notification happens.
-        This is a fully supported use case and completely safe.
-
-        If you subscribe a strong method (see strongMethod()) then the object that is associated with the method
-        is kept alive by the Notifier. So the method and its object will always be valid.
-
-        For other types of functions you might need to explicitly unsubscribe if the function is not needed anymore
-        or the resources it accesses become invalid.
-        
-        Instead of unsubscribing via the INotifierSubControl object you could also implement your callback function
-        in a way so that it throws a DanglingFunctionError exception if you want it to be unsubscribed.
-        In that case the subscription will be removed automatically by the notifier. This is actually the mechanism
-        that causes weak methods to be unsubscribed automatically after their object has been deleted.
-        
-        Note that it is perfectly save to use the returned INotifierSubControl object even after the Notifier object that returned it
-        has already been deleted. In that case calling INotifierSubControl::unsubscribe() will have
-        no effect, since the subscription does not exist anymore. This safety feature allows
-        one to subscribe to a notifier and call INotifierSubControl::unsubscrbe at some arbitrary point in time later, without having to keep a
-        pointer to the Notifier object or ensuring that the Notifier even still exists.                
-		*/
-    virtual P<INotifierSubControl> subscribe(const std::function<void(ArgTypes...)>& func)=0;    
-   
-
-    /** Same as subscribe(). Returns a reference to the notifier object.*/
-    virtual INotifier& operator+=(const std::function<void(ArgTypes...)>& func)=0;
-
-
-	/** Convenience function. Similar to subscribe(), except that this
-		version takes a function without parameters and subscribes it to the event. You can use this
-		if your callback function is not interested in the event parameters and only cares about when the event
-		itself happens.
-		*/
-    virtual P<INotifierSubControl> subscribeParamless(const std::function<void()>& func)=0;
-    
-    
 
     /** Schedules a call to all subscribed functions with the specified arguments.
         The call does not happen immediately. It is posted to the main thread and happens asynchronously.
@@ -196,17 +152,6 @@ public:
     */
     virtual void postNotification(ArgTypes... args)=0;
 
-
-    /** Unsubscribes all currently subscribed functions.
-
-        If this is called from the main thread then none of the unsubscribed functions
-        will be called after unsubscribeAll returns.
-
-        If this is called from some other thread and a notification is already in
-        progress then it can happen that one of the unsubscribed functions is called
-        even after unsubscribeAll has returned.
-    */
-    virtual void unsubscribeAll()=0;
 };
     
 }

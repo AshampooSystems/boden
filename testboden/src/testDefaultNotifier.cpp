@@ -1,7 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/DefaultNotifier.h>
+#include <bdn/ThreadSafeNotifier.h>
 #include <bdn/DanglingFunctionError.h>
 
 using namespace bdn;
@@ -41,31 +41,11 @@ static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 }
 
 template<class... ArgTypes>
-void testNotifier(ArgTypes... args)
+void testNotifierAfterSubscribe(
+	P< ThreadSafeNotifier<ArgTypes...> >   pNotifier,
+	P< DefaultNotifierTestData >        pTestData,
+	ArgTypes... args)
 {
-	P< DefaultNotifier<ArgTypes...> >   pNotifier = newObj<DefaultNotifier<ArgTypes...>>();
-    P< DefaultNotifierTestData >        pTestData = newObj<DefaultNotifierTestData>();
-
-
-	SECTION("subscribe")
-		pTestData->pSub1 = pNotifier->subscribe(
-			[pTestData, args...](ArgTypes... callArgs)
-			{
-				verifySame(callArgs..., args...);
-				
-				pTestData->called1 = true;
-			} );
-
-	SECTION("subscribeParamless")
-		pTestData->pSub1 = pNotifier->subscribeParamless(
-            [pTestData]()
-            {
-                pTestData->called1 = true;
-            } );
-
-
-
-
 	class Listener : public Base
 	{
 	public:
@@ -98,36 +78,135 @@ void testNotifier(ArgTypes... args)
 			verifySame(callArgs..., args...);		
 		});
 
-	pNotifier->postNotification(std::forward<ArgTypes>(args)...);
+	SECTION("notify")
+	{
+		pNotifier->notify(std::forward<ArgTypes>(args)...);
 
-    CONTINUE_SECTION_WHEN_IDLE_WITH(
-        std::bind(
-            [pNotifier, pTestData](ArgTypes... args)
-            {
-	            REQUIRE(pTestData->called1);
+		// should have been called immediately
+		REQUIRE( pTestData->called1 );
 
-	            pTestData->pSub1->unsubscribe();
-	            pTestData->called1 = false;
+		// unsubscribe and try again
+		pTestData->pSub1->unsubscribe();
+		pTestData->called1 = false;
 
-	            pNotifier->postNotification(std::forward<ArgTypes>(args)...);
+		pNotifier->notify(std::forward<ArgTypes>(args)...);
+		
+		// the subscription should have been deleted and no call should have been made
+		REQUIRE( !pTestData->called1 );
+	}
 
-                CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-                {
-	                // the subscription should have been deleted again
-	                REQUIRE( !pTestData->called1 );
-                };
-            },
-            std::forward<ArgTypes>(args)... ) );
+	SECTION("postNotification")
+	{
+		pNotifier->postNotification(std::forward<ArgTypes>(args)...);
+
+		// nothing should have been called yet
+		REQUIRE( !pTestData->called1 );
+
+		CONTINUE_SECTION_WHEN_IDLE_WITH(
+			std::bind(
+				[pNotifier, pTestData](ArgTypes... args)
+				{
+					REQUIRE(pTestData->called1);
+
+					// unsubscribe and try again
+
+					pTestData->pSub1->unsubscribe();
+					pTestData->called1 = false;
+
+					pNotifier->postNotification(std::forward<ArgTypes>(args)...);
+
+					CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+					{
+						// the subscription should have been deleted and no call should have been made
+						REQUIRE( !pTestData->called1 );
+					};
+				},
+				std::forward<ArgTypes>(args)... ) );
+	}
+	
 }
 
 
-TEST_CASE("DefaultNotifier")
+template<class... ArgTypes>
+void testNotifier(ArgTypes... args)
+{
+	P< ThreadSafeNotifier<ArgTypes...> >   pNotifier = newObj<ThreadSafeNotifier<ArgTypes...>>();
+    P< DefaultNotifierTestData >        pTestData = newObj<DefaultNotifierTestData>();
+	
+	SECTION("subscribe")
+	{
+		pTestData->pSub1 = pNotifier->subscribe(
+			[pTestData, args...](ArgTypes... callArgs)
+			{
+				verifySame(callArgs..., args...);
+				
+				pTestData->called1 = true;
+			} );
+
+		testNotifierAfterSubscribe(pNotifier, pTestData, std::forward<ArgTypes>(args)...);
+	}
+
+	SECTION("subscribeParamless")
+	{
+		pTestData->pSub1 = pNotifier->subscribeParamless(
+            [pTestData]()
+            {
+                pTestData->called1 = true;
+            } );
+
+		testNotifierAfterSubscribe(pNotifier, pTestData, std::forward<ArgTypes>(args)...);
+	}
+
+}
+
+
+static void testDefaultNotifierDanglingFunctionError(
+	P<DefaultNotifierTestData>  pTestData,
+	P< ThreadSafeNotifier<> >		pNotifier,
+	P<INotifierSubControl>		pSub )
+{
+	SECTION("notify")
+	{	
+        // this should NOT cause an exception
+        pNotifier->notify();
+
+        REQUIRE( pTestData->callCount1==1 );
+
+        // the function should have been removed and should not be called again
+        pNotifier->notify();
+
+		// so callCount1 should still be 1
+        REQUIRE( pTestData->callCount1==1 );
+	}
+
+	SECTION("postNotification")
+	{	
+        // this should NOT cause an exception
+        pNotifier->postNotification();
+
+        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pSub, pTestData)
+        {
+            REQUIRE( pTestData->callCount1==1 );
+
+            // the function should have been removed and should not be called again
+            pNotifier->postNotification();
+
+            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pSub, pTestData)
+            {
+                // so callCount1 should still be 1
+                REQUIRE( pTestData->callCount1==1 );
+            };
+        };
+	}
+}
+
+TEST_CASE("ThreadSafeNotifier")
 {
     P<DefaultNotifierTestData>  pTestData = newObj<DefaultNotifierTestData>();
 
     SECTION("require new alloc")
     {
-        REQUIRE_THROWS_PROGRAMMING_ERROR( {DefaultNotifier<> testNotifier;} );
+        REQUIRE_THROWS_PROGRAMMING_ERROR( {ThreadSafeNotifier<> testNotifier;} );
     }
 
 	SECTION("noArgs")
@@ -147,7 +226,7 @@ TEST_CASE("DefaultNotifier")
 
 	SECTION("multipleSubscriptions")
 	{
-		P<DefaultNotifier<int> >    pNotifier = newObj<DefaultNotifier<int>>();
+		P<ThreadSafeNotifier<int> >    pNotifier = newObj<ThreadSafeNotifier<int>>();
         	
 
 		pTestData->pSub1 = pNotifier->subscribe([pTestData](int){pTestData->called1 = true;} );
@@ -258,7 +337,7 @@ TEST_CASE("DefaultNotifier")
 		P<INotifierSubControl> pSub;
 
 		{
-			P< DefaultNotifier<> > pNotifier = newObj< DefaultNotifier<> >();
+			P< ThreadSafeNotifier<> > pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 			pSub = pNotifier->subscribe( [](){} );
 		}
@@ -277,13 +356,13 @@ TEST_CASE("DefaultNotifier")
 	}
 
     
-    SECTION("Notifier deleted before notification func call")
+    SECTION("Notifier deleted before posted notification func call")
     {
-        P< DefaultNotifier<> > pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> > pNotifier = newObj< ThreadSafeNotifier<> >();
 			
         *pNotifier += [pTestData](){ pTestData->callCount1++; };
 
-        pNotifier->postNotification();
+		pNotifier->postNotification();
 
         pNotifier = nullptr;
 
@@ -297,7 +376,7 @@ TEST_CASE("DefaultNotifier")
 
     SECTION("DanglingFunctionError")
     {
-        P< DefaultNotifier<> > pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> > pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		P<INotifierSubControl> pSub = pNotifier->subscribe(
             [pTestData]()
@@ -309,34 +388,21 @@ TEST_CASE("DefaultNotifier")
         SECTION("subcontrol deleted before notify")
         {
             pSub = nullptr;
+
+			testDefaultNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
 
         SECTION("subcontrol still exists")
         {
             // do nothing
+			testDefaultNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
-
-        // this should NOT cause an exception
-        pNotifier->postNotification();
-
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pSub, pTestData)
-        {
-            REQUIRE( pTestData->callCount1==1 );
-
-            // the function should have been removed and should not be called again
-            pNotifier->postNotification();
-
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pSub, pTestData)
-            {
-                // so callCount1 should still be 1
-                REQUIRE( pTestData->callCount1==1 );
-            };
-        };
+		
     }
 
     SECTION("unsubscribe during callback")
     {
-        P< DefaultNotifier<> >  pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
             [pTestData]()
@@ -345,28 +411,45 @@ TEST_CASE("DefaultNotifier")
                 pTestData->pSub1->unsubscribe();
             } );
 
-        // should not crash or cause an exception
-        pNotifier->postNotification();
+		SECTION("notify")
+		{
+			pNotifier->notify();
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // sanity check
-            REQUIRE( pTestData->callCount1==1 );
+			// sanity check
+			REQUIRE( pTestData->callCount1==1 );
 
-            // should not be called again
-            pNotifier->postNotification();
+			// should not be called again
+			pNotifier->notify();
+							
+			// so callCount1 should still be 1
+			REQUIRE( pTestData->callCount1==1 );
+		}
 
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-            {
-                // so callCount1 should still be 1
-                REQUIRE( pTestData->callCount1==1 );
-            };
-        };
+		SECTION("postNotification")
+		{
+			// should not crash or cause an exception
+			pNotifier->postNotification();
+
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// sanity check
+				REQUIRE( pTestData->callCount1==1 );
+
+				// should not be called again
+				pNotifier->postNotification();
+
+				CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+				{
+					// so callCount1 should still be 1
+					REQUIRE( pTestData->callCount1==1 );
+				};
+			};
+		}
     }
 
     SECTION("unsubscribe during callback then DanglingException")
     {
-        P< DefaultNotifier<> >  pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
             [pTestData]()
@@ -375,30 +458,48 @@ TEST_CASE("DefaultNotifier")
                 pTestData->pSub1->unsubscribe();
                 throw DanglingFunctionError();
             } );
+		
+		SECTION("notify")
+		{
+			// should not crash or cause an exception
+			pNotifier->notify();
 
-        // should not crash or cause an exception
-        pNotifier->postNotification();
-
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // sanity check
-            REQUIRE( pTestData->callCount1==1 );
+			// sanity check
+			REQUIRE( pTestData->callCount1==1 );
             
-            // should not be called again
-            pNotifier->postNotification();
+			// should not be called again
+			pNotifier->notify();
 
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-            {
-                // so callCount1 should still be 1
-                REQUIRE( pTestData->callCount1==1 );
-            };
-        };
+			// so callCount1 should still be 1
+			REQUIRE( pTestData->callCount1==1 );
+		}
+
+		SECTION("postNotification")
+		{
+			// should not crash or cause an exception
+			pNotifier->postNotification();
+
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// sanity check
+				REQUIRE( pTestData->callCount1==1 );
+            
+				// should not be called again
+				pNotifier->postNotification();
+
+				CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+				{
+					// so callCount1 should still be 1
+					REQUIRE( pTestData->callCount1==1 );
+				};
+			};
+		}
     }
 
 
     SECTION("unsubscribe next func during callback")
     {
-        P< DefaultNotifier<> >  pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
             [pTestData]()
@@ -415,33 +516,54 @@ TEST_CASE("DefaultNotifier")
                 pTestData->callCount2++;
             } );
 
+		SECTION("notify")
+		{
+			// should not crash or cause an exception
+			pNotifier->notify();
 
-        // should not crash or cause an exception
-        pNotifier->postNotification();
+			// the first function should have been called
+			REQUIRE( pTestData->callCount1==1 );
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // the first function should have been called
-            REQUIRE( pTestData->callCount1==1 );
+			// the second function should NOT have been called
+			REQUIRE( pTestData->callCount2==0 );               
 
-            // the second function should NOT have been called
-            REQUIRE( pTestData->callCount2==0 );               
+			// notify again
+			pNotifier->notify();
 
-            // notify again
-            pNotifier->postNotification();
+			// again, first one should have been called, second not
+			REQUIRE( pTestData->callCount1==2 );
+			REQUIRE( pTestData->callCount2==0 );        
+		}
 
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-            {
-                // again, first one should have been called, second not
-                REQUIRE( pTestData->callCount1==2 );
-                REQUIRE( pTestData->callCount2==0 );        
-            };
-        };
+		SECTION("postNotification")
+		{
+			// should not crash or cause an exception
+			pNotifier->postNotification();
+
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// the first function should have been called
+				REQUIRE( pTestData->callCount1==1 );
+
+				// the second function should NOT have been called
+				REQUIRE( pTestData->callCount2==0 );               
+
+				// notify again
+				pNotifier->postNotification();
+
+				CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+				{
+					// again, first one should have been called, second not
+					REQUIRE( pTestData->callCount1==2 );
+					REQUIRE( pTestData->callCount2==0 );        
+				};
+			};
+		}
     }
 
     SECTION("unsubscribe func following next during callback")
     {
-        P< DefaultNotifier<> >  pNotifier = newObj< DefaultNotifier<> >();
+        P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
             [pTestData]()
@@ -465,35 +587,58 @@ TEST_CASE("DefaultNotifier")
                 pTestData->callCount3++;
             } );
 
+		SECTION("notify")
+		{
+			// should not crash or cause an exception
+			pNotifier->notify();
+				
+			// the first and second functions should have been called
+			REQUIRE( pTestData->callCount1==1 );
+			REQUIRE( pTestData->callCount2==1 );
 
-        // should not crash or cause an exception
-        pNotifier->postNotification();
+			// the third function should NOT have been called
+			REQUIRE( pTestData->callCount3==0 );               
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // the first and second functions should have been called
-            REQUIRE( pTestData->callCount1==1 );
-            REQUIRE( pTestData->callCount2==1 );
+			// notify again
+			pNotifier->notify();
 
-            // the third function should NOT have been called
-            REQUIRE( pTestData->callCount3==0 );               
+			// again, first and second should have been called, third not
+			REQUIRE( pTestData->callCount1==2 );
+			REQUIRE( pTestData->callCount2==2 );   
+			REQUIRE( pTestData->callCount3==0 );          
+		}
 
-            // notify again
-            pNotifier->postNotification();
+		SECTION("postNotification")
+		{
+			// should not crash or cause an exception
+			pNotifier->postNotification();
 
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-            {
-                // again, first and second should have been called, third not
-                REQUIRE( pTestData->callCount1==2 );
-                REQUIRE( pTestData->callCount2==2 );   
-                REQUIRE( pTestData->callCount3==0 );          
-            };
-        };
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// the first and second functions should have been called
+				REQUIRE( pTestData->callCount1==1 );
+				REQUIRE( pTestData->callCount2==1 );
+
+				// the third function should NOT have been called
+				REQUIRE( pTestData->callCount3==0 );               
+
+				// notify again
+				pNotifier->postNotification();
+
+				CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+				{
+					// again, first and second should have been called, third not
+					REQUIRE( pTestData->callCount1==2 );
+					REQUIRE( pTestData->callCount2==2 );   
+					REQUIRE( pTestData->callCount3==0 );          
+				};
+			};
+		}
     }
 
     SECTION("unsubscribeAll")
     {
-        P< DefaultNotifier<> > pNotifier = newObj<DefaultNotifier<>>();
+        P< ThreadSafeNotifier<> > pNotifier = newObj<ThreadSafeNotifier<>>();
 
         pNotifier->subscribe(
             [pTestData]()
@@ -510,33 +655,55 @@ TEST_CASE("DefaultNotifier")
 
         pNotifier->unsubscribeAll();
 
-        pNotifier->postNotification();
+		SECTION("notify")
+		{
+			pNotifier->notify();
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // none of the functions should have been called
-            REQUIRE( pTestData->callCount1==0 );
+			// none of the functions should have been called
+			REQUIRE( pTestData->callCount1==0 );
 
-            // subscribe another one and notify again. Then it should be called.
-            pNotifier->subscribe(
-                [pTestData]()
-                {
-                    pTestData->callCount1++;
-                } );
+			// subscribe another one and notify again. Then it should be called.
+			pNotifier->subscribe(
+				[pTestData]()
+				{
+					pTestData->callCount1++;
+				} );
 
-            pNotifier->postNotification();
+			pNotifier->notify();
 
-            CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-            {
-                REQUIRE( pTestData->callCount1==1 );        
-            };
-        };
+			REQUIRE( pTestData->callCount1==1 );        
+		}
+
+		SECTION("postNotification")
+		{
+			pNotifier->postNotification();
+
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// none of the functions should have been called
+				REQUIRE( pTestData->callCount1==0 );
+
+				// subscribe another one and notify again. Then it should be called.
+				pNotifier->subscribe(
+					[pTestData]()
+					{
+						pTestData->callCount1++;
+					} );
+
+				pNotifier->postNotification();
+
+				CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+				{
+					REQUIRE( pTestData->callCount1==1 );        
+				};
+			};
+		}
     }
 
 
     SECTION("use control after unsubscribeAll")
     {
-        P< DefaultNotifier<> > pNotifier = newObj<DefaultNotifier<>>();
+        P< ThreadSafeNotifier<> > pNotifier = newObj<ThreadSafeNotifier<>>();
 
         pTestData->pSub1 = pNotifier->subscribe(
             [pTestData]()
@@ -546,20 +713,38 @@ TEST_CASE("DefaultNotifier")
 
         pNotifier->unsubscribeAll();
 
-        pNotifier->postNotification();
+		SECTION("notify")
+		{
+			pNotifier->notify();
 
-        CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
-        {
-            // none of the functions should have been called
-            REQUIRE( pTestData->callCount1==0 );
+			// none of the functions should have been called
+			REQUIRE( pTestData->callCount1==0 );
 
-            // using the control object should not have any effect
-            pTestData->pSub1->unsubscribe();    
+			// using the control object should not have any effect
+			pTestData->pSub1->unsubscribe();    
 
-            REQUIRE( pTestData->callCount1==0 );
+			REQUIRE( pTestData->callCount1==0 );
 
-            pTestData->pSub1 = nullptr;
-        };
+			pTestData->pSub1 = nullptr;
+		}
+
+		SECTION("postNotification")
+		{
+			pNotifier->postNotification();
+
+			CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
+			{
+				// none of the functions should have been called
+				REQUIRE( pTestData->callCount1==0 );
+
+				// using the control object should not have any effect
+				pTestData->pSub1->unsubscribe();    
+
+				REQUIRE( pTestData->callCount1==0 );
+
+				pTestData->pSub1 = nullptr;
+			};
+		}
     }
 
 }

@@ -148,7 +148,7 @@ public:
 		// This mutex is shared by all SafeGlobal instances.
 		// However, since it is only locked during construction (i.e. on first use), the performance
 		// penalty is negligible.
-		MutexLock lock( getGlobalMutex() );		
+		Mutex::Lock lock( getGlobalMutex() );		
 #endif
 
 		// note that this part CAN actually be executed multiple times for the same object,

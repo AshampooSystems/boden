@@ -42,8 +42,6 @@ namespace bdn
 #include <bdn/newObj.h>
 
 #include <bdn/Mutex.h>
-#include <bdn/MutexLock.h>
-#include <bdn/MutexUnlock.h>
 
 #include <bdn/SafeInit.h>
 

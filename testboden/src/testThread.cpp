@@ -561,7 +561,7 @@ TEST_CASE("Thread")
     REQUIRE( Thread::getCurrentId()==0 );
     REQUIRE( Thread::getMainId()==0 );
     REQUIRE( Thread::isCurrentMain() );
-	REQUIRE( Thread::assertInMainThread() );
+	Thread::assertInMainThread();
 }
 
 #endif

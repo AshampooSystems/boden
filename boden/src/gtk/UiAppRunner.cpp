@@ -46,7 +46,7 @@ int UiAppRunner::entry()
     terminating();
 
     {
-        MutexLock lock(_exitMutex);
+        Mutex::Lock lock(_exitMutex);
 
         return _exitCode;
     }
@@ -60,7 +60,7 @@ void UiAppRunner::initiateExitIfPossible(int exitCode)
 		[pThis, exitCode]()
 		{
             {
-                MutexLock lock(pThis->_exitMutex);
+                Mutex::Lock lock(pThis->_exitMutex);
                 pThis->_exitCode = exitCode;
             }
             

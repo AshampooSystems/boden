@@ -3,6 +3,7 @@
 
 #include <bdn/Thread.h>
 #include <bdn/Array.h>
+#include <bdn/SimpleNotifier.h>
 
 #include <random>
 
@@ -18,7 +19,7 @@ class TestProperty_ : public RequireNewAlloc< Property<ValType>, TestProperty_<V
 public:	
 	TestProperty_()
 	{
-        _pOnChange = newObj<DefaultNotifier< P<const IValueAccessor<ValType> > > >();
+        _pOnChange = newObj<SimpleNotifier< P<const IValueAccessor<ValType> > > >();
 	}
 
 	~TestProperty_()
@@ -35,7 +36,7 @@ public:
 		if(_value!=val)
 		{
 			_value = val;
-			_pOnChange->postNotification(this);
+			_pOnChange->notify(this);
 		}
 	}
 
@@ -53,7 +54,7 @@ public:
         return *this;
     }
 	
-	INotifier< P<const IValueAccessor<ValType>> > & onChange() const override
+	ISyncNotifier< P<const IValueAccessor<ValType>> > & onChange() const override
 	{
 		return *_pOnChange;
 	}
@@ -75,7 +76,7 @@ protected:
 
 	ValType									_value;
     
-	mutable P< DefaultNotifier< P<const IValueAccessor<ValType> > > >	_pOnChange;
+	mutable P< SimpleNotifier< P<const IValueAccessor<ValType> > > >	_pOnChange;
 };
 
 
@@ -337,6 +338,9 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 		}
 	}	
 
+    /* Note that properties are not required to be thread safe anymore.
+       So this test is disabled. But we leave this code block in here because
+       we do want to provide thread safety as an option in the future.
 #if BDN_HAVE_THREADS
 	
 	SECTION("threadSafety")
@@ -381,7 +385,7 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 					prop = writeVal;
 					
 					{
-						MutexLock lock(readValueListMutex);
+						Mutex::Lock lock(readValueListMutex);
 						readValueList.push_back(readVal);
 					}
 
@@ -410,6 +414,7 @@ void _testPropertyBase(std::function< P<PropertyType>() > propertyCreatorFunc, s
 	}
     
 #endif
+     */
 
 	SECTION("toString")
 	{

@@ -18,7 +18,7 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 
     if(Thread::isCurrentMain())
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _ensureInitializedWhileMutexLocked();
     }
@@ -29,7 +29,7 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
         asyncCallFromMainThread(
             [this, pThis]()
             {
-                MutexLock lock(_mutex);
+                Mutex::Lock lock(_mutex);
 
                 _ensureInitializedWhileMutexLocked();
             } );
@@ -73,7 +73,7 @@ P< IAsyncOp<String> > ViewTextUi::readLine()
     
 void ViewTextUi::write(const String& s)
 {
-    MutexLock lock(_mutex);
+    Mutex::Lock lock(_mutex);
 
     if(Thread::isCurrentMain())
     {
@@ -97,7 +97,7 @@ void ViewTextUi::write(const String& s)
             asyncCallFromMainThread(
                 [this, pThis]()
                 {                    
-                    MutexLock lock( _mutex );
+                    Mutex::Lock lock( _mutex );
                     _flushPendingWhileMutexLocked();
                 } );            
         }

@@ -5,7 +5,7 @@
 namespace bdn
 {
 
-/** Can be used to control a notification subscription (see INotifier::subscribe()).*/
+/** Can be used to control a notification subscription (see INotifierBase::subscribe()).*/
 class INotifierSubControl : BDN_IMPLEMENTS IBase
 {
 public:

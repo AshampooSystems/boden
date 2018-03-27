@@ -18,7 +18,7 @@ MainDispatcher::MainDispatcher()
 
 void MainDispatcher::dispose()
 {
-    MutexLock lock(_queueMutex);
+    Mutex::Lock lock(_queueMutex);
     
     while(!_normalQueue.empty())
     {
@@ -106,7 +106,7 @@ void MainDispatcher::processItem(std::list< std::function<void()> >& queue)
         std::function<void()> func;
         
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             
             if(queue.empty())
                 return;
@@ -136,7 +136,7 @@ void MainDispatcher::enqueue( std::function<void()> func, Priority priority)
     if(priority==Priority::normal)
     {
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             _normalQueue.push_back( func );
         }
         
@@ -153,7 +153,7 @@ void MainDispatcher::enqueue( std::function<void()> func, Priority priority)
     else if(priority==Priority::idle)
     {
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             _idleQueue.push_back( func );
         }
         
@@ -188,7 +188,7 @@ void MainDispatcher::processTimedItem(TimedItem* pItem)
         std::function<void()> func;
         
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             
             func = pItem->func;
             
@@ -226,7 +226,7 @@ void MainDispatcher::enqueueInSeconds(double seconds, std::function<void()> func
         TimedItem* pItem;
         
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             _timedItemList.push_back( TimedItem(func, this) );
             std::list<TimedItem>::iterator it = _timedItemList.end();
             --it;
@@ -269,7 +269,7 @@ bool MainDispatcher::processTimer(Timer* pTimer)
 
         bool disposed = false;
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             
             func = pTimer->func;
             disposed = pTimer->disposed;
@@ -278,7 +278,7 @@ bool MainDispatcher::processTimer(Timer* pTimer)
         if( disposed || !func() )
         {
             // timer ended
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             
             // note that after erase this MainDispatcher object
             // might be deleted (if the timer held the last reference to it)
@@ -319,7 +319,7 @@ void MainDispatcher::createTimer(
         // So we will be kept alive as long as the timer runs.
         
         {
-            MutexLock lock(_queueMutex);
+            Mutex::Lock lock(_queueMutex);
             _timerList.push_back( Timer(func, this) );
             std::list<Timer>::iterator it = _timerList.end();
             --it;

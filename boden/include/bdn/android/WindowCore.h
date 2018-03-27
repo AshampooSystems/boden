@@ -263,7 +263,7 @@ protected:
         // this may be called by the garbage collector, so it might be in
         // an arbitrary thread
 
-        MutexLock lock(_rootViewMutex);
+        Mutex::Lock lock(_rootViewMutex);
 
         _weakRootViewRef = bdn::java::WeakReference();
     }
@@ -377,7 +377,7 @@ private:
         bdn::java::Reference accessibleRef;
 
         {
-            MutexLock lock(_rootViewMutex);
+            Mutex::Lock lock(_rootViewMutex);
 
             accessibleRef = _weakRootViewRef.toStrong();
 

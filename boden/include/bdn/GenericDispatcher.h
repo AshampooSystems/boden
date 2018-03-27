@@ -32,7 +32,7 @@ public:
     {
         // disposes the dispatcher and clears any pending items from the queue (without
         // executing them).
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
         
         for(int priorityQueueIndex=0; priorityQueueIndex<priorityCount; priorityQueueIndex++)
         {
@@ -66,7 +66,7 @@ public:
 
 	void enqueue( std::function<void()> func, Priority priority = Priority::normal ) override
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		getQueue(priority).push_back(func);
 
@@ -231,7 +231,7 @@ private:
 		std::function< void() > func,
 		Priority priority )
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		// we enqueue all timed items in a map, so that the set of scheduled items
 		// remains sorted automatically and we can easily find the next one.

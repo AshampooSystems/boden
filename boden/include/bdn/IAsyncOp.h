@@ -4,6 +4,7 @@
 #include <bdn/UnfinishedError.h>
 #include <bdn/AbortedError.h>
 #include <bdn/OneShotStateNotifier.h>
+#include <bdn/IAsyncNotifier.h>
 
 namespace bdn
 {
@@ -51,7 +52,7 @@ public:
         call is scheduled immediately.
         
         */
-    virtual INotifier< P<IAsyncOp> >& onDone() const=0;
+    virtual IAsyncNotifier< P<IAsyncOp> >& onDone() const=0;
 
 
 };

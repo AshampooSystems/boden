@@ -112,7 +112,7 @@ public:
         bool actuallyAborted = false;
 
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
 
             _stopSignalled = true;
 
@@ -135,7 +135,7 @@ public:
 
     bool isDone() const override
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         return _done;
     }
@@ -148,7 +148,7 @@ public:
     void run() override
     {
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             if(_abortedBeforeStart)
             {
                 // aborted before we were started => do nothing
@@ -172,7 +172,7 @@ public:
     }
 
 
-    INotifier< P<IAsyncOp<ResultType>> >& onDone() const override
+    IAsyncNotifier< P<IAsyncOp<ResultType>> >& onDone() const override
     {
         return *_pDoneNotifier;
     }
@@ -190,7 +190,7 @@ protected:
         That would allow the operation to be aborted while it is in progress.*/
     bool isStopSignalled()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
         return _stopSignalled;
     }
 
@@ -200,7 +200,7 @@ private:
     void setDone()
     {
         {
-            MutexLock lock(_mutex);
+            Mutex::Lock lock(_mutex);
             _done = true;
         }        
 

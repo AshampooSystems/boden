@@ -41,7 +41,7 @@ public:
     
     void writeDone(IAsyncOp<void>* pOp)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         // check for errors
         pOp->getResult();
@@ -51,7 +51,7 @@ public:
 
     void continueTest()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_nextStep==3)
         {
@@ -124,14 +124,14 @@ public:
     
     void writeDone(IAsyncOp<void>* pOp)
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         _doneCount++;
     }
 
     void continueTest()
     {
-        MutexLock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
         if(_doneCount>=100)
         {
