@@ -8209,9 +8209,9 @@ public:
                 argPtrs.push_back("");
 
 			// XXX
-            argPtrs.push_back( "--print-level" );
-            argPtrs.push_back( "8" );
-            argPtrs.push_back( "localeUtil" );
+            // argPtrs.push_back( "--print-level" );
+            // argPtrs.push_back( "8" );
+            // argPtrs.push_back( "winuwp.ScrollViewCore" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );

@@ -430,40 +430,35 @@ private:
             Size resultSize;
             if(pView!=nullptr)
             {
-                // we cannot use the scrollview layouthelper here because we need to calculate the
-                // desired size of the content wrapper, not the entire scrollview.
+                // the layout of the inner content view is done in our own layout() method.
+                // We cannot do the same here dynamically because availableSpace does not reflect the
+                // size of the parent view - instead it is always infinity. So we cannot make a 
+                // proper sizing decision for the content view here - not without some ugly hacks
+                // (like using the parent's actual size).
+
+                // So, instead of actually measuring the content view here, we simply assume that OUR
+                // the content View object already has the correct size that we want and we simply report that
+                // size as our desired size.
 
                 P<View> pContentView = pView->getContentView();
                 if(pContentView!=nullptr)
                 {
+                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
+                    
                     Margin padding;                    
                     Nullable<UiMargin> pad = pView->padding();
                     if(!pad.isNull())
                         padding = pView->uiMarginToDipMargin(pad);            
-
-                    Margin contentMargin = pContentView->uiMarginToDipMargin( pContentView->margin() );
-
-                    Size availableContentSpace = availableSpace;
-
-                    if(pView->horizontalScrollingEnabled() )
-                        availableContentSpace.width = Size::componentNone();
-
-                    if(pView->verticalScrollingEnabled() )
-                        availableContentSpace.height = Size::componentNone();
-
-                    if(std::isfinite( availableContentSpace.width ) )
-                        availableContentSpace.width -= padding.left + padding.right + contentMargin.left + contentMargin.right;
-
-                    if(std::isfinite( availableContentSpace.height ) )
-                        availableContentSpace.height -= padding.top + padding.bottom + contentMargin.top + contentMargin.bottom;
-
-                    resultSize = pContentView->calcPreferredSize( availableContentSpace );
                     
-                    resultSize += contentMargin + padding;
+                    Point pos = pContentView->position();
+                    resultSize = pContentView->size();
+
+                    resultSize.width += pos.x + padding.right + contentMargin.right;
+                    resultSize.height += pos.y + padding.bottom + contentMargin.bottom;
                 }
             }
 
-            // OutputDebugString( String( "/ContentWrapperLayoutDelegate.measureOverride\n" ).asWidePtr() );
+            // OutputDebugString( String( "ContentWrapperLayoutDelegate.measureOverride result: "+std::to_string(resultSize.width)+", "+std::to_string(resultSize.height)+"\n" ).asWidePtr() );
             
             return resultSize;
         }
@@ -487,6 +482,9 @@ private:
             // OutputDebugString( String( "ContentWrapperLayoutDelegate.arrangeOverride("+std::to_string(finalSize.width)+", "+std::to_string(finalSize.height)+"\n" ).asWidePtr() );
 
             P<ScrollView> pView = _viewWeak.toStrong();
+
+            // the content bounds we want have already been set in the corresponding View object.
+            // So all we need to do here is update the UWP control accordingly.
 
             if(pView!=nullptr)
             {
