@@ -116,18 +116,19 @@ public:
         _pWindow = newObj<Window>();
 		_pWindow->title() = "hello";
         
+       
 		P<ColumnView> pColumnView = newObj<ColumnView>();
 
 		_pHelloMessageButton = newObj<Button>();
         _pHelloMessageButton->label().bind( _pViewModel->helloMessage() );
-		_pHelloMessageButton->margin() = UiMargin( UiLength::sem(2) );
+		_pHelloMessageButton->margin() = UiMargin( 10, 10, 10, 10);
 		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
 		pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 
         _pMorphingTextView = newObj<TextView>();
         _pMorphingTextView->text().bind( _pViewModel->morphingText() );
-        _pMorphingTextView->margin() = UiMargin(UiLength::sem(0), UiLength::sem(2), UiLength::sem(2), UiLength::sem(2) );
+        _pMorphingTextView->margin() = UiMargin( 10, 10, 10, 10);
         pColumnView->addChildView( _pMorphingTextView );
 
         _pScrollView = newObj<ScrollView>();
@@ -138,7 +139,8 @@ public:
         _pScrollView->preferredSizeMaximum() = Size( 0, 100);
         _pScrollView->horizontalAlignment() = View::HorizontalAlignment::expand;
         
-        _pScrollView->padding() = UiMargin( 5,5,5,5 );
+        _pScrollView->padding() = UiMargin( 5, 5, 5, 5 );
+        _pScrollView->margin() = UiMargin( 10, 10, 10, 10);
         
         _pScrolledTextView = newObj<TextView>();        
 
