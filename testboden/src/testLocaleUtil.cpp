@@ -209,8 +209,14 @@ TEST_CASE("localeUtil")
 	{
         SECTION("classic")
         {
-            // the classic "C" locale always uses ascii encoding
+            // the classic "C" locale should always use ascii encoding.
+            // BUT on some platforms it actually uses UTF-8. So we need to make exceptions for this test.
+            // Since the function isUtf8Locale is the same on all platforms, it is not a big problem
+            // if we skip the test on the UTF-8 platforms. The main thing is that it does run
+            // on some platforms so that we can verify the functionality.
+#if !BDN_PLATFORM_ANDROID
             REQUIRE( !isUtf8Locale( std::locale::classic() ) );
+#endif
         }
 
         SECTION("global")
