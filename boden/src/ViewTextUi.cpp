@@ -13,6 +13,7 @@ ViewTextUi::ViewTextUi(IUiProvider* pUiProvider)
 {
     _initialized = false;
     _flushPendingScheduled = false;
+    _scrollDownPending = false;
 
     _pUiProvider = pUiProvider;
 
@@ -162,12 +163,35 @@ void ViewTextUi::writeErrorLine(const String& s)
 
 void ViewTextUi::scrolledSizeChanged()
 {
-    // we want to scroll to the end of the client area.
-    // scrollClientRectToVisible supports the infinity value
-    // to scroll to the end, so we just use that.
-    Rect rect( 0, std::numeric_limits<double>::infinity(), 0, 0 );    
+    // when the scrolled size has just changed then it may be that the
+    // view itself has not yet updates its internal scrolling parameters.
+    // So if we scroll down immediately then "all the way down" may not yet
+    // reflect the new size.
+    // So instead we post this asynchronously to the main thread event queue.
+    // That way the scrolling down should happen after the view was updated.
 
-    _pScrollView->scrollClientRectToVisible(rect);
+    // if we already have a scroll request pending then we do not need to do schedule
+    // another one.    
+    if(!_scrollDownPending)
+    {
+        _scrollDownPending = true;
+
+        // keep ourselves alive.
+        P<ViewTextUi> pThis = this;
+
+        asyncCallFromMainThread(
+            [pThis, this]()
+            {
+                 // we want to scroll to the end of the client area.
+                // scrollClientRectToVisible supports the infinity value
+                // to scroll to the end, so we just use that.
+                Rect rect( 0, std::numeric_limits<double>::infinity(), 0, 0 );    
+
+                _scrollDownPending = false;
+
+                _pScrollView->scrollClientRectToVisible(rect);                
+            } );   
+    }
 }
 
 }

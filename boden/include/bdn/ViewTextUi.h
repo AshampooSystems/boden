@@ -59,6 +59,8 @@ private:
     bool            _initialized;
     List<String>    _pendingList;
     bool            _flushPendingScheduled;
+
+    bool            _scrollDownPending;
 };
 
 
