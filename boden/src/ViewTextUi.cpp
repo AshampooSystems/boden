@@ -63,20 +63,35 @@ void ViewTextUi::_ensureInitializedWhileMutexLocked()
 
         _pWindow->requestAutoSize();
         _pWindow->requestCenter();
+
+        // it may be that we get called with many small writes in a short period of time.
+        // In these cases we do NOT want to update the UI immediately on each write -- that would
+        // trigger a layout update that can introduce considerable overhead if it happens too often.
+        // Instead we use a timer and update the UI at most 10 times per second.
+        getMainDispatcher()->createTimer( 0.1, weakMethod(this, &ViewTextUi::timerCallback) );        
     }
 }
+
+
 
 P< IAsyncOp<String> > ViewTextUi::readLine()
 {
     throw NotImplementedError("ViewTextUi::readLine");
 }
 
+
     
 void ViewTextUi::write(const String& s)
 {
     Mutex::Lock lock(_mutex);
 
-    if(Thread::isCurrentMain())
+    // we used to update the UI immediately here (if we were on the main thread).
+    // However, for performance reasons we now batch writes together within 100ms
+    // time window. So here we just add the string to our pending list. Our timer
+    // will take care of updating the UI when the next tick happens.
+    _pendingList.add( s );
+
+    /*if(Thread::isCurrentMain())
     {
         // we want the ordering of multithreaded writes to be honored.
         // So we have to make sure that any pending writes from other threads
@@ -88,8 +103,6 @@ void ViewTextUi::write(const String& s)
     }
     else
     {
-        _pendingList.add( s );
-
         if(!_flushPendingScheduled)
         {
             P<ViewTextUi> pThis = this;
@@ -102,7 +115,19 @@ void ViewTextUi::write(const String& s)
                     _flushPendingWhileMutexLocked();
                 } );            
         }
-    }
+    }*/
+}
+
+bool ViewTextUi::timerCallback()
+{
+    Mutex::Lock lock(_mutex);
+
+    _flushPendingWhileMutexLocked();
+
+    // we never stop ourselves. The timer will automatically destroy itself when the ViewTextUi
+    // object is destroyed (since the timer uses a weak method, which will throw a DanglingFunctionError
+    // in that case).
+    return true;
 }
 
 void ViewTextUi::_doWriteWhileMutexLocked(const String& s)

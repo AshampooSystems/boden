@@ -42,6 +42,8 @@ public:
 
 private:
 
+    bool timerCallback();
+
     void scrolledSizeChanged();
 
     void _ensureInitializedWhileMutexLocked();
