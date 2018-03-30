@@ -32,7 +32,17 @@
     BDN_ENTRY_BEGIN;
     
     if(delaySeconds<=0)
-        func();
+    {
+        try
+        {
+            func();
+        }
+        catch(bdn::DanglingFunctionError&)
+        {
+            // ignore. This means that the function is a weak method
+            // whose object has been deleted. This is treated like a no-op.
+        }
+    }
     else
     {
         double delay = delaySeconds;
@@ -77,7 +87,21 @@
     if(pTimerFuncList!=nullptr)
     {
         std::function<bool()>& timerFunc = *timerFuncIt;
-        if(!timerFunc())
+        
+        bool result;
+        try
+        {
+            result = timerFunc();
+        }
+        catch(bdn::DanglingFunctionError&)
+        {
+            // ignore. This means that the function is a weak method
+            // whose object has been deleted. This is treated as if the
+            // function had returned false (i.e. the timer is stopped)
+            result = false;
+        }
+        
+        if( !result )
         {
             [theTimer invalidate];
             
@@ -280,7 +304,15 @@ void MainDispatcher::callNextNormalItem()
         std::function<void()> func = _normalQueue.front();
         _normalQueue.pop_front();
         
-        func();
+        try
+        {
+            func();
+        }
+        catch(DanglingFunctionError&)
+        {
+            // ignore. This means that the function is a weak method
+            // whose object has been deleted. This is treated like a no-op.
+        }
     }
 }
 
@@ -289,7 +321,15 @@ void MainDispatcher::callTimedItem(std::list< std::function<void()> >::iterator 
     std::function<void()> func = *it;
     _timedNormalQueue.erase( it );
     
-    func();
+    try
+    {
+        func();
+    }
+    catch(DanglingFunctionError&)
+    {
+        // ignore. This means that the function is a weak method
+        // whose object has been deleted. This is treated like a no-op.
+    }
 }
 
 void MainDispatcher::createTimer(   double                  intervalSeconds,

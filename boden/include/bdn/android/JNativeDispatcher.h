@@ -44,7 +44,19 @@ public:
 
     void enqueue(double delaySeconds, std::function<void()> func, bool idlePriority)
     {
-        bdn::java::JNativeOnceRunnable runnable( func );
+        bdn::java::JNativeOnceRunnable runnable(
+                [func]()
+                {
+                    try
+                    {
+                        func();
+                    }
+                    catch(DanglingFunctionError&)
+                    {
+                        // ignore. This means that func is a weak method and that
+                        // the corresponding object has been destroyed.
+                    }
+                } );
 
         static bdn::java::MethodId methodId;
 

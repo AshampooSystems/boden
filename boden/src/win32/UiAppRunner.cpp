@@ -161,7 +161,20 @@ void UiAppRunner::Timer::timerEventFromMainThread()
         if(_ended)
             continueTimer = false;
         else
-            continueTimer = _func();
+        {
+            try
+            {           
+                continueTimer = _func();
+            }
+            catch(bdn::DanglingFunctionError&)
+            {
+                // ignore. This means that the function is a weak method
+                // whose object has been deleted. This is treated as if the
+                // function had returned false (i.e. the timer is stopped)
+                continueTimer = false;
+            }
+        }
+
 
         {
             Mutex::Lock lock(_mutex);
@@ -261,7 +274,16 @@ bool UiAppRunner::executeAndRemoveItem( List< std::function<void()> >& queue, bo
 
     try
     {
-        func();
+        try
+        {
+            func();
+        }
+        catch(DanglingFunctionError&)
+        {
+            // we ignore this, as required for dispatcher.
+            // This exception means that the function is a weak method
+            // and the corresponding object has already been deleted.
+        }      
     }
     catch(...)
     {

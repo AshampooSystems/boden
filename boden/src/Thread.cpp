@@ -154,10 +154,12 @@ void Thread::yield() noexcept
 	std::this_thread::yield();
 }
 
+#ifndef NDEBUG
 void Thread::assertInMainThread()
 {
 	assert( isCurrentMain() );
 }
+#endif
 
 Thread::Id Thread::getCurrentId()
 {

@@ -52,7 +52,7 @@ private:
 };
 
 
-inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, Thread::Id expectedDispatcherThreadId)
+inline void _testDispatcherTimer(IDispatcher* pDispatcher, int throwException, Thread::Id expectedDispatcherThreadId)
 {
     P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
 
@@ -61,7 +61,7 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
     P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
 
     P<bdn::test::RedirectUnhandledProblem> pRedirectUnhandled;
-    if(throwException)
+    if(throwException==1)
     {
         pRedirectUnhandled = newObj<bdn::test::RedirectUnhandledProblem>(
             [pData](IUnhandledProblem& problem)
@@ -93,8 +93,10 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
             if(pData->callTimes.size()>=20)
                 return false;
 
-            if(throwException)
+            if(throwException==1)
                 throw InvalidArgumentError("bla");
+            else if(throwException==2 && pData->callTimes.size()>=10)
+                throw DanglingFunctionError("bla");
             
             return true;
         }
@@ -105,18 +107,23 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
     std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
 
     CONTINUE_SECTION_AFTER_SECONDS(7, pData, startTime, pRedirectUnhandled, throwException, waitStartTime)
-    {
+    {        
         std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
         std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
 
-        // sanity check: verify that we have waited the expected amount of time.
+        // sanity check: verify that we have waited the expected amount of time before continuing the test
         REQUIRE( waitDurationMillis.count() >= 6900 );
-        
+
         // our timer is expected to be called once every 100 ms.            
         // Verify that all expected timer calls have happened.
         // This also verifies that the timer has stopped once
         // we returned false.
-        REQUIRE( pData->callTimes.size()==20 );
+        // If throwException is 2 then a DanglingFunctionError is thrown on
+        // the 10th call. So the timer should have stopped then.
+        if(throwException==2)
+            REQUIRE( pData->callTimes.size()==10 );
+        else
+            REQUIRE( pData->callTimes.size()==20 );
 
         // the callable should have been destroyed
         REQUIRE( pData->callableDestroyedCount==1 );
@@ -142,12 +149,13 @@ inline void _testDispatcherTimer(IDispatcher* pDispatcher, bool throwException, 
             REQUIRE( timeAfterStart < expectedTimeAfterStart + 0.2);
         }
 
-        if(throwException)
+        if(throwException==1)
         {
-            // we got 20 calls. 19 threw an exception, the last one did not because
+            // A normal exception was thrown.
+            // The timer was called 20 times in total. The first 19 threw an exception, the last one did not because
             // it needed to stop the timer.
             REQUIRE( pData->unhandledProblemCount==19 );
-        }
+        }       
     };
 
 }
@@ -435,6 +443,52 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
                 };
             }
         }
+        
+        SECTION("DanglingFunctionError")
+        {
+            IDispatcher::Priority prio;
+
+            SECTION("Priority normal")
+                prio = IDispatcher::Priority::normal;
+            SECTION("Priority idle")
+                prio = IDispatcher::Priority::idle;
+
+            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+            P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
+
+            pDispatcher->enqueue(
+                [pDestructTest, pData]()
+                {
+                    // ensure that the enqueuing thread has time to release its reference to the destruct test object
+                    Thread::sleepSeconds(0.5); 
+
+                    pData->callOrder.push_back(0);
+
+                    throw DanglingFunctionError("bla");                
+                },
+                prio);
+
+            pDestructTest = nullptr;
+
+            std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+            CONTINUE_SECTION_AFTER_SECONDS(2, pData, waitStartTime)
+            {
+                std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                // sanity check: verify that we have waited the expected amount of time.
+                REQUIRE( waitDurationMillis.count() >= 1900 );
+
+                REQUIRE( pData->callOrder.size()==1 );
+                REQUIRE( pData->callableDestroyedCount==1 );
+                REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
+
+                // should not have caused an unhandled problem. DanglingFunctionError is simply ignored.
+                REQUIRE( pData->unhandledProblemCount==0 );
+            };
+        }
     }
     
     SECTION("timed")
@@ -631,18 +685,69 @@ inline void testDispatcher(IDispatcher* pDispatcher, Thread::Id expectedDispatch
 
             }
         }
+
+        SECTION("DanglingFunctionError")
+        {
+            IDispatcher::Priority prio;
+
+            SECTION("Priority normal")
+                prio = IDispatcher::Priority::normal;
+            SECTION("Priority idle")
+                prio = IDispatcher::Priority::idle;
+
+            P<TestDispatcherData_> pData = newObj<TestDispatcherData_>();
+
+            P<TestDispatcherCallableDataDestruct_> pDestructTest = newObj<TestDispatcherCallableDataDestruct_>( expectedDispatcherThreadId, pData);
+
+            pDispatcher->enqueueInSeconds(
+                2,
+                [pDestructTest, pData]()
+                {
+                    // ensure that the enqueuing thread has time to release its reference to the destruct test object
+                    Thread::sleepSeconds(0.1); 
+
+                    pData->callOrder.push_back(0);
+
+                    throw DanglingFunctionError("bla");                
+                },
+                prio);
+
+            pDestructTest = nullptr;
+
+            std::chrono::steady_clock::time_point waitStartTime = std::chrono::steady_clock::now();
+
+            CONTINUE_SECTION_AFTER_SECONDS(3, pData, waitStartTime)
+            {
+                std::chrono::steady_clock::time_point    waitEndTime = std::chrono::steady_clock::now();
+                std::chrono::milliseconds	             waitDurationMillis = std::chrono::duration_cast<std::chrono::milliseconds>( waitEndTime - waitStartTime );
+
+                // sanity check: verify that we have waited the expected amount of time.
+                REQUIRE( waitDurationMillis.count() >= 2900 );
+
+                REQUIRE( pData->callOrder.size()==1 );
+                REQUIRE( pData->callableDestroyedCount==1 );
+                REQUIRE( pData->callableDestructWrongThreadIds.size()==0 );
+
+                // should not have caused an unhandled problem error.
+                REQUIRE( pData->unhandledProblemCount==0 );
+            };
+        }
+
     }
 
     SECTION("timer")
     {
         SECTION("no exception")
-            _testDispatcherTimer(pDispatcher, false, expectedDispatcherThreadId );
+            _testDispatcherTimer(pDispatcher, 0, expectedDispatcherThreadId );
         
         if(canKeepRunningAfterUnhandledExceptions)
         {
             SECTION("exception")
-                _testDispatcherTimer(pDispatcher, true, expectedDispatcherThreadId );
+                _testDispatcherTimer(pDispatcher, 1, expectedDispatcherThreadId );
         }
+
+        SECTION("DanglingFunctionError")
+            _testDispatcherTimer(pDispatcher, 2, expectedDispatcherThreadId );
     }
 }
 

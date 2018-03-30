@@ -328,7 +328,17 @@ private:
             bool continueTimer = true;
             try
             {
-                continueTimer = _func();
+                try
+                {
+                    continueTimer = _func();
+                }
+                catch(DanglingFunctionError&)
+                {
+                    // DanglingFunctionError exceptions are ignored. They indicate that the
+                    // function was a weak method and the corresponding object has been
+                    // destroyed. We treat this case as if func had returned false.
+                    continueTimer = false;
+                }
             }
             catch(...)
             {

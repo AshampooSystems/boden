@@ -63,7 +63,16 @@ public:
 
 	void call() override
 	{
-		_packagedTask();
+        try
+        {
+		    _packagedTask();
+        }
+        catch(DanglingFunctionError&)
+        {
+            // we ignore this, as required for dispatcher.
+            // This exception means that the function is a weak method
+            // and the corresponding object has already been deleted.
+        }        
 	}
 
 protected:

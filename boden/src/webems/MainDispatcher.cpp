@@ -131,8 +131,17 @@ void MainDispatcher::processQueueItem()
                 _normalQueue.pop_front();
             }
         }
-    
-        func();        
+
+        try
+        {    
+            func();        
+        }
+        catch(DanglingFunctionError&)
+        {
+            // ignore. This means that func is a weak method and
+            // the corresponding object has been destroyed.
+            // We treat this like a no-op.
+        }
     }
     catch(...)
     {
@@ -223,8 +232,18 @@ void MainDispatcher::processTimedItem(TimedItem* pItem)
             
             _timedItemList.erase(pItem->it);
         }
-    
-        return func();        
+
+
+        try
+        {    
+            func();        
+        }
+        catch(DanglingFunctionError&)
+        {
+            // ignore. This means that func is a weak method and
+            // the corresponding object has been destroyed.
+            // We treat this like a no-op.
+        }
     }
     catch(...)
     {
@@ -289,8 +308,30 @@ void MainDispatcher::processTimer(Timer* pTimer)
             func = pTimer->func;
             disposed = pTimer->disposed;
         }
+
+        bool continueTimer;
+        if(disposed)
+        {
+            // timer has been deleted. stop it.
+            continueTimer = false;
+        }
+        else
+        {
+            try
+            {    
+                continueTimer = func();        
+            }
+            catch(DanglingFunctionError&)
+            {
+                // ignore. This means that func is a weak method and
+                // the corresponding object has been destroyed.
+                // We treat this as if func had returned false.
+                continueTimer = false;
+            }
+        }
+
         
-        if( disposed || !func() )
+        if( !continueTimer )
         {
             // timer ended
             Mutex::Lock lock(_queueMutex);
@@ -304,11 +345,7 @@ void MainDispatcher::processTimer(Timer* pTimer)
                     window.clearInterval($0);
                 }
                 , pTimer->jsId );
-        } 
-        else
-        {
-            // timer continues. Do nothing
-        }
+        }        
     }
     catch(...)
     {

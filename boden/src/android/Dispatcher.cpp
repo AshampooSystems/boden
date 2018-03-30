@@ -76,7 +76,20 @@ void Dispatcher::createTimer(
 
 bool Dispatcher::Timer_::onEvent()
 {
-    return _func();
+    bool result;
+    try
+    {
+        result = _func();
+    }
+    catch(DanglingFunctionError&)
+    {
+        // ignore. this means that func is a weak method and the corresponding
+        // object was destroyed. We treat this as if func had returned false
+        // (i.e. the timer will be stopped)
+        result = false;
+    }
+
+    return result;
 }
 
 

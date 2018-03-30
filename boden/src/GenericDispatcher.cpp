@@ -12,7 +12,16 @@ bool GenericDispatcher::executeNext()
 	std::function< void() > func;
 	if( getNextReady(func, true) )
 	{
-        func();
+        try
+        {
+            func();
+        }
+        catch(DanglingFunctionError&)
+        {
+            // DanglingFunctionError exceptions are ignored. They indicate that the
+            // function was a weak method and the corresponding object has been
+            // destroyed. We treat such functions as no-ops.
+        }
 
 		return true;
 	}

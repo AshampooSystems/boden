@@ -112,7 +112,20 @@ void Dispatcher::executeItem(Priority priority)
     }
 
     if(func)
-        func();
+    {
+        try
+        {
+            func();
+        }
+        catch(DanglingFunctionError&)
+        {
+            // DanglingFunctionError is simply ignored. It means that func was a weak method
+            // and the corresponding object has been deleted. I.e. we treat this as if the task
+            // had been cancelled.
+            // So, just ignore this.
+        }
+    }
+
 }
 
 std::list< std::function<void()> >& Dispatcher::getQueue(Priority priority)
@@ -164,7 +177,17 @@ void Dispatcher::enqueueInSeconds(
                     {                 
 						try
 						{
-							pItem->func();
+                            try
+                            {
+							    pItem->func();
+                            }
+                            catch(DanglingFunctionError&)
+                            {
+                                // DanglingFunctionError is simply ignored. It means that func was a weak method
+                                // and the corresponding object has been deleted. I.e. we treat this as if the task
+                                // had been cancelled.
+                                // So, just ignore this.    
+                            }
 						}
 						catch(...)
 						{
@@ -334,7 +357,20 @@ void Dispatcher::Timer::call()
 				// do nothing.
 				if(func)
 				{
-					if(!func())
+                    bool result;
+                    
+                    try
+                    {
+                        result = func();
+                    }
+                    catch(DanglingFunctionError&)
+                    {
+                        // func is a weak method and the object was destroyed. We simply
+                        // stop the timer in these cases - as if the function had returned false.
+                        result = false;
+                    }
+
+					if(!result)
 					{
 						// cancel the timer. I.e. dispose.
 						pThis->dispose();

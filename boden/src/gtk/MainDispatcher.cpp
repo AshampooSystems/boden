@@ -115,7 +115,15 @@ void MainDispatcher::processItem(std::list< std::function<void()> >& queue)
             queue.pop_front();
         }
     
-        func();        
+        try
+        {
+            func();        
+        }
+        catch(DanglingFunctionError&)
+        {
+            // ignore. this means that func is a weak method and
+            // the corresponding object has been deleted.
+        }
     }
     catch(...)
     {
@@ -195,7 +203,15 @@ void MainDispatcher::processTimedItem(TimedItem* pItem)
             _timedItemList.erase(pItem->it);
         }
     
-        return func();        
+        try
+        {
+            func();        
+        }
+        catch(DanglingFunctionError&)
+        {
+            // ignore. this means that func is a weak method and
+            // the corresponding object has been deleted.
+        }
     }
     catch(...)
     {
@@ -275,7 +291,30 @@ bool MainDispatcher::processTimer(Timer* pTimer)
             disposed = pTimer->disposed;
         }
         
-        if( disposed || !func() )
+        bool funcResult;
+        
+        if(disposed)   
+        {
+            /// do not call func - stop the timer.
+            funcResult = false;
+        }
+        else
+        {
+            try
+            {
+                funcResult = func();        
+            }
+            catch(DanglingFunctionError&)
+            {
+                // ignore. this means that func is a weak method and
+                // the corresponding object has been deleted..
+                // We treat this as if func had returned false.
+                funcResult = false;
+            }
+        }
+        
+        
+        if(  !funcResult )
         {
             // timer ended
             Mutex::Lock lock(_queueMutex);

@@ -19,11 +19,19 @@ namespace bdn
 
     If a dispatcher task throws an exception then the dispatcher must handle it as follows:
 
+    If the exception is of type DanglingFunctionError then the dispatcher should ignore it and do
+    not do further error processing. If DanglingFunctionError is thrown by a timer function then this is treated
+    as if the timer function had returned false (i.e. the timer is stopped).
+    This behaviour allows weak methods to be passed to the dispatcher (see bdn::weakMethod()). If the corresponding 
+    object is destroyed before the function is executed (i.e. the weak method throws DanglingFunctionError)
+    then this effectively cancels the dispatcher task.
+
+    For other kinds of exceptions the following processing is used:
+
     If the dispatcher is executing tasks in a loop then it must call bdn::getAppRunner()->unhandledException(true)
     and react to the return value accordingly. If true is returned the exception should be ignored
     and the loop should continue. If false is returned then the loop should be aborted and the exception
     propagated upwards to the caller of the dispatcher loop (usually causing the app to terminate).
-
 	*/
 class IDispatcher : BDN_IMPLEMENTS IBase
 {
@@ -80,6 +88,10 @@ public:
 
 		The specified timer function must return a bool. If it is true then the timer continues and the
 		function will be called again. If it returns false then the timer is destroyed.
+
+        If the timer function throws a DanglingFunctionError exception (for example, if it is a weak method and
+        the corresponding object was destroyed) then this is treated as if the function had returned false.
+        I.e. the timer is simply stopped and the exception is otherwise ignored.
 
 		Note that if there is already a call for this timer pending and the interval elapses again
 		then the second call is not enqueued. In other words: if the timer is held up by higher

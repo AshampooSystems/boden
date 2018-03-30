@@ -77,6 +77,7 @@ public:
         REQUIRE( text == expectedText );
     }
 
+    
     void testWrite(std::function< void(String) > writeFunc, String expectedWriteSuffix)
     {
         P<TestViewTextUiFixture> pThis = this;
@@ -85,24 +86,36 @@ public:
         {
             writeFunc("first");
 
-            // note that the expectedWriteSuffix (either linebreak or empty)
-            // only takes effect when the next line is begun.
-            String expectedText = "first";
-            verifyWrittenText( expectedText );
+            // ViewTextUI updates the written text only 10 times per second.
+            // So we need to wait until we can check it.
+            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, writeFunc, expectedWriteSuffix)
+            {
+                // note that the expectedWriteSuffix (either linebreak or empty)
+                // only takes effect when the next line is begun.
+                String expectedText = "first";
+                verifyWrittenText( expectedText );
 
-            expectedText += expectedWriteSuffix;
+                expectedText += expectedWriteSuffix;
             
-            writeFunc("second");
+                writeFunc("second");
 
-            expectedText += "second";
-            verifyWrittenText(expectedText);
-
-            expectedText += expectedWriteSuffix;
+                CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedText, writeFunc, expectedWriteSuffix)
+                {
+                    String expectedText2 = expectedText + "second";
+                    verifyWrittenText(expectedText2);
+                
+                    expectedText2 += expectedWriteSuffix;
             
-            writeFunc("third");
+                    writeFunc("third");
 
-            expectedText += "third";
-            verifyWrittenText(expectedText);            
+                    expectedText2 += "third";
+
+                    CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedText2, writeFunc)
+                    {                        
+                        verifyWrittenText(expectedText2);      
+                    };
+                };
+            };
         }
 
         SECTION("with linebreaks")
@@ -113,7 +126,10 @@ public:
             // So we write another dummy string to force the write.
             _pUi->write("X");
 
-            verifyWrittenText( "hello\n\n\nworld\n"+expectedWriteSuffix+"X" );
+            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedWriteSuffix, writeFunc)
+            {  
+                verifyWrittenText( "hello\n\n\nworld\n"+expectedWriteSuffix+"X" );
+            };
         }
 
 #if BDN_HAVE_THREADS
@@ -154,9 +170,7 @@ public:
             thread2Result.get();
             thread3Result.get();
 
-            // write requests from other threads are posted to the main queue
-
-            CONTINUE_SECTION_WHEN_IDLE(this, pThis, expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedWriteSuffix)
             {
                 String result = getWrittenText();
 
