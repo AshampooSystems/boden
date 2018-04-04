@@ -2118,7 +2118,8 @@ namespace bdn {
         virtual bool aborting() const = 0;
 				
         virtual void continueSectionWhenIdle(std::function<void()> continuationFunc )=0;
-        virtual void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc )=0;
+        virtual void continueSectionAfterAbsoluteSeconds(double seconds, std::function<void()> continuationFunc )=0;
+        virtual void continueSectionAfterRunSeconds(double seconds, std::function<void()> continuationFunc )=0;
         virtual void continueSectionInThread(std::function<void()> continuationFunc )=0;
     };
 }
@@ -2311,9 +2312,11 @@ namespace bdn {
     bdn::getCurrentContext().getRunner()->continueSectionInThread( continuationFunc )
 
 
-#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( seconds, continuationFunc ) \
-    bdn::getCurrentContext().getRunner()->continueSectionAfterSeconds( seconds, continuationFunc )
+#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( seconds, continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAfterAbsoluteSeconds( seconds, continuationFunc )
 
+#define INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( seconds, continuationFunc ) \
+    bdn::getCurrentContext().getRunner()->continueSectionAfterRunSeconds( seconds, continuationFunc )
 
 #define INTERNAL_BDN_EXPECT_TEST_PROGRAMMING_ERROR() \
 	if( const IRunner::ExpectTestProgrammingError& INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(catch_internal_expect_test_programming_error) = bdn::IRunner::ExpectTestProgrammingError( bdn::getCurrentContext()->getRunner() ) )
@@ -3323,13 +3326,22 @@ return @ desc; \
 
 
 
-/** \def BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH(seconds, continuationFunc )
+/** \def BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, continuationFunc )
 
-	\copybrief CONTINUE_SECTION_AFTER_SECONDS_WITH()
-	\copydetailed CONTINUE_SECTION_AFTER_SECONDS_WITH()
+	\copybrief CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH()
+	\copydetailed CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH()
 
 	*/
-#define BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH(seconds,  __VA_ARGS__ )
+#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds,  __VA_ARGS__ )
+
+
+/** \def BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, continuationFunc )
+
+	\copybrief CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH()
+	\copydetailed CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH()
+
+	*/
+#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds,  __VA_ARGS__ )
 
 
 /** \def BDN_CONTINUE_SECTION_IN_THREAD_WITH( continuationFunc )
@@ -3369,17 +3381,34 @@ namespace bdn
 namespace test
 {
 
-class ContinueSectionAfterSecondsStarter_
+class ContinueSectionAfterAbsoluteSecondsStarter_
 {
 public:
-    ContinueSectionAfterSecondsStarter_(double seconds)
+    ContinueSectionAfterAbsoluteSecondsStarter_(double seconds)
     {
         _seconds = seconds;
     }
 
     void operator << ( std::function<void()> continuation )
     {
-        BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( _seconds, continuation );
+        BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( _seconds, continuation );
+    }
+
+private:
+    double _seconds;
+};
+
+class ContinueSectionAfterRunSecondsStarter_
+{
+public:
+    ContinueSectionAfterRunSecondsStarter_(double seconds)
+    {
+        _seconds = seconds;
+    }
+
+    void operator << ( std::function<void()> continuation )
+    {
+        BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( _seconds, continuation );
     }
 
 private:
@@ -3389,8 +3418,11 @@ private:
 }
 }
 
-#define BDN_CONTINUE_SECTION_AFTER_SECONDS( seconds, ...) \
-    bdn::test::ContinueSectionAfterSecondsStarter_(seconds) << [__VA_ARGS__]()
+#define BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS( seconds, ...) \
+    bdn::test::ContinueSectionAfterAbsoluteSecondsStarter_(seconds) << [__VA_ARGS__]()
+
+#define BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS( seconds, ...) \
+    bdn::test::ContinueSectionAfterRunSecondsStarter_(seconds) << [__VA_ARGS__]()
 
 
 
@@ -3615,20 +3647,24 @@ public:
 
 
 
-/** \def CONTINUE_SECTION_AFTER_SECONDS_WITH(seconds, continuationFunc )
+/** \def CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH(seconds, continuationFunc )
 
-    Continues the current test section after waiting for the specified number of seconds. seconds is a floating point
-    number, so you can also specify non-integer amounts of seconds (e.g. 0.1 to wait for 100 milliseconds).
+    Continues the current test section after waiting for the specified number of seconds, according to the normal
+    clock. Note that this macro will always wait the requested amount of time, no matter what happens on the computer.
+    Also see \ref CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH, which will automatically wait longer when the CPU is under high load
+    or when the test application gets suspended by the operating system.
+    
+    Seconds is a floating point number, so you can also specify non-integer amounts of seconds (e.g. 0.1 to wait for 100 milliseconds).
 
     After the delay the section is continued by calling the specified continuation function / lambda.
 
-    This is very similar to CONTINUE_SECTION_AFTER_SECONDS, except that you can pass the code to be executed as
-    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_AFTER_SECONDS statement.
+    This is very similar to CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS, except that you can pass the code to be executed as
+    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS statement.
 
     This can sometimes be useful if you want the continuation to be a real function, or a function with
     bounds parameters (using std::bind) or things like that.
     
-    Apart from this difference, the macro works exactly like CONTINUE_SECTION_AFTER_SECONDS.
+    Apart from this difference, the macro works exactly like CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS.
 
 	Example:
 
@@ -3665,13 +3701,84 @@ public:
         // requires pending UI events to be handled to execute the scheduled event.
 
         // wait for 2.5 seconds and then continue.
-		CONTINUE_SECTION_AFTER_SECONDS_WITH( 2.5, std::bind( continueButtonClickTest, pClicked, pWindow) );        
+		CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( 2.5, std::bind( continueButtonClickTest, pClicked, pWindow) );        
     }
     
 	\endcode
 
 	*/
-#define CONTINUE_SECTION_AFTER_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( seconds, __VA_ARGS__ )
+#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( seconds, __VA_ARGS__ )
+
+
+
+
+
+/** \def CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(seconds, continuationFunc )
+
+    Continues the current test section after waiting for the specified number of seconds. If the computer is
+    under high load, or if the test application is suspended then the wait time is automatically increased.
+    Note that this increase is just a rough heuristic - it is not guaranteed that the process will get
+    the exact specified amount of processing time before the wait finishes.
+
+    Also see \ref CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH, which waits exactly the specified time,
+    without increasing it due to high load.
+    
+    Seconds is a floating point  number, so you can also specify non-integer amounts of
+    seconds (e.g. 0.1 to wait for 100 milliseconds).
+
+    After the delay the section is continued by calling the specified continuation function / lambda.
+
+    This is very similar to CONTINUE_SECTION_AFTER_RUN_SECONDS, except that you can pass the code to be executed as
+    a function object parameter, instead of specifying it in a code block after the CONTINUE_SECTION_AFTER_RUN_SECONDS statement.
+
+    This can sometimes be useful if you want the continuation to be a real function, or a function with
+    bounds parameters (using std::bind) or things like that.
+    
+    Apart from this difference, the macro works exactly like CONTINUE_SECTION_AFTER_RUN_SECONDS.
+
+	Example:
+
+	\code
+
+    void continueButtonClickTest(bool* pClicked, P<Window> pWindow)
+    {
+        REQUIRE( *pClicked );
+    }
+
+	TEST_CASE("ButtonClick")
+	{
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
+
+        pWindow->setContentView(pMyButton);
+
+        bool* pClicked = new bool;
+        *pClicked = false;
+
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
+
+        // schedule a button click
+		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
+		pClicker->scheduleButtonClick(pMyButton);
+
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
+
+        // wait for 2.5 seconds and then continue.
+		CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( 2.5, std::bind( continueButtonClickTest, pClicked, pWindow) );        
+    }
+    
+	\endcode
+
+	*/
+#define CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( seconds, ... ) INTERNAL_BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH( seconds, __VA_ARGS__ )
+
 
 
 
@@ -3782,36 +3889,42 @@ public:
 
 
 
-/** \def CONTINUE_SECTION_AFTER_SECONDS(seconds, captures... )
+/** \def CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, captures... )
 
-    Continues the current test section after waiting for the specified number of seconds. seconds is a floating point
-    number, so you can also specify non-integer amounts of seconds (e.g. 0.1 to wait for 100 milliseconds).
+    Continues the current test section after waiting for the specified number of seconds. 
+
+    Continues the current test section after waiting for the specified number of seconds, according to the normal
+    clock. Note that this macro will always wait the requested amount of time, no matter what happens on the computer.
+    Also see \ref CONTINUE_SECTION_AFTER_RUN_SECONDS, which will automatically wait longer when the CPU is under high load
+    or when the test application gets suspended by the operating system.
+
+    Seconds is a floating point number, so you can also specify non-integer amounts of seconds (e.g. 0.1 to wait for 100 milliseconds).
 
     A code block with the code for the asynchronous continuation must follow (see example below).
     There must be a semicolon after the code block.
     
-    CONTINUE_SECTION_AFTER_SECONDS is mainly useful if you need to wait a while during the test
+    CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS is mainly useful if you need to wait a while during the test
     and you want pending events to be processed while you wait.
     It is often used in tests that use user interface elements.
 
     The continuation code block that follows is always called from the main thread.
 
-    CONTINUE_SECTION_AFTER_SECONDS can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
+    CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
 
-    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_AFTER_SECONDS statement
+    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS statement
     and its code block.
     If there is additional test code afterwards then it will be executed BEFORE the continuation code
     is run. Since that is unintuitive, it should be avoided.
     
-    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_AFTER_SECONDS statement
+    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS statement
     at the end (inside the continuation code block) to add another asynchronous continuation.
 
     The normal test macros (like REQUIRE() ) can all be used as normal in the continuation. There
 	is no difference to a synchronous test in this regard.
         
-    The code block after CONTINUE_SECTION_AFTER_SECONDS will actually end up being executed as a lambda function.
+    The code block after CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS will actually end up being executed as a lambda function.
     The capture statement of the lambda expression are the (optional) parameters of the 
-    CONTINUE_SECTION_AFTER_SECONDS macro. Often one will simply specify = here to capture
+    CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS macro. Often one will simply specify = here to capture
     the local variables by value.
     
 	Example:
@@ -3844,7 +3957,7 @@ public:
         // requires pending UI events to be handled to execute the scheduled event.
 
         // wait 2.5 seconds before continuing.
-		CONTINUE_SECTION_AFTER_SECONDS( 2.5, pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+		CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS( 2.5, pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
                                                     // pWindow is in the capture list so that the window will not be deleted and destroyed when the
                                                     // initial test function exits (before the lambda continuation is called).
                                                     // We could also use std::bind here instead of a lambda. See below for an example
@@ -3853,7 +3966,7 @@ public:
         };
 
         // as an alternative we could also have captured ALL local variables with a "=" capture statement like this:
-        CONTINUE_SECTION_AFTER_SECONDS(2.5, = )
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2.5, = )
         {
             REQUIRE( *pClicked );
         };
@@ -3863,7 +3976,102 @@ public:
 	\endcode
     */
 
-#define CONTINUE_SECTION_AFTER_SECONDS(seconds, ...) BDN_CONTINUE_SECTION_AFTER_SECONDS(seconds, __VA_ARGS__)
+#define CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, ...) BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(seconds, __VA_ARGS__)
+
+
+
+
+
+/** \def CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, captures... )
+
+    Continues the current test section after waiting for the specified number of seconds. If the computer is
+    under high load, or if the test application is suspended then the wait time is automatically increased.
+    Note that this increase is just a rough heuristic - it is not guaranteed that the process will get
+    the exact specified amount of processing time before the wait finishes.
+
+    Also see \ref CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS, which waits exactly the specified time,
+    without increasing it due to high load.
+
+    Seconds is a floating point number, so you can also specify non-integer amounts of seconds (e.g. 0.1 to wait for 100 milliseconds).
+
+    A code block with the code for the asynchronous continuation must follow (see example below).
+    There must be a semicolon after the code block.
+    
+    CONTINUE_SECTION_AFTER_RUN_SECONDS is mainly useful if you need to wait a while during the test
+    and you want pending events to be processed while you wait.
+    It is often used in tests that use user interface elements.
+
+    The continuation code block that follows is always called from the main thread.
+
+    CONTINUE_SECTION_AFTER_RUN_SECONDS can also be used directly in TEST_CASE blocks, not just in SECTION blocks.
+
+    Your test section (or test case if you do not use sections) should end after the CONTINUE_SECTION_AFTER_RUN_SECONDS statement
+    and its code block.
+    If there is additional test code afterwards then it will be executed BEFORE the continuation code
+    is run. Since that is unintuitive, it should be avoided.
+    
+    Continuations can also be chained. I.e. continuation code block can also have a CONTINUE_SECTION_AFTER_RUN_SECONDS statement
+    at the end (inside the continuation code block) to add another asynchronous continuation.
+
+    The normal test macros (like REQUIRE() ) can all be used as normal in the continuation. There
+	is no difference to a synchronous test in this regard.
+        
+    The code block after CONTINUE_SECTION_AFTER_RUN_SECONDS will actually end up being executed as a lambda function.
+    The capture statement of the lambda expression are the (optional) parameters of the 
+    CONTINUE_SECTION_AFTER_RUN_SECONDS macro. Often one will simply specify = here to capture
+    the local variables by value.
+    
+	Example:
+
+	\code
+
+	TEST_CASE("ButtonClick")
+	{
+		P<Window> pWindow = newObj<Window>();
+		P<Button> pButton = newObj<Button>();
+
+        pWindow->setContentView(pMyButton);
+
+        bool* pClicked = new bool;
+        *pClicked = false;
+
+        // when the button is clicked then we 
+		pMyButton->onClick().subscribeVoid( 
+            [pClicked]()
+            {
+                // set pClicked to true when the button is clicked.
+                *pClicked = true;
+            } );
+
+		// schedule a button click
+		P<ButtonClicker> pClicker = newObj<ButtonClicker>( pMyButton );
+		pClicker->scheduleButtonClick(pMyButton);
+
+        // *pClicked will not be true yet because the imaginary ButtonClicker object
+        // requires pending UI events to be handled to execute the scheduled event.
+
+        // wait 2.5 seconds before continuing.
+		CONTINUE_SECTION_AFTER_RUN_SECONDS( 2.5, pClicked, pWindow ) // we want to access pClicked in the continuation, so we use a lambda and add it to the capture list.
+                                                    // pWindow is in the capture list so that the window will not be deleted and destroyed when the
+                                                    // initial test function exits (before the lambda continuation is called).
+                                                    // We could also use std::bind here instead of a lambda. See below for an example
+        {
+            REQUIRE( *pClicked );
+        };
+
+        // as an alternative we could also have captured ALL local variables with a "=" capture statement like this:
+        CONTINUE_SECTION_AFTER_RUN_SECONDS(2.5, = )
+        {
+            REQUIRE( *pClicked );
+        };
+
+    }
+
+	\endcode
+    */
+
+#define CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, ...) BDN_CONTINUE_SECTION_AFTER_RUN_SECONDS(seconds, __VA_ARGS__)
+
 
 
 

@@ -73,15 +73,11 @@ protected:
             
             _pContainerView->needLayout( View::InvalidateReason::customDataChanged );
 
-            // XXX
-            CONTINUE_SECTION_AFTER_SECONDS( 2, pThis, initialCount)
-            {            
-                CONTINUE_SECTION_WHEN_IDLE( pThis, initialCount)
-                {
-                    int currLayoutCount = pThis->_pContainerView->getCalcContainerLayoutCount();
-                    REQUIRE( currLayoutCount == initialCount+1 );
-                    REQUIRE( pThis->_pContainerView->getLastCalcContainerLayoutContainerSize() == pThis->_pContainerView->size() );
-                };
+            CONTINUE_SECTION_WHEN_IDLE( pThis, this, initialCount)
+            {
+                int currLayoutCount = _pContainerView->getCalcContainerLayoutCount();
+                REQUIRE( currLayoutCount == initialCount+1 );
+                REQUIRE( _pContainerView->getLastCalcContainerLayoutContainerSize() == _pContainerView->size() );
             };
         }
     }

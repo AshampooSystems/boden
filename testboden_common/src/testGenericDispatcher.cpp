@@ -16,8 +16,13 @@ TEST_CASE("GenericDispatcher")
 {
     static P<GenericDispatcher> pDispatcher = newObj<GenericDispatcher>();
     static P<Thread> pThread = newObj< Thread >( newObj<GenericDispatcher::ThreadRunnable>(pDispatcher) );
-    
-    bdn::test::testDispatcher( pDispatcher, pThread->getId() );
+
+    bool enableTimingTests = false;
+#ifdef BDN_ENABLE_TIMING_TESTS
+    enableTimingTests = true;
+#endif
+
+    bdn::test::testDispatcher( pDispatcher, pThread->getId(), enableTimingTests );
 
     SECTION("cleanup")
     {

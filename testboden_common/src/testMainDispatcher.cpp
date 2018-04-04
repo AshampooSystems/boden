@@ -15,9 +15,14 @@ TEST_CASE("mainDispatcher")
 #if BDN_PLATFORM_IOS
     canKeepRunningAfterUnhandledException = false;
 #endif
+
+    bool enableTimingTests = false;
+#ifdef BDN_TESTBODEN_ENABLE_TIMING_TESTS
+    enableTimingTests = true;
+#endif
     
 
-    bdn::test::testDispatcher( getMainDispatcher(), Thread::getMainId(), canKeepRunningAfterUnhandledException );
+    bdn::test::testDispatcher( getMainDispatcher(), Thread::getMainId(), enableTimingTests, canKeepRunningAfterUnhandledException );
 }
 
 

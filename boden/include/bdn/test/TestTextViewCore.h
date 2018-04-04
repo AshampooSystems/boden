@@ -166,7 +166,7 @@ protected:
                         // when we go back to empty text then we should get the original size
                         pThis->_pTextView->text() = "";
                         
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight, emptyTextPreferredSize)
+                        CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight, emptyTextPreferredSize)
                         {
                             REQUIRE( pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) ) == emptyTextPreferredSize );
                         };

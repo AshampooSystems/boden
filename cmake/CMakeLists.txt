@@ -491,6 +491,109 @@ if( BODEN_TARGET STREQUAL "android")
 endif()
 
 
+
+
+# testbodentiming
+
+set( TESTBODENTIMING_SRCDIR "../testbodentiming/src")
+file( GLOB TESTBODENTIMING_SOURCES
+    ${TESTBODENTIMING_SRCDIR}/*.cpp
+    ${TESTBODENTIMING_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODENTIMING_SRCDIR}/${BODEN_TARGET}/*.mm
+    ${TESTBODENTIMING_SRCDIR}/*.h
+    ${TESTBODENTIMING_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODENTIMING_SRCDIR}/${BODEN_TARGET}/*.hh
+    ${TESTBODEN_COMMON_SRCDIR}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.cpp
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.mm
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.h
+    ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.hh
+     )
+
+
+if(BODEN_USES_GTK)
+    file( GLOB TESTBODENTIMING_GTK_SOURCES ${TESTBODENTIMING_SRCDIR}/gtk/*.cpp)
+    list( APPEND TESTBODENTIMING_SOURCES ${TESTBODENTIMING_GTK_SOURCES} )   
+endif()
+
+include_directories( ${BODEN_INCDIR}  )
+include_directories( ${DEPENDENCIES_INCDIR} )
+
+IF ( APPLE )
+    SET(APP_TYPE MACOSX_BUNDLE)
+    SET(MACOSX_BUNDLE_BUNDLE_NAME testbodentiming)
+    SET(MACOSX_BUNDLE_GUI_IDENTIFIER "io.boden.testbodentiming")
+endif()
+
+if( "${BODEN_TARGET}" STREQUAL "android" )
+    add_library(testbodentiming SHARED ${TESTBODENTIMING_SOURCES} )
+
+else()
+    add_executable(testbodentiming WIN32 MACOSX_BUNDLE ${TESTBODENTIMING_SOURCES} )
+    
+endif()
+
+set_property(TARGET testbodentiming APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG> BDN_TESTBODEN_ENABLE_TIMING_TESTS=1)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
+
+    # make sure that we also generate a HTML file
+    set_property(TARGET testbodentiming APPEND PROPERTY LINK_FLAGS "-o testbodentiming.html --shell-file ${WEBEMS_SHELL_FILE}")
+endif()
+
+target_link_libraries(testbodentiming boden)
+
+if( BODEN_TARGET STREQUAL "win32")
+    target_link_libraries(testbodentiming Shcore)
+endif()
+
+if( BODEN_TARGET STREQUAL "mac")
+    find_library(COCOA_LIBRARY Cocoa)
+    mark_as_advanced(COCOA_LIBRARY)
+    target_link_libraries(testbodentiming ${COCOA_LIBRARY})
+endif()
+
+if( BODEN_TARGET STREQUAL "ios")
+    find_library(FOUNDATION_LIBRARY Foundation)
+    mark_as_advanced(FOUNDATION_LIBRARY)
+
+    find_library(UIKIT_LIBRARY UIKit)
+    mark_as_advanced(UIKIT_LIBRARY) 
+
+    target_link_libraries(testbodentiming ${FOUNDATION_LIBRARY} ${UIKIT_LIBRARY} )
+
+    target_compile_options(testbodentiming PUBLIC "-fobjc-arc")
+
+endif()
+
+if( BODEN_TARGET STREQUAL "mac")
+    target_compile_options(testbodentiming PUBLIC "-fobjc-arc")
+endif()
+
+if( BODEN_TARGET STREQUAL "dotnet")
+    set_target_properties(TARGET testbodentiming APPEND PROPERTY VS_DOTNET_REFERENCES "System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
+endif()
+
+if( BODEN_TARGET STREQUAL "linux")
+    target_link_libraries(testbodentiming ${GTK3_LIBRARIES} pthread)
+endif()
+
+if( BODEN_TARGET STREQUAL "ios")
+    # there is a bug in cmake that causes debug symbols to not be generated for ios
+    # builds. So we have to set it manually. Unfortunately we can apparently only
+    # set it for all builds - waiting for a fix from ios cmake maintainer.
+    # XXX needs to be removed for release build
+    set_xcode_property(testbodentiming GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+endif()
+
+
+if( BODEN_TARGET STREQUAL "android")
+    target_link_libraries(testbodentiming "${ANDROID_LIBS}")
+endif()
+
+
 # uidemo
 
 set( UIDEMO_SRCDIR "../uidemo/src")

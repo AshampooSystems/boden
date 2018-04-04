@@ -957,7 +957,12 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 
         // now schedule a test continuation in 2 seconds.
 
-        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        // note that we do not want to use CONTINUE_SECTION_AFTER_RUN_SECONDS here.
+        // The "run" version will post a considerable number of events to the queue,
+        // since it waits in small increments. That could potentially prevent the idle event
+        // from being called.
+
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
         {
             // during this time a chain of several dummy events should have been created
             REQUIRE( pTestData->eventsCreated >= 3);
@@ -969,7 +974,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
             // now we stop creating these events and wait another 2 seconds
             pTestData->keepCreatingEvents = false;
 
-            CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+            CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
             {
                 // NOW the idle handler should have been called
                 REQUIRE( pTestData->idleCalled );
@@ -1012,7 +1017,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
 
 
         // wait a little for the idle handlers to be executed
-        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
         {
             // then verify their order
             REQUIRE( pTestData->callOrder.size()==10 );
@@ -1047,7 +1052,7 @@ static void testAsyncCallFromMainThreadWhenIdle(bool exception, bool fromMainThr
             } );
         
         // wait two seconds for the events to be executed
-        CONTINUE_SECTION_AFTER_SECONDS(2, pTestData)
+        CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS(2, pTestData)
         {
             // then verify their order
             REQUIRE( pTestData->callOrder.size()==2 );

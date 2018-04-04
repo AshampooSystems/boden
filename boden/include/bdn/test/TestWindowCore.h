@@ -207,9 +207,9 @@ protected:
         
         // it may be that deleted windows are garbage collected.
         // So we wait a few seconds before we check if the window is gone
-        CONTINUE_SECTION_AFTER_SECONDS(2, pThis, pVerifyInfo )
+        CONTINUE_SECTION_WHEN_IDLE(pThis, this, pVerifyInfo )
         {
-            pThis->verifyCoreUiElementDestruction(pVerifyInfo);
+            verifyCoreUiElementDestruction(pVerifyInfo);
         };
     }
     

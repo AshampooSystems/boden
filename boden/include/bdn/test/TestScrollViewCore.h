@@ -645,20 +645,28 @@ private:
             return Size(0, s);
     }
     
-    static void waitForCondition( std::chrono::steady_clock::time_point timeoutTime, std::function<bool(bool)> checkFunc, std::function<void()> continueFunc )
+    static void waitForCondition( int timeoutMillisLeft, std::function<bool(bool)> checkFunc, std::function<void()> continueFunc )
     {
-        std::chrono::steady_clock::time_point currTime = std::chrono::steady_clock::now();
+		// instead of waiting for a fixed time on the clock we do a fixed
+		// number of check steps, with a small delay in between.
+		// That has the advantage that it will automatically wait longer if the
+		// test process gets suspended or if the system load is so high that the process
+		// does not get much cpu time. That is what we want.
 
-        bool lastTry = (currTime>timeoutTime);
+		const int stepDelayMillis = 100;
+
+        bool	  lastTry = (timeoutMillisLeft<=stepDelayMillis);
 
         if(!checkFunc(lastTry))
         {
-            std::function<void()> f = [timeoutTime, checkFunc, continueFunc]()
+			timeoutMillisLeft-=stepDelayMillis;
+
+            std::function<void()> f = [timeoutMillisLeft, checkFunc, continueFunc]()
                 {
-                    waitForCondition(timeoutTime, checkFunc, continueFunc);
+                    waitForCondition(timeoutMillisLeft, checkFunc, continueFunc);
                 };
 
-            BDN_CONTINUE_SECTION_AFTER_SECONDS_WITH( 0.1, f);
+            BDN_CONTINUE_SECTION_AFTER_ABSOLUTE_SECONDS_WITH( ((double)stepDelayMillis)/1000 , f);
         }
         else
         {
@@ -693,7 +701,7 @@ private:
         // it may take a while until the scroll operation is done (for example, if it is animated). So we wait and check
         // a few times until the expected condition is present.
         waitForCondition(
-            std::chrono::steady_clock::now() + std::chrono::seconds(10),
+            10*1000,
             [pKeepAliveDuringTest, pScrollView, initialPos, dir, visibleRectBefore](bool lastTry)
             {
                 Rect visibleRect = pScrollView->visibleClientRect();
@@ -720,7 +728,7 @@ private:
                 pScrollView->scrollClientRectToVisible( Rect( compToPoint(targetPos, dir), compToSize(targetSize, dir) ) );
 
                 waitForCondition(
-                    std::chrono::steady_clock::now() + std::chrono::seconds(10),
+                    10*1000,
                     [pKeepAliveDuringTest, pScrollView, targetPos, targetSize, expectedPos, dir, visibleRectBefore, initialPos, initialPosAdd, targetPosAdd, targetSizeAdd, expectedPosAdd](bool lastTry)
                     {
                         Rect visibleRect = pScrollView->visibleClientRect();

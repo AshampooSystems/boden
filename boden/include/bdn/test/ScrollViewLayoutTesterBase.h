@@ -581,15 +581,15 @@ public:
                 // the scrollview's margin should not influence the layout
                 getScrollView()->margin() = UiMargin( margin.top, margin.right, margin.bottom, margin.left );
 
-                CONTINUE_SECTION_WHEN_IDLE( pThis, padding, margin )
+                CONTINUE_SECTION_WHEN_IDLE( pThis, padding )
                 {
                     Size viewPortSize = pThis->prepareCalcLayout( Size(250, 250) );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, padding, margin )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, padding )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, padding, margin )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, padding )
                         {
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( false );
@@ -669,11 +669,11 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount, optimalButtonBounds, buttonMargin, scrollViewPadding )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, buttonMargin, scrollViewPadding )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, initialCalcPreferredSizeCallCount, optimalButtonBounds, buttonMargin, scrollViewPadding )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, viewPortSize, pButton, buttonMargin, scrollViewPadding )
                         {
                             // content view should be stretched to fill whole viewport
                             pThis->verifyScrollsHorizontally( false );
@@ -701,11 +701,11 @@ public:
                 {
                     pThis->prepareCalcLayout( optimalSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds )
                         {
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( false );
@@ -802,11 +802,11 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, horzBarHeight, pixelSize, addedSize )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, addedSize )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, horzBarHeight, pixelSize, addedSize )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, addedSize )
                         {
                             pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
                             pThis->verifyScrollsVertically( false );
@@ -844,11 +844,11 @@ public:
 
                         pThis->prepareCalcLayout( viewPortSize );
 
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
                         {   
                             pThis->calcLayoutAfterPreparation();
 
-                            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
+                            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, horzBarHeight, pixelSize )
                             {
                                 pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
                                 pThis->verifyScrollsVertically( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
@@ -904,11 +904,11 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, pixelSize, addedSize )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, pixelSize, addedSize )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, pixelSize, addedSize )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, vertBarWidth, pixelSize, addedSize )
                         {
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
@@ -947,11 +947,11 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
                     
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth )
                     {
                         pThis->calcLayoutAfterPreparation();
 
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth )
                         {
                             pThis->verifyScrollsHorizontally( false );
                             pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
@@ -992,11 +992,11 @@ public:
 
                         pThis->prepareCalcLayout( viewPortSize );
 
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                         {
                             pThis->calcLayoutAfterPreparation();
                         
-                            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
+                            CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                             {
                                 pThis->verifyScrollsHorizontally( (pThis->_horzScrollingEnabled && pThis->_vertScrollingEnabled) );
                                 pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );
@@ -1048,11 +1048,11 @@ public:
 
                     pThis->prepareCalcLayout( viewPortSize );
 
-                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                     {
                         pThis->calcLayoutAfterPreparation();
                     
-                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, initialCalcPreferredSizeCallCount, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, optimalSize, optimalButtonBounds, viewPortSize, pixelSize, vertBarWidth, horzBarHeight )
                         {
                             pThis->verifyScrollsHorizontally( pThis->_horzScrollingEnabled );
                             pThis->verifyScrollsVertically( pThis->_vertScrollingEnabled );

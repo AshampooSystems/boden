@@ -54,7 +54,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, buttonSize, buttonMargin, windowBorder)
+	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize)
 	{
 		Size size = getSizeFunc();
 

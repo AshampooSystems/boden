@@ -51,7 +51,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 
 	// the sizing info will update asynchronously. So we need to do the
 	// check async as well.
-	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, buttonSize, buttonMargin, pKeepAliveInContinuations)
+	CONTINUE_SECTION_WHEN_IDLE(getSizeFunc, expectedSize, pKeepAliveInContinuations)
 	{
 		Size size = getSizeFunc();
 

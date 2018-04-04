@@ -21,7 +21,7 @@ public:
     {
         nextStep();
 
-        CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
     }
 
     void nextStep()
@@ -62,7 +62,7 @@ public:
 
             _timeoutCounter++;
 
-            CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
+            CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioReader_OneAtTheTimeTestContext::continueTest));
         }       
     }
 
@@ -104,7 +104,7 @@ public:
             pOp->onDone() += weakMethod(this, &AsyncStdioReader_AllAtOnceTestContext<CharType>::readDone);
         }
 
-        CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
     }
     
     void readDone(IAsyncOp<String>* pOp)
@@ -133,7 +133,7 @@ public:
 
             _timeoutCounter++;
 
-            CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
+            CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioReader_AllAtOnceTestContext::continueTest));
         }
     }
 

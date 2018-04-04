@@ -331,7 +331,7 @@ inline void testView()
 
             P<Window> pWindow = pPreparer->getWindow();
         
-            BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, initialCoresCreated, pWindow, pView, pCore )
+            BDN_CONTINUE_SECTION_WHEN_IDLE( pPreparer, pWindow, pView, pCore )
             {
                 SECTION("initialViewState")
                 {
@@ -749,7 +749,7 @@ inline void testView()
                                     Rect adjustedBounds = pView->adjustAndSetBounds(bounds);
                                     REQUIRE( adjustedBounds==expectedAdjustedBounds );
                                 },
-                                [pCore, bounds, expectedAdjustedBounds, pView, pWindow, boundsChangeCountBefore]()
+                                [pCore, expectedAdjustedBounds, pView, pWindow, boundsChangeCountBefore]()
                                 {
                                     BDN_REQUIRE( pCore->getBoundsChangeCount()==boundsChangeCountBefore+1 );
                                     BDN_REQUIRE( pCore->getBounds()==expectedAdjustedBounds );
@@ -906,15 +906,12 @@ inline void testView()
                         // Wait until we are idle to ensure that the release
                         // code is executed before the test ends.
 
-                        CONTINUE_SECTION_AFTER_SECONDS( 2, pData )
+                        CONTINUE_SECTION_WHEN_IDLE( pData )
                         {
-                            CONTINUE_SECTION_WHEN_IDLE( pData )
-                            {
-                                // nothing to do here - we only wanted to keep the test alive
-                                // until all pending events have been handled.
-                                int x=0;
-                                x++;
-                            };
+                            // nothing to do here - we only wanted to keep the test alive
+                            // until all pending events have been handled.
+                            int x=0;
+                            x++;
                         };
                     };
                 }

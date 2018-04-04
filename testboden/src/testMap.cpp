@@ -405,7 +405,7 @@ static void _testMapFind(
 			_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
 				elList,
 				elNotInList,
-				[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+				[](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
 				{
 					return coll.findAll( elToFind.first );
 				} );
@@ -416,7 +416,7 @@ static void _testMapFind(
 			_testCollectionFindXWithCaller< Map<KeyType, ValType> >(
 				elList,
 				elNotInList,
-				[elNotInList](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
+				[](Map<KeyType, ValType>& coll, const typename Map<KeyType, ValType>::Element& elToFind)
 				{
 					return ((const Map<KeyType, ValType>&)coll).findAll( elToFind.first );
 				} );

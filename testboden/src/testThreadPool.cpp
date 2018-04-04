@@ -85,7 +85,7 @@ TEST_CASE( "ThreadPool" )
             pJob->proceedSignal.set();
             pJob->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_SECONDS(3, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
             {
                 // thread should have finished and not be busy anymore
                 REQUIRE( pPool->getBusyThreadCount()==0 );
@@ -108,7 +108,7 @@ TEST_CASE( "ThreadPool" )
                 pJob2->proceedSignal.set();
                 pJob2->stopSignal.set();
             
-                CONTINUE_SECTION_AFTER_SECONDS(3, pPool)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
                 {
                     // we should now again have 0 busy, 1 idle
                     REQUIRE( pPool->getBusyThreadCount()==0 );
@@ -149,7 +149,7 @@ TEST_CASE( "ThreadPool" )
             pB->proceedSignal.set();
             pB->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_SECONDS(3, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
             {
                 // now the thread should be idle again
                 REQUIRE( pPool->getIdleThreadCount()==1 );
@@ -195,7 +195,7 @@ TEST_CASE( "ThreadPool" )
             pC->proceedSignal.set();
             pC->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_SECONDS(3, pPool)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool)
             {
                 // threads should have finished and not be busy anymore
                 REQUIRE( pPool->getBusyThreadCount()==0 );
@@ -250,7 +250,7 @@ TEST_CASE( "ThreadPool" )
             pD->proceedSignal.set();
             pD->stopSignal.set();
 
-            CONTINUE_SECTION_AFTER_SECONDS(3, pPool, pA, pB, pC, pD)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pPool, pA, pB, pC, pD)
             {
                 // now we should have 2 idle again. One thread should have been destroyed.
                 REQUIRE( pPool->getIdleThreadCount()==2 );

@@ -19,7 +19,7 @@ public:
     {
         nextStep();
 
-        CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
     }
 
     void nextStep()
@@ -75,7 +75,7 @@ public:
 
             _timeoutCounter++;
 
-            CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
+            CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioWriter_OneAtTheTimeTestContext::continueTest));
         }       
     }
 
@@ -119,7 +119,7 @@ public:
             pOp->onDone() += weakMethod(this, &AsyncStdioWriter_AllAtOnceTestContext<CharType>::writeDone);
         }
 
-        CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
     }
     
     void writeDone(IAsyncOp<void>* pOp)
@@ -153,11 +153,11 @@ public:
         }
         else
         {
-            REQUIRE(_timeoutCounter<10);
+            REQUIRE(_timeoutCounter<30);
 
             _timeoutCounter++;
 
-            CONTINUE_SECTION_AFTER_SECONDS_WITH(1, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
+            CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.5, strongMethod(this, &AsyncStdioWriter_AllAtOnceTestContext::continueTest));
         }
     }
 

@@ -218,11 +218,19 @@ static void _verifyResult(StringBuffer&& buf, const String& expected )
     _verifyResult( buf, expected );
 }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 
 static void _verifyResult(TextOutStream& stream, const String& expected )
 {
     _verifyResult( *dynamic_cast<StringBuffer*>(&stream), expected );
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     
 
 std::u32string _readStreamBufferContents(StringBuffer& buf)

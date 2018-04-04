@@ -3056,7 +3056,7 @@ private: // IResultCapture
                 // This should never happen. CONTINUE_SECTION_WHEN_IDLE should be at the end of a section.
                 // So the first event we get should be that section being ended.
                 // So the test code is invalid.
-                programmingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_AFTER_PENDING_EVENTS or CONTINUE_SECTION_IN_THREAD.");
+                programmingError("Fatal error: you cannot open a new child subsection after CONTINUE_SECTION_WHEN_IDLE or CONTINUE_SECTION_IN_THREAD.");
             }
 
 
@@ -3431,7 +3431,7 @@ public:
             } );
 	}
     
-    void continueSectionAfterSeconds(double seconds, std::function<void()> continuationFunc) override
+    void continueSectionAfterAbsoluteSeconds(double seconds, std::function<void()> continuationFunc) override
 	{
 		beginScheduleContinuation();
 
@@ -3443,6 +3443,65 @@ public:
             [this, pContData, pContSynchronizer]()
             {
                 doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);
+            } );
+	}
+
+	void continueSectionAfterRunSeconds(double seconds, std::function<void()> continuationFunc) override
+	{
+		beginScheduleContinuation();
+
+		P<ContinuationSynchronizer> pContSynchronizer = newObj<ContinuationSynchronizer>();
+		P<ContinuationData>         pContData = newObj<ContinuationData>( continuationFunc, pContSynchronizer );
+
+		// We want to wait for a certain amount of process run time.
+		// Since we cannot easily detect the actual run time in a platform
+		// independent way, we use another mechanism.
+		// We divide the desired wait time into multiple small wait intervals.
+		// Then we simply wait the corresponding number of intervals and ignore
+		// the actual clock.
+		// If the app gets suspended, or does not get much cpu time due to high load
+		// then an individual step will take longer to execute. Since we simply
+		// keep waiting for the predetermined number of steps this will automatically
+		// increase our total wait time accordingly.
+		
+		// By default we wait in 100ms increments. But we want to use at least a few steps,
+		// otherwise we risk that our mechanism does not work as intended.
+		double stepSeconds = 0.1;
+
+		// we want at least 5 steps.		
+		if(seconds < stepSeconds*5)
+			stepSeconds = seconds / 5;
+
+		if(stepSeconds < 0.001)
+			stepSeconds = 0.001;
+
+		continueSectionAfterRunSeconds_Step( seconds, stepSeconds, pContData, pContSynchronizer);
+	}
+
+
+	void continueSectionAfterRunSeconds_Step(
+		double						secondsLeft,
+		double						stepSeconds,
+		P<ContinuationData>         pContData,
+		P<ContinuationSynchronizer> pContSynchronizer )
+	{
+		if(stepSeconds+0.001 >= secondsLeft)
+		{
+			// last step
+			stepSeconds = secondsLeft;
+			secondsLeft = 0;
+		}
+		else
+			secondsLeft -= stepSeconds;
+				        		
+        asyncCallFromMainThreadAfterSeconds(
+            stepSeconds,
+            [this, pContData, pContSynchronizer, secondsLeft, stepSeconds]()
+            {
+				if(secondsLeft<=0)
+					doSectionContinuation(pContData->getContinuationFunc(), pContSynchronizer);				
+				else
+					continueSectionAfterRunSeconds_Step( secondsLeft, stepSeconds, pContData, pContSynchronizer);
             } );
 	}
 
@@ -8211,7 +8270,7 @@ public:
 			// XXX
             // argPtrs.push_back( "--print-level" );
             // argPtrs.push_back( "8" );
-            //argPtrs.push_back( "GenericDispatcher" );
+            // argPtrs.push_back( "platformError" );
 
 
 			int exitCode = _pTestSession->applyCommandLine( static_cast<int>( argPtrs.size() ), &argPtrs[0] );

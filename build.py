@@ -852,11 +852,12 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
 
     gen = AndroidStudioProjectGenerator(platformBuildDir);
 
-    gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui"]);
+    gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui", "testbodentiming"]);
     gen.generateModule("boden", "io.boden.android.boden", "boden", [], "Boden", [], True)
     gen.generateModule("app", "io.boden.android.uidemo", "uidemo", [], "UIDemo", ["boden"], False)
     gen.generateModule("testboden", "io.boden.android.testboden", "testboden", ["testboden_common"], "TestBoden", ["boden"], False)
     gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", ["testboden_common"], "TestBodenUI", ["boden"], False)
+    gen.generateModule("testbodentiming", "io.boden.android.testbodentiming", "testbodentiming", ["testboden_common"], "TestBodenTiming", ["boden"], False)
 
     
 

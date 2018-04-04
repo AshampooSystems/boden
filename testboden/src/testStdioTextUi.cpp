@@ -68,7 +68,7 @@ public:
 
                         P<IAsyncOp<String>> pCaptureOp3 = holdOpReference ? pOp3 : nullptr;
 
-                        pOp3->onDone() += [pCaptureOp3, pThis, holdOpReference](P<IAsyncOp<String>> pParamOp)
+                        pOp3->onDone() += [pCaptureOp3, pThis](P<IAsyncOp<String>> pParamOp)
                         {
                             String result = pParamOp->getResult();
                             REQUIRE( result=="third line" );
@@ -261,7 +261,7 @@ public:
 
     void scheduleFinishTest()
     {
-        CONTINUE_SECTION_AFTER_SECONDS_WITH(0.2, strongMethod(this, &TestStdioTextUiFixture::finishTest));
+        CONTINUE_SECTION_AFTER_RUN_SECONDS_WITH(0.2, strongMethod(this, &TestStdioTextUiFixture::finishTest));
     }
     
     void finishTest()

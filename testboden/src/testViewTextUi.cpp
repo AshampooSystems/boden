@@ -88,7 +88,7 @@ public:
 
             // ViewTextUI updates the written text only 10 times per second.
             // So we need to wait until we can check it.
-            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, writeFunc, expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, writeFunc, expectedWriteSuffix)
             {
                 // note that the expectedWriteSuffix (either linebreak or empty)
                 // only takes effect when the next line is begun.
@@ -99,7 +99,7 @@ public:
             
                 writeFunc("second");
 
-                CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedText, writeFunc, expectedWriteSuffix)
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText, writeFunc, expectedWriteSuffix)
                 {
                     String expectedText2 = expectedText + "second";
                     verifyWrittenText(expectedText2);
@@ -110,7 +110,7 @@ public:
 
                     expectedText2 += "third";
 
-                    CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedText2, writeFunc)
+                    CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedText2, writeFunc)
                     {                        
                         verifyWrittenText(expectedText2);      
                     };
@@ -126,7 +126,7 @@ public:
             // So we write another dummy string to force the write.
             _pUi->write("X");
 
-            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedWriteSuffix, writeFunc)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix, writeFunc)
             {  
                 verifyWrittenText( "hello\n\n\nworld\n"+expectedWriteSuffix+"X" );
             };
@@ -170,7 +170,7 @@ public:
             thread2Result.get();
             thread3Result.get();
 
-            CONTINUE_SECTION_AFTER_SECONDS(1, pThis, this, expectedWriteSuffix)
+            CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix)
             {
                 String result = getWrittenText();
 

@@ -145,6 +145,10 @@ TEST_CASE("platformError")
         REQUIRE( String(pOutException->Message->Data()) == "hello" );
     }
 
+    // we only do the following tests in release mode because
+    // throwing platform exceptions will cause a debugger break with the default settings.
+#ifdef NDEBUG
+
     SECTION("BDN_WINUWP_TO_STDEXC")
     {
         SECTION("DisconnectedException")
@@ -185,8 +189,7 @@ TEST_CASE("platformError")
             }
         }
     }
-
-
+    
     SECTION("BDN_WINUWP_TO_PLATFORMEXC")
     {
         SECTION("RPC_E_DISCONNECTED")
@@ -228,7 +231,8 @@ TEST_CASE("platformError")
                 x++;
             }
         }
+    }    
+#endif
 
-    }
 }
 

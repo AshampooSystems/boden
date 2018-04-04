@@ -375,7 +375,7 @@ protected:
             // that our changes have been applied
             CONTINUE_SECTION_WHEN_IDLE( pThis, bounds, returnedBounds )
             {
-                CONTINUE_SECTION_AFTER_SECONDS(2, pThis, bounds, returnedBounds )
+                CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, bounds, returnedBounds )
                 {
                     // the core size and position should always represent what
                     // is configured in the view.

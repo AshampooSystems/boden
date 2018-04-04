@@ -88,7 +88,7 @@ void testChildAlignment(
         {
             pButton->verticalAlignment() = vertAlign;
 
-            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, vertAlign, layoutCountBefore, buttonBoundsBefore)
+            CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, layoutCountBefore, buttonBoundsBefore)
             {
                 // layout should have been invalidated
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
