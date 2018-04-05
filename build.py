@@ -10,6 +10,7 @@ import json;
 import argparse;
 import traceback;
 import time;
+import tempfile;
 
 
 EXIT_PROGRAM_ARGUMENT_ERROR = 1;
@@ -454,6 +455,42 @@ class AndroidStudioProjectGenerator(object):
     def generateTopLevelProject(self, moduleNameList):
         if not os.path.isdir(self._projectDir):
             os.makedirs(self._projectDir);
+
+        # the underlying commandline build system for android is gradle.
+        # Gradle uses a launcher script (called the gradle wrapper)
+        # that enforces the use of a specific desired gradle version.
+        # The launcher script will automatically download the correct
+        # version if needed and use that.
+        # Any version of gradle can generate the wrapper for any desired
+        # version.
+        # So now we need to generate the gradle wrapper for "our" version.
+        # Right now we use gradle 4.1
+
+        # Unfortunately gradle has the problem that it will try to load the build.gradle files if
+        # it finds them in the build directory, even if we only want to generate the wrapper.
+        # And loading the build.gradle may fail if the currently installed default
+        # gradle version is incorrect.
+        # So to avoid this problem we generate the wrapper in a temporary directory and then move it to the desired location.
+
+        gradle_temp_dir = tempfile.mkdtemp();
+        try:
+            subprocess.check_call( 'gradle wrapper --gradle-version 4.1 --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.1-all.zip"', shell=True, cwd=gradle_temp_dir);
+
+            for name in os.listdir(gradle_temp_dir):
+                source_path = os.path.join( gradle_temp_dir, name)
+                dest_path = os.path.join( self._projectDir, name)
+                if os.path.isdir(dest_path):
+                    shutil.rmtree(dest_path)
+                elif os.path.exists(dest_path):
+                    os.remove(dest_path)
+
+                shutil.move( source_path, dest_path )
+
+        finally:
+            shutil.rmtree(gradle_temp_dir)
+        
+        
+
 
         with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
             f.write("""\
