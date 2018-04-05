@@ -1,12 +1,14 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
+#include <bdn/Signal.h>
+
 using namespace bdn;
 
 class WeakPHelper : public Base
 {
 public:
-	WeakPHelper(bool* pDeleted = nullptr)
+	WeakPHelper(volatile bool* pDeleted = nullptr)
     : _addCounter(0)
     , _releaseCounter(0)
 	{
@@ -43,14 +45,14 @@ public:
 	mutable std::atomic<int>		_addCounter;
 	mutable std::atomic<int>		_releaseCounter;
 
-    bool* _pDeleted = nullptr;
+    volatile bool* _pDeleted = nullptr;
 };
 
 
 class SubWeakPHelper : public WeakPHelper
 {
 public:
-    SubWeakPHelper(bool* pDeleted = nullptr)
+    SubWeakPHelper(volatile bool* pDeleted = nullptr)
         : WeakPHelper(pDeleted)
 	{
 	}
@@ -281,7 +283,7 @@ TEST_CASE("WeakP")
 
         SECTION("objectGone")
         {
-            bool deleted = false;
+            volatile bool  deleted = false;
             P<WeakPHelper> p = newObj<WeakPHelper>(&deleted);
 
             WeakP<WeakPHelper> w(p);
@@ -295,12 +297,13 @@ TEST_CASE("WeakP")
         }
     }
 
+    
 
 #if BDN_HAVE_THREADS
 
-    SECTION("manyThreadCreateWeakRefs")
+    SECTION("many threads create weak refs")
     {
-        bool            deleted = false;
+        volatile bool   deleted = false;
         P<WeakPHelper>  p = newObj<WeakPHelper>(&deleted);
         
         // use a c pointer to pass to the lambda, so that no addrefs and releases are caused
@@ -339,9 +342,9 @@ TEST_CASE("WeakP")
     }
 
 
-    SECTION("manyThreadCreateWeakRefsWhileObjectIsDeleted")
+    SECTION("many threads create weak refs while object is deleted")
     {
-        bool        deleted = false;
+        volatile bool    deleted = false;
         P<WeakPHelper>   p = newObj<WeakPHelper>(&deleted);
 
         std::list< std::future<void> > futureList;
@@ -350,16 +353,23 @@ TEST_CASE("WeakP")
         
         WeakP<WeakPHelper> w(p);
 
+        P<Signal> pLastThreadSignal = newObj<Signal>();
+
         for(int i=0; i<100; i++)
         {
             futureList.push_back(
                 Thread::exec(
-                    [w, &successCounter, i]
+                    [w, &successCounter, i, pLastThreadSignal]
                     {
                         WeakP<WeakPHelper> w2(w);
 
                         if(i==99)
-                            Thread::sleepSeconds(1);
+                        {
+                            // we let the last thread wait for a signal until he continues,
+                            // to ensure that for at least one thread the toStrong call below
+                            // will yield null.
+                            pLastThreadSignal->wait();
+                        }
 
                         if(w2.toStrong()!=nullptr)
                             successCounter++;
@@ -371,16 +381,28 @@ TEST_CASE("WeakP")
         // do NOT wait for the threads to finish, but immediately release the pointer.
         p = nullptr;
 
+        // it might happen that one of the threads still holds a temporary strong reference here.
+        // So deleted might still be false at this point.
+        // Also, theoretically the threads could keep the object alive with their temporary strong references, even after
+        // we release ours.
+
+        // So before we check deleted we should wait a little bit.
+        Thread::sleepSeconds( 1 );
+
+        // now the object should be gone
         REQUIRE( deleted );
+
+        // the last thread has been waiting for our signal. Let it run now - this ensures that
+        // at least one thread will get a null result.
+        pLastThreadSignal->set();
 
         // then wait for the threads to finish
         for( auto& f: futureList)
             f.get();
         
-        // now at least one thread should not have been successful in getting the object
-        // (the last one waits a second before it tries, so that one should at least not have gotten it).
         int successCount = successCounter;
 
+        // the successCount cannot be 100 because we enforce a null result for the last thread 
         REQUIRE( successCount<=99 );
     }
 
