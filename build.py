@@ -11,6 +11,9 @@ import argparse;
 import traceback;
 import time;
 import tempfile;
+import zipfile
+import stat
+
 
 
 EXIT_PROGRAM_ARGUMENT_ERROR = 1;
@@ -440,6 +443,88 @@ def commandPrepare(commandArgs):
             prepareFunc(platform, config, arch, platformBuildDir, buildSystem);
 
 
+def download_file(url, file_path):
+
+    if sys.version_info[0]>=3:
+        import urllib.request
+
+        urllib.request.urlretrieve(
+                        url,
+                        file_path)
+
+    else:
+
+        import urllib2
+
+        resp = urllib2.urlopen(url)
+
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(resp, f)
+
+
+
+
+_gradle_path = None
+
+def get_gradle_path():
+
+    global _gradle_path
+
+    if _gradle_path is None:            
+
+        # first try to call an installed gradle version.
+
+        result = subprocess.call("gradle --version", shell=True)
+        if result==0:
+            _gradle_path = "gradle"
+
+        else:
+
+            # no system gradle
+
+            main_dir = getMainDir();
+
+            gradle_base_dir = os.path.join(main_dir, "3rdparty_build", "gradle")
+
+            gradle_version_name = "gradle-4.1"
+
+            gradle_path = os.path.join(gradle_base_dir, gradle_version_name, "bin", "gradle");
+            if sys.platform == "win32":
+                gradle_path += ".bat"
+
+            if not os.path.exists(gradle_path):
+
+                if not os.path.isdir(gradle_base_dir):
+                    os.makedirs(gradle_base_dir)
+
+                print("Downloading gradle...")
+
+                gradle_zip_file_name = gradle_version_name+"-bin.zip"
+
+                gradle_download_file = os.path.join(gradle_base_dir, gradle_zip_file_name)
+
+                download_file(
+                    "https://services.gradle.org/distributions/"+gradle_zip_file_name,
+                    gradle_download_file)
+
+                print("Extracting gradle...")
+
+                zipf = zipfile.ZipFile(gradle_download_file, 'r')
+                zipf.extractall(gradle_base_dir)
+                zipf.close()
+
+                os.remove(gradle_download_file)
+
+                if sys.platform!="win32":
+                    os.chmod(gradle_path, stat.S_IXUSR|stat.S_IRUSR)
+
+                if not os.path.exists(gradle_path):
+                    raise Exception("Gradle executable not found after fresh download. Expected here: "+gradle_path)
+
+            _gradle_path = gradle_path
+
+    return _gradle_path
+
 
 
 class AndroidStudioProjectGenerator(object):
@@ -450,6 +535,7 @@ class AndroidStudioProjectGenerator(object):
         
     def getGradleDependency(self):
         return "classpath 'com.android.tools.build:gradle:3.0.1'"
+
 
 
     def generateTopLevelProject(self, moduleNameList):
@@ -472,9 +558,17 @@ class AndroidStudioProjectGenerator(object):
         # gradle version is incorrect.
         # So to avoid this problem we generate the wrapper in a temporary directory and then move it to the desired location.
 
+
+
         gradle_temp_dir = tempfile.mkdtemp();
         try:
-            subprocess.check_call( 'gradle wrapper --gradle-version 4.1 --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.1-all.zip"', shell=True, cwd=gradle_temp_dir);
+
+            gradle_path = get_gradle_path()
+        
+            subprocess.check_call(
+                '"%s" wrapper --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.1-all.zip"' % (gradle_path),
+                shell=True,
+                cwd=gradle_temp_dir);
 
             for name in os.listdir(gradle_temp_dir):
                 source_path = os.path.join( gradle_temp_dir, name)
@@ -487,9 +581,7 @@ class AndroidStudioProjectGenerator(object):
                 shutil.move( source_path, dest_path )
 
         finally:
-            shutil.rmtree(gradle_temp_dir)
-        
-        
+            shutil.rmtree(gradle_temp_dir)        
 
 
         with open( os.path.join(self._projectDir, "build.gradle"), "w" ) as f:
@@ -1267,36 +1359,69 @@ def commandBuildOrClean(command, args):
         platformState = loadState(platformBuildDir);
         singleConfigBuildSystem = platformState.get("singleConfigBuildSystem", False);
 
-        if singleConfigBuildSystem and not args.config:
+        must_expand_configs = singleConfigBuildSystem or platformName=="android"
+
+        if must_expand_configs and not args.config:
             configList = ["Debug", "Release"];
         else:
             configList = [args.config];
 
+        if command=="clean" and platformName=="android":
+            # clean always deletes everything
+            configList = [None]
+
         for config in configList:
 
             if singleConfigBuildSystem:
-                cmakeBuildDir = os.path.join(platformBuildDir, config);
+                buildDirForConfig = os.path.join(platformBuildDir, config);
             else:
-                cmakeBuildDir = platformBuildDir;
+                buildDirForConfig = platformBuildDir;
 
-            commandLine = "cmake --build "+cmakeBuildDir;
+            if platformName=="android":
+                # we need to use gradle for our commandline builds
 
-            if command=="clean":
-                commandLine += " --platform clean";
+                gradle_wrapper_path = os.path.join(buildDirForConfig, "gradlew")
+                if sys.platform=="win32":
+                    gradle_wrapper_path+=".bat"
 
-            if config:
-                commandLine += " --config "+config;
+                if command=="clean":
+                    gradle_command = "clean"
+                
+                else:
+                    if config=="Release":
+                        gradle_command = "assembleRelease"
+                    else:
+                        gradle_command = "assembleDebug"
 
-            if config:
-                print("Calling cmake --build for config %s" % config, file=sys.stderr);
+                commandline = '"%s" %s' % (gradle_wrapper_path, gradle_command)
+                
+
+                exitCode = subprocess.call(commandline, shell=True, cwd=buildDirForConfig);
+                if exitCode!=0:
+                    raise ToolFailedError("gradlew "+gradle_command, exitCode);
+
+
             else:
-                print("Calling cmake --build for all configs", file=sys.stderr);
+                # use cmake                
 
-            print(commandLine, file=sys.stderr);
+                commandLine = "cmake --build "+buildDirForConfig;
 
-            exitCode = subprocess.call(commandLine, shell=True, cwd=cmakeBuildDir);
-            if exitCode!=0:
-                raise ToolFailedError("cmake --build", exitCode);
+                if command=="clean":
+                    commandLine += " --platform clean";
+
+                if config:
+                    commandLine += " --config "+config;
+
+                if config:
+                    print("Calling cmake --build for config %s" % config, file=sys.stderr);
+                else:
+                    print("Calling cmake --build for all configs", file=sys.stderr);
+
+                print(commandLine, file=sys.stderr);
+
+                exitCode = subprocess.call(commandLine, shell=True, cwd=buildDirForConfig);
+                if exitCode!=0:
+                    raise ToolFailedError("cmake --build", exitCode);
 
 
 
@@ -1361,6 +1486,18 @@ def commandRun(args):
                 if os.path.exists(moduleFilePath+".app"):
                     moduleFilePath += ".app";
                     commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
+
+            elif platformName=="android":
+
+                moduleFilePath = os.path.join(moduleFilePath, "build", "outputs", "apk", config.lower(), args.module+"-"+config.lower()+".apk")
+
+                if not os.path.exists(moduleFilePath):
+                    raise Exception("APK not found - expected here: "+moduleFilePath)
+
+                # XXX
+                # - start emulator: emulator -avd avd_name
+                # - install apk with adb: adb install path/to/your_app.apk
+                raise NotImplementedErrror()
 
             elif platformName=="webems":
                 moduleFilePath += ".html";
