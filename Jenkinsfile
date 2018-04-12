@@ -6,7 +6,7 @@ pipeline {
         		label 'master'
         	}
             steps {
-                sh '/data/boden-ci/boden-gtk-ubuntu/docker-build.sh "${WORKSPACE}"'
+                sh '/data/boden-ci/boden-gtk-ubuntu/docker-build.sh "${WORKSPACE}" $GIT_BRANCH'
             }
         }
     }
