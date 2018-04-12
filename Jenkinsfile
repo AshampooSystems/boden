@@ -1,7 +1,8 @@
 pipeline {
-    agent any
+    agent none
     stages {
-        stage('Build') {
+        stage('Build Linux') {
+        	agent master
             steps {
                 sh '/data/boden-ci/docker-build.sh "${WORKSPACE}"'
             }
