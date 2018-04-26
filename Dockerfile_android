@@ -1,0 +1,55 @@
+FROM ubuntu:16.04
+
+ARG ANDROID_API_VERSION=26
+ARG ANDROID_BUILD_TOOLS_VERSION=26.0.2
+
+RUN dpkg --add-architecture i386
+
+RUN apt-get update \
+ && apt-get install -y \
+    curl \
+    unzip \
+    xvfb \
+    xauth \
+	python \
+    default-jre \
+    default-jdk \
+	x11-apps \
+	libc6:i386 \
+	libncurses5:i386 \
+	libstdc++6:i386 \
+	lib32z1 \
+	libbz2-1.0:i386
+
+
+RUN curl --url "https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" --output /tmp/androidtools.zip
+
+RUN mkdir /opt/android
+RUN unzip -d /opt/android /tmp/androidtools.zip
+RUN rm /tmp/androidtools.zip
+
+# allow everyone access, so that they can download new components on demand
+RUN chmod -R go+rwx /opt/android
+
+ENV ANDROID_HOME=/opt/android
+
+# accept all licenses from the Android SDK and needed tools.
+# If we do not do this here then sdkmanager will interactively prompt
+# and ask for us to confirm.
+
+RUN yes | /opt/android/tools/bin/sdkmanager --licenses
+
+# install the needed SDK tools and packages
+RUN /opt/android/tools/bin/sdkmanager \
+	"platform-tools" \
+	"ndk-bundle" \
+	"emulator" \	
+	"extras;android;m2repository" \
+	"extras;google;m2repository" \
+	"build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
+	"platforms;android-$ANDROID_API_VERSION"
+
+
+
+
+

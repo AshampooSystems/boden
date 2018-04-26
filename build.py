@@ -72,8 +72,8 @@ class ProgramArgumentError(ErrorWithExitCode):
 
 
 class CMakeProblemError(ErrorWithExitCode):
-    def __init__(self, e):        
-        ErrorWithExitCode.__init__(self, EXIT_CMAKE_PROBLEM, "There was a problem calling cmake. CMake is required and must be installed to run this.");
+    def __init__(self, e, errorOutput=None):        
+        ErrorWithExitCode.__init__(self, EXIT_CMAKE_PROBLEM, "There was a problem calling cmake. CMake is required and must be installed to run this." + ( (" Error output: "+errorOutput) if errorOutput else "" ) )
 
 
 class ToolFailedError(ErrorWithExitCode):
@@ -163,69 +163,93 @@ def changePython2ToPython(dirPath):
 
 class GeneratorInfo(object):
     def __init__(self):
-        try:
-            cmakeHelp = subprocess.check_output("cmake --help", shell=True, universal_newlines=True);
 
-        except subprocess.CalledProcessError as e:
-            raise CMakeProblemError(e);
-
-        cmakeHelp = cmakeHelp.strip();
-
-        # the generator list is at the end of the output. And the entries are all indented.
         self.generatorHelpList = [];
-        for line in reversed( cmakeHelp.splitlines() ):
-            if not line or not line.startswith(" "):
-                break;
-
-            self.generatorHelpList.append(line);
-
-        self.generatorHelpList.reverse();
-
         self.generatorNames = [];    
-        for line in self.generatorHelpList:
-            if line.startswith("  ") and len(line)>2 and line[2]!=" ":
-                line = line.strip();
-
-                name, sep, rest = line.partition(" = ");
-                if sep:
-                    name = name.strip();
-                    if name:
-                        self.generatorNames.append(name);
-
         self.generatorAliasMap = {};
-        vsPrefix = "Visual Studio ";
-        for name in self.generatorNames:        
-            if name.startswith(vsPrefix):
-                words = name[len(vsPrefix):].strip().split();
-                if len(words)>=2:
-                    try:
-                        internalVersion = int(words[0]);
-                        yearVersion = int(words[1]);
 
-                        self.generatorAliasMap[ "vs"+words[1] ] = vsPrefix+words[0]+" "+words[1];
-                    except Exception as e:
-                        # ignore exceptions. The generator string does not have the expected format.
-                        pass;
+        self._cmakeError = None
 
+        errOutput = ""
+        try:    
+            errOutFile, errOutFilePath = tempfile.mkstemp()            
+            try:
+                cmakeHelp = subprocess.check_output("cmake --help", shell=True, universal_newlines=True, stderr=errOutFile );
+            finally:
+                os.close(errOutFile)
+                try:
+                    with open(errOutFilePath, "r") as f:
+                        errOutput = f.read().strip();
+                except:
+                    pass
+                os.remove(errOutFilePath)          
 
-        self.generatorAliasMap["make"] = "Unix Makefiles"
-        self.generatorAliasMap["nmake"] = "NMake Makefiles";
-        self.generatorAliasMap["msysmake"] = "MSYS Makefiles";
-        self.generatorAliasMap["mingwmake"] = "MinGW Makefiles";
-
-        if "CodeBlocks - Unix Makefiles" in self.generatorNames:
-            self.generatorAliasMap["codeblocks"] = "CodeBlocks - Unix Makefiles"
+        except subprocess.CalledProcessError as e:            
+            self._cmakeError = CMakeProblemError(e, errOutput);
 
 
-        if "CodeLite - Unix Makefiles" in self.generatorNames:
-            self.generatorAliasMap["codelite"] = "CodeLite - Unix Makefiles"
+        
+        if self._cmakeError is None:
+            cmakeHelp = cmakeHelp.strip();
+
+            # the generator list is at the end of the output. And the entries are all indented.
+
+            for line in reversed( cmakeHelp.splitlines() ):
+                if not line or not line.startswith(" "):
+                    break;
+
+                self.generatorHelpList.append(line);
+
+            self.generatorHelpList.reverse();
+
             
+            for line in self.generatorHelpList:
+                if line.startswith("  ") and len(line)>2 and line[2]!=" ":
+                    line = line.strip();
+
+                    name, sep, rest = line.partition(" = ");
+                    if sep:
+                        name = name.strip();
+                        if name:
+                            self.generatorNames.append(name);
+
+        
+            vsPrefix = "Visual Studio ";
+            for name in self.generatorNames:        
+                if name.startswith(vsPrefix):
+                    words = name[len(vsPrefix):].strip().split();
+                    if len(words)>=2:
+                        try:
+                            internalVersion = int(words[0]);
+                            yearVersion = int(words[1]);
+
+                            self.generatorAliasMap[ "vs"+words[1] ] = vsPrefix+words[0]+" "+words[1];
+                        except Exception as e:
+                            # ignore exceptions. The generator string does not have the expected format.
+                            pass;
+
+
+            self.generatorAliasMap["make"] = "Unix Makefiles"
+            self.generatorAliasMap["nmake"] = "NMake Makefiles";
+            self.generatorAliasMap["msysmake"] = "MSYS Makefiles";
+            self.generatorAliasMap["mingwmake"] = "MinGW Makefiles";
+
+            if "CodeBlocks - Unix Makefiles" in self.generatorNames:
+                self.generatorAliasMap["codeblocks"] = "CodeBlocks - Unix Makefiles"
+
+
+            if "CodeLite - Unix Makefiles" in self.generatorNames:
+                self.generatorAliasMap["codelite"] = "CodeLite - Unix Makefiles"
+                
 
         self.generatorAliasHelp = "Aliases for build system names:\n";
         for aliasName in sorted( self.generatorAliasMap.keys() ):
             self.generatorAliasHelp += "\n%s = %s" % (aliasName, self.generatorAliasMap[aliasName]);
 
 
+    def ensureHaveCmake(self):
+        if self._cmakeError is not None:
+            raise self._cmakeError
 
 
 def getPlatformHelp():
@@ -474,7 +498,13 @@ def get_gradle_path():
 
         # first try to call an installed gradle version.
 
-        result = subprocess.call("gradle --version", shell=True)
+        outFile, outFilePath = tempfile.mkstemp()
+        try:
+            result = subprocess.call("gradle --version", shell=True, stdout=outFile, stderr=subprocess.STDOUT)
+        finally:
+            os.close(outFile)
+            os.remove(outFilePath)
+
         if result==0:
             _gradle_path = "gradle"
 
@@ -1006,6 +1036,8 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     args = [];
 
+    generatorInfo.ensureHaveCmake()
+
     generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);
 
     commandIsInQuote = False;
@@ -1135,17 +1167,17 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
             envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
         else:
 
-        	envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
+            envSetupPrefix = "source "+os.path.join(emsdkDir, "emsdk_env.sh") + " && ";
 
-        	if sys.platform=="linux2":
-	        	# if we just call subprocess with "shell=True" then python
-	        	# will use /bin/sh as the shell. And on ubuntu what you get
-	        	# then is an intentionally restricted shell that does not
-	        	# support any of the bash commands (even though it is most
-	        	# likely bash). emsdk_env.sh requires bash, so we have to
-	        	# explicitly execute bash to get this.
-	        	commandIsInQuote = True;
-	        	envSetupPrefix = '/bin/bash -c "' + envSetupPrefix.replace('"', '\\"');
+            if sys.platform=="linux2":
+                # if we just call subprocess with "shell=True" then python
+                # will use /bin/sh as the shell. And on ubuntu what you get
+                # then is an intentionally restricted shell that does not
+                # support any of the bash commands (even though it is most
+                # likely bash). emsdk_env.sh requires bash, so we have to
+                # explicitly execute bash to get this.
+                commandIsInQuote = True;
+                envSetupPrefix = '/bin/bash -c "' + envSetupPrefix.replace('"', '\\"');
 
             
 
@@ -1466,9 +1498,12 @@ def commandRun(args):
 
             outputDir = os.path.join(platformBuildDir, config);
             if platformName=="ios":
-                outputDir += "-iphonesimulator";            	
+                outputDir += "-iphonesimulator";                
+            elif platformName=="android":
+                outputDir = platformBuildDir;
 
             moduleFilePath = os.path.join(outputDir, args.module);
+
 
             commandLine = None;
 
@@ -1489,15 +1524,192 @@ def commandRun(args):
 
             elif platformName=="android":
 
+                android_api_version = "26"
+
+                # the android ARM emulator is REALLY slow - almost unusable. So we use x86 by default
+                android_abi = "x86"
+
+
                 moduleFilePath = os.path.join(moduleFilePath, "build", "outputs", "apk", config.lower(), args.module+"-"+config.lower()+".apk")
 
                 if not os.path.exists(moduleFilePath):
                     raise Exception("APK not found - expected here: "+moduleFilePath)
 
-                # XXX
-                # - start emulator: emulator -avd avd_name
-                # - install apk with adb: adb install path/to/your_app.apk
-                raise NotImplementedErrror()
+                android_home_dir = os.environ.get("ANDROID_HOME")
+                if not android_home_dir:
+                    raise Exception("ANDROID_HOME environment variable is not set. Please point it to the root of the android SDK installation.")
+
+                avd_manager_path = os.path.join(android_home_dir, "tools", "bin", "avdmanager")
+                if not os.path.exists(avd_manager_path):
+                    raise Exception("avdmanager not found. Expected here: "+avd_manager_path)
+
+                emulator_path = os.path.join(android_home_dir, "emulator", "emulator")
+                if not os.path.exists(emulator_path):
+                    raise Exception("Android emulator executable not found. Expected here: "+emulator_path)
+
+                adb_path = os.path.join(android_home_dir, "platform-tools", "adb")
+                if not os.path.exists(adb_path):
+                    raise Exception("Android ADB executable not found. Expected here: "+adb_path)
+
+                
+
+                # create the virtual device that we want to use for the emulator.
+                # --force causes an existing device to be overwritten.
+                print("-- Creating virtual device for emulator...", file=sys.stderr)
+                create_device_command = '"%s" create avd --name bdnTestAVD --force --abi google_apis/%s --package "system-images;android-%s;google_apis;%s"' % \
+                    (   avd_manager_path,
+                        android_abi,
+                        android_api_version,
+                        android_abi )
+
+                # avdmanager will ask us wether we want to create a custom profile. We do not want that,
+                # so we pipe a "no" into stdin
+                answer_file, answer_file_path = tempfile.mkstemp()
+                try:
+                    os.write(answer_file, "no\n".encode("ascii"))
+                    os.close(answer_file)
+
+                    with open(answer_file_path, "r") as answer_file:
+                        subprocess.check_call(create_device_command, shell=True, stdin=answer_file)
+
+                finally:
+                    os.remove(answer_file_path)
+
+
+                print("-- Starting emulator...", file=sys.stderr);
+
+                gpu_option = "auto"
+
+                # For some reason, GPU acceleration does not work inside a Parallels VM for linux.
+                # "auto" will cause the emulator to exit with an error.
+                if sys.platform=="linux2":
+                    output = subprocess.check_output("lspci | grep VGA", shell=True);
+                    if output.find("Parallels")!=-1:
+                        print("-- WARNING: Disabling GPU acceleration because we are running in a Parallels Desktop Linux VM.", file=sys.stderr);
+                        gpu_option = "off"
+
+
+                # Note: the -logcat parameter can be used to cause the android log
+                # to be written to the process stdout. For example, "-logcat *:e" prints
+                # all messages of any log source that have the "error" log level.
+                # However, the logging is very spammy - lots of things that are only
+                # informational messages get logged as errors. So it is recommended
+                # to only use this parameter for specific log sources (also called "tags")
+                # For example "-logcat myapp:w" would enable all messages with log level warning
+                # or higher from the log source "myapp".
+                start_emulator_command = '"%s" -avd bdnTestAVD -gpu %s' % \
+                    (   emulator_path,
+                        gpu_option )
+
+                # the emulator process will not exit. So we just open it without
+                # waiting.
+                emulator_process = subprocess.Popen(start_emulator_command, shell=True )
+
+                success = False
+
+                try:
+
+                    # wait for the emulator  to finish booting (at most 60 seconds)
+                    print("-- Waiting for android emulator to finish booting...", file=sys.stderr);
+                    timeout_seconds = 120
+                    timeout_time = time.time()+timeout_seconds
+                    while True:
+
+                        boot_anim_state_command = '"%s" shell getprop init.svc.bootanim' % adb_path
+
+                        # at first the command will fail, until the emulator process has initialized.
+                        # Then we will get a proper output, that will not be "stopped" while we boot.
+                        # Then, after the boot has completed, we will get "stopped"
+
+                        try:
+                            output = subprocess.check_output(boot_anim_state_command, stderr=subprocess.STDOUT, shell=True)                            
+                            state_error = False
+                        except subprocess.CalledProcessError, e:                            
+                            output = e.output
+                            state_error = True
+
+                        output = str(output)
+                        output = output.strip()
+
+
+                        if output=="" and not state_error:
+                            # this happens between the "initializing" states and
+                            # the boot starting-
+                            emulator_state = "transitioning"
+
+                        elif output=="running":
+                            emulator_state = "booting"
+
+                        elif output=="stopped":
+                            emulator_state = "boot finished"
+
+                        elif output.find("no devices/emulators found")!=-1:
+                            emulator_state = "initializing (no devices yet)"
+
+                        elif output.find("device offline")!=-1:
+                            emulator_state = "initializing (device not yet online)"
+
+                        else:
+                            raise Exception("Unrecognized boot animation state output: "+output)
+
+                        print("-- Emulator state: "+emulator_state, file=sys.stderr)
+                        
+                        if emulator_state=="boot finished":
+                            # done booting
+                            break
+
+                        # all other states indicate that either the emulator is still initializing
+                        # or that the boot process has not finished yet.
+
+                        if time.time()>=timeout_time:
+                            raise Exception("Android emulator did not finish booting within %d seconds. Last state output:\n%s" % (timeout_seconds, output) ) 
+
+                        time.sleep(5)
+
+
+                    print("-- Waiting 10 seconds...", file=sys.stderr)
+                    time.sleep(10)
+
+
+                    print("-- Installing app in emulator...", file=sys.stderr)
+
+                    # now install the app in the emulator
+                    install_app_command = '"%s" install -t "%s"' % \
+                        (   adb_path,
+                            moduleFilePath )
+                    subprocess.check_call(install_app_command, shell=True)
+
+                    print("-- Waiting 10 seconds...", file=sys.stderr)
+                    time.sleep(10)
+
+
+                    print("-- Starting app in emulator...", file=sys.stderr)
+
+                    # and run the executable in the emulator
+
+                    run_app_command = '"%s" shell am start -a android.intent.action.MAIN -n io.boden.android.%s/io.boden.android.NativeRootActivity' % \
+                        (   adb_path,
+                            args.module )
+                    subprocess.check_call(run_app_command, shell=True)
+
+                    success = True
+
+                    print("-- App successfully started.", file=sys.stderr)
+                    print("-- Waiting for emulator to terminate (will not happen automatically).", file=sys.stderr)
+
+                    # we want to block indefinitely until either the emulator is closed or we are terminated
+                    # by the user.
+                    emulator_process.wait()
+
+                finally:
+
+                    if not success:
+                        print("-- Killing emulator", file=sys.stderr)
+                        emulator_process.kill()
+
+
+                # do not do the normal processing
+                return
 
             elif platformName=="webems":
                 moduleFilePath += ".html";
@@ -1546,9 +1758,9 @@ def commandRun(args):
                 actualCommand = "emrun --no_emrun_detect --port %d %s %s" % (portNum, browserOption, moduleFilePath);
 
                 if commandIsInQuote:
-                	commandLine += actualCommand.replace('"', '\\"');
+                    commandLine += actualCommand.replace('"', '\\"');
                 else:
-                	commandLine += actualCommand;
+                    commandLine += actualCommand;
                 
             if commandLine is None:
                 commandLine = moduleFilePath;
