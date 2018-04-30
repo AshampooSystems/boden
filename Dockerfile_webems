@@ -1,0 +1,65 @@
+FROM ubuntu:16.04
+
+ARG EMSCRIPTEN_VERSION=1.36.6-64bit
+ARG NODE_VERSION=4.1.1-64bit
+ARG FOR_USER=root
+
+RUN apt-get update \
+ && apt-get install -y \
+    curl \
+    unzip \
+    xvfb \
+    xauth \
+	python \
+    cmake \
+    clang \
+    git \
+    default-jre
+
+# JRE is needed because some optional parts of emscripten
+# need java (for example the closure compiler)
+
+
+# get the emscripten sdk helper
+# (manages emscripten SDK installations)
+RUN mkdir /emsdk
+
+# emscripten may try to create files in the emsdk directory
+# when it is run. It will also try to create files in the home directory.
+# Normally this would not be a problem, since docker processes
+# inside the container usually run as root. But in some cases (for example,
+# if the container is run from Jenkins), they will run as normal users.
+# So we have a build argument to specify the user that the container
+# is run as. We must make sure that this user has access to all the needed
+# resources.
+
+RUN chown $FOR_USER /emsdk
+
+RUN mkdir /userhome
+RUN chown $FOR_USER /userhome
+
+WORKDIR /emsdk
+
+# do the remaining emscripten setup as the user that we will end up being
+
+USER $FOR_USER
+
+ENV HOME=/userhome
+
+RUN git clone https://github.com/juj/emsdk.git /emsdk
+
+# no need to run emsdk update because we got the current version from github
+RUN /emsdk/emsdk install emscripten-tag-$EMSCRIPTEN_VERSION
+RUN /emsdk/emsdk activate emscripten-tag-$EMSCRIPTEN_VERSION
+RUN /emsdk/emsdk install clang-tag-e$EMSCRIPTEN_VERSION
+RUN /emsdk/emsdk activate clang-tag-e$EMSCRIPTEN_VERSION
+RUN /emsdk/emsdk install node-$NODE_VERSION
+RUN /emsdk/emsdk activate node-$NODE_VERSION
+
+ENV EMSDK_BASE_DIR=/emsdk
+
+
+
+
+
+

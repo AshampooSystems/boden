@@ -1019,7 +1019,13 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
     gen.generateModule("testbodentiming", "io.boden.android.testbodentiming", "testbodentiming", ["testboden_common"], "TestBodenTiming", ["boden"], False)
 
     
+def getEmscriptenSdkBaseDir():
+    emsdkDir = os.environ.get("EMSDK_BASE_DIR")
+    if not emsdkDir or not os.path.exists(emsdkDir):
+        # use local emsdk installation
+        emsdkDir = os.path.join(getMainDir(), "3rdparty_build", "emsdk");
 
+    return emsdkDir
 
 def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
@@ -1112,7 +1118,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
         # prepare the emscripten SDK (if not yet prepared)
         mainDir = getMainDir();
-        emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+        emsdkDir = getEmscriptenSdkBaseDir()
 
         emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
@@ -1715,7 +1721,7 @@ def commandRun(args):
                 moduleFilePath += ".html";
 
                 mainDir = getMainDir();
-                emsdkDir = os.path.join(mainDir, "3rdparty_build", "emsdk");
+                emsdkDir = getEmscriptenSdkBaseDir()
 
                 emsdkExePath = os.path.join(emsdkDir, "emsdk");
 

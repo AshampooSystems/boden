@@ -5,6 +5,21 @@ pipeline {
     }
     stages {
 
+        stage('Build webems') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile_webems'
+                    additionalBuildArgs  '--build-arg FOR_USER=$UID --build-arg EMSCRIPTEN_VERSION=1.36.6-64bit --build-arg NODE_VERSION=4.1.1-64bit'
+                    args '--volume ${WORKSPACE}:/boden -w /boden'
+                }
+            }
+
+            steps {
+                sh 'python build.py prepare --platform webems --build-system make'
+                sh 'python build.py build --platform webems --config Release'
+            }
+        }
+
         stage('Build Android') {
             agent {
                 dockerfile {
