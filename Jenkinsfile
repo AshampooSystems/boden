@@ -9,7 +9,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile_webems'
-                    additionalBuildArgs  '--build-arg FOR_USER=$USER --build-arg EMSCRIPTEN_VERSION=1.36.6-64bit --build-arg NODE_VERSION=4.1.1-64bit'
+                    additionalBuildArgs  '--build-arg FOR_USER=`id -u $USER` --build-arg EMSCRIPTEN_VERSION=1.36.6-64bit --build-arg NODE_VERSION=4.1.1-64bit'
                     args '--volume ${WORKSPACE}:/boden -w /boden'
                 }
             }
