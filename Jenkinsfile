@@ -55,23 +55,30 @@ pipeline {
             }
         }*/
 
-/*
         stage('Build Linux') {
-        	agent {
-        		label 'master'
-        	}
+            agent {
+                dockerfile {
+                    filename 'Dockerfile_linux'
+                    args '--volume ${WORKSPACE}:/boden -w /boden -t boden_linux'
+                }
+            }
             steps {
-                sh '/data/boden-ci/boden-gtk-ubuntu/docker-build.sh "${WORKSPACE}" $GIT_BRANCH'
+                sh 'python build.py prepare --platform linux --build-system make'
+                sh 'python build.py build --platform linux --config Release'
             }
         }
 
         stage('Test Linux') {
             agent {
-                label 'master'
+                dockerfile {
+                    filename 'Dockerfile_linux'
+                    args '--volume ${WORKSPACE}:/boden -w /boden -t boden_linux'
+                }
             }
             steps {
-                sh '/data/boden-ci/boden-gtk-ubuntu/docker-test.sh "${WORKSPACE}" $GIT_BRANCH'
+                sh 'python build.py --platform linux --config Release --module testboden run'
             }
-        }*/
+        }
+
     }
 }
