@@ -291,6 +291,17 @@ if( BODEN_TARGET STREQUAL "ios")
 	set_xcode_property(boden GCC_GENERATE_DEBUGGING_SYMBOLS YES)
 
 	target_compile_options(boden PUBLIC "-fobjc-arc")
+
+    set_xcode_property(boden CODE_SIGN_IDENTITY "")
+    set_xcode_property(boden CODE_SIGNING_REQUIRED "NO")
+
+    #set_xcode_property(boden CODE_SIGN_IDENTITY "iPhone Developer")
+    #set_xcode_property(boden CODE_SIGN_STYLE "Automatic")
+    #set_xcode_property(boden PROVISIONING_PROFILE "Automatic")
+    #set_xcode_property(boden DEVELOPMENT_TEAM "X")
+    
+
+
 endif()
 
 if( BODEN_TARGET STREQUAL "mac")
@@ -361,6 +372,14 @@ if( BODEN_TARGET STREQUAL "ios")
 	# set it for all builds - waiting for a fix from ios cmake maintainer.
 	# XXX needs to be removed for release build
 	set_xcode_property(testboden GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+
+    set_xcode_property(testboden CODE_SIGN_IDENTITY "")
+    set_xcode_property(testboden CODE_SIGNING_REQUIRED "NO")
+
+    #set_xcode_property(testboden CODE_SIGN_IDENTITY "iPhone Developer")
+    #set_xcode_property(testboden CODE_SIGN_STYLE "Automatic")
+    #set_xcode_property(testboden PROVISIONING_STYLE "Automatic")
+    #set_xcode_property(testboden DEVELOPMENT_TEAM "X")
 endif()
 
 if( BODEN_TARGET STREQUAL "dotnet")
@@ -483,6 +502,15 @@ if( BODEN_TARGET STREQUAL "ios")
 	# set it for all builds - waiting for a fix from ios cmake maintainer.
 	# XXX needs to be removed for release build
 	set_xcode_property(testbodenui GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+
+    set_xcode_property(testbodenui CODE_SIGN_IDENTITY "")
+    set_xcode_property(testbodenui CODE_SIGNING_REQUIRED "NO")
+
+    #set_xcode_property(testbodenui CODE_SIGN_IDENTITY "iPhone Developer")
+    #set_xcode_property(testbodenui CODE_SIGN_STYLE "Automatic")
+    #set_xcode_property(testbodenui PROVISIONING_PROFILE "Automatic")
+    #set_xcode_property(testbodenui DEVELOPMENT_TEAM "X")
+
 endif()
 
 
@@ -586,6 +614,15 @@ if( BODEN_TARGET STREQUAL "ios")
     # set it for all builds - waiting for a fix from ios cmake maintainer.
     # XXX needs to be removed for release build
     set_xcode_property(testbodentiming GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+
+    set_xcode_property(testbodentiming CODE_SIGN_IDENTITY "")
+    set_xcode_property(testbodentiming CODE_SIGNING_REQUIRED "NO")
+
+    #set_xcode_property(testbodentiming CODE_SIGN_IDENTITY "iPhone Developer")
+    #set_xcode_property(testbodentiming CODE_SIGN_STYLE "Automatic")
+    #set_xcode_property(testbodentiming PROVISIONING_PROFILE "Automatic")
+    #set_xcode_property(testbodentiming DEVELOPMENT_TEAM "X")
+    
 endif()
 
 
@@ -670,6 +707,15 @@ if( BODEN_TARGET STREQUAL "ios")
 	# set it for all builds - waiting for a fix from ios cmake maintainer.
 	# XXX needs to be removed for release build
 	set_xcode_property(uidemo GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+
+    set_xcode_property(uidemo CODE_SIGN_IDENTITY "")
+    set_xcode_property(uidemo CODE_SIGNING_REQUIRED "NO")
+
+    #set_xcode_property(uidemo CODE_SIGN_IDENTITY "iPhone Developer")
+    #set_xcode_property(uidemo CODE_SIGN_STYLE "Automatic")
+    #set_xcode_property(uidemo PROVISIONING_PROFILE "Automatic")
+    #set_xcode_property(uidemo DEVELOPMENT_TEAM "X")
+
 endif()
 
 if( BODEN_TARGET STREQUAL "android")

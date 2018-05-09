@@ -1084,15 +1084,12 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
     elif platform=="ios":
 
-        if arch=="std":
-            platform = "OS";
-
-        else:
+        if arch!="std":
             raise InvalidArchitectureError(arch);
 
         cmakeArch = None;
 
-        args.extend( [ "-DIOS_PLATFORM="+platform ] );
+        args.extend( [ "-DIOS_PLATFORM=SIMULATOR" ] );
 
         toolChainFileName = "iOS.cmake";
 
@@ -1334,8 +1331,6 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
 
 
-
-
 def getFullToolsetName(toolsetName):
     return generatorInfo.generatorAliasMap.get(toolsetName, toolsetName);    
 
@@ -1505,6 +1500,7 @@ def commandRun(args):
             outputDir = os.path.join(platformBuildDir, config);
             if platformName=="ios":
                 outputDir += "-iphonesimulator";                
+
             elif platformName=="android":
                 outputDir = platformBuildDir;
 
