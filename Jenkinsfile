@@ -65,6 +65,7 @@ pipeline {
             steps {
                 sh 'python build.py prepare --platform linux --build-system make'
                 sh 'python build.py build --platform linux --config Release'
+                stash includes: 'build/**/*', name: 'boden_linux_builddir'
             }
         }
 
@@ -76,6 +77,7 @@ pipeline {
                 }
             }
             steps {
+                unstash 'boden_linux_builddir'
                 sh 'python build.py --platform linux --config Release --module testboden run'
             }
         }
