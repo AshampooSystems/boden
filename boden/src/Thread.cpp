@@ -5,6 +5,10 @@
 #include <bdn/java/Env.h>
 #endif
 
+#ifdef BDN_PLATFORM_WEBEMS
+#include <chrono>
+#endif
+
 #include <cassert>
 
 namespace bdn
@@ -146,7 +150,15 @@ void Thread::sleepMillis( int64_t millis)
 	if(millis<=0)
 		yield();
 	else
-		std::this_thread::sleep_for( std::chrono::milliseconds( millis ) );
+    {
+#if BDN_PLATFORM_WEBEMS
+        // the emscripten standard library sometimes sleeps for a few millis too little.
+        // So we add a few so that we always sleep at least the requested amount.
+        millis += 5;
+#endif
+
+        std::this_thread::sleep_for( std::chrono::milliseconds( millis ) );
+    }
 }
 
 void Thread::yield() noexcept

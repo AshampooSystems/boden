@@ -20,6 +20,7 @@ EXIT_PROGRAM_ARGUMENT_ERROR = 1;
 EXIT_CMAKE_PROBLEM = 10;
 EXIT_TOOL_FAILED = 11;
 EXIT_INCORRECT_CALL = 12;
+EXIT_PREPARED_STATE_ERROR = 13;
 
 
 
@@ -60,6 +61,18 @@ class ErrorWithExitCode(Exception):
     def __init__(self, exitCode, errorMessage):
         Exception.__init__(self, errorMessage);
         self.exitCode = exitCode;
+
+
+
+class PreparedStateError(ErrorWithExitCode):
+    def __init__(self, errorMessage):        
+        if not errorMessage:
+            errorMessage = "prepared state error";
+
+        ErrorWithExitCode.__init__(self, EXIT_PREPARED_STATE_ERROR, errorMessage);
+        self.errorMessage = errorMessage;
+
+
 
 
 class ProgramArgumentError(ErrorWithExitCode):
@@ -527,7 +540,7 @@ def get_gradle_path():
                 if not os.path.isdir(gradle_base_dir):
                     os.makedirs(gradle_base_dir)
 
-                print("Downloading gradle...")
+                print("Downloading gradle...", file=sys.stderr)
 
                 gradle_zip_file_name = gradle_version_name+"-bin.zip"
 
@@ -537,7 +550,7 @@ def get_gradle_path():
                     "https://services.gradle.org/distributions/"+gradle_zip_file_name,
                     gradle_download_file)
 
-                print("Extracting gradle...")
+                print("Extracting gradle...", file=sys.stderr)
 
                 zipf = zipfile.ZipFile(gradle_download_file, 'r')
                 zipf.extractall(gradle_base_dir)
@@ -1134,7 +1147,8 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
                 # subprocess.check_call( '"%s" install sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
                 # subprocess.check_call( '"%s" activate sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
 
-                ver = "1.36.6-64bit"
+                #ver = "1.36.6-64bit"
+                ver = "1.37.39-64bit"                
 
                 subprocess.check_call( '"%s" install emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
                 subprocess.check_call( '"%s" activate emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
@@ -1342,7 +1356,7 @@ def getPreparedPlatformsAndArchs():
     preparedList = [];
 
     if os.path.isdir(buildDir):
-        for name in os.listdir(buildDir):            
+        for name in os.listdir(buildDir):
             platform, arch = splitBuildDirName(name);
             if platform and platform in platformMap:
                 preparedList.append( (platform, arch) );
@@ -1362,7 +1376,6 @@ def getPlatformAndArchListForCommand(args):
         for preparedPlatform, preparedArch in preparedPlatformsAndArchs:
             platformList.append( preparedPlatform );
 
-
     platformAndArchList = [];
 
     for platform in platformList:
@@ -1375,12 +1388,12 @@ def getPlatformAndArchListForCommand(args):
                 if preparedPlatform==platform:
                     platformAndArchList.append( (platform, preparedArch) );
 
-
     return platformAndArchList;
 
 
 
 def commandBuildOrClean(command, args):
+
 
     for platformName, arch in getPlatformAndArchListForCommand(args):
 
@@ -1478,6 +1491,11 @@ def commandRun(args):
     if not args.config:
         raise ProgramArgumentError("Please specify the configuration name with --config CONFIG")
 
+    platformAndArchList = getPlatformAndArchListForCommand(args)
+    if len(platformAndArchList)==0:
+        raise PreparedStateError("No platform-arch pairs found for run command.")
+
+
     for platformName, arch in getPlatformAndArchListForCommand(args):
 
         if platformName not in platformMap:
@@ -1489,6 +1507,8 @@ def commandRun(args):
         singleConfigBuildSystem = platformState.get("singleConfigBuildSystem", False);
 
         commandIsInQuote = False;
+
+        stdOutFileHandled = False
 
         if not args.config:
             configList = ["Debug", "Release"];
@@ -1520,11 +1540,17 @@ def commandRun(args):
 
             elif platformName=="ios":
 
+                if args.stdout_file:
+                    raise Exception("Redirecting stdout to a file is currently not implemented for ios.")
+
                 if os.path.exists(moduleFilePath+".app"):
                     moduleFilePath += ".app";
                     commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
 
             elif platformName=="android":
+
+                if args.stdout_file:
+                    raise Exception("Redirecting stdout to a file is currently not implemented for android.")
 
                 android_api_version = "26"
 
@@ -1751,13 +1777,23 @@ def commandRun(args):
                 finally:
                     sock.close();
 
+                stdoutOption = ""
+                if args.stdout_file:
+                    # emrun will append to this file if it exists. So we have to make sure
+                    # that it does not exist first
+                    if os.path.exists(args.stdout_file):
+                        os.remove(args.stdout_file)
+                        
+                    stdoutOption = '--log_stdout "%s"' % os.path.abspath(args.stdout_file)
+                    stdOutFileHandled = True
+
                 # note that we pass the --no_emrun_detect flag. This disables the warning
                 # message that the files were not built with --emrun. The warning is generated
                 # by a timed check after 10 seconds, which verifies that the JS code has
                 # "checked in". However, since we have huge JS files, it may well be that the
                 # browser takes longer to download and initialize them. So we disable the warning.
 
-                actualCommand = "emrun --no_emrun_detect --port %d %s %s" % (portNum, browserOption, moduleFilePath);
+                actualCommand = "emrun --kill_start --kill_exit --no_emrun_detect --port %d %s %s %s" % (portNum, browserOption, stdoutOption, moduleFilePath);
 
                 if commandIsInQuote:
                     commandLine += actualCommand.replace('"', '\\"');
@@ -1781,7 +1817,22 @@ def commandRun(args):
 
             print(commandLine, file=sys.stderr);
 
-            exitCode = subprocess.call(commandLine, shell=True, cwd=outputDir);
+            stdout_file = None
+            try:
+                call_kwargs = { "shell": True,
+                                "cwd": outputDir
+                                }
+
+                if args.stdout_file and not stdOutFileHandled:
+                    stdout_file = os.open(args.stdout_file, os.O_WRONLY|os.O_TRUNC|os.O_CREAT)
+                    call_kwargs["stdout"] = stdout_file
+
+                exitCode = subprocess.call(commandLine, **call_kwargs);
+
+            finally:
+                if stdout_file is not None:
+                    os.close(stdout_file)
+
             if exitCode!=0:
                 raise ToolFailedError("run", exitCode);
 
@@ -2020,8 +2071,6 @@ def main():
 
     print("", file=sys.stderr);
 
-
-
     try:
         global generatorInfo;
         generatorInfo = GeneratorInfo();
@@ -2036,6 +2085,8 @@ def main():
         argParser.add_argument("--arch" );
 
         argParser.add_argument("--module" );
+
+        argParser.add_argument("--stdout-file" );
 
         argParser.add_argument("params", nargs="*" );
 

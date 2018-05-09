@@ -27,18 +27,7 @@ void testCallFromMainThread(bool throwException)
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
         if(throwException)
-        {
-#if BDN_PLATFORM_WEBEMS
-            // XXX             
-            // result.get() causes a crash here with emscripten (due to a compiler bug).
-            // See https://github.com/kripken/emscripten/issues/4546
-            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
-            REQUIRE( false );   // let test fail
-#else
-
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
-#endif
-        }
         else
             REQUIRE( result.get()==84 );
 
@@ -488,17 +477,7 @@ void testWrapCallFromMainThread(bool throwException)
         REQUIRE( result.wait_for( std::chrono::milliseconds(0)) == std::future_status::ready  );
 
         if(throwException)
-        {
-#if BDN_PLATFORM_WEBEMS
-            // XXX             
-            // result.get() causes a crash here with emscripten (due to a compiler bug).
-            // See https://github.com/kripken/emscripten/issues/4546
-            // So just cause a fail and do not call result.get() until emscripten fixes the bug.
-            REQUIRE( false );   // let test fail
-#else
             REQUIRE_THROWS_AS( result.get(), InvalidArgumentError );
-#endif
-        }
         else
             REQUIRE( result.get()==84 );
 

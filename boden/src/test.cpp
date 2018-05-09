@@ -2173,7 +2173,11 @@ struct IStreamingReporter : IShared {
 	virtual void testGroupStarting( GroupInfo const& groupInfo ) = 0;
 
 	virtual void testCaseStarting( TestCaseInfo const& testInfo ) = 0;
-	virtual void sectionStarting( SectionInfo const& sectionInfo ) = 0;
+    
+    /** firstIteration indicates whether or not this section is entered for the first time.
+        Sections can be entered multiple times if they have child sections (then they are entered
+        once for every child)*/
+	virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) = 0;
 
 	virtual void assertionStarting( AssertionInfo const& assertionInfo ) = 0;
 
@@ -2882,11 +2886,6 @@ public:
     }
 };
 
-void printTestStatus(const IConfig* pConfig, const std::string& s)
-{    
-    if(pConfig!=nullptr)
-        pConfig->stream() << s << std::endl;
-}
 
 
 class RunContext : public IResultCapture, public IRunner {
@@ -2949,10 +2948,9 @@ public:
 
 		m_activeTestCase = &testCase;
         
-        _statusText = "Test case: "+m_activeTestCase->getTestCaseInfo().name;
-
-        if(m_printLevel>=1)
-            printTestStatus(m_config.get(), "Test case: "+getCurrentTestName() );            
+        std::string currentTestName = getCurrentTestName();
+        
+        _statusText = "Test case: "+currentTestName;
 
 		_testDoneCallback = doneCallback;
 
@@ -3094,30 +3092,14 @@ private: // IResultCapture
 			    return false;
 		    m_activeSections.push_back( &sectionTracker );
 
-            // print level 0 means no printing.
-            // print level 1 means just test cases
-            // print level 2 means first level of sections
-            // etc.
             // the section tracker will have no children when the section is first entered.
             // On subsequent enters it will have children. So this is a good way to filter
             // out the subsequent enters.
-            if( !sectionTracker.hasChildren() && m_activeSections.size()+1 <= (size_t)m_printLevel )
-            {
-                std::string statusText;
-                for(size_t i=0; i<m_activeSections.size(); i++)
-                    statusText += " ";
-
-                if(sectionInfo.name.empty())
-                    statusText += "@" + sectionInfo.lineInfo.toStringForTest();
-                else
-                    statusText += sectionInfo.name;
-
-                printTestStatus(m_config.get(), statusText);
-            }
-
+            bool firstIteration = !sectionTracker.hasChildren();
+            
 		    m_lastAssertionInfo.lineInfo = sectionInfo.lineInfo;
 
-		    m_reporter->sectionStarting( sectionInfo );
+		    m_reporter->sectionStarting( sectionInfo, firstIteration );
 
 		    assertions = m_totals.assertions;
 
@@ -3194,7 +3176,8 @@ private: // IResultCapture
 			    pSectionTracker->fail();
 		    else
 			    pSectionTracker->close();
-		    m_activeSections.pop_back();
+            if( !m_activeSections.empty() )
+                m_activeSections.pop_back();
 
 		    m_unfinishedSections.push_back( endInfo );
         }
@@ -3718,7 +3701,7 @@ private:
 
 		_pCurrentTestCaseSection = new SectionInfo( _pCurrentTestCaseInfo->lineInfo, _pCurrentTestCaseInfo->name, _pCurrentTestCaseInfo->description );
 
-		m_reporter->sectionStarting( *_pCurrentTestCaseSection );
+		m_reporter->sectionStarting( *_pCurrentTestCaseSection, true );
 
 		_currentTestPrevAssertions = m_totals.assertions;
 		
@@ -5569,7 +5552,7 @@ public:
 	virtual void testRunStarting( TestRunInfo const& );
 	virtual void testGroupStarting( GroupInfo const& groupInfo );
 	virtual void testCaseStarting( TestCaseInfo const& testInfo );
-	virtual void sectionStarting( SectionInfo const& sectionInfo );
+	virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration );
 	virtual void assertionStarting( AssertionInfo const& );
 	virtual bool assertionEnded( AssertionStats const& assertionStats );
 	virtual void sectionEnded( SectionStats const& sectionStats );
@@ -5606,7 +5589,7 @@ void LegacyReporterAdapter::testGroupStarting( GroupInfo const& groupInfo ) {
 void LegacyReporterAdapter::testCaseStarting( TestCaseInfo const& testInfo ) {
 	m_legacyReporter->StartTestCase( testInfo );
 }
-void LegacyReporterAdapter::sectionStarting( SectionInfo const& sectionInfo ) {
+void LegacyReporterAdapter::sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) {
 	m_legacyReporter->StartSection( sectionInfo.name, sectionInfo.description );
 }
 void LegacyReporterAdapter::assertionStarting( AssertionInfo const& ) {
@@ -6448,11 +6431,11 @@ public: // IStreamingReporter
 			(*it)->testCaseStarting( testInfo );
 	}
 
-	virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
+	virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) BDN_OVERRIDE {
 		for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
 		it != itEnd;
 			++it )
-			(*it)->sectionStarting( sectionInfo );
+			(*it)->sectionStarting( sectionInfo, firstIteration );
 	}
 
 	virtual void assertionStarting( AssertionInfo const& assertionInfo ) BDN_OVERRIDE {
@@ -6569,7 +6552,8 @@ struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 		currentTestCaseInfo = _testInfo;
 		m_leafSectionStack = m_sectionStack;
 	}
-	virtual void sectionStarting( SectionInfo const& _sectionInfo ) BDN_OVERRIDE {
+    
+	virtual void sectionStarting( SectionInfo const& _sectionInfo, bool firstIteration ) BDN_OVERRIDE {
 		m_sectionStack.push_back( _sectionInfo );
 		m_leafSectionStack = m_sectionStack;
 	}
@@ -6671,7 +6655,7 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 
 	virtual void testCaseStarting( TestCaseInfo const& ) BDN_OVERRIDE {}
 
-	virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
+	virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) BDN_OVERRIDE {
 		SectionStats incompleteStats( sectionInfo, Counts(), 0, false );
 		Ptr<SectionNode> node;
 		if( m_sectionStack.empty() ) {
@@ -7147,8 +7131,8 @@ public: // StreamingReporterBase
 			m_testCaseTimer.start();
 	}
 
-	virtual void sectionStarting( SectionInfo const& sectionInfo ) BDN_OVERRIDE {
-		StreamingReporterBase::sectionStarting( sectionInfo );
+	virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) BDN_OVERRIDE {
+		StreamingReporterBase::sectionStarting( sectionInfo, firstIteration );
 		if( m_sectionDepth++ > 0 ) {
 			m_xml.startElement( "Section" )
 				.writeAttribute( "name", trim( sectionInfo.name ) )
@@ -7540,10 +7524,31 @@ struct ConsoleReporter : StreamingReporterBase {
 		return true;
 	}
 
-	virtual void sectionStarting( SectionInfo const& _sectionInfo ) BDN_OVERRIDE {
+	virtual void sectionStarting( SectionInfo const& _sectionInfo, bool firstIteration ) BDN_OVERRIDE {
 		m_headerPrinted = false;
-		StreamingReporterBase::sectionStarting( _sectionInfo );
+		StreamingReporterBase::sectionStarting( _sectionInfo, firstIteration );
+        
+        // print level 0 means no printing.
+        // print level 1 means just test cases
+        // print level 2 means first level of sections
+        // etc.
+        // Note that the test case itself is also reported as a section (in addition to being
+        // reported as a test case).
+        if( firstIteration && m_sectionStack.size()>1 && m_sectionStack.size() <= (size_t)m_config->printLevel() )
+        {
+            std::string statusText;
+            for(size_t i=0; i<m_sectionStack.size()-1; i++)
+                statusText += " ";
+            
+            if(_sectionInfo.name.empty())
+                statusText += "@" + _sectionInfo.lineInfo.toStringForTest();
+            else
+                statusText += _sectionInfo.name;
+            
+            stream << statusText << std::endl;
+        }
 	}
+    
 	virtual void sectionEnded( SectionStats const& _sectionStats ) BDN_OVERRIDE {
 		if( _sectionStats.missingAssertions ) {
 			lazyPrint();
@@ -7565,6 +7570,17 @@ struct ConsoleReporter : StreamingReporterBase {
 		}
 		StreamingReporterBase::sectionEnded( _sectionStats );
 	}
+    
+    
+    virtual void testCaseStarting( TestCaseInfo const& _testInfo ) BDN_OVERRIDE {
+        
+        StreamingReporterBase::testCaseStarting(_testInfo);
+        
+        if( m_config->printLevel() >= 1)
+            stream << ("Test case: "+_testInfo.name ) << std::endl;
+    }
+    
+    
 
 	virtual void testCaseEnded( TestCaseStats const& _testCaseStats ) BDN_OVERRIDE {
 		StreamingReporterBase::testCaseEnded( _testCaseStats );

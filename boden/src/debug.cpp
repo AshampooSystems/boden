@@ -126,6 +126,10 @@ namespace bdn
         // stdout might be connected to a controlling command prompt process.
         // So we print debug messages there.
         std::cout << text.asUtf8() << std::endl;
+        // Note: apparently the stdout implementation from Emscripten
+        // has a bug that sometimes causes writes to be misordered if we do not
+        // flush after each one. So for the time being we do this.
+        std::cout.flush();
     }
 }
 

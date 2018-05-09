@@ -1,8 +1,7 @@
 FROM ubuntu:16.04
 
-ARG EMSCRIPTEN_VERSION=1.36.6-64bit
+ARG EMSCRIPTEN_VERSION=1.37.39-64bit
 ARG NODE_VERSION=4.1.1-64bit
-ARG FOR_USER=root
 
 RUN apt-get update \
  && apt-get install -y \
@@ -14,36 +13,24 @@ RUN apt-get update \
     cmake \
     clang \
     git \
-    default-jre
+    default-jre \
+    dbus-x11 \
+    firefox
 
 # JRE is needed because some optional parts of emscripten
 # need java (for example the closure compiler)
+# Firefox is installed so that we can run unit tests inside
+# the docker container.
 
 
 # get the emscripten sdk helper
 # (manages emscripten SDK installations)
 RUN mkdir /emsdk
-
-# emscripten may try to create files in the emsdk directory
-# when it is run. It will also try to create files in the home directory.
-# Normally this would not be a problem, since docker processes
-# inside the container usually run as root. But in some cases (for example,
-# if the container is run from Jenkins), they will run as normal users.
-# So we have a build argument to specify the user that the container
-# is run as. We must make sure that this user has access to all the needed
-# resources.
-
-RUN chown $FOR_USER /emsdk
-
 RUN mkdir /userhome
-RUN chown $FOR_USER /userhome
 
 WORKDIR /emsdk
 
 # do the remaining emscripten setup as the user that we will end up being
-
-USER $FOR_USER
-
 ENV HOME=/userhome
 
 RUN git clone https://github.com/juj/emsdk.git /emsdk
@@ -59,6 +46,18 @@ RUN /emsdk/emsdk activate node-$NODE_VERSION
 ENV EMSDK_BASE_DIR=/emsdk
 
 
+# emscripten may try to create files in the emsdk directory
+# when it is run. It will also try to create files in the home directory.
+# Normally this would not be a problem, since docker processes
+# inside the container usually run as root. But in some cases (for example,
+# if the container is run from Jenkins), they will run as normal users.
+# So we have to make sure that all users get to modify whatever they want
+# in the home directory.
+# The emscripten SDK directory is a similar case: emscripten may need to modify
+# and create files there when we prepare or build the code.
+
+RUN chmod -R go+rwX /userhome
+RUN chmod -R go+rwX /emsdk
 
 
 

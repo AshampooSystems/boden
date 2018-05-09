@@ -6,6 +6,7 @@ if(${CMAKE_VERSION} VERSION_GREATER 3.1)
 endif()
 
 
+
 project (boden)
 
 SET(BODEN_USES_PTHREAD 0)
@@ -165,10 +166,14 @@ if( "${BODEN_TARGET}" STREQUAL "webems" )
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0 -s DEMANGLE_SUPPORT=1 -s ALLOW_MEMORY_GROWTH=1")
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -s ASSERTIONS=2")
 
+
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+
 	# for some reason it has no effect if we set the generic CMAKE_EXE_LINKER_FLAGS
 	# on linux. We must set the debug/release versions
-	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\"")
+	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap']\"")
+	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} --emrun --bind -s EXPORTED_FUNCTIONS=\"['_main', '_bdn_webems_MainDispatcher_timerEventCallback']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap']\"")
 
 endif()
 
@@ -342,12 +347,13 @@ endif()
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:BDN_DEBUG>)
 set_property(TARGET testboden APPEND PROPERTY COMPILE_DEFINITIONS BDN_COMPILING_COMMANDLINE_APP)
 
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 
     get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
 
 	# make sure that we also generate a HTML file
-	set_property(TARGET testboden APPEND PROPERTY LINK_FLAGS "-o testboden.html --shell-file ${WEBEMS_SHELL_FILE}")
+	set_property(TARGET testboden APPEND PROPERTY LINK_FLAGS "-o testboden.html --shell-file ${WEBEMS_SHELL_FILE} --separate-asm")
 endif()
 
 target_link_libraries(testboden boden)
@@ -456,7 +462,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
 
 	# make sure that we also generate a HTML file
-	set_property(TARGET testbodenui APPEND PROPERTY LINK_FLAGS "-o testbodenui.html --shell-file ${WEBEMS_SHELL_FILE}")
+	set_property(TARGET testbodenui APPEND PROPERTY LINK_FLAGS "-o testbodenui.html --shell-file ${WEBEMS_SHELL_FILE} --separate-asm")
 endif()
 
 target_link_libraries(testbodenui boden)
@@ -568,7 +574,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
 
     # make sure that we also generate a HTML file
-    set_property(TARGET testbodentiming APPEND PROPERTY LINK_FLAGS "-o testbodentiming.html --shell-file ${WEBEMS_SHELL_FILE}")
+    set_property(TARGET testbodentiming APPEND PROPERTY LINK_FLAGS "-o testbodentiming.html --shell-file ${WEBEMS_SHELL_FILE} --separate-asm")
 endif()
 
 target_link_libraries(testbodentiming boden)
@@ -660,7 +666,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 
 	get_filename_component(WEBEMS_SHELL_FILE "../uishell.html" ABSOLUTE)
 
-	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html --shell-file ${WEBEMS_SHELL_FILE}")
+	set_property(TARGET uidemo APPEND PROPERTY LINK_FLAGS "-o uidemo.html --shell-file ${WEBEMS_SHELL_FILE} --separate-asm")
 
 endif()
 

@@ -6,4 +6,4 @@ reports
 3rdparty_build
 .gradle
 *~
-
+testresults
