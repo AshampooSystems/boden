@@ -625,7 +625,12 @@ public:
 
             pButton->margin() = UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left);
 
-            Margin scrollViewPadding(5,6,7,8);
+            // on the webems platform, scrollbars are not shown
+            // if the ScrollView is too small. On Firefox Linux the minimum size
+            // is around 42 pixels. On Firefox for Mac it is around 12 pixels.
+            // So we should make sure that our scrollview is well over these limits.
+
+            Margin scrollViewPadding(35,36,37,38);
 
             scrollViewPadding.top = stableScaledRound(RoundType::nearest, scrollViewPadding.top, 1.0/pixelSize.height);
             scrollViewPadding.bottom = stableScaledRound(RoundType::nearest, scrollViewPadding.bottom, 1.0/pixelSize.height);

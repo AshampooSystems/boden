@@ -14,6 +14,19 @@ namespace bdn
 
     Scroll views scroll only vertically by default. See horizontalScrollingEnabled()
     and verticalScrollingEnabled() to change that.
+
+    Platform note:
+
+    When you are building a web application (i.e. you are building for the webems platform)
+    then you should be aware that some browsers do not show scrollbars when the ScrollView
+    is too small. What this minimum size for scrolling is depends on the browser AND the
+    host operating system. For example, at the time of this writing, Firefox on Mac shows
+    scrollbars when the ScrollView viewport is at least 12 pixels wide/high, But Firefox
+    on Linux has a higher limit and only shows scrollbars when the ScrollView viewport is
+    at least 42 pixels.
+    Note that these numbers are only examples - you should never depend on them. The important
+    thing to remember is that on the webems platform you might not get scrollbars when the
+    ScrollView is very small.
 */
 class ScrollView : public View
 {
