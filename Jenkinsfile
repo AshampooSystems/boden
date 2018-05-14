@@ -98,7 +98,8 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile_linux'
-                    args '--volume ${WORKSPACE}:/boden -w /boden -t boden_linux'
+                    additionalBuildArgs '-t boden_linux'
+                    args '--volume ${WORKSPACE}:/boden -w /boden'
                 }
             }
             steps {
@@ -113,7 +114,8 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile_linux'
-                    args '--volume ${WORKSPACE}:/boden -w /boden -t boden_linux'
+                    additionalBuildArgs '-t boden_linux'
+                    args '--volume ${WORKSPACE}:/boden -w /boden'
                 }
             }
             steps {
