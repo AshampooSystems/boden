@@ -93,7 +93,7 @@ pipeline {
                 sh 'python build.py --platform android --config Debug --module testbodentiming run'
             }
         }*/
-/*
+
         stage('Build Linux') {
             agent {
                 dockerfile {
@@ -105,8 +105,7 @@ pipeline {
                 sh 'python build.py prepare --platform linux --build-system make'
                 sh 'python build.py build --platform linux --config Release'
                 
-                XXX remove underscores next to * on next line. Inserted because they would otherwise end the comment
-                stash includes: 'build/_*_*_/_*', name: 'boden_linux_builddir'
+                stash includes: 'build/**/*', name: 'boden_linux_builddir'
             }
         }
 
@@ -121,7 +120,7 @@ pipeline {
                 unstash 'boden_linux_builddir'
                 sh 'python build.py --platform linux --config Release --module testboden run'
             }
-        }*/
+        }
 
     }
 }
