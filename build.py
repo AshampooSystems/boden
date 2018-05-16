@@ -1652,7 +1652,7 @@ def commandRun(args):
                         try:
                             output = subprocess.check_output(boot_anim_state_command, stderr=subprocess.STDOUT, shell=True)                            
                             state_error = False
-                        except subprocess.CalledProcessError, e:                            
+                        except subprocess.CalledProcessError as e:                            
                             output = e.output
                             state_error = True
 
