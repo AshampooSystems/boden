@@ -1,21 +1,43 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/TextUiStdOStream.h>
+#include <bdn/TextSinkStdOStream.h>
 
 #include <bdn/test/MockTextUi.h>
 
 using namespace bdn;
 
 
+class TestTextSinkForTextSinkStdOStream : public Base, BDN_IMPLEMENTS ITextSink
+{
+public:
+    
+    Array<String> writtenChunks;
+    
+    void write(const String& s) override
+    {
+        writtenChunks.add(s);
+    }
+    
+    
+    
+    void writeLine(const String& s) override
+    {
+        writtenChunks.add(s+"\n");
+    }
+    
+    
+    
+};
+
 template<class CharType>
-static void testTextUiStdOStream()
-{    
-    P<bdn::test::MockTextUi> pUi = newObj<bdn::test::MockTextUi>();
+static void testTextSinkStdOStream()
+{
+    P<TestTextSinkForTextSinkStdOStream> pSink = newObj<TestTextSinkForTextSinkStdOStream>();
 
-    const Array<String>& writtenChunks = pUi->getWrittenChunks();
+    const Array<String>& writtenChunks = pSink->writtenChunks;
 
-    TextUiStdOStream<CharType> streamObj(pUi);
+    TextSinkStdOStream<CharType> streamObj(pSink);
 
     // use the classic locale so that we get predictable formatting
     streamObj.imbue( std::locale::classic() );
@@ -77,10 +99,10 @@ static void testTextUiStdOStream()
 TEST_CASE("TextUiStdOStream")
 {
     SECTION("char")
-        testTextUiStdOStream<char>();
+        testTextSinkStdOStream<char>();
 
     SECTION("wchar_t")
-        testTextUiStdOStream<wchar_t>();
+        testTextSinkStdOStream<wchar_t>();
 
     // the std stream implementations for char16_t and char32_t do not work reliably
     // with all compilers at the time of this writing (buggy in VS2015 and VS2017).

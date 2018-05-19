@@ -1,11 +1,11 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-#include <bdn/TextUiStdStreamBuf.h>
+#include <bdn/TextSinkStdStreamBuf.h>
 #include <bdn/NotImplementedError.h>
 #include <bdn/localeUtil.h>
 
-#include <bdn/test/MockTextUi.h>
+#include <bdn/test/MockTextSink.h>
 
 
 using namespace bdn;
@@ -14,7 +14,7 @@ using namespace bdn;
 
 
 template<typename CharType>
-struct TextUiStreamBufSubTestData_
+struct TextSinkStreamBufSubTestData_
 {
     std::basic_string<CharType>	encoded;
     String	                    expectedDecoded;
@@ -22,12 +22,12 @@ struct TextUiStreamBufSubTestData_
 };
 
 template<typename CharType>
-static void initTextUiStreamBufSubTestData( std::list<TextUiStreamBufSubTestData_<CharType> >& subTestDataList );
+static void initTextSinkStreamBufSubTestData( std::list<TextSinkStreamBufSubTestData_<CharType> >& subTestDataList );
 
 template<>
-void initTextUiStreamBufSubTestData<char>( std::list<TextUiStreamBufSubTestData_<char> >& subTestDataList )
+void initTextSinkStreamBufSubTestData<char>( std::list<TextSinkStreamBufSubTestData_<char> >& subTestDataList )
 {
-    subTestDataList = std::list< TextUiStreamBufSubTestData_<char> > {
+    subTestDataList = std::list< TextSinkStreamBufSubTestData_<char> > {
                                 { "", U"", "empty" },
                                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                                 // Use \0 instead.
@@ -53,13 +53,13 @@ void initTextUiStreamBufSubTestData<char>( std::list<TextUiStreamBufSubTestData_
 
 
 template<>
-void initTextUiStreamBufSubTestData<char16_t>( std::list<TextUiStreamBufSubTestData_<char16_t> >& subTestDataList )
+void initTextSinkStreamBufSubTestData<char16_t>( std::list<TextSinkStreamBufSubTestData_<char16_t> >& subTestDataList )
 {
     // \uFFFF yields and incorrect string with G++ 4.8. So we work around it.
 	char16_t u16ffff[2] = {0xffff, 0};
 	char32_t u32ffff[2] = {0xffff, 0};
 
-    subTestDataList = std::list< TextUiStreamBufSubTestData_<char16_t> > {                                
+    subTestDataList = std::list< TextSinkStreamBufSubTestData_<char16_t> > {
                                 { u"", U"", "empty" },
                                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                                 // Use \0 instead.
@@ -90,9 +90,9 @@ void initTextUiStreamBufSubTestData<char16_t>( std::list<TextUiStreamBufSubTestD
 
 
 template<>
-void initTextUiStreamBufSubTestData<char32_t>( std::list<TextUiStreamBufSubTestData_<char32_t> >& subTestDataList )
+void initTextSinkStreamBufSubTestData<char32_t>( std::list<TextSinkStreamBufSubTestData_<char32_t> >& subTestDataList )
 {
-    subTestDataList = std::list< TextUiStreamBufSubTestData_<char32_t> > {                                
+    subTestDataList = std::list< TextSinkStreamBufSubTestData_<char32_t> > {
                                 { U"", U"", "empty" },
                                 // note that gcc has a bug. \u0000 is represented as 1, not 0.
                                 // Use \0 instead.
@@ -106,16 +106,16 @@ void initTextUiStreamBufSubTestData<char32_t>( std::list<TextUiStreamBufSubTestD
 
 
 template<>
-void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestData_<wchar_t> >& subTestDataList )
+void initTextSinkStreamBufSubTestData<wchar_t>( std::list<TextSinkStreamBufSubTestData_<wchar_t> >& subTestDataList )
 {
     if(sizeof(wchar_t)==2)
     {
-        std::list<TextUiStreamBufSubTestData_<char16_t> > u16List;
-        initTextUiStreamBufSubTestData(u16List);
+        std::list<TextSinkStreamBufSubTestData_<char16_t> > u16List;
+        initTextSinkStreamBufSubTestData(u16List);
 
         for(auto& u16Entry: u16List)
         {
-            TextUiStreamBufSubTestData_<wchar_t> entry;
+            TextSinkStreamBufSubTestData_<wchar_t> entry;
             entry.encoded = std::wstring((const wchar_t*)u16Entry.encoded.c_str(), u16Entry.encoded.length());
             entry.expectedDecoded = u16Entry.expectedDecoded;
             entry.desc = u16Entry.desc;
@@ -125,12 +125,12 @@ void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestDa
     }
     else
     {
-        std::list<TextUiStreamBufSubTestData_<char32_t> > u32List;
-        initTextUiStreamBufSubTestData(u32List);
+        std::list<TextSinkStreamBufSubTestData_<char32_t> > u32List;
+        initTextSinkStreamBufSubTestData(u32List);
 
         for(auto& u32Entry: u32List)
         {
-            TextUiStreamBufSubTestData_<wchar_t> entry;
+            TextSinkStreamBufSubTestData_<wchar_t> entry;
             entry.encoded = std::wstring((const wchar_t*)u32Entry.encoded.c_str(), u32Entry.encoded.length());
             entry.expectedDecoded = u32Entry.expectedDecoded;
             entry.desc = u32Entry.desc;
@@ -141,9 +141,9 @@ void initTextUiStreamBufSubTestData<wchar_t>( std::list<TextUiStreamBufSubTestDa
 }
 
 template<class CharType>
-static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, TextUiStdStreamBuf<CharType>& buf, bool multiByteIsUtf8 )
+static void testTextSinkStreamBuf_Preinitialized(P< bdn::test::MockTextSink> pSink, TextSinkStdStreamBuf<CharType>& buf, bool multiByteIsUtf8 )
 {  
-    const Array<String>& writtenChunks = pUi->getWrittenChunks();
+    const Array<String>& writtenChunks = pSink->getWrittenChunks();
 
     SECTION("sputc auto flush")
     {
@@ -155,7 +155,7 @@ static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, Te
             expectedDataA += "a";
         }
 
-        const Array<String>& writtenChunks = pUi->getWrittenChunks();
+        const Array<String>& writtenChunks = pSink->getWrittenChunks();
 
         // nothing should have been written yet
         REQUIRE( writtenChunks.size() == 0);
@@ -288,8 +288,8 @@ static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, Te
     {
         SECTION("encoded data tests")
         {
-            std::list< TextUiStreamBufSubTestData_<CharType> > subTestDataList;
-            initTextUiStreamBufSubTestData<CharType>(subTestDataList);        
+            std::list< TextSinkStreamBufSubTestData_<CharType> > subTestDataList;
+            initTextSinkStreamBufSubTestData<CharType>(subTestDataList);
         
             int subTestIndex=-1;
 	        for(auto& subTestData: subTestDataList)
@@ -405,15 +405,15 @@ static void testTextUiStreamBuf_Preinitialized(P< bdn::test::MockTextUi> pUi, Te
 
 
 template<class CharType>
-static void testTextUiStreamBuf()
+static void testTextSinkStreamBuf()
 {
-    P< bdn::test::MockTextUi> pUi = newObj<bdn::test::MockTextUi>();
+    P< bdn::test::MockTextSink> pSink = newObj<bdn::test::MockTextSink>();
 
-    TextUiStdStreamBuf< CharType > buf(pUi);
+    TextSinkStdStreamBuf< CharType > buf(pSink);
 
     SECTION("default locale")
     {
-        testTextUiStreamBuf_Preinitialized(pUi, buf, false);        
+        testTextSinkStreamBuf_Preinitialized(pSink, buf, false);
     }
 
     SECTION("utf8 locale")
@@ -422,24 +422,24 @@ static void testTextUiStreamBuf()
         
         buf.pubimbue(loc);
 
-        testTextUiStreamBuf_Preinitialized(pUi, buf, true);        
+        testTextSinkStreamBuf_Preinitialized(pSink, buf, true);
     }
 }
 
 
-TEST_CASE("TextUiStdStreamBuf")
+TEST_CASE("TextSinkStdStreamBuf")
 {
     SECTION("char")
-        testTextUiStreamBuf<char>();
+        testTextSinkStreamBuf<char>();
 
     SECTION("wchar_t")
-        testTextUiStreamBuf<wchar_t>();
+        testTextSinkStreamBuf<wchar_t>();
 
     SECTION("char16_t")
-        testTextUiStreamBuf<char16_t>();
+        testTextSinkStreamBuf<char16_t>();
 
     SECTION("char32_t")
-        testTextUiStreamBuf<char32_t>();    
+        testTextSinkStreamBuf<char32_t>();
 }
 
 

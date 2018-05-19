@@ -80,7 +80,6 @@ P< IAsyncOp<String> > ViewTextUi::readLine()
 }
 
 
-    
 void ViewTextUi::write(const String& s)
 {
     Mutex::Lock lock(_mutex);
@@ -116,6 +115,11 @@ void ViewTextUi::write(const String& s)
                 } );            
         }
     }*/
+}
+    
+void ViewTextUi::writeLine(const String& s)
+{
+    write(s+"\n");
 }
 
 bool ViewTextUi::timerCallback()
@@ -166,23 +170,6 @@ void ViewTextUi::_flushPendingWhileMutexLocked()
     for( auto& s: _pendingList )
         _doWriteWhileMutexLocked(s);
     _pendingList.clear();
-}
-
-void ViewTextUi::writeLine(const String& s)
-{
-    write(s+"\n");
-}
-
-
-void ViewTextUi::writeError(const String& s)
-{
-    write(s);
-}
-	
-    
-void ViewTextUi::writeErrorLine(const String& s)
-{
-    writeLine(s);
 }
 
 

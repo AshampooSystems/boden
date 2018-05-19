@@ -144,17 +144,17 @@ public:
         }
 
 
-        SECTION("writeLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n", &_outStream );
+        SECTION("output.writeLine")
+            testWrite( strongMethod((ITextSink*)_pUi->output().getPtr(), &ITextSink::writeLine), "\n", &_outStream );
 
         SECTION("write")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "", &_outStream );
+            testWrite( strongMethod((ITextSink*)_pUi->output().getPtr(), &ITextSink::write), "", &_outStream );
 
         SECTION("writeErrorLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n", &_errStream );
+            testWrite( strongMethod((ITextSink*)_pUi->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n", &_errStream );
 
         SECTION("writeError")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "", &_errStream );
+            testWrite( strongMethod((ITextSink*)_pUi->statusOrProblem().getPtr(), &ITextSink::write), "", &_errStream );
     }
     
 

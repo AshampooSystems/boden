@@ -8,6 +8,9 @@
 #include <bdn/winuwp/TextViewCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
+#include <bdn/ViewTextUi.h>
+#include <bdn/StdioTextUi.h>
+#include <bdn/TextUiCombiner.h>
 
 namespace bdn
 {
@@ -54,7 +57,24 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
         throw ViewCoreTypeNotSupportedError(coreTypeName);
 }
 
-
+P<ITextUi> UiProvider::getTextUi()
+{
+    {
+        Mutex::Lock lock( _textUiInitMutex );
+        if(_pTextUi==nullptr)
+        {
+            // we want the output of the text UI to go to both the
+            // View-based text UI, as well as the stdout/stderr streams.
+            
+            _pTextUi = newObj<TextUiCombiner>(
+                                              newObj< ViewTextUi >(),
+                                              newObj< StdioTextUi<wchar_t> >(&std::wcin, &std::wcout, &std::wcerr)  );
+        }
+    }
+    
+    return _pTextUi;
+}
+    
 }
 }
 

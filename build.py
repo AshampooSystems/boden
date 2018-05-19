@@ -1031,6 +1031,9 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
     gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", ["testboden_common"], "TestBodenUI", ["boden"], False)
     gen.generateModule("testbodentiming", "io.boden.android.testbodentiming", "testbodentiming", ["testboden_common"], "TestBodenTiming", ["boden"], False)
 
+
+
+
     
 def getEmscriptenSdkBaseDir():
     emsdkDir = os.environ.get("EMSDK_BASE_DIR")
@@ -1039,6 +1042,67 @@ def getEmscriptenSdkBaseDir():
         emsdkDir = os.path.join(getMainDir(), "3rdparty_build", "emsdk");
 
     return emsdkDir
+
+
+def ensure_emscripten_component_active(comp_name):
+    emsdkDir = getEmscriptenSdkBaseDir()
+
+    emsdkExePath = os.path.join(emsdkDir, "emsdk");
+
+    if not os.path.isdir(emsdkDir):
+        print("Setting up Emscripten SDK. This can take a while...", file=sys.stderr);
+
+        try:
+            emsdkSourceDir = os.path.join(getMainDir(), "3rdparty", "emsdk");
+
+            shutil.copytree(emsdkSourceDir, emsdkDir);
+
+            subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
+
+        except:
+
+            for i in range(30):
+
+                try:
+                    shutil.rmtree(emsdkDir);
+                    break;
+
+                except:                                
+                    time.sleep(1);
+
+            raise;
+
+
+    comp_ok = False
+    try:
+        result = subprocess.check_output( '"%s" activate %s' % (emsdkExePath, comp_name), shell=True, cwd=emsdkDir, stderr=subprocess.STDOUT);
+
+        # unfortunately activate seems to return exit code 0 even if the component is not installed.
+        # So we have to detect failure and success based on the output.
+
+        if "not installed" in result:
+            comp_ok = False
+        else:
+            comp_ok = True
+
+    except:
+        comp_ok = False
+
+    if not comp_ok:
+        print("Emscripten component %s is apparently not installed yet. Installing..." % comp_name, file=sys.stderr);
+        subprocess.check_call( '"%s" install %s' % (emsdkExePath, comp_name), shell=True, cwd=emsdkDir);
+        subprocess.check_call( '"%s" activate %s' % (emsdkExePath, comp_name), shell=True, cwd=emsdkDir);
+
+
+def ensure_emscripten_version_active(ver):
+
+    print("Checking active emscripten version...", file=sys.stderr)
+
+    ensure_emscripten_component_active( "emscripten-tag-"+ver )
+    ensure_emscripten_component_active( "clang-tag-e"+ver )
+    ensure_emscripten_component_active( "node-4.1.1-64bit" )    
+    
+
 
 def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
@@ -1060,7 +1124,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
     generatorName = generatorInfo.generatorAliasMap.get(buildSystem, buildSystem);
 
     commandIsInQuote = False;
-    
+
     if platform.startswith("win"):
 
         if arch!="std":
@@ -1132,53 +1196,22 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
         emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
-        if not os.path.isdir(emsdkDir):
-            print("Setting up Emscripten SDK. This can take a while...", file=sys.stderr);
+        ver = "1.38.0-64bit"
 
-            try:
-                emsdkSourceDir = os.path.join(mainDir, "3rdparty", "emsdk");
+        # store the prepared emscripten version in the build dir.
+        # If the version changes then we have to clean it completely.
+        emsVersionFilePath = os.path.join(cmakeBuildDir, "preparedForEmscriptenVersion")
+        
+        versionChanged = True
+        if os.path.isfile(emsVersionFilePath):
+            with open(emsVersionFilePath, "rb") as f:
+                preparedForVersion = f.read().decode("utf-8")
+                if preparedForVersion==ver:
+                    versionChanged = False
 
-                shutil.copytree(emsdkSourceDir, emsdkDir);
-
-                subprocess.check_call( '"%s" update' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-                # subprocess.check_call( '"%s" install sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-                # subprocess.check_call( '"%s" activate sdk-incoming-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-                # subprocess.check_call( '"%s" install sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-                # subprocess.check_call( '"%s" activate sdk-master-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-                #ver = "1.36.6-64bit"
-                ver = "1.37.39-64bit"                
-
-                subprocess.check_call( '"%s" install emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
-                subprocess.check_call( '"%s" activate emscripten-tag-%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
-                subprocess.check_call( '"%s" install clang-tag-e%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
-                subprocess.check_call( '"%s" activate clang-tag-e%s' % (emsdkExePath, ver), shell=True, cwd=emsdkDir);
-
-                subprocess.check_call( '"%s" install node-4.1.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-                subprocess.check_call( '"%s" activate node-4.1.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-                #subprocess.check_call( '"%s" install spidermonkey-37.0.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-                #subprocess.check_call( '"%s" activate spidermonkey-37.0.1-64bit' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-                #subprocess.check_call( '"%s" install crunch-1.04' % emsdkExePath, shell=True, cwd=emsdkDir);
-                #subprocess.check_call( '"%s" activate crunch-1.04' % emsdkExePath, shell=True, cwd=emsdkDir);
-
-
-            except:
-
-                for i in range(30):
-
-                    try:
-                        shutil.rmtree(emsdkDir);
-                        break;
-
-                    except:                                
-                        time.sleep(1);
-
-                raise;
-
-            print("Emscripten was successfully set up.", file=sys.stderr);
+        ensure_emscripten_version_active( ver )
+           
+        print("Emscripten %s is active." % ver, file=sys.stderr);
 
         if sys.platform=="win32":
             envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
@@ -1202,7 +1235,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         # the emscripten scrips call python2. However, python is not available
         # under that name on all platforms. So we add an alias
         try:
-            subprocess.check_call("python2 --version", shell="True");
+            subprocess.check_output("python2 --version", shell="True", stderr=subprocess.STDOUT);
             havePython2 = True;
         except Exception:
             havePython2 = False;
@@ -1214,7 +1247,22 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
             changePython2ToPython(emsdkDir);
 
 
+        if versionChanged and os.path.isdir(cmakeBuildDir):
+            # cmake caches the paths to the emscripten compiler. So if the version changes
+            # then we have to update the project files.
+            # Also, since the compiler version changed, we need to rebuild everything anyway.
+            # So just clear the whole build dir.
+            print("Project was previously prepared for different Emscripten version. Auto-cleaning old build files.")
+            shutil.rmtree(cmakeBuildDir)
+
+        if not os.path.isdir(cmakeBuildDir):
+            os.makedirs(cmakeBuildDir)
+
+        with open(emsVersionFilePath, "wb") as f:
+            f.write( ver.encode("utf-8") )
+
         toolChainFileName = "Emscripten.cmake";
+
 
     elif platform=="dotnet":
         args.extend( ['-DBODEN_PLATFORM=dotnet' ] );
@@ -1257,6 +1305,8 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
     if cmakeArch:
         args.extend( ["-A "+cmakeArch ] );
 
+
+
     # we do not validate the toolset name
     commandLine = "cmake";
     #commandLine = "cmake --debug-output";
@@ -1267,6 +1317,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         commandLine = envSetupPrefix + commandLine.replace('"', '\\"').replace("&&", "\\&\\&") + '"'
     else:
         commandLine = envSetupPrefix+commandLine;
+
 
     if not os.path.isdir(cmakeBuildDir):
         os.makedirs(cmakeBuildDir);
@@ -1793,7 +1844,17 @@ def commandRun(args):
                 # "checked in". However, since we have huge JS files, it may well be that the
                 # browser takes longer to download and initialize them. So we disable the warning.
 
-                actualCommand = "emrun --kill_start --kill_exit --no_emrun_detect --port %d %s %s %s" % (portNum, browserOption, stdoutOption, moduleFilePath);
+                # note that we do NOT pass the --kill_start flag. That can cause weird issues with
+                # firefox on Linux. Firefox starts normally, but after a few minutes apparently the communication
+                # pipe for stdour/stderr between the website and emrun breaks down.
+                # At that point no further output can be transferred and the firefox tab also often crashes.
+                # This happens only when we pass the kill flag.
+                # It seems that some effect of the kill flag lingers in the background and influences
+                # the newly started browser.
+                # So, to avoid all that we do NOT kill the browser. The caller is responsible for ensuring
+                # that the firefox launch works as expected.
+
+                actualCommand = "emrun --no_emrun_detect --port %d %s %s %s" % (portNum, browserOption, stdoutOption, moduleFilePath);
 
                 if commandIsInQuote:
                     commandLine += actualCommand.replace('"', '\\"');

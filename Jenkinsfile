@@ -30,6 +30,11 @@ pipeline {
                     reuseNode true
                 }
             }
+            options {
+                /* Abort the tests if they run too long. We have had cases where
+                   the run call hung indefinitely.*/
+                timeout(time: 2, unit: 'HOURS') 
+            }
 
             /* Note that we run the Release config. It is much faster and many browsers cannot even
                deal with the huge Javascript files of the debug build.*/
@@ -41,18 +46,24 @@ pipeline {
                    (which will indicate an error if tests failed) and the script will continue.
                    Note that the junit command on the next line will fail if the test did not start or crashed, since then there
                    will be no results file.*/
+
+                /* Also note that in addition to the junit reporter we also use the console reporter.
+                   That is actually pretty essential, because the junit reporter only writes output at the very end
+                   of the test. We have encountered cases where the output pipe times out and the browser tab crashes
+                   when we do not write any data to it for a few minutes. This seems to be a bug of some kind (since
+                   emrun is configured to NOT have a silence timeout by default), but for the time being we work around
+                   it by always having some status output (via the console reporter).
+                   Note that the console reporter prints to stderr and the junit reporter to stdout. So they can be combined
+                   without interfering with each other.
+                   */
                    
-                /* XXX we have disabled the testboden junit output for the time being because of issue BDN-150.
-                   Instead we run this test with console output for the time being.                   
-                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testboden --stdout-file testresults/webems_testboden.xml -- run --reporter junit  || true"
-                junit "testresults/webems_testboden.xml"*/
+                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testboden --stdout-file testresults/webems_testboden.xml -- run --reporter junit --reporter console --print-level 2 || true"
+                junit "testresults/webems_testboden.xml"
 
-                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testboden -- run"
-
-                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testbodenui --stdout-file testresults/webems_testbodenui.xml -- run --reporter junit  || true"
+                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testbodenui --stdout-file testresults/webems_testbodenui.xml -- run --reporter junit --reporter console --print-level 2  || true"
                 junit "testresults/webems_testbodenui.xml"
 
-                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testbodentiming --stdout-file testresults/webems_testbodentiming.xml -- run --reporter junit || true"
+                sh "xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform webems --config Release --module testbodentiming --stdout-file testresults/webems_testbodentiming.xml -- run --reporter junit --reporter console --print-level 2 || true"
                 junit "testresults/webems_testbodentiming.xml"
             }
         }

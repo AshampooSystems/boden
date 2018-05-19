@@ -26,6 +26,11 @@ inline void debugBreakDummy()
     an active debugger, if the program is being debugged.
 
     Where exactly the text ends up depends on the target platform.
+    On some platforms special functions for the debugger are used, on some platforms
+    the text ends up in the debug log, on some platforms it might go to STDERR (if that is safe).
+ 
+    Note that you can use debuggerPrintGoesToStdErr() to find out whether or not the text
+    is written to stderr in the current app.
 
     Each debuggerPrint text entry is separated automatically from other debuggerPrint text entries,
     so that the entries can be distringuished from each other. For example, if the output channel
@@ -39,12 +44,27 @@ inline void debugBreakDummy()
 
     Platform note
     -------------------
+ 
+    The following list contains information on how this function is CURRENTLY implemented on various
+    platforms. You should not depend on this - the implementation is subject to change!
 
-    Right now this function only has an effect on Windows, where it uses OutputDebugString
-    to send the text to the debugger. On all other platforms the functions does nothing.
-
+    - win32: OutputDebugString
+    - winuwp: OutputDebugString
+    - mac commandline apps: do nothing
+    - mac graphial apps: print to stderr
+    - linux commandline apps: do nothing
+    - linux graphial apps: print to stderr
+    - webems: print to stderr (can be seen when emrun is used to launch the app).
+    - ios: print to stderr
+    - android: print to android log
+ 
     */
 void debuggerPrint(const String& text);
+    
+    
+/** Returns true if the debuggerPrint functions forwards the data
+    to STDERR.*/
+bool debuggerPrintGoesToStdErr();
 
 
 }

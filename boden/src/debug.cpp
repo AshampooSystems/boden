@@ -82,6 +82,11 @@
         {
             OutputDebugStringW( (text+"\n").asWidePtr() );
         }
+        
+        bool debuggerPrintGoesToStdErr()
+        {
+            return false;
+        }
     }
 
 #elif BDN_PLATFORM_WINUWP
@@ -91,6 +96,11 @@
         void debuggerPrint(const String& text)
         {
             OutputDebugStringW( (text+"\n").asWidePtr() );
+        }
+        
+        bool debuggerPrintGoesToStdErr()
+        {
+            return false;
         }
     }
 
@@ -103,6 +113,11 @@ namespace bdn
     {
         __android_log_write(ANDROID_LOG_DEBUG, "boden", text.asUtf8Ptr() );
     }
+    
+    bool debuggerPrintGoesToStdErr()
+    {
+        return false;
+    }
 }
 
 
@@ -112,8 +127,13 @@ namespace bdn
 {
     void debuggerPrint(const String& text)
     {
-        // stdout is connected to the debugger
-        std::cout << text.asUtf8() << std::endl;
+        // stderr is connected to the debugger.
+        std::cerr << text.asUtf8() << std::endl;
+    }
+    
+    bool debuggerPrintGoesToStdErr()
+    {
+        return true;
     }
 }
 
@@ -123,13 +143,14 @@ namespace bdn
 {
     void debuggerPrint(const String& text)
     {
-        // stdout might be connected to a controlling command prompt process.
-        // So we print debug messages there.
-        std::cout << text.asUtf8() << std::endl;
-        // Note: apparently the stdout implementation from Emscripten
-        // has a bug that sometimes causes writes to be misordered if we do not
-        // flush after each one. So for the time being we do this.
-        std::cout.flush();
+        // stderr might be connected to emrun, so the person
+        // debugging might see this.
+        std::cerr << text.asUtf8() << std::endl;
+    }
+    
+    bool debuggerPrintGoesToStdErr()
+    {
+        return true;
     }
 }
 
@@ -140,16 +161,17 @@ namespace bdn
 {
     void debuggerPrint(const String& text)
     {
-        // If we have a UI app then we can output the debug text to stdout.
+        // If we have a UI app then we can output the debug text to stderr.
         // The debugger will usually pick that up.
-        // For commandline apps we must not do that, since stdout is actually
-        // used for user interaction there.
-        
+        // For commandline apps we must not do that, since stderr may actually
+        // be used for user interaction there.
         if( ! getAppRunner()->isCommandLineApp() )
-        {
-            // stdout is connected to the debugger
-            std::cout << text.asUtf8() << std::endl;
-        }
+            std::cerr << text.asUtf8() << std::endl;
+    }
+    
+    bool debuggerPrintGoesToStdErr()
+    {
+        return ! getAppRunner()->isCommandLineApp();
     }
 }
 
@@ -160,6 +182,11 @@ namespace bdn
         void debuggerPrint(const String& text)
         {
             // do nothing
+        }
+        
+        bool debuggerPrintGoesToStdErr()
+        {
+            return false;
         }
     }
 

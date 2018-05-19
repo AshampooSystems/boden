@@ -21,17 +21,17 @@ public:
 
     void doTest()
     {
-        SECTION("writeLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeLine), "\n" );
+        SECTION("output.writeLine")
+            testWrite( strongMethod((ITextSink*)_pUi->output().getPtr(), &ITextSink::writeLine), "\n" );
 
-        SECTION("write")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::write), "" );
+        SECTION("output.write")
+            testWrite( strongMethod((ITextSink*)_pUi->output().getPtr(), &ITextSink::write), "" );
 
-        SECTION("writeErrorLine")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeErrorLine), "\n" );
+        SECTION("statusOrProblem.writeLine")
+            testWrite( strongMethod((ITextSink*)_pUi->statusOrProblem().getPtr(), &ITextSink::writeLine), "\n" );
 
-        SECTION("writeError")
-            testWrite( strongMethod((ITextUi*)_pUi.getPtr(), &ITextUi::writeError), "" );
+        SECTION("statusOrProblem.writeError")
+            testWrite( strongMethod((ITextSink*)_pUi->statusOrProblem().getPtr(), &ITextSink::write), "" );
     }
     
     String getWrittenText()
@@ -124,7 +124,7 @@ public:
 
             // the last linebreak at the end is not printed until the next text is written.
             // So we write another dummy string to force the write.
-            _pUi->write("X");
+            _pUi->output()->write("X");
 
             CONTINUE_SECTION_AFTER_RUN_SECONDS(0.5, pThis, this, expectedWriteSuffix, writeFunc)
             {  

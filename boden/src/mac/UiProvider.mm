@@ -7,6 +7,9 @@
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/IAppRunner.h>
 #include <bdn/StdioUiProvider.h>
+#include <bdn/TextUiCombiner.h>
+#include <bdn/StdioTextUi.h>
+#include <bdn/ViewTextUi.h>
 
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
@@ -58,7 +61,14 @@ P<ITextUi> UiProvider::getTextUi()
     {
         Mutex::Lock lock( _textUiInitMutex );
         if(_pTextUi==nullptr)
-            _pTextUi = newObj< ViewTextUi >();
+        {
+            // we want the output of the text UI to go to both the
+            // View-based text UI, as well as the stdout/stderr streams.
+            
+            _pTextUi = newObj<TextUiCombiner>(
+                 newObj< ViewTextUi >(),
+                 newObj< StdioTextUi<char> >( &std::cin, &std::cout, &std::cerr ) );
+        }
     }
     
     return _pTextUi;

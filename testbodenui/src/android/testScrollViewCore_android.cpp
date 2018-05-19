@@ -35,7 +35,7 @@ protected:
     }
                 
 
-    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize)
+    Size initiateScrollViewResizeToHaveViewPortSize( const Size& viewPortSize) override
     {
         // we cannot resize the scroll view directly with adjustAndSetBounds.
         // That would not have any effect outside of a layout cycle.

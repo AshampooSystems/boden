@@ -17,7 +17,7 @@ namespace bdn
     The UI implementation automatically creates a new top level Window
     when it is initialized.
 */
-class ViewTextUi : public Base, BDN_IMPLEMENTS ITextUi
+class ViewTextUi : public Base, BDN_IMPLEMENTS ITextUi, BDN_IMPLEMENTS ITextSink
 {
 public:
     
@@ -28,20 +28,28 @@ public:
     
     P< IAsyncOp<String> > readLine() override;
     
-	void write(const String& s) override;
-	void writeLine(const String& s) override;
-
-	void writeError(const String& s) override;
-	void writeErrorLine(const String& s) override;
-
+    P<ITextSink> statusOrProblem() override
+    {
+        return this;
+    }
+    
+    P<ITextSink> output() override
+    {
+        return this;
+    }
+    
     /** Returns the window that the UI object uses to display the text.*/
     P<Window> getWindow()
     {
         return _pWindow;
     }
 
-private:
-
+private:    
+    
+    // ITextSink functions
+    void write(const String& s) override;
+    void writeLine(const String& s) override;
+    
     bool timerCallback();
 
     void scrolledSizeChanged();

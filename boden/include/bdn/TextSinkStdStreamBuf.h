@@ -1,23 +1,23 @@
-#ifndef BDN_TextUiStdStreamBuf_H_
-#define BDN_TextUiStdStreamBuf_H_
+#ifndef BDN_TextSinkStdStreamBuf_H_
+#define BDN_TextSinkStdStreamBuf_H_
 
 #include <bdn/UtfCodec.h>
-#include <bdn/ITextUi.h>
+#include <bdn/ITextSink.h>
 #include <bdn/localeUtil.h>
 
 namespace bdn
 {
 
 
-/** Internal base class for TextUiStreamBuf. Do not use.*/
+/** Internal base class for TextSinkStreamBuf. Do not use.*/
 template<typename CharType >
-class TextUiStdStreamBufBase_ : public std::basic_streambuf<CharType>
+class TextSinkStdStreamBufBase_ : public std::basic_streambuf<CharType>
 {
 public:
-    TextUiStdStreamBufBase_(ITextUi* pUi )
+    TextSinkStdStreamBufBase_(ITextSink* pSink)
     : _localeDecodingState( std::mbstate_t() )
     {
-        _pUi = pUi;
+        _pSink = pSink;
         
         this->setp(_inBuffer, _inBuffer + (sizeof(_inBuffer)/sizeof(CharType)) );
     }
@@ -116,7 +116,7 @@ protected:
             if(pOutNext > pOutStart)
             {
                 String s(pOutStart, pOutNext-pOutStart);
-                _pUi->write(s);
+                _pSink->write(s);
             }
             else
             {
@@ -193,7 +193,8 @@ protected:
         {
             // we have some valid data to decode. Write that.
             String text(startIt, endIt);
-            _pUi->write(text);
+            
+            _pSink->write(text);
         }
         
         CharType* pRemaining = endIt.getInner();
@@ -212,7 +213,7 @@ protected:
     }
     
     
-    P<ITextUi>                          _pUi;
+    P<ITextSink>                        _pSink;
     
     CharType                            _inBuffer[64];
     wchar_t                             _localeDecodingOutBuffer[128];
@@ -220,9 +221,13 @@ protected:
 };
 
 	
-/** A std::basic_streambuf implementation that outputs data to a bdn::ITextUi object.
+/** A std::basic_streambuf implementation that writes the data
+    to a bdn::ITextSink object.
+ 
+    Note that bdn::ITextUi also exposes ITextSink objects, so this class can also be used
+    to connect a stdio stream buffer to an ITextUi.
 
-    This class is rarely used directly - see bdn::TextUiStdIoStream instead.
+    This class is rarely used directly - see bdn::TextSinkStdIoStream instead.
 
     The streambuf uses the encoding of the locale that is selected into it with pubimbue()
     to decode the string data to Unicode.
@@ -230,23 +235,24 @@ protected:
     Special UTF-8 handling
     ----------------------
 
-    There is special handling for UTF-8: the TextUiStdStreamBuf object will detect if
-    the multibyte encoding of the locale is UTF-8. If it is then it will use its own
+    There is special handling for UTF-8: the TextSinkStdStreamBuf object will detect if
+    the multibyte encoding of the selected stream locale is UTF-8. If it is then it will use its own
     UTF-8 decoding routines instead of using the locale codec. This is done to improve the
     consistency on different platforms because many C++ standard libraries have buggy
     UTF-8 implementations.
 
-    If the locale uses any other encoding then the TextUiStdStreamBuf will use the
+    If the locale uses any other encoding then the TextSinkStdStreamBuf will use the
     codec provided by the locale.
 
 
 */
-template<typename CharType > 
-class TextUiStdStreamBuf : public TextUiStdStreamBufBase_<CharType>
+template<typename CHAR_TYPE >
+class TextSinkStdStreamBuf : public TextSinkStdStreamBufBase_<CHAR_TYPE>
 {
 public:    
-    TextUiStdStreamBuf(ITextUi* pUi )
-        : TextUiStdStreamBufBase_<CharType>(pUi)
+
+    TextSinkStdStreamBuf(ITextSink* pSink )
+    : TextSinkStdStreamBufBase_<CHAR_TYPE>(pSink)
     {
     }
 
@@ -259,11 +265,11 @@ public:
 };
 
 template<>
-class TextUiStdStreamBuf<char> : public TextUiStdStreamBufBase_<char>
+class TextSinkStdStreamBuf<char> : public TextSinkStdStreamBufBase_<char>
 {
 public:
-    TextUiStdStreamBuf(ITextUi* pUi )
-    : TextUiStdStreamBufBase_<char>(pUi)
+    TextSinkStdStreamBuf(ITextSink* pSink )
+    : TextSinkStdStreamBufBase_<char>(pSink)
     {
     }
     
@@ -283,11 +289,11 @@ public:
 
 
 template<>
-class TextUiStdStreamBuf<wchar_t> : public TextUiStdStreamBufBase_<wchar_t>
+class TextSinkStdStreamBuf<wchar_t> : public TextSinkStdStreamBufBase_<wchar_t>
 {
 public:
-    TextUiStdStreamBuf(ITextUi* pUi )
-    : TextUiStdStreamBufBase_<wchar_t>(pUi)
+    TextSinkStdStreamBuf( ITextSink* pSink)
+    : TextSinkStdStreamBufBase_<wchar_t>( pSink )
     {
     }
     
@@ -299,11 +305,12 @@ public:
 
 
 template<>
-class TextUiStdStreamBuf<char16_t> : public TextUiStdStreamBufBase_<char16_t>
+class TextSinkStdStreamBuf<char16_t> : public TextSinkStdStreamBufBase_<char16_t>
 {
 public:
-    TextUiStdStreamBuf(ITextUi* pUi )
-    : TextUiStdStreamBufBase_<char16_t>(pUi)
+
+    TextSinkStdStreamBuf( ITextSink* pSink )
+    : TextSinkStdStreamBufBase_<char16_t>( pSink )
     {
     }
     
@@ -314,11 +321,11 @@ public:
 };
 
 template<>
-class TextUiStdStreamBuf<char32_t> : public TextUiStdStreamBufBase_<char32_t>
+class TextSinkStdStreamBuf<char32_t> : public TextSinkStdStreamBufBase_<char32_t>
 {
 public:
-    TextUiStdStreamBuf(ITextUi* pUi )
-    : TextUiStdStreamBufBase_<char32_t>(pUi)
+    TextSinkStdStreamBuf( ITextSink* pSink )
+    : TextSinkStdStreamBufBase_<char32_t>( pSink )
     {
     }
     

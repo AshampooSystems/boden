@@ -4,7 +4,7 @@
 #include <bdn/ITextUi.h>
 #include <bdn/NotImplementedError.h>
 
-#include <bdn/Array.h>
+#include <bdn/test/MockTextSink.h>
 
 namespace bdn
 {
@@ -17,25 +17,30 @@ namespace test
 class MockTextUi : public Base, BDN_IMPLEMENTS ITextUi
 {
 public:
+    
+    MockTextUi()
+    {
+        _pStatusOrProblemSink = newObj<MockTextSink>();
+        _pOutputSink = newObj<MockTextSink>();
+    }
 
-    /** Returns the list of text chunks that have been written with the "normal" (=non-error)
-        write routines. Each writeXYZ call
-        creates a new entry in this list. The writeLine routines add a newline at the
+    /** Returns the list of text chunks that have been written to the output text sink.
+        Each write call creates a new entry in this list. The writeLine routines add a newline at the
         end of the written text.
         */
-    const Array< String >& getWrittenChunks() const
+    const Array< String >& getWrittenOutputChunks() const
     {
-        return  _writtenChunks;
+        return  _pOutputSink->getWrittenChunks();
     }
 
 
-    /** Returns the list of text chunks that have been written with the error write routines. Each writeXYZ call
-        creates a new entry in this list. The writeLine routines add a newline at the
+    /** Returns the list of text chunks that have been written to the statusOrProblem text sink.
+        Each write call creates a new entry in this list. The writeLine routines add a newline at the
         end of the written text.
         */
-    const Array< String >& getWrittenErrorChunks() const
+    const Array< String >& getWrittenStatusOrProblemChunks() const
     {
-        return  _writtenErrorChunks;
+        return  _pStatusOrProblemSink->getWrittenChunks();
     }
     
     
@@ -45,35 +50,24 @@ public:
         throw NotImplementedError("MockTextUi::readLine");
     }
 
-	
-	void write(const String& s) override
-    {
-        _writtenChunks.add(s);
-    }
-
-	
-	void writeLine(const String& s) override
-    {
-        _writtenChunks.add(s+"\n");
-    }
-
-
-	void writeError(const String& s) override
-    {
-        _writtenErrorChunks.add(s);
-    }
-	
     
-	void writeErrorLine(const String& s) override
+    P<ITextSink> statusOrProblem() override
     {
-        _writtenErrorChunks.add(s+"\n");
+        return _pStatusOrProblemSink;
     }
+    
+    P<ITextSink> output() override
+    {
+        return _pOutputSink;
+    }
+	
+        
 
 private:
     
-
-    Array< String > _writtenChunks;
-    Array< String > _writtenErrorChunks;
+    
+    P<MockTextSink> _pOutputSink;
+    P<MockTextSink> _pStatusOrProblemSink;
 };
 
 

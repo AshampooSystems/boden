@@ -25,8 +25,8 @@ public:
     {
         _pInReader = newObj< AsyncStdioReader<CharType> >(pInStream);
 
-        _pOutStream = pOutStream;
-        _pErrStream = pErrStream;
+        _pOutputSink = newObj<Sink>( pOutStream );
+        _pStatusOrProblemSink = newObj<Sink>( pErrStream );
     }
 
 
@@ -42,61 +42,51 @@ public:
     }
 
     
-	/** Writes the specified text (without adding a linebreak).*/
-	void write(const String& s) override
+    P<ITextSink> statusOrProblem() override
     {
-        Mutex::Lock lock(_mutex);
-
-        (*_pOutStream) << s.toLocaleEncoding<CharType>( _pOutStream->getloc() );        
+        return _pStatusOrProblemSink;
     }
-
-	/** Writes the specified line of text. A linebreak is automatically added.*/
-	void writeLine(const String& s) override
-    {
-        Mutex::Lock lock(_mutex);
-
-        (*_pOutStream)
-            << s.toLocaleEncoding<CharType>( _pOutStream->getloc() )
-            << std::endl;
-
-        _pOutStream->flush();
-    }
-
-
-	/** Writes the specified text in a way that suggests an error.
-
-        If the implementation does not distinguish between error output and normal 
-        output then this will have the same effect as write().
     
-        If the UI implementation works on stdio streams then writeError typically causes the
-        text to be written to stderr. */
-	void writeError(const String& s) override
+	P<ITextSink> output() override
     {
-        Mutex::Lock lock(_mutex);
-
-        (*_pErrStream) << s.toLocaleEncoding<CharType>( _pErrStream->getloc() );                
+        return _pOutputSink;
     }
-	
     
-	/** Like writeError(), but also writes a line break after the text.*/
-	void writeErrorLine(const String& s) override
-    {
-        Mutex::Lock lock(_mutex);
-
-        (*_pErrStream)
-            << s.toLocaleEncoding<CharType>( _pErrStream->getloc() )
-            << std::endl;
-
-        _pErrStream->flush();
-    }
-
-
+    
 private:
     P< AsyncStdioReader<CharType> > _pInReader;
-
-    Mutex                           _mutex;
-    std::basic_ostream<CharType>*   _pOutStream;
-    std::basic_ostream<CharType>*   _pErrStream;
+    
+    class Sink : public Base, BDN_IMPLEMENTS ITextSink
+    {
+    public:
+        Sink( std::basic_ostream<CharType>*   pStream )
+        : _pStream(pStream)
+        {
+        }
+        
+        void write(const String& s) override
+        {
+            Mutex::Lock lock(_mutex);
+        
+            (*_pStream) << s.toLocaleEncoding<CharType>( _pStream->getloc() );
+        }
+        
+        void writeLine(const String& s) override
+        {
+            Mutex::Lock lock(_mutex);
+            
+            (*_pStream)
+                << s.toLocaleEncoding<CharType>( _pStream->getloc() )
+                << std::endl;
+        }
+        
+    private:
+        Mutex                           _mutex;
+        std::basic_ostream<CharType>*   _pStream;
+    };
+    
+    P<Sink> _pStatusOrProblemSink;
+    P<Sink> _pOutputSink;
 };
 
 

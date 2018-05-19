@@ -48,7 +48,7 @@ DEALINGS IN THE SOFTWARE.
 #include <bdn/mainThread.h>
 #include <bdn/debug.h>
 #include <bdn/NotImplementedError.h>
-#include <bdn/TextUiStdOStream.h>
+#include <bdn/TextSinkStdOStream.h>
 
 
 
@@ -369,7 +369,8 @@ struct IConfig : IShared {
 	virtual ~IConfig();
 
 	virtual bool allowThrows() const = 0;
-	virtual std::ostream& stream() const = 0;
+	virtual std::ostream& outputStream() const = 0;
+    virtual std::ostream& statusStream() const = 0;
 	virtual std::string name() const = 0;
 	virtual bool includeSuccessfulResults() const = 0;
 
@@ -441,50 +442,27 @@ public:
 public: // IStream
 	virtual std::ostream& stream() const BDN_OVERRIDE;
 };
-
-
-class TextUiWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextUi
+    
+    
+    
+class TextSinkWrapperWithDebugPrint : public Base, BDN_IMPLEMENTS ITextSink
 {
 public:
-    TextUiWrapperWithDebugPrint(ITextUi* pInnerUi)
+    TextSinkWrapperWithDebugPrint( ITextSink* pInnerSink )
+    : _pInnerSink(pInnerSink)
     {
-        _pInnerUi = pInnerUi;
     }
     
-    
-    P< IAsyncOp<String> > readLine() override
-    {
-        return _pInnerUi->readLine();
-    }
-
-    
-	void  write(const String& s) override
-    {       
-        doDebugPrint(s);
-        
-        _pInnerUi->write(s);
-    }
-
-	void writeLine(const String& s) override
-    {
-        doDebugPrint(s+"\n");
-        
-        _pInnerUi->writeLine(s);
-    }
-
-	
-	void writeError(const String& s) override
+    void write(const String& s)
     {
         doDebugPrint(s);
-        
-        _pInnerUi->writeError(s);
+        _pInnerSink->write(s);
     }
-	    
-	void writeErrorLine(const String& s) override
+    
+    void writeLine(const String& s)
     {
         doDebugPrint(s+"\n");
-        
-        _pInnerUi->writeErrorLine(s);
+        _pInnerSink->writeLine(s);
     }
     
 private:
@@ -496,7 +474,7 @@ private:
         {
             char32_t sep=0;
             
-            _currDebugPrintLine += rem.splitOffToken("\n", true, &sep);            
+            _currDebugPrintLine += rem.splitOffToken("\n", true, &sep);
             
             if(sep!=0)
             {
@@ -504,23 +482,22 @@ private:
                 BDN_DEBUGGER_PRINT(_currDebugPrintLine);
                 _currDebugPrintLine = "";
             }
-        }        
+        }
     }
     
-    P<ITextUi>  _pInnerUi;    
-    String      _currDebugPrintLine;
+    P<ITextSink> _pInnerSink;
+    String       _currDebugPrintLine;
 };
 
-
-class TextUiStream : public IStream
+class TextSinkStream : public IStream
 {
 public:
-	TextUiStream(ITextUi* pUi)
-        : _stdStream(pUi)
+	TextSinkStream(ITextSink* pSink)
+        : _stdStream(pSink)
     {
     }
 
-	virtual ~TextUiStream() noexcept
+	virtual ~TextSinkStream() noexcept
     {
         // nothing to do.
     }
@@ -531,8 +508,7 @@ public:
     }
 
 private:
-    mutable TextUiStdOStream<char> _stdStream;
-    String  _currLine;
+    mutable TextSinkStdOStream<char> _stdStream;
 };
 
 
@@ -614,8 +590,9 @@ public:
 	{}
      
 	Config( ConfigData const& data )
-		:   m_data( data ),
-		m_stream( openStream() )
+		: m_data( data )
+		, _outputStream( openOutputStream() )
+        , _statusStream( openStatusStream() )
 	{
 		if( !data.testsOrTags.empty() ) {
 			TestSpecParser parser( ITagAliasRegistry::get() );
@@ -652,7 +629,8 @@ public:
 
 	// IConfig interface
 	virtual bool allowThrows() const        { return !m_data.noThrow; }
-	virtual std::ostream& stream() const    { return m_stream->stream(); }
+	virtual std::ostream& outputStream() const    { return _outputStream->stream(); }
+    virtual std::ostream& statusStream() const    { return _statusStream->stream(); }
 	virtual std::string name() const        { return m_data.name.empty() ? m_data.processName : m_data.name; }
 	virtual bool includeSuccessfulResults() const   { return m_data.showSuccessfulTests; }
     virtual int printLevel() const   { return m_data.printLevel; }
@@ -664,28 +642,45 @@ public:
 
 private:
 
-	IStream const* openStream()
+	IStream const* openStatusStream()
     {
-		if( m_data.outputFilename.empty() )
-        {
-            P<ITextUi> pUi = AppControllerBase::get()->getUiProvider()->getTextUi();
-            
-            // we also want all output to be printed to the debugger
-            pUi = newObj< TextUiWrapperWithDebugPrint >(pUi);
-            
-            return new TextUiStream( pUi );
-			//return new CoutStream();
-        }
-
-		else if( m_data.outputFilename[0] == '%' )
-			throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
-
-		else
-			return new FileStream( m_data.outputFilename );
+        P<ITextUi>   pUi = AppControllerBase::get()->getUiProvider()->getTextUi();
+        P<ITextSink> pSink = pUi->statusOrProblem();
+        
+        // we also want all output to be printed to the debugger,
+        // IF debugger print does not go to stderr.
+        // We do not want to use debugger print if it goes to stderr
+        // because we already output the text to the text UI, which also
+        // prints to stderr. Even for graphical apps it prints to stderr
+        // in addition to the view based output.
+        if( ! debuggerPrintGoesToStdErr() )
+            pSink = newObj< TextSinkWrapperWithDebugPrint >(pSink);
+        
+        return new TextSinkStream( pSink );
 	}
+    
+    IStream const* openOutputStream()
+    {
+        if( m_data.outputFilename.empty() )
+        {
+            // the output stream is used for machine parsable output data from
+            // our reporters. We write that directly to stdio.
+            
+            return new CoutStream();
+        }
+        
+        else if( m_data.outputFilename[0] == '%' )
+            throw std::domain_error( "Unrecognised stream: " + m_data.outputFilename );
+        
+        else
+            return new FileStream( m_data.outputFilename );
+    }
+    
 	ConfigData m_data;
 
-	std::unique_ptr<IStream const> m_stream;
+	std::unique_ptr<IStream const> _outputStream;
+    std::unique_ptr<IStream const> _statusStream;
+    
 	TestSpec m_testSpec;
 };
 
@@ -1667,7 +1662,7 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 
 	cli["-r"]["--reporter"]
 		//            .placeholder( "name[:filename]" )
-		.describe( "reporter to use (defaults to console)" )
+		.describe( "reporter to use (defaults to console). The console and compact reporters print to stderr, all others print to stdout." )
 		.bind( &addReporterName, "name" );
 
 	cli["-n"]["--name"]
@@ -1966,17 +1961,28 @@ inline std::ostream& operator << ( std::ostream& os, Colour const& ) { return os
 namespace bdn
 {
 struct ReporterConfig {
-	explicit ReporterConfig( Ptr<IConfig const> const& _fullConfig )
-		:   m_stream( &_fullConfig->stream() ), m_fullConfig( _fullConfig ) {}
+	explicit ReporterConfig( Ptr<IConfig const> const& fullConfig )
+		: _outputStream( fullConfig->outputStream() )
+        , _statusStream( fullConfig->statusStream() )
+        , m_fullConfig( fullConfig )
+    {
+        
+    }
 
-	ReporterConfig( Ptr<IConfig const> const& _fullConfig, std::ostream& _stream )
-		:   m_stream( &_stream ), m_fullConfig( _fullConfig ) {}
+	ReporterConfig( Ptr<IConfig const> const& fullConfig,
+                    std::ostream& outputStream,
+                    std::ostream& statusStream)
+		: _outputStream( outputStream )
+        , _statusStream( statusStream )
+        , m_fullConfig( fullConfig ) {}
 
-	std::ostream& stream() const    { return *m_stream; }
+	std::ostream& outputStream() const    { return _outputStream; }
+    std::ostream& statusStream() const    { return _statusStream; }
 	Ptr<IConfig const> fullConfig() const { return m_fullConfig; }
 
 private:
-	std::ostream* m_stream;
+	std::ostream& _outputStream;
+    std::ostream& _statusStream;
 	Ptr<IConfig const> m_fullConfig;
 };
 
@@ -2076,17 +2082,34 @@ struct SectionStats {
 	double durationInSeconds;
 	bool missingAssertions;
 };
+    
+    
+
+struct TestStats {
+    TestStats(  TestCaseInfo const& testInfo,
+                double durationInSeconds,
+                const std::string& stdOut,
+                const std::string& stdErr )
+    : testInfo( testInfo )
+    , durationInSeconds( durationInSeconds )
+    , stdOut( stdOut )
+    , stdErr( stdErr )
+    {
+    }
+    
+    TestCaseInfo testInfo;
+    double       durationInSeconds;
+    std::string  stdOut;
+    std::string  stdErr;
+};
+
 
 struct TestCaseStats {
 	TestCaseStats(  TestCaseInfo const& _testInfo,
 		Totals const& _totals,
-		std::string const& _stdOut,
-		std::string const& _stdErr,
 		bool _aborting )
 		: testInfo( _testInfo ),
 		totals( _totals ),
-		stdOut( _stdOut ),
-		stdErr( _stdErr ),
 		aborting( _aborting )
 	{}
 	virtual ~TestCaseStats();
@@ -2100,8 +2123,6 @@ struct TestCaseStats {
 
 	TestCaseInfo testInfo;
 	Totals totals;
-	std::string stdOut;
-	std::string stdErr;
 	bool aborting;
 };
 
@@ -2185,6 +2206,8 @@ struct IStreamingReporter : IShared {
 	virtual bool assertionEnded( AssertionStats const& assertionStats ) = 0;
 
 	virtual void sectionEnded( SectionStats const& sectionStats ) = 0;
+    
+    virtual void testEnded( TestStats const& stats ) = 0;
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) = 0;
 	virtual void testGroupEnded( TestGroupStats const& testGroupStats ) = 0;
 	virtual void testRunEnded( TestRunStats const& testRunStats ) = 0;
@@ -3245,13 +3268,13 @@ private: // IResultCapture
 		m_reporter->sectionEnded( testCaseSectionStats );
 
 		TestCaseInfo testInfo = m_activeTestCase->getTestCaseInfo();
+        
+        m_reporter->testEnded( TestStats( testInfo, 0, "", "" ) );
 
 		Totals deltaTotals;
 		deltaTotals.testCases.failed = 1;
 		m_reporter->testCaseEnded( TestCaseStats(   testInfo,
 			deltaTotals,
-			"",
-			"",
 			false ) );
 		m_totals.testCases.failed++;
 		testGroupEnded( "", m_totals, 1, 1 );
@@ -3642,12 +3665,10 @@ private:
 		Totals deltaTotals = m_totals.delta( _testPrevTotals );
 
 		m_totals.testCases += deltaTotals.testCases;
-
+        
 		m_reporter->testCaseEnded(
 			TestCaseStats(   *_pCurrentTestCaseInfo,
 							deltaTotals,
-							_testRedirectedCout,
-							_testRedirectedCerr,
 							aborting() ) );
 
 		m_activeTestCase = BDN_NULL;
@@ -3682,6 +3703,9 @@ private:
         _currentTestFailureResultAfterContinuationScheduled = CurrentTestResult::Passed;
 
 		_currentTestIgnoreExpectedToFail = false;
+        
+        _testRedirectedCout = "";
+        _testRedirectedCerr = "";
 
 		if( std::uncaught_exception() )
         {
@@ -3721,20 +3745,6 @@ private:
     }
 
     bool continueCurrentTest( std::function<void()> continuationFunc )
-    {        
-        if( m_reporter->getPreferences().shouldRedirectStdOut )
-        {
-            StreamRedirect coutRedir( bdn::cout(), _testRedirectedCout );
-            StreamRedirect cerrRedir( bdn::cerr(), _testRedirectedCerr );
-            
-            return invokeTestContinuation(continuationFunc);
-        }
-        else
-            return invokeTestContinuation(continuationFunc);
-    }
-
-    
-	bool invokeTestContinuation(std::function<void()> continuationFunc )
     {
         _currentTestWillContinueLater = false;
 
@@ -3742,7 +3752,15 @@ private:
         {
             FatalConditionHandler fatalConditionHandler; // Handle signals
             
-            continuationFunc();
+            if( m_reporter->getPreferences().shouldRedirectStdOut )
+            {
+                StreamRedirect coutRedir( bdn::cout(), _testRedirectedCout );
+                StreamRedirect cerrRedir( bdn::cerr(), _testRedirectedCerr );
+                
+                continuationFunc();
+            }
+            else
+                continuationFunc();
             
             fatalConditionHandler.reset();
         }
@@ -3929,6 +3947,7 @@ private:
 
 		SectionStats testCaseSectionStats( *_pCurrentTestCaseSection, assertions, duration, missingAssertions );
 		m_reporter->sectionEnded( testCaseSectionStats );
+        m_reporter->testEnded( TestStats(*_pCurrentTestCaseInfo, duration, _testRedirectedCout, _testRedirectedCerr) );
 
 		if(_pCurrentTestCaseSection!=nullptr)
 		{
@@ -4067,16 +4086,19 @@ Ptr<IStreamingReporter> createReporter( std::string const& reporterName, Ptr<Con
 	return reporter;
 }
 
-Ptr<IStreamingReporter> makeReporter( Ptr<Config> const& config ) {
+Ptr<IStreamingReporter> makeReporter( Ptr<Config> const& config )
+{
 	std::vector<std::string> reporters = config->getReporterNames();
 	if( reporters.empty() )
 		reporters.push_back( "console" );
 
 	Ptr<IStreamingReporter> reporter;
 	for( std::vector<std::string>::const_iterator it = reporters.begin(), itEnd = reporters.end();
-	it != itEnd;
-		++it )
+         it != itEnd;
+         ++it )
+    {
 		reporter = addReporter( reporter, createReporter( *it, config ) );
+    }
 	return reporter;
 }
 Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& config, Ptr<IStreamingReporter> reporters ) {
@@ -5556,6 +5578,7 @@ public:
 	virtual void assertionStarting( AssertionInfo const& );
 	virtual bool assertionEnded( AssertionStats const& assertionStats );
 	virtual void sectionEnded( SectionStats const& sectionStats );
+    virtual void testEnded( TestStats const& testStats );
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats );
 	virtual void testGroupEnded( TestGroupStats const& testGroupStats );
 	virtual void testRunEnded( TestRunStats const& testRunStats );
@@ -5618,12 +5641,18 @@ void LegacyReporterAdapter::sectionEnded( SectionStats const& sectionStats ) {
 		m_legacyReporter->NoAssertionsInSection( sectionStats.sectionInfo.name );
 	m_legacyReporter->EndSection( sectionStats.sectionInfo.name, sectionStats.assertions );
 }
+    
+void LegacyReporterAdapter::testEnded( TestStats const& stats )
+{
+    // do nothing
+}
+    
 void LegacyReporterAdapter::testCaseEnded( TestCaseStats const& testCaseStats ) {
 	m_legacyReporter->EndTestCase
 		(   testCaseStats.testInfo,
 			testCaseStats.totals,
-			testCaseStats.stdOut,
-			testCaseStats.stdErr );
+			"",
+			"" );
 }
 void LegacyReporterAdapter::testGroupEnded( TestGroupStats const& testGroupStats ) {
 	if( testGroupStats.aborting )
@@ -6461,6 +6490,13 @@ public: // IStreamingReporter
 			++it )
 			(*it)->sectionEnded( sectionStats );
 	}
+    
+    virtual void testEnded( TestStats const& stats ) BDN_OVERRIDE {
+        for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
+            it != itEnd;
+            ++it )
+            (*it)->testEnded( stats );
+    }
 
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
 		for( Reporters::const_iterator it = m_reporters.begin(), itEnd = m_reporters.end();
@@ -6526,9 +6562,9 @@ namespace bdn {
 
 struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 
-	StreamingReporterBase( ReporterConfig const& _config )
-		:   m_config( _config.fullConfig() ),
-		stream( _config.stream() )
+	StreamingReporterBase( ReporterConfig const& _config, std::ostream& _stream )
+		:   m_config( _config.fullConfig() )
+        ,   stream( _stream )
 	{
 		m_reporterPrefs.shouldRedirectStdOut = false;
 	}
@@ -6561,6 +6597,11 @@ struct StreamingReporterBase : SharedImpl<IStreamingReporter> {
 	virtual void sectionEnded( SectionStats const& /* _sectionStats */ ) BDN_OVERRIDE {
 		m_sectionStack.pop_back();
 	}
+    
+    virtual void testEnded( TestStats const& /* stats */ ) BDN_OVERRIDE {
+
+    }
+    
 	virtual void testCaseEnded( TestCaseStats const& /* _testCaseStats */ ) BDN_OVERRIDE {
 		currentTestCaseInfo.reset();
 
@@ -6599,7 +6640,7 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 		explicit Node( T const& _value ) : value( _value ) {}
 		virtual ~Node() {}
 
-		typedef std::vector<Ptr<ChildNodeT> > ChildNodes;
+		typedef std::list<Ptr<ChildNodeT> > ChildNodes;
 		T value;
 		ChildNodes children;
 	};
@@ -6615,8 +6656,8 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 		}
 
 		SectionStats stats;
-		typedef std::vector<Ptr<SectionNode> > ChildSections;
-		typedef std::vector<AssertionStats> Assertions;
+		typedef std::list<Ptr<SectionNode> > ChildSections;
+		typedef std::list<AssertionStats> Assertions;
 		ChildSections childSections;
 		Assertions assertions;
 		std::string stdOut;
@@ -6639,9 +6680,31 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 	typedef Node<TestRunStats, TestGroupNode> TestRunNode;
 
 	CumulativeReporterBase( ReporterConfig const& _config )
-		:   m_config( _config.fullConfig() ),
-		stream( _config.stream() )
+		:   m_config( _config.fullConfig() )
+        , actualTargetStream( _config.outputStream() )
+#if BDN_TARGET_WEBEMS
+        // when we output to stdout on Emscripten then the browser sometimes
+        // crashes when we do too many short writes. So instead we buffer the
+        // data and then write them in one big chunk to the actual stream.
+        // Also, if we have many small writes then the lines sometimes get misordered.
+        // This is probably a bug in the emscripten implementation of the stdout stream
+        // that forwards the data to emrun (that one probably does HTTP requests to localhost
+        // to transmit the data and forgets to enforce the order).
+        // Buffering all the data first also solves that problem.
+        , usingBufferStream(true)
+        , stream( bufferStream )
+#else
+        , usingBufferStream(false)
+        , stream( actualTargetStream )
+#endif
 	{
+        if( usingBufferStream )
+        {
+            // we use a buffer stream. Make sure that it uses the same locale
+            // as the final stream
+            bufferStream.imbue( actualTargetStream.getloc() );
+        }
+        
 		m_reporterPrefs.shouldRedirectStdOut = false;
 	}
 	~CumulativeReporterBase();
@@ -6695,17 +6758,21 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 		node.stats = sectionStats;
 		m_sectionStack.pop_back();
 	}
+    
+    virtual void testEnded( TestStats const& stats ) BDN_OVERRIDE {
+        assert( m_deepestSection );
+        m_deepestSection->stdOut = stats.stdOut;
+        m_deepestSection->stdErr = stats.stdErr;
+    }
+    
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
 		Ptr<TestCaseNode> node = new TestCaseNode( testCaseStats );
 		assert( m_sectionStack.size() == 0 );
 		node->children.push_back( m_rootSection );
 		m_testCases.push_back( node );
 		m_rootSection.reset();
-
-		assert( m_deepestSection );
-		m_deepestSection->stdOut = testCaseStats.stdOut;
-		m_deepestSection->stdErr = testCaseStats.stdErr;
 	}
+    
 	virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
 		Ptr<TestGroupNode> node = new TestGroupNode( testGroupStats );
 		node->children.swap( m_testCases );
@@ -6718,19 +6785,29 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 		testRunEndedCumulative();
 
 		stream.flush();
+        
+        if( usingBufferStream )
+        {
+            std::string data = bufferStream.str();
+            actualTargetStream.write( data.data(), data.length() );
+            actualTargetStream.flush();
+        }
 	}
 	virtual void testRunEndedCumulative() = 0;
 
 	virtual void skipTest( TestCaseInfo const& ) BDN_OVERRIDE {}
 
 	Ptr<IConfig const> m_config;
-	std::ostream& stream;
-	std::vector<AssertionStats> m_assertions;
-	std::vector<std::vector<Ptr<SectionNode> > > m_sections;
-	std::vector<Ptr<TestCaseNode> > m_testCases;
-	std::vector<Ptr<TestGroupNode> > m_testGroups;
+    std::ostream&       actualTargetStream;
+    std::ostringstream  bufferStream;
+    bool                usingBufferStream;
+    std::ostream&       stream;
+	std::list<AssertionStats> m_assertions;
+	std::list<std::list<Ptr<SectionNode> > > m_sections;
+	std::list<Ptr<TestCaseNode> > m_testCases;
+	std::list<Ptr<TestGroupNode> > m_testGroups;
 
-	std::vector<Ptr<TestRunNode> > m_testRuns;
+	std::list<Ptr<TestRunNode> > m_testRuns;
 
 	Ptr<SectionNode> m_rootSection;
 	Ptr<SectionNode> m_deepestSection;
@@ -6751,7 +6828,7 @@ char const* getLineOfChars() {
 
 struct TestEventListenerBase : StreamingReporterBase {
 	TestEventListenerBase( ReporterConfig const& _config )
-		:   StreamingReporterBase( _config )
+		:   StreamingReporterBase( _config, _config.outputStream() )
 	{}
 
 	virtual void assertionStarting( AssertionInfo const& ) BDN_OVERRIDE {}
@@ -6954,9 +7031,10 @@ public:
 		m_os( &bdn::cout() )
 	{}
 
-	XmlWriter( std::ostream& os )
+    XmlWriter( std::ostream& os, const std::string& indent = "" )
 		:   m_tagIsOpen( false ),
 		m_needsNewline( false ),
+        m_indent( indent ),
 		m_os( &os )
 	{}
 
@@ -7041,6 +7119,13 @@ public:
 	void setStream( std::ostream& os ) {
 		m_os = &os;
 	}
+    
+    void ensureTagClosed() {
+        if( m_tagIsOpen ) {
+            stream() << ">\n";
+            m_tagIsOpen = false;
+        }
+    }
 
 private:
 	XmlWriter( XmlWriter const& );
@@ -7050,12 +7135,7 @@ private:
 		return *m_os;
 	}
 
-	void ensureTagClosed() {
-		if( m_tagIsOpen ) {
-			stream() << ">\n";
-			m_tagIsOpen = false;
-		}
-	}
+	
 
 	void newlineIfNecessary() {
 		if( m_needsNewline ) {
@@ -7091,7 +7171,7 @@ namespace bdn {
 class XmlReporter : public StreamingReporterBase {
 public:
 	XmlReporter( ReporterConfig const& _config )
-		:   StreamingReporterBase( _config ),
+		:   StreamingReporterBase( _config, _config.outputStream() ),
 		m_sectionDepth( 0 )
 	{
 		m_reporterPrefs.shouldRedirectStdOut = true;
@@ -7227,6 +7307,7 @@ public: // StreamingReporterBase
 			m_xml.endElement();
 		}
 	}
+    
 
 	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
 
@@ -7275,203 +7356,384 @@ INTERNAL_BDN_REGISTER_REPORTER( "xml", XmlReporter )
 #include <assert.h>
 
 namespace bdn {
-
-class JunitReporter : public CumulativeReporterBase {
+    
+    
+class JunitReporter : public SharedImpl<IStreamingReporter>
+{
 public:
-	JunitReporter( ReporterConfig const& _config )
-		:   CumulativeReporterBase( _config ),
-		xml( _config.stream() )
-	{
-		m_reporterPrefs.shouldRedirectStdOut = true;
-	}
+    JunitReporter( ReporterConfig const& config )
+    : _config( config.fullConfig() )
+    , _outStream( config.outputStream() )
+    , _outWriter( _outStream )
+    , _groupContentWriter( _groupContentStream, "    " )
+    {
+        _reporterPrefs.shouldRedirectStdOut = false; // XXX true;
+        
+        std::locale streamLocale = _outStream.getloc();
+        
+        _groupStdOutStream.imbue( streamLocale );
+        _groupStdErrStream.imbue( streamLocale );
+        
+        _groupContentStream.imbue( streamLocale );
+        
+        _testFailureStream.imbue( streamLocale );
+    }
+    
+    virtual ~JunitReporter() override;
+    
+    static std::string getDescription() {
+        return "Reports test results in an XML format that looks like Ant's junitreport target";
+    }
+    
+    virtual ReporterPreferences getPreferences() const override
+    {
+        return _reporterPrefs;
+    }
+    
+    virtual void noMatchingTestCases( std::string const& ) override
+    {
+    }
+    
+    virtual void testRunStarting( TestRunInfo const& info ) override
+    {
+        // a run corresponds to the testsuites root element
+        // We do not need to set any attributes in that element. We could
+        // also provide overall stats there - but that is not needed.
+        
+        // So, since we do not include stats we can write directly to the
+        // target stream.
+        
+        _outWriter.startElement("testsuites");
 
-	virtual ~JunitReporter() BDN_OVERRIDE;
+        _lastKeepAliveOutputTime = std::chrono::steady_clock::now();
+    }
+    
+    virtual void testGroupStarting( GroupInfo const& groupInfo ) override
+    {
+        // groups correspond to the testsuite element (children of the testsuites)
+        
+        _groupTimer.start();
+        _groupUnexpectedExceptions = 0;
+        
+        // the testsuite element contains attributes with the unit test
+        // stats of the group (which we also don't know yet).
+        // So we cannot write the testsuite element yet.
+        
+        // Instead we write the whole content into memory streams first and then output
+        // everything at the end to the real stream.
+        _groupContentStream.str("");
+        _groupStdOutStream.str("");
+        _groupStdErrStream.str("");
+    }
+    
+    virtual void testCaseStarting( TestCaseInfo const& testInfo ) override
+    {
+        _testFailureStream.str("");
+        _testHadFailures = false;
+        
+        _testRootSectionName = "";
+        _testLeafSectionPathFromRoot = "";
+        
+        _onWayBackUp = false;
+        _currentSectionDepth = 0;
 
-	static std::string getDescription() {
-		return "Reports test results in an XML format that looks like Ant's junitreport target";
-	}
+        // XXX
+        //std::cerr << testInfo.name << std::endl;
+    }
+    
+    virtual void sectionStarting( SectionInfo const& sectionInfo, bool firstIteration ) override
+    {
+        // once we started going back up the tree no new sections should be entered.
+        // We should first go all the way up to the root before we go down again
+        // (see explanation in sectionEnded).
+        assert( !_onWayBackUp );
+        
+        if( _currentSectionDepth==0 )
+        {
+            // this is the root section of the test case.
+            // Its name is the name of the test case.
+            _testRootSectionName = sectionInfo.name;
+        }
+        else
+        {
+            if( ! _testLeafSectionPathFromRoot.empty())
+                _testLeafSectionPathFromRoot += "/";
+            _testLeafSectionPathFromRoot += sectionInfo.name;
+        }
 
-	virtual void noMatchingTestCases( std::string const& /*spec*/ ) BDN_OVERRIDE {}
+        
+        _currentSectionDepth++;
+        _onWayBackUp = false;
+    }
+    
+    
+    virtual void assertionStarting( AssertionInfo const& assertionInfo ) override
+    {
+        // nothing to do here
+    }
+    
+    virtual bool assertionEnded( AssertionStats const& assertionStats ) override
+    {
+        if( assertionStats.assertionResult.getResultType() == ResultWas::ThrewException )
+            _groupUnexpectedExceptions++;
+        
+        AssertionResult const& result = assertionStats.assertionResult;
+        if( !result.isOk() )
+        {
+            std::string elementName;
+            
+            switch( result.getResultType() )
+            {
+                case ResultWas::ThrewException:
+                case ResultWas::FatalErrorCondition:
+                    elementName = "error";
+                    break;
+                case ResultWas::ExplicitFailure:
+                    elementName = "failure";
+                    break;
+                case ResultWas::ExpressionFailed:
+                    elementName = "failure";
+                    break;
+                case ResultWas::DidntThrowException:
+                    elementName = "failure";
+                    break;
+                    
+                    // We should never see these here:
+                case ResultWas::Info:
+                case ResultWas::Warning:
+                case ResultWas::Ok:
+                case ResultWas::Unknown:
+                case ResultWas::FailureBit:
+                case ResultWas::Exception:
+                    elementName = "internalError";
+                    break;
+            }
+            
+            assert( !elementName.empty() );
+            
+            _testHadFailures = true;
+            
+            XmlWriter writer( _testFailureStream, "      " );
+            
+            XmlWriter::ScopedElement e = writer.scopedElement( elementName );
+            
+            writer.writeAttribute( "message", result.getExpandedExpression() );
+            writer.writeAttribute( "type", result.getTestMacroName() );
+            
+            std::ostringstream oss;
+            
+            std::string message = result.getMessage();
+            if( !message.empty() )
+                oss << message << "\n";
+            for( const MessageInfo& infoMessage: assertionStats.infoMessages)
+            {
+                if( infoMessage.type == ResultWas::Info )
+                    oss << infoMessage.message << "\n";
+            }
+            
+            oss << "at " << result.getSourceInfo();
+            writer.writeText( oss.str(), false );
+        }
+        
+        return true;
+    }
+    
+    virtual void sectionEnded( SectionStats const& stats ) override
+    {
+        _onWayBackUp = true;
+        _currentSectionDepth--;
+        
+        assert( _currentSectionDepth>=0 );
+    }
+    
+    virtual void testEnded( TestStats const& stats ) override
+    {
+        // the test system works like this.
+        // First the test case is started. That only happens once.
+        // Each test case also has a root section associated with it - it has the
+        // same name as the test case and serves as the parent for any child sections.
+        // Then the system navigates through the sections.
+        // It will enter one or more sections on the way deeper into the section tree.
+        // Then when it has reached a leaf it will change direction and go back up the tree,
+        // ALL THE WAY up to the root section.
+        // The root section is also exited.
+        // Then the direction changes again and the system will go deeper again (this time
+        // taking another path). And so on.
+        
+        // We always want to associate failed assertions with the leaf section of the particular
+        // path that was taken. Even if the assertion occurred on the way back up through the tree.
+        // That is because the failed assertion on the way back up may have been caused by the behaviour
+        // of the leaf, so it is important to know which exact path was taken through the tree.
+        
+        // Since assertions can also occur on the way back up that means that we have to
+        // wait until we have gone all the way up before we can output the data.
+        // That is not the problem, since we go all the way up after every leaf (and then back down again).
+        
+        // We have now exited the test case function. So now the path taken through the sections
+        // can be considered complete.
+        // The test case may be started again if there are other paths left that we can take through
+        // the section tree.
+        
+        // We can now write the entry for the current test (i.e. for the particular path through
+        // the section tree).
+        
+        XmlWriter::ScopedElement e = _groupContentWriter.scopedElement( "testcase" );
+        
+        std::string className = stats.testInfo.className;
+        if( className.empty() )
+        {
+            // anonymous test case without child sections. We call that a "global" test case
+            if( _testLeafSectionPathFromRoot.empty() )
+                className = "global";
+        }
+        if( className.empty() )
+            className = stats.testInfo.name;
+        
+        if( _testLeafSectionPathFromRoot.empty() )
+        {
+            // the test case had no child sections.
+            _groupContentWriter.writeAttribute( "classname", className );
+            _groupContentWriter.writeAttribute( "name", "root" );
+        }
+        else
+        {
+            _groupContentWriter.writeAttribute( "classname", className );
+            _groupContentWriter.writeAttribute( "name", _testLeafSectionPathFromRoot );
+        }
+        
+        _groupContentWriter.writeAttribute( "time", bdn::toStringForTest( stats.durationInSeconds ) );
+        
+        if(_testHadFailures)
+        {
+            _groupContentWriter.ensureTagClosed();
+            
+            // write the failures.
+            _groupContentStream << _testFailureStream.rdbuf();
+            _testFailureStream.str("");
+        }
+        
+        std::string out = trim( stats.stdOut );
+        if( !out.empty() )
+            _groupContentWriter.scopedElement( "system-out" ).writeText( out, false );
+        
+        std::string err = trim( stats.stdErr );
+        if( !err.empty() )
+            _groupContentWriter.scopedElement( "system-err" ).writeText( err, false );
+        
+        _groupStdOutStream << stats.stdOut;
+        _groupStdErrStream << stats.stdErr;
 
-	virtual void testRunStarting( TestRunInfo const& runInfo ) BDN_OVERRIDE {
-		CumulativeReporterBase::testRunStarting( runInfo );
-		xml.startElement( "testsuites" );
-	}
+        // XXX
+        //std::cerr << stats.testInfo.name << ": " << _testLeafSectionPathFromRoot << std::endl;
 
-	virtual void testGroupStarting( GroupInfo const& groupInfo ) BDN_OVERRIDE {
-		suiteTimer.start();
-		stdOutForSuite.str("");
-		stdErrForSuite.str("");
-		unexpectedExceptions = 0;
-		CumulativeReporterBase::testGroupStarting( groupInfo );
-	}
+        // we have finished going up the section tree.
+        // We can go down the next path now.
+        _onWayBackUp = false;
+        
+        _testFailureStream.str("");
+        _testHadFailures = false;
+        
+        _testRootSectionName = "";
+        _testLeafSectionPathFromRoot = "";
+        
+        _currentSectionDepth = 0;
 
-	virtual bool assertionEnded( AssertionStats const& assertionStats ) BDN_OVERRIDE {
-		if( assertionStats.assertionResult.getResultType() == ResultWas::ThrewException )
-			unexpectedExceptions++;
-		return CumulativeReporterBase::assertionEnded( assertionStats );
-	}
+        // XXX
+        /*
+        auto nowTime = std::chrono::steady_clock::now();
+        if(std::chrono::duration_cast<std::chrono::milliseconds>( nowTime - _lastKeepAliveOutputTime).count() >= 1000)
+        {
+        	std::cerr << "." << std::endl;
+        	std::cout << " " << std::endl;
+        	_lastKeepAliveOutputTime = nowTime;
+        }*/
+    }
 
-	virtual void testCaseEnded( TestCaseStats const& testCaseStats ) BDN_OVERRIDE {
-		stdOutForSuite << testCaseStats.stdOut;
-		stdErrForSuite << testCaseStats.stdErr;
-		CumulativeReporterBase::testCaseEnded( testCaseStats );
-	}
-
-	virtual void testGroupEnded( TestGroupStats const& testGroupStats ) BDN_OVERRIDE {
-		double suiteTime = suiteTimer.getElapsedSeconds();
-		CumulativeReporterBase::testGroupEnded( testGroupStats );
-		writeGroup( *m_testGroups.back(), suiteTime );
-	}
-
-	virtual void testRunEndedCumulative() BDN_OVERRIDE {
-		xml.endElement();
-	}
-
-	void writeGroup( TestGroupNode const& groupNode, double suiteTime ) {
-		XmlWriter::ScopedElement e = xml.scopedElement( "testsuite" );
-		TestGroupStats const& stats = groupNode.value;
-		xml.writeAttribute( "name", stats.groupInfo.name );
-		xml.writeAttribute( "errors", unexpectedExceptions );
-		xml.writeAttribute( "failures", stats.totals.assertions.failed-unexpectedExceptions );
-		xml.writeAttribute( "tests", stats.totals.assertions.total() );
-		xml.writeAttribute( "hostname", "tbd" ); // !TBD
-		if( m_config->showDurations() == ShowDurations::Never )
-			xml.writeAttribute( "time", "" );
-		else
-			xml.writeAttribute( "time", suiteTime );
-		xml.writeAttribute( "timestamp", "tbd" ); // !TBD
-
-												  // Write test cases
-		for( TestGroupNode::ChildNodes::const_iterator
-			it = groupNode.children.begin(), itEnd = groupNode.children.end();
-			it != itEnd;
-			++it )
-			writeTestCase( **it );
-
-		xml.scopedElement( "system-out" ).writeText( trim( stdOutForSuite.str() ), false );
-		xml.scopedElement( "system-err" ).writeText( trim( stdErrForSuite.str() ), false );
-	}
-
-	void writeTestCase( TestCaseNode const& testCaseNode ) {
-		TestCaseStats const& stats = testCaseNode.value;
-
-		// All test cases have exactly one section - which represents the
-		// test case itself. That section may have 0-n nested sections
-		assert( testCaseNode.children.size() == 1 );
-		SectionNode const& rootSection = *testCaseNode.children.front();
-
-		std::string className = stats.testInfo.className;
-
-		if( className.empty() ) {
-			if( rootSection.childSections.empty() )
-				className = "global";
-		}
-		writeSection( className, "", rootSection );
-	}
-
-	void writeSection(  std::string const& className,
-		std::string const& rootName,
-		SectionNode const& sectionNode ) {
-		std::string name = trim( sectionNode.stats.sectionInfo.name );
-		if( !rootName.empty() )
-			name = rootName + "/" + name;
-
-		if( !sectionNode.assertions.empty() ||
-			!sectionNode.stdOut.empty() ||
-			!sectionNode.stdErr.empty() ) {
-			XmlWriter::ScopedElement e = xml.scopedElement( "testcase" );
-			if( className.empty() ) {
-				xml.writeAttribute( "classname", name );
-				xml.writeAttribute( "name", "root" );
-			}
-			else {
-				xml.writeAttribute( "classname", className );
-				xml.writeAttribute( "name", name );
-			}
-			xml.writeAttribute( "time", bdn::toStringForTest( sectionNode.stats.durationInSeconds ) );
-
-			writeAssertions( sectionNode );
-
-			if( !sectionNode.stdOut.empty() )
-				xml.scopedElement( "system-out" ).writeText( trim( sectionNode.stdOut ), false );
-			if( !sectionNode.stdErr.empty() )
-				xml.scopedElement( "system-err" ).writeText( trim( sectionNode.stdErr ), false );
-		}
-		for( SectionNode::ChildSections::const_iterator
-			it = sectionNode.childSections.begin(),
-			itEnd = sectionNode.childSections.end();
-			it != itEnd;
-			++it )
-			if( className.empty() )
-				writeSection( name, "", **it );
-			else
-				writeSection( className, name, **it );
-	}
-
-	void writeAssertions( SectionNode const& sectionNode ) {
-		for( SectionNode::Assertions::const_iterator
-			it = sectionNode.assertions.begin(), itEnd = sectionNode.assertions.end();
-			it != itEnd;
-			++it )
-			writeAssertion( *it );
-	}
-	void writeAssertion( AssertionStats const& stats ) {
-		AssertionResult const& result = stats.assertionResult;
-		if( !result.isOk() ) {
-			std::string elementName;
-			switch( result.getResultType() ) {
-			case ResultWas::ThrewException:
-			case ResultWas::FatalErrorCondition:
-				elementName = "error";
-				break;
-			case ResultWas::ExplicitFailure:
-				elementName = "failure";
-				break;
-			case ResultWas::ExpressionFailed:
-				elementName = "failure";
-				break;
-			case ResultWas::DidntThrowException:
-				elementName = "failure";
-				break;
-
-				// We should never see these here:
-			case ResultWas::Info:
-			case ResultWas::Warning:
-			case ResultWas::Ok:
-			case ResultWas::Unknown:
-			case ResultWas::FailureBit:
-			case ResultWas::Exception:
-				elementName = "internalError";
-				break;
-			}
-
-			XmlWriter::ScopedElement e = xml.scopedElement( elementName );
-
-			xml.writeAttribute( "message", result.getExpandedExpression() );
-			xml.writeAttribute( "type", result.getTestMacroName() );
-
-			std::ostringstream oss;
-			if( !result.getMessage().empty() )
-				oss << result.getMessage() << "\n";
-			for( std::vector<MessageInfo>::const_iterator
-				it = stats.infoMessages.begin(),
-				itEnd = stats.infoMessages.end();
-				it != itEnd;
-				++it )
-				if( it->type == ResultWas::Info )
-					oss << it->message << "\n";
-
-			oss << "at " << result.getSourceInfo();
-			xml.writeText( oss.str(), false );
-		}
-	}
-
-	XmlWriter xml;
-	Timer suiteTimer;
-	std::ostringstream stdOutForSuite;
-	std::ostringstream stdErrForSuite;
-	unsigned int unexpectedExceptions;
+    std::chrono::steady_clock::time_point _lastKeepAliveOutputTime;
+    
+    virtual void testCaseEnded( TestCaseStats const& testCaseStats ) override
+    {
+        // nothing to do here.
+        // Our tests (i.e. a single path through the section tree) are each represented as a test case
+        // node in the junit output.
+        // Our test cases are not represented in the output.
+    }
+    
+    virtual void testGroupEnded( TestGroupStats const& stats ) override
+    {
+        double groupTime = _groupTimer.getElapsedSeconds();
+        
+        // the group is now finished. We can now write the data for the testsuite element.
+        _outWriter.startElement("testsuite");
+        
+        _outWriter.writeAttribute( "name", stats.groupInfo.name );
+        _outWriter.writeAttribute( "errors", _groupUnexpectedExceptions );
+        _outWriter.writeAttribute( "failures", stats.totals.assertions.failed - _groupUnexpectedExceptions );
+        _outWriter.writeAttribute( "tests", stats.totals.assertions.total() );
+        _outWriter.writeAttribute( "hostname", "tbd" ); // !TBD
+        if( _config->showDurations() == ShowDurations::Never )
+            _outWriter.writeAttribute( "time", "" );
+        else
+            _outWriter.writeAttribute( "time", groupTime );
+        _outWriter.writeAttribute( "timestamp", "tbd" ); // !TBD
+        
+        _outWriter.ensureTagClosed();
+        
+        // here we need to write the cached group content data.
+        _groupContentStream.flush();
+        _outStream << _groupContentStream.rdbuf();
+        
+        // clear group content stream (we don't need it anymore)
+        _groupContentStream.str("");
+        
+        _outWriter.scopedElement( "system-out" ).writeText( trim( _groupStdOutStream.str() ), false );
+        _groupStdOutStream.str(""); // clear the stream
+        
+        _outWriter.scopedElement( "system-err" ).writeText( trim( _groupStdErrStream.str() ), false );
+        _groupStdErrStream.str(""); // clear the stream
+        
+        _outWriter.endElement();
+    }
+    
+    virtual void testRunEnded( TestRunStats const& testRunStats ) override
+    {
+        // we can now write the root testsuites element.
+        _outWriter.endElement();
+        
+        _outStream.flush();
+    }
+    
+    virtual void skipTest( TestCaseInfo const& info ) override
+    {
+        // Don't do anything with this by default.
+        // It can optionally be overridden in the derived class.
+    }
+    
+private:
+    ReporterPreferences _reporterPrefs;
+    
+    Ptr<IConfig const>  _config;
+    
+    std::ostream&       _outStream;
+    XmlWriter           _outWriter;
+    
+    std::stringstream   _groupContentStream;
+    XmlWriter           _groupContentWriter;
+    
+    std::stringstream   _groupStdOutStream;
+    std::stringstream   _groupStdErrStream;
+    
+    Timer               _groupTimer;
+    
+    unsigned int        _groupUnexpectedExceptions = 0;
+    
+    std::string         _testRootSectionName;
+    std::string         _testLeafSectionPathFromRoot;
+    bool                _testHadFailures = false;
+    std::stringstream   _testFailureStream;
+    
+    int                 _currentSectionDepth = 0;
+    bool                _onWayBackUp = false;
 };
 
 INTERNAL_BDN_REGISTER_REPORTER( "junit", JunitReporter )
@@ -7488,7 +7750,7 @@ namespace bdn {
 
 struct ConsoleReporter : StreamingReporterBase {
 	ConsoleReporter( ReporterConfig const& _config )
-		:   StreamingReporterBase( _config ),
+		:   StreamingReporterBase( _config, _config.statusStream() ),
 		m_headerPrinted( false )
 	{}
 
@@ -7882,7 +8144,7 @@ namespace bdn {
 struct CompactReporter : StreamingReporterBase {
 
 	CompactReporter( ReporterConfig const& _config )
-		: StreamingReporterBase( _config )
+		: StreamingReporterBase( _config, _config.statusStream() )
 	{}
 
 	virtual ~CompactReporter();
@@ -8397,12 +8659,12 @@ protected:
     
 	virtual void abortingBecauseOfInvalidCommandLineArguments()
 	{
-        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Invalid commandline" );
+        AppControllerBase::get()->getUiProvider()->getTextUi()->statusOrProblem()->writeLine( "Invalid commandline" );
 	}
 
 	virtual void abortingBecauseOfException(const ErrorInfo& errorInfo)
 	{
-        AppControllerBase::get()->getUiProvider()->getTextUi()->writeErrorLine( "Fatal Error: " + errorInfo.toString() );
+        AppControllerBase::get()->getUiProvider()->getTextUi()->statusOrProblem()->writeLine( "Fatal Error: " + errorInfo.toString() );
 	}			
 
 

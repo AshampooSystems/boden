@@ -2,7 +2,7 @@
 #define BDN_WINUWP_UiProvider_H_
 
 #include <bdn/IUiProvider.h>
-#include <bdn/ViewTextUi.h>
+#include <bdn/ITextUi.h>
 
 #include <bdn/winuwp/platformError.h>
 #include <bdn/winuwp/util.h>
@@ -77,17 +77,7 @@ public:
 	}
 
     
-    P<ITextUi> getTextUi() override
-    {
-        {
-            Mutex::Lock lock( _textUiInitMutex );
-            if(_pTextUi==nullptr)
-                _pTextUi = newObj< ViewTextUi >();
-        }
-
-        return _pTextUi;
-    }
-
+    P<ITextUi> getTextUi() override;
 
     static UiProvider& get();
 
@@ -144,7 +134,7 @@ protected:
 	double _semDips = 0;
 
     Mutex           _textUiInitMutex;
-    P<ViewTextUi>   _pTextUi;
+    P<ITextUi>      _pTextUi;
 
 	EventForwarder^ _pEventForwarder;
 };

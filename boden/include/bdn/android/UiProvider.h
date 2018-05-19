@@ -14,7 +14,7 @@ class UiProvider;
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
-#include <bdn/ViewTextUi.h>
+#include <bdn/ITextUi.h>
 
 #include <bdn/android/ViewCore.h>
 #include <bdn/android/JTextView.h>
@@ -62,7 +62,7 @@ private:
     P<LayoutCoordinator> _pLayoutCoordinator;
 
     Mutex           _textUiInitMutex;
-    P<ViewTextUi>   _pTextUi;
+    P<ITextUi>      _pTextUi;
 
 };
 

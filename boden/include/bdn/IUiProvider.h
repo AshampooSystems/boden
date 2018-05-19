@@ -84,9 +84,14 @@ public:
         For other types of applications the text UI implementation will often open a graphical
         window and use normal view components to interact with the user (for example with
         bdn::ViewTextUi ).
-
+     
         Note that while console / terminal apps are not supported on all platforms, a functioning
         text UI implementation will still provided in all cases.
+     
+        Also note that the default text UI for each platform will ALWAYS
+        also write forward the written text to STDOUT and STDERR, even if a graphical window
+        is the primary means of display.
+     
         */
     virtual P<ITextUi> getTextUi()=0;
 
