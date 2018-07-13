@@ -4,7 +4,6 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-
         stage('Build webems') {
             agent {
                 dockerfile {
@@ -132,6 +131,14 @@ pipeline {
             steps {
                 unstash 'boden_linux_builddir'
                 sh 'python build.py --platform linux --config Release --module testboden run'
+            }
+        }
+
+        stage('Build macOS') {
+            agent { label 'macOS' }
+            steps {
+                sh 'python build.py prepare --platform mac --build-system Xcode'
+                sh 'python build.py build --platform mac --config Release --module testboden'
             }
         }
 
