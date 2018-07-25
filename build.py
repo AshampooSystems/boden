@@ -1530,6 +1530,40 @@ def commandClean(args):
     commandBuildOrClean("clean", args);
 
 
+def get_xcode_simulator_status(sim_id):
+    output = subprocess.check_output("xcrun simctl list", shell=True)
+
+    search_for = "("+sim_id+")"
+
+    for line in output.splitlines():
+        if search_for in line:
+            before, sep, status = line.rpartition("(")
+            if sep:
+                status, sep, after = status.partition(")")
+                if sep and status:
+                    return status.lower()
+
+    return None
+
+
+def wait_for_xcode_simulator_status(sim_id, wait_for_status, timeout_seconds):
+    timeout_time = time.time()+timeout_seconds
+    while True:
+
+        status = get_xcode_simulator_status(sim_id)
+        if not status:
+            raise Exception("Unable to get simulator status.")
+
+        print("Simulator status: %s" % status, file=sys.stderr);
+
+        if status==wait_for_status:
+            break
+
+        if time.time() > timeout_time:
+            raise Exception("Simulator has not reached desired status in %d seconds - timing out." % timeout_seconds)
+
+        time.sleep(1)
+
 
 def commandRun(args):
 
@@ -1591,12 +1625,116 @@ def commandRun(args):
 
             elif platformName=="ios":
 
-                if args.stdout_file:
-                    raise Exception("Redirecting stdout to a file is currently not implemented for ios.")
-
                 if os.path.exists(moduleFilePath+".app"):
                     moduleFilePath += ".app";
-                    commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
+
+                    # we used to be able to just pass the pass of the app to start to the simulator
+                    # commandline. That does not work anymore.
+                    #commandLine = "open -a Simulator -W --args -SimulateApplication "+moduleFilePath+"/"+args.module;
+
+                    # Instead we have to make multiple "xcrun simctl" calls
+
+                    # we need to know the bundle identifier. Get that from the app bundle.
+                    plist_path = os.path.join( moduleFilePath, "Info.plist")
+                    bundle_id = subprocess.check_output('defaults read "%s" CFBundleIdentifier' % plist_path, shell=True).strip();
+                    if not bundle_id:
+                        raise Exception("Unable to extract bundle id from app bundle.")
+
+                    print("Bundle ID: "+ bundle_id, file=sys.stderr );
+
+                    print("-- Creating simulator device...", file=sys.stderr);
+
+                    sim_device = "iPhone-7"
+                    sim_os = "iOS-11-4"
+
+                    create_sim_commandline = "xcrun simctl create bdnTestSim com.apple.CoreSimulator.SimDeviceType.%s com.apple.CoreSimulator.SimRuntime.%s" % (sim_device, sim_os)
+
+                    sim_id = subprocess.check_output(create_sim_commandline, shell=True).strip()
+
+                    if not sim_id or " " in sim_id or "\n" in sim_id:
+                        raise Exception("Invalid simulator device ID returned.")
+
+                    try:
+                        print("Simulator id: "+sim_id, file=sys.stderr);                        
+
+
+                        print("-- Opening simulator application...", file=sys.stderr);
+
+                        subprocess.check_call("open -a Simulator", shell=True)
+
+
+                        print("-- Booting simulator...", file=sys.stderr);
+
+                        # note that this will fail if the simulator is already booted or is currently booting up.
+                        # That is ok.
+                        subprocess.call("xcrun simctl boot "+sim_id, shell=True)
+
+                        # wait a little - we sometimes get bad status returns in the beginning
+                        wait_for_xcode_simulator_status(sim_id, "booted", 600)
+
+                        print("-- Installing application...", file=sys.stderr);
+
+                        subprocess.check_output('xcrun simctl install "%s" "%s"' % (sim_id, moduleFilePath), shell=True)
+
+
+                        print("-- Starting application in simulator...", file=sys.stderr);
+
+                        # --console connects the app's stdout and stderr to ours and blocks indefinitely
+                        stdout_option = ""
+                        if args.stdout_file:
+                            abs_stdout_path = os.path.abspath(args.stdout_file);
+                            if os.path.exists(abs_stdout_path):
+                                os.remove(abs_stdout_path)
+                            
+                            print("-- Redirecting app's stdout to: "+abs_stdout_path, file=sys.stderr)
+
+                            stdout_option = ' "--stdout=%s"' % abs_stdout_path
+
+                        launch_commandline = 'xcrun simctl launch%s "%s" "%s"' % (stdout_option, sim_id, bundle_id)
+                        for p in args.params:       
+                            launch_commandline += ' "%s"' % (p);
+
+                        result_line = subprocess.check_output(launch_commandline, shell=True).strip()
+
+                        before, sep, process_id = result_line.rpartition(":")                    
+                        if not sep:
+                            raise Exception("Got an unexpected response from launch command: "+result_line)
+                        process_id = process_id.strip()
+
+                        print("Process id inside simulator is: "+process_id, file=sys.stderr);
+
+                        # now we loop indefinitely (and print the app's log output to our stdout)
+
+                        print("\n!!! Waiting until we are killed -- will not exit automatically !!!\n", file=sys.stderr);
+
+                        # note that we could also poll the process list and wait for the app's process
+                        # to terminate. However, that does not happen automatically, unless the app crashes
+                        # or is terminated because of user interaction. So right now there is no good use for that.
+                        # Note that we could get the process info with:
+                        # xcrun simctl spawn SIM_ID launchctl list
+                        # we would get output like this: 11538  0   UIKitApplication:BUNDLE_ID[0x8cd3][PROCESS_ID]
+                        # If the process is gone then the entry is not in the list.
+
+                        predicate = "'processID == %s'" % process_id
+                        #predicate = "'processImagePath contains %s'" % bundle_id
+                        log_stream_commandline = "xcrun simctl spawn '%s' log stream --level=debug --predicate %s" % (sim_id, predicate)
+                        log_stream_process = subprocess.Popen(log_stream_commandline, shell=True)
+
+                        log_stream_process.wait()
+
+                    finally:
+
+                        print("\n\nShutting down simulator", file=sys.stderr);
+                        subprocess.call('xcrun simctl shutdown "%s"' % sim_id, shell=True );
+
+                        # note that shutdown automatically waits until the simulator has finished shutting down
+
+                        print("Deleting simulator device.", file=sys.stderr);
+                        subprocess.call('xcrun simctl delete "%s"' % sim_id, shell=True)
+
+
+
+                    
 
             elif platformName=="android":
 
