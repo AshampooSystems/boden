@@ -56,7 +56,7 @@ public:
         
         // Connect our read-only morphingText property to the
         // model's read-write morphingText property
-        BDN_BIND_PROPERTY_TO( *this, morphingText, *_pModel, morphingText );
+        BDN_BIND_TO_PROPERTY( *this, setMorphingText, *_pModel, morphingText );
         
         // connect our helloMessage to the helloCounter.
         // Note that we use a filter here to transform the integer counter
@@ -69,7 +69,7 @@ public:
             
             return message;
         };
-        BDN_BIND_PROPERTY_TO_WITH_FILTER( *this, helloMessage, *_pModel, helloCounter, helloMessageFilter );
+        BDN_BIND_TO_PROPERTY_WITH_FILTER( *this, setHelloMessage, *_pModel, helloCounter, helloMessageFilter );
     }
     
     BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, helloMessage, protected, setHelloMessage );
@@ -106,7 +106,7 @@ public:
 		_pHelloMessageButton = newObj<Button>();
 
         // we want the hello message on the button
-        BDN_BIND_PROPERTY_TO( *_pHelloMessageButton, label, *_pViewModel, helloMessage );
+        BDN_BIND_TO_PROPERTY( *_pHelloMessageButton, setLabel, *_pViewModel, helloMessage );
 
         _pHelloMessageButton->setMargin( UiMargin( 10, 10, 10, 10) );
 		_pHelloMessageButton->setHorizontalAlignment( View::HorizontalAlignment::center );
@@ -117,7 +117,7 @@ public:
         _pMorphingTextView = newObj<TextView>();
 
         // show the morphing text in the text view
-        BDN_BIND_PROPERTY_TO( *_pMorphingTextView, text, *_pViewModel, morphingText );
+        BDN_BIND_TO_PROPERTY( *_pMorphingTextView, setText, *_pViewModel, morphingText );
         _pMorphingTextView->setMargin( UiMargin( 10, 10, 10, 10) );
 
         pColumnView->addChildView( _pMorphingTextView );

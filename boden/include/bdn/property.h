@@ -29,9 +29,7 @@ namespace bdn
     its behavior.
     */
 #define BDN_FINALIZE_CUSTOM_PROPERTY_WITH_CUSTOM_ACCESS( valueType, readAccess, name, writeAccess, setterName, ...) \
-    writeAccess: \
-    inline void _propertySetter_##name(const valueType& value){ setterName(value); } \
-    readAccess: \
+readAccess: \
     using PropertyValueType_##name = valueType; \
 protected: \
     virtual void _propertiesCannotBeRedeclaredInDerivedClass_OverrideGetterSetterToCustomize_##name() final {} \
@@ -148,7 +146,6 @@ public:
         its behavior.
     */
 #define BDN_FINALIZE_CUSTOM_PROPERTY( valueType, name, setterName, ...) \
-    inline void _propertySetter_##name(const valueType& value){ setterName(value); } \
     BDN_FINALIZE_CUSTOM_READ_ONLY_PROPERTY( valueType, name);
     
 
@@ -233,7 +230,7 @@ public:
  
     In Boden, properties are simply a set of functions that an owner object provides.
     They handle access to the underlying internal property value and enable change notifications
-    and property binding (see \ref BDN_BIND_PROPERTY_TO and \ref BDN_BIND_PROPERTY_TO_WITH_FILTER).
+    and property binding (see \ref BDN_BIND_TO_PROPERTY and \ref BDN_BIND_TO_PROPERTY_WITH_FILTER).
  
     More information: \ref properties.md "Properties"
  
@@ -329,7 +326,6 @@ public:
     virtual valueType name() const=0; \
     virtual void setterName(const valueType& value)=0; \
     virtual IPropertyNotifier<valueType> & name##Changed() const=0; \
-    inline void _propertySetter_##name(const valueType& value){ setterName(value); } \
     using PropertyValueType_##name = valueType;
 
    
@@ -369,7 +365,6 @@ public:
     virtual void setterName(const valueType& value) override { \
         baseClassToUsePropertyFrom::setterName(value); \
     } \
-    inline void _propertySetter_##name(const valueType& value){ setterName(value); } \
     virtual bdn::IPropertyNotifier<valueType>& name##Changed() const override { \
         return baseClassToUsePropertyFrom::name##Changed(); \
     } \
@@ -405,7 +400,7 @@ std::function< void(const VALUE_TYPE&) > _makePropertySubscriberWithFilter( OWNE
     };
 }
     
-/** \def BDN_BIND_PROPERTY_TO( receiverOwner, receiverPropName, senderOwner, senderPropName )
+/** \def BDN_BIND_TO_PROPERTY( receiverOwner, receiverSetterName, senderOwner, senderPropName )
  
     Binds a property to another property.
  
@@ -423,23 +418,23 @@ std::function< void(const VALUE_TYPE&) > _makePropertySubscriberWithFilter( OWNE
     no matter which one changes, then you need to make two bindings - one for each direction.
  
     There is also a way to bind two properties with a value filter in between (i.e.
-    set the receiver to a filtered or modified version of the source value). See \ref BDN_BIND_PROPERTY_TO_WITH_FILTER.
+    set the receiver to a filtered or modified version of the source value). See \ref BDN_BIND_TO_PROPERTY_WITH_FILTER.
  
     \param receiverOwner the owner of the receiver property. This must be the owner object or a reference to it
         (not a pointer).
-    \param receiverPropName the name of the receiver property.
+    \param receiverSetterName the name of the receiver property's setter function.
     \param senderOwner the owner of the sender property.  This must be the owner object or a reference to it
         (not a pointer).
     \param senderPropName the name of the sender property.
  */
-#define BDN_BIND_PROPERTY_TO( receiverOwner, receiverPropName, senderOwner, senderPropName ) \
+#define BDN_BIND_TO_PROPERTY( receiverOwner, receiverSetterName, senderOwner, senderPropName ) \
     (senderOwner).senderPropName##Changed().subscribe( \
         bdn::_makePropertySubscriber< typename std::remove_reference<decltype(senderOwner)>::type :: PropertyValueType_##senderPropName> ( \
             &(receiverOwner), \
-            & std::remove_reference<decltype(receiverOwner)>::type :: _propertySetter_##receiverPropName \
+            & std::remove_reference<decltype(receiverOwner)>::type :: receiverSetterName \
         ) \
     ); \
-    (receiverOwner)._propertySetter_##receiverPropName( (senderOwner).senderPropName() );
+    (receiverOwner).receiverSetterName( (senderOwner).senderPropName() );
     
 
 template<typename VALUE_TYPE, typename OWNER_TYPE, typename SETTER_METHOD_TYPE, typename FILTER_FUNC_TYPE>
@@ -450,12 +445,12 @@ std::function< void(const VALUE_TYPE&) > makePropertySubscriberWithFilter( OWNER
     };
 }
 
-/** \def BDN_BIND_PROPERTY_TO_WITH_FILTER( receiverOwner, receiverPropName, senderOwner, senderPropName, filterFunc )
+/** \def BDN_BIND_TO_PROPERTY_WITH_FILTER( receiverOwner, receiverSetterName, senderOwner, senderPropName, filterFunc )
  
     Binds a property to another property with a filter function in between.
  
-    Please read the documentation of \ref BDN_BIND_PROPERTY_TO first, as
-    BDN_BIND_PROPERTY_TO_WITH_FILTER is very similar to that. The only difference is that
+    Please read the documentation of \ref BDN_BIND_TO_PROPERTY first, as
+    BDN_BIND_TO_PROPERTY_WITH_FILTER is very similar to that. The only difference is that
     the receiver property is not set to exactly the same value as the sender property.
     Instead, the new value is passed to a filter function, which generates the value for the receiver property.
  
@@ -493,7 +488,7 @@ std::function< void(const VALUE_TYPE&) > makePropertySubscriberWithFilter( OWNER
     // since one is a number and the other one is a text. But we can provide a filter function
     // that does the conversion.
  
-    BDN_BIND_PROPERTY_TO_WITH_FILTER( viewModel, progressText, backgroundOp, progressPercent,
+    BDN_BIND_TO_PROPERTY_WITH_FILTER( viewModel, setProgressText, backgroundOp, progressPercent,
         [](double percent) -> String
         {
             // generate our text
@@ -509,21 +504,21 @@ std::function< void(const VALUE_TYPE&) > makePropertySubscriberWithFilter( OWNER
  
     \param receiverOwner the owner of the receiver property. This must be the owner object or a reference to it
         (not a pointer).
-    \param receiverPropName the name of the receiver property.
+    \param receiverSetterName the name of the receiver property's setter function.
     \param senderOwner the owner of the sender property.  This must be the owner object or a reference to it
         (not a pointer).
     \param senderPropName the name of the sender property.
     \param filterFunc the filter function to use.
  */
-#define BDN_BIND_PROPERTY_TO_WITH_FILTER( receiverOwner, receiverPropName, senderOwner, senderPropName, filterFunc ) \
+#define BDN_BIND_TO_PROPERTY_WITH_FILTER( receiverOwner, receiverSetterName, senderOwner, senderPropName, filterFunc ) \
     (senderOwner).senderPropName##Changed().subscribe( \
         bdn::_makePropertySubscriberWithFilter< typename std::remove_reference<decltype(senderOwner)>::type :: PropertyValueType_##senderPropName> ( \
             &(receiverOwner), \
-            & std::remove_reference<decltype(receiverOwner)>::type :: _propertySetter_##receiverPropName, \
+            & std::remove_reference<decltype(receiverOwner)>::type :: receiverSetterName, \
             filterFunc \
         ) \
     ); \
-    (receiverOwner)._propertySetter_##receiverPropName( (filterFunc)( (senderOwner).senderPropName() ) );
+    (receiverOwner).receiverSetterName( (filterFunc)( (senderOwner).senderPropName() ) );
 
     
     

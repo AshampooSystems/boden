@@ -109,8 +109,8 @@ Example:
     Person      somePerson = ...;
     HeightView  view = ...;
 
-    // We now bind the "value" property of the HeightView to the "heigth" property of the person object.
-    BDN_BIND_PROPERTY_TO( view, value, somePerson, height );
+    // We now bind the HeightView's "setValue" property setter to the "heigth" property of the person object.
+    BDN_BIND_TO_PROPERTY( view, setValue, somePerson, height );
 
     // Now we change the height of the person object. This will
     // automatically also update the bound property "value" in the HeightView.
@@ -132,8 +132,8 @@ is **not** updated automatically. However, that can also easily be achieved by b
     HeightView  view = ...;
 
     // we now bind in both directions.
-    BDN_BIND_PROPERTY_TO( view, value, somePerson, height );
-    BDN_BIND_PROPERTY_TO( somePerson, height, view, value );
+    BDN_BIND_TO_PROPERTY( view, setValue, somePerson, height );
+    BDN_BIND_TO_PROPERTY( somePerson, setHeight, view, value );
 
     // now we can modify any of the two properties and the other is automatically updated
     
@@ -182,7 +182,7 @@ Example:
 
     // We can still bind the heightCm value to the HeightView, even though
     // one is an integer and the other a double.
-    BDN_BIND_PROPERTY_TO( view, value, somePerson, heightCm );
+    BDN_BIND_TO_PROPERTY( view, setValue, somePerson, heightCm );
 
     
 
@@ -221,7 +221,7 @@ Let's look at an example:
     MyOperation op = ...;
     StatusView  view = ...;
 
-    // Bind the status text view to the progress property.
+    // Bind the status text property to the progress property.
     // Note that statusText is of type String and progress of type double.
     // So we need to provide a filter function. Here we use a lambda function,
     // but any type of function is possible.
@@ -229,7 +229,7 @@ Let's look at an example:
         // generate a status text string from the double value
         return std::to_string(newProgressValue) + " % completed";
     };
-    BDN_BIND_PROPERTY_TO_WITH_FILTER( view, statusText, MyOperation, progress, filterFunc );
+    BDN_BIND_TO_PROPERTY_WITH_FILTER( view, setStatusText, MyOperation, progress, filterFunc );
 
     // Now when we modify the progress value the status text is automatically
     // set to the output value of our filter function

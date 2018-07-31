@@ -4135,7 +4135,7 @@ public:
 
         _pContext = new RunContext( _iconfig, _reporter );
 
-        BDN_BIND_PROPERTY_TO( *this, statusText, *_pContext, statusText );
+        BDN_BIND_TO_PROPERTY( *this, setStatusText, *_pContext, statusText );
 
         _pContext->testGroupStarting( config->name(), 1, 1 );
 

@@ -330,7 +330,7 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
     
     SECTION("binding")
     {
-        BDN_BIND_PROPERTY_TO( *pOtherOwner, otherProp, *pOwner, myProp);
+        BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, *pOwner, myProp);
         
         pOwner->setMyProp( valA );
         
@@ -348,7 +348,7 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
     {
         pOwner->setMyProp( valA );
         
-        BDN_BIND_PROPERTY_TO( *pOtherOwner, otherProp, *pOwner, myProp);
+        BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, *pOwner, myProp);
         
         // source's property should not have changed
         REQUIRE( pOwner->myProp() == valA );
@@ -370,8 +370,8 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
                     return value + value;
                 };
             
-            BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                             otherProp,
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner,
+                                             setOtherProp,
                                              *pOwner,
                                              myProp,
                                              filterFunc );
@@ -379,8 +379,8 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
         
         SECTION("inline lambda")
         {
-            BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                             otherProp,
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner,
+                                             setOtherProp,
                                              *pOwner,
                                              myProp,
                                              [](const VALUE_TYPE& value) {
@@ -409,44 +409,21 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
         SECTION("std::function")
         {
             std::function< VALUE_TYPE(const VALUE_TYPE&) > filterFunc =
-            [](const VALUE_TYPE& value) {
-                return value + value;
-            };
-            
-            BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                             otherProp,
-                                             *pOwner,
-                                             myProp,
-                                             filterFunc );SECTION("std::function")
-            {
-                std::function< VALUE_TYPE(const VALUE_TYPE&) > filterFunc =
                 [](const VALUE_TYPE& value) {
                     return value + value;
                 };
-                
-                BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                                 otherProp,
-                                                 *pOwner,
-                                                 myProp,
-                                                 filterFunc );
-            }
             
-            SECTION("inline lambda")
-            {
-                BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                                 otherProp,
-                                                 *pOwner,
-                                                 myProp,
-                                                 [](const VALUE_TYPE& value) {
-                                                     return value + value;
-                                                 } );
-            }
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner,
+                                             setOtherProp,
+                                             *pOwner,
+                                             myProp,
+                                             filterFunc );
         }
         
         SECTION("inline lambda")
         {
-            BDN_BIND_PROPERTY_TO_WITH_FILTER(*pOtherOwner,
-                                             otherProp,
+            BDN_BIND_TO_PROPERTY_WITH_FILTER(*pOtherOwner,
+                                             setOtherProp,
                                              *pOwner,
                                              myProp,
                                              [](const VALUE_TYPE& value) {
@@ -472,7 +449,7 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
         pOwner->pDeleted = &senderDeleted;
         pOtherOwner->pDeleted = &receiverDeleted;
         
-        BDN_BIND_PROPERTY_TO( *pOtherOwner, otherProp, *pOwner, myProp);
+        BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, *pOwner, myProp);
         
         SECTION("delete sender")
         {
@@ -561,7 +538,7 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
         
         SECTION("binding as sender")
         {
-            BDN_BIND_PROPERTY_TO( *pOtherOwner, otherProp, constOwner, myProp);
+            BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, constOwner, myProp);
             
             pOwner->setMyProp( valB );
             
@@ -1145,7 +1122,7 @@ TEST_CASE("properties")
         TestPropertyOwner<int>          intOwner;
         TestPropertyOtherOwner<double>  doubleOwner;
         
-        BDN_BIND_PROPERTY_TO( doubleOwner, otherProp, intOwner, myProp );
+        BDN_BIND_TO_PROPERTY( doubleOwner, setOtherProp, intOwner, myProp );
         
         intOwner.setMyProp( 1234 );
         
@@ -1163,7 +1140,7 @@ TEST_CASE("properties")
         
         // note that bdn::toString has many overloads. We want to ensure that we can still pass
         // it to bind.
-        BDN_BIND_PROPERTY_TO_WITH_FILTER( stringOwner, otherProp, intOwner, myProp, toString );
+        BDN_BIND_TO_PROPERTY_WITH_FILTER( stringOwner, setOtherProp, intOwner, myProp, toString );
         
         intOwner.setMyProp( 1234 );
         
