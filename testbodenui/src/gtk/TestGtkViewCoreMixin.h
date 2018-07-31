@@ -84,13 +84,13 @@ protected:
     void verifyCorePosition() override
     {        
         if(GTK_IS_WINDOW(_pGtkWidget))
-            REQUIRE( getWindowPosition() == BaseClass::_pView->position().get() );        
+            REQUIRE( getWindowPosition() == BaseClass::_pView->position() );        
     }
 
 
     void verifyCoreSize() override
     {        
-        REQUIRE( getWidgetSize() == BaseClass::_pView->size().get() );        
+        REQUIRE( getWidgetSize() == BaseClass::_pView->size() );        
     }
 
 

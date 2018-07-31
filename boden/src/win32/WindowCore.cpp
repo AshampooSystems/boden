@@ -22,7 +22,7 @@ BDN_SAFE_STATIC_IMPL( WindowCore::WindowCoreClass, WindowCore::WindowCoreClass::
 WindowCore::WindowCore(Window* pWindow)
 	: ViewCore(	pWindow,
 				WindowCore::WindowCoreClass::get().getName(),
-				pWindow->title().get(),
+				pWindow->title(),
 				WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW,
 				WS_EX_APPWINDOW )
 {

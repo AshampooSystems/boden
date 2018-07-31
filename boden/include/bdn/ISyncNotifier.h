@@ -124,8 +124,8 @@ namespace bdn
     \endcode
 
 */
-template<class... ArgTypes>
-class ISyncNotifier : BDN_IMPLEMENTS INotifierBase<ArgTypes...>
+template<class... ARG_TYPES>
+class ISyncNotifier : BDN_IMPLEMENTS INotifierBase<ARG_TYPES...>
 {
 public:
 
@@ -133,7 +133,8 @@ public:
 	/** Calls all subscribed functions immediately with the specified arguments.
 		All subscribed functions are called before notify returns.
     */
-    virtual void notify(ArgTypes... args)=0;
+    virtual void notify(ARG_TYPES... args)=0;
+    
 };
     
 }

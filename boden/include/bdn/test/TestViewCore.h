@@ -28,7 +28,7 @@ public:
     {
         _pWindow = newObj<WindowForTest>( &getUiProvider() );
 
-        _pWindow->visible() = true;
+        _pWindow->setVisible( true );
 
         setView( createView() );
 
@@ -62,7 +62,7 @@ public:
             initCore();
 
             // view should always be visible for these tests
-            _pView->visible() = true;
+            _pView->setVisible( true );
 
             // ensure that all pending initializations have finished.
             P<TestViewCore<ViewType>> pThis = this;
@@ -111,7 +111,7 @@ protected:
     {
         SECTION("visible")
         {
-            _pView->visible() = true;
+            _pView->setVisible( true );
 
             initCore();
             verifyCoreVisibility();
@@ -119,7 +119,7 @@ protected:
     
         SECTION("invisible")
         {
-            _pView->visible() = false;
+            _pView->setVisible( false );
 
             initCore();
             verifyCoreVisibility();
@@ -130,7 +130,7 @@ protected:
             SECTION("default")
             {
                 // the default padding of the outer view should be null (i.e. "use default").
-                REQUIRE( _pView->padding().get().isNull() );
+                REQUIRE( _pView->padding().isNull() );
 
                 initCore();
                 verifyCorePadding();
@@ -138,7 +138,7 @@ protected:
 
             SECTION("explicit")
             {
-                _pView->padding() = UiMargin( UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44) );
+                _pView->setPadding( UiMargin( UiLength::sem(11), UiLength::sem(22), UiLength::sem(33), UiLength::sem(44) ) );
 
                 initCore();
                 verifyCorePadding();
@@ -233,7 +233,7 @@ protected:
         {
             SECTION("visible")
             {
-                _pView->visible() = true;
+                _pView->setVisible( true );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -243,7 +243,7 @@ protected:
 
             SECTION("invisible")
             {
-                _pView->visible() = false;
+                _pView->setVisible( false );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -258,18 +258,18 @@ protected:
                     // verify that visibility has no effect on the preferred size
                     Size prefSizeBefore = _pCore->calcPreferredSize();
 
-                    _pView->visible() = true;
+                    _pView->setVisible( true );
                     CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                     {
                         REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                        pThis->_pView->visible() = false;
+                        pThis->_pView->setVisible( false );
                         
                         CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                         {
                             REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                            pThis->_pView->visible() = true;
+                            pThis->_pView->setVisible( true );
                             
                             CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                             {
@@ -285,7 +285,7 @@ protected:
         {
             SECTION("custom")
             {
-                _pView->padding() = UiMargin( 11, 22, 33, 44);
+                _pView->setPadding( UiMargin( 11, 22, 33, 44) );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -296,8 +296,8 @@ protected:
             SECTION("default after custom")
             {
                 // set a non-default padding, then go back to default padding.
-                _pView->padding() = UiMargin( 11, 22, 33, 44);
-                _pView->padding() = nullptr;
+                _pView->setPadding( UiMargin( 11, 22, 33, 44) );
+                _pView->setPadding( nullptr );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -318,7 +318,7 @@ protected:
         
                     UiMargin paddingBefore(UiLength::sem(10) );
 
-                    _pView->padding() = paddingBefore;
+                    _pView->setPadding( paddingBefore );
                     
                     // wait a little so that sizing info is updated.
                     CONTINUE_SECTION_WHEN_IDLE( pThis, paddingBefore )
@@ -334,7 +334,7 @@ protected:
 
                         // setting padding should increase the preferred size
                         // of the core.
-                        pThis->_pView->padding() = increasedPadding;
+                        pThis->_pView->setPadding( increasedPadding );
 
 
                         CONTINUE_SECTION_WHEN_IDLE( pThis, prefSizeBefore, additionalPadding )

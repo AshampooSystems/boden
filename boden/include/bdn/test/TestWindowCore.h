@@ -36,7 +36,7 @@ protected:
     {
         TestViewCore::initCore();
 
-        _pWindow->visible() = true;
+        _pWindow->setVisible( true );
 
         _pWindowCore = cast<IWindowCore>( _pCore );
     }
@@ -47,7 +47,7 @@ protected:
 
         SECTION("title")
         {
-            _pWindow->title() = "hello world";
+            _pWindow->setTitle( "hello world" );
 
             initCore();
             verifyCoreTitle();
@@ -64,7 +64,7 @@ protected:
         {
             SECTION("value")
             {
-                _pWindow->title() = "hello world";
+                _pWindow->setTitle( "hello world" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -77,7 +77,7 @@ protected:
                 // the title should not affect the window's preferred size.
                 Size prefSizeBefore = _pWindow->calcPreferredSize();
 
-                _pWindow->title() = "this is a long long long long long long long long long long long long title";
+                _pWindow->setTitle( "this is a long long long long long long long long long long long long title" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                 {
@@ -97,7 +97,7 @@ protected:
 
             // set a left/top margin for the child so that it is moved to the bottom right
             Margin margin( 11, 0, 0, 22 );
-            pChild->margin() = UiMargin( margin.top, margin.right, margin.bottom, margin.left );
+            pChild->setMargin( UiMargin( margin.top, margin.right, margin.bottom, margin.left ) );
 
             // then autosize the window
             _pWindow->requestAutoSize();
@@ -111,7 +111,7 @@ protected:
 
                 // then invert the margin and make the top margin a bottom margin and the
                 // left margin a right margin
-                pChild->margin() = UiMargin( 0, margin.left, margin.top, 0);
+                pChild->setMargin( UiMargin( 0, margin.left, margin.top, 0) );
                 
 
                 // this should cause a layout. We know the layout happens (we test that in another case).
@@ -127,7 +127,7 @@ protected:
                     REQUIRE_ALMOST_EQUAL( pos.y, expectedPos.y, 2);
                     
                     // size should not have changed
-                    REQUIRE( pChild->size().get() == oldSize );
+                    REQUIRE( pChild->size() == oldSize );
                 };
                 
             };
@@ -214,7 +214,7 @@ protected:
     }
     
     /** Verifies that the window core's title has the expected value
-        (the title set in the outer window object's Window::title() property.*/
+        (the title set in the outer window object's Window::title property.*/
     virtual void verifyCoreTitle()=0;
 
 

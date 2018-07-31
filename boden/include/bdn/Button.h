@@ -16,22 +16,11 @@ public:
 	Button()
 	{
         _pOnClick = newObj< SimpleNotifier<const ClickEvent&> >();
-
-		initProperty<String, IButtonCore, &IButtonCore::setLabel, (int)PropertyInfluence_::preferredSize>(_label);
 	}
 
-	/** Returns the button's label property.
-		It is safe to use from any thread.
-		*/
-	Property<String>& label()
-	{
-		return _label;
-	}
 
-	const ReadProperty<String>& label() const
-	{
-		return _label;
-	}
+	/** The button's label.*/
+    BDN_VIEW_PROPERTY(String, label, setLabel, IButtonCore, influencesPreferredSize() );
 		
 
 	ISyncNotifier<const ClickEvent&>& onClick()
@@ -51,9 +40,7 @@ public:
 		return getButtonCoreTypeName();
 	}
 
-
-	DefaultProperty<String>		            _label;
-
+private:
 	P< SimpleNotifier<const ClickEvent&> >  _pOnClick;
 };
 

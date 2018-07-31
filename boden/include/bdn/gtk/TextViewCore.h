@@ -19,7 +19,7 @@ class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
 private:
     static GtkWidget* createLabel( TextView* pOuter )
     {
-        GtkWidget* pLabel = gtk_label_new( pOuter->text().get().asUtf8Ptr() );
+        GtkWidget* pLabel = gtk_label_new( pOuter->text().asUtf8Ptr() );
         
         gtk_label_set_line_wrap( GTK_LABEL(pLabel), TRUE );        
         

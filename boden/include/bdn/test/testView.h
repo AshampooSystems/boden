@@ -22,7 +22,7 @@ template<>
 inline void _initViewTestPreparerTestView<TextView>(TextView* pView)
 {
 	// must have a text set so that the preferred size hint will have a measurable effect
-	pView->text() = "hello world";
+	pView->setText("hello world");
 }
 
 template<class ViewType>
@@ -345,7 +345,7 @@ inline void testView()
                     BDN_REQUIRE( pView->visible() == shouldViewBeInitiallyVisible<ViewType>() );
                     
                     BDN_REQUIRE( pView->margin() == UiMargin( UiLength() ) );
-                    BDN_REQUIRE( pView->padding().get().isNull() );
+                    BDN_REQUIRE( pView->padding().isNull() );
 
                     BDN_REQUIRE( pView->horizontalAlignment() == View::HorizontalAlignment::left );
                     BDN_REQUIRE( pView->verticalAlignment() == View::VerticalAlignment::top );
@@ -540,7 +540,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->visible() = !shouldViewBeInitiallyVisible<ViewType>();
+                                pView->setVisible( !shouldViewBeInitiallyVisible<ViewType>() );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -563,7 +563,7 @@ inline void testView()
                             pPreparer,
                             [pView, m, pWindow]()
                             {
-                                pView->margin() = m;
+                                pView->setMargin( m );
                             },
                             [pCore, m, pView, pWindow]()
                             {
@@ -571,7 +571,7 @@ inline void testView()
                                 BDN_REQUIRE( pCore->getMargin() == m);
 
                                 // margin property should still have the value we set
-                                REQUIRE( pView->margin().get() == m );
+                                REQUIRE( pView->margin() == m );
                             },
                             0 | ExpectedSideEffect_::invalidateParentLayout
                                 // should NOT have caused a sizing info update, since the view's
@@ -588,7 +588,7 @@ inline void testView()
                             pPreparer,
                             [pView, m, pWindow]()
                             {
-                                pView->padding() = m;
+                                pView->setPadding( m );
                             },
                             [pCore, m, pView, pWindow]()
                             {
@@ -609,7 +609,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->horizontalAlignment() = View::HorizontalAlignment::center;
+                                pView->setHorizontalAlignment( View::HorizontalAlignment::center );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -629,7 +629,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->verticalAlignment() = View::VerticalAlignment::bottom;
+                                pView->setVerticalAlignment( View::VerticalAlignment::bottom );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -649,7 +649,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->preferredSizeMinimum() = Size(10,20);
+                                pView->setPreferredSizeMinimum( Size(10,20) );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -668,7 +668,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->preferredSizeMaximum() = Size(10,20);
+                                pView->setPreferredSizeMaximum( Size(10,20) );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -687,7 +687,7 @@ inline void testView()
                             pPreparer,
                             [pView, pWindow]()
                             {
-                                pView->preferredSizeHint() = Size(10,20);
+                                pView->setPreferredSizeHint( Size(10,20) );
                             },
                             [pCore, pView, pWindow]()
                             {
@@ -856,8 +856,8 @@ inline void testView()
                         pPreparer,
                         [pView, pWindow]()
                         {
-                            pView->padding() = UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10));
-                            pView->padding() = UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9) );
+                            pView->setPadding( UiMargin(UiLength::sem(7), UiLength::sem(8), UiLength::sem(9), UiLength::sem(10)) );
+                            pView->setPadding( UiMargin(UiLength::sem(6), UiLength::sem(7), UiLength::sem(8), UiLength::sem(9) ) );
                         },
 
                         [pCore, pView, pWindow]()

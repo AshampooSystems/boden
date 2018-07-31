@@ -115,7 +115,7 @@
 #include <bdn/UiMargin.h>
 #include <bdn/UiSize.h>
 #include <bdn/Thread.h>
-#include <bdn/Property.h>
+#include <bdn/property.h>
 #include <bdn/ProgrammingError.h>
 #include <bdn/ExpectProgrammingError.h>
 
@@ -1647,17 +1647,6 @@ std::string toStringForTest( const UiLength& length);
 std::string toStringForTest( const UiMargin& margin);
 std::string toStringForTest( const UiSize& size);
 
-template<class PropValueType>
-inline std::string toStringForTest( const ReadProperty<PropValueType>& prop)
-{
-    return toStringForTest(prop.get());
-}
-
-template<class PropValueType>
-inline std::string toStringForTest( const Property<PropValueType>& prop)
-{
-    return toStringForTest(prop.get());
-}
 
 
 namespace Detail {

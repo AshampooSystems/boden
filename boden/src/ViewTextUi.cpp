@@ -45,21 +45,21 @@ void ViewTextUi::_ensureInitializedWhileMutexLocked()
                 
         _pWindow = newObj<Window>(_pUiProvider);
 
-        _pWindow->padding() = UiMargin(10);
+        _pWindow->setPadding( UiMargin(10) );
 
         _pScrollView = newObj<ScrollView>();
 
         _pScrolledColumnView = newObj<ColumnView>();
 
-        _pScrolledColumnView->size().onChange().subscribeParamless( weakMethod(this, &ViewTextUi::scrolledSizeChanged ) );
+        _pScrolledColumnView->sizeChanged().subscribeParamless( weakMethod(this, &ViewTextUi::scrolledSizeChanged ) );
 
         _pScrollView->setContentView( _pScrolledColumnView );
     
         _pWindow->setContentView(_pScrollView);
 
-        _pWindow->preferredSizeMinimum() = Size(600, 400);
+        _pWindow->setPreferredSizeMinimum( Size(600, 400) );
 
-        _pWindow->visible() = true;
+        _pWindow->setVisible( true );
 
         _pWindow->requestAutoSize();
         _pWindow->requestCenter();
@@ -153,7 +153,7 @@ void ViewTextUi::_doWriteWhileMutexLocked(const String& s)
             _pScrolledColumnView->addChildView(_pCurrParagraphView);
         }
 
-        _pCurrParagraphView->text() = _pCurrParagraphView->text().get() + para;
+        _pCurrParagraphView->setText( _pCurrParagraphView->text() + para );
 
         if(separator!=0)
         {

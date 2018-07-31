@@ -46,8 +46,8 @@ protected:
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
 
-        _pScrollView->preferredSizeMinimum() = viewSize;
-        _pScrollView->preferredSizeMaximum() = viewSize;
+        _pScrollView->setPreferredSizeMinimum( viewSize );
+        _pScrollView->setPreferredSizeMaximum( viewSize );
 
         // also request a re-layout here. With the normal propagation of the property changes
         // it would take two event cycles until the layout happens. But we want it to happen

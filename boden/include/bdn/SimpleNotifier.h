@@ -40,6 +40,7 @@ public:
 	{
 		BASE::doNotify( std::forward<ARG_TYPES>(args)... );
 	}
+    
 	
 private:
 };

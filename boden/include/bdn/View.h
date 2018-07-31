@@ -13,11 +13,168 @@ namespace bdn
 #include <bdn/Rect.h>
 #include <bdn/Nullable.h>
 #include <bdn/RequireNewAlloc.h>
-#include <bdn/DefaultProperty.h>
+#include <bdn/property.h>
 #include <bdn/mainThread.h>
 #include <bdn/round.h>
 #include <bdn/PreferredViewSizeManager.h>
 #include <bdn/List.h>
+
+#include <bdn/IViewCore.h>
+
+/** \def BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS( ValueType, readAccess, name, writeAccess, setterName, CoreInterfaceType, modificationInfluenceCalls )
+ 
+    Like \ref BDN_VIEW_PROPERTY, except that one can specify the access permissions for read and write access
+    (public, protected, private). See \ref BDN_VIEW_PROPERTY for more information.
+ 
+    \param ValueType The type of the internal property value. This must be a valid C++ type or class name.
+    \param readAccess Access specifier for read access. This is one of the normal C++ access specifiers:
+      public, protected, private. It defines the access for the getter function, the function that returns
+      the changed notifier and the PropertyValueType_NAME typedef.
+    \param name The name of the property
+    \param writeAccess Access specifier for write access. This is one of the normal C++ access specifiers:
+        public, protected, private. It defines the access for the setter function.
+    \param setterName The name of the property's setter function
+    \param CoreInterfaceType The type of the view's core interface (e.g. IButtonCore for buttons)
+    \param modificationInfluenceCalls Calls that represent the influences of the property on the layout system.
+        See the example in the documentation of \ref BDN_VIEW_PROPERTY.
+    */
+#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS( ValueType, readAccess, name, writeAccess, setterName, CoreInterfaceType, modificationInfluenceCalls  ) \
+readAccess: \
+    virtual ValueType name() const { \
+        return _propertyValue_##name; \
+    } \
+writeAccess: \
+    virtual void setterName(const ValueType& newValue) { \
+        if( _propertyValue_##name != newValue ) {\
+            _propertyValue_##name = newValue; \
+            bdn::P<CoreInterfaceType> pCore = bdn::cast<CoreInterfaceType>( getViewCore() ); \
+            if(pCore!=nullptr) \
+                pCore->setterName( newValue ); \
+            Influences_(this).modificationInfluenceCalls; \
+            BDN_NOTIFY_PROPERTY_CHANGED( *this, name ); \
+        } \
+    } \
+private: \
+    ValueType _propertyValue_##name{}; \
+readAccess: \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION( ValueType, name ); \
+    BDN_FINALIZE_CUSTOM_PROPERTY( ValueType, name, setterName );
+
+
+
+/** \def BDN_VIEW_PROPERTY( ValueType, name, setterName, CoreInterfaceType, modificationInfluenceCalls )
+ 
+    Defines a property of a view class.
+ 
+    These are extended versions of "normal" properties (see \ref BDN_PROPERTY).
+    In addition to the normal property functionality, view properties also do the following:
+ 
+    - View properties call a method of the view core whenever the property value changes.
+      The view property casts the view's core object to the interface type
+      specified in the CoreInterfaceType parameter and then calls a method of the core
+      with the same name as the property's setter function.
+      For example, if the view property is `label()` with a setter `setLabel()` and the
+      CoreInterfaceType is `IButtonCore` then `IButtonCore::setLabel(newLabel)` is called on the
+      view core.
+ 
+    - View properties update the layout system as needed whenever the property value changes.
+      The modificationInfluenceCalls parameter specifies which aspects of the layout are invalidated
+      by the property modification. Possible influence calls are:
+ 
+      - influencesNothing(): the property is irrelevant for the layout
+      - influencesContentLayout(): the property value influences the layout of the view's content
+      - influencesParentPreferredSize(): the property value influences the preferred size
+            (and consequently also the layout) of its parent view.
+      - influencesPreferredSize(): the property value influences the view's preferred size.
+        This automatically implies influencesParentPreferredSize() and influencesContentLayout()
+ 
+      Multiple influence calls can be combined by placing a dot in between. For example:
+      `influencesContentLayout() . influencesParentPreferredSize()` states that both the
+      content layout and the parent's preferred size are influenced by the property.
+ 
+    Example:
+ 
+    \code
+ 
+        // A fictional custom view that displays an image
+        class MyImageView : public View
+        {
+        public:
+ 
+            // the following creates a property that calls IMyImageViewCore::setImage on the core
+            // whenever the value changes. Additionally, the view's preferred size and its parent's
+            // preferred size are invalidated whenever the value changes.
+            BDN_VIEW_PROPERTY( Image, image, setImage, IMyImageViewCore, influencesPreferredSize() . influencesParentPreferredSize() ):
+        };
+ 
+    \endcode
+ 
+    Note that there is also a variant of this macro that does not make the view core call (see \ref BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING).
+    There is also a variant that enables specifying custom access specifiers for read and write access (see \ref BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS).
+ 
+    \param ValueType The type of the internal property value. This must be a valid C++ type or class name.
+    \param name The name of the property
+    \param setterName The name of the property's setter function
+    \param CoreInterfaceType The type of the view's core interface (e.g. IButtonCore for buttons)
+    \param modificationInfluenceCalls Calls that represent the influences of the property on the layout system.
+        See above for more information.
+    */
+#define BDN_VIEW_PROPERTY( ValueType, name, setterName, CoreInterfaceType, modificationInfluenceCalls  ) \
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS( ValueType, public, name, public, setterName, CoreInterfaceType, modificationInfluenceCalls );
+
+
+/** Creates a view property that works like those created by \ref BDN_VIEW_PROPERTY, except that it does **not**
+    call any method on the view core when the property value changes. Apart from that, it behaves exactly the same.
+ 
+    See \ref BDN_VIEW_PROPERTY for details.
+ 
+    \param ValueType The type of the internal property value. This must be a valid C++ type or class name.
+    \param name The name of the property
+    \param setterName The name of the property's setter function
+    \param modificationInfluenceCalls Calls that represent the influences of the property on the layout system.
+        See \ref BDN_VIEW_PROPERTY for more information.
+ */
+#define BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING( ValueType, name, setterName, modificationInfluenceCalls  ) \
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING( ValueType, public, name, public, setterName, modificationInfluenceCalls );
+
+
+/** Creates a view property that has custom access rights for read and write access and that also does not forward
+    modifications of the property value to the view's core.
+ 
+    The created property works like those created by \ref BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS, except that it
+    does **not** call any method on the view core when the property value changes. Apart from that, it behaves exactly the same.
+ 
+    Also see \ref BDN_VIEW_PROPERTY for general information on view properties.
+ 
+    \param ValueType The type of the internal property value. This must be a valid C++ type or class name.
+    \param readAccess Access specifier for read access. This is one of the normal C++ access specifiers:
+      public, protected, private. It defines the access for the getter function, the function that returns
+      the changed notifier and the PropertyValueType_NAME typedef.
+    \param name The name of the property
+    \param writeAccess Access specifier for write access. This is one of the normal C++ access specifiers:
+        public, protected, private. It defines the access for the setter function.
+    \param setterName The name of the property's setter function
+    \param modificationInfluenceCalls Calls that represent the influences of the property on the layout system.
+        See the example in the documentation of \ref BDN_VIEW_PROPERTY.
+ */
+#define BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING( ValueType, readAccess, name, writeAccess, setterName, modificationInfluenceCalls  ) \
+readAccess: \
+    virtual ValueType name() const { \
+        return _propertyValue_##name; \
+    } \
+writeAccess: \
+    virtual void setterName(const ValueType& newValue) { \
+        if( _propertyValue_##name != newValue ) {\
+            _propertyValue_##name = newValue; \
+            Influences_(this).modificationInfluenceCalls; \
+            BDN_NOTIFY_PROPERTY_CHANGED( *this, name ); \
+        } \
+    } \
+private: \
+    ValueType _propertyValue_##name{}; \
+readAccess: \
+    BDN_PROPERTY_CHANGED_DEFAULT_IMPLEMENTATION( ValueType, name ); \
+    BDN_FINALIZE_CUSTOM_PROPERTY( ValueType, name, setterName );
 
 
 namespace bdn
@@ -38,7 +195,9 @@ public:
 
 	// delete copy constructor
 	View(const View& o) = delete;
-
+    
+    
+    
 
 
 	/** Returns the core object of this view.
@@ -55,24 +214,15 @@ public:
 		return _pCore;		
 	}
 
-	
-	/** Returns the property which controls wether the view is
-        visible or not.
+    
+    /** Controls wether the view is visible or not.
         
         Note that a view with visible=true might still not show on
         the screen if one of its parents is invisible. In other words:
         this visible property only raefers to the view itself, not
         the parent hierarchy.
 		*/
-	virtual Property<bool>& visible()
-	{
-		return _visible;
-	}
-
-	virtual const ReadProperty<bool>& visible() const
-	{
-		return _visible;
-	}
+	BDN_VIEW_PROPERTY(bool, visible, setVisible, IViewCore, influencesNothing() );
 
 
 	/** The size of the empty space that should be left around the view.
@@ -82,15 +232,7 @@ public:
         
 		The default margin is 0.
 	*/
-	virtual Property<UiMargin>& margin()
-	{
-		return _margin;
-	}
-
-	virtual const ReadProperty<UiMargin>& margin() const
-	{
-		return _margin;
-	}
+	BDN_VIEW_PROPERTY(UiMargin, margin, setMargin, IViewCore, influencesParentPreferredSize().influencesParentLayout() );
 
 
 	/** The size space around the content inside this view.
@@ -107,15 +249,7 @@ public:
         
         The default padding is "null".
 	*/
-	virtual Property< Nullable<UiMargin> >& padding()
-	{
-		return _padding;
-	}
-
-	virtual const ReadProperty< Nullable<UiMargin> >& padding() const
-	{
-		return _padding;
-	}
+	BDN_VIEW_PROPERTY( Nullable<UiMargin>, padding, setPadding, IViewCore, influencesPreferredSize().influencesContentLayout() );
 
 
 	/** The position of the view, in client coordinates of the parent view.
@@ -132,10 +266,7 @@ public:
         On some platforms top level windows (see #Window class) may report a zero position at all times, even though
         the window is not at the top left corner of the screen.
 	*/
-	virtual const ReadProperty<Point>& position() const
-	{
-		return _position;
-	}
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING( Point, public, position, protected, _setPosition, influencesNothing() );
 
 
 
@@ -147,11 +278,8 @@ public:
 		The default size for a newly constructed view is always 0x0.
 		The size is usually set automatically by the parent view's layout routine.        
 	*/
-	virtual const ReadProperty<Size>& size() const
-	{
-		return _size;
-	}
-
+    BDN_VIEW_PROPERTY_WITH_CUSTOM_ACCESS_WITHOUT_CORE_FORWARDING( Size, public, size, protected, _setSize, influencesContentLayout() );
+    
 
 
     /** Sets the view's position and size, after adjusting the specified values
@@ -202,43 +330,17 @@ public:
     virtual Rect adjustBounds(const Rect& requestedBounds, RoundType positionRoundType, RoundType sizeRoundType ) const;
 
 
+    using HorizontalAlignment = IViewCore::HorizontalAlignment;
+    using VerticalAlignment = IViewCore::VerticalAlignment;
 
-
-
-	enum class HorizontalAlignment
-	{			
-		left,
-		center,
-		right,
-		/** Expand the view to the full available width.*/
-		expand
-	};
-
-	enum class VerticalAlignment
-	{
-		top,
-		bottom,
-		middle,		
-		/** Expand the view to the full available height.*/
-		expand
-	};
-
-
+    
 	/** Controls how the view is arranged vertically if
 		there is additional vertical free space. Parent view containers can ignore this setting
 		if it does not make sense in their context.		
 
 		The default alignment is View::VerticalAlignment::top.
 		*/
-	virtual Property<VerticalAlignment>& verticalAlignment()
-	{
-		return _verticalAlignment;
-	}
-
-	virtual const ReadProperty<VerticalAlignment>& verticalAlignment() const
-	{
-		return _verticalAlignment;
-	}
+	BDN_VIEW_PROPERTY( VerticalAlignment, verticalAlignment, setVerticalAlignment, IViewCore, influencesParentLayout() );
 
 
 	/** Controls how the view is arranged horizontally if
@@ -247,15 +349,7 @@ public:
 
 		The default alignment is View::HorizontalAlignment::left.
 		*/
-	virtual Property<HorizontalAlignment>& horizontalAlignment()
-	{
-		return _horizontalAlignment;
-	}
-
-	virtual const ReadProperty<HorizontalAlignment>& horizontalAlignment() const
-	{
-		return _horizontalAlignment;
-	}
+	BDN_VIEW_PROPERTY( HorizontalAlignment, horizontalAlignment, setHorizontalAlignment, IViewCore, influencesParentLayout() );
 
 
 	/*
@@ -357,35 +451,7 @@ public:
 	}
 
     
-
-    enum class InvalidateReason
-    {
-        /** The data was invalidated because a standard property of the view
-            (i.e. a property that is defined by the Boden framework) has been changed.*/
-        standardPropertyChanged,
-
-        /** The data was invalidated because a standard child property
-            (i.e. a property that is defined by the Boden framework) has been changed.*/
-        standardChildPropertyChanged,
-
-        /** A child view was added or removed.*/
-        childAddedOrRemoved,
-
-
-        /** The sizing information of a child view has been invalidated. The child size
-            must be recalculated.*/
-        childSizingInfoInvalidated,
-
-
-        /** The data was invalidated because some custom data associated with the
-            view has changed that influences sizing or layout.
-            
-            This is usually used when the application overloaded layout or sizing functionality
-            of the view. When some internal custom data changes that influences the layout
-            then the application should use this update reason.
-            */
-        customDataChanged,
-    };
+    using InvalidateReason = IViewCore::InvalidateReason;
 
 
 	/** Invalidates the cached sizing information of the view (see calcPreferredSize()).
@@ -416,11 +482,12 @@ public:
 		*/
 	virtual void needLayout(InvalidateReason reason);
 
+    
 
     /** An optional hint for the viewa s to how to calculate its preferred size. This can be set by the App to
         influence the automatic sizing of the view.
     
-        This does *not* set a hard limit like preferredSizeMinimum() or preferredSizeMaximum(). The view is
+        This does *not* set a hard limit like preferredSizeMinimum or preferredSizeMaximum. The view is
         free to ignore this hint, if it does not make sense in the context of the view.
 
         But for some views the hint is used to influence the calculation of the preferred size. For example,
@@ -435,15 +502,7 @@ public:
         (see calcPreferredSize()).
         Its parent view may decide to make it bigger than this because of other layout considerations.        
     */
-    virtual Property<Size>& preferredSizeHint()
-    {
-        return _preferredSizeHint;
-    }
-
-    virtual const ReadProperty<Size>& preferredSizeHint() const
-    {
-        return _preferredSizeHint;
-    }
+    BDN_VIEW_PROPERTY( Size, preferredSizeHint, setPreferredSizeHint, IViewCore, influencesPreferredSize()  );
 
 
     /** An optional lower limit for the preferred size of the view (in DIP units). This can be used by the application
@@ -461,15 +520,7 @@ public:
         (see calcPreferredSize()).
         Its parent view may decide to make it bigger than this because of other layout considerations.        
     */
-    virtual Property<Size>& preferredSizeMinimum()
-    {
-        return _preferredSizeMinimum;
-    }
-
-    virtual const ReadProperty<Size>& preferredSizeMinimum() const
-    {
-        return _preferredSizeMinimum;
-    }
+    BDN_VIEW_PROPERTY( Size, preferredSizeMinimum, setPreferredSizeMinimum, IViewCore, influencesPreferredSize() );
 
 
 
@@ -488,15 +539,7 @@ public:
         (see calcPreferredSize()).
         Its parent view may decide to make it bigger than this because of other layout considerations.        
     */
-    virtual Property<Size>& preferredSizeMaximum()
-    {
-        return _preferredSizeMaximum;
-    }
-
-    virtual const ReadProperty<Size>& preferredSizeMaximum() const
-    {
-        return _preferredSizeMaximum;
-    }
+    BDN_VIEW_PROPERTY(Size, preferredSizeMaximum, setPreferredSizeMaximum, IViewCore, influencesPreferredSize() );
 
 		
 
@@ -552,19 +595,19 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeHint()
+        preferredSizeHint
         -------------------
 
-        preferredSizeHint() is an optional advisory hint to the view as to what the preferred width and/or height should
+        preferredSizeHint is an optional advisory hint to the view as to what the preferred width and/or height should
         roughly be. The calcPreferredSize implementation may ignore this if it does not make sense for the view type.
         In fact the value is unused by most views. One example where the parameter can be useful are text views which can dynamically
         wrap text into multiple lines. These kinds of views can use the hint width to determine the place where the text should
         wrap by default
 
-        preferredSizeMinimum() and preferredSizeMaximum()
-        -------------------------------------------------
+        preferredSizeMinimum and preferredSizeMaximum
+        ---------------------------------------------
 
-        preferredSizeMinimum() and preferredSizeMaximum() are hard limits for the preferred size. 
+        preferredSizeMinimum and preferredSizeMaximum are hard limits for the preferred size. 
         The calcPreferredSize implementation should never return a size that violates these limits, if they are set.
         Even if that means that the view's content does not fit into the view.
         
@@ -600,105 +643,75 @@ protected:
 	friend class LayoutCoordinator;
 
 
-
-
-    enum class PropertyInfluence_
+    
+    class Influences_
     {
-        /** The property has no influence on the view size or layout.*/
-        none=0,
-
-        /** The property influences the view's preferredSize (and as such it can also influence the 
+    public:
+        Influences_(View* pView)
+        : _pView(pView)
+        {
+        }
+        
+        
+        /** Dummy function that does nothing. A call to this can be made in the influence
+            section of \ref BDN_VIEW_PROPERTY. */
+        const Influences_& influencesNothing() const
+        {
+            return *this;
+        }
+        
+        /** Call this in BDN_VIEW_PROPERTY when the property change
+            influences the view's preferredSize (and as such it can also influence the
             parent layout)*/
-        preferredSize = 1,
-
-        /** The property influences how the view lays out its own children*/
-        childLayout = 2,
-
-
-        /** The property influences the size of the view's parent, but not the view's own preferred size.
-            An example of a property with this influence would be the view's margin.
-            */
-        parentPreferredSize = 4,
-
-        /** The property influences how the view is arranged within the parent, but it does not
-            influence the view's own PREFERRED size. Note that the property may influence the actual size
-            that the parent assigns to the view, based on the arrangement values.*/
-        parentLayout = 8,
-    };
-
-	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType &), int propertyInfluences>
-	void initProperty( Property<ValueType>& prop )
-	{	
-		prop.onChange() += weakMethod(this, &View::propertyChanged<ValueType, CoreInterfaceType, CoreFunc, propertyInfluences>);
-	}
-
-
-    void handlePropertyInfluences(int propertyInfluences)
-    {
-        if( (propertyInfluences & (int)PropertyInfluence_::preferredSize)!=0 )
+        const Influences_& influencesPreferredSize() const
         {
             // update the sizing information. If that changes then the parent
             // layout will automatically be updated.
-            invalidateSizingInfo( InvalidateReason::standardPropertyChanged );
-        }    
+            _pView->invalidateSizingInfo( InvalidateReason::standardPropertyChanged );
+            
+            return *this;
+        }
         
-        if( (propertyInfluences & (int)PropertyInfluence_::childLayout)!=0 )
+        /** Call this in BDN_VIEW_PROPERTY when the property change
+         influences how the view lays out its own children / content.*/
+        const Influences_& influencesContentLayout() const
         {
             // the layout of our children is influenced by this
-            needLayout( InvalidateReason::standardPropertyChanged );
+            _pView->needLayout( InvalidateReason::standardPropertyChanged );
+            
+            return *this;
         }
-
-        if( (propertyInfluences & (int)PropertyInfluence_::parentPreferredSize)!=0 )
+        
+        /** Call this in BDN_VIEW_PROPERTY when the property change
+         influences the size of the view's parent, but not the view's own preferred size.
+         An example of a property with this influence would be the view's margin.*/
+        const Influences_& influencesParentPreferredSize() const
         {
-            P<View> pParent = getParentView();
+            P<View> pParent = _pView->getParentView();
             if(pParent!=nullptr)
                 pParent->invalidateSizingInfo( InvalidateReason::standardChildPropertyChanged );
+            
+            return *this;
         }
-
-        if( (propertyInfluences & (int)PropertyInfluence_::parentLayout)!=0 )
+        
+        /** Call this in BDN_VIEW_PROPERTY when the property change
+         influences how the view is arranged within the parent, but it does not
+         influence the view's own PREFERRED size. Note that the property may influence the actual size
+         that the parent assigns to the view, based on the arrangement values.*/
+        const Influences_& influencesParentLayout() const
         {
-            P<View> pParent = getParentView();
+            P<View> pParent = _pView->getParentView();
             if(pParent!=nullptr)
                 pParent->needLayout( InvalidateReason::standardChildPropertyChanged );
+            
+            return *this;
         }
-    }
-
-	template<typename ValueType, class CoreInterfaceType, void (CoreInterfaceType::*CoreFunc)(const ValueType&), int propertyInfluences >	
-	void propertyChanged( P<const IValueAccessor<ValueType> > pValue )
-	{
-        // our properties may only be changed from the main thread
-        Thread::assertInMainThread();
-
-		// note that our object is guaranteed to be fully alive during this function call.
-		// That is guaranteed because we subscribed using a weak method. And during the call
-        // a weak method holds a strong reference.
-
-        // get the core. Note that it is OK if the core object
-		// is replaced directly after this during this call (for example, from an event listener)
-		// We will update an outdated core, but thats should have no effect.
-		// And the new core will automatically get the up-to-date value from
-		// the property.
-		P<CoreInterfaceType>	pCore = cast<CoreInterfaceType>( _pCore );
-		if(pCore!=nullptr)
-		{			
-			if(CoreFunc!=nullptr)
-                (pCore->*CoreFunc)( pValue->get() );
-
-            // after the core has been updated we need to handle the influences.
-            // Note that we still need to handle the influences, even if the core is not
-            // notified of the change (CoreFunc==null).
-
-            // Also note that if multiple properties get changed then their change notifications
-            // will fire before any triggered layout updates happen, since layout update requests are always
-            // posted asynchronously to the main thread's event queue. So the layout updates are automatically batched
-            // together, since the layout update is posted to the end of the queue.
-            handlePropertyInfluences(propertyInfluences);
-		}        
-	}
-
-
-
-
+        
+        
+    private:
+        View* _pView;
+    };
+    
 
 
 	/** (Re-)initializes the core object of the view. If a core object existed before then
@@ -739,37 +752,24 @@ private:
 
 
 protected:
-	DefaultProperty<bool>                   _visible;
-	DefaultProperty<UiMargin>               _margin;
-	DefaultProperty< Nullable<UiMargin> >	_padding;
-
-	DefaultProperty<Point>                  _position;
-    DefaultProperty<Size>                   _size;
-
-	DefaultProperty<HorizontalAlignment>	_horizontalAlignment;
-	DefaultProperty<VerticalAlignment>		_verticalAlignment;
-
-	P<IUiProvider>			                _pUiProvider;
+	P<IUiProvider>  _pUiProvider;
 
 
     void deleteThis() override;
-
 
 private:
 	WeakP<View>					    _parentViewWeak = nullptr;
 	P<IViewCore>			        _pCore;
 
-    DefaultProperty<Size>           _preferredSizeHint;
-    DefaultProperty<Size>           _preferredSizeMinimum;
-    DefaultProperty<Size>           _preferredSizeMaximum;
-
 	mutable PreferredViewSizeManager	_preferredSizeManager;
 };
+    
 
 }
 
 
-#include <bdn/IViewCore.h>
+
+
 #include <bdn/IUiProvider.h>
 
 #endif

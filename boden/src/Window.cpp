@@ -11,11 +11,9 @@ namespace bdn
 Window::Window(IUiProvider* pUiProvider)
 {
 	// windows are invisible by default
-	_visible = false;
+	setVisible( false );
 
 	_pUiProvider = (pUiProvider!=nullptr) ? pUiProvider : AppControllerBase::get()->getUiProvider().getPtr();
-
-	initProperty<String, IWindowCore, &IWindowCore::setTitle, (int)PropertyInfluence_::none>(_title);
 
 	reinitCore();
 }

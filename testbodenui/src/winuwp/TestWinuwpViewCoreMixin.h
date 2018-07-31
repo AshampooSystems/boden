@@ -53,10 +53,10 @@ protected:
     void verifyIsExpectedWinPadding(::Windows::UI::Xaml::Thickness pad)
     {
         UiMargin expectedPadding;
-        if(_pView->padding().get().isNull())
+        if(_pView->padding().isNull())
             expectedPadding = getExpectedDefaultPadding();
         else
-            expectedPadding = _pView->padding().get();
+            expectedPadding = _pView->padding();
 
         Margin expectedPixelPadding = _pView->uiMarginToDipMargin( expectedPadding );
         
@@ -109,7 +109,7 @@ protected:
         if(std::isnan(height))
             height = 0;
 
-        Size size = _pView->size();
+        Size size = _pView->size;
         
         REQUIRE_ALMOST_EQUAL( width, size.width, 0.0001 );
         REQUIRE_ALMOST_EQUAL( height, size.height, 0.0001 );*/

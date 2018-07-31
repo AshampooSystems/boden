@@ -92,7 +92,7 @@ public:
         P<Window> pWindow = cast<Window>( getOuterViewIfStillAttached() );
         if(pWindow!=nullptr)
         {    
-            defaultWindowLayoutImpl( pWindow, Rect( Point(), pWindow->size()) );
+            defaultWindowLayoutImpl( pWindow, Rect( Point(), pWindow->size() ) );
         }
     }
 

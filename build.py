@@ -1161,6 +1161,7 @@ def ensure_emscripten_component_active(comp_name):
 
     if not comp_ok:
         print("Emscripten component %s is apparently not installed yet. Installing..." % comp_name, file=sys.stderr);
+        subprocess.check_call( '"%s" update' % (emsdkExePath), shell=True, cwd=emsdkDir);
         subprocess.check_call( '"%s" install %s' % (emsdkExePath, comp_name), shell=True, cwd=emsdkDir);
         subprocess.check_call( '"%s" activate %s' % (emsdkExePath, comp_name), shell=True, cwd=emsdkDir);
 

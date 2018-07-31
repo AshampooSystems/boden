@@ -60,8 +60,8 @@ public:
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
-            if(!pView->padding().get().isNull())
-                padding = uiMarginToDipMargin(pView->padding().get());
+            if(!pView->padding().isNull())
+                padding = uiMarginToDipMargin(pView->padding());
 
             preferredSizeHint = pView->preferredSizeHint();
         }

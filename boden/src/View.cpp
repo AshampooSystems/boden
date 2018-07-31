@@ -9,26 +9,11 @@ namespace bdn
 {
 
 View::View()
-	: _visible(true) // most views are initially visible
-    , _preferredSizeHint( Size::none() )
-    , _preferredSizeMinimum( Size::none() )
-    , _preferredSizeMaximum( Size::none() )
 {
-	initProperty<bool, IViewCore, &IViewCore::setVisible, (int)PropertyInfluence_::none>(_visible);
-
-	initProperty<UiMargin, IViewCore,  &IViewCore::setMargin, (int)PropertyInfluence_::parentPreferredSize | (int)PropertyInfluence_::parentLayout>(_margin);
-
-	initProperty< Nullable<UiMargin>, IViewCore, &IViewCore::setPadding, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_padding);
-
-	initProperty<Point, IViewCore, nullptr, (int)PropertyInfluence_::none>(_position);
-    initProperty<Size, IViewCore, nullptr, (int)PropertyInfluence_::childLayout>(_size);
-
-    initProperty<HorizontalAlignment, IViewCore, &IViewCore::setHorizontalAlignment, (int)PropertyInfluence_::parentLayout>(_horizontalAlignment);
-    initProperty<VerticalAlignment, IViewCore, &IViewCore::setVerticalAlignment, (int)PropertyInfluence_::parentLayout>(_verticalAlignment);
-
-    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMinimum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMinimum);
-    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeMaximum, (int)PropertyInfluence_::preferredSize>(_preferredSizeMaximum);
-    initProperty<Size, IViewCore, &IViewCore::setPreferredSizeHint, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
+    setVisible(true); // most views are initially visible
+    setPreferredSizeHint( Size::none() );
+    setPreferredSizeMinimum( Size::none() );
+    setPreferredSizeMaximum( Size::none() );
 }
 
 View::~View()
@@ -121,11 +106,11 @@ Rect View::adjustAndSetBounds(const Rect& requestedBounds)
         adjustedBounds = requestedBounds;
     
     // update the position and size properties.
-    // Note that the property changes will automatically cause our propertyChanged method
+    // Note that the property changes will automatically cause our "modification influence" methods
     // to be called, which will schedule any additional operations that should follow
     // (like re-layout when the size changes, etc.).
-    _position = adjustedBounds.getPosition();
-    _size = adjustedBounds.getSize();
+    _setPosition( adjustedBounds.getPosition() );
+    _setSize( adjustedBounds.getSize() );
 
     return adjustedBounds;
 }

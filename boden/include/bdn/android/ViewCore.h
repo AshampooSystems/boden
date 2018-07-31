@@ -277,8 +277,8 @@ public:
         P<const View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
-            prefSize.applyMinimum(pView->preferredSizeMinimum());
-            prefSize.applyMaximum(pView->preferredSizeMaximum());
+            prefSize.applyMinimum(pView->preferredSizeMinimum() );
+            prefSize.applyMaximum(pView->preferredSizeMaximum() );
         }
 
         return prefSize;

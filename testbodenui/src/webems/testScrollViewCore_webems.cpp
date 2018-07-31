@@ -71,8 +71,8 @@ protected:
     {
         Size adjustedSize = _pScrollView->adjustBounds( Rect( _pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest ).getSize();
 
-        _pScrollView->preferredSizeMinimum() = adjustedSize;
-        _pScrollView->preferredSizeMaximum() = adjustedSize;
+        _pScrollView->setPreferredSizeMinimum( adjustedSize );
+        _pScrollView->setPreferredSizeMaximum( adjustedSize );
 
         // also request a re-layout here. With the normal propagation of the property changes
         // it would take two event cycles until the layout happens. But we want it to happen
@@ -127,7 +127,7 @@ protected:
 
         if(pContentView!=nullptr)
         {
-            bdn::Rect bounds( _pScrollView->getContentView()->position(), pContentView->size() );
+            bdn::Rect bounds( pContentView->position(), pContentView->size() );
 
             if(maxDeviation==0)
                 REQUIRE( bounds == expectedBounds );

@@ -73,6 +73,7 @@ protected:
             
             _pContainerView->needLayout( View::InvalidateReason::customDataChanged );
 
+
             CONTINUE_SECTION_WHEN_IDLE( pThis, this, initialCount)
             {
                 int currLayoutCount = _pContainerView->getCalcContainerLayoutCount();

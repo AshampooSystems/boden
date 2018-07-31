@@ -41,8 +41,8 @@ protected:
     {
         Size adjustedSize = _pScrollView->adjustBounds( Rect(_pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest).getSize();
 
-        _pScrollView->preferredSizeMinimum() = adjustedSize;
-        _pScrollView->preferredSizeMaximum() = adjustedSize;
+        _pScrollView->setPreferredSizeMinimum( adjustedSize );
+        _pScrollView->setPreferredSizeMaximum( adjustedSize );
 
         _pWindow->requestAutoSize();
 

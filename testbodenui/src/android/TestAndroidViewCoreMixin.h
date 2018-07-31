@@ -94,7 +94,7 @@ protected:
         int bottom = _jView.getPaddingBottom();
         int left = _jView.getPaddingLeft();
 
-        Nullable<UiMargin> pad = BaseClass::_pView->padding().get();
+        Nullable<UiMargin> pad = BaseClass::_pView->padding();
 
         if(pad.isNull())
         {

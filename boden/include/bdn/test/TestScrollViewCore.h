@@ -129,10 +129,10 @@ protected:
 
         // make the button bigger than the scroll view so that
         // it will scroll
-        pButton->preferredSizeMinimum() = Size(1000, 1000);
-        pButton->preferredSizeMaximum() = Size(1000, 1000);
+        pButton->setPreferredSizeMinimum( Size(1000, 1000) );
+        pButton->setPreferredSizeMaximum( Size(1000, 1000) );
 
-        pScrollView->horizontalScrollingEnabled() = true;
+        pScrollView->setHorizontalScrollingEnabled( true );
         pScrollView->setContentView(pButton);
 
         initiateScrollViewResizeToHaveViewPortSize( Size(300, 300) );
@@ -142,7 +142,7 @@ protected:
         CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pScrollView)
         {
             Size scrollViewSize = pScrollView->size();
-            Size viewPortSize = pScrollView->visibleClientRect().get().getSize();
+            Size viewPortSize = pScrollView->visibleClientRect().getSize();
             Size clientSize = pButton->size();
 
             // verify that the scroll view initialization was successful.
@@ -696,7 +696,7 @@ private:
 
         Rect visibleRectBefore = pScrollView->visibleClientRect();
 
-        pScrollView->scrollClientRectToVisible( Rect( compToPoint(initialPos, dir), pScrollView->visibleClientRect().get().getSize() ) );
+        pScrollView->scrollClientRectToVisible( Rect( compToPoint(initialPos, dir), pScrollView->visibleClientRect().getSize() ) );
 
         // it may take a while until the scroll operation is done (for example, if it is animated). So we wait and check
         // a few times until the expected condition is present.

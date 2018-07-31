@@ -3,6 +3,7 @@
 
 #include <bdn/localeUtil.h>
 #include <bdn/LocaleDecoder.h>
+#include <bdn/typeUtil.h>
 
 #include <ostream>
 
@@ -962,41 +963,6 @@ struct StreamWriterImpl_<false>
 };
 
 
-template<class STREAM_TYPE, typename VALUE_TYPE>
-struct SupportsStreamPut_
-{
-	// note: we MUST NOT use std::declval<STREAM_TYPE>() for the stream here.
-	// That returns an rvalue reference. And there is a generic conversion operator
-	// for rvalue streams that takes any parameter and simply calls the lvalue
-	// operator. Since its return type does not depend on the template parameter,
-	// the compiler might decide that it can determine the return type without looking
-	// at the implementation of the generic template rvalue operator. So it might
-	// decide that std::declval<STREAM_TYPE>() << XYZ is valid for all XYZ - which is not
-	// what we want.
-	// So we use *((STREAM_TYPE*)nullptr) instead, which is an lvalue reference.
-
-    
-	template<typename TEST_VAL_TYPE>
-	static uint8_t _test( int dummy, decltype( &( (*(STREAM_TYPE*)nullptr) << std::declval<TEST_VAL_TYPE>() ) ) pDummy=nullptr );
-
-    template <typename TEST_VAL_TYPE>
-	static uint16_t _test(...);
-        
-    // this is a workaround for a compiler bug in the Visual Studio 2015 compiler for Windows Universal.
-    // If we do not have this static_assert here then the test below will always fail, for all value types.
-    // Probably has something to do with the fact that the static_assert instantiates the template, which
-    // causes the bug not to be triggered.
-    static_assert( sizeof( _test<VALUE_TYPE>(0) ) != 0, "This should never trigger" );
-
-public:
-
-    enum
-	{
-		value = sizeof( _test<VALUE_TYPE>(0) ) == sizeof(uint8_t) ? 1 : 0
-	};
-
-};
-
 
 /** Writes a string representation of any value or object (whatever its type) to the specified
 	standard I/O stream.
@@ -1015,10 +981,10 @@ template<typename STREAM_TYPE, typename VALUE_TYPE>
 STREAM_TYPE& writeAnyToStream(STREAM_TYPE&& stream, VALUE_TYPE&& value )
 {
 	StreamWriterImpl_<
-		SupportsStreamPut_<
+		typeSupportsShiftLeftWith<
 			typename std::decay<STREAM_TYPE>::type,
 			decltype(value)
-		>::value
+		>()
 	>::write( stream, std::forward<VALUE_TYPE>(value) );
 
 	return stream;

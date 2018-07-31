@@ -185,7 +185,7 @@ private:
             // But we do not want our content view to overlap with the bar. So we adjust the content
             // area accordingly.
             
-            Rect area( Point(0,0), pView->size().get() );
+            Rect area( Point(0,0), pView->size() );
             
             double topBarHeight = _window.rootViewController.topLayoutGuide.length;
             double bottomBarHeight = _window.rootViewController.bottomLayoutGuide.length;

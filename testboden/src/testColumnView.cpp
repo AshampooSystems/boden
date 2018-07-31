@@ -20,22 +20,22 @@ void testChildAlignment(
     // add a second button that is considerably bigger.
     // That will cause the column view to become bigger.
     P<Button> pButton2 = newObj<Button>();
-    pButton2->padding() = UiMargin(500, 500 );
+    pButton2->setPadding( UiMargin(500, 500 ) );
 
     pColumnView->addChildView(pButton2);
 
-    if(pButton->horizontalAlignment()==horzAlign)
+    if(pButton->horizontalAlignment() == horzAlign)
     {
         // change to another horizontal alignment, so that the setting
         // of the requested alignment is registered as a change
-        pButton->horizontalAlignment() = (horzAlign==View::HorizontalAlignment::left) ? View::HorizontalAlignment::right : View::HorizontalAlignment::left;
+        pButton->setHorizontalAlignment( (horzAlign==View::HorizontalAlignment::left) ? View::HorizontalAlignment::right : View::HorizontalAlignment::left );
     }
 
-    if(pButton->verticalAlignment()==vertAlign)
+    if(pButton->verticalAlignment() == vertAlign)
     {
         // change to another vertical alignment, so that the setting
         // of the requested alignment is registered as a change
-        pButton->verticalAlignment() = (vertAlign==View::VerticalAlignment::top) ? View::VerticalAlignment::bottom : View::VerticalAlignment::top;
+        pButton->setVerticalAlignment( (vertAlign==View::VerticalAlignment::top) ? View::VerticalAlignment::bottom : View::VerticalAlignment::top );
     }
 
     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, vertAlign)
@@ -46,14 +46,14 @@ void testChildAlignment(
 
         SECTION("horizontal")
         {
-            pButton->horizontalAlignment() = horzAlign;
+            pButton->setHorizontalAlignment( horzAlign );
 
             CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, horzAlign, layoutCountBefore)
             {
                 // but layout should have happened
                 REQUIRE( cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount() == layoutCountBefore+1 );
 
-                Margin margin = pButton->uiMarginToDipMargin( pButton->margin());
+                Margin margin = pButton->uiMarginToDipMargin( pButton->margin() );
 
                 Rect bounds = Rect( pButton->position(), pButton->size() );
                 Rect containerBounds = Rect( pColumnView->position(), pColumnView->size() );
@@ -86,7 +86,7 @@ void testChildAlignment(
         
         SECTION("vertical")
         {
-            pButton->verticalAlignment() = vertAlign;
+            pButton->setVerticalAlignment( vertAlign );
 
             CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, layoutCountBefore, buttonBoundsBefore)
             {
@@ -208,7 +208,7 @@ TEST_CASE("ColumnView")
                     Size preferredSizeBefore = pColumnView->calcPreferredSize();
                     int layoutCountBefore = cast<bdn::test::MockViewCore>(pColumnView->getViewCore())->getLayoutCount();
 
-                    pButton->margin() = UiMargin(1, 2, 3, 4);
+                    pButton->setMargin( UiMargin(1, 2, 3, 4) );
 
                     CONTINUE_SECTION_WHEN_IDLE(pPreparer, pColumnView, pButton, pCore, preferredSizeBefore, layoutCountBefore)
                     {
@@ -234,7 +234,7 @@ TEST_CASE("ColumnView")
 
                                 SECTION("with margin")
                                 {
-                                    pButton->margin() = UiMargin( 10, 20, 30, 40);
+                                    pButton->setMargin( UiMargin( 10, 20, 30, 40) );
 
                                     testChildAlignment(pPreparer, pColumnView, pButton, (View::HorizontalAlignment) horzAlign, (View::VerticalAlignment)vertAlign );
                                 }
@@ -247,7 +247,7 @@ TEST_CASE("ColumnView")
                 SECTION("position and size pixel aligned")
                 {
                     // add a weird margin to the button to bring everything out of pixel alignment
-                    pButton->margin() = UiMargin( 0.1234567 );
+                    pButton->setMargin( UiMargin( 0.1234567 ) );
 
                     CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pCore )
                     {
@@ -378,8 +378,8 @@ TEST_CASE("ColumnView")
                 m2 = Margin(11, 22, 33, 44);
             }
 
-            pButton->margin() = UiMargin(m.top, m.right, m.bottom, m.left );
-            pButton2->margin() = UiMargin(m2.top, m2.right, m2.bottom, m2.left );
+            pButton->setMargin( UiMargin(m.top, m.right, m.bottom, m.left ) );
+            pButton2->setMargin( UiMargin(m2.top, m2.right, m2.bottom, m2.left ) );
 
             CONTINUE_SECTION_WHEN_IDLE( pPreparer, pColumnView, pButton, pButton2, pCore, m, m2)
             {

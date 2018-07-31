@@ -92,8 +92,8 @@ WindowCore::WindowCore(View* pOuter)
     _ourDelegate = delegate;
     _nsWindow.delegate = delegate;
     
-    setTitle(pOuterWindow->title());
-    setVisible(pOuterWindow->visible());
+    setTitle( pOuterWindow->title() );
+    setVisible( pOuterWindow->visible() );
 }
 
 WindowCore::~WindowCore()

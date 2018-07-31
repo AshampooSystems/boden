@@ -51,7 +51,7 @@ TEST_CASE("TextView")
 						pPreparer,
 						[pTextView, pPreparer]()
 						{
-							pTextView->text() = "hello";					
+							pTextView->setText( "hello" );
 						},
 						[pCore, pTextView, pPreparer, initialChangeCount]
 						{

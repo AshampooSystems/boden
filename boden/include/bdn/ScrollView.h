@@ -3,6 +3,8 @@
 
 #include <bdn/View.h>
 
+#include <bdn/IScrollViewCore.h>
+
 namespace bdn
 {
 
@@ -35,30 +37,11 @@ public:
 
     /** Controls wether or not the view scrolls vertically.
         Default: true*/
-    virtual Property<bool>& verticalScrollingEnabled()
-    {
-        return _verticalScrollingEnabled;
-    }
-
-    virtual const ReadProperty<bool>& verticalScrollingEnabled() const
-    {
-        return _verticalScrollingEnabled;
-    }
-
+    BDN_VIEW_PROPERTY( bool, verticalScrollingEnabled, setVerticalScrollingEnabled, IScrollViewCore, influencesPreferredSize().influencesContentLayout() );
 
     /** Controls wether or not the view scrolls horizontally.
         Default: false*/
-    virtual Property<bool>& horizontalScrollingEnabled()
-    {
-        return _horizontalScrollingEnabled;
-    }
-
-    virtual const ReadProperty<bool>& horizontalScrollingEnabled() const
-    {
-        return _horizontalScrollingEnabled;
-    }
-     
-
+    BDN_VIEW_PROPERTY(bool, horizontalScrollingEnabled, setHorizontalScrollingEnabled, IScrollViewCore, influencesPreferredSize().influencesContentLayout() );
 
     /** Read-only property that indicates the part of the client area (=the scrolled area) that
         is currently visible. The rect is in client coordinates (see \ref layout_box_model.bd).
@@ -68,10 +51,20 @@ public:
         
         The visible client rect / scroll position can be manipulated with scrollClientRectToVisible().
     */
-    virtual const ReadProperty<Rect>& visibleClientRect() const
-    {
-        return _visibleClientRect;
-    }
+    BDN_VIEW_PROPERTY_WITHOUT_CORE_FORWARDING(Rect, visibleClientRect, _setVisibleClientRect, influencesNothing() );
+    // note that we do not forward changes to the visibleClientRect to the core, because this property is updated BY
+    // the core. Also note that we set the influences to nothing because the corresponding layouting invalidations are
+    // already triggered by the process that has caused this change.
+    
+    /** \fn void ScrollView::_setVisibleClientRect(const Rect&)
+     
+        Called by the scroll view's core when the visible client area
+        changes. This updates the value of the visibleClientRect property.
+
+        This should only be called by the core. In particular, the application
+        should never call this. scrollClientRectToVisible() can be used
+        to manipulate the scroll position.
+        */
 
 
 	/** Sets the specified view as the content view of the window.
@@ -186,26 +179,10 @@ public:
 		if(pChildView==_pContentView)
 			_pContentView = nullptr;
 	}
-
-
-    /** Called by the scroll view's core when the visible client area
-        changes. This updates the value of the visibleClientRect() property.
-
-        This should only be called by the core. In particular, the application
-        should never call this. scrollClientRectToVisible() can be used
-        to manipulate the scroll position.
-        */
-    virtual void _setVisibleClientRect(const Rect& rect)
-    {
-        _visibleClientRect = rect;
-    }
+   
     
 private:
-    P<View>					_pContentView;
-
-    DefaultProperty<bool>   _verticalScrollingEnabled;
-    DefaultProperty<bool>   _horizontalScrollingEnabled;
-    DefaultProperty<Rect>   _visibleClientRect;
+    P<View>		   _pContentView;
 };
 
 }

@@ -85,7 +85,7 @@ protected:
         REQUIRE( rect.getPosition() == expectedPosition );
     }
     
-	 void verifyCoreSize() override
+	void verifyCoreSize() override
     {
         bdn::Rect rect = getFrameRect();
         bdn::Size expectedSize = _pView->size();

@@ -24,7 +24,7 @@ public:
 	MockButtonCore(Button* pButton)
 		: MockViewCore(pButton)
 	{
-		_label = pButton->label();		
+		_label = pButton->label();
 	}
 
 
@@ -61,8 +61,8 @@ public:
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)
         {
-            if(!pView->padding().get().isNull())
-                size += uiMarginToDipMargin(pView->padding().get());
+            if(!pView->padding().isNull())
+                size += uiMarginToDipMargin(pView->padding() );
         }
 
         // add some space for the fake button border

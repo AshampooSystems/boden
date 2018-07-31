@@ -5,7 +5,7 @@
 namespace bdn
 {
 
-/** A smart pointer class that automatically deletes object when they are not needed anymore.
+/** A smart pointer class that automatically deletes objects when they are not needed anymore.
 	
 	This is implemented via reference counting with objects that implement #IBase
 	(i.e. which most classes in this library implement).

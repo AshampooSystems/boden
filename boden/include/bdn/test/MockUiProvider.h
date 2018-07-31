@@ -43,7 +43,7 @@ namespace test
     // For example:
 
     P<Button> pButton = newObj<Button>();
-    pButton->label() == "MyLabel";
+    pButton->label == "MyLabel";
     pMyWindow->setContentView(pButton);     // this will cause the button core to be created
 
     P<MockButtonCore> pButtonCore = cast<MockButtonCore>( pButton->getViewCore() );

@@ -4,7 +4,6 @@
 
 #include <bdn/View.h>
 #include <bdn/ITextViewCore.h>
-#include <bdn/DefaultProperty.h>
 
 namespace bdn
 {
@@ -32,23 +31,11 @@ class TextView : public View
 public:
 	TextView()
 	{
-		initProperty<String, ITextViewCore, &ITextViewCore::setText, (int)PropertyInfluence_::preferredSize>(_text);
-        //initProperty<UiSize, ITextViewCore, &ITextViewCore::setPreferredSizeHint, (int)PropertyInfluence_::preferredSize>(_preferredSizeHint);
 	}
 
 	/** Returns the TextView's text content.
-		It is safe to use from any thread.
 		*/
-	Property<String>& text()
-	{
-		return _text;
-	}
-
-	const ReadProperty<String>& text() const
-	{
-		return _text;
-	}
-
+	BDN_VIEW_PROPERTY(String, text, setText, ITextViewCore, influencesPreferredSize() );
 
        
 	/* * Can be used to give the text view a hint as to what the preferred width
@@ -86,9 +73,6 @@ public:
 
 protected:	
 
-
-	DefaultProperty<String>		_text;
-   // DefaultProperty<UiSize>		_preferredSizeHint;
 };
 
 }

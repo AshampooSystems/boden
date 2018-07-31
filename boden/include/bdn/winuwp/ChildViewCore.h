@@ -79,7 +79,7 @@ public:
 		// means that we have to update our layout.
 		_pFrameworkElement->SizeChanged += ref new ::Windows::UI::Xaml::SizeChangedEventHandler( _pEventForwarder, &ViewCoreEventForwarder::sizeChanged );
 
-		setVisible( pOuterView->visible() );        
+		setVisible( pOuterView->visible() );
         setPreferredSizeHint( pOuterView->preferredSizeHint() );
 				
 		_addToParent( pOuterView->getParentView() );

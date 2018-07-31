@@ -20,7 +20,7 @@ protected:
     {
         P<TextView> pTextView = newObj<TextView>();
         
-        pTextView->text() = "hello world";
+        pTextView->setText( "hello world" );
         
         return pTextView;
     }
@@ -84,7 +84,7 @@ protected:
 
         SECTION("text")
         {
-            _pTextView->text() = "helloworld";
+            _pTextView->setText( "helloworld" );
             initCore();
             verifyCoreText();
         }
@@ -98,13 +98,13 @@ protected:
 
 		SECTION("wider text causes wider preferred size")
 		{
-            _pTextView->text() = "";
+            _pTextView->setText( "" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
                 Size prefSizeBefore = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-                pThis->_pTextView->text() = "helloworld";
+                pThis->_pTextView->setText( "helloworld" );
             
                 CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight)
                 {
@@ -118,7 +118,7 @@ protected:
 
                     // when we go back to the same text as before then the preferred size should
                     // also be the same again
-                    pThis->_pTextView->text() = "";
+                    pThis->_pTextView->setText( "" );
                     
                     CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight)
                     {
@@ -130,13 +130,13 @@ protected:
 
 		SECTION("linebreaks cause multiline")
 		{
-            _pTextView->text() = "";
+            _pTextView->setText( "" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
                 Size emptyTextPreferredSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-                pThis->_pTextView->text() = "hello";
+                pThis->_pTextView->setText( "hello" );
             
                 CONTINUE_SECTION_WHEN_IDLE(pThis, emptyTextPreferredSize, availableHeight)
                 {
@@ -148,7 +148,7 @@ protected:
                     // first line considerably shorter, thus causing the whole width of the text view
                     // to be measured according to the second line (which should have exactly the
                     // same width as the single line above).
-                    pThis->_pTextView->text() = "he\nhello";
+                    pThis->_pTextView->setText( "he\nhello" );
                     
                     CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, availableHeight, emptyTextPreferredSize)
                     {
@@ -164,7 +164,7 @@ protected:
                         REQUIRE( prefSize.height < prefSizeBefore.height*3 );
 
                         // when we go back to empty text then we should get the original size
-                        pThis->_pTextView->text() = "";
+                        pThis->_pTextView->setText( "" );
                         
                         CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight, emptyTextPreferredSize)
                         {
@@ -177,13 +177,13 @@ protected:
 
 		SECTION("CRLF same as LF")
 		{
-			_pTextView->text() = "hello world\nbla";
+			_pTextView->setText( "hello world\nbla" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
                 Size sizeLF = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-                pThis->_pTextView->text() = "hello world\r\nbla";
+                pThis->_pTextView->setText( "hello world\r\nbla" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis, sizeLF, availableHeight)
                 {
@@ -196,7 +196,7 @@ protected:
 
 		SECTION("availableWidth has no effect if bigger than unconstrained width")
 		{
-			_pTextView->text() = "hello world";
+			_pTextView->setText( "hello world" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
@@ -208,7 +208,7 @@ protected:
 
 		SECTION("availableWidth has no effect if equal to unconstrained width")
 		{
-			_pTextView->text() = "hello world";
+			_pTextView->setText( "hello world" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
@@ -220,19 +220,19 @@ protected:
 
 		SECTION("smaller availableWidth causes word wrap")
 		{
-			_pTextView->text() = "hellohello worldworld\nblabb";
+			_pTextView->setText( "hellohello worldworld\nblabb" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
                 Size wrappedAtSecondPositionSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
 
-                pThis->_pTextView->text() = "hellohello\nworldworld blabb";
+                pThis->_pTextView->setText( "hellohello\nworldworld blabb" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis, wrappedAtSecondPositionSize, availableHeight)
                 {
                     Size wrappedAtFirstPositionSize = pThis->_pTextView->calcPreferredSize( Size( Size::componentNone(), availableHeight) );
                     
-                    pThis->_pTextView->text() = "hellohello worldworld blabb";
+                    pThis->_pTextView->setText( "hellohello worldworld blabb" );
                     
                     CONTINUE_SECTION_WHEN_IDLE(pThis, wrappedAtSecondPositionSize, wrappedAtFirstPositionSize, availableHeight)
                     {
@@ -267,7 +267,7 @@ protected:
 
 		SECTION("availableWidth below single word width")
 		{
-			_pTextView->text() = "hello";
+			_pTextView->setText( "hello" );
             
             CONTINUE_SECTION_WHEN_IDLE(pThis, availableHeight)
             {
@@ -311,7 +311,7 @@ protected:
         {
             SECTION("value")
             {
-                _pTextView->text() = "helloworld";
+                _pTextView->setText( "helloworld" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {

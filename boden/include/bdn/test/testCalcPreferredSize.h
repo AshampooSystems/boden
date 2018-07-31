@@ -51,12 +51,12 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
             
     SECTION("padding influence")	
     {
-        pView->padding() = UiMargin(0);
+        pView->setPadding( UiMargin(0) );
 
         Size zeroPaddingSize = pObject->calcPreferredSize();
 
         // increasing the padding
-        pView->padding() = UiMargin( 100, 200, 300, 400);
+        pView->setPadding( UiMargin( 100, 200, 300, 400) );
 
         CONTINUE_SECTION_WHEN_IDLE(pView, pObject, zeroPaddingSize, pKeepAliveDuringContinuations)
         {
@@ -81,7 +81,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         SECTION("with padding")
         {
-            pView->padding() = UiMargin( 10, 20, 30, 40);
+            pView->setPadding( UiMargin( 10, 20, 30, 40) );
         }
                     
         Size prefSize = pObject->calcPreferredSize();
@@ -97,7 +97,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("smaller than preferred size")
         {
-            pView->preferredSizeMinimum() = prefSizeBefore-Size(1,1);
+            pView->setPreferredSizeMinimum( prefSizeBefore-Size(1,1) );
 
             // must wait until change has propagated and caches have been invalidated
             CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -110,7 +110,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("same as preferred size")
         {
-            pView->preferredSizeMinimum() = prefSizeBefore;
+            pView->setPreferredSizeMinimum( prefSizeBefore );
 
             // must wait until change has propagated and caches have been invalidated
             CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -123,7 +123,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
         SECTION("width bigger than preferred width")
         {
-            pView->preferredSizeMinimum() = Size( prefSizeBefore.width+1, -1 );
+            pView->setPreferredSizeMinimum( Size( prefSizeBefore.width+1, -1 ) );
 
             // must wait until change has propagated and caches have been invalidated
             CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -136,7 +136,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
         SECTION("height bigger than preferred height")
         {
-            pView->preferredSizeMinimum() = Size( -1, prefSizeBefore.height+1 );
+            pView->setPreferredSizeMinimum( Size( -1, prefSizeBefore.height+1 ) );
 
             // must wait until change has propagated and caches have been invalidated
             CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -156,7 +156,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         // that we are above that limit. We do that by artificially enlarging the preferred
         // size with a big padding.
 
-        pView->padding() = UiMargin(300);
+        pView->setPadding( UiMargin(300) );
 
         CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations)
         {
@@ -164,7 +164,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("bigger than preferred size")
             {
-                pView->preferredSizeMaximum() = prefSizeBefore+Size(1,1);
+                pView->setPreferredSizeMaximum( prefSizeBefore+Size(1,1) );
 
                 // must wait until change has propagated and caches have been invalidated
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -177,7 +177,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("same as preferred size")
             {
-                pView->preferredSizeMaximum() = prefSizeBefore;
+                pView->setPreferredSizeMaximum( prefSizeBefore );
 
                 // must wait until change has propagated and caches have been invalidated
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -190,7 +190,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
             SECTION("width smaller than preferred width")
             {
-                pView->preferredSizeMaximum() = Size( prefSizeBefore.width-1, Size::componentNone() );
+                pView->setPreferredSizeMaximum( Size( prefSizeBefore.width-1, Size::componentNone() ) );
 
                 // must wait until change has propagated and caches have been invalidated
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -203,7 +203,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("height smaller than preferred height")
             {
-                pView->preferredSizeMaximum() = Size( Size::componentNone(), prefSizeBefore.height-1 );
+                pView->setPreferredSizeMaximum( Size( Size::componentNone(), prefSizeBefore.height-1 ) );
 
                 // must wait until change has propagated and caches have been invalidated
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
@@ -268,7 +268,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         // that we are above that limit. We do that by artificially enlarging the preferred
         // size with a big padding.
 
-        pView->padding() = UiMargin(300);
+        pView->setPadding( UiMargin(300) );
 
         CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations)
         {
@@ -276,7 +276,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("bigger than preferred size")
             {
-                pView->preferredSizeHint() = prefSizeBefore+Size(1,1);
+                pView->setPreferredSizeHint( prefSizeBefore+Size(1,1) );
 
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
                 {
@@ -288,7 +288,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("same as preferred size")
             {
-                pView->preferredSizeHint() = prefSizeBefore;
+                pView->setPreferredSizeHint( prefSizeBefore );
 
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
                 {
@@ -300,7 +300,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
                     
             SECTION("width smaller than preferred width")
             {
-                pView->preferredSizeHint() = Size( prefSizeBefore.width-1, Size::componentNone() );
+                pView->setPreferredSizeHint( Size( prefSizeBefore.width-1, Size::componentNone() ) );
 
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
                 {
@@ -325,7 +325,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
 
             SECTION("height smaller than preferred height")
             {
-                pView->preferredSizeHint() = Size( Size::componentNone(), prefSizeBefore.height-1 );
+                pView->setPreferredSizeHint( Size( Size::componentNone(), prefSizeBefore.height-1 ) );
 
                 CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
                 {

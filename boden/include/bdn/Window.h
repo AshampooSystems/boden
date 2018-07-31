@@ -16,7 +16,7 @@ namespace bdn
 	which can then contain multiple child views.
 
 	Windows are initially invisible. Once you have finished initializing your window
-	you need to explicitly show it by setting the property visible()=true.
+	you need to explicitly show it by setting the property visible=true.
 
 	Example:
 
@@ -24,9 +24,9 @@ namespace bdn
 
 	P<Window> pWindow = newObj<Window>();
 
-	pWindow->title() = "My Window Title";
+	pWindow->setTitle( "My Window Title" );
 
-	pWindow->visible() = true;
+	pWindow->setVisible( true );
 
 	// the window is now visible on the screen.
 
@@ -91,7 +91,7 @@ public:
 	void requestCenter();
 
 
-	/** Returns the window's title property.
+	/** The window's title property.
 
 		Depending on the platform, the title may or may not be visible in a window title bar on
 		the screen.
@@ -101,15 +101,7 @@ public:
 
 		It is safe to use the property from any thread.
 		*/
-	Property<String>& title()
-	{
-		return _title;
-	}
-
-	const ReadProperty<String>& title() const
-	{
-		return _title;
-	}
+    BDN_VIEW_PROPERTY( String, title, setTitle, IWindowCore, influencesNothing() );
 
 	
 
@@ -164,7 +156,6 @@ protected:
 
 private:    
 	P<View>					_pContentView;
-    DefaultProperty<String> _title;
 };
 
 }

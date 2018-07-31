@@ -134,7 +134,7 @@ public:
         }
         
         /*
-        if(adjustedBounds.getSize() != pView->size().get() )
+        if(adjustedBounds.getSize() != pView->size )
         {        
             BDN_DEBUGGER_PRINT( String(typeid(*this).name()) + " size: "+ std::to_string(adjustedBounds.width)+" x "+std::to_string(adjustedBounds.height) );
         }*/

@@ -2903,9 +2903,7 @@ inline void testAssignWithString(StringImpl<DATATYPE>& s)
 
 		REQUIRE( s==expected );
 	}
-
 }
-
 
 template<class DATATYPE>
 inline void testAssign()
@@ -2945,6 +2943,7 @@ inline void testAssign()
 		// the slice source should not have been modified
 		REQUIRE( s2==U"xyhe\U00012345loworldabc" );
 	}
+    
 }
 
 

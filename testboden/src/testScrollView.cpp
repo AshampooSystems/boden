@@ -15,7 +15,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 {	
 	// we add a button as a content view
 	P<Button> pButton = newObj<Button>();
-	pButton->label() = "HelloWorld";
+	pButton->setLabel( "HelloWorld" );
 
 	Margin buttonMargin;
 
@@ -26,7 +26,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 
 	SECTION("semMargin")
 	{
-		pButton->margin() = UiMargin( UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) );
+		pButton->setMargin( UiMargin( UiLength::sem(1), UiLength::sem(2), UiLength::sem(3), UiLength::sem(4) ) );
 
 		// 1 sem = 20 DIPs in our mock ui
 		buttonMargin = Margin(20, 40, 60, 80 );
@@ -34,7 +34,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 
 	SECTION("dipMargin")
 	{
-		pButton->margin() = UiMargin(1, 2, 3, 4);
+		pButton->setMargin( UiMargin(1, 2, 3, 4) );
 
 		buttonMargin = Margin(1, 2, 3, 4 );
 	}
@@ -221,13 +221,13 @@ TEST_CASE("ScrollView", "[ui]")
             SECTION("contentView aligned on full pixels")
             {
                 P<Button> pChild = newObj<Button>();
-                pChild->label() = "hello";
+                pChild->setLabel( "hello" );
 
                 SECTION("weird child margin")
-                    pChild->margin() = UiMargin( 0.12345678 );
+                    pChild->setMargin( UiMargin( 0.12345678 ) );
 
                 SECTION("weird window padding")
-                    pScrollView->padding() = UiMargin( 0.12345678 );
+                    pScrollView->setPadding( UiMargin( 0.12345678 ) );
 
                 pScrollView->setContentView(pChild);
 
@@ -236,12 +236,12 @@ TEST_CASE("ScrollView", "[ui]")
                     // the mock views we use have 3 pixels per dip
                     double pixelsPerDip = 3;
 
-                    Point pos = pChild->position();               
+                    Point pos = pChild->position();
                 
                     REQUIRE_ALMOST_EQUAL( pos.x*pixelsPerDip, std::round(pos.x*pixelsPerDip), 0.000001 );
                     REQUIRE_ALMOST_EQUAL( pos.y*pixelsPerDip, std::round(pos.y*pixelsPerDip), 0.000001 );
 
-                    Size size = pChild->size();               
+                    Size size = pChild->size();
                     REQUIRE_ALMOST_EQUAL( size.width*pixelsPerDip, std::round(size.width*pixelsPerDip), 0.000001 );
                     REQUIRE_ALMOST_EQUAL( size.height*pixelsPerDip, std::round(size.height*pixelsPerDip), 0.000001 );
                 };

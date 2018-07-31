@@ -78,67 +78,90 @@ public:
 
 
 protected:
-	
-	/** Perform a notification call.*/
-	virtual void doNotify(ARG_TYPES... args)
-	{
-		// we do not want to hold a mutex while we call each subscriber. That would create the potential
+    
+    /** Perform a notification call. This is the internal implementation
+        that performs the actual notification calls.
+     
+        doNotify calls this.
+     
+        Template parameters:
+     
+        - CALL_MAKER_TYPE the type of the call maker function (see callMaker parameter)
+        - ADDITIONAL_CALL_MAKER_ARGS the types of additional arguments to pass to the call maker
+            function (see additionalCallMakerArgs parameter).
+     
+        \param callMaker a helper function that performs the actual individual call
+            for a single subscriber. As its first parameter this function gets the
+            subscribed function object (of type std::function<void(ARG_TYPES...) ).
+            It can optionally also get additional arguments, as specified by additionalCallMakerArgs.
+        \param additionalCallMakerArgs an arbitrary number of additional arguments
+            that are passed to the call maker function. The number and type of these are
+            controlled by the function's template argument ADDITIONAL_CALL_MAKER_ARGS.
+     */
+    template< typename CALL_MAKER_TYPE, typename... ADDITIONAL_CALL_MAKER_ARGS >
+    void notifyImpl( CALL_MAKER_TYPE callMaker, ADDITIONAL_CALL_MAKER_ARGS... additionalCallMakerArgs )
+    {
+        // we do not want to hold a mutex while we call each subscriber. That would create the potential
         // for deadlocks. However, we need to hold a mutex to access our internal structures, up to
         // the point in time when we actually make the call.
-
-        {
-			typename MUTEX_TYPE::Lock lock(_mutex);
         
+        {
+            typename MUTEX_TYPE::Lock lock(_mutex);
+            
             // We also need to ensure that subscribers that are removed while our notification call
             // is running are not called after they are removed (unless their specific call has already started).
-        
-			// When we have an async notifier then there is usually only one notification call active at any given point in time, since all of them
+            
+            // When we have an async notifier then there is usually only one notification call active at any given point in time, since all of them
             // are made from the main thread.
             // However, if the event loop does work somewhere in an inner function (e.g. by a modal dialog
             // created by some other framework) then a second notification call might be executed
             // before the first can finish. The mutex does not protect against this since both calls
             // would happen in the same thread (the main thread).
-
-			// When we are a synchronous notifier then there can also be additional notify calls happening while
-			// we are inside the loop (if one of our subscribers causes another notification to happen).
-			// So we also have to be re-entrant in that case.
-
+            
+            // When we are a synchronous notifier then there can also be additional notify calls happening while
+            // we are inside the loop (if one of our subscribers causes another notification to happen).
+            // So we also have to be re-entrant in that case.
+            
             NotificationState state;
-
+            
             state.nextItemIt = _subMap.begin();
-
+            
             activateNotificationState(&state);
-                
+            
             try
             {
                 while(state.nextItemIt != _subMap.end())
                 {
                     std::pair< int64_t, Sub_ > item = *state.nextItemIt;
-
+                    
                     // increase the iterator before we call the notification function. That is necessary
                     // for cases when someone removes the next item in our map before we get to it.
                     // Note that the unsubscribe function will update the iterator properly, to ensure that
                     // it remains valid.
                     state.nextItemIt++;
-
+                    
                     // now we have to release the mutex. At this point in time the function might be unsubscribed
                     // by another thread, but we cannot stop the call once we started it. We also cannot block
                     // unsubscribes during this call, since that can open up the potential for deadlocks.
                     // So the caller of unsubscribe has to deal with the fact that the function might be called
                     // once more directly after unsubscribe finishes.
-
-                    try
-                    {                
-                        typename MUTEX_TYPE::Unlock unlock(_mutex);
                     
-                        item.second.func( args... );
+                    try
+                    {
+                        typename MUTEX_TYPE::Unlock unlock(_mutex);
+                        
+                        // note: we MUST NOT use std::forward here, since we may have to call multiple
+                        // subscribers. std::forward might convert the temporary object to a move reference,
+                        // this the additionalCallMakerArgs variable might otherwise be invalidated by the
+                        // first subscriber call.
+                        callMaker( item.second.func, additionalCallMakerArgs... );
                     }
                     catch(DanglingFunctionError&)
                     {
                         // this is a perfectly normal case. It means that the target function
                         // was a weak reference and the target object has been destroyed.
                         // Just remove it from our list and ignore the exception.
-
+                        
                         unsubscribe(item.first);
                     }
                 }
@@ -148,10 +171,23 @@ protected:
                 deactivateNotificationState(&state);
                 throw;
             }
-
+            
             deactivateNotificationState(&state);
         }
-	}
+    }
+    
+    /** A default call maker implementation that simply calls the subscribed function directly.
+        This can be used with notifyImpl().*/
+    static void defaultCallMaker( const std::function<void(ARG_TYPES...)>& func, ARG_TYPES... args )
+    {
+        func( args... );
+    }
+	
+	/** Perform a notification call.*/
+	virtual void doNotify(ARG_TYPES... args)
+	{
+        notifyImpl< decltype(&NotifierBase::defaultCallMaker), ARG_TYPES... >( &NotifierBase::defaultCallMaker, args... );
+    }
 
 	/** Subscribed the specified function \c func.
 	

@@ -99,7 +99,7 @@ public:
             if (pView != nullptr)
             {
                 Size limit = pView->preferredSizeHint();
-                limit.applyMaximum(pView->preferredSizeMaximum());
+                limit.applyMaximum( pView->preferredSizeMaximum() );
 
                 if (std::isfinite(limit.width))
                     maxWidthPixels = std::lround(limit.width * getUiScaleFactor());

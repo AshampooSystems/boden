@@ -19,7 +19,7 @@ protected:
     P<View> createView() override
     {
         P<Button> pButton = newObj<Button>();
-        pButton->label() = "hello";
+        pButton->setLabel( "hello" );
 
         return pButton;
     }
@@ -37,7 +37,7 @@ protected:
 
         SECTION("label")
         {
-            _pButton->label() = "helloworld";
+            _pButton->setLabel( "helloworld" );
             initCore();
             verifyCoreLabel();
         }
@@ -53,7 +53,7 @@ protected:
         {
             SECTION("value")
             {
-                _pButton->label() = "helloworld";
+                _pButton->setLabel( "helloworld" );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis)
                 {
@@ -70,7 +70,7 @@ protected:
 
                 Size prefSizeBefore = _pButton->calcPreferredSize();
 
-                _pButton->label() = labelBefore+labelBefore+labelBefore;
+                _pButton->setLabel( labelBefore + labelBefore + labelBefore );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
                 {
@@ -84,7 +84,7 @@ protected:
 
                     // when we go back to the same label as before then the preferred size should
                     // also be the same again
-                    pThis->_pButton->label() = labelBefore;
+                    pThis->_pButton->setLabel( labelBefore );
                     
                     CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
                     {

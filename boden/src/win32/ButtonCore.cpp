@@ -11,7 +11,7 @@ namespace win32
 ButtonCore::ButtonCore(Button* pOuter)
 	: ViewCore(	pOuter, 
 				"BUTTON",
-				pOuter->label().get(),
+				pOuter->label(),
 				BS_PUSHBUTTON | WS_CHILD,
 				0 )
 {

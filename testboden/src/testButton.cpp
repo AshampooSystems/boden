@@ -40,7 +40,7 @@ TEST_CASE("Button")
                     pPreparer,
 					[pButton]()
 					{
-						pButton->label() = "hello";					
+						pButton->setLabel( "hello" );					
 					},
 					[pCore, pButton]
 					{

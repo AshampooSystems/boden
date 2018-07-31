@@ -218,7 +218,7 @@ void ScrollViewCore::layout()
         Size borderSize;
         P<ScrollViewLayoutHelper> pHelper = createLayoutHelper(&borderSize);
         
-        Size viewPortSizeWithoutScrollbars = pOuterView->size().get() - borderSize;
+        Size viewPortSizeWithoutScrollbars = pOuterView->size() - borderSize;
         
         pHelper->calcLayout(pOuterView, viewPortSizeWithoutScrollbars);
         

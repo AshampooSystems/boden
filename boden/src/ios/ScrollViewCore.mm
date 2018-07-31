@@ -159,10 +159,10 @@ void ScrollViewCore::layout()
         // direction does not exceed the viewport size.
         CGSize iosViewPortSize = _uiScrollView.frame.size;
         
-        if( !pOuterView->horizontalScrollingEnabled().get() && iosScrollContentSize.width > iosViewPortSize.width )
+        if( !pOuterView->horizontalScrollingEnabled() && iosScrollContentSize.width > iosViewPortSize.width )
             iosScrollContentSize.width = iosViewPortSize.width;
 
-        if( !pOuterView->verticalScrollingEnabled().get() && iosScrollContentSize.height > iosViewPortSize.height )
+        if( !pOuterView->verticalScrollingEnabled() && iosScrollContentSize.height > iosViewPortSize.height )
             iosScrollContentSize.height = iosViewPortSize.height;
         
         _uiScrollView.contentSize = iosScrollContentSize;

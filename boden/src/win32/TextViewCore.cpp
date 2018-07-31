@@ -11,7 +11,7 @@ namespace win32
 TextViewCore::TextViewCore(TextView* pOuter)
 	: ViewCore(	pOuter, 
 				"STATIC",
-				pOuter->text().get(),
+				pOuter->text(),
 				SS_NOPREFIX | WS_CHILD,
 				0 )
 {
@@ -38,7 +38,7 @@ Size TextViewCore::calcPreferredSize( const Size& availableSpace ) const
     {
         maxSize = pTextView->preferredSizeMaximum();
         minSize = pTextView->preferredSizeMinimum();
-        hintSize = pTextView->preferredSizeHint();
+		hintSize = pTextView->preferredSizeHint();
         text = pTextView->text();
         pad = pTextView->padding();
     }

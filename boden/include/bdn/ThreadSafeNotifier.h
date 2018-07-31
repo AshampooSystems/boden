@@ -41,7 +41,7 @@ public:
 	{
 		BASE::doNotify( std::forward<ARG_TYPES>(args)... );
 	}
-	    
+    
     void postNotification(ARG_TYPES... args) override
     {
         // see doc_input/notifier_internal.md for more information about why this has to redirect

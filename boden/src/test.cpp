@@ -2966,7 +2966,7 @@ public:
 
 		std::stringstream resultStringStream;
 		ResultStringFormatter::printTotals(resultStringStream, m_totals);
-		_statusText = String( resultStringStream.str() );
+		setStatusText( String( resultStringStream.str() ) );
 	}
 
 	void beginRunTestCase( TestCase const& testCase, std::function< void(const Totals&) > doneCallback )
@@ -2988,7 +2988,7 @@ public:
         
         std::string currentTestName = getCurrentTestName();
         
-        _statusText = "Test case: "+currentTestName;
+        setStatusText( "Test case: "+currentTestName );
 
 		_testDoneCallback = doneCallback;
 
@@ -2998,10 +2998,7 @@ public:
 	}
     
     
-    const ReadProperty<String>& statusText() const
-    {
-        return _statusText;
-    }
+    BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, statusText, protected, setStatusText );
 
 
 	Ptr<IConfig const> config() const {
@@ -3996,7 +3993,6 @@ private:
 	IMutableContext& m_context;
 
 	TestCase const* m_activeTestCase;
-    DefaultProperty<String> _statusText;
     
 	ITracker* m_testCaseTracker;
 	ITracker* m_currentSectionTracker;
@@ -4125,7 +4121,7 @@ Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& config, Ptr<IStr
 	return reporters;
 }
 
-class TestRunner
+class TestRunner : public RequireNewAlloc<Base, TestRunner>
 {
 public:
     TestRunner(Ptr<Config> const& config)
@@ -4138,6 +4134,8 @@ public:
         _reporter = addListeners( _iconfig, _reporter );
 
         _pContext = new RunContext( _iconfig, _reporter );
+
+        BDN_BIND_PROPERTY_TO( *this, statusText, *_pContext, statusText );
 
         _pContext->testGroupStarting( config->name(), 1, 1 );
 
@@ -4159,10 +4157,7 @@ public:
     
     /** A text describing the current test status (which test case is being executed, and wether
         all tests are done.*/
-    const ReadProperty<String>& statusText() const
-    {
-        return _pContext->statusText();
-    }
+    BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, statusText, protected, setStatusText );
 
 
     bool beginNextTest( std::function<void()> doneCallback )
@@ -4235,7 +4230,7 @@ protected:
 
 Totals runTests( Ptr<Config> const& config ) {
 
-    TestRunner runner(config);
+    P<TestRunner> pRunner = newObj<TestRunner>(config);
 
 
 
@@ -4243,7 +4238,7 @@ Totals runTests( Ptr<Config> const& config ) {
     {
 		bool doneCalled = false;
 
-		if(! runner.beginNextTest( [&doneCalled](){ doneCalled=true; } ) )
+		if(! pRunner->beginNextTest( [&doneCalled](){ doneCalled=true; } ) )
 		{
 			// no more tests.
 			break;
@@ -4258,7 +4253,7 @@ Totals runTests( Ptr<Config> const& config ) {
 		}
     }
 
-    return runner.getTotals();
+    return pRunner->getTotals();
 }
 
 void applyFilenamesAsTags( IConfig const& config ) {
@@ -8600,7 +8595,7 @@ public:
 				return;
             }
 
-            _pTestRunner = new TestRunner( &_pTestSession->config() );            
+            _pTestRunner = newObj<TestRunner>( &_pTestSession->config() );
         }
         catch(...)
         {
@@ -8660,7 +8655,6 @@ public:
 
 				finished(failedCount);
 
-				delete _pTestRunner;
 				_pTestRunner = nullptr;
 				
 				waitAndClose(exitCode);
@@ -8673,7 +8667,6 @@ public:
 
             int exitCode = 1;
 
-			delete _pTestRunner;
 			_pTestRunner = nullptr;
 
             // we want to exit
@@ -8730,7 +8723,7 @@ protected:
 
 protected:
 	Session*    _pTestSession;
-    TestRunner* _pTestRunner;	
+    P<TestRunner> _pTestRunner;
 };
 
 

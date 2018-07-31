@@ -3,14 +3,15 @@
 
 namespace bdn
 {
-    class IViewCore;
+    class View;
 }
 
 #include <bdn/UiMargin.h>
 #include <bdn/Rect.h>
 #include <bdn/Nullable.h>
 #include <bdn/Size.h>
-#include <bdn/View.h>
+#include <bdn/round.h>
+
 
 
 namespace bdn
@@ -19,6 +20,55 @@ namespace bdn
 class IViewCore : BDN_IMPLEMENTS IBase
 {
 public:
+
+    
+    enum class InvalidateReason
+    {
+        /** The data was invalidated because a standard property of the view
+         (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardPropertyChanged,
+        
+        /** The data was invalidated because a standard child property
+         (i.e. a property that is defined by the Boden framework) has been changed.*/
+        standardChildPropertyChanged,
+        
+        /** A child view was added or removed.*/
+        childAddedOrRemoved,
+        
+        
+        /** The sizing information of a child view has been invalidated. The child size
+         must be recalculated.*/
+        childSizingInfoInvalidated,
+        
+        
+        /** The data was invalidated because some custom data associated with the
+         view has changed that influences sizing or layout.
+         
+         This is usually used when the application overloaded layout or sizing functionality
+         of the view. When some internal custom data changes that influences the layout
+         then the application should use this update reason.
+         */
+        customDataChanged,
+    };
+    
+    enum class HorizontalAlignment
+    {
+        left,
+        center,
+        right,
+        /** Expand the view to the full available width.*/
+        expand
+    };
+    
+    enum class VerticalAlignment
+    {
+        top,
+        bottom,
+        middle,
+        /** Expand the view to the full available height.*/
+        expand
+    };
+
 
 
     /** Invalidates the any cached sizing information of the view (see calcPreferredSize()).
@@ -33,7 +83,7 @@ public:
             (rather than the framework itself) then this should usually be set to
             View::InvalidateReason::customDataChanged
 		*/
-	virtual void invalidateSizingInfo(View::InvalidateReason reason)=0;
+	virtual void invalidateSizingInfo(InvalidateReason reason)=0;
 
 
 	/** Requests that the view updates the layout of its child view and contents.
@@ -85,7 +135,7 @@ public:
             (rather than the framework itself) then this should usually be set to
             View::UpdateReason::customDataChanged
 		*/
-	virtual void needLayout(View::InvalidateReason reason)=0;
+	virtual void needLayout(InvalidateReason reason)=0;
 
 
 
@@ -99,10 +149,10 @@ public:
 
 
     /** Sets the view core's horizontal alignment. See View::horizontalAlignment() */
-    virtual void setHorizontalAlignment(const View::HorizontalAlignment& align)=0;
+    virtual void setHorizontalAlignment(const HorizontalAlignment& align)=0;
 
     /** Sets the view core's vertical alignment. See View::verticalAlignment() */
-    virtual void setVerticalAlignment(const View::VerticalAlignment& align)=0;
+    virtual void setVerticalAlignment(const VerticalAlignment& align)=0;
 
 
 	/** Shows/hides the view core.*/
@@ -115,14 +165,14 @@ public:
 	virtual void setMargin(const UiMargin& margin)=0;
 
 
-    /** Sets the view core's preferred size hint (see View::preferredSizeHint() ).*/
+    /** Sets the view core's preferred size hint.*/
     virtual void setPreferredSizeHint(const Size& hint)=0;
 
 
-    /** Sets the view core's preferred size minimum (see View::preferredSizeMinimum() ).*/
+    /** Sets the view core's preferred size minimum.*/
     virtual void setPreferredSizeMinimum(const Size& limit)=0;
 
-    /** Sets the view core's preferred size maximum (see View::preferredSizeMaximum() ).*/
+    /** Sets the view core's preferred size maximum.*/
     virtual void setPreferredSizeMaximum(const Size& limit)=0;
 
 
@@ -200,19 +250,19 @@ public:
 		to return a size that exceeds the available space. However, the layout manager is free to
 		size the view to something smaller than the returned preferred size.
 
-        preferredSizeHint()
-        -------------------
+        preferredSizeHint
+        -----------------
 
-        preferredSizeHint() is an optional advisory hint to the view as to what the preferred width and/or height should
+        preferredSizeHint is an optional advisory hint to the view as to what the preferred width and/or height should
         roughly be. The calcPreferredSize implementation may ignore this if it does not make sense for the view type.
         In fact the value is unused by most views. One example where the parameter can be useful are text views which can dynamically
         wrap text into multiple lines. These kinds of views can use the hint width to determine the place where the text should
         wrap by default
 
-        preferredSizeMinimum() and preferredSizeMaximum()
-        -------------------------------------------------
+        preferredSizeMinimum and preferredSizeMaximum
+        ---------------------------------------------
 
-        preferredSizeMinimum() and preferredSizeMaximum() are hard limits for the preferred size. 
+        preferredSizeMinimum and preferredSizeMaximum are hard limits for the preferred size. 
         The calcPreferredSize implementation should never return a size that violates these limits, if they are set.
         Even if that means that the view's content does not fit into the view.
         

@@ -8,10 +8,9 @@
 #include <bdn/appInit.h>
 #include <bdn/AppControllerBase.h>
 
-#include <bdn/DefaultProperty.h>
+#include <bdn/property.h>
 
 using namespace bdn;
-
 
 
 class Model : public Base
@@ -23,37 +22,28 @@ public:
         changeMorphingText();
     }
     
-    Property<int>& helloCounter()
-    {
-        return _helloCounter;
-    }
+    BDN_PROPERTY(int, helloCounter, setHelloCounter );
 
-    
     /** A text that changes when changeMorphingText is called.
         The different text variations are significantly different in their length.*/
-    Property<String>& morphingText()
-    {
-        return _morphingText;
-    }
+    BDN_PROPERTY( String, morphingText, setMorphingText );
 
+    
     void changeMorphingText()
     {
         _morphingTextCounter++;
 
         int sel = _morphingTextCounter % 3;
         if(sel==0)
-            _morphingText = "Short text";
+            setMorphingText( "Short text" );
         else if (sel==1)
-            _morphingText = "This is a single-line, medium sized text. Lorem ipsum.";
+            setMorphingText( "This is a single-line, medium sized text. Lorem ipsum." );
         else
-            _morphingText = "This is a long text that spans multiple lines and also has some free lines.\nLorem ipsum dolor sit amet, consectetuer adipiscing elit.\nAenean commodo ligula eget dolor.\n\nAenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.";
+            setMorphingText( "This is a long text that spans multiple lines and also has some free lines.\nLorem ipsum dolor sit amet, consectetuer adipiscing elit.\nAenean commodo ligula eget dolor.\n\nAenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." );
     }
     
 protected:
-    DefaultProperty<int> _helloCounter;
-    
-    DefaultProperty<String> _morphingText;
-    int                     _morphingTextCounter;
+    int _morphingTextCounter;
 };
 
 
@@ -63,46 +53,40 @@ public:
     ViewModel(Model* pModel)
     {
         _pModel = pModel;
-
-		_pModel->helloCounter().onChange().subscribeParamless( weakMethod(this, &ViewModel::updateHelloMessage) );
-		updateHelloMessage();
+        
+        // Connect our read-only morphingText property to the
+        // model's read-write morphingText property
+        BDN_BIND_PROPERTY_TO( *this, morphingText, *_pModel, morphingText );
+        
+        // connect our helloMessage to the helloCounter.
+        // Note that we use a filter here to transform the integer counter
+        // to a string for our property.
+        auto helloMessageFilter = [](int newCounter)
+        {
+            String  message = "Hello World";
+            if(newCounter>0)
+                message += " "+std::to_string(newCounter);
+            
+            return message;
+        };
+        BDN_BIND_PROPERTY_TO_WITH_FILTER( *this, helloMessage, *_pModel, helloCounter, helloMessageFilter );
     }
+    
+    BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, helloMessage, protected, setHelloMessage );
+    BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, morphingText, protected, setMorphingText );
     
     void increaseHelloCounter()
     {
-        _pModel->helloCounter().set( _pModel->helloCounter().get()+1 );
+        _pModel->setHelloCounter( _pModel->helloCounter() + 1);
     }
     
-    ReadProperty<String>& helloMessage()
-    {
-        return _helloMessage;
-    }
-
-
     void changeMorphingText()
     {
         _pModel->changeMorphingText();
     }
 
-    ReadProperty<String>& morphingText()
-    {
-        return _pModel->morphingText();
-    }
-    
 protected:
-	void updateHelloMessage()
-	{		
-        String  message = "Hello World";
-        
-		int     counter = _pModel->helloCounter();        
-        if(counter>0)
-            message += " "+std::to_string(counter);
-        
-		_helloMessage = message;
-    }
-    
-    P<Model>                    _pModel;
-    DefaultProperty<String>     _helloMessage;
+    P<Model>            _pModel;
 };
 
 
@@ -114,37 +98,45 @@ public:
 		_pViewModel = pViewModel;
 
         _pWindow = newObj<Window>();
-		_pWindow->title() = "hello";
+		_pWindow->setTitle( "hello" );
         
        
 		P<ColumnView> pColumnView = newObj<ColumnView>();
 
 		_pHelloMessageButton = newObj<Button>();
-        _pHelloMessageButton->label().bind( _pViewModel->helloMessage() );
-		_pHelloMessageButton->margin() = UiMargin( 10, 10, 10, 10);
-		_pHelloMessageButton->horizontalAlignment() = View::HorizontalAlignment::center;
+
+        // we want the hello message on the button
+        BDN_BIND_PROPERTY_TO( *_pHelloMessageButton, label, *_pViewModel, helloMessage );
+
+        _pHelloMessageButton->setMargin( UiMargin( 10, 10, 10, 10) );
+		_pHelloMessageButton->setHorizontalAlignment( View::HorizontalAlignment::center );
+
 		pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 
         _pMorphingTextView = newObj<TextView>();
-        _pMorphingTextView->text().bind( _pViewModel->morphingText() );
-        _pMorphingTextView->margin() = UiMargin( 10, 10, 10, 10);
+
+        // show the morphing text in the text view
+        BDN_BIND_PROPERTY_TO( *_pMorphingTextView, text, *_pViewModel, morphingText );
+        _pMorphingTextView->setMargin( UiMargin( 10, 10, 10, 10) );
+
         pColumnView->addChildView( _pMorphingTextView );
 
         _pScrollView = newObj<ScrollView>();
 
         // limit the maximum size. We simply want the scroll view to fill the available width
         // and have a height of 100 dips.
-        _pScrollView->preferredSizeMinimum() = Size( 0, 100);
-        _pScrollView->preferredSizeMaximum() = Size( 0, 100);
-        _pScrollView->horizontalAlignment() = View::HorizontalAlignment::expand;
+        _pScrollView->setPreferredSizeMinimum( Size( 0, 100) );
+        _pScrollView->setPreferredSizeMaximum( Size( 0, 100) );
+        _pScrollView->setHorizontalAlignment( View::HorizontalAlignment::expand );
         
-        _pScrollView->padding() = UiMargin( 5, 5, 5, 5 );
-        _pScrollView->margin() = UiMargin( 10, 10, 10, 10);
+
+        _pScrollView->setPadding( UiMargin( 5, 5, 5, 5 ) );
+        _pScrollView->setMargin( UiMargin( 10, 10, 10, 10) );
         
         _pScrolledTextView = newObj<TextView>();        
 
-        _pScrolledTextView->text() = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+        _pScrolledTextView->setText( "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet." );
         _pScrollView->setContentView(_pScrolledTextView);
 
         pColumnView->addChildView( _pScrollView );
@@ -154,10 +146,9 @@ public:
 		_pWindow->requestAutoSize();
 		_pWindow->requestCenter();
 
-		_pWindow->visible() = true;
+		_pWindow->setVisible( true );
     }
-    
-    
+
 protected:
 	
     void buttonClicked()
@@ -175,14 +166,14 @@ protected:
 
     }
 
-    P<ViewModel> _pViewModel;
+    P<ViewModel>    _pViewModel;
     
-    P<Window>   _pWindow;
-    P<Button>	_pHelloMessageButton;
+    P<Window>       _pWindow;
+    P<Button>	    _pHelloMessageButton;
     
-    P<TextView> _pMorphingTextView;
-    P<ScrollView> _pScrollView;
-    P<TextView>   _pScrolledTextView;
+    P<TextView>     _pMorphingTextView;
+    P<ScrollView>   _pScrollView;
+    P<TextView>     _pScrolledTextView;
 };
 
 

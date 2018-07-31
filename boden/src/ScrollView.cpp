@@ -8,12 +8,8 @@ namespace bdn
 {
 
 ScrollView::ScrollView()
-    : _verticalScrollingEnabled(true)
 {
-	initProperty<bool, IScrollViewCore, &IScrollViewCore::setHorizontalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_horizontalScrollingEnabled);
-    initProperty<bool, IScrollViewCore, &IScrollViewCore::setVerticalScrollingEnabled, (int)PropertyInfluence_::preferredSize | (int)PropertyInfluence_::childLayout>(_verticalScrollingEnabled);
-
-    initProperty<Rect, IScrollViewCore, nullptr, 0>(_visibleClientRect);
+    setVerticalScrollingEnabled(true);    
 }
 
 

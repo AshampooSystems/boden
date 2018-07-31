@@ -179,8 +179,8 @@ public:
         _horzScrollingEnabled = horzScrollingEnabled;
         _vertScrollingEnabled = vertScrollingEnabled;
 
-        getScrollView()->horizontalScrollingEnabled() = horzScrollingEnabled;
-        getScrollView()->verticalScrollingEnabled() = vertScrollingEnabled;
+        getScrollView()->setHorizontalScrollingEnabled( horzScrollingEnabled );
+        getScrollView()->setVerticalScrollingEnabled( vertScrollingEnabled );
 
         P<ScrollViewLayoutTesterBase> pThis = this;
 
@@ -212,7 +212,7 @@ public:
 
             SECTION("with padding")
             {
-                getScrollView()->padding() = UiMargin(5,6,7,8);
+                getScrollView()->setPadding( UiMargin(5,6,7,8) );
 
                 Size prefSize = callCalcPreferredSize( Size::none() );
                 REQUIRE( prefSize == Size(6+8, 5+7) );
@@ -221,8 +221,8 @@ public:
             SECTION("with padding and scrollview margin")
             {
                 // the scrollview's own margin should not matter - only the margin of the content view
-                getScrollView()->margin() = UiMargin(1,2,3,4);
-                getScrollView()->padding() = UiMargin(5,6,7,8);
+                getScrollView()->setMargin( UiMargin(1,2,3,4) );
+                getScrollView()->setPadding( UiMargin(5,6,7,8) );
 
                 Size prefSize = callCalcPreferredSize( Size::none() );
                 REQUIRE( prefSize == Size(6+8, 5+7) );
@@ -234,8 +234,8 @@ public:
             P<Button> pButton = newObj<Button>();
             getScrollView()->setContentView(pButton);
 
-            pButton->margin() = UiMargin(1,2,3,4);
-            getScrollView()->padding() = UiMargin(5,6,7,8);
+            pButton->setMargin( UiMargin(1,2,3,4) );
+            getScrollView()->setPadding( UiMargin(5,6,7,8) );
 
             CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, pixelSize )
             {
@@ -432,7 +432,7 @@ public:
 
             // we want a content view whose width and height depend on each other. So we use a text view with
             // multiline text.
-            pContentView->text() = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nPraesent ultrices, nisi quis posuere viverra, arcu erat auctor tellus, sit amet tincidunt magna leo id velit.";
+            pContentView->setText( "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nPraesent ultrices, nisi quis posuere viverra, arcu erat auctor tellus, sit amet tincidunt magna leo id velit." );
 
             CONTINUE_SECTION_WHEN_IDLE( pThis, pContentView, pixelSize )
             {
@@ -576,10 +576,10 @@ public:
                 margin.left = stableScaledRound(RoundType::nearest, margin.left, 1.0/pixelSize.width);
                 margin.right = stableScaledRound(RoundType::nearest, margin.right, 1.0/pixelSize.width);
 
-                getScrollView()->padding() = UiMargin( padding.top, padding.right, padding.bottom, padding.left );
+                getScrollView()->setPadding( UiMargin( padding.top, padding.right, padding.bottom, padding.left ) );
 
                 // the scrollview's margin should not influence the layout
-                getScrollView()->margin() = UiMargin( margin.top, margin.right, margin.bottom, margin.left );
+                getScrollView()->setMargin( UiMargin( margin.top, margin.right, margin.bottom, margin.left ) );
 
                 CONTINUE_SECTION_WHEN_IDLE( pThis, padding )
                 {
@@ -611,7 +611,7 @@ public:
             // to be bigger than the scroll bars would be, to ensure that the scroll bars are fully visible.
             // So to achieve that we set a multiline button label, which should cause the button to be bigger
             // than the scroll bars.
-            pButton->label() = "Lorem ipsum\ndolor sit amet";
+            pButton->setLabel( "Lorem ipsum\ndolor sit amet" );
 
             getScrollView()->setContentView(pButton);
 
@@ -623,7 +623,7 @@ public:
             buttonMargin.left = stableScaledRound(RoundType::nearest, buttonMargin.left, 1.0/pixelSize.width);
             buttonMargin.right = stableScaledRound(RoundType::nearest, buttonMargin.right, 1.0/pixelSize.width);
 
-            pButton->margin() = UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left);
+            pButton->setMargin( UiMargin(buttonMargin.top, buttonMargin.right, buttonMargin.bottom, buttonMargin.left) );
 
             // on the webems platform, scrollbars are not shown
             // if the ScrollView is too small. On Firefox Linux the minimum size
@@ -637,7 +637,7 @@ public:
             scrollViewPadding.left = stableScaledRound(RoundType::nearest, scrollViewPadding.left, 1.0/pixelSize.width);
             scrollViewPadding.right = stableScaledRound(RoundType::nearest, scrollViewPadding.right, 1.0/pixelSize.width);
 
-            getScrollView()->padding() = UiMargin(scrollViewPadding.top, scrollViewPadding.right, scrollViewPadding.bottom, scrollViewPadding.left);
+            getScrollView()->setPadding( UiMargin(scrollViewPadding.top, scrollViewPadding.right, scrollViewPadding.bottom, scrollViewPadding.left) );
         
             CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize, buttonMargin, scrollViewPadding)
             {

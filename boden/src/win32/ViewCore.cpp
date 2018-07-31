@@ -22,7 +22,7 @@ ViewCore::ViewCore(	View* pOuterView,
 					int height )
 	: Win32Window(	className,
 					name,
-					style | (pOuterView->visible().get() ? WS_VISIBLE : 0),
+					style | (pOuterView->visible() ? WS_VISIBLE : 0),
 					exStyle,
 					ViewCore::getViewParentHwndForChildren( pOuterView->getParentView() ),
 					x,
