@@ -37,7 +37,7 @@ inline bool shouldPrefererredHeightHintHaveAnEffect()
 template<class ViewType, class ObjectType>
 inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase> pKeepAliveDuringContinuations)
 {
-	SECTION("plausible")	
+	SECTION("plausible")
     {
         // we check elsewhere that padding is properly included in the preferred size
         // So here we only check that the preferred size is "plausible"
@@ -49,7 +49,7 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
     }
 
             
-    SECTION("padding influence")	
+    SECTION("padding influence")
     {
         pView->setPadding( UiMargin(0) );
 

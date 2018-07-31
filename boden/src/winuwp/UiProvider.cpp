@@ -6,6 +6,7 @@
 #include <bdn/winuwp/ContainerViewCore.h>
 #include <bdn/winuwp/ButtonCore.h>
 #include <bdn/winuwp/TextViewCore.h>
+#include <bdn/winuwp/TextFieldCore.h>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/ViewTextUi.h>
@@ -49,6 +50,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+
+    else if(coreTypeName == TextField::getTextFieldCoreTypeName() )
+        return newObj<TextFieldCore>( cast<TextField>(pView) );
 
     else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
         return newObj<ScrollViewCore>( cast<ScrollView>(pView) );

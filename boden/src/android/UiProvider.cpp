@@ -4,6 +4,7 @@
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ButtonCore.h>
 #include <bdn/android/TextViewCore.h>
+#include <bdn/android/TextFieldCore.h>
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/ScrollViewCore.h>
 
@@ -68,6 +69,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+
+    else if(coreTypeName == TextField::getTextFieldCoreTypeName() )
+        return newObj<TextFieldCore>( cast<TextField>(pView) );
 
     else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
         return newObj<ScrollViewCore>( cast<ScrollView>(pView) );

@@ -266,8 +266,6 @@ inline void _testViewOp(P< ViewWithTestExtensions<ViewType> > pView,
             }
         };
 	};
-
-
 }
 
 

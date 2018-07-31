@@ -1865,9 +1865,29 @@ def commandRun(args):
 
                 android_abi = arch_to_android_abi(arch)
 
-                moduleFilePath = os.path.join(moduleFilePath, "build", "outputs", "apk", config.lower(), args.module+"-"+config.lower()+".apk")
+                app_id = "io.boden.android.%s" % args.module
 
-                if not os.path.exists(moduleFilePath):
+                module_name_in_filesystem = args.module
+
+                while True:
+                    moduleFilePath = os.path.join(outputDir, module_name_in_filesystem, "build", "outputs", "apk", config.lower(), module_name_in_filesystem+"-"+config.lower()+".apk")
+
+                    if os.path.exists(moduleFilePath):
+                        break
+
+                    if module_name_in_filesystem!="app":
+                        # the main application is sometimes called "app" in the filesystem
+                        # check if that is correct
+                        moduleFilePath_app = os.path.join(outputDir, "app", "build", "outputs", "apk", config.lower(), "app-"+config.lower()+".apk")
+
+                        if os.path.exists(moduleFilePath_app):
+                            with open(os.path.join( os.path.dirname(moduleFilePath_app), "output.json"), "rb") as f:
+                                output_info = json.loads( f.read().decode("utf-8") );
+                                if output_info[0]["properties"]["packageId"] == app_id:
+                                    module_name_in_filesystem="app"
+                                    moduleFilePath = moduleFilePath_app
+                                    break
+
                     raise Exception("APK not found - expected here: "+moduleFilePath)
 
                 android_home_dir = get_android_home_dir()
@@ -2050,8 +2070,8 @@ def commandRun(args):
 
                         # and run the executable in the emulator
 
-                        app_data_dir_in_emulator = "/data/user/0/io.boden.android.%s" % args.module
-                        app_id = "io.boden.android.%s" % args.module
+                        app_data_dir_in_emulator = "/data/user/0/%s" % app_id
+                        
 
                         run_app_command = '"%s" shell am start -a android.intent.action.MAIN -n %s/io.boden.android.NativeRootActivity' % \
                             (   adb_path,

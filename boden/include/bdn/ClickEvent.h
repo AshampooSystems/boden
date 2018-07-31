@@ -1,26 +1,16 @@
 #ifndef BDN_ClickEvent_H_
 #define BDN_ClickEvent_H_
 
-#include <bdn/View.h>
+#include <bdn/ViewEvent.h>
 
 namespace bdn
 {
 
-class ClickEvent : public Base
+class ClickEvent : public ViewEvent
 {
 public:
-    ClickEvent(View* pView)
-    {
-        _pView = pView;
-    }
+    ClickEvent(View* pView) : ViewEvent(pView) {}
     
-    P<View> getView()
-    {
-        return _pView;
-    }
-    
-protected:
-    P<View>         _pView;
 };
     
 }

@@ -4,6 +4,7 @@
 #include <bdn/android/JView.h>
 #include <bdn/android/JContext.h>
 #include <bdn/android/JTextPaint.h>
+#include <bdn/android/JTextWatcher.h>
 #include <bdn/java/JString.h>
 
 namespace bdn
@@ -68,7 +69,7 @@ public:
     {
         static bdn::java::MethodId methodId;
 
-        return bdn::java::JString( invoke_<bdn::java::JCharSequence>(getStaticClass_(), methodId, "getText" ).getRef_() ).getValue_();
+        return invoke_<bdn::java::JCharSequence>(getStaticClass_(), methodId, "getText" ).toString();
     }
 
 
@@ -177,6 +178,68 @@ public:
 
         invoke_<void>(getStaticClass_(), methodId, "setTextAppearance", resId);
     }
+
+
+    /** Adds a text watcher to observe changes to editable text, see JEditText. */
+    void addTextChangedListener(JTextWatcher& watcher)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_ (), methodId, "addTextChangedListener", watcher);
+    }
+
+    void removeTextChangedListener(JTextWatcher& watcher)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_ (), methodId, "removeTextChangedListener", watcher);        
+    }
+
+
+    class OnEditorActionListener : public bdn::java::JObject
+    {
+    public:
+        /** @param javaRef the reference to the Java object.
+        *      The JObject instance will copy this reference and keep its type.
+        *      So if you want the JObject instance to hold a strong reference
+        *      then you need to call toStrong() on the reference first and pass the result.
+        *      */
+        explicit OnEditorActionListener(const bdn::java::Reference& javaRef)
+            : JObject(javaRef)
+        {
+        }
+
+        /** Returns the JClass object for this class.
+         *
+         *  Note that the returned class object is not necessarily unique for the whole
+         *  process.
+         *  You might get different objects if this function is called from different
+         *  shared libraries.
+         *
+         *  If you want to check for type equality then you should compare the type name
+         *  (see getTypeName() )
+         *  */
+        static bdn::java::JClass& getStaticClass_ ()
+        {
+            static bdn::java::JClass cls( "android/widget/TextView$OnEditorActionListener" );
+
+            return cls;
+        }
+
+        bdn::java::JClass& getClass_ () override
+        {
+            return getStaticClass_ ();
+        }
+    };
+
+    /** Adds a text watcher to observe changes to editable text, see JEditText. */
+    void setOnEditorActionListener(OnEditorActionListener& listener)
+    {
+        static bdn::java::MethodId methodId;
+
+        invoke_<void>(getStaticClass_ (), methodId, "setOnEditorActionListener", listener);
+    }
+
 
     /** Returns the JClass object for this class.s
      *

@@ -6,6 +6,7 @@
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ButtonCore.hh>
 #import <bdn/ios/TextViewCore.hh>
+#import <bdn/ios/TextFieldCore.hh>
 #import <bdn/ios/ScrollViewCore.hh>
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
@@ -59,6 +60,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+
+    else if(coreTypeName == TextField::getTextFieldCoreTypeName() )
+        return newObj<TextFieldCore>( cast<TextField>(pView) );
     
     else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
         return newObj<ScrollViewCore>( cast<ScrollView>(pView) );

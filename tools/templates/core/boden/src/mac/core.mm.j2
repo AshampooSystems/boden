@@ -1,0 +1,56 @@
+#include <bdn/init.h>
+
+#import <Cocoa/Cocoa.h>
+
+#import <bdn/mac/{{name}}Core.hh>
+
+
+@interface Bdn{{name}}ClickManager : NSObject
+
+    @property bdn::mac::{{name}}Core* p{{name}}Core;
+
+@end
+
+
+@implementation Bdn{{name}}ClickManager
+
+    -(void)set{{name}}Core:(bdn::mac::{{name}}Core*)pCore
+    {
+        _p{{name}}Core = pCore;
+    }
+
+    -(void)clicked
+    {
+        _p{{name}}Core->generateClick();
+    }
+
+@end
+
+
+
+namespace bdn
+{
+namespace mac
+{
+
+{{name}}Core::{{name}}Core({{name}}* pOuter{{name}})
+    : ChildViewCore(pOuter{{name}}, _createNs{{name}}(pOuter{{name}}))
+{
+    Bdn{{name}}ClickManager* clickMan = [Bdn{{name}}ClickManager alloc];
+    [clickMan set{{name}}Core:this];
+    _clickManager = clickMan;
+}
+
+void {{name}}Core::generateClick()
+{
+    P<{{name}}> pOuter{{name}} = cast<{{name}}>(getOuterViewIfStillAttached());
+    if(pOuter{{name}} != nullptr)
+    {    
+        bdn::ClickEvent evt(pOuter{{name}});
+        pOuter{{name}}->onClick().postNotification(evt);
+    }
+}
+
+
+}
+}

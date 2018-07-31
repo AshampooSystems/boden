@@ -1,0 +1,47 @@
+#ifndef BDN_GTK_{{name}}Core_H_
+#define BDN_GTK_{{name}}Core_H_
+
+#include <bdn/{{name}}.h>
+#include <bdn/I{{name}}Core.h>
+#include <bdn/gtk/ViewCore.h>
+#include <gtk/gtk.h>
+
+namespace bdn
+{
+namespace gtk
+{
+
+class {{name}}Core : public ViewCore, BDN_IMPLEMENTS I{{name}}Core
+{
+public:
+    {{name}}Core(View* pOuter)
+    : ViewCore(pOuter, gtk_{{varName}}_new())
+    {
+        g_signal_connect(getGtkWidget(), "clicked", G_CALLBACK(clickedCallback), this);
+    }
+    
+    void generateClick()
+    {
+        P<View> pView = getOuterViewIfStillAttached();
+        if(pView!=nullptr)
+        {
+            ClickEvent evt(pView);
+
+            cast<{{name}}>(pView)->onClick().postNotification(evt);
+        }
+    }
+
+protected:
+
+    static void clickedCallback(GtkWidget* pWidget, gpointer pParam)
+    {
+        (({{name}}Core*)pParam)->generateClick();
+    }   
+    
+};
+
+
+}
+}
+
+#endif // BDN_GTK_{{name}}Core_H_

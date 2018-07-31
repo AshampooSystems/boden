@@ -1,0 +1,39 @@
+#ifndef BDN_MAC_{{name}}Core_HH_
+#define BDN_MAC_{{name}}Core_HH_
+
+#include <bdn/{{name}}.h>
+#include <bdn/I{{name}}Core.h>
+#include <bdn/mac/ChildViewCore.hh>
+
+@class Bdn{{name}}ClickManager;
+
+namespace bdn
+{
+namespace mac
+{
+
+class {{name}}Core : public ChildViewCore, BDN_IMPLEMENTS I{{name}}Core
+{
+private:
+    static {{nativeControlName}}* _createNs{{name}}({{name}}* pOuter{{name}})
+    {
+        {{nativeControlName}}* {{varName}} = [[{{nativeControlName}} alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+        
+        return {{varName}};
+    }
+    
+
+public:
+    {{name}}Core({{name}}* pOuter{{name}});
+    
+    void generateClick();
+    
+private:
+    Bdn{{name}}ClickManager* _clickManager;
+};
+
+}
+}
+
+
+#endif // BDN_MAC_{{name}}Core_HH_

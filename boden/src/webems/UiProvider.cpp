@@ -10,6 +10,7 @@
 #include <bdn/webems/ContainerViewCore.h>
 #include <bdn/webems/ButtonCore.h>
 #include <bdn/webems/TextViewCore.h>
+#include <bdn/webems/TextFieldCore.h>
 #include <bdn/webems/WindowCore.h>
 #include <bdn/webems/ScrollViewCore.h>
 
@@ -48,6 +49,9 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
+
+    else if(coreTypeName == TextField::getTextFieldCoreTypeName() )
+        return newObj<TextFieldCore>( cast<TextField>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( cast<Window>(pView) );

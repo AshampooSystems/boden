@@ -6,6 +6,7 @@
 #include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
 #include <bdn/test/MockTextViewCore.h>
+#include <bdn/test/MockTextFieldCore.h>
 #include <bdn/test/MockScrollViewCore.h>
 
 
@@ -42,6 +43,12 @@ P<IViewCore> MockUiProvider::createViewCore(const String& coreTypeName, View* pV
 		_coresCreated++;
 
 		return newObj<MockTextViewCore>( cast<TextView>(pView) );
+	}
+    else if(coreTypeName==TextField::getTextFieldCoreTypeName())
+	{
+		_coresCreated++;
+
+		return newObj<MockTextFieldCore>( cast<TextField>(pView) );
 	}
     else if(coreTypeName==ScrollView::getScrollViewCoreTypeName())
 	{

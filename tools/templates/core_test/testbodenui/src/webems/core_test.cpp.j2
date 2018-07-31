@@ -1,0 +1,32 @@
+#include <bdn/init.h>
+#include <bdn/test.h>
+
+#include <bdn/{{name}}.h>
+#include <bdn/Window.h>
+#include <bdn/test/Test{{name}}Core.h>
+#include "TestWebemsViewCoreMixin.h"
+
+using namespace bdn;
+
+class TestWebems{{name}}Core : public bdn::test::TestWebemsViewCoreMixin< bdn::test::Test{{name}}Core >
+{
+protected:
+    // TODO: implement property verifiers, e.g.:
+
+    /*void verifyCoreLabel() override
+    {
+        String expectedLabel = _p{{name}}->label();
+
+        emscripten::val contentObj = _domObject["textContent"];
+        REQUIRE( !contentObj.isUndefined() );
+
+        String label = contentObj.as<std::string>();
+        REQUIRE( label == expectedLabel );
+    }*/
+};
+
+TEST_CASE("webems.{{name}}Core")
+{
+    P<TestWebems{{name}}Core> pTest = newObj<TestWebems{{name}}Core>();
+    pTest->runTests();
+}

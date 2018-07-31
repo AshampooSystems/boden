@@ -1,0 +1,34 @@
+#include <bdn/init.h>
+#include <bdn/test.h>
+
+#include <bdn/{{name}}.h>
+#include <bdn/Window.h>
+#include <bdn/test/Test{{name}}Core.h>
+#include "TestGtkViewCoreMixin.h"
+
+using namespace bdn;
+
+
+class TestGtk{{name}}Core : public bdn::test::TestGtkViewCoreMixin< bdn::test::Test{{name}}Core >
+{
+protected:
+
+	// TODO: verify your properties, e.g.:
+
+    /*void verifyCoreLabel() override
+    {
+        String expectedLabel = _p{{name}}->label();
+        String label = gtk_{{name}}_get_label(GTK_{{name}}(_pGtkWidget));
+        REQUIRE(label == expectedLabel);
+    }*/
+};
+
+TEST_CASE("gtk.{{name}}Core")
+{
+    P<TestGtk{{name}}Core> pTest = newObj<TestGtk{{name}}Core>();
+    pTest->runTests();
+}
+
+
+
+

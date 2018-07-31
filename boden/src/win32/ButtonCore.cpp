@@ -62,8 +62,8 @@ Size ButtonCore::calcPreferredSize( const Size& availableSpace ) const
 
 	// size for the 3D border around the button. Note that prefSize is in DIPs,
     // so it is ok to add the values unscaled.
-	prefSize.width += ::GetSystemMetrics(SM_CXEDGE) * 2;
-	prefSize.height += ::GetSystemMetrics(SM_CYEDGE) * 2;
+	prefSize.width += ::GetSystemMetrics(SM_CXBORDER) * 2;
+	prefSize.height += ::GetSystemMetrics(SM_CYBORDER) * 2;
 
 	// size for the focus rect and one pixel of free space next to it
 	prefSize.width += 2 * 2;

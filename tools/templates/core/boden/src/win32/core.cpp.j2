@@ -1,0 +1,44 @@
+#include <bdn/init.h>
+#include <bdn/win32/{{name}}Core.h>
+
+#include <bdn/win32/WindowDeviceContext.h>
+
+namespace bdn
+{
+namespace win32
+{
+
+{{name}}Core::{{name}}Core({{name}}* pOuter)
+             : ViewCore(pOuter, 
+                        "<PUT_YOUR_WINDOW_CLASS_HERE>", // TODO: put correct class here
+                        NULL, // TODO: specify window name here
+                        WS_CHILD, // TODO: put right flags here
+                        0)
+{
+}
+
+// TODO: implement setters defined in I{{name}}Core
+
+Size {{name}}Core::calcPreferredSize(const Size& availableSpace) const
+{
+    Size prefSize;
+
+    // TODO: Implement calculation of preferred size; see other core implementations for reference
+
+    return prefSize;
+}
+
+void {{name}}Core::handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if(message==WM_COMMAND)
+    {
+        // TODO: Implement handlers
+    }
+
+    return ViewCore::handleParentMessage(context, windowHandle, message, wParam, lParam);
+}
+
+}
+}
+
+

@@ -4,6 +4,7 @@
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
 #include <bdn/ScrollView.h>
+#include <bdn/TextField.h>
 
 #include <bdn/appInit.h>
 #include <bdn/AppControllerBase.h>
@@ -18,12 +19,16 @@ class Model : public Base
 public:
     Model()
     {
+        setUserText("Edit me");
+        
         _morphingTextCounter = -1;
         changeMorphingText();
     }
     
     BDN_PROPERTY(int, helloCounter, setHelloCounter );
 
+    BDN_PROPERTY( String, userText, setUserText );
+    
     /** A text that changes when changeMorphingText is called.
         The different text variations are significantly different in their length.*/
     BDN_PROPERTY( String, morphingText, setMorphingText );
@@ -58,6 +63,10 @@ public:
         // model's read-write morphingText property
         BDN_BIND_TO_PROPERTY( *this, setMorphingText, *_pModel, morphingText );
         
+        // do a two-way binding between the userText properties of the model and view model
+        BDN_BIND_TO_PROPERTY( *this, setUserText, *_pModel, userText);
+        BDN_BIND_TO_PROPERTY( *_pModel, setUserText, *this, userText );
+        
         // connect our helloMessage to the helloCounter.
         // Note that we use a filter here to transform the integer counter
         // to a string for our property.
@@ -74,6 +83,8 @@ public:
     
     BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, helloMessage, protected, setHelloMessage );
     BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, morphingText, protected, setMorphingText );
+
+    BDN_PROPERTY( String, userText, setUserText );
     
     void increaseHelloCounter()
     {
@@ -113,6 +124,23 @@ public:
 
 		pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
+
+        _pUserTextField = newObj<TextField>();
+        BDN_BIND_TO_PROPERTY( *_pUserTextField, setText, *pViewModel, userText );
+        BDN_BIND_TO_PROPERTY( *pViewModel, setUserText, *_pUserTextField, text );
+        
+        _pUserTextField->setMargin( UiMargin(UiLength::sem(1) ) );
+        _pUserTextField->setHorizontalAlignment( View::HorizontalAlignment::expand );
+        _pUserTextField->onSubmit().subscribeParamless( weakMethod(this, &MainViewController::textFieldSubmitted) );
+        pColumnView->addChildView(_pUserTextField);
+
+        _pUserTextView = newObj<TextView>();
+        
+        BDN_BIND_TO_PROPERTY( *_pUserTextView, setText, *_pViewModel, userText);
+                               
+        _pUserTextView->setMargin( UiMargin(UiLength::sem(1)) );
+        _pUserTextView->setHorizontalAlignment( View::HorizontalAlignment::center );
+        pColumnView->addChildView(_pUserTextView);
 
         _pMorphingTextView = newObj<TextView>();
 
@@ -163,7 +191,12 @@ protected:
             {
                 pWindow->requestAutoSize();
             } );
-
+    }
+    
+    void textFieldSubmitted()
+    {
+        _pViewModel->increaseHelloCounter();
+        _pViewModel->changeMorphingText();
     }
 
     P<ViewModel>    _pViewModel;
@@ -171,9 +204,13 @@ protected:
     P<Window>       _pWindow;
     P<Button>	    _pHelloMessageButton;
     
+    P<TextField>    _pUserTextField;
+    P<TextView>     _pUserTextView;
+
     P<TextView>     _pMorphingTextView;
     P<ScrollView>   _pScrollView;
     P<TextView>     _pScrolledTextView;
+
 };
 
 

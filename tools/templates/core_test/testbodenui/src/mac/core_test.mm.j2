@@ -1,0 +1,48 @@
+#include <bdn/init.h>
+#include <bdn/test.h>
+
+#include <bdn/{{name}}.h>
+#include <bdn/Window.h>
+#include <bdn/test/Test{{name}}Core.h>
+
+#import "TestMacChildViewCoreMixin.hh"
+
+using namespace bdn;
+
+
+class TestMac{{name}}Core : public bdn::test::TestMacChildViewCoreMixin< bdn::test::Test{{name}}Core >
+{
+protected:
+
+    void initCore() override
+    {
+        bdn::test::TestMacChildViewCoreMixin< bdn::test::Test{{name}}Core >::initCore();
+        
+        _pNS{{name}} = (NS{{name}}*) _pNSView;
+        REQUIRE( _pNS{{name}}!=nullptr );
+    }
+
+    
+    void verifyCoreLabel() override
+    {
+        String expectedLabel = _p{{name}}->label();
+        
+        String label = bdn::mac::macStringToString( _pNS{{name}}.title );
+        
+        REQUIRE( label == expectedLabel );
+    }
+    
+protected:
+    NS{{name}}* _pNS{{name}};
+};
+
+TEST_CASE("mac.{{name}}Core")
+{
+    P<TestMac{{name}}Core> pTest = newObj<TestMac{{name}}Core>();
+    
+    pTest->runTests();
+}
+
+
+
+

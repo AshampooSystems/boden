@@ -1,0 +1,53 @@
+#include <bdn/init.h>
+#include <bdn/test.h>
+
+#include <bdn/{{name}}.h>
+#include <bdn/Window.h>
+#include <bdn/test/Test{{name}}Core.h>
+#include <bdn/winuwp/UiProvider.h>
+#include <bdn/winuwp/{{name}}Core.h>
+#include "TestWinuwpViewCoreMixin.h"
+
+using namespace bdn;
+
+
+class TestWinuwp{{name}}Core : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::Test{{name}}Core >
+{
+protected:
+
+    void initCore() override
+    {
+        TestWinuwpViewCoreMixin< Test{{name}}Core >::initCore();
+
+        _pWin{{name}} = dynamic_cast<::Windows::UI::Xaml::Controls::{{name}}^>( _pWinFrameworkElement );
+        REQUIRE( _pWin{{name}}!=nullptr );
+    }
+
+    UiMargin getExpectedDefaultPadding() override
+    {
+        return UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
+    }
+
+    void verifyCorePadding() override
+    {
+        verifyIsExpectedWinPadding( ((::Windows::UI::Xaml::Controls::TextBlock^)_pWin{{name}}->Content)->Padding );
+    }
+
+    // TODO: implement property verifiers, e.g.:
+
+    /*void verifyCoreLabel() override
+    {
+        String expectedLabel = _p{{name}}->label();
+        String label = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( _pWin{{name}}->Content )->Text->Data();                
+        REQUIRE( label == expectedLabel );
+    }*/
+
+    ::Windows::UI::Xaml::Controls::{{name}}^ _pWin{{name}};
+};
+
+TEST_CASE("winuwp.{{name}}Core")
+{
+    P<TestWinuwp{{name}}Core> pTest = newObj<TestWinuwp{{name}}Core>();
+
+    pTest->runTests();
+}
