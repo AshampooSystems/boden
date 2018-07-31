@@ -13,7 +13,20 @@ import time;
 import tempfile;
 import zipfile
 import stat
+import random
 
+android_build_api_version = "26"
+
+# note that the build tool version does NOT have to match the API version
+android_build_tools_version = "26.0.2"
+
+android_emulator_api_version = "26"
+
+
+ios_simulator_device_type = "iPhone-7"
+ios_simulator_os = "iOS-11-4"
+
+emscripten_version = "1.38.0-64bit"
 
 
 EXIT_PROGRAM_ARGUMENT_ERROR = 1;
@@ -21,7 +34,6 @@ EXIT_CMAKE_PROBLEM = 10;
 EXIT_TOOL_FAILED = 11;
 EXIT_INCORRECT_CALL = 12;
 EXIT_PREPARED_STATE_ERROR = 13;
-
 
 
 platformList = [ ("winuwp", "Universal Windows app (Windows 10 and later)" ),
@@ -674,14 +686,14 @@ task clean(type: Delete) {
 
 
 
-    def generateModule(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, userFriendlyModuleName, dependencyList, isLibrary):        
+    def generateModule(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, userFriendlyModuleName, dependencyList, isLibrary, android_abi):        
 
         moduleDir = os.path.join(self._projectDir, projectModuleName);
         if not os.path.isdir(moduleDir):
             os.makedirs(moduleDir);
 
         with open( os.path.join(moduleDir, "build.gradle"), "w" ) as f:
-            f.write( self.getModuleBuildGradleCode(projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
+            f.write( self.getModuleBuildGradleCode(projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary, android_abi ) )
 
         #with open( os.path.join(moduleDir, "CMakeLists.txt"), "w" ) as f:
         #    f.write( self.getModuleCMakeListsCode(packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary ) )
@@ -756,7 +768,7 @@ task clean(type: Delete) {
 
 
 
-    def getModuleBuildGradleCode(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary):
+    def getModuleBuildGradleCode(self, projectModuleName, packageId, moduleName, additionalSourceModuleNames, dependencyList, isLibrary, android_abi):
 
 
         if isLibrary:
@@ -809,17 +821,17 @@ task clean(type: Delete) {
 
         srcDirCode += " ]";
 
-
+        global android_build_api_version
 
         return """
 apply plugin: '$$PluginName$$'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion $$BuildSdkVersion$$
     defaultConfig {
         $$AppIdCode$$
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion $$BuildSdkVersion$$
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
@@ -827,7 +839,7 @@ android {
                 targets $$CmakeTargets$$
                 arguments "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"
                 cppFlags "-std=c++11 -frtti -fexceptions"     
-                abiFilters 'x86' //, 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+                abiFilters '$$AndroidAbi$$' //'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
             }
         }
     }
@@ -859,7 +871,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:appcompat-v7:$$BuildSdkVersion$$.+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
 $$ModuleDependencyCode$$
@@ -867,6 +879,8 @@ $$ModuleDependencyCode$$
 
 
 """ .replace("$$AppIdCode$$", appIdCode) \
+    .replace("$$BuildSdkVersion$$", android_build_api_version) \
+    .replace("$$AndroidAbi$$", android_abi) \
     .replace("$$PluginName$$", pluginName) \
     .replace("$$CmakeTargets$$", cmakeTargets) \
     .replace("$$ModuleName$$", moduleName) \
@@ -1007,10 +1021,60 @@ target_link_libraries( # Specifies the target library.
     .replace("$$IncludeDirCode$$", includeDirCode )
 
 
-
+def arch_to_android_abi(arch):
+    if arch=="std":
+        return "x86_64"
+    else:
+        return arch
 
 
 def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
+
+
+    android_abi = arch_to_android_abi(arch)
+
+    # first we ensure that we have all the necessary tools and sdks installed
+    android_home_dir = get_android_home_dir()
+
+    sdk_manager_path = os.path.join(android_home_dir, "tools", "bin", "sdkmanager")
+    if not os.path.exists(sdk_manager_path):
+        raise Exception("sdkmanger not found. Expected here: "+sdk_manager_path)
+
+    global android_build_tools_version    
+    global android_build_api_version
+
+    env = {}
+    env.update( os.environ )
+    env["ANDROID_HOME"] = android_home_dir
+
+    print("-- Ensuring that all android license agreements are accepted...", file=sys.stderr)
+
+    # first we accept all license, so that we do not get an interactive prompt
+    licenses_call = subprocess.Popen( '"%s" --licenses' % sdk_manager_path, shell=True, env=env, stdin=subprocess.PIPE )
+
+    licenses_input_data = ""
+    for i in range(100):
+        licenses_input_data += "y\n"
+    licenses_call.communicate(licenses_input_data)
+
+    print("-- Done updating licenses.", file=sys.stderr)
+
+    print("-- Ensuring that all necessary android packages are installed...", file=sys.stderr)
+
+    sdk_man_command = '"%s" "platform-tools" "ndk-bundle" "extras;android;m2repository" "extras;google;m2repository" "build-tools;%s" "platforms;android-%s"' % (
+        sdk_manager_path,
+        android_build_tools_version,
+        android_build_api_version )
+
+    # the following package is needed for emulation only. But we install it during preparation anyway
+    # to ensure that it actually exists (otherwise we would only find out that we cannot emulate
+    # this combination after we have built everything)
+    sdk_man_command += ' "system-images;android-%s;google_apis;%s"' % (android_emulator_api_version, android_abi)
+
+    subprocess.check_call( sdk_man_command, shell=True, env=env )
+
+    print("-- Done updating packages.", file=sys.stderr)
+
 
     # The way Android Studio builds projects with native code has changed
     # quite a bit over time. It used to be very messy, requiring experimental
@@ -1025,13 +1089,20 @@ def prepareAndroid(platform, config, arch, platformBuildDir, buildSystem):
     gen = AndroidStudioProjectGenerator(platformBuildDir);
 
     gen.generateTopLevelProject(["boden", "app", "testboden", "testbodenui", "testbodentiming"]);
-    gen.generateModule("boden", "io.boden.android.boden", "boden", [], "Boden", [], True)
-    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", [], "UIDemo", ["boden"], False)
-    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", ["testboden_common"], "TestBoden", ["boden"], False)
-    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", ["testboden_common"], "TestBodenUI", ["boden"], False)
-    gen.generateModule("testbodentiming", "io.boden.android.testbodentiming", "testbodentiming", ["testboden_common"], "TestBodenTiming", ["boden"], False)
+    gen.generateModule("boden", "io.boden.android.boden", "boden", [], "Boden", [], True, android_abi)
+    gen.generateModule("app", "io.boden.android.uidemo", "uidemo", [], "UIDemo", ["boden"], False, android_abi)
+    gen.generateModule("testboden", "io.boden.android.testboden", "testboden", ["testboden_common"], "TestBoden", ["boden"], False, android_abi)
+    gen.generateModule("testbodenui", "io.boden.android.testbodenui", "testbodenui", ["testboden_common"], "TestBodenUI", ["boden"], False, android_abi)
+    gen.generateModule("testbodentiming", "io.boden.android.testbodentiming", "testbodentiming", ["testboden_common"], "TestBodenTiming", ["boden"], False, android_abi)
 
 
+    # At the time of this writing, Android Studio will not detect when new source files
+    # have been added (even if we do a gradle sync, syncs on the cmake file, etc.).
+    # To force re-detection of that we delete the .idea folder.
+    idea_dir = os.path.join( platformBuildDir, ".idea")
+    if os.path.exists(idea_dir):
+        print("Deleting .idea folder in build dir to force re-detection of files.", file=sys.stderr)
+        shutil.rmtree( idea_dir )
 
 
     
@@ -1196,7 +1267,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
 
         emsdkExePath = os.path.join(emsdkDir, "emsdk");
 
-        ver = "1.38.0-64bit"
+        global emscripten_version
 
         # store the prepared emscripten version in the build dir.
         # If the version changes then we have to clean it completely.
@@ -1206,12 +1277,12 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
         if os.path.isfile(emsVersionFilePath):
             with open(emsVersionFilePath, "rb") as f:
                 preparedForVersion = f.read().decode("utf-8")
-                if preparedForVersion==ver:
+                if preparedForVersion==emscripten_version:
                     versionChanged = False
 
-        ensure_emscripten_version_active( ver )
+        ensure_emscripten_version_active( emscripten_version )
            
-        print("Emscripten %s is active." % ver, file=sys.stderr);
+        print("Emscripten %s is active." % emscripten_version, file=sys.stderr);
 
         if sys.platform=="win32":
             envSetupPrefix = '"%s" activate latest && ' % emsdkExePath;
@@ -1259,7 +1330,7 @@ def prepareCmake(platform, config, arch, platformBuildDir, buildSystem):
             os.makedirs(cmakeBuildDir)
 
         with open(emsVersionFilePath, "wb") as f:
-            f.write( ver.encode("utf-8") )
+            f.write( emscripten_version.encode("utf-8") )
 
         toolChainFileName = "Emscripten.cmake";
 
@@ -1491,9 +1562,12 @@ def commandBuildOrClean(command, args):
                         gradle_command = "assembleDebug"
 
                 commandline = '"%s" %s' % (gradle_wrapper_path, gradle_command)
-                
 
-                exitCode = subprocess.call(commandline, shell=True, cwd=buildDirForConfig);
+                android_env = {}
+                android_env.update( os.environ )
+                android_env["ANDROID_HOME"] = get_android_home_dir()
+
+                exitCode = subprocess.call(commandline, shell=True, cwd=buildDirForConfig, env=android_env);
                 if exitCode!=0:
                     raise ToolFailedError("gradlew "+gradle_command, exitCode);
 
@@ -1564,6 +1638,23 @@ def wait_for_xcode_simulator_status(sim_id, wait_for_status, timeout_seconds):
 
         time.sleep(1)
 
+def get_android_home_dir():
+    android_home_dir = os.environ.get("ANDROID_HOME")
+    if not android_home_dir:
+        if sys.platform == "darwin":
+            
+            android_home_dir = os.path.expanduser("~/Library/Android/sdk")
+
+            if os.path.exists(android_home_dir):
+                print("Android home directory automatically detected as: "+android_home_dir, file=sys.stderr)
+            else:
+                android_home_dir = None
+
+    if not android_home_dir:                    
+        raise Exception("ANDROID_HOME environment variable is not set. Please point it to the root of the android SDK installation.")
+
+    return android_home_dir
+
 
 def commandRun(args):
 
@@ -1593,7 +1684,7 @@ def commandRun(args):
 
         commandIsInQuote = False;
 
-        stdOutFileHandled = False
+        runOutputFileHandled = False
 
         if not args.config:
             configList = ["Debug", "Release"];
@@ -1613,6 +1704,7 @@ def commandRun(args):
 
 
             commandLine = None;
+
 
             if platformName=="win32":
                 moduleFilePath += ".exe";
@@ -1644,10 +1736,11 @@ def commandRun(args):
 
                     print("-- Creating simulator device...", file=sys.stderr);
 
-                    sim_device = "iPhone-7"
-                    sim_os = "iOS-11-4"
+                    global ios_simulator_device_type
+                    global ios_simulator_os
+                    
 
-                    create_sim_commandline = "xcrun simctl create bdnTestSim com.apple.CoreSimulator.SimDeviceType.%s com.apple.CoreSimulator.SimRuntime.%s" % (sim_device, sim_os)
+                    create_sim_commandline = "xcrun simctl create bdnTestSim com.apple.CoreSimulator.SimDeviceType.%s com.apple.CoreSimulator.SimRuntime.%s" % (ios_simulator_device_type, ios_simulator_os)
 
                     sim_id = subprocess.check_output(create_sim_commandline, shell=True).strip()
 
@@ -1681,8 +1774,8 @@ def commandRun(args):
 
                         # --console connects the app's stdout and stderr to ours and blocks indefinitely
                         stdout_option = ""
-                        if args.stdout_file:
-                            abs_stdout_path = os.path.abspath(args.stdout_file);
+                        if args.run_output_file:
+                            abs_stdout_path = os.path.abspath(args.run_output_file);
                             if os.path.exists(abs_stdout_path):
                                 os.remove(abs_stdout_path)
                             
@@ -1703,9 +1796,34 @@ def commandRun(args):
 
                         print("Process id inside simulator is: "+process_id, file=sys.stderr);
 
-                        # now we loop indefinitely (and print the app's log output to our stdout)
+                        # now we loop until the created process inside the simulator exits.
+                        # Note that just switching to home screen does NOT close the process. The process either
+                        # has to be killed within the UI, or it has to kill itself.
+                        # For boden unit tests use --force-exit-at-end
 
-                        print("\n!!! Waiting until we are killed -- will not exit automatically !!!\n", file=sys.stderr);
+                        print("\n-- Waiting until process %s inside simulator exits... \n" % process_id, file=sys.stderr);
+
+                        while True:
+
+                            proc_list_output = subprocess.check_output('xcrun simctl spawn "%s" launchctl list' % sim_id, shell=True)
+
+                            found_process = False
+                            for line in proc_list_output.splitlines():
+
+                                line_words = line.split()
+
+                                if line_words[0]==process_id and bundle_id in line:
+                                    found_process = True
+                                    break
+
+                            
+                            if not found_process:
+                                print("-- Process inside simulator has exited.", file = sys.stderr)
+                                break
+
+                            time.sleep(2)
+
+
 
                         # note that we could also poll the process list and wait for the app's process
                         # to terminate. However, that does not happen automatically, unless the app crashes
@@ -1715,16 +1833,16 @@ def commandRun(args):
                         # we would get output like this: 11538  0   UIKitApplication:BUNDLE_ID[0x8cd3][PROCESS_ID]
                         # If the process is gone then the entry is not in the list.
 
-                        predicate = "'processID == %s'" % process_id
+                        #predicate = "'processID == %s'" % process_id
                         #predicate = "'processImagePath contains %s'" % bundle_id
-                        log_stream_commandline = "xcrun simctl spawn '%s' log stream --level=debug --predicate %s" % (sim_id, predicate)
-                        log_stream_process = subprocess.Popen(log_stream_commandline, shell=True)
+                        #log_stream_commandline = "xcrun simctl spawn '%s' log stream --level=debug --predicate %s" % (sim_id, predicate)
+                        #log_stream_process = subprocess.Popen(log_stream_commandline, shell=True)
 
-                        log_stream_process.wait()
+                        #log_stream_process.wait()
 
                     finally:
 
-                        print("\n\nShutting down simulator", file=sys.stderr);
+                        print("\nShutting down simulator", file=sys.stderr);
                         subprocess.call('xcrun simctl shutdown "%s"' % sim_id, shell=True );
 
                         # note that shutdown automatically waits until the simulator has finished shutting down
@@ -1732,51 +1850,68 @@ def commandRun(args):
                         print("Deleting simulator device.", file=sys.stderr);
                         subprocess.call('xcrun simctl delete "%s"' % sim_id, shell=True)
 
-
+                    return
 
                     
 
             elif platformName=="android":
 
-                if args.stdout_file:
-                    raise Exception("Redirecting stdout to a file is currently not implemented for android.")
+                if args.run_output_file and not args.run_android_fetch_output_from:
+                    raise Exception("For android, --run-output-file can only be used with --run-android-fetch-output-from.")
 
-                android_api_version = "26"
+                global android_emulator_api_version
+                
 
-                # the android ARM emulator is REALLY slow - almost unusable. So we use x86 by default
-                android_abi = "x86"
-
+                android_abi = arch_to_android_abi(arch)
 
                 moduleFilePath = os.path.join(moduleFilePath, "build", "outputs", "apk", config.lower(), args.module+"-"+config.lower()+".apk")
 
                 if not os.path.exists(moduleFilePath):
                     raise Exception("APK not found - expected here: "+moduleFilePath)
 
-                android_home_dir = os.environ.get("ANDROID_HOME")
-                if not android_home_dir:
-                    raise Exception("ANDROID_HOME environment variable is not set. Please point it to the root of the android SDK installation.")
+                android_home_dir = get_android_home_dir()
 
                 avd_manager_path = os.path.join(android_home_dir, "tools", "bin", "avdmanager")
                 if not os.path.exists(avd_manager_path):
                     raise Exception("avdmanager not found. Expected here: "+avd_manager_path)
 
-                emulator_path = os.path.join(android_home_dir, "emulator", "emulator")
-                if not os.path.exists(emulator_path):
-                    raise Exception("Android emulator executable not found. Expected here: "+emulator_path)
-
                 adb_path = os.path.join(android_home_dir, "platform-tools", "adb")
                 if not os.path.exists(adb_path):
                     raise Exception("Android ADB executable not found. Expected here: "+adb_path)
 
-                
+                sdk_manager_path = os.path.join(android_home_dir, "tools", "bin", "sdkmanager")
+                if not os.path.exists(sdk_manager_path):
+                    raise Exception("sdkmanger not found. Expected here: "+sdk_manager_path)
+
+                android_env = {}
+                android_env.update( os.environ )
+                android_env["ANDROID_HOME"] = android_home_dir
+
+                print("-- Ensuring that all necessary android packages are installed...", file=sys.stderr)
+
+                sdk_man_command = '"%s" "emulator" "system-images;android-%s;google_apis;%s"' % (
+                    sdk_manager_path,
+                    android_emulator_api_version,
+                    android_abi )
+
+                subprocess.check_call( sdk_man_command, shell=True, env=android_env )
+
+                print("-- Done updating packages.", file=sys.stderr)
+
+                emulator_path = os.path.join(android_home_dir, "emulator", "emulator")
+                if not os.path.exists(emulator_path):
+                    raise Exception("Android emulator executable not found. Expected here: "+emulator_path)
+
+                device_name = "bdnTestAVD"+str(random.getrandbits(32))
 
                 # create the virtual device that we want to use for the emulator.
                 # --force causes an existing device to be overwritten.
-                print("-- Creating virtual device for emulator...", file=sys.stderr)
-                create_device_command = '"%s" create avd --name bdnTestAVD --force --abi google_apis/%s --package "system-images;android-%s;google_apis;%s"' % \
+                print("-- Creating virtual device %s for emulator..." % device_name, file=sys.stderr)
+                create_device_command = '"%s" create avd --name "%s" --force --abi google_apis/%s --package "system-images;android-%s;google_apis;%s"' % \
                     (   avd_manager_path,
+                        device_name,
                         android_abi,
-                        android_api_version,
+                        android_emulator_api_version,
                         android_abi )
 
                 # avdmanager will ask us wether we want to create a custom profile. We do not want that,
@@ -1787,142 +1922,253 @@ def commandRun(args):
                     os.close(answer_file)
 
                     with open(answer_file_path, "r") as answer_file:
-                        subprocess.check_call(create_device_command, shell=True, stdin=answer_file)
+                        subprocess.check_call(create_device_command, shell=True, stdin=answer_file, env=android_env)
 
                 finally:
                     os.remove(answer_file_path)
 
-
-                print("-- Starting emulator...", file=sys.stderr);
-
-                gpu_option = "auto"
-
-                # For some reason, GPU acceleration does not work inside a Parallels VM for linux.
-                # "auto" will cause the emulator to exit with an error.
-                if sys.platform=="linux2":
-                    output = subprocess.check_output("lspci | grep VGA", shell=True);
-                    if output.find("Parallels")!=-1:
-                        print("-- WARNING: Disabling GPU acceleration because we are running in a Parallels Desktop Linux VM.", file=sys.stderr);
-                        gpu_option = "off"
-
-
-                # Note: the -logcat parameter can be used to cause the android log
-                # to be written to the process stdout. For example, "-logcat *:e" prints
-                # all messages of any log source that have the "error" log level.
-                # However, the logging is very spammy - lots of things that are only
-                # informational messages get logged as errors. So it is recommended
-                # to only use this parameter for specific log sources (also called "tags")
-                # For example "-logcat myapp:w" would enable all messages with log level warning
-                # or higher from the log source "myapp".
-                start_emulator_command = '"%s" -avd bdnTestAVD -gpu %s' % \
-                    (   emulator_path,
-                        gpu_option )
-
-                # the emulator process will not exit. So we just open it without
-                # waiting.
-                emulator_process = subprocess.Popen(start_emulator_command, shell=True )
-
-                success = False
-
                 try:
 
-                    # wait for the emulator  to finish booting (at most 60 seconds)
-                    print("-- Waiting for android emulator to finish booting...", file=sys.stderr);
-                    timeout_seconds = 120
-                    timeout_time = time.time()+timeout_seconds
-                    while True:
+                    print("-- Starting emulator...", file=sys.stderr);
 
-                        boot_anim_state_command = '"%s" shell getprop init.svc.bootanim' % adb_path
+                    gpu_option = "auto"
 
-                        # at first the command will fail, until the emulator process has initialized.
-                        # Then we will get a proper output, that will not be "stopped" while we boot.
-                        # Then, after the boot has completed, we will get "stopped"
-
+                    # For some reason, GPU acceleration does not work inside a Parallels VM for linux.
+                    # "auto" will cause the emulator to exit with an error.
+                    if sys.platform=="linux2":
                         try:
-                            output = subprocess.check_output(boot_anim_state_command, stderr=subprocess.STDOUT, shell=True)                            
-                            state_error = False
-                        except subprocess.CalledProcessError as e:                            
-                            output = e.output
-                            state_error = True
-
-                        output = str(output)
-                        output = output.strip()
-
-
-                        if output=="" and not state_error:
-                            # this happens between the "initializing" states and
-                            # the boot starting-
-                            emulator_state = "transitioning"
-
-                        elif output=="running":
-                            emulator_state = "booting"
-
-                        elif output=="stopped":
-                            emulator_state = "boot finished"
-
-                        elif output.find("no devices/emulators found")!=-1:
-                            emulator_state = "initializing (no devices yet)"
-
-                        elif output.find("device offline")!=-1:
-                            emulator_state = "initializing (device not yet online)"
-
-                        else:
-                            raise Exception("Unrecognized boot animation state output: "+output)
-
-                        print("-- Emulator state: "+emulator_state, file=sys.stderr)
-                        
-                        if emulator_state=="boot finished":
-                            # done booting
-                            break
-
-                        # all other states indicate that either the emulator is still initializing
-                        # or that the boot process has not finished yet.
-
-                        if time.time()>=timeout_time:
-                            raise Exception("Android emulator did not finish booting within %d seconds. Last state output:\n%s" % (timeout_seconds, output) ) 
-
-                        time.sleep(5)
+                            output = subprocess.check_output("lspci | grep VGA", shell=True, env=android_env);
+                            if output.find("Parallels")!=-1:
+                                print("-- WARNING: Disabling GPU acceleration because we are running in a Parallels Desktop Linux VM.", file=sys.stderr);
+                                gpu_option = "off"
+                        except subprocess.CalledProcessError:
+                            # if the lspci utility is not there then we simply assume that we are not in a parallels VM and do nothing.
+                            pass
 
 
-                    print("-- Waiting 10 seconds...", file=sys.stderr)
-                    time.sleep(10)
+                    # Note: the -logcat parameter can be used to cause the android log
+                    # to be written to the process stdout. For example, "-logcat *:e" prints
+                    # all messages of any log source that have the "error" log level.
+                    # However, the logging is very spammy - lots of things that are only
+                    # informational messages get logged as errors. So it is recommended
+                    # to only use this parameter for specific log sources (also called "tags")
+                    # For example "-logcat myapp:w" would enable all messages with log level warning
+                    # or higher from the log source "myapp".
+                    start_emulator_command = '"%s" -avd %s -gpu %s' % \
+                        (   emulator_path,
+                            device_name,
+                            gpu_option )
+
+                    # the emulator process will not exit. So we just open it without
+                    # waiting.
+                    emulator_process = subprocess.Popen(start_emulator_command, shell=True, env=android_env )
+
+                    emulator_exited = False
+
+                    try:
+
+                        # wait for the emulator  to finish booting (at most 60 seconds)
+                        print("-- Waiting for android emulator to finish booting...", file=sys.stderr);
+                        # ARM emulators are REALLY slow. So we need a bigger timeout for them 
+                        timeout_seconds = 120 if android_abi.startswith("x86") else 600
+                        timeout_time = time.time()+timeout_seconds
+                        while True:
+
+                            boot_anim_state_command = '"%s" shell getprop init.svc.bootanim' % adb_path
+
+                            # at first the command will fail, until the emulator process has initialized.
+                            # Then we will get a proper output, that will not be "stopped" while we boot.
+                            # Then, after the boot has completed, we will get "stopped"
+
+                            try:
+                                output = subprocess.check_output(boot_anim_state_command, stderr=subprocess.STDOUT, shell=True, env=android_env)                            
+                                state_error = False
+                            except subprocess.CalledProcessError as e:                            
+                                output = e.output
+                                state_error = True
+
+                            output = str(output)
+                            output = output.strip()
 
 
-                    print("-- Installing app in emulator...", file=sys.stderr)
+                            if output=="" and not state_error:
+                                # this happens between the "initializing" states and
+                                # the boot starting-
+                                emulator_state = "transitioning"
 
-                    # now install the app in the emulator
-                    install_app_command = '"%s" install -t "%s"' % \
-                        (   adb_path,
-                            moduleFilePath )
-                    subprocess.check_call(install_app_command, shell=True)
+                            elif output=="running":
+                                emulator_state = "booting"
 
-                    print("-- Waiting 10 seconds...", file=sys.stderr)
-                    time.sleep(10)
+                            elif output=="stopped":
+                                emulator_state = "boot finished"
+
+                            elif output.find("no devices/emulators found")!=-1:
+                                emulator_state = "initializing (no devices yet)"
+
+                            elif output.find("device offline")!=-1:
+                                emulator_state = "initializing (device not yet online)"
+
+                            elif output.find("still connecting")!=-1:
+                                emulator_state = "initializing (device connecting)"
+
+                            else:
+                                raise Exception("Unrecognized boot animation state output: "+output)
+
+                            print("-- Emulator state: "+emulator_state, file=sys.stderr)
+                            
+                            if emulator_state=="boot finished":
+                                # done booting
+                                break
+
+                            # all other states indicate that either the emulator is still initializing
+                            # or that the boot process has not finished yet.
+
+                            if time.time()>=timeout_time:
+                                raise Exception("Android emulator did not finish booting within %d seconds. Last state output:\n%s" % (timeout_seconds, output) ) 
+
+                            time.sleep(5)
 
 
-                    print("-- Starting app in emulator...", file=sys.stderr)
+                        print("-- Waiting 10 seconds...", file=sys.stderr)
+                        time.sleep(10)
 
-                    # and run the executable in the emulator
 
-                    run_app_command = '"%s" shell am start -a android.intent.action.MAIN -n io.boden.android.%s/io.boden.android.NativeRootActivity' % \
-                        (   adb_path,
-                            args.module )
-                    subprocess.check_call(run_app_command, shell=True)
+                        print("-- Installing app in emulator...", file=sys.stderr)
 
-                    success = True
+                        # now install the app in the emulator
+                        install_app_command = '"%s" install -t "%s"' % \
+                            (   adb_path,
+                                moduleFilePath )
+                        subprocess.check_call(install_app_command, shell=True, env=android_env)
 
-                    print("-- App successfully started.", file=sys.stderr)
-                    print("-- Waiting for emulator to terminate (will not happen automatically).", file=sys.stderr)
+                        print("-- Waiting 10 seconds...", file=sys.stderr)
+                        time.sleep(10)
 
-                    # we want to block indefinitely until either the emulator is closed or we are terminated
-                    # by the user.
-                    emulator_process.wait()
+
+                        print("-- Starting app in emulator...", file=sys.stderr)
+
+                        # and run the executable in the emulator
+
+                        app_data_dir_in_emulator = "/data/user/0/io.boden.android.%s" % args.module
+                        app_id = "io.boden.android.%s" % args.module
+
+                        run_app_command = '"%s" shell am start -a android.intent.action.MAIN -n %s/io.boden.android.NativeRootActivity' % \
+                            (   adb_path,
+                                app_id )
+                        # we pass the commandline parameters as "extra" to the android app.
+                        # These can be accessed inside the app via "activity.getIntent().getExtras()".
+                        # Inside the app the extras object is a bundle (i.e. a string->value map).
+                        # We add the arguments as a string array with the name "commandline-args"
+                        # Boden apps automatically look at the extras and try to find their commandline
+                        # arguments there.
+                        if len(args.params)>0:
+                            param_array_string = ""
+                            for param_index, param in enumerate(args.params):
+                                # we want commas to end up as \, for the called app.
+                                # For that we have to escape the backslash and the comma for the shell, so we need
+                                # a double backslash, followed by backslash comma (so three backslashes and a comma)
+                                # Because this is also a pythin string literal we need another backslash in fron of
+                                # each backslash
+                                param = param.replace(",", "\\\\\\,")
+                                param = param.replace("\"", "\\\"")
+                                param = param.replace("\'", "\\\'")
+
+                                param = param.replace("{DATA_DIR}", app_data_dir_in_emulator)
+
+                                if param_index>0:
+                                    param_array_string += "\\,"
+                                param_array_string += param
+
+                            run_app_command += ' --esa commandline-args "%s"' % param_array_string
+
+                        print(run_app_command, file=sys.stderr )
+                        subprocess.check_call(run_app_command, shell=True, env=android_env)
+
+                        print("-- App successfully started.", file=sys.stderr)
+
+                        # give the process a chance to appear in the process list inside the emulator
+                        time.sleep(2)
+
+                        print("-- Waiting for app inside emulator to exit...")
+
+
+                        while True:
+
+                            get_process_list_command = '"%s" shell ps' % ( adb_path )
+                            proc_list_output = subprocess.check_output(get_process_list_command, shell=True, env=android_env)
+
+                            found_process = False
+                            for line in proc_list_output.splitlines():
+                                line_words = line.split()
+
+                                if app_id in line_words:
+                                    found_process = True
+                                    break
+
+                            
+                            if not found_process:
+                                break
+
+                            time.sleep(2)
+
+                        print("-- Process inside emulator has exited.", file = sys.stderr)
+
+                        # the application has now exited. If the caller wants us to read output data from
+                        # a file inside the emulator then we do that now.
+                        if args.run_android_fetch_output_from:
+
+                            from_path = args.run_android_fetch_output_from
+                            from_path = from_path.replace("{DATA_DIR}", app_data_dir_in_emulator)
+
+                            if args.run_output_file:
+                                read_target_file = open(args.run_output_file, "w")
+                                to_desc = args.run_output_file
+                            else:
+                                read_target_file = None
+                                to_desc = "stdout"
+
+                            print("-- Extracting output data from emulator\nFrom: %s\nTo: %s" % (from_path, to_desc), file=sys.stderr )
+
+                            try:
+                                # it would be nice if we could use adb pull. However we will get permission
+                                # denied when we try to access private data.
+                                # Luckily we can use run-as instead
+                                #pull_command = '"%s" pull "%s" "%s"' % ( adb_path, from_path, temp_output_path )                                
+                                read_command = '"%s" shell run-as "%s" cat "%s"' % ( adb_path, app_id, from_path )
+                                
+                                # if the file does not exist then the pull command will fail.
+                                read_exit_code = subprocess.call(read_command, shell=True, stdout=read_target_file, env=android_env )
+
+                                if read_exit_code!=0:
+                                    print("-- Output file inside emulator does not exist.", file=sys.stderr)
+
+                            finally:
+                                if read_target_file is not None:
+                                    read_target_file.close()
+
+
+                        #print("-- Waiting for emulator to terminate (will not happen automatically).", file=sys.stderr)
+
+                        # we want to block indefinitely until either the emulator is closed or we are terminated
+                        # by the user.
+                        #emulator_process.wait()
+
+                        #emulator_exited = True
+
+                    finally:
+
+                        if not emulator_exited:
+                            print("-- Killing emulator", file=sys.stderr)
+                            emulator_process.kill()
 
                 finally:
 
-                    if not success:
-                        print("-- Killing emulator", file=sys.stderr)
-                        emulator_process.kill()
+                    print("-- Deleting virtual device for emulator...", file=sys.stderr)
+                    delete_device_command = '"%s" delete avd --name %s' % \
+                    (   avd_manager_path,
+                        device_name )
+
+                    subprocess.call(delete_device_command, shell=True, env=android_env)
 
 
                 # do not do the normal processing
@@ -1967,14 +2213,14 @@ def commandRun(args):
                     sock.close();
 
                 stdoutOption = ""
-                if args.stdout_file:
+                if args.run_output_file:
                     # emrun will append to this file if it exists. So we have to make sure
                     # that it does not exist first
-                    if os.path.exists(args.stdout_file):
-                        os.remove(args.stdout_file)
+                    if os.path.exists(args.run_output_file):
+                        os.remove(args.run_output_file)
                         
-                    stdoutOption = '--log_stdout "%s"' % os.path.abspath(args.stdout_file)
-                    stdOutFileHandled = True
+                    stdoutOption = '--log_stdout "%s"' % os.path.abspath(args.run_output_file)
+                    runOutputFileHandled = True
 
                 # note that we pass the --no_emrun_detect flag. This disables the warning
                 # message that the files were not built with --emrun. The warning is generated
@@ -2018,12 +2264,11 @@ def commandRun(args):
 
             stdout_file = None
             try:
-                call_kwargs = { "shell": True,
-                                "cwd": outputDir
+                call_kwargs = { "shell": True
                                 }
 
-                if args.stdout_file and not stdOutFileHandled:
-                    stdout_file = os.open(args.stdout_file, os.O_WRONLY|os.O_TRUNC|os.O_CREAT)
+                if args.run_output_file and not runOutputFileHandled:
+                    stdout_file = os.open(args.run_output_file, os.O_WRONLY|os.O_TRUNC|os.O_CREAT)
                     call_kwargs["stdout"] = stdout_file
 
                 exitCode = subprocess.call(commandLine, **call_kwargs);
@@ -2034,6 +2279,9 @@ def commandRun(args):
 
             if exitCode!=0:
                 raise ToolFailedError("run", exitCode);
+
+
+
 
 
 
@@ -2158,20 +2406,41 @@ distcleaned.
 
 --- Command: run ---
 
-build.py --module MODULE [--platform TARGET] [--config CONFIG] [--arch ARCH] run -- PARAMS
+build.py [OPTIONS] -- run PARAMS
 
-Runs the specified executable.
+Runs the executable from the specified module.
 
-MODULE is the name of the executable to run.
+PARAMS are one or more parameters to be passed to the executable.
+On Android you can use the "{DATA_DIR}" placeholder in the parameters.
+It will be replaced with the path of the application's data directory inside the emulator.
 
-PARAMS are the optional commandline parameters to pass to the executable. The parameter list
-should be preceded by the separator argument "--" and a space.
+Note the double -- before "run" in the commandline. This is necessary to separate the
+parameters for build.py from those that are intended for the executed module.
 
-If TARGET is omitted then all prepared platforms are run (one after the other).
+Options:
 
-If CONFIG is omitted then all configurations are run (one after the other).
+--module MODULE    (REQUIRED) MODULE is the name of the executable to run.
 
-If ARCH is omitted then all prepared architectures for the platform are run (one after the other).
+--platform TARGET  (optional) The target platform to run. If omitted then the module is run for all
+                   prepared platforms (one after the other)
+
+
+--config CONFIG    (optional) the configuration to run. If omitted then all configurations are run
+                   (one after the other).
+
+--arch arch        (optional) the target architecture for which the module should be run. If omitted
+                   then all prepared architectures for the platform are run (one after the other).
+
+--run-output-file  (optional) path to a file in which the module's output data is stored.
+                   For most platform the output data is what is written to stdout.
+                   On android this MUST be combined with --run-android-fetch-output-from.
+
+--run-android-fetch-output-from
+                   (optional) An android-only option. Specifies the path of a file in the android
+                   file system that contains the output data of the app.
+                   When the run command is complete then this is printed to stdout, unless
+                   --run-output-file specifies the path of a file where the output should be written.
+                   You can use "{DATA_DIR}" as a place holder for the application's data directory.
 
 
 
@@ -2205,8 +2474,8 @@ ARCH values:
     std: normal iOS app (combined 32 and 64 bit binary)
 
   android:  
-    std: at the time of this writing the same as armeabi-v7a (but might
-      change in future
+    std: at the time of this writing the same as x86_64 (but might
+      change in future)
     armeabi: ARMv5TE based CPU with software floating point operations
     armeabi-v7a: ARMv7 based devices with hardware FPU instructions
       (VFPv3_D16)
@@ -2285,7 +2554,8 @@ def main():
 
         argParser.add_argument("--module" );
 
-        argParser.add_argument("--stdout-file" );
+        argParser.add_argument("--run-output-file" );
+        argParser.add_argument("--run-android-fetch-output-from" );
 
         argParser.add_argument("params", nargs="*" );
 

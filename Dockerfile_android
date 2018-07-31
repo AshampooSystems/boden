@@ -1,7 +1,13 @@
 FROM ubuntu:16.04
 
-ARG ANDROID_API_VERSION=26
+ARG ANDROID_BUILD_API_VERSION=26
+
+# note that the build tool version does NOT have to match the API version
 ARG ANDROID_BUILD_TOOLS_VERSION=26.0.2
+
+ARG ANDROID_ABI=x86_64
+
+ARG ANDROID_EMULATOR_API_VERSION=26
 
 RUN dpkg --add-architecture i386
 
@@ -12,6 +18,7 @@ RUN apt-get update \
     xvfb \
     xauth \
 	python \
+    pciutils \
     default-jre \
     default-jdk \
 	x11-apps \
@@ -33,6 +40,17 @@ RUN chmod -R go+rwx /opt/android
 
 ENV ANDROID_HOME=/opt/android
 
+# the android tools try to write user data to the home directory.
+# If we do not configure one then the home directory will be /, where normal users
+# cannot create anything. Note that we run as a non-root user when the docker
+# file is used from a Jenkins CI Server.
+# So, to ensure that all that works, we create a custom home directory to which
+# everyone has access.
+RUN mkdir /userhome
+# allow everyone access, to our virtual home directory
+RUN chmod -R go+rwx /userhome
+ENV HOME=/userhome
+
 # accept all licenses from the Android SDK and needed tools.
 # If we do not do this here then sdkmanager will interactively prompt
 # and ask for us to confirm.
@@ -47,7 +65,8 @@ RUN /opt/android/tools/bin/sdkmanager \
 	"extras;android;m2repository" \
 	"extras;google;m2repository" \
 	"build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
-	"platforms;android-$ANDROID_API_VERSION"
+	"platforms;android-$ANDROID_BUILD_API_VERSION" \
+    "system-images;android-$ANDROID_EMULATOR_API_VERSION;google_apis;$ANDROID_ABI"
 
 
 

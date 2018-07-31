@@ -42,7 +42,7 @@ public class NativeRootActivity extends android.app.Activity
         _rootView = new NativeRootView(this);
         setContentView(_rootView);
 
-        NativeInit.launch();
+        NativeInit.launch( getIntent() );
     }
 
     @Override

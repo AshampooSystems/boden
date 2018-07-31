@@ -43,9 +43,9 @@
 	#include <jni.h>
 
 	#define BDN_APP_INIT_WITH_CONTROLLER_CREATOR( appControllerCreator )  \
-		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls ) \
+		extern "C" JNIEXPORT void JNICALL Java_io_boden_android_NativeInit_nativeLaunch( JNIEnv* pEnv, jclass cls, jobject rawIntent ) \
 		{ \
-            bdn::android::appEntry(appControllerCreator, pEnv); \
+            bdn::android::appEntry(appControllerCreator, pEnv, rawIntent); \
 		}
 
 

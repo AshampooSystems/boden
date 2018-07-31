@@ -30,6 +30,7 @@ String TypeConversionBase_::_getStringFromJava(const Reference& ref)
         return JString(ref).getValue_();
 }
 
+
 }
 }
 

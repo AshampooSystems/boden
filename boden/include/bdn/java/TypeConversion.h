@@ -54,7 +54,7 @@ public:
      **/
     static String getJavaSignature()
     {
-        static String sig("L"+NativeType::getStaticClass_().getNameInSlashNotation_()+";");
+        static String sig( NativeType::getStaticClass_().getSignature_() );
 
         return sig;
     }
@@ -83,9 +83,6 @@ public:
         return NativeType( Reference::convertAndDestroyOwnedLocal(arg) );
     }
 };
-
-
-
 
 
 template<>

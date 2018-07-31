@@ -385,6 +385,7 @@ struct IConfig : IShared {
 	virtual bool shouldDebugBreak() const = 0;
 	virtual bool warnAboutMissingAssertions() const = 0;
 	virtual int abortAfter() const = 0;
+    virtual bool forceExitAtEnd() const = 0;
 	virtual bool showInvisibles() const = 0;
 	virtual ShowDurations::OrNot showDurations() const = 0;
 	virtual TestSpec const& testSpec() const = 0;
@@ -542,6 +543,7 @@ struct ConfigData {
 		forceColour( false ),
 		filenamesAsTags( false ),
 		abortAfter( -1 ),
+        forceExitAtEnd( false ),
 		rngSeed( 0 ),
 		verbosity( Verbosity::Normal ),
 		warnings( WarnAbout::Nothing ),
@@ -564,7 +566,10 @@ struct ConfigData {
 	bool filenamesAsTags;
 
 	int abortAfter;
-	unsigned int rngSeed;
+	
+    bool forceExitAtEnd;
+    
+    unsigned int rngSeed;
 
 	Verbosity::Level verbosity;
 	WarnAbout::What warnings;
@@ -621,6 +626,8 @@ public:
 	std::vector<std::string> getReporterNames() const { return m_data.reporterNames; }
 
 	int abortAfter() const { return m_data.abortAfter; }
+    
+    bool forceExitAtEnd() const { return m_data.forceExitAtEnd ; }
 
 	TestSpec const& testSpec() const { return m_testSpec; }
 
@@ -1559,6 +1566,9 @@ inline void abortAfterX( ConfigData& config, int x ) {
 		throw std::runtime_error( "Value after -x or --abortAfter must be greater than zero" );
 	config.abortAfter = x;
 }
+inline void forceExitAtEnd( ConfigData& config ) {
+	config.forceExitAtEnd = true;
+}
 inline void printLevel( ConfigData& config, int l ) {
     if( l < 0 )
         throw std::runtime_error( "Value after --print-level must be >=0" );
@@ -1676,6 +1686,11 @@ inline Clara::CommandLine<ConfigData> makeCommandLineParser() {
 	cli["-x"]["--abortx"]
 		.describe( "abort after x failures" )
 		.bind( &abortAfterX, "no. failures" );
+    
+    
+    cli["--force-exit-at-end"]
+        .describe( "forces the process to exit at the end of the test" )
+        .bind( &forceExitAtEnd);
 
 	cli["-w"]["--warn"]
 		.describe( "enable warnings" )
@@ -8517,8 +8532,21 @@ namespace test
     }
 
 }
+    
 
-
+static void doTestProcessExit(int exitCode, bool force)
+{
+    if(force)
+    {
+        asyncCallFromMainThreadAfterSeconds(3,
+                                            [exitCode]()
+                                            {
+                                                std::exit(exitCode);
+                                            } );
+    }
+    
+    getAppRunner()->initiateExitIfPossible(exitCode);
+}
 
 class TestAppController::Impl
 {
@@ -8535,6 +8563,8 @@ public:
     
 	void beginLaunch(std::vector<String> args)
 	{
+        bool forceExit = false;
+        
         try
         {
             _pTestSession = new bdn::Session;
@@ -8556,15 +8586,17 @@ public:
             {
                 // invalid commandline arguments. Exit.
 				abortingBecauseOfInvalidCommandLineArguments();
-				getAppRunner()->initiateExitIfPossible(exitCode);
+				doTestProcessExit(exitCode, false);
                 return;
             }
+            
+            forceExit = _pTestSession->config().forceExitAtEnd();
 
             if(!_pTestSession->prepareRun())
             {
                 // only showing help. Just exit.
 				abortingBecauseJustShowingHelp();
-				getAppRunner()->initiateExitIfPossible(exitCode);
+                doTestProcessExit(exitCode, forceExit );
 				return;
             }
 
@@ -8576,7 +8608,7 @@ public:
 			abortingBecauseOfException(errorInfo);
 
             // we want to exit
-            getAppRunner()->initiateExitIfPossible(1);
+            doTestProcessExit( 1, forceExit );
 
 			throw;
         }
@@ -8683,11 +8715,13 @@ protected:
 
 	void waitAndClose(int exitCode)
 	{
+        bool forceExit = _pTestSession->config().forceExitAtEnd();
+        
 		asyncCallFromMainThreadAfterSeconds(
-			5,
-			[exitCode]()
+			3,
+			[exitCode, forceExit]()
 			{
-				getAppRunner()->initiateExitIfPossible(exitCode);
+                doTestProcessExit(exitCode, forceExit);
 			} );
 	}
 

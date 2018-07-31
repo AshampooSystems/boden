@@ -43,7 +43,9 @@ public:
     /** Throws a corresponding JavaException if the specified class was not found.
      *
      *  @param classNameInSlashNotation the fully qualified JAVA class name
-     *      with slashes instead of dots. E.g. java/lang/Object instead of java.lang.Object.*/
+     *      with slashes instead of dots. E.g. java/lang/Object instead of java.lang.Object.
+     *      For Java arrays (e.g. MyClass[]) pass the name of the element type (in slash notation) with [] appended.
+     *      */
     explicit JClass(const String& classNameInSlashNotation)
     : JObject( findClass_ (classNameInSlashNotation) )
     {
@@ -91,7 +93,10 @@ public:
 
 
     /** Returns the name of this class in "slash notation". I.e. slashes are used instead
-     *  of dots.*/
+     *  of dots.
+     *
+     *  For arrays this is the name of the element type, in slash notation, with [] appended.
+     *  */
     String getNameInSlashNotation_ ()
     {
         if(!_nameInSlashNotationInitialized)
@@ -102,6 +107,13 @@ public:
         }
 
         return _nameInSlashNotation;
+    }
+
+
+    /** Returns the java signature string that corresponds to this type.*/
+    String getSignature_()
+    {
+        return nameInSlashNotationToSignature_( getNameInSlashNotation_() );
     }
 
 
@@ -178,7 +190,8 @@ public:
 
 private:
 
-
+    /** Converts a name in slash notation to the corresponding signature string.*/
+    static String nameInSlashNotationToSignature_(const String& nameInSlashNotation);
 
 
     template<typename Dummy>

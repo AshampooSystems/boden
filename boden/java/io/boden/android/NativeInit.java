@@ -3,6 +3,7 @@ package io.boden.android;
 
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.content.Intent;
 
 /**
  * Handles initialization of the native-code side.
@@ -41,20 +42,20 @@ public class NativeInit
 
     /** Launches the native side.
      */
-    public static void launch()
+    public static void launch( Intent intent )
     {
         if(!mLaunched)
         {
             mLaunched = true;
 
-            nativeLaunch();
+            nativeLaunch(intent);
         }
     }
 
     private static boolean mBaseInitialized = false;
     private static boolean mLaunched = false;
 
-    private static native void nativeLaunch();
+    private static native void nativeLaunch(Intent intent);
 
 
 
