@@ -651,14 +651,16 @@ public:
                 Rect unadjustedOptimalButtonBounds( Point(buttonMargin.left+scrollViewPadding.left, buttonMargin.top+scrollViewPadding.top), optimalButtonSize);
 
                 // adjust the optimal size so that it is a multiple of the physical pixels
-                Rect optimalButtonBounds = pButton->adjustBounds( unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::nearest );
+                // Note that we round the size up here, so that the entire button will definitely fit
+                // inside.
+                Rect optimalButtonBounds = pButton->adjustBounds( unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::up );
                 optimalButtonSize = optimalButtonBounds.getSize();
 
                 Size optimalSize = optimalButtonSize + buttonMargin + scrollViewPadding;                
 
                 // calculate the adjusted optimal scrollview size, based on the optimal button bounds.
                 {
-                    Rect optimalScrollViewBounds( unadjustedOptimalButtonBounds );
+                    Rect optimalScrollViewBounds( optimalButtonBounds );
                     optimalScrollViewBounds += buttonMargin + scrollViewPadding;
                     optimalScrollViewBounds = pThis->getScrollView()->adjustBounds( optimalScrollViewBounds, RoundType::nearest, RoundType::nearest );
 
