@@ -54,11 +54,6 @@ TEST_CASE("PropertyNotifier")
 {
     P<PropertyNotifier<String> > pNotifier = newObj<PropertyNotifier<String> >();
     
-    SECTION("enforces new allocation")
-    {
-        BDN_REQUIRE_THROWS_PROGRAMMING_ERROR( PropertyNotifier<int> notifier;  )
-    }
-    
     SECTION("empty")
     {
         // here we simply verify that no crash happens
@@ -72,7 +67,7 @@ TEST_CASE("PropertyNotifier")
         bool subscriptionDataDeleted=false;
         P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData = newObj<PropertyNotifierTestSubscriptionData>(&subscriptionDataDeleted);
         
-        P<INotifierSubControl> pSub = pNotifier->subscribe(
+        P<INotifierSubscription> pSub = pNotifier->subscribe(
             [&gotParam, pTestSubscriptionData](String param)
             {
                 gotParam.add( param );
@@ -101,7 +96,7 @@ TEST_CASE("PropertyNotifier")
         
         SECTION("unsubscribe")
         {
-            pSub->unsubscribe();
+            pNotifier->unsubscribe( pSub );
             
             // subscription data should have been deleted
             REQUIRE( subscriptionDataDeleted );
@@ -129,7 +124,7 @@ TEST_CASE("PropertyNotifier")
         bool subscriptionDataDeleted=false;
         P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData = newObj<PropertyNotifierTestSubscriptionData>(&subscriptionDataDeleted);
         
-        P<INotifierSubControl> pSub = pNotifier->subscribeParamless(
+        P<INotifierSubscription> pSub = pNotifier->subscribeParamless(
             [&callCount, pTestSubscriptionData]()
             {
                 callCount++;
@@ -157,7 +152,7 @@ TEST_CASE("PropertyNotifier")
         
         SECTION("unsubscribe")
         {
-            pSub->unsubscribe();
+            pNotifier->unsubscribe(pSub);
             
             // subscription data should have been deleted
             REQUIRE( subscriptionDataDeleted );
@@ -193,19 +188,19 @@ TEST_CASE("PropertyNotifier")
         bool subscriptionData3Deleted=false;
         P<PropertyNotifierTestSubscriptionData> pTestSubscriptionData3 = newObj<PropertyNotifierTestSubscriptionData>(&subscriptionData3Deleted);
         
-        P<INotifierSubControl> pSub1 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub1 = pNotifier->subscribe(
             [&gotParam1, pTestSubscriptionData1](String param)
             {
                gotParam1.add( param );
             } );
         
-        P<INotifierSubControl> pSub2 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub2 = pNotifier->subscribe(
             [&gotParam2, pTestSubscriptionData2](String param)
             {
                gotParam2.add( param );
             } );
         
-        P<INotifierSubControl> pSub3 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub3 = pNotifier->subscribe(
             [&gotParam3, pTestSubscriptionData3](String param)
             {
                gotParam3.add( param );
@@ -251,7 +246,7 @@ TEST_CASE("PropertyNotifier")
         
         SECTION("unsubscribe")
         {
-            pSub2->unsubscribe();
+            pNotifier->unsubscribe(pSub2);
             
             // subscription data should have been deleted
             REQUIRE( subscriptionData2Deleted );
@@ -299,13 +294,13 @@ TEST_CASE("PropertyNotifier")
         
         PropertyNotifierTestAccessor<String> accessor(*pNotifier, "");
         
-        P<INotifierSubControl> pSub1 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub1 = pNotifier->subscribe(
             [&gotParam1, pTestSubscriptionData1](String param)
             {
                gotParam1.add( param );
             } );
         
-        P<INotifierSubControl> pSub2 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub2 = pNotifier->subscribe(
             [&gotParam2, pTestSubscriptionData2, pNotifier, &accessor](String param)
             {
                gotParam2.add( param );
@@ -317,7 +312,7 @@ TEST_CASE("PropertyNotifier")
                }
             } );
         
-        P<INotifierSubControl> pSub3 = pNotifier->subscribe(
+        P<INotifierSubscription> pSub3 = pNotifier->subscribe(
             [&gotParam3, pTestSubscriptionData3](String param)
             {
                 gotParam3.add( param );
@@ -365,20 +360,20 @@ TEST_CASE("PropertyNotifier")
         
         SECTION("unsub following")
         {
-            P<INotifierSubControl> pSub1 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
                 [&gotParam1, pTestSubscriptionData1](String param)
                 {
                    gotParam1.add( param );
                 } );
             
-            P<INotifierSubControl> pSub3;
+            P<INotifierSubscription> pSub3;
             
-            P<INotifierSubControl> pSub2 = pNotifier->subscribe(
-                [&gotParam2, pTestSubscriptionData2, &pSub3](String param)
+            P<INotifierSubscription> pSub2 = pNotifier->subscribe(
+                [&gotParam2, pTestSubscriptionData2, &pSub3, &pNotifier](String param)
                 {
                    gotParam2.add( param );
                     
-                   pSub3->unsubscribe();
+                   pNotifier->unsubscribe(pSub3);
                 } );
             
             pSub3 = pNotifier->subscribe(
@@ -417,23 +412,23 @@ TEST_CASE("PropertyNotifier")
                     
         SECTION("unsub current")
         {
-            P<INotifierSubControl> pSub1 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
                 [&gotParam1, pTestSubscriptionData1](String param)
                 {
                    gotParam1.add( param );
                 } );
             
-            P<INotifierSubControl> pSub2;
+            P<INotifierSubscription> pSub2;
             
             pSub2 = pNotifier->subscribe(
-                [&gotParam2, pTestSubscriptionData2, &pSub2](String param)
+                [&gotParam2, pTestSubscriptionData2, &pSub2, &pNotifier](String param)
                 {
                    gotParam2.add( param );
                     
-                   pSub2->unsubscribe();
+                   pNotifier->unsubscribe(pSub2);
                 } );
             
-            P<INotifierSubControl> pSub3 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub3 = pNotifier->subscribe(
                 [&gotParam3, pTestSubscriptionData3](String param)
                 {
                     gotParam3.add( param );
@@ -470,13 +465,13 @@ TEST_CASE("PropertyNotifier")
         
         SECTION("unsub all")
         {
-            P<INotifierSubControl> pSub1 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub1 = pNotifier->subscribe(
                 [&gotParam1, pTestSubscriptionData1](String param)
                 {
                    gotParam1.add( param );
                 } );
             
-            P<INotifierSubControl> pSub2 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub2 = pNotifier->subscribe(
                 [&gotParam2, pTestSubscriptionData2, pNotifier](String param)
                 {
                    gotParam2.add( param );
@@ -484,7 +479,7 @@ TEST_CASE("PropertyNotifier")
                    pNotifier->unsubscribeAll();
                 } );
             
-            P<INotifierSubControl> pSub3 = pNotifier->subscribe(
+            P<INotifierSubscription> pSub3 = pNotifier->subscribe(
                 [&gotParam3, pTestSubscriptionData3](String param)
                 {
                     gotParam3.add( param );

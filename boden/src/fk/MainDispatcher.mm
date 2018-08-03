@@ -201,7 +201,7 @@ void MainDispatcher::dispose()
 
 void MainDispatcher::_scheduleMainThreadCall( const std::function<void()>& func, double delaySeconds )
 {
-    // if delaySeconds is not none then we also simply schedule an immediate call,
+    // if delaySeconds is >0 then we also simply schedule an immediate call,
     // because there is no performSelectorOnMainThread function that takes a delay parameter.
     // So we first schedule the call without a delay and then from the main thread
     // we reschedule with a delay (using performSelector:withObject:afterDelay, which

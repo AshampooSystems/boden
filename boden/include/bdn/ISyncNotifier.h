@@ -44,10 +44,6 @@ namespace bdn
     // returned by methods that are called onXYZ.
 
 	// Subscribe myFunc to the notifier returned by an imaginary function onSomeEvent().
-    // The returned INotifierSubControl object
-    // can optionally be stored for explicitly unsubscribing later.
-    // However, it is often simpler to use weak methods, since those
-    // do not need to be unsubscribed (see below)
 	someObj.onSomeEvent() += myFunc;
 
 	// when the event occurs then the owner of the notifier object (in our example someObj)
@@ -67,16 +63,16 @@ namespace bdn
 
     \code
 
-    // The returned INotifierSubControl object
+    // The returned INotifierSubscription object
     // can optionally be stored for explicitly unsubscribing later.
     // However, it is often simpler to use weak methods, since those
     // do not need to be unsubscribed (see below)
-	P<INotifierSubControl> pSubControl = someObj.onSomeEvent().subscribe( myFunc );
+	P<INotifierSubscription> pSub = someObj.onSomeEvent().subscribe( myFunc );
 
     ...
     
 	// When you do not want to receive notifications anymore then you can unsubscribe.
-    pSubControl->unsubscribe();
+    someObj.onSomeEvent().unsubscribe(pSub);
 
 	// This will NOT call myFunc anymore, since unsubscribe was called and the
 	// subscription has been destroyed.

@@ -3,7 +3,7 @@
 
 #include <bdn/init.h>
 
-#include <bdn/INotifierSubControl.h>
+#include <bdn/INotifierSubscription.h>
 
 #include <functional>
 
@@ -40,7 +40,8 @@ public:
 		without parameters. You can use that if your notification function does not care about the
 		event parameters.
 
-        The returned INotifierSubControl object can optionally be used to remove the subscription later. However, in many
+        The returned INotifierSubscription object can optionally be used to remove the subscription later,
+        by passing it to unsubscribe().. However, in many
         cases this is not necessary and the control object is not needed.
 
         For example, you can subscribe a weak method (see weakMethod()). If the object that the method belongs to is deleted
@@ -52,19 +53,9 @@ public:
 
         For other types of functions you might need to explicitly unsubscribe if the function is not needed anymore
         or the resources it accesses become invalid.
-        
-        Instead of unsubscribing via the INotifierSubControl object you could also implement your callback function
-        in a way so that it throws a DanglingFunctionError exception if you want it to be unsubscribed.
-        In that case the subscription will be removed automatically by the notifier. This is actually the mechanism
-        that causes weak methods to be unsubscribed automatically after their object has been deleted.
-        
-        Note that it is perfectly save to use the returned INotifierSubControl object even after the Notifier object that returned it
-        has already been deleted. In that case calling INotifierSubControl::unsubscribe() will have
-        no effect, since the subscription does not exist anymore. This safety feature allows
-        one to subscribe to a notifier and call INotifierSubControl::unsubscrbe at some arbitrary point in time later, without having to keep a
-        pointer to the Notifier object or ensuring that the Notifier even still exists.                
+     
 		*/
-    virtual P<INotifierSubControl> subscribe(const std::function<void(ArgTypes...)>& func)=0;    
+    virtual P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)>& func)=0;
 
 
     /** Convenience function to subscribe functions that do not take any parameters to the notifier.
@@ -74,12 +65,23 @@ public:
 
         Apart from the function parameters, subscribeParamless works exactly the same as subscribe().
         */
-    virtual P<INotifierSubControl> subscribeParamless(const std::function<void()>& func)=0;
+    virtual P<INotifierSubscription> subscribeParamless(const std::function<void()>& func)=0;
    
 
     /** Same as subscribe(). Returns a reference to the notifier object.*/
     virtual INotifierBase& operator+=(const std::function<void(ArgTypes...)>& func)=0;
 
+    
+    /** Unsubscribes a subscribed function. The INotifierSubscription object is invalidated by this operation
+        and should not be used again.
+     
+        Note that there is also another way to unsubscribe from a notifier. When the notifier fires and
+        one of the subscribed functions throws a DanglingFunctionError exception then that function is
+        automatically unsubscribed and the exception is otherwise ignored. This is the mechanism
+        that causes weak methods to be unsubscribed automatically after their object has been deleted.
+     
+     */
+    virtual void unsubscribe( INotifierSubscription* pSub )=0;
 
 
     /** Unsubscribes all currently subscribed functions.

@@ -11,8 +11,6 @@ namespace bdn
 
 /** The default implementation for IPropertyNotifier (see \ref IPropertyNotifier decription
     for more info).
- 
-	PropertyNotifier objects MUST be allocated with newObj.
 */
 template< typename PROPERTY_VALUE_TYPE >
 class PropertyNotifier : public NotifierBase< DummyMutex, const PROPERTY_VALUE_TYPE& >

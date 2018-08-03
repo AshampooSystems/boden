@@ -15,8 +15,6 @@ namespace bdn
 	
 	See ThreadSafeNotifier for an alternative that is thread safe and also
 	supports IAsyncNotifier.
-
-	SimpleNotifier objects MUST be allocated with newObj.
 */
 template<class... ARG_TYPES>
 class SimpleNotifier : public NotifierBase< DummyMutex, ARG_TYPES... >

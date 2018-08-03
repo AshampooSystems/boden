@@ -65,11 +65,11 @@ public:
     {
     }
         
-    P<INotifierSubControl> subscribe(const std::function<void(ArgTypes...)>& func) override
+    P<INotifierSubscription> subscribe(const std::function<void(ArgTypes...)>& func) override
     {
         int64_t subId = subscribeInternal(func);
 
-        return newObj<SubControl_>(this, subId);        
+        return newObj<Subscription_>(subId);
     }
     
 
@@ -81,7 +81,7 @@ public:
     }
     
 
-    P<INotifierSubControl> subscribeParamless(const std::function<void()>& func) override
+    P<INotifierSubscription> subscribeParamless(const std::function<void()>& func) override
     {
         return subscribe( ParamlessFunctionAdapter(func) );
     }
@@ -108,6 +108,10 @@ public:
         scheduleNotifyCall();
     }
 
+    void unsubscribe(INotifierSubscription* pSub) override
+    {
+        unsubscribeById( cast<Subscription_>(pSub)->subId() );
+    }
    
     void unsubscribeAll() override
     {
@@ -206,7 +210,7 @@ private:
     };
     
 
-    void unsubscribe(int64_t subId)
+    void unsubscribeById(int64_t subId)
     {
         Mutex::Lock lock(_mutex);
 
@@ -274,7 +278,7 @@ private:
                     // was a weak reference and the target object has been destroyed.
                     // Just remove it from our list and ignore the exception.
 
-                    unsubscribe(item.first);
+                    unsubscribeById(item.first);
                 }
             }
 
@@ -315,31 +319,22 @@ private:
     };
 
 
-    class SubControl_ : public Base, BDN_IMPLEMENTS INotifierSubControl
+    class Subscription_ : public Base, BDN_IMPLEMENTS INotifierSubscription
     {
     public:		
-        SubControl_(OneShotStateNotifier* pParent, int64_t subId)
-            : _pParentWeak( pParent )
-            , _subId(subId)
+        Subscription_(int64_t subId)
+            : _subId(subId)
         {
         }
         
-        void unsubscribe() override
-        {              
-            P<OneShotStateNotifier> pParent = _pParentWeak.toStrong();
-            if(pParent!=nullptr)
-                pParent->unsubscribe(_subId);
+        int64_t subId() const
+        {
+            return _subId;
         }
 
-
     private:
-        WeakP<OneShotStateNotifier> 	_pParentWeak;
         int64_t                         _subId;
-        
-        friend class OneShotStateNotifier;
     };
-    friend class SubControl_;
-
     
     Mutex                               _mutex;
     int64_t                             _nextSubId = 1;

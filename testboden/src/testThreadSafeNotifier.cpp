@@ -6,7 +6,7 @@
 
 using namespace bdn;
 
-class DefaultNotifierTestData : public Base
+class ThreadSafeNotifierTestData : public Base
 {
 public:
     bool called1 = false;
@@ -16,9 +16,9 @@ public:
     int  callCount2 = 0;
     int  callCount3 = 0;
 
-    P<INotifierSubControl> pSub1;
-    P<INotifierSubControl> pSub2;
-    P<INotifierSubControl> pSub3;
+    P<INotifierSubscription> pSub1;
+    P<INotifierSubscription> pSub2;
+    P<INotifierSubscription> pSub3;
 };
 
 
@@ -43,13 +43,13 @@ static void verifySame(T1 a1, T2 a2, T1 b1, T2 b2)
 template<class... ArgTypes>
 void testNotifierAfterSubscribe(
 	P< ThreadSafeNotifier<ArgTypes...> >   pNotifier,
-	P< DefaultNotifierTestData >        pTestData,
+	P< ThreadSafeNotifierTestData >        pTestData,
 	ArgTypes... args)
 {
 	class Listener : public Base
 	{
 	public:
-		Listener(DefaultNotifierTestData* pTestData, std::function<void(ArgTypes...)> argVerifier)
+		Listener(ThreadSafeNotifierTestData* pTestData, std::function<void(ArgTypes...)> argVerifier)
 		{
 			_pTestData = pTestData;
 			_argVerifier = argVerifier;
@@ -67,7 +67,7 @@ void testNotifierAfterSubscribe(
 			_pTestData->called1 = true;
 		}
 
-		P<DefaultNotifierTestData>          _pTestData;
+		P<ThreadSafeNotifierTestData>          _pTestData;
 		std::function<void(ArgTypes...)>    _argVerifier;
 	};
 
@@ -86,7 +86,7 @@ void testNotifierAfterSubscribe(
 		REQUIRE( pTestData->called1 );
 
 		// unsubscribe and try again
-		pTestData->pSub1->unsubscribe();
+		pNotifier->unsubscribe( pTestData->pSub1);
 		pTestData->called1 = false;
 
 		pNotifier->notify(std::forward<ArgTypes>(args)...);
@@ -110,7 +110,7 @@ void testNotifierAfterSubscribe(
 
 					// unsubscribe and try again
 
-					pTestData->pSub1->unsubscribe();
+					pNotifier->unsubscribe( pTestData->pSub1 );
 					pTestData->called1 = false;
 
 					pNotifier->postNotification(std::forward<ArgTypes>(args)...);
@@ -131,7 +131,7 @@ template<class... ArgTypes>
 void testNotifier(ArgTypes... args)
 {
 	P< ThreadSafeNotifier<ArgTypes...> >   pNotifier = newObj<ThreadSafeNotifier<ArgTypes...>>();
-    P< DefaultNotifierTestData >        pTestData = newObj<DefaultNotifierTestData>();
+    P< ThreadSafeNotifierTestData >        pTestData = newObj<ThreadSafeNotifierTestData>();
 	
 	SECTION("subscribe")
 	{
@@ -160,10 +160,10 @@ void testNotifier(ArgTypes... args)
 }
 
 
-static void testDefaultNotifierDanglingFunctionError(
-	P<DefaultNotifierTestData>  pTestData,
+static void testThreadSafeNotifierDanglingFunctionError(
+	P<ThreadSafeNotifierTestData>  pTestData,
 	P< ThreadSafeNotifier<> >		pNotifier,
-	P<INotifierSubControl>		pSub )
+	P<INotifierSubscription>		pSub )
 {
 	SECTION("notify")
 	{	
@@ -202,7 +202,7 @@ static void testDefaultNotifierDanglingFunctionError(
 
 TEST_CASE("ThreadSafeNotifier")
 {
-    P<DefaultNotifierTestData>  pTestData = newObj<DefaultNotifierTestData>();
+    P<ThreadSafeNotifierTestData>  pTestData = newObj<ThreadSafeNotifierTestData>();
 
     SECTION("require new alloc")
     {
@@ -249,7 +249,7 @@ TEST_CASE("ThreadSafeNotifier")
 
 		    SECTION("unsub first before notification")
 		    {
-                pTestData->pSub1->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub1);
 			
 			    pNotifier->postNotification(42);
 
@@ -262,7 +262,7 @@ TEST_CASE("ThreadSafeNotifier")
                     pTestData->called1 = false;
 		            pTestData->called2 = false;
 
-                    pTestData->pSub1->unsubscribe();
+                    pNotifier->unsubscribe(pTestData->pSub1);
 			
 			        pNotifier->postNotification(42);
 
@@ -278,7 +278,7 @@ TEST_CASE("ThreadSafeNotifier")
 		    {
                 pNotifier->postNotification(42);
 
-                pTestData->pSub1->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub1);
 
                 CONTINUE_SECTION_WHEN_IDLE(pNotifier, pTestData)
                 {
@@ -289,7 +289,7 @@ TEST_CASE("ThreadSafeNotifier")
 
 		    SECTION("unsubscribe second")
 		    {
-			    pTestData->pSub2->unsubscribe();
+			    pNotifier->unsubscribe(pTestData->pSub2);
 			
 			    pNotifier->postNotification(42);
 
@@ -334,23 +334,13 @@ TEST_CASE("ThreadSafeNotifier")
 
 	SECTION("notifier deleted before subControl")
 	{
-		P<INotifierSubControl> pSub;
+		P<INotifierSubscription> pSub;
 
 		{
 			P< ThreadSafeNotifier<> > pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 			pSub = pNotifier->subscribe( [](){} );
 		}
-
-        SECTION("unsubscribe called")
-        {
-            pSub->unsubscribe();
-        }
-
-        SECTION("unsubscribe not called")
-        {
-            // do nothing
-        }
 
 		pSub = nullptr;		
 	}
@@ -378,7 +368,7 @@ TEST_CASE("ThreadSafeNotifier")
     {
         P< ThreadSafeNotifier<> > pNotifier = newObj< ThreadSafeNotifier<> >();
 			
-		P<INotifierSubControl> pSub = pNotifier->subscribe(
+		P<INotifierSubscription> pSub = pNotifier->subscribe(
             [pTestData]()
             {
                 pTestData->callCount1++;
@@ -389,13 +379,13 @@ TEST_CASE("ThreadSafeNotifier")
         {
             pSub = nullptr;
 
-			testDefaultNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
+			testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
 
         SECTION("subcontrol still exists")
         {
             // do nothing
-			testDefaultNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
+			testThreadSafeNotifierDanglingFunctionError(pTestData, pNotifier, pSub);
         }
 		
     }
@@ -405,10 +395,10 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData]()
+            [pTestData, &pNotifier]()
             {
                 pTestData->callCount1++;
-                pTestData->pSub1->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub1);
             } );
 
 		SECTION("notify")
@@ -452,10 +442,10 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData]()
+            [pTestData, &pNotifier]()
             {
                 pTestData->callCount1++;
-                pTestData->pSub1->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub1);
                 throw DanglingFunctionError();
             } );
 		
@@ -502,11 +492,11 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData]()
+            [pTestData, &pNotifier]()
             {
                 pTestData->callCount1++;
                 // unsubscribe the second one
-                pTestData->pSub2->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub2);
             } );
 
 
@@ -566,11 +556,11 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData]()
+            [pTestData, &pNotifier]()
             {
                 pTestData->callCount1++;
                 // unsubscribe the third one
-                pTestData->pSub3->unsubscribe();
+                pNotifier->unsubscribe(pTestData->pSub3);
             } );
 
 
@@ -721,7 +711,7 @@ TEST_CASE("ThreadSafeNotifier")
 			REQUIRE( pTestData->callCount1==0 );
 
 			// using the control object should not have any effect
-			pTestData->pSub1->unsubscribe();    
+			pNotifier->unsubscribe(pTestData->pSub1);
 
 			REQUIRE( pTestData->callCount1==0 );
 
@@ -738,7 +728,7 @@ TEST_CASE("ThreadSafeNotifier")
 				REQUIRE( pTestData->callCount1==0 );
 
 				// using the control object should not have any effect
-				pTestData->pSub1->unsubscribe();    
+				pNotifier->unsubscribe(pTestData->pSub1);
 
 				REQUIRE( pTestData->callCount1==0 );
 

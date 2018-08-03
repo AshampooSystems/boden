@@ -6,6 +6,7 @@
 #include <bdn/ISyncNotifier.h>
 #include <bdn/NotifierBase.h>
 #include <bdn/mainThread.h>
+#include <bdn/RequireNewAlloc.h>
 
 #include <bdn/Map.h>
 
@@ -20,7 +21,7 @@ namespace bdn
 */
 template<class... ARG_TYPES>
 class ThreadSafeNotifier
-    : public NotifierBase< Mutex, ARG_TYPES... >
+    : public RequireNewAlloc< NotifierBase< Mutex, ARG_TYPES... >, ThreadSafeNotifier<ARG_TYPES...> >
     , BDN_IMPLEMENTS IAsyncNotifier<ARG_TYPES...>
 	, BDN_IMPLEMENTS ISyncNotifier<ARG_TYPES...>
 {

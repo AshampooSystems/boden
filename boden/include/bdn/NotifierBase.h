@@ -5,7 +5,6 @@
 #include <bdn/IAsyncNotifier.h>
 #include <bdn/ISyncNotifier.h>
 #include <bdn/DanglingFunctionError.h>
-#include <bdn/RequireNewAlloc.h>
 
 #include <bdn/Map.h>
 
@@ -17,14 +16,12 @@ namespace bdn
 
 /** Base class for notifier implementations.
 
-    NotifierBase objects MUST be allocated with newObj / new.
-
 	The MUTEX_TYPE template parameter indicates the type of the mutex object that the Notifier
 	uses. Pass bdn::Mutex to use a normal mutex. You can also pass bdn::DummyMutex to 
 	use a fake mutex that does nothing (thus removing multithread support).
 */
 template<class MUTEX_TYPE, class... ARG_TYPES>
-class NotifierBase : public RequireNewAlloc<Base, NotifierBase<MUTEX_TYPE, ARG_TYPES...> >
+class NotifierBase : public Base
     , BDN_IMPLEMENTS INotifierBase<ARG_TYPES...>
 {
 public:
@@ -36,11 +33,11 @@ public:
     {
     }
         
-    P<INotifierSubControl> subscribe(const std::function<void(ARG_TYPES...)>& func) override
+    P<INotifierSubscription> subscribe(const std::function<void(ARG_TYPES...)>& func) override
     {
         int64_t subId = doSubscribe(func);
 
-        return newObj<SubControl_>(this, subId);        
+        return newObj<Subscription_>(subId);
     }
 
      
@@ -55,12 +52,16 @@ public:
 
 
 
-    P<INotifierSubControl> subscribeParamless(const std::function<void()>& func) override
+    P<INotifierSubscription> subscribeParamless(const std::function<void()>& func) override
     {
         return subscribe( ParamlessFunctionAdapter(func) );
     }
     
-     
+    
+    void unsubscribe(INotifierSubscription* pSub) override
+    {
+        unsubscribeById( cast<Subscription_>(pSub)->subId() );
+    }
 	   
     void unsubscribeAll() override
     {
@@ -162,7 +163,7 @@ protected:
                         // was a weak reference and the target object has been destroyed.
                         // Just remove it from our list and ignore the exception.
                         
-                        unsubscribe(item.first);
+                        unsubscribeById(item.first);
                     }
                 }
             }
@@ -238,7 +239,7 @@ private:
     };
     
 
-    void unsubscribe(int64_t subId)
+    void unsubscribeById(int64_t subId)
     {
         typename MUTEX_TYPE::Lock lock(_mutex);
 
@@ -312,31 +313,22 @@ private:
 
 
 
-    class SubControl_ : public Base, BDN_IMPLEMENTS INotifierSubControl
+    class Subscription_ : public Base, BDN_IMPLEMENTS INotifierSubscription
     {
     public:		
-        SubControl_(NotifierBase* pParent, int64_t subId)
-            : _pParentWeak( pParent )
-            , _subId(subId)
+        Subscription_(int64_t subId)
+            : _subId(subId)
         {
         }
         
-        void unsubscribe() override
-        {              
-            P<NotifierBase> pParent = _pParentWeak.toStrong();
-            if(pParent!=nullptr)
-                pParent->unsubscribe(_subId);
+        int64_t subId() const
+        {
+            return _subId;
         }
-
-
-    private:
-        WeakP<NotifierBase> 	_pParentWeak;
-        int64_t                 _subId;
         
-        friend class NotifierBase;
+    private:
+        int64_t                 _subId;
     };
-    friend class SubControl_;
-
 
 
     

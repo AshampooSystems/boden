@@ -211,14 +211,9 @@ private:
 
 
 
-    class DummySubControl : public Base, BDN_IMPLEMENTS INotifierSubControl
+    class DummySubscription : public Base, BDN_IMPLEMENTS INotifierSubscription
     {
     public:
-
-        void unsubscribe() override
-        {
-            // do nothing
-        }
     };
 
     
