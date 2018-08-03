@@ -1105,6 +1105,63 @@ public:
                 }
             };
         }
+
+        /* The following test checks if the scrollview can handle huge scrollable areas.
+           We have disabled it because for the time being we do not support such huge scrollable areas.
+           Note that there are also some platform restrictions that make this difficult (win32, winuwp).
+           The problem and possible solution are tracked in this issue: BDN-220           
+        if(_horzScrollingEnabled && _vertScrollingEnabled)
+        {
+            SECTION("huge contentview")
+            {
+                P< ScrollViewLayoutHelperTestContentView<Button> > pButton = newObj< ScrollViewLayoutHelperTestContentView<Button> >();
+
+                pButton->setPreferredSizeMinimum( Size(100000, 100000) );
+
+                getScrollView()->setContentView(pButton);
+        
+                CONTINUE_SECTION_WHEN_IDLE(pThis, pButton, pixelSize )
+                {
+                    P<ScrollView> pScrollView = pThis->getScrollView();
+
+                    Size viewPortSize = Size(300, 300);
+                    viewPortSize = pScrollView->adjustBounds( Rect(pScrollView->position(), viewPortSize), RoundType::nearest, RoundType::nearest).getSize();
+
+                    Size optimalButtonSize = pButton->calcPreferredSize();
+        
+                    Rect unadjustedOptimalButtonBounds( Point(0,0), optimalButtonSize);
+
+                    // adjust the optimal size so that it is a multiple of the physical pixels
+                    Rect optimalButtonBounds = pButton->adjustBounds( unadjustedOptimalButtonBounds, RoundType::nearest, RoundType::up );
+                    optimalButtonSize = optimalButtonBounds.getSize();
+
+                    pThis->prepareCalcLayout( viewPortSize );
+
+                    CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, viewPortSize, pixelSize, optimalButtonBounds )
+                    {
+                        pThis->calcLayoutAfterPreparation();
+                    
+                        CONTINUE_SECTION_WHEN_IDLE( pThis, pButton, viewPortSize, pixelSize, optimalButtonBounds )
+                        {
+                            double horzBarHeight = pThis->getHorzBarHeight();
+                            double vertBarWidth = pThis->getVertBarWidth();
+
+                            // note that this test is only executed when vertical and horizontal scrolling
+                            // are enabled.
+
+                            pThis->verifyScrollsHorizontally( true );
+                            pThis->verifyScrollsVertically( true );
+                        
+                            pThis->verifyContentViewBounds( optimalButtonBounds );
+                
+                            pThis->verifyScrolledAreaSize( optimalButtonBounds.getSize() );
+                            pThis->verifyViewPortSize( viewPortSize-Size(vertBarWidth, horzBarHeight) );
+                            
+                        };
+                    };
+                };
+            }
+        }*/
     }
 
 private:
