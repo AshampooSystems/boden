@@ -122,8 +122,10 @@ Example:
 
 ### Bidirectional bindings
 
-Note that the binding only works in one direction. I.e. when we change the bound property then the original property
-is **not** updated automatically. However, that can also easily be achieved by binding in both directions:
+Note that the bindings created by BDN_BIND_TO_PROPERTY only work in one direction. I.e. when we change
+the bound property then the original property is **not** updated automatically. 
+Bidirectional bindings can be created with BDN_BIND_PROPERTIES:
+
 
     class Person... // see above
     class HeightView... // see above
@@ -132,8 +134,7 @@ is **not** updated automatically. However, that can also easily be achieved by b
     HeightView  view = ...;
 
     // we now bind in both directions.
-    BDN_BIND_TO_PROPERTY( view, setValue, somePerson, height );
-    BDN_BIND_TO_PROPERTY( somePerson, setHeight, view, value );
+    BDN_BIND_PROPERTIES( view, value, setValue, somePerson, height, setHeight );
 
     // now we can modify any of the two properties and the other is automatically updated
     
@@ -143,6 +144,8 @@ is **not** updated automatically. However, that can also easily be achieved by b
     somePerson.setHeight( 789 );    // this also sets view.value
     assert( view.value() == 789 );
 
+
+Note that it would also be possible to create two unidirectional bindings instead.
 
 
 ### Bindings with different but compatible types
