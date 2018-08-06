@@ -415,7 +415,7 @@ std::function< void(const VALUE_TYPE&) > _makePropertySubscriberWithFilter( OWNE
  
     Note that the binding is only unidirectional. So the sender is NOT automatically updated
     when the receiver changes. When you want both properties to be fully synchronized to the same value,
-    no matter which one changes, then you need to make two bindings - one for each direction.
+    no matter which one changes, then you either need to make two bindings or use \ref BDN_BIND_PROPERTIES.
  
     There is also a way to bind two properties with a value filter in between (i.e.
     set the receiver to a filtered or modified version of the source value). See \ref BDN_BIND_TO_PROPERTY_WITH_FILTER.
@@ -455,6 +455,8 @@ std::function< void(const VALUE_TYPE&) > makePropertySubscriberWithFilter( OWNER
     Instead, the new value is passed to a filter function, which generates the value for the receiver property.
  
     The filter function is often a lambda function.
+ 
+    Note that when the binding is initially created, the receiver property is automatically set to the current value of the sender.
  
     Example:
  
@@ -520,7 +522,30 @@ std::function< void(const VALUE_TYPE&) > makePropertySubscriberWithFilter( OWNER
     ); \
     (receiverOwner).receiverSetterName( (filterFunc)( (senderOwner).senderPropName() ) );
 
+
+
+/** Binds two properties to each other, so that when either one changes then the other
+    one is automatically set to the same value (bidirectional binding).
+
+    Note that in contrast to \ref BDN_BIND_TO_PROPERTY, the binding works in both directions.
+ 
+    Also note that when the binding is initially created, then the first property is set to the current value
+    of the second property. So after BDN_BIND_PROPERTIES finishes, both properties will have the same value. 
+ 
+    \param receiverOwner the owner of the receiver property. This must be the owner object or a reference to it
+        (not a pointer).
+    \param receiverSetterName the name of the receiver property's setter function.
+    \param senderOwner the owner of the sender property.  This must be the owner object or a reference to it
+        (not a pointer).
+    \param senderPropName the name of the sender property.
+    \param filterFunc the filter function to use.
+ */
+#define BDN_BIND_PROPERTIES( ownerA, getterNameA, setterNameA, ownerB, getterNameB, setterNameB ) \
+    BDN_BIND_TO_PROPERTY( ownerA, setterNameA, ownerB, getterNameB ); \
+    BDN_BIND_TO_PROPERTY( ownerB, setterNameB, ownerA, getterNameA );
     
+    
+
     
 }
 

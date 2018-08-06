@@ -361,6 +361,48 @@ static void testProperty(const VALUE_TYPE& expectedInitialValue, const VALUE_TYP
         REQUIRE( pOtherOwner->otherProp() == valB );
     }
     
+    SECTION("bidirectional binding")
+    {
+        SECTION("two unidir")
+        {
+            BDN_BIND_TO_PROPERTY( *pOwner, setMyProp, *pOtherOwner, otherProp);
+            BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, *pOwner, myProp);
+        }
+        
+        SECTION("bidir")
+        {
+            BDN_BIND_PROPERTIES( *pOwner, myProp, setMyProp, *pOtherOwner, otherProp, setOtherProp );
+        }
+        
+        pOwner->setMyProp( valA );
+        
+        REQUIRE( pOwner->myProp() == valA );
+        REQUIRE( pOtherOwner->otherProp() == valA );
+        
+        pOtherOwner->setOtherProp(valB);
+        REQUIRE( pOwner->myProp() == valB );
+        REQUIRE( pOtherOwner->otherProp() == valB );
+    }
+    
+    SECTION("bidirectional binding transfers current value")
+    {
+        pOtherOwner->setOtherProp(valB);
+        
+        SECTION("two unidir")
+        {
+            BDN_BIND_TO_PROPERTY( *pOwner, setMyProp, *pOtherOwner, otherProp);
+            BDN_BIND_TO_PROPERTY( *pOtherOwner, setOtherProp, *pOwner, myProp);
+        }
+        
+        SECTION("bidir")
+        {
+            BDN_BIND_PROPERTIES( *pOwner, myProp, setMyProp, *pOtherOwner, otherProp, setOtherProp );
+        }
+        
+        REQUIRE( pOwner->myProp() == valB );
+        REQUIRE( pOtherOwner->otherProp() == valB );
+    }
+    
     SECTION("binding with filter")
     {
         SECTION("std::function")

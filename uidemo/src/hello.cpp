@@ -64,8 +64,7 @@ public:
         BDN_BIND_TO_PROPERTY( *this, setMorphingText, *_pModel, morphingText );
         
         // do a two-way binding between the userText properties of the model and view model
-        BDN_BIND_TO_PROPERTY( *this, setUserText, *_pModel, userText);
-        BDN_BIND_TO_PROPERTY( *_pModel, setUserText, *this, userText );
+        BDN_BIND_PROPERTIES( *this, userText, setUserText, *_pModel, userText, setUserText);
         
         // connect our helloMessage to the helloCounter.
         // Note that we use a filter here to transform the integer counter
@@ -126,8 +125,8 @@ public:
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 
         _pUserTextField = newObj<TextField>();
-        BDN_BIND_TO_PROPERTY( *_pUserTextField, setText, *pViewModel, userText );
-        BDN_BIND_TO_PROPERTY( *pViewModel, setUserText, *_pUserTextField, text );
+        
+        BDN_BIND_PROPERTIES( *_pUserTextField, text, setText, *pViewModel, userText, setUserText );
         
         _pUserTextField->setMargin( UiMargin(UiLength::sem(1) ) );
         _pUserTextField->setHorizontalAlignment( View::HorizontalAlignment::expand );
