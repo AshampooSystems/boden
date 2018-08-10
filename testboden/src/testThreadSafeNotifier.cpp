@@ -395,7 +395,7 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData, &pNotifier]()
+            [pTestData, pNotifier]()
             {
                 pTestData->callCount1++;
                 pNotifier->unsubscribe(pTestData->pSub1);
@@ -442,7 +442,7 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData, &pNotifier]()
+            [pTestData, pNotifier]()
             {
                 pTestData->callCount1++;
                 pNotifier->unsubscribe(pTestData->pSub1);
@@ -492,7 +492,7 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData, &pNotifier]()
+            [pTestData, pNotifier]()
             {
                 pTestData->callCount1++;
                 // unsubscribe the second one
@@ -556,7 +556,7 @@ TEST_CASE("ThreadSafeNotifier")
         P< ThreadSafeNotifier<> >  pNotifier = newObj< ThreadSafeNotifier<> >();
 			
 		pTestData->pSub1 = pNotifier->subscribe(
-            [pTestData, &pNotifier]()
+            [pTestData, pNotifier]()
             {
                 pTestData->callCount1++;
                 // unsubscribe the third one
