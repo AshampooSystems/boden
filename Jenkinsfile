@@ -9,6 +9,48 @@ pipeline {
     }
 
     stages {
+        stage('Check formatting') {
+            environment {
+               BAUER_PLATFORM = 'linux'
+               BAUER_BUILD_SYSTEM = 'make'
+               BAUER_CONFIG = 'Release'
+               BAUER_PACKAGE_FOLDER = 'package'
+               BAUER_PACKAGE_GENERATOR = 'TGZ'
+            }
+            agent {
+               dockerfile {
+                   filename 'Dockerfile_linux'
+                   additionalBuildArgs '-t boden_linux'
+                   label 'boden'
+               }
+            }
+            stages {
+                stage('Run clang-format') {
+                    steps {
+                        sh 'python build.py build --module FormatSources'
+                    }
+                }
+                stage('Check for changes') {
+                    steps {
+                        script {
+                            List<String> sourceChanged = sh(returnStdout: true, script: "git diff --name-only").split()
+                            if(sourceChanged.size() > 0) {
+                                String changedFiles = "Some files were changed by clang-format, make sure to format before committing:\n";
+                                for (int i = 0; i < sourceChanged.size(); i++) {
+                                    changedFiles += sourceChanged[i] + "\n";
+                                    if(i > 10) {
+                                        changedFiles += "...\n";
+                                        break;
+                                    }
+                                }
+                                println changedFiles
+                                error(changedFiles)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         stage('Documentation') {
             agent {
                 dockerfile {
@@ -24,10 +66,10 @@ pipeline {
                 sh 'cd /boden/build/documentation && make boden_documentation'
                 sh 'cd /boden/build/documentation && cmake -DCOMPONENT=documentation -P cmake_install.cmake'
                 sh 'cd /boden/ && tar -zcvf boden-documentation.tar.gz boden-documentation'
-    
+
                 stash includes: 'build/**/*', name: 'boden_documentation_builddir'
                 archiveArtifacts artifacts: 'boden-*.tar.gz', fingerprint: true
-                
+
                 sh 'cd /boden/build && mkdir package'
                 sh 'cd /boden && cp boden-documentation.tar.gz build/package/'
                 stash includes: 'build/package/*', name: 'documentation-packages'
@@ -58,7 +100,7 @@ pipeline {
                                 sh 'python build.py build'
                             }
                         }
-            
+
                         stage('Package') {
                             steps {
                                 sh 'python build.py package'

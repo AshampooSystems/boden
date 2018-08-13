@@ -48,6 +48,8 @@ elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
     add_library(foundation STATIC ${_BDN_FILES} ${_BDN_GENERATED_FILES})
 endif()
 
+add_clangformat(foundation)
+
 target_include_directories(foundation
     PUBLIC
     $<INSTALL_INTERFACE:include>

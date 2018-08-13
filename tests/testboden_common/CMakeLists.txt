@@ -26,3 +26,4 @@ function(add_boden_test TARGET SOURCES PURE_CONSOLE)
     add_test(NAME ${TARGET} COMMAND ${TARGET})
 endfunction()
 
+add_clangformat(testboden_common)

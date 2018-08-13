@@ -29,4 +29,6 @@ endif()
 
 target_link_libraries(ui PUBLIC foundation)
 
+add_clangformat(ui)
+
 include(install.cmake)

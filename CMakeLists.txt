@@ -37,5 +37,7 @@ if(BDN_BUILD_TESTS)
 endif(BDN_BUILD_TESTS)
 
 
+add_global_clangformat(FormatSources ${CMAKE_CURRENT_LIST_DIR})
+
 include(package/package.cmake)
 

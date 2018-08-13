@@ -1,0 +1,30 @@
+---
+BasedOnStyle: LLVM
+
+SortIncludes: false
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: false
+  AfterStruct: true
+  AfterUnion: false
+  BeforeCatch: true
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+
+NamespaceIndentation: All
+FixNamespaceComments: false
+
+AllowShortBlocksOnASingleLine: false
+
+UseTab: Never
+TabWidth: 4
+IndentWidth: 4
+
+...

@@ -32,6 +32,9 @@ class BuildExecutor:
         if args.config != None:
             configs = [args.config]
 
+        if target == None and args.module != None:
+            target = args.target
+
         isSingleConfigBuildSystem = self.generatorInfo.isSingleConfigBuildSystem(configuration.buildsystem)
 
         if not isSingleConfigBuildSystem and args.config == None:
