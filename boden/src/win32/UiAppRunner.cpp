@@ -379,7 +379,7 @@ void UiAppRunner::mainLoop()
 
         if(msg.message==WM_QUIT)
         {
-			_exitCode = msg.wParam;
+			_exitCode = (int)msg.wParam;
             shouldExit = true;
         }
 

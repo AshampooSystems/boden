@@ -87,7 +87,7 @@ public:
 			rect.right = 0x7fffffff;
 		}
 
-        int result = ::DrawText(_handle, wideText.c_str(), wideText.length(), &rect, flags);
+        int result = ::DrawText(_handle, wideText.c_str(), (int)wideText.length(), &rect, flags);
         if(result==0)
         {
             BDN_WIN32_throwLastError( ErrorFields().add("func", "DrawText")

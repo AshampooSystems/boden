@@ -59,7 +59,7 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& streamPutCharSequence(
 					// if we right-align then we must first know how many characters
 					// we are about to write.
 					size_t length = std::distance( beginIt, endIt);
-					for(size_t i=length; i<padTo; i++)
+					for(size_t i=length; i<(size_t)padTo; i++)
 					{
 						if( CHAR_TRAITS::eq_int_type(
 							pBuffer->sputc( stream.fill() ),
@@ -90,9 +90,9 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& streamPutCharSequence(
 						written++;
 					}
 
-					if(ok && leftAlign)
+					if(ok && leftAlign && padTo > 0)
 					{
-						while(written < padTo)
+						while(written < (size_t)padTo)
 						{
 							if( CHAR_TRAITS::eq_int_type(
 								pBuffer->sputc( stream.fill() ),
@@ -922,7 +922,7 @@ namespace bdn
 using TextOutStream = std::basic_ostream<char32_t, UnicodeCharTraits>;
 
 
-#if defined(_MSC_VER) && _MSC_VER<=1912
+#if defined(_MSC_VER) && _MSC_VER<=1919
 
 // This is a TextOutStream version of the normal << overload for std::basic_ostream
 // rvalue references.

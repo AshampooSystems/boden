@@ -66,7 +66,7 @@ protected:
 	void setWindowsDpiValue(int dpi);
 
 	void dpiChanged(int newDpi, const RECT* pSuggestedNewRect );
-    void sizeChanged(int changeType);
+    void sizeChanged(WPARAM changeType);
 
 	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
 

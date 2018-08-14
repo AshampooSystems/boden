@@ -257,7 +257,7 @@
 // Compiler Issue Workarounds
 
 // Visual Studio 2015 to 2017 (v15.5)
-#if defined(_MSC_VER) && _MSC_VER>=1900 && _MSC_VER<=1912
+#if defined(_MSC_VER) && _MSC_VER>=1900 && _MSC_VER<=1919
 	// Missing specializations for std::use_facet for char16_t and char32_t
 	#define BDN_STD_USE_FACET_MISSING_SPECIALIZATION 1
 	// Bug when using char16_t and char32_t with std::codecvt
@@ -268,7 +268,7 @@
 #endif
 
 // Visual Studio up to 2017 (v15.5)
-#if defined(_MSC_VER) && _MSC_VER<=1912
+#if defined(_MSC_VER) && _MSC_VER<=1919
 	// Compiler bug with VS2015/VS2017 in SequenceFilter
 	#define BDN_SEQUENCE_FILTER_COMPILER_BUG 1
 	// std::isnan missing

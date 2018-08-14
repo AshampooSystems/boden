@@ -7,3 +7,6 @@ reports
 .gradle
 *~
 testresults
+CMakeLists.txt.user
+*.pyc
+

@@ -4418,9 +4418,6 @@ namespace bdn {
 struct LexSort {
 	bool operator() (TestCase i,TestCase j) const { return (i<j);}
 };
-struct RandomNumberGenerator {
-	int operator()( int n ) const { return std::rand() % n; }
-};
 
 inline std::vector<TestCase> sortTests( IConfig const& config, std::vector<TestCase> const& unsortedTestCases ) {
 
@@ -4434,8 +4431,7 @@ inline std::vector<TestCase> sortTests( IConfig const& config, std::vector<TestC
 	{
 		seedRng( config );
 
-		RandomNumberGenerator rng;
-		std::random_shuffle( sorted.begin(), sorted.end(), rng );
+		std::random_shuffle(sorted.begin(), sorted.end(), [](auto n) { return std::rand() % n; });
 	}
 	break;
 	case RunTests::InDeclarationOrder:

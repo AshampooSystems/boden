@@ -27,7 +27,7 @@ ScrollViewCore::ScrollViewCore(ScrollView* pOuter)
     if(hwnd!=NULL)
     {
         RECT rect{0,0,0,0};
-        ::AdjustWindowRect( &rect, ::GetWindowLongPtr( getHwnd(), GWL_STYLE), FALSE );
+        ::AdjustWindowRect( &rect, (DWORD)::GetWindowLongPtr( getHwnd(), GWL_STYLE), FALSE );
         _nonClientMargins.left = -rect.left;
         _nonClientMargins.top = -rect.top;
         _nonClientMargins.right = rect.right;

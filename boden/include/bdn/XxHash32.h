@@ -144,7 +144,7 @@ public:
 
 		totalByteCount += tailData.tailSizeBytes;
 
-		hash += totalByteCount;
+		hash += (uint32_t)totalByteCount;
 
 		const uint32_t* pTail32BitValuesEnd = tailData.p32BitValues + (tailData.tailSizeBytes >> 2);
 		while(tailData.p32BitValues != pTail32BitValuesEnd)

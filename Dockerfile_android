@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ARG ANDROID_BUILD_API_VERSION=26
 
@@ -19,14 +19,15 @@ RUN apt-get update \
     xauth \
 	python \
     pciutils \
-    default-jre \
-    default-jdk \
+    openjdk-8-jre \
+    openjdk-8-jdk \
 	x11-apps \
 	libc6:i386 \
 	libncurses5:i386 \
 	libstdc++6:i386 \
 	lib32z1 \
-	libbz2-1.0:i386
+	libbz2-1.0:i386 \
+	cmake
 
 
 RUN curl --url "https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" --output /tmp/androidtools.zip

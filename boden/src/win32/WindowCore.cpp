@@ -77,7 +77,7 @@ void WindowCore::dpiChanged(int newDpi, const RECT* pSuggestedNewRect )
 	}
 }
 
-void WindowCore::sizeChanged(int changeType )
+void WindowCore::sizeChanged(WPARAM changeType )
 {
 	// whenever our size changes it means that we have to update our layout
     P<View> pView = getOuterViewIfStillAttached();

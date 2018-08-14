@@ -455,7 +455,7 @@ private:
 				{
 					size_t avail = chunk.used() - posInChunk;
 
-					if(offset>avail)
+					if((size_t)offset>avail)
 					{
 						offset-=avail;
 						++chunkIt;
@@ -479,7 +479,7 @@ private:
 				}
 				else
 				{
-					if( -offset > posInChunk )
+					if( ((size_t)-offset) > posInChunk )
 					{
 						offset += posInChunk;
 
