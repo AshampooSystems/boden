@@ -163,17 +163,17 @@ P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size* pBorderSize) 
     // Note that the "content size" for NSScrollView is the size of the visible
     // content inside the scroll view, not the whole content size. NSScrollView
     // calls the whole content size the document size.
-    Size   dummyVisibleContentSize(500, 500);
-    NSSize dummyMacVisibleContentSize = sizeToMacSize( dummyVisibleContentSize );
+    Size   frameSize(500, 500);
+    NSSize macFrameSize = sizeToMacSize( frameSize );
     
-    NSSize macSizeWithScrollers = [NSScrollView frameSizeForContentSize: dummyMacVisibleContentSize
+    NSSize macSizeWithScrollers = [NSScrollView contentSizeForFrameSize: macFrameSize
                                                 horizontalScrollerClass: [NSScroller class]
                                                   verticalScrollerClass: [NSScroller class]
                                                              borderType: _nsScrollView.borderType
                                                             controlSize: NSControlSizeRegular
                                                           scrollerStyle: _nsScrollView.scrollerStyle ];
     
-    NSSize macSizeWithoutScrollers = [NSScrollView frameSizeForContentSize: dummyMacVisibleContentSize
+    NSSize macSizeWithoutScrollers = [NSScrollView contentSizeForFrameSize: macFrameSize
                                                    horizontalScrollerClass: nil
                                                      verticalScrollerClass: nil
                                                                 borderType: _nsScrollView.borderType
@@ -183,9 +183,9 @@ P<ScrollViewLayoutHelper> ScrollViewCore::createLayoutHelper(Size* pBorderSize) 
     Size sizeWithScrollers = macSizeToSize(macSizeWithScrollers);
     Size sizeWithoutScrollers = macSizeToSize(macSizeWithoutScrollers);
     
-    borderSize = sizeWithoutScrollers - dummyVisibleContentSize;
+    borderSize = frameSize - sizeWithoutScrollers;
     
-    Size scrollerOverhead = sizeWithScrollers - sizeWithoutScrollers;
+    Size scrollerOverhead = sizeWithoutScrollers - sizeWithScrollers;
     vertBarWidth = scrollerOverhead.width;
     horzBarHeight = scrollerOverhead.height;
     

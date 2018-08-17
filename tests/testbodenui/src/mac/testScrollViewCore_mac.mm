@@ -27,34 +27,41 @@ protected:
         _nsScrollView = (NSScrollView*) _pNSView;
     }
     
-    double getScrollerWidth()
+    bdn::Size getScrollerSize()
     {
-        // whether or not scroll bars are an overlay that do not take up any space
-        // or a normal child component depends on the scroller style. The scroller style
-        // is a system-controlled property that can dynamically change based on the used input
-        // method.
+        bdn::Size frameSize(500, 500);
+        NSSize macFrameSize = bdn::mac::sizeToMacSize( frameSize );
         
-        NSScrollerStyle style = [NSScroller preferredScrollerStyle];
+        NSSize macSizeWithScrollers = [NSScrollView contentSizeForFrameSize: macFrameSize
+                                                    horizontalScrollerClass: [NSScroller class]
+                                                      verticalScrollerClass: [NSScroller class]
+                                                                 borderType: _nsScrollView.borderType
+                                                                controlSize: NSControlSizeRegular
+                                                              scrollerStyle: _nsScrollView.scrollerStyle ];
         
-        double width = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
-                                                 scrollerStyle: style];
+        NSSize macSizeWithoutScrollers = [NSScrollView contentSizeForFrameSize: macFrameSize
+                                                       horizontalScrollerClass: nil
+                                                         verticalScrollerClass: nil
+                                                                    borderType: _nsScrollView.borderType
+                                                                   controlSize: NSControlSizeRegular
+                                                                 scrollerStyle: _nsScrollView.scrollerStyle ];
         
-        return width;
-    }
-    
-  
-    double getVertBarWidth() override
-    {
-        return getScrollerWidth();
+        bdn::Size sizeWithScrollers = bdn::mac::macSizeToSize(macSizeWithScrollers);
+        bdn::Size sizeWithoutScrollers = bdn::mac::macSizeToSize(macSizeWithoutScrollers);
+        
+        return sizeWithoutScrollers - sizeWithScrollers;
     }
 
+    double getVertBarWidth() override
+    {
+        return getScrollerSize().width;
+    }
 
     double getHorzBarHeight() override
     {
-        return getScrollerWidth();
+        return getScrollerSize().height;
     }
-                
-
+    
     bdn::Size getNonClientSize()
     {
         // our scroll views do not have a border.
@@ -159,10 +166,22 @@ private:
     NSScrollView* _nsScrollView;
 };
 
+void printScrollerStyle() {
+    static bool first = true;
+
+    if(first)
+    {
+        NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+        NSLog(@"System Scroller Style: %@", [defaults stringForKey:@"AppleShowScrollBars"]);
+        first = false;
+    }
+}
+
 TEST_CASE("mac.ScrollViewCore")
 {
+    printScrollerStyle();
+    
     P<TestMacScrollViewCore> pTest = newObj<TestMacScrollViewCore>();
-
     pTest->runTests();
 }
 
