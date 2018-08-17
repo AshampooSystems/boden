@@ -2,9 +2,11 @@ import logging
 import os
 import sys
 import subprocess
+import random
+import time
 
 import error
-import time
+from iosinfo import IOSInfo
 
 class IOSRunner:
     def __init__(self, buildFolder, cmake):
@@ -13,10 +15,16 @@ class IOSRunner:
         self.buildFolder = buildFolder
         self.cmake = cmake
 
-        self.ios_simulator_device_type = "iPhone-7"
-        self.ios_simulator_os          = "iOS-11-4"
+        self.iosInfo = IOSInfo()
+        self.ios_simulator_device_type = None
+        self.ios_simulator_os          = None
 
     def run(self, configuration, args):
+        self.ios_simulator_device_type = self.iosInfo.getSelectedDeviceType(args)
+        self.ios_simulator_os = self.iosInfo.getSelectedOS(args)
+
+        self.logger.debug("IOS Device type:  %s", self.ios_simulator_device_type)
+        self.logger.debug("IOS Simulator OS: %s", self.ios_simulator_os)
 
         cmakeTargetToRun = self.cmake.executableTarget(args.config, args.module)
         artifactToRun = self.cmake.executableArtifactPath(cmakeTargetToRun)
@@ -53,11 +61,15 @@ class IOSRunner:
         return 0
      
     def createSimulatorDevice(self):
-        arguments = ["xcrun", "simctl", "create", "bdnTestSim", 
-            "com.apple.CoreSimulator.SimDeviceType.%s" % (self.ios_simulator_device_type), 
-            "com.apple.CoreSimulator.SimRuntime.%s" % (self.ios_simulator_os)]
+        simulatorName = "bdnTestSim-" + str(random.getrandbits(32))
 
-        simulatorId = subprocess.check_output(" ".join(arguments), shell=True).strip()
+        self.logger.debug("Simulator name: %s", simulatorName)
+
+        arguments = ["xcrun", "simctl", "create", simulatorName, 
+            self.ios_simulator_device_type, 
+            self.ios_simulator_os]
+
+        simulatorId = subprocess.check_output(" ".join(arguments), shell=True).strip().decode(encoding='utf-8')
 
         if not simulatorId or " " in simulatorId or "\n" in simulatorId:
             raise Exception("Invalid simulator device ID returned.")
@@ -96,7 +108,7 @@ class IOSRunner:
 
         commandLine = ' '.join('"{0}"'.format(arg) for arg in arguments)
 
-        resultLine = subprocess.check_output(commandLine, shell=True).strip()
+        resultLine = subprocess.check_output(commandLine, shell=True).decode(encoding='utf-8').strip()
 
         before, sep, processId = resultLine.rpartition(":")                    
         if not sep:
@@ -111,12 +123,12 @@ class IOSRunner:
         self.logger.info("Waiting for simulated process %s to exit ...", processId)
 
         while True:
-            processListOutput = subprocess.check_output('xcrun simctl spawn "%s" launchctl list' % simulatorId, shell=True)
+            processListOutput = subprocess.check_output('xcrun simctl spawn "%s" launchctl list' % simulatorId, shell=True).decode(encoding='utf-8')
 
             foundProcess = False
             for line in processListOutput.splitlines():
 
-                words = str(line).split()
+                words = line.split()
 
                 if words[0]==processId and bundleId in str(line):
                     foundProcess = True
@@ -170,12 +182,12 @@ class IOSRunner:
             time.sleep(1)
 
     def getSimulatorStatus(self, simulatorId):
-        output = subprocess.check_output("xcrun simctl list", shell=True)
+        output = subprocess.check_output("xcrun simctl list", shell=True).decode(encoding='utf-8')
 
         search_for = "("+simulatorId+")"
 
         for line in output.splitlines():
-            if search_for in str(line):
+            if search_for in line:
                 before, sep, status = line.rpartition("(")
                 if sep:
                     status, sep, after = status.partition(")")
@@ -191,7 +203,7 @@ class IOSRunner:
     def getBundleIdentifier(self, bundlePath):
         plistPath = os.path.abspath(os.path.join( bundlePath, "Info.plist"))
 
-        bundleId = subprocess.check_output('defaults read "%s" CFBundleIdentifier' % (plistPath), shell=True).strip();
+        bundleId = subprocess.check_output('defaults read "%s" CFBundleIdentifier' % (plistPath), shell=True).decode(encoding='utf-8').strip();
         if not bundleId:
             raise Exception("Unable to extract bundle id from app bundle.")
 

@@ -29,6 +29,9 @@ class BauerArgParser(argparse.ArgumentParser):
         self.add_argument("--run-output-file" );
         self.add_argument("--run-android-fetch-output-from" );
 
+        self.add_argument("--ios-device-type")
+        self.add_argument("--ios-simulator-os")
+
         self.add_argument('-j', '--jobs', dest='multi' );
 
         self.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true')
@@ -180,6 +183,10 @@ Options:
 -j, --jobs n              (optional) Build concurrently with <n> threads
 
 -d, --enable-debug-output (optional) Enable debug output
+
+--ios-device-type         (optional) IOS Device type, e.g. "iPhone X"
+--ios-simulator-os        (optional) IOS Simulator OS Version, e.g. "iOS 11.1"
+
 
 --- Command: builddeps ---
 
