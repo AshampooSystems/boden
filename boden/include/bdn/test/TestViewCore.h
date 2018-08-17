@@ -148,7 +148,7 @@ protected:
 
         SECTION("bounds")
         {
-            _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
+            _pView->adjustAndSetBounds( Rect(110, 220, 660, 510) );
 
             initCore();            
             verifyInitialDummyCoreSize();
@@ -360,12 +360,12 @@ protected:
             SECTION("no need to adjust")
             {
                 // pre-adjust bounds so that we know that they are valid
-                bounds = Rect(110, 220, 880, 990);
+                bounds = Rect(110, 220, 660, 510);
                 bounds = _pCore->adjustBounds(bounds, RoundType::nearest, RoundType::nearest);
             }
             
             SECTION("need adjustments")
-                bounds = Rect(110.12345, 220.12345, 880.12345, 990.12345);
+                bounds = Rect(110.12345, 220.12345, 660.12345, 510.12345);
 
             Rect returnedBounds = _pView->adjustAndSetBounds(bounds);
                         
@@ -406,7 +406,7 @@ protected:
             {
                 Size prefSizeBefore = _pCore->calcPreferredSize();
 
-                _pView->adjustAndSetBounds( Rect(110, 220, 880, 990) );
+                _pView->adjustAndSetBounds( Rect(110, 220, 660, 510) );
                 
                 CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
                 {
@@ -420,7 +420,7 @@ protected:
 		{
             SECTION("no need to adjust")
             {
-			    Rect bounds(110, 220, 880, 990);
+			    Rect bounds(110, 220, 660, 510);
 
                 // pre-adjust the bounds
                 bounds = _pCore->adjustBounds( bounds, RoundType::nearest, RoundType::nearest );
@@ -445,7 +445,7 @@ protected:
             SECTION("need adjustments")
             {
 
-			    Rect bounds(110.12345, 220.12345, 880.12345, 990.12345);
+			    Rect bounds(110.12345, 220.12345, 660.12345, 510.12345);
 
                 List<RoundType> roundTypes
                 {
