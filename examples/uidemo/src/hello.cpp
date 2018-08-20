@@ -1,6 +1,7 @@
 #include <bdn/init.h>
 #include <bdn/Window.h>
 #include <bdn/ColumnView.h>
+#include <bdn/RowView.h>
 #include <bdn/Button.h>
 #include <bdn/TextView.h>
 #include <bdn/ScrollView.h>
@@ -105,23 +106,41 @@ class MainViewController : public Base //ViewControllerBase
 public:
     MainViewController(ViewModel* pViewModel)
     {
-		_pViewModel = pViewModel;
+        _pViewModel = pViewModel;
 
         _pWindow = newObj<Window>();
-		_pWindow->setTitle( "hello" );
-        
-       
-		P<ColumnView> pColumnView = newObj<ColumnView>();
+        _pWindow->setTitle( "hello" );
 
-		_pHelloMessageButton = newObj<Button>();
+        P<ColumnView> pColumnView = newObj<ColumnView>();
+        
+        P<RowView> pRowView = newObj<RowView>();
+        pColumnView->addChildView(pRowView);
+
+        P<ColumnView> pInnerColumnView = newObj<ColumnView>();
+        pRowView->addChildView(pInnerColumnView);
+        
+        P<Button> pButton = newObj<Button>();
+        pButton->setLabel("Test");
+        pInnerColumnView->addChildView(pButton);
+
+        P<Button> pButton2 = newObj<Button>();
+        pButton2->setLabel("Test");
+        pInnerColumnView->addChildView(pButton2);
+
+        P<Button> pButton3 = newObj<Button>();
+        pButton3->setLabel("Test");
+        pButton3->setVerticalAlignment(View::VerticalAlignment::middle);
+        pRowView->addChildView(pButton3);
+
+        _pHelloMessageButton = newObj<Button>();
 
         // we want the hello message on the button
         BDN_BIND_TO_PROPERTY( *_pHelloMessageButton, setLabel, *_pViewModel, helloMessage );
 
         _pHelloMessageButton->setMargin( UiMargin( 10, 10, 10, 10) );
-		_pHelloMessageButton->setHorizontalAlignment( View::HorizontalAlignment::center );
+        _pHelloMessageButton->setHorizontalAlignment( View::HorizontalAlignment::center );
 
-		pColumnView->addChildView( _pHelloMessageButton );
+        pColumnView->addChildView( _pHelloMessageButton );
         _pHelloMessageButton->onClick().subscribeParamless( weakMethod(this, &MainViewController::buttonClicked) );
 
         _pUserTextField = newObj<TextField>();
@@ -168,16 +187,16 @@ public:
 
         pColumnView->addChildView( _pScrollView );
         
-		_pWindow->setContentView( pColumnView );
+        _pWindow->setContentView( pColumnView );
 
-		_pWindow->requestAutoSize();
-		_pWindow->requestCenter();
+        _pWindow->requestAutoSize();
+        _pWindow->requestCenter();
 
-		_pWindow->setVisible( true );
+        _pWindow->setVisible( true );
     }
 
 protected:
-	
+    
     void buttonClicked()
     {
         _pViewModel->increaseHelloCounter();
@@ -201,7 +220,7 @@ protected:
     P<ViewModel>    _pViewModel;
     
     P<Window>       _pWindow;
-    P<Button>	    _pHelloMessageButton;
+    P<Button>       _pHelloMessageButton;
     
     P<TextField>    _pUserTextField;
     P<TextView>     _pUserTextView;
@@ -220,20 +239,19 @@ public:
     
     void beginLaunch(const AppLaunchInfo& launchInfo) override
     {
-		_pModel = newObj<Model>();
-		_pViewModel = newObj<ViewModel>(_pModel);
+        _pModel = newObj<Model>();
+        _pViewModel = newObj<ViewModel>(_pModel);
 
         _pMainViewController = newObj<MainViewController>(_pViewModel);
     }
     
 protected:
-    P<MainViewController>	_pMainViewController;
-	P<ViewModel>			_pViewModel;
-	P<Model>				_pModel;
+    P<MainViewController>   _pMainViewController;
+    P<ViewModel>            _pViewModel;
+    P<Model>                _pModel;
 };
 
 
 BDN_APP_INIT( AppController )
-
 
 

@@ -118,7 +118,9 @@ Size ColumnView::calcLayoutImpl( ViewLayout* pLayout, const Size& availableSpace
         // the final width of the child. That might seem like a problem because we need the accurate child height
         // and width and height can be interdependent. However, we DID pass all available width to the child's
         // calcPreferredSize. And the child said that it cannot use the additional width. So making
-        // the view wider should not influence its preferred height.
+        // the view wider should not influence its preferred height. // XXX/TL: what if I have an image view
+        // that proportionally resizes with regard to width? It returns its preferred size as the natural image size and
+        // then rescaling would lead to cropping?
         // Also, we do not have a function to ask a child "you will have this width, what is your preferred height?"
         // anyway. calcPreferredSize does not force the width, it always gives the child the chance to choose a smaller
         // width. So we couldn't calculate a height for a given width, even if we wanted to.

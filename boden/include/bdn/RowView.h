@@ -6,33 +6,30 @@
 namespace bdn
 {
 	
-
-/** A container view that arranges its children in a horizontal row,
-	one after the other. See #ColumnView for a similar vertical container.
-
-	The children's View::verticalAlignment() property controls how 
-	the child views are aligned vertically.
-
-	If there is extra space available in the container after sizing all
-	children to their preferred size then the remaining space is distributed
-	according to the children's View::extraSpaceWeight() property.	
-	
-	*/
 class RowView : public ContainerView
 {
 public:
-	RowView()
-	{		
-	}
+	RowView();
 
-	
-	void layout() override
-	{
-		
-	}
+	Size calcContainerPreferredSize(const Size& availableSpace = Size::none()) const override;
+	P<ViewLayout> calcContainerLayout(const Size& containerSize) const override;	
 
+private:
+    enum class LayoutPhase {
+        Measure,
+        Layout
+    };
+    
+    Margin calculatePadding() const;
+	Size calculatePaddedAvailableSpace(const Margin& padding, const Size& effectiveAvailableSpace) const;
+    Rect calculateAdjustedChildBounds(
+    	const P<View> pChildView,
+    	Point& childPosition,
+    	const Size& clippedAvailableSpace,
+    	const LayoutPhase phase,
+    	Rect* pUnadjustedBounds = nullptr
+    ) const;
 };
-
 
 }
 
