@@ -6,6 +6,9 @@
 #include <bdn/TextView.h>
 #include <bdn/ScrollView.h>
 #include <bdn/TextField.h>
+#include <bdn/Toggle.h>
+#include <bdn/Switch.h>
+#include <bdn/Checkbox.h>
 
 #include <bdn/appInit.h>
 #include <bdn/AppControllerBase.h>
@@ -79,12 +82,44 @@ public:
             return message;
         };
         BDN_BIND_TO_PROPERTY_WITH_FILTER( *this, setHelloMessage, *_pModel, helloCounter, helloMessageFilter );
+        
+        setToggleText( "Toggle me" );
+        setSwitchText( "Switch me" );
+        setCheckboxText( "Check me" );
+        
+        toggleOnChanged().subscribe([this](bool isOn) {
+            setToggleText( isOn ? "Toggle is on" : "Toggle is off" );
+        });
+        
+        switchOnChanged().subscribe([this](bool isOn) {
+            setSwitchText( isOn ? "Switch is on" : "Switch is off" );
+            
+            // Set checkbox state to mixed to test whether programatically setting
+            // it after user interaction works
+            setCheckboxState( TriState::mixed );
+        });
+        
+        checkboxStateChanged().subscribe([this](TriState state) {
+            switch (state) {
+                case TriState::on:    setCheckboxText("Checkbox is on");    break;
+                case TriState::off:   setCheckboxText("Checkbox is off");   break;
+                case TriState::mixed: setCheckboxText("Checkbox is mixed"); break;
+            }
+        });
     }
     
     BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, helloMessage, protected, setHelloMessage );
     BDN_PROPERTY_WITH_CUSTOM_ACCESS( String, public, morphingText, protected, setMorphingText );
 
     BDN_PROPERTY( String, userText, setUserText );
+    
+    BDN_PROPERTY( String, toggleText, setToggleText );
+    BDN_PROPERTY( String, switchText, setSwitchText );
+    BDN_PROPERTY( String, checkboxText, setCheckboxText );
+    
+    BDN_PROPERTY( bool, toggleOn, setToggleOn );
+    BDN_PROPERTY( bool, switchOn, setSwitchOn );
+    BDN_PROPERTY( TriState, checkboxState, setCheckboxState );
     
     void increaseHelloCounter()
     {
@@ -98,6 +133,7 @@ public:
 
 protected:
     P<Model>            _pModel;
+    
 };
 
 
@@ -120,18 +156,41 @@ public:
         pRowView->addChildView(pInnerColumnView);
         
         P<Button> pButton = newObj<Button>();
-        pButton->setLabel("Test");
+        pButton->setLabel("Left column 1");
         pInnerColumnView->addChildView(pButton);
-
+        
         P<Button> pButton2 = newObj<Button>();
-        pButton2->setLabel("Test");
+        pButton2->setLabel("Left column 2");
         pInnerColumnView->addChildView(pButton2);
-
+        
         P<Button> pButton3 = newObj<Button>();
-        pButton3->setLabel("Test");
+        pButton3->setLabel("Right column");
         pButton3->setVerticalAlignment(View::VerticalAlignment::middle);
         pRowView->addChildView(pButton3);
 
+        
+        _pToggle = newObj<Toggle>();
+        _pToggle->setMargin( UiMargin( 10, 10, 10, 10) );
+        _pToggle->setHorizontalAlignment( View::HorizontalAlignment::center );
+        BDN_BIND_PROPERTIES( *_pToggle, label, setLabel, *_pViewModel, toggleText, setToggleText );
+        BDN_BIND_PROPERTIES( *_pToggle, on, setOn, *_pViewModel, toggleOn, setToggleOn );
+        pColumnView->addChildView( _pToggle );
+        
+        _pSwitch = newObj<Switch>();
+        _pSwitch->setMargin( UiMargin( 10, 10, 10, 10) );
+        _pSwitch->setHorizontalAlignment( View::HorizontalAlignment::center );
+        BDN_BIND_PROPERTIES( *_pSwitch, label, setLabel, *_pViewModel, switchText, setSwitchText );
+        BDN_BIND_PROPERTIES( *_pSwitch, on, setOn, *_pViewModel, switchOn, setSwitchOn );
+        pColumnView->addChildView( _pSwitch );
+        
+        _pCheckbox = newObj<Checkbox>();
+        _pCheckbox->setMargin( UiMargin( 10, 10, 10, 10) );
+        _pCheckbox->setHorizontalAlignment( View::HorizontalAlignment::center );
+        BDN_BIND_PROPERTIES( *_pCheckbox, label, setLabel, *_pViewModel, checkboxText, setCheckboxText );
+        BDN_BIND_PROPERTIES( *_pCheckbox, state, setState, *_pViewModel, checkboxState, setCheckboxState );
+        pColumnView->addChildView( _pCheckbox );
+       
+        
         _pHelloMessageButton = newObj<Button>();
 
         // we want the hello message on the button
@@ -228,7 +287,10 @@ protected:
     P<TextView>     _pMorphingTextView;
     P<ScrollView>   _pScrollView;
     P<TextView>     _pScrolledTextView;
-
+    
+    P<Toggle>   _pToggle;
+    P<Switch>   _pSwitch;
+    P<Checkbox> _pCheckbox;
 };
 
 

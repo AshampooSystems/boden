@@ -1,7 +1,10 @@
 #ifndef BDN_MAC_util_HH_
 #define BDN_MAC_util_HH_
 
+#import <AppKit/AppKit.h>
 #import <bdn/fk/stringUtil.hh>
+
+#include <bdn/constants.h>
 
 namespace bdn
 {
@@ -120,6 +123,25 @@ inline String macStringToString(NSString* nsString)
     return bdn::fk::nsStringToString(nsString);
 }
 
+inline NSControlStateValue triStateToNSControlStateValue(TriState state)
+{
+    switch (state) {
+        case TriState::on:    return NSOnState;
+        case TriState::off:   return NSOffState;
+        case TriState::mixed: return NSMixedState;
+    }
+    return NSOffState;
+}
+    
+inline TriState nsControlStateValueToTriState(NSControlStateValue nsState)
+{
+    switch (nsState) {
+        case NSOnState:    return TriState::on;
+        case NSOffState:   return TriState::off;
+        case NSMixedState: return TriState::mixed;
+    }
+    return TriState::off;
+}
 		
 }
 }

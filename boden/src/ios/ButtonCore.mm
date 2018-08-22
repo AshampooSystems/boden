@@ -62,8 +62,8 @@ ButtonCore::~ButtonCore()
     BdnIosButtonClickManager* clickMan = (BdnIosButtonClickManager*)_clickManager;
     
     [_button removeTarget:clickMan
-                action:nil
-      forControlEvents:UIControlEventTouchUpInside];
+                   action:nil
+         forControlEvents:UIControlEventTouchUpInside];
 }
     
     

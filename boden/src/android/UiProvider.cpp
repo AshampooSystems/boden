@@ -3,11 +3,12 @@
 
 #include <bdn/android/ContainerViewCore.h>
 #include <bdn/android/ButtonCore.h>
+#include <bdn/android/SwitchCore.h>
+#include <bdn/android/CheckboxCore.h>
 #include <bdn/android/TextViewCore.h>
 #include <bdn/android/TextFieldCore.h>
 #include <bdn/android/WindowCore.h>
 #include <bdn/android/ScrollViewCore.h>
-
 
 #include <bdn/ViewCoreTypeNotSupportedError.h>
 #include <bdn/StdioTextUi.h>
@@ -66,6 +67,15 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
+
+    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+        return newObj<SwitchCore<Toggle>>( cast<Toggle>(pView) );
+
+    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+        return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );

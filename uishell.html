@@ -44,6 +44,79 @@
         to {transform: rotate(360deg);}
       }
 
+
+      /* Switch classes */
+
+      /* FIXME: May be we should break this out into a separate stylesheet file later (and use SASS or something) */
+
+      div.bdn_switch_container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      div.bdn_switch_container div.bdn_switch_label {
+        /*float: left;*/
+        margin-right: 10px;
+      }
+
+      div.bdn_switch_container div.bdn_switch {
+        border-radius: 10px;
+        /*float: right;*/
+        width: 44px;
+        height: 20px;
+        background-color: #808080;
+      }
+
+      div.bdn_switch_container div.bdn_switch div.bdn_switch_handle {
+        position: relative;
+        left: 0;
+        margin-left: 2px;
+        margin-right: 2px;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        border-radius: 8px;
+        width: 16px;
+        height: 16px;
+        background-color: white;
+      }
+
+      div.bdn_switch_container div.bdn_switch.bdn_on {
+        background-color: #00dd00;
+      }
+
+      div.bdn_switch_container div.bdn_switch.bdn_on div.bdn_switch_handle {
+        animation: animateOn 0.1s ease-in forwards;
+        box-shadow: -1px 0px 0.5px 0.2px rgba(0, 0, 0, 0.2);
+      }
+
+      div.bdn_switch_container div.bdn_switch.bdn_off div.bdn_switch_handle {
+        animation: animateOff 0.1s ease-in forwards;
+        box-shadow: 1px 0px 0.5px 0.2px rgba(0, 0, 0, 0.2);
+      }
+
+      @keyframes animateOn {
+        0% {
+          transform: translateX(0px);
+        }
+        100% {
+          transform: translateX(24px);
+        }
+      }
+
+      @keyframes animateOff {
+        0% {
+          transform: translateX(24px);
+        }
+        100% {
+          transform: translateX(0px);
+        }        
+      }
+
+      div.bdn_switch_container div.bdn_switch_label:after {
+        /*clear: both;*/
+      }
+
     </style>
   </head>
   <body style="margin: 0; padding: 0; overflow:hidden">

@@ -25,20 +25,17 @@ public:
         g_signal_connect( getGtkWidget(), "clicked", G_CALLBACK(clickedCallback), this );
     }
     
-    
     void setPadding(const Nullable<UiMargin>& uiPadding)
     {
         // future: could use child-displacement-x or CSS padding property in future.
         // For now we do nothing with the padding at this point. But we DO add it into the preferred
-        // size (see ViewCore::_calcPreferredSize), so         
-        
+        // size (see ViewCore::_calcPreferredSize), so
     }
     
     void setLabel(const String& label) override
     {
         ButtonCoreBase::setLabel(label);
     }
-        
 
     void generateClick()
     {
@@ -50,8 +47,6 @@ public:
             cast<Button>( pView )->onClick().notify(evt);
         }
     }
-
-
 
 protected:
 

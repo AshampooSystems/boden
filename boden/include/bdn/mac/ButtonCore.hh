@@ -32,8 +32,7 @@ public:
     {
         ButtonCoreBase::setLabel(label);
     }
-
-
+    
     Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
         Rect adjustedBounds = ChildViewCore::adjustAndSetBounds(requestedBounds);

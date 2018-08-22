@@ -5,6 +5,9 @@
 #include <bdn/test/MockContainerViewCore.h>
 #include <bdn/test/MockWindowCore.h>
 #include <bdn/test/MockButtonCore.h>
+#include <bdn/test/MockCheckboxCore.h>
+#include <bdn/test/MockToggleCore.h>
+#include <bdn/test/MockSwitchCore.h>
 #include <bdn/test/MockTextViewCore.h>
 #include <bdn/test/MockTextFieldCore.h>
 #include <bdn/test/MockScrollViewCore.h>
@@ -37,6 +40,24 @@ P<IViewCore> MockUiProvider::createViewCore(const String& coreTypeName, View* pV
 		_coresCreated++;
 
 		return newObj<MockButtonCore>( cast<Button>(pView) );
+	}
+    else if(coreTypeName==Checkbox::getCheckboxCoreTypeName())
+    {
+        _coresCreated++;
+        
+        return newObj<MockCheckboxCore>( cast<Checkbox>(pView) );
+    }
+	else if(coreTypeName==Toggle::getToggleCoreTypeName())
+	{
+		_coresCreated++;
+
+		return newObj<MockToggleCore>( cast<Toggle>(pView) );
+	}
+	else if(coreTypeName==Switch::getSwitchCoreTypeName())
+	{
+		_coresCreated++;
+
+		return newObj<MockSwitchCore>( cast<Switch>(pView) );
 	}
     else if(coreTypeName==TextView::getTextViewCoreTypeName())
 	{

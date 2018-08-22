@@ -2,6 +2,8 @@
 #include <bdn/win32/UiProvider.h>
 
 #include <bdn/win32/ButtonCore.h>
+#include <bdn/win32/CheckboxCore.h>
+#include <bdn/win32/SwitchCore.h>
 #include <bdn/win32/WindowCore.h>
 #include <bdn/win32/ContainerViewCore.h>
 #include <bdn/win32/TextViewCore.h>
@@ -132,6 +134,15 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
 
 	else if(coreTypeName == Button::getButtonCoreTypeName() )
 		return newObj<ButtonCore>( cast<Button>(pView) );
+
+	else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+		return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
+
+	else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+		return newObj<CheckboxCore<Toggle>>( cast<Toggle>(pView) );
+
+	else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+		return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
 
 	else if(coreTypeName == Window::getWindowCoreTypeName() )
 		return newObj<WindowCore>( cast<Window>(pView) );

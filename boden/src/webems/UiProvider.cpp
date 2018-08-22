@@ -8,6 +8,8 @@
 #include <bdn/ViewTextUi.h>
 
 #include <bdn/webems/ContainerViewCore.h>
+#include <bdn/webems/SwitchCore.h>
+#include <bdn/webems/CheckboxCore.h>
 #include <bdn/webems/ButtonCore.h>
 #include <bdn/webems/TextViewCore.h>
 #include <bdn/webems/TextFieldCore.h>
@@ -46,6 +48,15 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+        return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
+
+    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+        return newObj<CheckboxCore<Toggle>>( cast<Toggle>(pView) );
+
+    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );

@@ -5,6 +5,8 @@
 #include <bdn/winuwp/ScrollViewCore.h>
 #include <bdn/winuwp/ContainerViewCore.h>
 #include <bdn/winuwp/ButtonCore.h>
+#include <bdn/winuwp/CheckboxCore.h>
+#include <bdn/winuwp/SwitchCore.h>
 #include <bdn/winuwp/TextViewCore.h>
 #include <bdn/winuwp/TextFieldCore.h>
 
@@ -44,6 +46,15 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+        return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
+
+    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+        return newObj<CheckboxCore<Toggle>>( cast<Toggle>(pView) );
+
+    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
     
     else if(coreTypeName == Window::getWindowCoreTypeName() )
         return newObj<WindowCore>( this, cast<Window>(pView) );

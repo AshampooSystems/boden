@@ -1,6 +1,7 @@
 import os, sys
 import logging
 import subprocess
+import shutil
 
 from androidstudioprojectgenerator import AndroidStudioProjectGenerator
 from cmake import CMake
@@ -127,7 +128,7 @@ class AndroidExecutor:
         # To force re-detection of that we delete the .idea folder.
         idea_dir = os.path.join( buildDir, ".idea")
         if os.path.exists(idea_dir):
-            self.logger.info("Deleting .idea folder in build dir to force re-detection of files.", file=sys.stderr)
+            self.logger.info("Deleting .idea folder in build dir to force re-detection of files." )
             shutil.rmtree( idea_dir )
 
     def getToolEnv(self):

@@ -13,6 +13,8 @@
 
 #import <bdn/mac/WindowCore.hh>
 #import <bdn/mac/ButtonCore.hh>
+#import <bdn/mac/CheckboxCore.hh>
+#import <bdn/mac/SwitchCore.hh>
 #import <bdn/mac/TextViewCore.hh>
 #import <bdn/mac/ContainerViewCore.hh>
 #import <bdn/mac/ScrollViewCore.hh>
@@ -83,6 +85,16 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+        return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
+
+    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
+    
+    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+        return newObj<CheckboxCore<Toggle>>( cast<Toggle>(pView) );
+
     
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );

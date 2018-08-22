@@ -28,7 +28,7 @@ public:
     {
         _outerViewWeak = pOuterView;
 
-        _elementId = "bdn_view_"+std::to_string(IdGen::newID());
+        _elementId = _nextElementId();
 
         emscripten::val docVal = emscripten::val::global("document");
         
@@ -522,6 +522,7 @@ protected:
     {
         emscripten::val docVal = emscripten::val::global("document");
 
+        // HDU: why getElementById()? _domObject should do?
         docVal.call<emscripten::val>("getElementById", getHtmlElementId().asUtf8() ).call<void>("appendChild", childDomObject);
     }
 
@@ -557,6 +558,11 @@ protected:
                          + " " + std::to_string((int)std::ceil(pad.left))+"px";
 
         _domObject["style"].set("padding", paddingString.asUtf8());
+    }
+
+    String _nextElementId()
+    {
+        return "bdn_view_" + std::to_string(IdGen::newID());        
     }
 
 

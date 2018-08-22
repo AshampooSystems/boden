@@ -27,7 +27,6 @@ public:
         [_nsButton setTitle: macLabel];
     }
     
-    
 protected:
     
     double getFontSize() const override

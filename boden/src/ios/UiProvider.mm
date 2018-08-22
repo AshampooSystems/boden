@@ -5,6 +5,8 @@
 #import <bdn/ios/WindowCore.hh>
 #import <bdn/ios/ContainerViewCore.hh>
 #import <bdn/ios/ButtonCore.hh>
+#import <bdn/ios/CheckboxCore.hh>
+#import <bdn/ios/SwitchCore.hh>
 #import <bdn/ios/TextViewCore.hh>
 #import <bdn/ios/TextFieldCore.hh>
 #import <bdn/ios/ScrollViewCore.hh>
@@ -57,6 +59,15 @@ P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
     
     else if(coreTypeName == Button::getButtonCoreTypeName() )
         return newObj<ButtonCore>( cast<Button>(pView) );
+
+    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
+        return newObj<CheckboxCore>( cast<Checkbox>(pView) );
+
+    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
+        return newObj<SwitchCore<Toggle>>( cast<Toggle>(pView) );
+
+    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
+        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
 
     else if(coreTypeName == TextView::getTextViewCoreTypeName() )
         return newObj<TextViewCore>( cast<TextView>(pView) );
