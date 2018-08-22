@@ -297,29 +297,41 @@ void MainDispatcher::enqueueInSeconds(double                   seconds,
 
 void MainDispatcher::callNextNormalItem()
 {
-    if(!_normalQueue.empty())
+    std::function<void()> func;
+    
     {
+        Mutex::Lock lock(_queueMutex);
+    
+        if(_normalQueue.empty())
+            return;
+
         // make a copy so that exceptions in the destructor do not
-        // cause an invalid list state
-        std::function<void()> func = _normalQueue.front();
+        // cause an invalid list state. Also because we need to hold the mutex
+        // when we access the queue.
+        func = _normalQueue.front();
         _normalQueue.pop_front();
+    }
         
-        try
-        {
-            func();
-        }
-        catch(DanglingFunctionError&)
-        {
-            // ignore. This means that the function is a weak method
-            // whose object has been deleted. This is treated like a no-op.
-        }
+    try
+    {
+        func();
+    }
+    catch(DanglingFunctionError&)
+    {
+        // ignore. This means that the function is a weak method
+        // whose object has been deleted. This is treated like a no-op.
     }
 }
 
 void MainDispatcher::callTimedItem(std::list< std::function<void()> >::iterator it)
 {
-    std::function<void()> func = *it;
-    _timedNormalQueue.erase( it );
+    std::function<void()> func;
+    
+    {
+        Mutex::Lock lock(_queueMutex);
+        func = *it;
+        _timedNormalQueue.erase( it );
+    }
     
     try
     {

@@ -45,7 +45,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 
 	// Sanity check. Verify the fake button size. 9.75 , 19.60 per character, rounded up to 1/3 pixel size, plus 10x8 for border
 	Size buttonSize( std::ceil(10*9.75*3)/3 + 10, 19 + 2.0/3 + 8);
-	REQUIRE( pButtonCore->calcPreferredSize() == buttonSize );
+	REQUIRE_ALMOST_EQUAL( pButtonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001) );
     
 	Size expectedSize = buttonSize + buttonMargin;
 
@@ -55,7 +55,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<ScrollView> 
 	{
 		Size size = getSizeFunc();
 
-		REQUIRE( size == expectedSize );
+		REQUIRE_ALMOST_EQUAL( size, expectedSize, Size(0.0000001, 0.0000001) );
 	};
 }
 

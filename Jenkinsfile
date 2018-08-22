@@ -38,6 +38,8 @@ pipeline {
 
                                 sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py --platform linux --config Release --module testbodenui -- run --out testresults/linux_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/linux_testbodenui.xml"
+
+                                archiveArtifacts artifacts: 'testresults/*.xml'
                             }
                         }
                     }
@@ -83,6 +85,8 @@ pipeline {
 
                                 sh 'python build.py --platform mac --build-system Xcode --config Release --module testbodenui --run-output-file testresults/mac_testbodenui.xml -- run --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/mac_testbodenui.xml"
+
+                                archiveArtifacts artifacts: 'testresults/*.xml'
                             }
                         }
                     }
@@ -110,6 +114,8 @@ pipeline {
 
                                 sh 'python build.py --platform ios --build-system Xcode --config Release --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- run --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testbodenui.xml"
+
+                                archiveArtifacts artifacts: 'testresults/*.xml'
                             }
                         }
                     }

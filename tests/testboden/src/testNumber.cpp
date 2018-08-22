@@ -378,23 +378,32 @@ static void _testNumberBase()
 		if(ObjectType::hasNan() )
 		{
 			BaseSimpleType nanVal = ObjectType::nan();
-			// NaN values do not compare equal to anything
-			REQUIRE( nanVal != nanVal );
-
+        
 			REQUIRE( isNan(nanVal) );
+            
+            // NaN values do not compare equal to anything,
+            // unless the compiler has activated optimizations that
+            // violate the standard.
+            
+#if ! BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+            REQUIRE( nanVal != nanVal );
+#endif
 		}
 		else
 		{
 			BaseSimpleType nanVal = ObjectType::nan();
 
 			REQUIRE( nanVal == 0);
+            
 			REQUIRE( ! isNan(nanVal) );
 		}
 		
 		if(ObjectType::hasInfinity() )
 		{
+#if ! BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
 			REQUIRE( ObjectType::infinity() > ObjectType::maxValue() );
 			REQUIRE( ObjectType::negativeInfinity() < ObjectType::minValue() );
+#endif
 		}
 		else
 		{

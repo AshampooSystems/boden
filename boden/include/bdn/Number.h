@@ -107,10 +107,16 @@ public:
 		in safely with normal floating point operations, meaning that it does
 		not raise an exception signal when used (it is a "quiet NaN").
 					
-		Note that NaN values never compare equal to anything, not even other
-		NaN values! Use isNan() to check if a given value is a NaN.
-
-		Also see hasNan() and the global functions isFinite() and isNan()
+		Use isNan() to check if a given value is a NaN.
+     
+        Also see hasNan() and the global functions bdn::isFinite() and bdn::isNan()
+     
+        Note that normally, when the compiler is producing standard compliant code,
+        NaN values never compare equal to anything, not even other NaN values.
+        However, some compilers support standard-breaking optimizations that
+        make the result of such comparisons unreliable. So you may want to avoid
+        comparisons with NaN. Also see \ref BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS.
+		
 	*/
 	constexpr static inline BaseType nan()
 	{

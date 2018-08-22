@@ -827,8 +827,12 @@ inline void testView()
                                             expectedSize = Size(3+1.0/3, 5);
                                         else
                                             expectedSize = Size(3, 5);
-
-                                        REQUIRE( adjustedBounds==Rect(expectedPos, expectedSize) );
+                                        
+                                        // note that small floating point rounding differences are allowed
+                                        REQUIRE_ALMOST_EQUAL( adjustedBounds.x, expectedPos.x, 0.0001 );
+                                        REQUIRE_ALMOST_EQUAL( adjustedBounds.y, expectedPos.y, 0.0001 );
+                                        REQUIRE_ALMOST_EQUAL( adjustedBounds.width, expectedSize.width, 0.0001 );
+                                        REQUIRE_ALMOST_EQUAL( adjustedBounds.height, expectedSize.height, 0.0001 );
 
                                         // view properties should not have changed
                                         REQUIRE( pView->position() == origBounds.getPosition() );

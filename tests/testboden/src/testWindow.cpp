@@ -45,7 +45,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 
 	// Sanity check. Verify the fake button size. 9.75 , 19.60 per character, rounded to full 1/3 DIP pixels, plus 10x8 for border
 	Size buttonSize( std::ceil(10*9.75*3)/3 + 10, 19 + 2.0/3 + 8);
-	REQUIRE( pButtonCore->calcPreferredSize() == buttonSize );
+	REQUIRE_ALMOST_EQUAL( pButtonCore->calcPreferredSize(), buttonSize, Size(0.0000001, 0.0000001) );
 
 	// window border size is 20, 11, 12, 13 in our fake UI
 	Margin windowBorder( 20, 11, 12, 13);
@@ -58,7 +58,7 @@ void testSizingWithContentView(P< bdn::test::ViewWithTestExtensions<Window> > pW
 	{
 		Size size = getSizeFunc();
 
-		REQUIRE( size == expectedSize );
+		REQUIRE_ALMOST_EQUAL( size, expectedSize, Size(0.0000001, 0.0000001) );
 	};
 }
 

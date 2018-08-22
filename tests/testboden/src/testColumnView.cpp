@@ -66,20 +66,20 @@ static void testChildAlignment(
                 // and the view should now be aligned accordingly.
                 if(horzAlign==View::HorizontalAlignment::left)
                 {
-                    REQUIRE( bounds.x==margin.left );
+                    REQUIRE_ALMOST_EQUAL( bounds.x, margin.left, 0.0000001 );
                 }
                 else if(horzAlign==View::HorizontalAlignment::center)
                 {
-                    REQUIRE( bounds.x == margin.left + (containerBounds.width - (bounds.width+margin.left+margin.right) )/2  );
+                    REQUIRE_ALMOST_EQUAL( bounds.x, margin.left + (containerBounds.width - (bounds.width+margin.left+margin.right) )/2, 0.0000001  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::right)
                 {
-                    REQUIRE( bounds.x == containerBounds.width - margin.right - bounds.width  );
+                    REQUIRE_ALMOST_EQUAL( bounds.x, containerBounds.width - margin.right - bounds.width, 0.0000001  );
                 }
                 else if(horzAlign==View::HorizontalAlignment::expand)
                 {
-                    REQUIRE( bounds.x == margin.left);
-                    REQUIRE( bounds.width == containerBounds.width - margin.left - margin.right );
+                    REQUIRE_ALMOST_EQUAL( bounds.x, margin.left, 0.0000001);
+                    REQUIRE_ALMOST_EQUAL( bounds.width, containerBounds.width - margin.left - margin.right, 0.0000001 );
                 }
             };
         }

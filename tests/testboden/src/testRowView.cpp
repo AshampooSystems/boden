@@ -68,21 +68,21 @@ static void testChildAlignment(
                 // and the view should now be aligned accordingly.
                 if(vertAlign==View::VerticalAlignment::top)
                 {
-                    REQUIRE( bounds.y==margin.top );
+                    REQUIRE_ALMOST_EQUAL( bounds.y, margin.top, 0.0000001 );
                 }
                 else if(vertAlign==View::VerticalAlignment::middle)
                 {
-                    REQUIRE( bounds.y == Dip::pixelAlign(margin.top + (containerBounds.height - (bounds.height+margin.top+margin.bottom) )/2, 3, RoundType::up) );
+                    REQUIRE_ALMOST_EQUAL( bounds.y, Dip::pixelAlign(margin.top + (containerBounds.height - (bounds.height+margin.top+margin.bottom) )/2, 3, RoundType::up), 0.0000001 );
                 }
                 else if(vertAlign==View::VerticalAlignment::bottom)
                 {
                     double expectedY = containerBounds.height - margin.bottom - bounds.height;
-                    REQUIRE( bounds.y == expectedY );
+                    REQUIRE_ALMOST_EQUAL( bounds.y, expectedY, 0.0000001 );
                 }
                 else if(vertAlign==View::VerticalAlignment::expand)
                 {
-                    REQUIRE( bounds.y == margin.top);
-                    REQUIRE( bounds.height == containerBounds.height - margin.top - margin.bottom );
+                    REQUIRE_ALMOST_EQUAL( bounds.y, margin.top, 0.0000001 );
+                    REQUIRE_ALMOST_EQUAL( bounds.height, containerBounds.height - margin.top - margin.bottom, 0.0000001 );
                 }
             };
         }

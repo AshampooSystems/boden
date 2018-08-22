@@ -281,6 +281,26 @@
 	#define BDN_STD_ISFINITE_INT_MISSING 0
 #endif
 
+/** \def BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+ 
+    This macro is 1 if the compiler performs aggressive floating point optimizations.
+ 
+    In particular, the following should be assumed when this is set:
+ 
+    - The result of comparisons or arithmetic operations involving NaN or infinity values
+      should be regarded as undefined.
+    - +0 and -0 are interchangeable
+    - Operations involving finite numbers work mostly as expected, but may sometimes have reduced
+      precision.
+ */
+#ifndef BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+    #ifdef __FAST_MATH__
+        #define BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS 1
+    #else
+        #define BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS 0
+    #endif
+#endif
+
 #endif
 
 

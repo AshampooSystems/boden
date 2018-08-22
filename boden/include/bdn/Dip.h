@@ -25,11 +25,24 @@ namespace bdn
     So, what is an "insignificant difference"? The static function significanceBoundary() 
     returns the minimum difference that is considered to be significant. See the documentation
     of significanceBoundary() for more information.
-
-    Note that the Dip class can handle infinity double values. The comparisons work as expected.
-    Most other operations will return infinity as the output when you put in an infinity value.
-
+ 
     Dip objects can be implicitly converted to double values.
+ 
+    Infinities and NaN
+    ------------------
+
+    Note that the Dip class can also handle the special infinity and NaN floating point values.
+    Dip comparison operations involving these special values behave the same way as normal
+    floating point comparisons with these special values would.
+ 
+    However, note that some C++ compilers have options that enable aggressive floating point
+    optimizations (for example -ffast-math for Clang). When such optimizations are activated
+    then floating operations involving infinities or NaN do not work correctly on the compiler level.
+    Consequently, Dip operations with these special values will also not work correctly when such optimizations
+    are active.
+ 
+    Also see \ref BDN_AGGRESSIVE_FLOAT_OPTIMIZATIONS
+ 
 */
 class Dip : public Base
 {
@@ -191,7 +204,7 @@ public:
             return fabs(a-b) <= significanceBoundary();
         else
         {
-            // when infinities are involved then slight differences do affect the outcome
+            // when infinities or NaN are involved then we only need a simple comparison
             return (a==b);
         }
     }
