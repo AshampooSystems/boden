@@ -259,24 +259,16 @@ protected:
                     Size prefSizeBefore = _pCore->calcPreferredSize();
 
                     _pView->setVisible( true );
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
-                    {
-                        REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                    
+                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                        pThis->_pView->setVisible( false );
-                        
-                        CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
-                        {
-                            REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
+                    pThis->_pView->setVisible( false );
+                    
+                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
 
-                            pThis->_pView->setVisible( true );
-                            
-                            CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
-                            {
-                                REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
-                            };
-                        };
-                    };
+                    pThis->_pView->setVisible( true );
+                    
+                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
                 }
             }
         }
@@ -408,10 +400,7 @@ protected:
 
                 _pView->adjustAndSetBounds( Rect(110, 220, 660, 510) );
                 
-                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore)
-                {
-                    REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
-                };
+                REQUIRE( pThis->_pCore->calcPreferredSize() == prefSizeBefore );
             }
         }
 

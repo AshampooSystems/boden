@@ -72,25 +72,19 @@ protected:
 
                 _pButton->setLabel( labelBefore + labelBefore + labelBefore );
                 
-                CONTINUE_SECTION_WHEN_IDLE(pThis, prefSizeBefore, labelBefore)
-                {
-                    Size prefSize = pThis->_pButton->calcPreferredSize();
+                Size prefSize = pThis->_pButton->calcPreferredSize();
 
-                    // width must increase with a bigger label
-                    REQUIRE(prefSize.width > prefSizeBefore.width);
+                // width must increase with a bigger label
+                REQUIRE(prefSize.width > prefSizeBefore.width);
 
-                    // note that the height might or might not increase. But it cannot be smaller.
-                    REQUIRE(prefSize.height >= prefSizeBefore.height);
+                // note that the height might or might not increase. But it cannot be smaller.
+                REQUIRE(prefSize.height >= prefSizeBefore.height);
 
-                    // when we go back to the same label as before then the preferred size should
-                    // also be the same again
-                    pThis->_pButton->setLabel( labelBefore );
-                    
-                    CONTINUE_SECTION_WHEN_IDLE(pThis, labelBefore, prefSizeBefore)
-                    {
-                        REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
-                    };
-                };
+                // when we go back to the same label as before then the preferred size should
+                // also be the same again
+                pThis->_pButton->setLabel( labelBefore );
+                
+                REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
             }
         }
     }

@@ -58,18 +58,15 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         // increasing the padding
         pView->setPadding( UiMargin( 100, 200, 300, 400) );
 
-        CONTINUE_SECTION_WHEN_IDLE(pView, pObject, zeroPaddingSize, pKeepAliveDuringContinuations)
-        {
-            Size sizeWithPadding = pObject->calcPreferredSize();
+        Size sizeWithPadding = pObject->calcPreferredSize();
 
-            // the increased padding should have increased the preferred size.
-            // Note that we cannot really know by how much because there can be
-            // hidden minimum padding values for certain views. I.e. the padding
-            // we apply might be rounded up to that minimum.
-            // But since we applied a rather large padding we can expect that 
-            // this will make the view bigger
-            REQUIRE( sizeWithPadding > zeroPaddingSize);
-        };
+        // the increased padding should have increased the preferred size.
+        // Note that we cannot really know by how much because there can be
+        // hidden minimum padding values for certain views. I.e. the padding
+        // we apply might be rounded up to that minimum.
+        // But since we applied a rather large padding we can expect that 
+        // this will make the view bigger
+        REQUIRE( sizeWithPadding > zeroPaddingSize);
     }
                 
     SECTION("availableSize = preferredSize")	
@@ -99,52 +96,36 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
         {
             pView->setPreferredSizeMinimum( prefSizeBefore-Size(1,1) );
 
-            // must wait until change has propagated and caches have been invalidated
-            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-            {
-                Size prefSize = pObject->calcPreferredSize();
+            Size prefSize = pObject->calcPreferredSize();
 
-                REQUIRE( prefSize == prefSizeBefore);
-            };
+            REQUIRE( prefSize == prefSizeBefore);
         }
 
         SECTION("same as preferred size")
         {
             pView->setPreferredSizeMinimum( prefSizeBefore );
 
-            // must wait until change has propagated and caches have been invalidated
-            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-            {
-                Size prefSize = pObject->calcPreferredSize();
-    
-                REQUIRE( prefSize == prefSizeBefore);
-            };
+            Size prefSize = pObject->calcPreferredSize();
+
+            REQUIRE( prefSize == prefSizeBefore);
         }
                     
         SECTION("width bigger than preferred width")
         {
             pView->setPreferredSizeMinimum( Size( prefSizeBefore.width+1, -1 ) );
 
-            // must wait until change has propagated and caches have been invalidated
-            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-            {
-                Size prefSize = pObject->calcPreferredSize();
+            Size prefSize = pObject->calcPreferredSize();
 
-                REQUIRE( prefSize == prefSizeBefore+Size(1, 0));
-            };
+            REQUIRE( prefSize == prefSizeBefore+Size(1, 0));
         }
 
         SECTION("height bigger than preferred height")
         {
             pView->setPreferredSizeMinimum( Size( -1, prefSizeBefore.height+1 ) );
 
-            // must wait until change has propagated and caches have been invalidated
-            CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-            {
-                Size prefSize = pObject->calcPreferredSize();
+            Size prefSize = pObject->calcPreferredSize();
 
-                REQUIRE( prefSize == prefSizeBefore+Size(0, 1));
-            };
+            REQUIRE( prefSize == prefSizeBefore+Size(0, 1));
         }
     }
 
@@ -166,52 +147,36 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
             {
                 pView->setPreferredSizeMaximum( prefSizeBefore+Size(1,1) );
 
-                // must wait until change has propagated and caches have been invalidated
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize == prefSizeBefore);
-                };
+                REQUIRE( prefSize == prefSizeBefore);
             }
 
             SECTION("same as preferred size")
             {
                 pView->setPreferredSizeMaximum( prefSizeBefore );
 
-                // must wait until change has propagated and caches have been invalidated
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize == prefSizeBefore);
-                };
+                REQUIRE( prefSize == prefSizeBefore);
             }
                     
             SECTION("width smaller than preferred width")
             {
                 pView->setPreferredSizeMaximum( Size( prefSizeBefore.width-1, Size::componentNone() ) );
 
-                // must wait until change has propagated and caches have been invalidated
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize.width < prefSizeBefore.width);
-                };
+                REQUIRE( prefSize.width < prefSizeBefore.width);
             }
 
             SECTION("height smaller than preferred height")
             {
                 pView->setPreferredSizeMaximum( Size( Size::componentNone(), prefSizeBefore.height-1 ) );
 
-                // must wait until change has propagated and caches have been invalidated
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, prefSizeBefore, pKeepAliveDuringContinuations)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize.height < prefSizeBefore.height );
-                };
+                REQUIRE( prefSize.height < prefSizeBefore.height );
             }
         };
     }
@@ -278,68 +243,56 @@ inline void _testCalcPreferredSize(P<View> pView, P<ObjectType> pObject, P<IBase
             {
                 pView->setPreferredSizeHint( prefSizeBefore+Size(1,1) );
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize == prefSizeBefore);
-                };
+                REQUIRE( prefSize == prefSizeBefore);
             }
 
             SECTION("same as preferred size")
             {
                 pView->setPreferredSizeHint( prefSizeBefore );
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    REQUIRE( prefSize == prefSizeBefore);
-                };
+                REQUIRE( prefSize == prefSizeBefore);
             }
                     
             SECTION("width smaller than preferred width")
             {
                 pView->setPreferredSizeHint( Size( prefSizeBefore.width-1, Size::componentNone() ) );
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    // it depends on the view whether or not the width hint has an effect
-                    if(shouldPrefererredWidthHintHaveAnEffect<ViewType>() )
-                    {
-                        REQUIRE( prefSize.width < prefSizeBefore.width);
-                
-                        // the height may have increase as a result of the width being reduced.
-                        // It may also have shrunk (for example, if an image is shrunk as the result
-                        // of the hint.
-                        // So we cannot test anything here, other than that we get a height that
-                        // is >0
-                        REQUIRE( prefSize.height > 0);
-                    }
-                    else
-                        REQUIRE( prefSize == prefSizeBefore );
-                };
+                // it depends on the view whether or not the width hint has an effect
+                if(shouldPrefererredWidthHintHaveAnEffect<ViewType>() )
+                {
+                    REQUIRE( prefSize.width < prefSizeBefore.width);
+            
+                    // the height may have increase as a result of the width being reduced.
+                    // It may also have shrunk (for example, if an image is shrunk as the result
+                    // of the hint.
+                    // So we cannot test anything here, other than that we get a height that
+                    // is >0
+                    REQUIRE( prefSize.height > 0);
+                }
+                else
+                    REQUIRE( prefSize == prefSizeBefore );
             }
 
             SECTION("height smaller than preferred height")
             {
                 pView->setPreferredSizeHint( Size( Size::componentNone(), prefSizeBefore.height-1 ) );
 
-                CONTINUE_SECTION_WHEN_IDLE(pView, pObject, pKeepAliveDuringContinuations, prefSizeBefore)
-                {
-                    Size prefSize = pObject->calcPreferredSize();
+                Size prefSize = pObject->calcPreferredSize();
 
-                    if( shouldPrefererredHeightHintHaveAnEffect<ViewType>() )
-                    {
-                        REQUIRE( prefSize.height < prefSizeBefore.height);
-                
-                        REQUIRE( prefSize.width > 0);
-                    }
-                    else
-                        REQUIRE( prefSize == prefSizeBefore );
-                };
+                if( shouldPrefererredHeightHintHaveAnEffect<ViewType>() )
+                {
+                    REQUIRE( prefSize.height < prefSizeBefore.height);
+            
+                    REQUIRE( prefSize.width > 0);
+                }
+                else
+                    REQUIRE( prefSize == prefSizeBefore );
             }
         };
     }
