@@ -21,6 +21,8 @@ int uiAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreat
     return pAppRunner->entry();
 
     BDN_ENTRY_END(false);
+
+    return 0;
 }
 
 

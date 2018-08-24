@@ -8,8 +8,8 @@ file(GLOB _TESTBODEN_COMMON_SOURCES
     ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.h
     ${TESTBODEN_COMMON_SRCDIR}/${BODEN_TARGET}/*.hh)
 
-    add_universal_library(testboden_common ${_TESTBODEN_COMMON_SOURCES})
-target_link_libraries(testboden_common PUBLIC boden)
+add_universal_library(testboden_common ${_TESTBODEN_COMMON_SOURCES})
+target_link_libraries(testboden_common PUBLIC foundation)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${_TESTBODEN_COMMON_SOURCES})
 

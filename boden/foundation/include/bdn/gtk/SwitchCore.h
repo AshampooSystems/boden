@@ -81,8 +81,19 @@ public:
             margin = 0.;
             labelSize.width = 0.; // GTK reports width of label as 1. even if empty
         }
-        
-        return Size(switchSize.width + labelSize.width + margin, fmax(switchSize.height, labelSize.height));
+
+        Size result = Size(switchSize.width + labelSize.width + margin, fmax(switchSize.height, labelSize.height));
+
+        result += _getPaddingIntegerDips();
+
+        P<View> pOuterView = getOuterViewIfStillAttached();
+        if(pOuterView!=nullptr)
+        {
+            result.applyMinimum( pOuterView->preferredSizeMinimum() );
+            result.applyMaximum( pOuterView->preferredSizeMaximum() );
+        }
+
+        return result;
     }
     
     void layout() override

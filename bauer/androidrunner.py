@@ -35,7 +35,6 @@ class AndroidRunner:
         if not os.path.exists(moduleFilePath):
             raise Exception("APK not found - expected here: "+moduleFilePath)
         
-
         deviceName = "bdnTestAVD"+str(random.getrandbits(32))
 
         self.prepareAndroid(androidAbi)

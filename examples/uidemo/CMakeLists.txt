@@ -13,4 +13,8 @@ add_universal_executable(uidemo No ${UIDEMO_FILES})
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${UIDEMO_FILES})
 
-target_link_libraries(uidemo PRIVATE boden)
+target_link_libraries(uidemo PRIVATE ui foundation)
+
+install(TARGETS uidemo
+    DESTINATION examples
+    COMPONENT Examples)

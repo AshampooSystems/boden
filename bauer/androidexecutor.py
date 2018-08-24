@@ -3,6 +3,7 @@ import logging
 import subprocess
 import shutil
 
+from buildexecutor import BuildExecutor
 from androidstudioprojectgenerator import AndroidStudioProjectGenerator
 from cmake import CMake
 from gradle import Gradle
@@ -17,21 +18,34 @@ class AndroidExecutor:
         self.buildFolder = buildFolder
         self.buildExecutor = buildExecutor
         self.gradle = Gradle(sourceDirectory)
+        self.cmake = CMake()
 
         self.androidBuildApiVersion = "26"
         self.androidBuildToolsVersion = "26.0.2"
         self.androidEmulatorApiVersion = "26"
 
-    def buildOrClean(self, configuration, clean, args):
+    def buildTarget(self, configuration, args, target):
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
         androidHome = self.getAndroidHome()
-        gradlePath = self.gradle.getGradlePath()
         buildDir = self.buildFolder.getBuildDir(configuration)
+
+        if configuration.buildsystem == "AndroidStudio":
+            self.buildTargetAndroidStudio(configuration, args, target, androidAbi, androidHome, buildDir)
+        else:
+            self.buildTargetMake(configuration, args, target)
+
+    def buildTargetMake(self, configuration, args, target):
+        buildExecutor = BuildExecutor(self.generatorInfo, None, self.sourceDirectory, self.buildFolder)
+        buildExecutor.buildTarget(configuration, args, target)
+
+    def buildTargetAndroidStudio(self, configuration, args, target, androidAbi, androidHome, buildDir):
+
+        gradlePath = self.gradle.getGradlePath()
         gradleWrapperPath = self.getBuildToolPath(buildDir, "gradlew")
 
         arguments = ["\"" + gradleWrapperPath + "\""]
 
-        if clean:
+        if target == "clean":
             arguments += ["clean"]
         else:
             if args.config=="Release":
@@ -46,23 +60,72 @@ class AndroidExecutor:
             raise error.ToolFailedError("%s" %(arguments), exitCode);
 
     def build(self, configuration, args):
-        self.buildOrClean(configuration, False, args)
+        self.buildTarget(configuration, args, None)
 
     def clean(self, configuration, args):
-        self.buildOrClean(configuration, True, args)
+        self.buildTarget(configuration, args, "clean")
 
-    def prepare(self, platformState, configuration):
+    def package(self, configuration, args):
+        if configuration.buildsystem == "AndroidStudio":
+            self.logger.critical("Cannot build packages with Android Studio, use make instead")
+        else:
+            self.buildTarget(configuration, args, "package")
+
+    def prepare(self, platformState, configuration, args):
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
         androidHome = self.getAndroidHome()
-        gradlePath = self.gradle.getGradlePath()
 
         self.prepareAndroidEnvironment(configuration)
 
         buildDir = self.buildFolder.getBuildDir(configuration)
+
+        if configuration.buildsystem == "AndroidStudio":
+            self.prepareAndroidStudio(platformState, configuration, androidAbi, androidHome, buildDir)
+        else:
+            self.prepareMake(platformState, configuration, args, androidAbi, androidHome, buildDir)
+
+    def prepareMake(self, platformState, configuration, args, androidAbi, androidHome, cmakeBuildDir):
+        self.cmake.open(self.sourceDirectory, cmakeBuildDir, "Unix Makefiles")
+
+        cmakeArguments = [
+            "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome),
+            "-DANDROID_ABI=%s" % (self.getAndroidABIFromArch(configuration.arch)),
+            "-DANDROID_NATIVE_API_LEVEL=%s" % ( self.androidBuildApiVersion ),
+            "-DCMAKE_BUILD_TYPE=%s" % (configuration.config),
+            "-DBODEN_BUILD_TESTS=Off",
+            "-DBODEN_BUILD_EXAMPLES=Off",
+        ]
+
+        if args.package_generator:
+            cmakeArguments += ["-DCPACK_GENERATOR=%s" % (args.package_generator)]
+
+        if args.package_folder:
+            packageFolder = args.package_folder
+            if not os.path.isabs(packageFolder):
+                packageFolder = os.path.join(self.buildFolder.getBaseBuildDir(), packageFolder)
+
+            cmakeArguments += ["-DCPACK_OUTPUT_FILE_PREFIX=%s" % (packageFolder)]
+
+
+        self.logger.warning("Disabling examples and tests, as we cannot build apk's yet.")
+
+        self.logger.debug("Starting configure ...")
+        self.logger.debug(" Source Directory: %s", self.sourceDirectory)
+        self.logger.debug(" Output Directory: %s", cmakeBuildDir)
+        self.logger.debug(" Config: %s", configuration.config)
+        self.logger.debug(" Arguments: %s", cmakeArguments)
+        self.logger.debug(" Generator: %s", "Unix Makefiles")
+
+        self.cmake.configure(cmakeArguments)
+
+        pass
+
+    def prepareAndroidStudio(self, platformState, configuration, androidAbi, androidHome, buildDir):
+
+        gradlePath = self.gradle.getGradlePath()
         tmpCMakeFolder = os.path.join(buildDir, "tmp-cmake-gen")
 
-        cmake = CMake()
-        cmake.open(self.sourceDirectory, tmpCMakeFolder, "Unix Makefiles")
+        self.cmake.open(self.sourceDirectory, tmpCMakeFolder, "Unix Makefiles")
 
         arguments = [ "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome), "-DCMAKE_SYSTEM_NAME=Android", "-DBAUER_RUN=Yes" ]
 
@@ -70,13 +133,13 @@ class AndroidExecutor:
             arguments += ["-DCMAKE_MAKE_PROGRAM=%s/ndk-bundle/prebuilt/windows-x86_64/bin/make.exe" % (androidHome)]
 
 
-        cmake.configure(arguments)
+        self.cmake.configure(arguments)
 
-        cmakeConfigurations = cmake.codeModel["configurations"]
+        cmakeConfigurations = self.cmake.codeModel["configurations"]
         if len(cmakeConfigurations) != 1:
             raise Exception("Number of configurations is not 1!")
 
-        targetDependencies = self.calculateDependencies(cmake.codeModel)
+        targetDependencies = self.calculateDependencies(self.cmake.codeModel)
 
         config = cmakeConfigurations[0]
         projects = []
@@ -238,8 +301,10 @@ class AndroidExecutor:
         # to ensure that it actually exists (otherwise we would only find out that we cannot emulate
         # this combination after we have built everything)
         sdkManagerCommand += ' "system-images;android-%s;google_apis;%s"' % (self.androidEmulatorApiVersion, androidAbi)
-
-        subprocess.check_call( sdkManagerCommand, shell=True, env=self.getToolEnv() )
+        try:
+            subprocess.check_call( sdkManagerCommand, shell=True, env=self.getToolEnv() )
+        except:
+            self.logger.warning("Failed getting emulator, you will not be able to 'run' this configuration")
 
         self.logger.info("Done updating packages.")
 

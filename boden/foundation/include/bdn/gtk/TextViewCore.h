@@ -34,7 +34,7 @@ public:
     }
     
     
-    void setPadding(const Nullable<UiMargin>& uiPadding)
+    void setPadding(const Nullable<UiMargin>& uiPadding) override
     {
         // not reflected by gtk widget
     }

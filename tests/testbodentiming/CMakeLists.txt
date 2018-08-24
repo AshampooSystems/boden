@@ -7,3 +7,6 @@ file( GLOB SOURCES
 
 add_boden_test(testbodentiming "${SOURCES}" No)
 
+install(TARGETS testbodentiming
+    DESTINATION tests
+    COMPONENT Tests)

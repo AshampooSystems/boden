@@ -80,7 +80,8 @@ public:
                 }
             }
             
-            TriState newState = nsControlStateValueToTriState(_nsButton.state);;
+            TriState newState = nsControlStateValueToTriState(_nsButton.state);
+
             if (pCheckbox) {
                 pCheckbox->setState( newState );
             } else {

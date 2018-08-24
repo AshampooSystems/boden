@@ -78,6 +78,9 @@ class CommandProcessor:
                     self.prepare(configuration, platformState);
                     #self.build(configuration);
                     self.run(configuration);
+                elif command=="package":
+                    self.prepare(configuration, platformState);
+                    self.package(configuration);
                 else:
                     raise error.ProgramArgumentError("Invalid command: '%s'" % command);
 
@@ -90,15 +93,21 @@ class CommandProcessor:
             os.makedirs(buildDirectory);
 
         if configuration.platform == "android":
-            self.androidExecutor.prepare(platformState, configuration)
+            self.androidExecutor.prepare(platformState, configuration, self.args)
         else:
-            self.buildExecutor.prepare(platformState, configuration)
+            self.buildExecutor.prepare(platformState, configuration, self.args)
 
     def build(self, configuration):
         if configuration.platform == "android":
             self.androidExecutor.build(configuration, self.args)
         else:
             self.buildExecutor.build(configuration, self.args)
+
+    def package(self, configuration):
+        if configuration.platform == "android":
+            self.androidExecutor.package(configuration, self.args)
+        else:
+            self.buildExecutor.package(configuration, self.args)
 
     def clean(self, configuration):
         if configuration.platform == "android":
@@ -125,6 +134,9 @@ class CommandProcessor:
             raise error.ProgramArgumentError("Please specify the configuration name with --config CONFIG")
 
         if configuration.platform == "ios":
+            if configuration.arch == "device":
+                raise error.ProgramArgumentError("Can't run on ios devices yet")
+
             iosRunner = IOSRunner(self.buildFolder, self.buildExecutor.cmake)
             exitCode = iosRunner.run(configuration, self.args)
 
@@ -133,8 +145,12 @@ class CommandProcessor:
             exitCode = emscriptenRunner.run(configuration, self.args)
 
         elif configuration.platform == "android":
-            androidRunner = AndroidRunner(self.buildFolder, self.androidExecutor)
-            exitCode = androidRunner.run(configuration, self.args)
+            if configuration.buildsystem == "AndroidStudio":
+                androidRunner = AndroidRunner(self.buildFolder, self.androidExecutor)
+                exitCode = androidRunner.run(configuration, self.args)
+            else:
+                self.logger.critical("Only AndroidStudio configurations can be run")
+                exit(1)
 
         else:
             appRunner = DesktopRunner(self.buildExecutor.cmake, configuration, self.args)

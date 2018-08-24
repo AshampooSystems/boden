@@ -27,7 +27,7 @@ public:
         g_signal_connect( getGtkWidget(), "toggled", G_CALLBACK(toggledCallback), this );
     }
     
-    void setPadding(const Nullable<UiMargin>& uiPadding)
+    void setPadding(const Nullable<UiMargin>& uiPadding) override
     {
         // future: could use child-displacement-x or CSS padding property in future.
         // For now we do nothing with the padding at this point. But we DO add it into the preferred
@@ -62,7 +62,7 @@ public:
             pToggle->setOn( newState == TriState::on );
     }
 
-    void generateClick()
+    void generateClick() override
     {
         P<View> pView = getOuterViewIfStillAttached();
         if(pView!=nullptr)

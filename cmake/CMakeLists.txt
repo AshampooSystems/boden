@@ -8,7 +8,8 @@ set(_CMAKE_UTILITIES
     utilities/gtk.cmake
     utilities/xcode.cmake
     utilities/ios.cmake
-    utilities/utilities.cmake)
+    utilities/utilities.cmake
+    utilities/install.cmake)
 
 foreach(_utility ${_CMAKE_UTILITIES})
     include(${_utility})

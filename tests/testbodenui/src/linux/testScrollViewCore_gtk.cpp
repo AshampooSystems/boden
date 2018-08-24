@@ -151,7 +151,7 @@ protected:
     
     
   
-    double getVertBarWidth()
+    double getVertBarWidth() override
     {
         int vertBarSpaceWidth=-1;
         int horzBarSpaceHeight=-1;
@@ -161,7 +161,7 @@ protected:
     }
 
 
-    double getHorzBarHeight()
+    double getHorzBarHeight() override
     {
         int vertBarSpaceWidth=-1;
         int horzBarSpaceHeight=-1;

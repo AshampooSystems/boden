@@ -32,3 +32,16 @@ macro(enable_multicore_build TARGET SCOPE)
 		target_compile_options(${TARGET} ${SCOPE} "/MP")
 	endif()
 endmacro()
+
+macro(cmake_variable_to_define TARGET SCOPE CMAKE_VARIABLE)
+    set(truelist "Yes" "On" "True")
+
+    if(${CMAKE_VARIABLE})
+        if(${CMAKE_VARIABLE} IN_LIST truelist)
+            target_compile_definitions(${TARGET} ${SCOPE} "${CMAKE_VARIABLE}")
+        else()
+            target_compile_definitions(${TARGET} ${SCOPE} "${CMAKE_VARIABLE}=${${CMAKE_VARIABLE}}")
+        endif()
+    endif()
+
+endmacro()

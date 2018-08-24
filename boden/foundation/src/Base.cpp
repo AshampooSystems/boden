@@ -13,7 +13,7 @@ public:
     {
     }
 
-    P<IBase> newStrongReference()
+    P<IBase> newStrongReference() override
     {
         Mutex::Lock lock(mutex);
 

@@ -18,12 +18,15 @@ class BuildExecutor:
         self.buildFolder = buildFolder
 
     def build(self, configuration, args):
-        self.buildOrClean(configuration, args, False)
+        self.buildTarget(configuration, args, None)
 
     def clean(self, configuration, args):
-        self.buildOrClean(configuration, args, True)
+        self.buildTarget(configuration, args, "clean")
 
-    def buildOrClean(self, configuration, args, clean):
+    def package(self, configuration, args):
+        self.buildTarget(configuration, args, "package")
+
+    def buildTarget(self, configuration, args, target):
         configs = [configuration.config]
 
         if args.config != None:
@@ -40,8 +43,8 @@ class BuildExecutor:
             buildDirectory = self.buildFolder.getBuildDir(configuration)
             commandArguments = ["\"%s\"" % self.cmake.cmakeExecutable, "--build", "\"%s\"" % buildDirectory]
 
-            if clean:
-                commandArguments += ["--target", "clean"];
+            if target:
+                commandArguments += ["--target", target];
 
             if not isSingleConfigBuildSystem:
                 commandArguments += ["--config", config];
@@ -60,10 +63,10 @@ class BuildExecutor:
 
             exitCode = subprocess.call(commandLine, shell=True, cwd=buildDirectory);
             if exitCode!=0:
-                raise ToolFailedError(commandLine, exitCode);
+                raise error.ToolFailedError(commandLine, exitCode);
 
 
-    def prepare(self, platformState, configuration):
+    def prepare(self, platformState, configuration, args):
         self.logger.debug("prepare(%s)", configuration)
 
         cmakeBuildDir = self.buildFolder.getBuildDir(configuration);
@@ -72,7 +75,7 @@ class BuildExecutor:
         needsCleanBuildDir = False
         cmakeEnvironment = "";
         cmakeArch = configuration.arch;
-        args = [];
+        cmakeArguments = [];
 
         self.generatorInfo.ensureHaveCmake()
 
@@ -80,27 +83,44 @@ class BuildExecutor:
 
         commandIsInQuote = False;
 
+        if args.package_generator:
+            cmakeArguments += ["-DCPACK_GENERATOR=%s" % (args.package_generator)]
+
+        if args.package_folder:
+            packageFolder = args.package_folder
+            if not os.path.isabs(packageFolder):
+                packageFolder = os.path.join(self.buildFolder.getBaseBuildDir(), packageFolder)
+
+            cmakeArguments += ["-DCPACK_OUTPUT_FILE_PREFIX=%s" % (packageFolder)]
+
         if configuration.platform.startswith("win"):
             generatorName, newArgs = self.generateWindowsCMakeArguments(configuration)
-            args += newArgs
+            cmakeArguments += newArgs
             # Architecture has to be set via the generator name
             cmakeArch = None
 
         elif configuration.platform=="mac":
             if configuration.arch!="std":
                 raise error.InvalidArchitectureError(arch);
+            
+            if args.macos_sdk_path:
+                cmakeArguments.extend( [ "-DCMAKE_OSX_SYSROOT=%s" % (args.macos_sdk_path) ] )
+            if args.macos_min_version:
+                cmakeArguments.extend( [ "-DCMAKE_OSX_DEPLOYMENT_TARGET=%s" % (args.macos_min_version) ] )
 
         elif configuration.platform=="ios":
-            if configuration.arch!="std":
+            if configuration.arch == "std" or configuration.arch == "simulator":
+                cmakeArguments.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
+            elif configuration.arch == "device":
+                cmakeArguments.extend( [ "-DIOS_PLATFORM=OS" ] );
+            else:
                 raise error.InvalidArchitectureError(arch);
-
-            args.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
 
             toolChainFileName = "ios.toolchain.cmake";
 
         elif configuration.platform=="webems":
             needsCleanBuildDir, cmakeArguments, toolChainFileName = self.generateWebEMSArguments(platformState, configuration.arch)
-            args += cmakeArguments
+            cmakeArguments += cmakeArguments
 
         elif configuration.platform=="linux":
             # we prefer clang over GCC 4. GCC has a lot more bugs in their standard library.
@@ -109,6 +129,17 @@ class BuildExecutor:
             if compilerInfo.gccVersion is not None and compilerInfo.gccVersion[0]==4 and compilerInfo.clangVersion is not None:
                 self.logger.info("Forcing use of clang instead of GCC because of bugs in this GCC version.");
                 cmakeEnvironment = {"CC" : "/usr/bin/clang", "CXX" : "/usr/bin/clang++"};
+                if configuration.arch != "std":
+                    raise error.InvalidArchitectureError(arch);
+            else:
+                if configuration.arch != "std":
+                    if configuration.arch == "clang":
+                        cmakeEnvironment = {"CC" : "/usr/bin/clang", "CXX" : "/usr/bin/clang++"};
+                    elif configuration.arch == "gcc":
+                        cmakeEnvironment = {"CC" : "/usr/bin/gcc", "CXX" : "/usr/bin/g++"};
+                    else:
+                        raise error.InvalidArchitectureError(configuration.arch);
+
 
         if toolChainFileName:
             toolChainFilePath = os.path.join(self.sourceDirectory, "cmake/toolchains", toolChainFileName);               
@@ -117,14 +148,14 @@ class BuildExecutor:
                 self.logger.error("Required CMake toolchain file not found: %s" , toolChainFilePath);
                 return 5;
 
-            args += ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath]
+            cmakeArguments += ["-DCMAKE_TOOLCHAIN_FILE="+toolChainFilePath]
 
 
         if configuration.config:
-            args += ["-DCMAKE_BUILD_TYPE="+configuration.config ]
+            cmakeArguments += ["-DCMAKE_BUILD_TYPE="+configuration.config ]
 
         if cmakeArch:
-            args += ["-A "+cmakeArch ]
+            cmakeArguments += ["-A "+cmakeArch ]
 
         if needsCleanBuildDir:
             shutil.rmtree(cmakeBuildDir)
@@ -135,11 +166,11 @@ class BuildExecutor:
         self.logger.debug("Starting configure ...")
         self.logger.debug(" Source Directory: %s", self.sourceDirectory)
         self.logger.debug(" Output Directory: %s", cmakeBuildDir)
-        self.logger.debug(" Arguments: %s", args)
+        self.logger.debug(" Arguments: %s", cmakeArguments)
         self.logger.debug(" Generator: %s", generatorName)
 
 
-        self.cmake.configure(args)
+        self.cmake.configure(cmakeArguments)
 
     def generateWebEMSArguments(self, platformState, arch):
         if arch!="std":

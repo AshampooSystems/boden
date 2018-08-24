@@ -3,6 +3,7 @@
 
 #import <AppKit/AppKit.h>
 #import <bdn/fk/stringUtil.hh>
+#include <Availability.h>
 
 #include <bdn/constants.h>
 
@@ -123,7 +124,9 @@ inline String macStringToString(NSString* nsString)
     return bdn::fk::nsStringToString(nsString);
 }
 
-inline NSControlStateValue triStateToNSControlStateValue(TriState state)
+#if defined(MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13
+
+inline NSControlStateValue triStateToNSControlStateValue(TriState state) __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_NA)
 {
     switch (state) {
         case TriState::on:    return NSOnState;
@@ -133,7 +136,7 @@ inline NSControlStateValue triStateToNSControlStateValue(TriState state)
     return NSOffState;
 }
     
-inline TriState nsControlStateValueToTriState(NSControlStateValue nsState)
+inline TriState nsControlStateValueToTriState(NSControlStateValue nsState) __OSX_AVAILABLE_STARTING(__MAC_10_13,__IPHONE_NA)
 {
     switch (nsState) {
         case NSOnState:    return TriState::on;
@@ -142,7 +145,29 @@ inline TriState nsControlStateValueToTriState(NSControlStateValue nsState)
     }
     return TriState::off;
 }
-		
+
+#else
+inline NSInteger triStateToNSControlStateValue(TriState state) 
+{
+    switch (state) {
+        case TriState::on:    return NSOnState;
+        case TriState::off:   return NSOffState;
+        case TriState::mixed: return NSMixedState;
+    }
+    return NSOffState;
+}
+
+inline TriState nsControlStateValueToTriState(NSInteger state)
+{
+    switch (state) {
+        case NSOnState:    return TriState::on;
+        case NSOffState:   return TriState::off;
+        case NSMixedState: return TriState::mixed;
+    }
+    return TriState::off;
+}
+#endif
+
 }
 }
 

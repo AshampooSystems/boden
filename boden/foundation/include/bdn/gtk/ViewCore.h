@@ -307,9 +307,8 @@ public:
                 
                 gtk_widget_get_preferred_width_for_height( _pWidget, forGtkHeight, &minWidth, &naturalWidth );
                 
-                
-                resultSize.width = naturalWidth;            
-                resultSize.height = availableHeight;std::min(forGtkHeight, unrestrictedNaturalSize.height);            
+                resultSize.width = naturalWidth;
+                resultSize.height = availableHeight;
             }
         }            
         else
@@ -415,8 +414,8 @@ protected:
 	}
     
 
-private:
 
+protected:
     Margin _getPaddingIntegerDips() const
     {
         P<const View> pView = getOuterViewIfStillAttached();
@@ -441,7 +440,7 @@ private:
     }
 
     
-
+private:
     void _addToParent()
     {
         P<View> pView = getOuterViewIfStillAttached();

@@ -75,7 +75,7 @@ public:
     }
 
 
-    Rect adjustAndSetBounds(const Rect& requestedBounds)
+    Rect adjustAndSetBounds(const Rect& requestedBounds) override
     {
         if(_inGtkBoundsChanged)
         {

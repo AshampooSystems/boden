@@ -17,20 +17,26 @@ class BauerArgParser(argparse.ArgumentParser):
         self.bauerGlobals = bauerGlobals
 
         argparse.ArgumentParser.__init__(self, usage = self.getUsage(), *args, **kwargs);
-        self.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps", "run"] );
+        self.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps", "run", "package"] );
 
-        self.add_argument("--platform" );
-        self.add_argument("--build-system" );
-        self.add_argument("--config", choices=["Debug", "Release"] );
-        self.add_argument("--arch" );
+        self.add_argument('-p', "--platform" );
+        self.add_argument('-b', "--build-system" );
+        self.add_argument('-c', "--config", choices=["Debug", "Release"] );
+        self.add_argument('-a', "--arch" );
+        
+        self.add_argument("--package-generator")
+        self.add_argument("--package-folder")
 
-        self.add_argument("--module" );
+        self.add_argument('-m', "--module" );
 
         self.add_argument("--run-output-file" );
         self.add_argument("--run-android-fetch-output-from" );
 
         self.add_argument("--ios-device-type")
         self.add_argument("--ios-simulator-os")
+        
+        self.add_argument("--macos-sdk-path")
+        self.add_argument("--macos-min-version")
 
         self.add_argument('-j', '--jobs', dest='multi' );
 
@@ -157,17 +163,18 @@ Options:
 
 --build-folder folder     (optional) The base folder to build in
 
---module MODULE           (REQUIRED) MODULE is the name of the executable to run.
      
---platform TARGET         (optional) The target platform to run. If omitted then the module is run for all
+-p, --platform TARGET     (optional) The target platform to run. If omitted then the module is run for all
                           prepared platforms (one after the other)
      
      
---config CONFIG           (optional) the configuration to run. If omitted then all configurations are run
+-c, --config CONFIG       (optional) the configuration to run. If omitted then all configurations are run
                           (one after the other).
      
---arch arch               (optional) the target architecture for which the module should be run. If omitted
+-a, --arch arch           (optional) the target architecture for which the module should be run. If omitted
                           then all prepared architectures for the platform are run (one after the other).
+
+-m, --module MODULE       (REQUIRED) MODULE is the name of the executable to run.
      
 --run-output-file         (optional) path to a file in which the module's output data is stored.
                           For most platform the output data is what is written to stdout.
@@ -186,6 +193,11 @@ Options:
 
 --ios-device-type         (optional) IOS Device type, e.g. "iPhone X"
 --ios-simulator-os        (optional) IOS Simulator OS Version, e.g. "iOS 11.1"
+
+--package-generator       (optional) Set the cpack package generator type for packaging
+--package-folder          (optional) Set the folder to store the package in
+
+
 
 
 --- Command: builddeps ---

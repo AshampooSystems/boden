@@ -1,4 +1,5 @@
 import os
+import logging
 
 from buildconfiguration import BuildConfiguration
 
@@ -10,6 +11,7 @@ class BuildFolder:
         self.args = args
         self.bauerGlobals = bauerGlobals
         self.generatorInfo = generatorInfo
+        self.logger = logging.getLogger(__name__)
 
         if args.build_folder != None:
             self.buildfolder = args.build_folder
@@ -60,6 +62,9 @@ class BuildFolder:
 
     def getBuildConfigurationsForCommand(self):
         existingConfigurations = self.getExistingBuildConfigurations()
+        self.logger.debug("Existing configurations:")
+        for configuration in existingConfigurations:
+            self.logger.debug("* %s", configuration)
 
         matchedConfigurations = self.getMatchingBuildConfigurations(existingConfigurations)
 
