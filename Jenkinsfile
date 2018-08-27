@@ -112,9 +112,9 @@ pipeline {
                     }
                 }
                 stage('MacOS') {
+                    agent { label 'macOS' }
                     stages {
                         stage('Build') {
-                            agent { label 'macOS' }
                             steps {
                                 sh 'python build.py prepare -p mac -b make -c Release --package-folder package --package-generator TGZ'
                                 sh 'python build.py build -p mac -b make -c Release $BUILD_EXTRA_ARGS'
@@ -122,7 +122,6 @@ pipeline {
                             }
                         }
                         stage('Package') {
-                            agent { label 'macOS' }
                             steps {
                                 unstash 'boden_mac_builddir'
                                 sh 'python build.py package -p mac -b make -c Release $BUILD_EXTRA_ARGS'
@@ -131,7 +130,6 @@ pipeline {
                             }
                         }
                         stage('Test') {
-                            agent { label 'macOS' }
                             steps {
                                 unstash 'boden_mac_builddir'
 
@@ -149,9 +147,9 @@ pipeline {
                     }
                 }
                 stage('IOS') {
+                    agent { label 'macOS' }
                     stages {
                         stage('Build') {
-                            agent { label 'macOS' }
                             steps {
                                 sh 'python build.py prepare -p ios -b make -c Release --package-folder package --package-generator TGZ'
                                 sh 'python build.py build -p ios -b make -c Release $BUILD_EXTRA_ARGS'
@@ -160,7 +158,6 @@ pipeline {
                         }
 
                         stage('Package') {
-                            agent { label 'macOS' }
                             steps {
                                 unstash 'boden_ios_builddir'
                                 sh 'python build.py package -p ios -b make -c Release $BUILD_EXTRA_ARGS'
@@ -170,7 +167,6 @@ pipeline {
                         }
 
                         stage('Test') {
-                            agent { label 'macOS' }
                             steps {
                                 unstash 'boden_ios_builddir'
 
