@@ -49,14 +49,14 @@ class BuildExecutor:
             if not isSingleConfigBuildSystem:
                 commandArguments += ["--config", config];
 
-            if args.multi != None:
+            if args.jobs != None:
                 generatorName = self.generatorInfo.getCMakeGeneratorName(configuration.buildsystem);
                 if "Visual Studio" in generatorName:
-                    os.environ["CL"] = "/MP" + args.multi
+                    os.environ["CL"] = "/MP" + args.jobs
                 elif "Xcode" in generatorName:
                     pass # Can' specify multicore via command line :(                
                 else:
-                    commandArguments += ["--", "-j%s" % (args.multi) ]
+                    commandArguments += ["--", "-j%s" % (args.jobs) ]
 
             commandLine = " ".join(commandArguments)
             self.logger.info("Calling: %s", commandLine)

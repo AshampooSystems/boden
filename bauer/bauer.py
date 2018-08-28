@@ -34,8 +34,13 @@ def run(argv):
 
     generatorInfo = GeneratorInfo();
 
-    argParser = BauerArgParser(bauerGlobals, generatorInfo, argv);
-    args = argParser.parse_args();
+    argParser = BauerArgParser(bauerGlobals, generatorInfo);
+    argParser.buildBauerArguments(argv)
+
+    args = argParser.parse_args()
+
+    if args == None:
+        return
 
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))
 

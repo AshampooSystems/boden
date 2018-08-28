@@ -1,60 +1,122 @@
 import argparse
-import sys
+import sys,os
 import error
 import logging
 
+
+class EnvDefault(argparse.Action):
+    def __init__(self, option_strings, required=False, default=None, **kwargs):
+        envvar = "BAUER_" + option_strings[-1].upper().strip('-').replace('-', '_')
+        if not default and envvar:
+            if envvar in os.environ:
+                default = os.environ[envvar]
+        if required and default:
+            required = False
+        super(EnvDefault, self).__init__(default=default, required=required, option_strings=option_strings,
+                                         **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
 
 
 class HelpOptionUsed(Exception):
     def __init__(self):
         Exception.__init__(self, "Help option used.");
 
-
-class BauerArgParser(argparse.ArgumentParser):
-    def __init__(self, bauerGlobals, generatorInfo, *args, **kwargs):
+class BauerArgParser():
+    def __init__(self, bauerGlobals, generatorInfo):
+        self.logger = logging.getLogger(__name__)
+        
+        self.parser = None
 
         self.generatorInfo = generatorInfo
         self.bauerGlobals = bauerGlobals
 
-        argparse.ArgumentParser.__init__(self, usage = self.getUsage(), *args, **kwargs);
-        self.add_argument("command", choices=["prepare", "build", "clean", "distclean", "builddeps", "run", "package"] );
+    def parse_args(self):
+        options =self.parser.parse_args()
 
-        self.add_argument('-p', "--platform" );
-        self.add_argument('-b', "--build-system" );
-        self.add_argument('-c', "--config", choices=["Debug", "Release"] );
-        self.add_argument('-a', "--arch" );
-        
-        self.add_argument("--package-generator")
-        self.add_argument("--package-folder")
+        if options.command == "manual":
+          print(self.getManual())
+          return None
 
-        self.add_argument('-m', "--module" );
+        self.logger.debug("Bauer options: %s", options)
 
-        self.add_argument("--run-output-file" );
-        self.add_argument("--run-android-fetch-output-from" );
+        return options
 
-        self.add_argument("--ios-device-type")
-        self.add_argument("--ios-simulator-os")
-        
-        self.add_argument("--macos-sdk-path")
-        self.add_argument("--macos-min-version")
+    def buildBauerArguments(self, args, **kwargs):
+          self.parser = argparse.ArgumentParser(args);
+          self.buildCommandParsers()
 
-        self.add_argument('-j', '--jobs', dest='multi' );
+    def setBaseParser(self, parser):
+          self.parser = parser
 
-        self.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true')
+    def buildGlobalArguments(self, parsers):
+        for parser in parsers:
+          parser.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true', help="Enable debug output")
+    
+    def addConfigurationArguments(self, parsers):
+        for parser in parsers:
+          configGroup = parser.add_argument_group('Compile target')
+          configGroup.add_argument('-p', "--platform", action=EnvDefault, help="The target platform", choices=self.bauerGlobals.platformMap.keys() );
+          configGroup.add_argument('-b', "--build-system", action=EnvDefault, help="The cmake generator" );
+          configGroup.add_argument('-c', "--config", action=EnvDefault, choices=["Debug", "Release"] );
+          configGroup.add_argument('-a', "--arch", action=EnvDefault, help="The target architecture ( default: 'std' )" );
 
-        self.add_argument("--build-folder")
-        
-        self.add_argument("params", nargs="*" );
+          macGroup = parser.add_argument_group('Mac OSX specific', "(optional)")
+          macGroup.add_argument("--macos-sdk-path", action=EnvDefault, help="The Mac OSX SDK Path")
+          macGroup.add_argument("--macos-min-version", action=EnvDefault, help="The target minimum Mac OSX version")
+
+          packageGroup = parser.add_argument_group('Packaging', "(optional)")
+          packageGroup.add_argument("--package-generator", action=EnvDefault, help="The CPack Generator" )
+          packageGroup.add_argument("--package-folder", action=EnvDefault, help="The CPack package output folder")
+
+          buildFolderGroup = parser.add_argument_group('Build folder', "(optional)")
+          buildFolderGroup.add_argument("--build-folder", action=EnvDefault, help="The buildfolder root (default: ./build)")
+
+    def addBuildArguments(self, parsers):
+        for parser in parsers:
+          parser.add_argument('-j', '--jobs', action=EnvDefault, help="Number of concurrent jobs" );
+
+    def addSimulatorArguments(self, parser):
+        parser.add_argument("--run-output-file", action=EnvDefault, help="Output file to store stdout" );
+
+    def addIOSSimulatorArguments(self, parser):
+        parser.add_argument("--ios-device-type", action=EnvDefault, help="IOS Device type")
+        parser.add_argument("--ios-simulator-os", action=EnvDefault, help="IOS Simulator SDK version")
+
+    def addAndroidSimulatorArguments(self, parser):
+        parser.add_argument("--run-android-fetch-output-from", action=EnvDefault, help="?" );
+
+    def addParams(self, parser):
+        parser.add_argument("params", nargs="*", help="Parameters to be passed to the executable being run " );
 
 
-    def exit(self, status=0, message=None):
-        if status==0:
-            # user has used the "help" option.
-            raise HelpOptionUsed();
-        raise error.ProgramArgumentError(message);
+    def buildCommandParsers(self):
+        subs = self.parser.add_subparsers(title="Command", help='The command to execute', dest='command')
 
-    def error(self, message=None):
-        raise error.ProgramArgumentError(message);
+        prepare = subs.add_parser('prepare', description='Prepares boden build', epilog=self.getPrepareEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+
+        build = subs.add_parser('build', description='Builds boden', epilog=self.getBuildEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        clean = subs.add_parser('clean', description='Cleans boden', epilog=self.getCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        distclean = subs.add_parser('distclean', epilog=self.getDistCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        run = subs.add_parser('run', description="Executes one of bodens targets", epilog=self.getRunEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        package = subs.add_parser('package', description="Packages boden for release", epilog=self.getPackageEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+
+        self.addConfigurationArguments( [ prepare, build, clean, distclean, run, package ])
+        self.addBuildArguments( [ build, clean, distclean, run, package ])
+
+        simGroup = run.add_argument_group("Simulator", "(optional)")
+
+        self.addSimulatorArguments(simGroup)
+        self.addIOSSimulatorArguments(simGroup)
+        self.addAndroidSimulatorArguments(simGroup)
+
+        self.addParams(run)
+        run.add_argument('-m', "--module", help="The module to run" );
+
+        info = subs.add_parser('manual', description="Shows futher information")
+
+        self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package ])
 
     def getPlatformHelp(self):
         platformHelp = "";
@@ -63,20 +125,8 @@ class BauerArgParser(argparse.ArgumentParser):
 
         return platformHelp;
 
-
-    def print_help(self):
-        logging.info(self.getUsage());
-
-    def getUsage(self):
-        return """Usage: build.py COMMAND [PARAMS]
-
-COMMAND can be one of the following:
-
---- Command: prepare ---
-
-build.py prepare [--platform TARGET] [--buildsystem BUILDSYSTEM] [--arch ARCH]
-
-Pepares the project files for the specified TARGET (see below). BUILDSYSTEM
+    def getPrepareEpilog(self):
+      return """Pepares the project files for the specified TARGET (see below). BUILDSYSTEM
 specifies the build system or IDE you would like to use (see below for
 possible values).
 
@@ -102,40 +152,27 @@ for the specified platform are refreshed.
 
 You can also call prepare with a different BUILDSYSTEM for a platform that is
 already prepared. That will remove the existing project files and build
-files and switch to a different build system for this platform.
+files and switch to a different build system for this platform."""
 
-
---- Command: build ---
-
-build.py build [--platform TARGET] [--config CONFIG] [--arch ARCH]
-
-Builds the specified configuration of the specified platform for the specified
+    def getBuildEpilog(self):
+      return """Builds the specified configuration of the specified platform for the specified
 architecture (ARCH).
 
 If TARGET is omitted then all prepared platforms are built.
 
 If CONFIG is omitted then all configurations are built.
 
-If ARCH is omitted then all prepared architectures for the platform are built.
+If ARCH is omitted then all prepared architectures for the platform are built."""
 
-
---- Command: clean ---
-
-build.py clean [--platform TARGET] [--config CONFIG] [--arch ARCH]
-
-Removes all intermediate and output files that are generated during building.
+    def getCleanEpilog(self):
+      return """Removes all intermediate and output files that are generated during building.
 The project files remain.
 
 The parameters TARGET, CONFIG and ARCH work exactly the same as with the
-'build' command.
+'build' command."""
 
-
-
---- Command: distclean ---
-
-build.py distclean [--platform TARGET] [--arch ARCH]
-
-Like 'clean' but also removes the project files. This undoes everything
+    def getDistCleanEpilog(self):
+      return """Like 'clean' but also removes the project files. This undoes everything
 that 'build' and 'prepare' do.
 If you want to use this platform again afterwards then you have to call
 'prepare' again.
@@ -143,66 +180,66 @@ If you want to use this platform again afterwards then you have to call
 If TARGET is omitted then all prepared platforms are distcleaned.
 
 If ARCH is omitted then all architectures for the selected platform(s) are
-distcleaned.
+distcleaned."""
 
-
---- Command: run ---
-
-build.py [OPTIONS] -- run PARAMS
-
-Runs the executable from the specified module.
+    def getRunEpilog(self):
+      return """Runs the executable from the specified module.
 
 PARAMS are one or more parameters to be passed to the executable.
 On Android you can use the "{DATA_DIR}" placeholder in the parameters.
 It will be replaced with the path of the application's data directory inside the emulator.
 
 Note the double -- before "run" in the commandline. This is necessary to separate the
-parameters for build.py from those that are intended for the executed module.
+parameters for build.py from those that are intended for the executed module."""
 
-Options:
+    def getPackageEpilog(self):
+      return """"""
 
---build-folder folder     (optional) The base folder to build in
+    def getManual(self):
+        return """Usage: build.py COMMAND [PARAMS]
 
-     
--p, --platform TARGET     (optional) The target platform to run. If omitted then the module is run for all
-                          prepared platforms (one after the other)
-     
-     
--c, --config CONFIG       (optional) the configuration to run. If omitted then all configurations are run
-                          (one after the other).
-     
--a, --arch arch           (optional) the target architecture for which the module should be run. If omitted
-                          then all prepared architectures for the platform are run (one after the other).
+COMMAND can be one of the following:
 
--m, --module MODULE       (REQUIRED) MODULE is the name of the executable to run.
-     
---run-output-file         (optional) path to a file in which the module's output data is stored.
-                          For most platform the output data is what is written to stdout.
-                          On android this MUST be combined with --run-android-fetch-output-from.
+--- Command: prepare ---
 
---run-android-fetch-output-from
-                          (optional) An android-only option. Specifies the path of a file in the android
-                          file system that contains the output data of the app.
-                          When the run command is complete then this is printed to stdout, unless
-                          --run-output-file specifies the path of a file where the output should be written.
-                          You can use "{DATA_DIR}" as a place holder for the application's data directory.
+build.py prepare [--platform TARGET] [--buildsystem BUILDSYSTEM] [--arch ARCH]
 
--j, --jobs n              (optional) Build concurrently with <n> threads
-
--d, --enable-debug-output (optional) Enable debug output
-
---ios-device-type         (optional) IOS Device type, e.g. "iPhone X"
---ios-simulator-os        (optional) IOS Simulator OS Version, e.g. "iOS 11.1"
-
---package-generator       (optional) Set the cpack package generator type for packaging
---package-folder          (optional) Set the folder to store the package in
+%s
 
 
+--- Command: build ---
+
+build.py build [--platform TARGET] [--config CONFIG] [--arch ARCH]
+
+%s
 
 
---- Command: builddeps ---
+--- Command: clean ---
 
-Builds the necessary dependencies from the 3rdparty directory.
+build.py clean [--platform TARGET] [--config CONFIG] [--arch ARCH]
+
+%s
+
+
+--- Command: distclean ---
+
+build.py distclean [--platform TARGET] [--arch ARCH]
+
+%s
+
+
+--- Command: run ---
+
+build.py [OPTIONS] -- run PARAMS
+
+%s
+
+
+--- Command: package ---
+
+build.py package [--platform TARGET] [--config CONFIG] [--arch ARCH]
+
+%s
 
 
 --- Parameter values ---
@@ -262,4 +299,4 @@ RESTRICTIONS:
 IMPORTANT: Remember to enclose the build system names that consist of multiple
 words in quotation marks!
 
-""" % ( self.getPlatformHelp(), "\n".join(self.generatorInfo.generatorHelpList), self.generatorInfo.generatorAliasHelp );
+""" % ( self.getPrepareEpilog(), self.getBuildEpilog(), self.getCleanEpilog(), self.getDistCleanEpilog(), self.getRunEpilog(), self.getPackageEpilog(), self.getPlatformHelp(), "\n".join(self.generatorInfo.generatorHelpList), self.generatorInfo.generatorAliasHelp );

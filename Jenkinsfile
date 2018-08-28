@@ -12,57 +12,43 @@ pipeline {
         stage('Platforms') {
             parallel {
                 stage('Linux') {
+                    environment {
+                        BAUER_PLATFORM = 'linux'
+                        BAUER_BUILD_SYSTEM = 'make'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
+                    }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_linux'
+                            additionalBuildArgs '-t boden_linux'
+                            label 'boden'
+                        }
+                    }
                     stages {
                         stage('Build') {
-                            agent {
-                                dockerfile {
-                                    filename 'Dockerfile_linux'
-                                    additionalBuildArgs '-t boden_linux'
-                                    args '--volume ${WORKSPACE}:/boden'
-                                    label 'boden'
-                                }
-                            }
                             steps {
-                                sh 'cd /boden && python build.py build -p linux -b make -c Release $BUILD_EXTRA_ARGS --package-folder package --package-generator TGZ'
-                                stash includes: 'build/**/*', name: 'boden_linux_builddir'
+                                sh 'python build.py build'
                             }
                         }
 
                         stage('Package') {
-                            agent {
-                                dockerfile {
-                                    filename 'Dockerfile_linux'
-                                    additionalBuildArgs '-t boden_linux'
-                                    args '--volume ${WORKSPACE}:/boden'
-                                    label 'boden'
-                                }
-                            }
                             steps {
-                                unstash 'boden_linux_builddir'
-                                sh 'cd /boden && python build.py package -p linux -c Release $BUILD_EXTRA_ARGS'
+                                sh 'python build.py package'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'linux-packages'
                             }
                         }
 
                         stage('Test') {
-                            agent {
-                                dockerfile {
-                                    filename 'Dockerfile_linux'
-                                    additionalBuildArgs '-t boden_linux'
-                                    args '--volume ${WORKSPACE}:/boden'
-                                    label 'boden'
-                                }
-                            }
                             steps {
-                                unstash 'boden_linux_builddir'
-
                                 sh 'mkdir -p testresults'
 
-                                sh 'cd /boden && python build.py -p linux -c Release --module testboden -- run --out testresults/linux_testboden.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'python build.py run --module testboden -- --out testresults/linux_testboden.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/linux_testboden.xml"
 
-                                sh 'cd /boden && xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py -p linux -c Release --module testbodenui -- run --out testresults/linux_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testbodenui -- --out testresults/linux_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/linux_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
@@ -71,40 +57,34 @@ pipeline {
                     }
                 }
                 stage('Android') {
+                    environment {
+                        BAUER_PLATFORM = 'android'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
+                    }
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile_android'
+                            additionalBuildArgs  '-t boden_android'
+                            label 'boden'
+                        }
+                    }
                     stages {
                         stage('Build') {
-                            agent {
-                                dockerfile {
-                                    filename 'Dockerfile_android'
-                                    additionalBuildArgs  '-t boden_android'
-                                    args '--volume ${WORKSPACE}:/boden'
-                                    label 'boden'
-                                }
-                            }
-
                             steps {
-                                sh 'cd /boden && python build.py prepare -p android -b make -a arm64-v8a -c Release --package-folder package  --package-generator TGZ'
-                                sh 'cd /boden && python build.py prepare -p android -b make -a x86_64 -c Release --package-folder package  --package-generator TGZ'
+                                sh 'python build.py prepare -b make -a arm64-v8a'
+                                sh 'python build.py prepare -b make -a x86_64'
 
                                 // This is only necessary for testing, move out once tests work again
-                                sh 'cd /boden && python build.py prepare -p android -a x86_64 -b AndroidStudio'
+                                sh 'python build.py prepare -a x86_64 -b AndroidStudio'
 
-                                sh 'cd /boden && python build.py build -p android $BUILD_EXTRA_ARGS'
-                                stash includes: 'build/**/*', name: 'boden_android_builddir'
+                                sh 'python build.py build -p android $BUILD_EXTRA_ARGS'
                             }
                         }
                         stage('Package') {
-                            agent {
-                                dockerfile {
-                                    filename 'Dockerfile_android'
-                                    additionalBuildArgs  '-t boden_android'
-                                    args '--volume ${WORKSPACE}:/boden'
-                                    label 'boden'
-                                }
-                            }
                             steps {
-                                unstash 'boden_android_builddir'
-                                sh 'cd /boden && python build.py package -p android $BUILD_EXTRA_ARGS'
+                                sh 'python build.py package -p android $BUILD_EXTRA_ARGS'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'android-packages'
                             }
@@ -112,33 +92,36 @@ pipeline {
                     }
                 }
                 stage('MacOS') {
+                    environment {
+                        BAUER_PLATFORM = 'mac'
+                        BAUER_BUILD_SYSTEM = 'make'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
+                    }
                     agent { label 'macOS' }
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'python build.py prepare -p mac -b make -c Release --package-folder package --package-generator TGZ'
-                                sh 'python build.py build -p mac -b make -c Release $BUILD_EXTRA_ARGS'
-                                stash includes: 'build/**/*', name: 'boden_mac_builddir'
+                                sh 'python build.py prepare'
+                                sh 'python build.py build'
                             }
                         }
                         stage('Package') {
                             steps {
-                                unstash 'boden_mac_builddir'
-                                sh 'python build.py package -p mac -b make -c Release $BUILD_EXTRA_ARGS'
+                                sh 'python build.py package'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'macos-packages'
                             }
                         }
                         stage('Test') {
                             steps {
-                                unstash 'boden_mac_builddir'
-
                                 sh 'mkdir -p testresults'
 
-                                sh 'python build.py -p mac -b make -c Release --module testboden --run-output-file testresults/mac_testboden.xml -- run --reporter junit --reporter console --print-level 2 || true'
+                                sh 'python build.py run --module testboden --run-output-file testresults/mac_testboden.xml -- --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/mac_testboden.xml"
 
-                                sh 'python build.py -p mac -b make -c Release --module testbodenui --run-output-file testresults/mac_testbodenui.xml -- run --reporter junit --reporter console --print-level 2 || true'
+                                sh 'python build.py run --module testbodenui --run-output-file testresults/mac_testbodenui.xml -- --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/mac_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
@@ -147,20 +130,25 @@ pipeline {
                     }
                 }
                 stage('IOS') {
+                    environment {
+                        BAUER_PLATFORM = 'ios'
+                        BAUER_BUILD_SYSTEM = 'make'
+                        BAUER_CONFIG = 'Release'
+                        BAUER_PACKAGE_FOLDER = 'package'
+                        BAUER_PACKAGE_GENERATOR = 'TGZ'
+                    }
                     agent { label 'macOS' }
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'python build.py prepare -p ios -b make -c Release --package-folder package --package-generator TGZ'
-                                sh 'python build.py build -p ios -b make -c Release $BUILD_EXTRA_ARGS'
-                                stash includes: 'build/**/*', name: 'boden_ios_builddir'
+                                sh 'python build.py prepare'
+                                sh 'python build.py build'
                             }
                         }
 
                         stage('Package') {
                             steps {
-                                unstash 'boden_ios_builddir'
-                                sh 'python build.py package -p ios -b make -c Release $BUILD_EXTRA_ARGS'
+                                sh 'python build.py package'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'ios-packages'
                             }
@@ -168,14 +156,12 @@ pipeline {
 
                         stage('Test') {
                             steps {
-                                unstash 'boden_ios_builddir'
-
                                 sh 'mkdir -p testresults'
 
-                                sh 'python build.py -p ios -b make -c Release --module testboden --run-output-file testresults/ios_testboden.xml -- run --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python build.py run --module testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testboden.xml"
 
-                                sh 'python build.py -p ios -b make -c Release --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- run --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python build.py run --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'

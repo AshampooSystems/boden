@@ -137,7 +137,7 @@ class CommandProcessor:
             if configuration.arch == "device":
                 raise error.ProgramArgumentError("Can't run on ios devices yet")
 
-            iosRunner = IOSRunner(self.buildFolder, self.buildExecutor.cmake)
+            iosRunner = IOSRunner(self.buildExecutor.cmake)
             exitCode = iosRunner.run(configuration, self.args)
 
         elif configuration.platform == "webems":

@@ -1,18 +1,22 @@
+import argparse
 import logging
 import os
 import sys
 import subprocess
 import random
 import time
+import plistlib
 
 import error
+import bauer
 from iosinfo import IOSInfo
+from bauerargparser import BauerArgParser
+
 
 class IOSRunner:
-    def __init__(self, buildFolder, cmake):
+    def __init__(self, cmake):
         self.logger = logging.getLogger(__name__)
 
-        self.buildFolder = buildFolder
         self.cmake = cmake
 
         self.iosInfo = IOSInfo()
@@ -20,25 +24,33 @@ class IOSRunner:
         self.ios_simulator_os          = None
 
     def run(self, configuration, args):
+
+        cmakeTargetToRun = self.cmake.executableTarget(args.config, args.module)
+        artifactToRun = self.cmake.executableArtifactPath(cmakeTargetToRun)
+        artifactToRun = artifactToRun.replace("${EFFECTIVE_PLATFORM_NAME}", "-iphonesimulator")
+
+        return self.runExecutable(artifactToRun, args)
+
+    def runExecutable(self, artifactToRun, args):
         self.ios_simulator_device_type = self.iosInfo.getSelectedDeviceType(args)
         self.ios_simulator_os = self.iosInfo.getSelectedOS(args)
 
         self.logger.debug("IOS Device type:  %s", self.ios_simulator_device_type)
         self.logger.debug("IOS Simulator OS: %s", self.ios_simulator_os)
 
-        cmakeTargetToRun = self.cmake.executableTarget(args.config, args.module)
-        artifactToRun = self.cmake.executableArtifactPath(cmakeTargetToRun)
-        artifactToRun = artifactToRun.replace("${EFFECTIVE_PLATFORM_NAME}", "-iphonesimulator")
-
-
         self.logger.debug("Executable: %s", artifactToRun)
 
         if not artifactToRun:
             raise error.ProgramArgumentError("Couldn't find path to exectuable for Module %s" % args.module)
 
+        if artifactToRun.endswith('.app') and os.path.isdir(artifactToRun):
+            r = self.readPList(os.path.join(artifactToRun, "Info.plist"))
+            executable = r["CFBundleExecutable"]
+            artifactToRun = os.path.join(artifactToRun, executable)
+
         if not os.path.exists(artifactToRun):
             raise error.ProgramArgumentError("exectuable for Module %s does not exists at: %s" % (args.module, artifactToRun))
-    
+
         bundlePath = self.getBundlePathFromExecutable(artifactToRun)
 
         bundleId = self.getBundleIdentifier(bundlePath)
@@ -103,6 +115,8 @@ class IOSRunner:
             self.logger.debug("Redirecting Applications stdout to: %s", abs_stdout_path)
 
             stdoutOptions = [ '"--stdout=%s"' % abs_stdout_path ]
+            stdoutOptions += [ '"--stderr=%s.err"' % abs_stdout_path ]
+
 
         arguments = ["xcrun",  "simctl", "launch" ] + stdoutOptions + [simulatorId, bundleId] + args.params
 
@@ -200,11 +214,35 @@ class IOSRunner:
         bundlePath = os.path.abspath(os.path.join( executablePath, ".."))
         return bundlePath
 
+    def readPList(self, plistPath):
+        if sys.version_info >= (3, 0):
+            return plistlib.load( open(plistPath, "rb") )
+        else:
+            return plistlib.readPlist(plistPath)
+
     def getBundleIdentifier(self, bundlePath):
         plistPath = os.path.abspath(os.path.join( bundlePath, "Info.plist"))
 
-        bundleId = subprocess.check_output('defaults read "%s" CFBundleIdentifier' % (plistPath), shell=True).decode(encoding='utf-8').strip();
-        if not bundleId:
-            raise Exception("Unable to extract bundle id from app bundle.")
+        r = self.readPList(plistPath)
 
-        return bundleId
+        return r["CFBundleIdentifier"] 
+
+def main():
+    bauer.setupLogging(sys.argv)
+
+    argParser = BauerArgParser(None, None)
+    parser = argparse.ArgumentParser()
+    argParser.setBaseParser(parser)
+
+    parser.add_argument('-t', '--target', help='path to the ios app to run', required=True)
+    argParser.addSimulatorArguments(parser)
+    argParser.addIOSSimulatorArguments(parser)
+    argParser.buildGlobalArguments([parser])
+    argParser.addParams(parser)
+    args = parser.parse_args()
+
+    runner = IOSRunner(None)
+    runner.runExecutable(args.target, args)
+
+if __name__ == "__main__":
+    main()
