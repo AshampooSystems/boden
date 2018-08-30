@@ -40,7 +40,7 @@ namespace bdn
     */
 inline SystemError errnoCodeToSystemError(int errnoCode, const ErrorFields& fields = ErrorFields() )
 {
-#if BDN_PLATFORM_POSIX
+#if BDN_PLATFORM_FAMILY_POSIX
     return SystemError(errnoCode, std::system_category(), fields.toString() );
     
 #else

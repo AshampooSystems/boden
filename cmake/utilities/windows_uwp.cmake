@@ -1,5 +1,5 @@
 macro(setup_windows_uwp TARGET)
-    if( BODEN_TARGET_WINUWP )	
+    if( BDN_PLATFORM_WINUWP )	
         SET(VS_WINRT_COMPONENT TRUE)	
         
         SET(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "10.0.10240.0")

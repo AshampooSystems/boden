@@ -54,10 +54,13 @@ class BauerArgParser():
         for parser in parsers:
           parser.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true', help="Enable debug output")
     
-    def addConfigurationArguments(self, parsers):
+    def addConfigurationArguments(self, parsers, platforms=None):
         for parser in parsers:
+          if platforms == None:
+            platforms = self.bauerGlobals.platformMap.keys()
+
           configGroup = parser.add_argument_group('Compile target')
-          configGroup.add_argument('-p', "--platform", action=EnvDefault, help="The target platform", choices=self.bauerGlobals.platformMap.keys() );
+          configGroup.add_argument('-p', "--platform", action=EnvDefault, help="The target platform", choices=platforms );
           configGroup.add_argument('-b', "--build-system", action=EnvDefault, help="The cmake generator" );
           configGroup.add_argument('-c', "--config", action=EnvDefault, choices=["Debug", "Release"] );
           configGroup.add_argument('-a', "--arch", action=EnvDefault, help="The target architecture ( default: 'std' )" );
@@ -90,6 +93,13 @@ class BauerArgParser():
     def addParams(self, parser):
         parser.add_argument("params", nargs="*", help="Parameters to be passed to the executable being run " );
 
+    def addKeychainArgument(self, parsers, **kwargs):
+        for parser in parsers:
+            parser.add_argument('-k', '--keychain', action=EnvDefault, help='path to the keychain', **kwargs)
+
+    def addPasswordArgument(self, parsers, **kwargs):
+        for parser in parsers:
+            parser.add_argument('--password', action=EnvDefault, help='The password for the keychain', **kwargs)
 
     def buildCommandParsers(self):
         subs = self.parser.add_subparsers(title="Command", help='The command to execute', dest='command')
@@ -101,6 +111,14 @@ class BauerArgParser():
         distclean = subs.add_parser('distclean', epilog=self.getDistCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         run = subs.add_parser('run', description="Executes one of bodens targets", epilog=self.getRunEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         package = subs.add_parser('package', description="Packages boden for release", epilog=self.getPackageEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+
+        if sys.platform == 'darwin':
+          sign = subs.add_parser('codesign', description="Sign libraries and executables")
+          sign.add_argument('-i', '--identity', action=EnvDefault, help="The Identity to pass to codesign", required=True)
+          self.addKeychainArgument([sign])
+          self.addPasswordArgument([sign])
+          self.addConfigurationArguments([sign], platforms=['ios', 'mac'])
+
 
         self.addConfigurationArguments( [ prepare, build, clean, distclean, run, package ])
         self.addBuildArguments( [ build, clean, distclean, run, package ])

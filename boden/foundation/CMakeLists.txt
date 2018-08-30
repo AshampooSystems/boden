@@ -4,42 +4,48 @@ if(CMAKE_CXX_STANDARD VERSION_LESS 14)
     message(FATAL_ERROR "Boden requires at least the C++14 standard")
 endif()
 
-CMAKE_DEPENDENT_OPTION(BODEN_SHARED_LIB "Compile foundation as a shared library" OFF "NOT BODEN_NEEDS_TO_BE_SHARED_LIBRARY;NOT BODEN_NEEDS_TO_BE_STATIC_LIBRARY" Off)
+CMAKE_DEPENDENT_OPTION(BDN_SHARED_LIB "Compile foundation as a shared library" OFF "NOT BDN_NEEDS_TO_BE_SHARED_LIBRARY;NOT BDN_NEEDS_TO_BE_STATIC_LIBRARY" Off)
 
 ##########################################################################
 # Files
 
 add_sources(_BDN_FILES _BDN_HEADERS ./)
-add_sources(_BDN_FILES _BDN_HEADERS ./${BODEN_TARGET})
+add_sources(_BDN_FILES _BDN_HEADERS ./${BDN_TARGET})
 add_sources(_BDN_FILES _BDN_HEADERS ./test)
 
-if( BODEN_USES_FK )
+if( BDN_USES_FK )
     add_sources(_BDN_FILES _BDN_HEADERS ./fk)
 endif()
 
-if( BODEN_USES_JAVA )
+if( BDN_USES_JAVA )
     add_sources(_BDN_FILES _BDN_HEADERS ./java)
     file(GLOB_RECURSE _BDN_JAVA_FILES ./src/java/*.cpp ./java/*.java)
     list(APPEND _BDN_FILES ${_BDN_JAVA_FILES})
 endif()
 
-if( BODEN_USES_GTK )
+if( BDN_USES_GTK )
     add_sources(_BDN_FILES _BDN_HEADERS ./gtk)
 endif()
 
-if(BODEN_USES_PTHREAD)
+if(BDN_USES_PTHREAD)
     add_sources(_BDN_FILES _BDN_HEADERS ./pthread)
 endif()
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config/platform.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h)
+
+list(APPEND _BDN_FILES ${CMAKE_CURRENT_LIST_DIR}/config/platform.h.in)
+
+set(_BDN_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/include/bdn/platform.h)
 
 ##########################################################################
 # Target
 
-if(BODEN_NEEDS_TO_BE_SHARED_LIBRARY OR BODEN_SHARED_LIB)
-    set(BODEN_SHARED_LIB Yes)
-    add_library(foundation SHARED ${_BDN_FILES})
-elseif(BODEN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BODEN_SHARED_LIB)
-    set(BODEN_SHARED_LIB No)
-    add_library(foundation STATIC ${_BDN_FILES})
+if(BDN_NEEDS_TO_BE_SHARED_LIBRARY OR BDN_SHARED_LIB)
+    set(BDN_SHARED_LIB Yes)
+    add_library(foundation SHARED ${_BDN_FILES} ${_BDN_GENERATED_FILES})
+elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
+    set(BDN_SHARED_LIB No)
+    add_library(foundation STATIC ${_BDN_FILES} ${_BDN_GENERATED_FILES})
 endif()
 
 target_include_directories(foundation
@@ -47,6 +53,8 @@ target_include_directories(foundation
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     )
+
+target_include_directories(foundation PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${_BDN_FILES})
 
@@ -71,44 +79,33 @@ enable_multicore_build(foundation PUBLIC)
 #enable_override_warning(foundation PUBLIC)
 
 ##########################################################################
-# CMake to C++
-
-cmake_variable_to_define(foundation PUBLIC BODEN_USES_PTHREAD)
-cmake_variable_to_define(foundation PUBLIC BODEN_USES_FK)
-cmake_variable_to_define(foundation PUBLIC BODEN_USES_JAVA)
-cmake_variable_to_define(foundation PUBLIC BODEN_USES_GTK)
-
-cmake_variable_to_define(foundation PUBLIC BODEN_TARGET)
-cmake_variable_to_define(foundation PUBLIC BODEN_TARGET_FAMILY)
-
-##########################################################################
 # Warnings
 
-if(BODEN_USES_GTK)
+if(BDN_USES_GTK)
     disable_deprecated_register_warning(foundation)
 endif()
 
 ##########################################################################
 # Libraries
 
-if(BODEN_TARGET_WIN32)
+if(BDN_PLATFORM_WIN32)
     target_link_libraries(foundation PUBLIC shcore)
-elseif(BODEN_TARGET_MAC)
+elseif(BDN_PLATFORM_OSX)
     target_link_libraries(foundation PUBLIC "-framework Cocoa")
-elseif(BODEN_TARGET_IOS)
+elseif(BDN_PLATFORM_IOS)
     target_link_libraries(foundation PUBLIC "-framework UIKit" "-framework Foundation" "-framework CoreGraphics")
-elseif(BODEN_TARGET_ANDROID)
+elseif(BDN_PLATFORM_ANDROID)
     find_library(ANDROID_LOG_LIB log)
     mark_as_advanced(ANDROID_LOG_LIB)
     target_link_libraries(foundation PUBLIC ${ANDROID_LOG_LIB})
-elseif(BODEN_TARGET_LINUX)
+elseif(BDN_PLATFORM_LINUX)
     target_link_libraries(foundation PUBLIC pthread)
 endif()
 
 math(EXPR arch "${CMAKE_SIZEOF_VOID_P} * 8")
 
 message(STATUS "Boden library configuration:")
-message(STATUS "  Shared: ${BODEN_SHARED_LIB}")
+message(STATUS "  Shared: ${BDN_SHARED_LIB}")
 message(STATUS "  Architecture: ${arch} bit")
 message(STATUS "  C++ Standard: ${CMAKE_CXX_STANDARD}")
 

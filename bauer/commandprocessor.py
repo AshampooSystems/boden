@@ -11,6 +11,7 @@ from androidexecutor import AndroidExecutor
 from androidrunner import AndroidRunner
 from emscriptenrunner import EmscriptenRunner
 from iosrunner import IOSRunner
+from codesigner import CodeSigner
 
 class CommandProcessor:
     def __init__(self, bauerGlobals, generatorInfo, emscriptenInfo, args, sourceFolder, buildFolder):
@@ -81,6 +82,9 @@ class CommandProcessor:
                 elif command=="package":
                     self.prepare(configuration, platformState);
                     self.package(configuration);
+                elif command=="codesign":
+                    self.prepare(configuration, platformState);
+                    self.codesign(configuration)
                 else:
                     raise error.ProgramArgumentError("Invalid command: '%s'" % command);
 
@@ -119,6 +123,10 @@ class CommandProcessor:
         self.logger.info("Cleaning %s" % (buildDirectory))
         if os.path.isdir(buildDirectory):
             shutil.rmtree(buildDirectory);
+
+    def codesign(self, configuration):
+        codeSigner = CodeSigner(self.buildExecutor.cmake.codeModel)
+        codeSigner.sign(self.args)
 
     def buildDeps(self):
         pass

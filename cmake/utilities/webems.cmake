@@ -1,6 +1,6 @@
 
 macro(setup_web_ems)
-    if( BODEN_TARGET_WEBEMS )
+    if( BDN_PLATFORM_WEBEMS )
         add_definitions( -DBDN_PLATFORM_WEBEMS )
 
         # the C++ standard library provided by Emscripten has a bug in codecvt.

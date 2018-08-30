@@ -5,6 +5,8 @@
 #include <climits>
 #include <cstddef>
 
+#include <bdn/platform.h>
+
 #if WCHAR_MAX <= 0xffff
 	#define BDN_WCHAR_SIZE 2
 
@@ -15,91 +17,6 @@
 	#error Unsupported wchar size
 
 #endif
-
-
-// BDN_PLATFORM_WEBEMS cannot be detected automatically. It must be defined
-// via compiler commandline options.
-#if !defined(BDN_PLATFORM_DETECTED) && defined(BDN_PLATFORM_WEBEMS)
-    #undef BDN_PLATFORM_WEBEMS
-    #define BDN_PLATFORM_WEBEMS 1
-    #define BDN_PLATFORM_DETECTED 1
-
-#endif
-
-
-#if !defined(BDN_PLATFORM_DETECTED) && defined(__cplusplus_cli)
-	#define BDN_PLATFORM_DOTNET 1
-	#define BDN_PLATFORM_DETECTED 1
-#endif
-
-
-#if !defined(BDN_PLATFORM_DETECTED) && (defined(WIN32) || defined(_WINDOWS) || defined(WINAPI_FAMILY) )
-
-#if defined(WINAPI_FAMILY)
-
-	#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-		#define BDN_PLATFORM_WIN32 1
-	#else
-		#define BDN_PLATFORM_WINUWP 1
-	#endif
-
-#else
-	#define BDN_PLATFORM_WIN32 1
-
-#endif
-
-	#define BDN_PLATFORM_WINDOWS 1
-	#define BDN_PLATFORM_DETECTED 1
-	
-#endif
-
-#if !defined(BDN_PLATFORM_DETECTED) && defined(__APPLE__)
-
-	#include <TargetConditionals.h>
-
-	#if TARGET_OS_IPHONE
-		#define BDN_PLATFORM_IOS 1
-	#else
-		#define BDN_PLATFORM_OSX 1
-	#endif
-
-	#define BDN_PLATFORM_DETECTED 1
-
-#endif
-
-
-#if !defined(BDN_PLATFORM_DETECTED) && (defined(__ANDROID__) || defined(ANDROID))
-	#define BDN_PLATFORM_ANDROID 1
-	#define BDN_PLATFORM_DETECTED 1
-#endif
-
-
-#if !defined(BDN_PLATFORM_DETECTED) && defined(__linux__)
-	#define BDN_PLATFORM_LINUX 1
-	#define BDN_PLATFORM_DETECTED 1
-
-#endif
-
-#if !defined(BDN_PLATFORM_DETECTED) && defined(_POSIX_VERSION)
-	// some generic Posix/Unix system
-	#define BDN_PLATFORM_POSIX 1
-	#define BDN_PLATFORM_DETECTED 1
-#endif
-
-
-#if !defined(BDN_PLATFORM_DETECTED)
-	#error Unable to determine target system type
-
-#endif
-
-
-
-#if !defined(BDN_PLATFORM_POSIX)
-	#if BDN_PLATFORM_IOS || BDN_PLATFORM_OSX || BDN_PLATFORM_LINUX || BDN_PLATFORM_ANDROID
-		#define BDN_PLATFORM_POSIX 1
-    #endif
-#endif
-
 
 #if BDN_PLATFORM_WEBEMS
 
@@ -168,7 +85,7 @@
 		|| defined(__THUMBEB__) \
 		|| defined(_MIPSEB) \
 		|| defined(__MIPSEB) \
-		|| defined(__MIPSEB__) \
+        || defined(__MIPSEB__) \
 		|| ( defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && __BYTE_ORDER==__BIG_ENDIAN ) \
 		|| ( defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__ )  \
 		|| ( defined(BYTE_ORDER) && defined(BIG_ENDIAN) && BYTE_ORDER==BIG_ENDIAN ) 
@@ -189,7 +106,7 @@
 			#define	BDN_IS_BIG_ENDIAN 0
 
 
-	#elif BDN_PLATFORM_WINDOWS
+    #elif BDN_PLATFORM_FAMILY_WINDOWS
 		// Windows is always little endian. Even on ARM machines.
 		#define BDN_IS_BIG_ENDIAN 0
 

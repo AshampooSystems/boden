@@ -16,7 +16,7 @@ else()
     set(arch "x${arch}")
 endif()
 
-set(CPACK_PACKAGE_FILE_NAME "boden-${PROJECT_VERSION}-${BODEN_TARGET}-${arch}-${buildType}-${CMAKE_CXX_COMPILER_ID}")
+set(CPACK_PACKAGE_FILE_NAME "boden-${PROJECT_VERSION}-${BDN_TARGET}-${arch}-${buildType}-${CMAKE_CXX_COMPILER_ID}")
 
 message(STATUS "Package name: ${CPACK_PACKAGE_FILE_NAME}")
 

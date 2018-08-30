@@ -41,7 +41,7 @@ TEST_CASE( "WideCodec", "[string]" )
 	
 	SECTION( "typedef" )
 	{
-	#if BDN_PLATFORM_WINDOWS || BDN_PLATFORM_DOTNET
+	#if BDN_PLATFORM_FAMILY_WINDOWS || BDN_PLATFORM_DOTNET
 		REQUIRE( typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>) );
 
 	#else

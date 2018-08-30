@@ -2749,7 +2749,7 @@ inline void fatal( std::string const& message, int exitCode ) {
 
 } // namespace bdn
 
-#if !defined ( BDN_PLATFORM_POSIX ) /////////////////////////////////////////
+#if !defined ( BDN_PLATFORM_FAMILY_POSIX ) /////////////////////////////////////////
 
 namespace bdn {
 
@@ -4974,7 +4974,7 @@ struct NoColourImpl : IColourImpl {
 #if !defined( BDN_CONFIG_COLOUR_NONE ) && !defined( BDN_CONFIG_COLOUR_WINDOWS ) && !defined( BDN_CONFIG_COLOUR_ANSI )
 #   ifdef BDN_PLATFORM_WIN32
 #       define BDN_CONFIG_COLOUR_WINDOWS
-#   elif !defined(BDN_PLATFORM_WEBEMS) && !defined(BDN_PLATFORM_WINDOWS) && !defined(BDN_PLATFORM_IOS)
+#   elif !defined(BDN_PLATFORM_WEBEMS) && !defined(BDN_PLATFORM_FAMILY_WINDOWS) && !defined(BDN_PLATFORM_IOS)
 #       define BDN_CONFIG_COLOUR_ANSI
 #   endif
 #endif
@@ -5679,7 +5679,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 #pragma clang diagnostic ignored "-Wc++11-long-long"
 #endif
 
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 #include <windows.h>
 #else
 #include <sys/time.h>
@@ -5688,7 +5688,7 @@ void LegacyReporterAdapter::skipTest( TestCaseInfo const& ) {
 namespace bdn {
 
 namespace {
-#ifdef BDN_PLATFORM_WINDOWS
+#ifdef BDN_PLATFORM_FAMILY_WINDOWS
 uint64_t getCurrentTicks() {
 	static uint64_t hz=0, hzo=0;
 	if (!hz) {
@@ -6688,7 +6688,7 @@ struct CumulativeReporterBase : SharedImpl<IStreamingReporter> {
 	CumulativeReporterBase( ReporterConfig const& _config )
 		:   m_config( _config.fullConfig() )
         , actualTargetStream( _config.outputStream() )
-#if BDN_TARGET_WEBEMS
+#if BDN_PLATFORM_WEBEMS
         // when we output to stdout on Emscripten then the browser sometimes
         // crashes when we do too many short writes. So instead we buffer the
         // data and then write them in one big chunk to the actual stream.

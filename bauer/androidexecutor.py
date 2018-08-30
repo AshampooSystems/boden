@@ -92,8 +92,8 @@ class AndroidExecutor:
             "-DANDROID_ABI=%s" % (self.getAndroidABIFromArch(configuration.arch)),
             "-DANDROID_NATIVE_API_LEVEL=%s" % ( self.androidBuildApiVersion ),
             "-DCMAKE_BUILD_TYPE=%s" % (configuration.config),
-            "-DBODEN_BUILD_TESTS=Off",
-            "-DBODEN_BUILD_EXAMPLES=Off",
+            "-DBDN_BUILD_TESTS=Off",
+            "-DBDN_BUILD_EXAMPLES=Off",
         ]
 
         if args.package_generator:

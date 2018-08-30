@@ -158,7 +158,7 @@ bool debuggerPrintGoesToStdErr();
     // the macro undefined, so that we will get the default implementation that
     // simply calls a dummy function.
 
-#elif BDN_PLATFORM_POSIX
+#elif BDN_PLATFORM_FAMILY_POSIX
 
     // Checking wether or not we are being debugged is apparently not that easy on Linux/Unix systems.
     // However, we do not need it since we can raise a SIGTRAP that

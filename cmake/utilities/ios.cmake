@@ -1,6 +1,6 @@
 
 macro(setup_ios TARGET)
-    if( BODEN_TARGET_IOS )
+    if( BDN_PLATFORM_IOS )
         # there is a bug in cmake that causes debug symbols to not be generated for ios
         # builds. So we have to set it manually. Unfortunately we can apparently only
         # set it for all builds - waiting for a fix from ios cmake maintainer.

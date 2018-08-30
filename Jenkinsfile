@@ -136,8 +136,9 @@ pipeline {
                         BAUER_CONFIG = 'Release'
                         BAUER_PACKAGE_FOLDER = 'package'
                         BAUER_PACKAGE_GENERATOR = 'TGZ'
+                        BAUER_IDENTITY = 'iPhone Developer'
                     }
-                    agent { label 'macOS' }
+                    agent { label 'iOS' }
                     stages {
                         stage('Build') {
                             steps {
@@ -151,6 +152,16 @@ pipeline {
                                 sh 'python build.py package'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'ios-packages'
+                            }
+                        }
+
+                        stage('Sign') {
+                            environment {
+                                JENKINS_USER = credentials('mac-jenkins-user')
+                                BAUER_KEYCHAIN = credentials('jenkins-dev-certificate-keychain')
+                            }
+                            steps {
+                                sh 'python build.py codesign --password $JENKINS_USER_PSW'
                             }
                         }
 

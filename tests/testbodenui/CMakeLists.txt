@@ -1,10 +1,10 @@
 file(GLOB SOURCES
     ./src/*.cpp
     ./src/*.h
-    ./src/${BODEN_TARGET}/*.cpp
-    ./src/${BODEN_TARGET}/*.h
-    ./src/${BODEN_TARGET}/*.mm
-    ./src/${BODEN_TARGET}/*.hh
+    ./src/${BDN_TARGET}/*.cpp
+    ./src/${BDN_TARGET}/*.h
+    ./src/${BDN_TARGET}/*.mm
+    ./src/${BDN_TARGET}/*.hh
     )
 
 add_boden_test(testbodenui "${SOURCES}" No)

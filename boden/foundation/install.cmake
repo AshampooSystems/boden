@@ -15,6 +15,14 @@ install(DIRECTORY include/
     FILES_MATCHING PATTERN
         "*.h")
 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+    DESTINATION
+        ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT
+      ${ComponentName}
+    FILES_MATCHING PATTERN
+        "*.h")
+
 install(EXPORT foundation-export
     FILE
         foundationTargets.cmake

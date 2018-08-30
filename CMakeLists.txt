@@ -5,6 +5,7 @@ project(boden VERSION 0.1.1 LANGUAGES CXX)
 include(GNUInstallDirs)
 
 set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 
 enable_testing()
 
@@ -19,18 +20,18 @@ setup_web_ems(boden)
 add_subdirectory(boden)
 
 # Examples
-option(BODEN_BUILD_EXAMPLES "Build boden examples" ON)
+option(BDN_BUILD_EXAMPLES "Build boden examples" ON)
 
-if(BODEN_BUILD_EXAMPLES)
+if(BDN_BUILD_EXAMPLES)
 	add_subdirectory(examples)
-endif(BODEN_BUILD_EXAMPLES)
+endif(BDN_BUILD_EXAMPLES)
 
 # Tests
-option(BODEN_BUILD_TESTS "Build boden tests" ON)
+option(BDN_BUILD_TESTS "Build boden tests" ON)
 
-if(BODEN_BUILD_TESTS)
+if(BDN_BUILD_TESTS)
 	add_subdirectory(tests)
-endif(BODEN_BUILD_TESTS)
+endif(BDN_BUILD_TESTS)
 
 
 include(package/package.cmake)

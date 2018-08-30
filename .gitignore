@@ -10,4 +10,4 @@ testresults
 testresults.xml
 CMakeLists.txt.user
 *.pyc
-
+*.orig

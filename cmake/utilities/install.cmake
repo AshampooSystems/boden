@@ -1,5 +1,5 @@
 macro(fix_ios_package)
-    if(BODEN_TARGET_IOS)
+    if(BDN_PLATFORM_IOS)
         
         # CMake has a problem with XCode's way of naming build directories.
         # It expects everything to land in folders called "Debug" or "Release".

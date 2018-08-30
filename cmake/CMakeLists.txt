@@ -1,6 +1,6 @@
 
 set(_CMAKE_UTILITIES 
-    utilities/target.cmake
+    utilities/platform.cmake
     utilities/compiler.cmake
     utilities/warnings.cmake
     utilities/windows_uwp.cmake

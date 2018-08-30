@@ -14,7 +14,7 @@ void verifyErrnoCodeToSystemError(int errnoCode)
 	SystemError err = errnoCodeToSystemError(errnoCode, ErrorFields().add("bla", "blub")
 															.add("gubbel", "hurz") );
 
-#if BDN_PLATFORM_POSIX
+#if BDN_PLATFORM_FAMILY_POSIX
     REQUIRE( err.code().category()==std::system_category() );
 #else
     REQUIRE( err.code().category()==std::generic_category() );
@@ -35,7 +35,7 @@ void verifyErrnoCodeToSystemError(int errnoCode)
     // the error condition should be set properly
     std::error_condition cond = err.code().default_error_condition();
     
-#if BDN_PLATFORM_POSIX
+#if BDN_PLATFORM_FAMILY_POSIX
     REQUIRE( (cond.category()==std::system_category() || cond.category()==std::generic_category()) );
 #else
     REQUIRE( cond.category()==std::generic_category() );

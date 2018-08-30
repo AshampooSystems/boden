@@ -1,5 +1,5 @@
 macro(setup_gtk TARGET)
-    if( BODEN_USES_GTK )
+    if( BDN_USES_GTK )
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
         

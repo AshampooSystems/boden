@@ -12,7 +12,7 @@ TEST_CASE("mainDispatcher")
     bool canKeepRunningAfterUnhandledException = true;
     
     // iOS always exits after unhandled exceptions
-#if BDN_PLATFORM_IOS
+#ifdef BDN_PLATFORM_IOS
     canKeepRunningAfterUnhandledException = false;
 #endif
 

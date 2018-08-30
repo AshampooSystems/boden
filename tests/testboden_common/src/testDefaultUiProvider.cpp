@@ -85,7 +85,7 @@ void testDefaultUiProvider( std::basic_ostream<CHAR_TYPE>& stdOutStream, std::ba
 TEST_CASE("defaultUiProvider")
 {
 
-#if BDN_PLATFORM_WINDOWS
+#if BDN_PLATFORM_FAMILY_WINDOWS
 
     // on Windows we use wcout and wcerr, since then we
     // do no have encoding problems.
