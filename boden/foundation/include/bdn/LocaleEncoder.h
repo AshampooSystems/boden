@@ -126,7 +126,7 @@ public:
 		~Iterator()
 		{
 			if(_pEncodeState!=nullptr)
-				delete[] _pEncodeState;
+                delete _pEncodeState;
 		}
 
 

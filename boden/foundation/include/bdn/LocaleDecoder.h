@@ -116,7 +116,7 @@ public:
 		~Iterator()
 		{
 			if(_pDecodeState!=nullptr)
-				delete[] _pDecodeState;
+                delete _pDecodeState;
 		}
 
 

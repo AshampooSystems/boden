@@ -33,7 +33,7 @@ public:
         g_signal_connect( _switch, "notify::active", G_CALLBACK(toggledCallback), this );
     }
     
-    void setPadding(const Nullable<UiMargin>& uiPadding)
+    void setPadding(const Nullable<UiMargin>& uiPadding) override
     {
         // future: could use child-displacement-x or CSS padding property in future.
         // For now we do nothing with the padding at this point. But we DO add it into the preferred

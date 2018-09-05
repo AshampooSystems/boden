@@ -7,6 +7,7 @@ namespace bdn
 
 struct Base::WeakReferenceState_  : public Base, BDN_IMPLEMENTS IWeakReferenceState
 {
+    friend class Base;
 public:
     WeakReferenceState_(Base* pObject)
         : pObject(pObject)
@@ -37,7 +38,7 @@ public:
                 // the refcount had already reached zero. So we have the case mentioned above, that
                 // Base::refCountReachedZero has started, but has not yet set pObject to null.
                 // Undo the refcount modification.
-                _refCount -= 1;
+                pObject->_refCount -= 1;
 
                 // Note that no one else can have modified the reference count. Other weak references
                 // to the same object cannot enter this code block since we are holding the mutex.
@@ -72,10 +73,17 @@ public:
             return nullptr;
     }
 
+private:
+    void objectDied()
+    {
+        Mutex::Lock lock(mutex);
+        pObject = nullptr;
+    }
+
+private:
     Mutex mutex;
     Base* pObject;
 };
-
 
 Base::~Base()
 {
@@ -108,10 +116,7 @@ Base::~Base()
         // So we allow it, even though it is not recommended.
 
         // In any case, we have to mark the object as deleted here.
-        {
-            Mutex::Lock lock( pWeakReferenceState->mutex );
-            pWeakReferenceState->pObject = nullptr;
-        }
+        pWeakReferenceState->objectDied();
 
         // and release our reference to the shared state
         pWeakReferenceState->releaseRef();
@@ -146,16 +151,8 @@ void Base::_refCountReachedZero()
     {
         // we did have weak references at some point. So we have to set the pointer
         // to ourselves in the shared state to null now, before we continue deleting
-        // ourselves. We must hold a mutex during this.
-        {
-            Mutex::Lock lock( pWeakRefState->mutex );
-            
-            // at this point we know that we will be deleted. Set the pointer to ourselves in the
-            // shared weak reference state to null.
-            pWeakRefState->pObject = nullptr;
-
-            // we can release the mutex now. pObject is null
-        }
+        // ourselves.
+        pWeakRefState->objectDied();
 
         // release our reference to the shared data. If there are weak pointers to us then they
         // will keep the shared data alive until they are gone.

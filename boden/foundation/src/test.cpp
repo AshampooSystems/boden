@@ -8558,7 +8558,7 @@ public:
         
         try
         {
-            _pTestSession = new bdn::Session;
+            _pTestSession.reset(new bdn::Session());
 
 			std::vector<const char*> argPtrs;
 			for(const String& arg: args)
@@ -8718,7 +8718,7 @@ protected:
 
 
 protected:
-	Session*    _pTestSession;
+    std::unique_ptr<Session>    _pTestSession;
     P<TestRunner> _pTestRunner;
 };
 

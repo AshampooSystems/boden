@@ -17,7 +17,7 @@ int genericCommandLineAppEntry(const std::function< P<AppControllerBase>() >& ap
                                                                             true );
         _setAppRunner(pAppRunner);
         
-        pAppRunner->entry();
+        return pAppRunner->entry();
     }
     catch(...)
     {
