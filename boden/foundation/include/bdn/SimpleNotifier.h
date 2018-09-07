@@ -8,44 +8,35 @@
 namespace bdn
 {
 
+    /** A simple, fast synchrnous notifier. See ISyncNotifier.
 
-/** A simple, fast synchrnous notifier. See ISyncNotifier.
+        SimpleNotifier is **not** thread safe.
 
-	SimpleNotifier is **not** thread safe.
-	
-	See ThreadSafeNotifier for an alternative that is thread safe and also
-	supports IAsyncNotifier.
-*/
-template<class... ARG_TYPES>
-class SimpleNotifier : public NotifierBase< DummyMutex, ARG_TYPES... >
-								// note that we use DummyMutex (i.e. no actual mutex operations will happen)
-	, BDN_IMPLEMENTS ISyncNotifier<ARG_TYPES...>
-{
-private:
-    using BASE = NotifierBase< DummyMutex, ARG_TYPES... >;
-    
-public:
-    SimpleNotifier()
+        See ThreadSafeNotifier for an alternative that is thread safe and also
+        supports IAsyncNotifier.
+    */
+    template <class... ARG_TYPES>
+    class SimpleNotifier : public NotifierBase<DummyMutex, ARG_TYPES...>
+        // note that we use DummyMutex (i.e. no actual mutex operations will
+        // happen)
+        ,
+                           BDN_IMPLEMENTS ISyncNotifier<ARG_TYPES...>
     {
-    }
+      private:
+        using BASE = NotifierBase<DummyMutex, ARG_TYPES...>;
 
-    ~SimpleNotifier()
-    {
-    }
-        
-	
-	void notify(ARG_TYPES... args)
-	{
-		BASE::doNotify( std::forward<ARG_TYPES>(args)... );
-	}
-    
-	
-private:
-};
-    
+      public:
+        SimpleNotifier() {}
+
+        ~SimpleNotifier() {}
+
+        void notify(ARG_TYPES... args)
+        {
+            BASE::doNotify(std::forward<ARG_TYPES>(args)...);
+        }
+
+      private:
+    };
 }
 
-
 #endif
-
-

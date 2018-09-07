@@ -10,40 +10,36 @@
 
 #import <Foundation/Foundation.h>
 
-
 namespace bdn
 {
-namespace fk
-{
-
-void rethrowAsNSException()
-{
-    try
+    namespace fk
     {
-        throw;
-    }
-    catch(NSException* exception)
-    {
-        // let NSExceptions through
-        throw;
-    }
-    catch(...)
-    {
-        bdn::ErrorInfo info( std::current_exception() );
-    
-        NSString* message = stringToNSString(info.getMessage());
-    
-        NSObject* wrappedException = bdn::fk::wrapIntoNSObject( bdn::ExceptionReference::newFromActiveException() );
-        
-        NSDictionary* userInfoDict = [[NSDictionary alloc] initWithObjectsAndKeys:wrappedException,@"bdn::ExceptionReference", nil];
-    
-        @throw [NSException
-                exceptionWithName:@"CppException"
-                reason:message
-                userInfo:userInfoDict ];
-    }
-}
 
+        void rethrowAsNSException()
+        {
+            try {
+                throw;
+            }
+            catch (NSException *exception) {
+                // let NSExceptions through
+                throw;
+            }
+            catch (...) {
+                bdn::ErrorInfo info(std::current_exception());
 
-}
+                NSString *message = stringToNSString(info.getMessage());
+
+                NSObject *wrappedException = bdn::fk::wrapIntoNSObject(
+                    bdn::ExceptionReference::newFromActiveException());
+
+                NSDictionary *userInfoDict = [[NSDictionary alloc]
+                    initWithObjectsAndKeys:wrappedException,
+                                           @"bdn::ExceptionReference", nil];
+
+                @throw [NSException exceptionWithName:@"CppException"
+                                               reason:message
+                                             userInfo:userInfoDict];
+            }
+        }
+    }
 }

@@ -8,23 +8,23 @@
 
 using namespace bdn;
 
-
-class TestAndroidTextViewCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestTextViewCore >
+class TestAndroidTextViewCore
+    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<
+            bdn::test::TestTextViewCore>::initCore();
 
-        _jTextView = bdn::android::JTextView( _jView.getRef_() );
+        _jTextView = bdn::android::JTextView(_jView.getRef_());
     }
 
     bool usesAllAvailableWidthWhenWrapped() const override
     {
         // unfortunately the android textview will use up all available width
-        // when it reaches it (even if the wrapped text ends up being slightly less
-        // wide).
+        // when it reaches it (even if the wrapped text ends up being slightly
+        // less wide).
         return true;
     }
 
@@ -39,12 +39,11 @@ protected:
         String expectedText = _pTextView->text();
 
         String text = _jTextView.getText();
-        
-        REQUIRE( text == expectedText );
+
+        REQUIRE(text == expectedText);
     }
 
-
-protected:
+  protected:
     bdn::android::JTextView _jTextView;
 };
 
@@ -54,11 +53,3 @@ TEST_CASE("android.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

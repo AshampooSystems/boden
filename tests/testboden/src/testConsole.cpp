@@ -35,5 +35,4 @@ TEST_CASE("Console")
 	
 }
 
-
-#endif //0
+#endif // 0

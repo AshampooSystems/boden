@@ -5,136 +5,126 @@ using namespace bdn;
 
 TEST_CASE("Base")
 {
-	Base base;
-	
-	SECTION("refcount")
-	{
-		REQUIRE(base.getRefCount()==1);
+    Base base;
 
-		base.addRef();
+    SECTION("refcount")
+    {
+        REQUIRE(base.getRefCount() == 1);
 
-		REQUIRE(base.getRefCount()==2);
+        base.addRef();
 
-		base.releaseRef();
+        REQUIRE(base.getRefCount() == 2);
 
-		REQUIRE(base.getRefCount()==1);
-	}
+        base.releaseRef();
 
-	SECTION("deleted when refcount=0")
-	{
-		class TestBase : public Base
-		{
-		public:
-			TestBase(bool* pDeleted)
-			{
-				_pDeleted = pDeleted;
-			}
+        REQUIRE(base.getRefCount() == 1);
+    }
 
-			~TestBase()
-			{
-				*_pDeleted = true;
-			}
+    SECTION("deleted when refcount=0")
+    {
+        class TestBase : public Base
+        {
+          public:
+            TestBase(bool *pDeleted) { _pDeleted = pDeleted; }
 
-		protected:
-			bool* _pDeleted;
-		};
+            ~TestBase() { *_pDeleted = true; }
 
-		bool deleted = false;
+          protected:
+            bool *_pDeleted;
+        };
 
-		TestBase* pTest = new(Base::RawNew::Use) TestBase(&deleted);
+        bool deleted = false;
 
-		REQUIRE( !deleted );
+        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleted);
 
-		pTest->releaseRef();
+        REQUIRE(!deleted);
 
-		REQUIRE( deleted );	
-	}
+        pTest->releaseRef();
 
-	SECTION("isBeingDeletedBecauseReferenceCountReachedZero")
-	{
-		class TestBase : public Base
-		{
-		public:
-			TestBase(bool* pDeleted)
-			{
-				_pDeleted = pDeleted;
-			}
+        REQUIRE(deleted);
+    }
 
-			~TestBase()
-			{
-				*_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero();
-			}
+    SECTION("isBeingDeletedBecauseReferenceCountReachedZero")
+    {
+        class TestBase : public Base
+        {
+          public:
+            TestBase(bool *pDeleted) { _pDeleted = pDeleted; }
 
-		protected:
-			bool* _pDeleted;
-		};
+            ~TestBase()
+            {
+                *_pDeleted = isBeingDeletedBecauseReferenceCountReachedZero();
+            }
 
-		bool deleted = false;
+          protected:
+            bool *_pDeleted;
+        };
 
-		TestBase* pTest = new(Base::RawNew::Use) TestBase(&deleted);
+        bool deleted = false;
 
-		REQUIRE( !deleted );
+        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleted);
 
-		pTest->releaseRef();
+        REQUIRE(!deleted);
 
-		REQUIRE( deleted );
-	}
+        pTest->releaseRef();
 
+        REQUIRE(deleted);
+    }
 
-	SECTION("revive during deletion")
-	{
-		class TestBase : public Base
-		{
-		public:
-			TestBase(int* pDeleteThisCounter)
-			{
-				_pDeleteThisCounter = pDeleteThisCounter;
-			}
-			
-		protected:
-			void deleteThis() override
-			{
-				(*_pDeleteThisCounter)++;
+    SECTION("revive during deletion")
+    {
+        class TestBase : public Base
+        {
+          public:
+            TestBase(int *pDeleteThisCounter)
+            {
+                _pDeleteThisCounter = pDeleteThisCounter;
+            }
 
-				reviveDuringDeleteThis().detachPtr();
-			}
+          protected:
+            void deleteThis() override
+            {
+                (*_pDeleteThisCounter)++;
 
-			int* _pDeleteThisCounter;
-		};
+                reviveDuringDeleteThis().detachPtr();
+            }
 
-		int deleteThisCounter = 0;
+            int *_pDeleteThisCounter;
+        };
 
-		TestBase* pTest = new(Base::RawNew::Use) TestBase(&deleteThisCounter);
+        int deleteThisCounter = 0;
 
-		REQUIRE( deleteThisCounter==0 );
+        TestBase *pTest = new (Base::RawNew::Use) TestBase(&deleteThisCounter);
 
-		pTest->releaseRef();
+        REQUIRE(deleteThisCounter == 0);
 
-		REQUIRE( deleteThisCounter==1 );
+        pTest->releaseRef();
 
-		REQUIRE( pTest->getRefCount()==1 );
+        REQUIRE(deleteThisCounter == 1);
 
-		REQUIRE( !pTest->isBeingDeletedBecauseReferenceCountReachedZero() );
+        REQUIRE(pTest->getRefCount() == 1);
 
-		delete pTest;		
-	}
-	
-	SECTION("addRef/releaseRef in destructor")
-	{
-		// we only test here that the additional releaseRef does not
-		// cause a second deletion (which would cause a crash).
-		class TestBase : public Base
-		{
-		public:
-			~TestBase()
-			{
-				addRef();
-				releaseRef();
-			}
-		};
+        REQUIRE(!pTest->isBeingDeletedBecauseReferenceCountReachedZero());
 
-		TestBase* pTest = new(Base::RawNew::Use) TestBase;
+        delete pTest;
+    }
 
-		pTest->releaseRef();
-	}
+    SECTION("addRef/releaseRef in destructor")
+    {
+        // we only test here that the additional releaseRef does not
+        // cause a second deletion (which would cause a crash).
+        class TestBase : public Base
+        {
+          public:
+            ~TestBase()
+            {
+                addRef();
+                releaseRef();
+            }
+        };
+
+        TestBase *pTest = new (Base::RawNew::Use) TestBase;
+
+        pTest->releaseRef();
+    }
 }

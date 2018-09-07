@@ -5,25 +5,20 @@
 
 namespace bdn
 {
-namespace fk
-{
+    namespace fk
+    {
 
-   
-inline NSString* stringToNSString(const String& val)
-{
-    return [NSString stringWithCString: val.asUtf8Ptr()
-                              encoding: NSUTF8StringEncoding];
-}
+        inline NSString *stringToNSString(const String &val)
+        {
+            return [NSString stringWithCString:val.asUtf8Ptr()
+                                      encoding:NSUTF8StringEncoding];
+        }
 
-
-inline String nsStringToString(NSString* nsString)
-{
-    return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
-}
-
-
-
-}
+        inline String nsStringToString(NSString *nsString)
+        {
+            return [nsString cStringUsingEncoding:NSUTF8StringEncoding];
+        }
+    }
 }
 
 #endif

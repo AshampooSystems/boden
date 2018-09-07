@@ -10,18 +10,18 @@ using namespace bdn;
 
 void verifyToFromException(HRESULT result, int expectedCode)
 {
-    SystemError err = bdn::win32::hresultToSystemError( result, ErrorFields().add("bla", "blub") );
+    SystemError err = bdn::win32::hresultToSystemError(
+        result, ErrorFields().add("bla", "blub"));
 
-    REQUIRE( err.code().category() == std::system_category() );
-    REQUIRE( err.code().value() == expectedCode );        
+    REQUIRE(err.code().category() == std::system_category());
+    REQUIRE(err.code().value() == expectedCode);
 
     ErrorInfo info(err);
 
-    REQUIRE( info.getField("bla") == "blub");
-
+    REQUIRE(info.getField("bla") == "blub");
 
     HRESULT outResult = bdn::win32::exceptionToHresult(err);
-    REQUIRE( outResult == result);
+    REQUIRE(outResult == result);
 }
 
 TEST_CASE("hresultError")
@@ -29,21 +29,22 @@ TEST_CASE("hresultError")
     SECTION("toFromException")
     {
         SECTION("0x80070005")
-            verifyToFromException( 0x80070005, ERROR_ACCESS_DENIED );
-                
+        verifyToFromException(0x80070005, ERROR_ACCESS_DENIED);
+
         SECTION("E_FAIL")
-            verifyToFromException( E_FAIL, E_FAIL );        
+        verifyToFromException(E_FAIL, E_FAIL);
 
         SECTION("S_OK")
-            verifyToFromException( S_OK, ERROR_SUCCESS );        
+        verifyToFromException(S_OK, ERROR_SUCCESS);
     }
 
     SECTION("fromNonSystemException")
     {
         SECTION("std::exception")
         {
-            HRESULT outResult = bdn::win32::exceptionToHresult( std::exception() );
-            REQUIRE( outResult == E_FAIL );
+            HRESULT outResult =
+                bdn::win32::exceptionToHresult(std::exception());
+            REQUIRE(outResult == E_FAIL);
         }
     }
 }

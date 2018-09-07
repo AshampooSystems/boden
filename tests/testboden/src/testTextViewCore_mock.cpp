@@ -9,18 +9,17 @@
 
 using namespace bdn;
 
-
-class TestMockTextViewCore : public bdn::test::TestMockViewCoreMixin< bdn::test::TestTextViewCore >
+class TestMockTextViewCore
+    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void verifyCoreText() override
-    { 
+    {
         String expectedText = _pTextView->text();
 
-        String text = cast<bdn::test::MockTextViewCore>( _pMockCore )->getText();
-        
-        REQUIRE( text == expectedText );
+        String text = cast<bdn::test::MockTextViewCore>(_pMockCore)->getText();
+
+        REQUIRE(text == expectedText);
     }
 
     bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
@@ -35,11 +34,3 @@ TEST_CASE("mock.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

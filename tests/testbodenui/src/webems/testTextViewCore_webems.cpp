@@ -8,35 +8,34 @@
 
 using namespace bdn;
 
-
-class TestWebemsTextViewCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestTextViewCore >
+class TestWebemsTextViewCore
+    : public bdn::test::TestWebemsViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void verifyCoreText() override
     {
-    	String expectedText = _pTextView->text();
+        String expectedText = _pTextView->text();
 
         String text = _domObject["textContent"].as<std::string>();
-        
-        REQUIRE( text == expectedText );
+
+        REQUIRE(text == expectedText);
     }
 
     bool clipsPreferredWidthToAvailableWidth() const override
     {
-    	// we will never get a size that exceeds availableWidth from a HTML element
-    	// because the availableWidth is implemented as a max size constraint.
-    	return true;
+        // we will never get a size that exceeds availableWidth from a HTML
+        // element because the availableWidth is implemented as a max size
+        // constraint.
+        return true;
     }
 
     bool usesAllAvailableWidthWhenWrapped() const override
-	{
-		// unfortunately html elements will use up all available space when their
-		// size would otherwise exceed it (even if they did text wrapping to accomodate
-		// the smaller width)
-		return true;
-	}
-
+    {
+        // unfortunately html elements will use up all available space when
+        // their size would otherwise exceed it (even if they did text wrapping
+        // to accomodate the smaller width)
+        return true;
+    }
 };
 
 TEST_CASE("webems.TextViewCore")
@@ -45,11 +44,3 @@ TEST_CASE("webems.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

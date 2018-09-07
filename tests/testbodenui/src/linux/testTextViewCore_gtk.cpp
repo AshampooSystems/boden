@@ -8,20 +8,19 @@
 
 using namespace bdn;
 
-
-class TestGtkTextViewCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestTextViewCore >
+class TestGtkTextViewCore
+    : public bdn::test::TestGtkViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();
-        
-        String text = gtk_label_get_text( GTK_LABEL(_pGtkWidget) );
-        
-        REQUIRE( text == expectedText );
+
+        String text = gtk_label_get_text(GTK_LABEL(_pGtkWidget));
+
+        REQUIRE(text == expectedText);
     }
-    
+
     bool usesAllAvailableWidthWhenWrapped() const override
     {
         // unfortunately we use all available space when wrapping occurs.
@@ -29,8 +28,7 @@ protected:
         // See gtk::ViewCore::calcPreferredSize to find out why this is.
         return true;
     }
-    
-    
+
     bool clipsPreferredWidthToAvailableWidth() const override
     {
         // we cannot return a preferred size bigger than the available size.
@@ -45,11 +43,3 @@ TEST_CASE("gtk.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

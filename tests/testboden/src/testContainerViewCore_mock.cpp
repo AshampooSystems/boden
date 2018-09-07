@@ -8,20 +8,15 @@
 
 using namespace bdn;
 
-
-
-class TestMockContainerViewCore : public bdn::test::TestMockViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestMockContainerViewCore
+    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestContainerViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestMockViewCoreMixin< TestContainerViewCore >::initCore();
-    }    
-
+        TestMockViewCoreMixin<TestContainerViewCore>::initCore();
+    }
 };
-
-
 
 TEST_CASE("mock.ContainerViewCore")
 {
@@ -29,10 +24,3 @@ TEST_CASE("mock.ContainerViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-

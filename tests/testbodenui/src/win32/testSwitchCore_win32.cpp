@@ -9,27 +9,25 @@
 
 using namespace bdn;
 
-
-class TestWin32SwitchCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestSwitchCore >
+class TestWin32SwitchCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestSwitchCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
 
         String label = bdn::win32::Win32Window::getWindowText(_hwnd);
-        
-        REQUIRE( label == expectedLabel );
+
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
-    	bool expectedOn = _pSwitch->on();
-    	bool on = cast<win32::SwitchCore<Switch>>(_pWin32Core)->_on();
-    	REQUIRE( on == expectedOn );
+        bool expectedOn = _pSwitch->on();
+        bool on = cast<win32::SwitchCore<Switch>>(_pWin32Core)->_on();
+        REQUIRE(on == expectedOn);
     }
-
 };
 
 TEST_CASE("win32.SwitchCore")
@@ -38,8 +36,3 @@ TEST_CASE("win32.SwitchCore")
 
     pTest->runTests();
 }
-
-
-
-
-

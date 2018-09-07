@@ -6,27 +6,23 @@
 
 namespace bdn
 {
-namespace win32
-{
-    
-    
-class CommandLineAppRunner : public GenericAppRunner
-{
-public:
-	CommandLineAppRunner( std::function< P<AppControllerBase>() > appControllerCreator, int argCount, char* args[])
-		: GenericAppRunner( appControllerCreator, makeAppLaunchInfo(), true )
-	{
-	}
-	
+    namespace win32
+    {
 
-protected:
-	void platformSpecificInit() override;
-};
-  		
+        class CommandLineAppRunner : public GenericAppRunner
+        {
+          public:
+            CommandLineAppRunner(
+                std::function<P<AppControllerBase>()> appControllerCreator,
+                int argCount, char *args[])
+                : GenericAppRunner(appControllerCreator, makeAppLaunchInfo(),
+                                   true)
+            {}
 
-    
-}    
+          protected:
+            void platformSpecificInit() override;
+        };
+    }
 }
 
 #endif
-

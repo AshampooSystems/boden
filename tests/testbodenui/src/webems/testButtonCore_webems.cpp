@@ -8,21 +8,20 @@
 
 using namespace bdn;
 
-
-class TestWebemsButtonCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestButtonCore >
+class TestWebemsButtonCore
+    : public bdn::test::TestWebemsViewCoreMixin<bdn::test::TestButtonCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pButton->label();
 
         emscripten::val contentObj = _domObject["textContent"];
-        REQUIRE( !contentObj.isUndefined() );
+        REQUIRE(!contentObj.isUndefined());
 
         String label = contentObj.as<std::string>();
-        
-        REQUIRE( label == expectedLabel );
+
+        REQUIRE(label == expectedLabel);
     }
 };
 
@@ -32,12 +31,3 @@ TEST_CASE("webems.ButtonCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-
-

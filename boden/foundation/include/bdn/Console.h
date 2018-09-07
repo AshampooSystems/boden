@@ -275,7 +275,6 @@ protected:
 		std::wistream* _pStream;
 	};
 
-
 #if BDN_PLATFORM_WIN32
 
 	class WindowsConsoleWriter : public Base, BDN_IMPLEMENTS IWriter
@@ -448,7 +447,6 @@ extern Console console;
 
 }
 
-#endif //0
+#endif // 0
 
 #endif
-

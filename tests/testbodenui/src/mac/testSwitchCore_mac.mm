@@ -10,46 +10,43 @@
 
 using namespace bdn;
 
-class TestMacSwitchCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestSwitchCore >
+class TestMacSwitchCore
+    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestSwitchCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin< bdn::test::TestSwitchCore >::initCore();
-        
-        _pSwitchComposite = (BdnMacSwitchComposite *) _pNSView;
-        REQUIRE( _pSwitchComposite!=nullptr );
+        bdn::test::TestMacChildViewCoreMixin<
+            bdn::test::TestSwitchCore>::initCore();
+
+        _pSwitchComposite = (BdnMacSwitchComposite *)_pNSView;
+        REQUIRE(_pSwitchComposite != nullptr);
     }
 
-    
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
-        
-        String label = bdn::mac::macStringToString( _pSwitchComposite.label.stringValue );
-        
-        REQUIRE( label == expectedLabel );
+
+        String label =
+            bdn::mac::macStringToString(_pSwitchComposite.label.stringValue);
+
+        REQUIRE(label == expectedLabel);
     }
-    
+
     void verifyCoreOn() override
     {
         bool expectedOn = _pSwitch->on();
         bool on = _pSwitchComposite.bdnSwitch.on;
-        REQUIRE( on == expectedOn );
+        REQUIRE(on == expectedOn);
     }
-    
-protected:
-    BdnMacSwitchComposite* _pSwitchComposite;
+
+  protected:
+    BdnMacSwitchComposite *_pSwitchComposite;
 };
 
 TEST_CASE("mac.SwitchCore")
 {
     P<TestMacSwitchCore> pTest = newObj<TestMacSwitchCore>();
-    
+
     pTest->runTests();
 }
-
-
-
-

@@ -7,75 +7,75 @@
 namespace bdn
 {
 
-/** When an object of this class was created in the same thread and still exists,
-	calling the programmingError() function from the same thread will not interrupt
-	a debugger, not issue a failed assert and not log an error message.
-	
-	It is intended to be used in unit testing when the programming error is deliberately
-	made to test the error handling.
-	
-	Note that programmingError() still throws a ProgrammingError exception, even when
-	an ExpectProgrammingError instance exists.
+    /** When an object of this class was created in the same thread and still
+       exists, calling the programmingError() function from the same thread will
+       not interrupt a debugger, not issue a failed assert and not log an error
+       message.
 
-	When this is used with a REQUIRE_THROWS_AS test statement then one can also use
-	REQUIRE_THROWS_PROGRAMMING_ERROR instead. It combines ExpectProgrammingError
-	with REQUIRE_THROWS_AS in a single call.
+        It is intended to be used in unit testing when the programming error is
+       deliberately made to test the error handling.
 
-	Example:
+        Note that programmingError() still throws a ProgrammingError exception,
+       even when an ExpectProgrammingError instance exists.
 
-	\code
+        When this is used with a REQUIRE_THROWS_AS test statement then one can
+       also use REQUIRE_THROWS_PROGRAMMING_ERROR instead. It combines
+       ExpectProgrammingError with REQUIRE_THROWS_AS in a single call.
 
-	TEST_CASE("myTest")
-	{
+        Example:
 
-		// ... do some tests here
+        \code
 
-		{
-			ExpectProgrammingError expError;
+        TEST_CASE("myTest")
+        {
 
-			// test that the programming error is caught properly.
-			// No assertion, logging and debugger breaking will happen here
-			// when it occurs, since a ExpectProgrammingError object exists
-			// for the current thread.
-			REQUIRE_THROWS_AS(
-				... cause the error here
-				, ProgrammingError );
-		}
+            // ... do some tests here
 
-		// here programming errors will again debugger break, assert and cause a log message.
+            {
+                ExpectProgrammingError expError;
 
-		// as an alternative, one can also use REQUIRE_THROWS_PROGRAMMING_ERROR instead.
-		// It is equivalent to the code we used above:
-		REQUIRE_THROWS_PROGRAMMING_ERROR(
-				... cause the error here );
-	}
+                // test that the programming error is caught properly.
+                // No assertion, logging and debugger breaking will happen here
+                // when it occurs, since a ExpectProgrammingError object exists
+                // for the current thread.
+                REQUIRE_THROWS_AS(
+                    ... cause the error here
+                    , ProgrammingError );
+            }
 
-	\endcode
-*/
-class ExpectProgrammingError
-{
-public:
-	ExpectProgrammingError()
-	{
-		getThreadLocalProgrammingErrorExpected()++;
-	}
+            // here programming errors will again debugger break, assert and
+       cause a log message.
 
-	~ExpectProgrammingError()
-	{
-		getThreadLocalProgrammingErrorExpected()--;
-	}
+            // as an alternative, one can also use
+       REQUIRE_THROWS_PROGRAMMING_ERROR instead.
+            // It is equivalent to the code we used above:
+            REQUIRE_THROWS_PROGRAMMING_ERROR(
+                    ... cause the error here );
+        }
 
-	/** Returns true if a programming error is expected for the current thread.*/
-	static inline bool isProgrammingErrorExpected()
-	{
-		return (getThreadLocalProgrammingErrorExpected() > 0);
-	}
+        \endcode
+    */
+    class ExpectProgrammingError
+    {
+      public:
+        ExpectProgrammingError() { getThreadLocalProgrammingErrorExpected()++; }
 
-private:
-	BDN_SAFE_STATIC_THREAD_LOCAL( int, getThreadLocalProgrammingErrorExpected );
-};
+        ~ExpectProgrammingError()
+        {
+            getThreadLocalProgrammingErrorExpected()--;
+        }
 
+        /** Returns true if a programming error is expected for the current
+         * thread.*/
+        static inline bool isProgrammingErrorExpected()
+        {
+            return (getThreadLocalProgrammingErrorExpected() > 0);
+        }
+
+      private:
+        BDN_SAFE_STATIC_THREAD_LOCAL(int,
+                                     getThreadLocalProgrammingErrorExpected);
+    };
 }
-
 
 #endif

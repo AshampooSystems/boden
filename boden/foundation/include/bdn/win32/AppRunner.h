@@ -5,38 +5,31 @@
 
 namespace bdn
 {
-namespace win32
-{
-    
-    
-class AppRunner : public AppRunnerBase
-{
-public:
+    namespace win32
+    {
 
-	static int commandLineEntry(AppController* pAppController, int argc, const char** argv)
-	{
-		AppRunner runner;
+        class AppRunner : public AppRunnerBase
+        {
+          public:
+            static int commandLineEntry(AppController *pAppController, int argc,
+                                        const char **argv)
+            {
+                AppRunner runner;
 
-		runner.setArgumentsInLocaleEncoding(argc, argv);
+                runner.setArgumentsInLocaleEncoding(argc, argv);
 
-		return runner.main();
-	}
+                return runner.main();
+            }
 
-	static int uiEntry(AppController* pAppController, int showCommand)
-	{
+            static int uiEntry(AppController *pAppController, int showCommand)
+            {}
 
-	}
+            void main();
 
-	void main();
-
-protected:
-	void platformSpecificInit() override;
-};
-  		
-
-    
-}    
+          protected:
+            void platformSpecificInit() override;
+        };
+    }
 }
 
 #endif
-

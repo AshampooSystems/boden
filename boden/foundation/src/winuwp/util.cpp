@@ -5,28 +5,21 @@
 
 namespace bdn
 {
-namespace winuwp
-{
-
-
-void layoutViewTree(View* pView)
-{        
-    P<IUwpViewCore> pCore = tryCast<IUwpViewCore>(pView->getViewCore());
-    if(pCore!=nullptr)
+    namespace winuwp
     {
-        pCore->layout();
 
-        List< P<View> > childViews;
-        pView->getChildViews(childViews);
+        void layoutViewTree(View *pView)
+        {
+            P<IUwpViewCore> pCore = tryCast<IUwpViewCore>(pView->getViewCore());
+            if (pCore != nullptr) {
+                pCore->layout();
 
-        for( auto& pChildView: childViews)
-            layoutViewTree(pChildView);        
+                List<P<View>> childViews;
+                pView->getChildViews(childViews);
+
+                for (auto &pChildView : childViews)
+                    layoutViewTree(pChildView);
+            }
+        }
     }
 }
-
-
-
-}
-}
-
-

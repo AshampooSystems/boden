@@ -9,26 +9,25 @@
 
 namespace bdn
 {
-namespace ios
-{
+    namespace ios
+    {
 
+        int appEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            int argc, char *argv[])
+        {
+            BDN_ENTRY_BEGIN;
 
-int appEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int argc, char* argv[])
-{
-    BDN_ENTRY_BEGIN;
+            bdn::P<bdn::ios::AppRunner> pAppRunner =
+                bdn::newObj<bdn::ios::AppRunner>(appControllerCreator, argc,
+                                                 argv);
+            _setAppRunner(pAppRunner);
 
-    bdn::P< bdn::ios::AppRunner > pAppRunner = bdn::newObj< bdn::ios::AppRunner >( appControllerCreator, argc, argv );
-    _setAppRunner(pAppRunner);
-    
-    return pAppRunner->entry(argc, argv);
+            return pAppRunner->entry(argc, argv);
 
-    BDN_ENTRY_END(false);
-    
-    return 0;
+            BDN_ENTRY_END(false);
+
+            return 0;
+        }
+    }
 }
-
-
-}
-}
-
-

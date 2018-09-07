@@ -8,153 +8,155 @@
 using namespace bdn;
 using namespace bdn::test;
 
-template<class CollType>
-void _verifyIteratorsStillValid(CollType& coll, std::list<typename CollType::Iterator>& itList )
+template <class CollType>
+void _verifyIteratorsStillValid(CollType &coll,
+                                std::list<typename CollType::Iterator> &itList)
 {
-    for(auto& it: itList)
-    {
+    for (auto &it : itList) {
         // compare the element pointers to check if the iterator still points
         // to an element in the new list.
         bool foundEl = false;
-        for( auto checkIt = coll.begin(); checkIt!=coll.end(); ++checkIt )
-        {
-            if( &*it == &*checkIt )
-            {
+        for (auto checkIt = coll.begin(); checkIt != coll.end(); ++checkIt) {
+            if (&*it == &*checkIt) {
                 foundEl = true;
                 break;
             }
         }
 
-        REQUIRE( foundEl );
+        REQUIRE(foundEl);
     }
 }
 
-template<class CollType>
-void verifyStealAllAndMergeSorted(CollType& coll, CollType& other)
+template <class CollType>
+void verifyStealAllAndMergeSorted(CollType &coll, CollType &other)
 {
     CollType origColl(coll);
     CollType origOther(other);
 
     // make a list with all iterators from the two lists
-    std::list< typename CollType::Iterator > its;
-    std::list< typename CollType::Iterator > otherIts;
-    for( auto it = coll.begin(); it!=coll.end(); ++it)
+    std::list<typename CollType::Iterator> its;
+    std::list<typename CollType::Iterator> otherIts;
+    for (auto it = coll.begin(); it != coll.end(); ++it)
         its.push_back(it);
-    for( auto it = other.begin(); it!=other.end(); ++it)
+    for (auto it = other.begin(); it != other.end(); ++it)
         otherIts.push_back(it);
 
     SECTION("List&")
-        coll.stealAllAndMergeSorted(other);
+    coll.stealAllAndMergeSorted(other);
 
     SECTION("std::list&")
-        coll.stealAllAndMergeSorted( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) );
+    coll.stealAllAndMergeSorted(
+        static_cast<std::list<typename CollType::Element,
+                              typename CollType::Allocator> &>(other));
 
     SECTION("List&&")
-        coll.stealAllAndMergeSorted( std::move(other) );
+    coll.stealAllAndMergeSorted(std::move(other));
 
     SECTION("std::list&&")
-        coll.stealAllAndMergeSorted( std::move( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) ) );
+    coll.stealAllAndMergeSorted(std::move(
+        static_cast<std::list<typename CollType::Element,
+                              typename CollType::Allocator> &>(other)));
 
-    REQUIRE( other.isEmpty() );
+    REQUIRE(other.isEmpty());
 
     // verify that the collection is sorted
-    for( auto it = coll.begin(); it!=coll.end(); ++it)
-    {
+    for (auto it = coll.begin(); it != coll.end(); ++it) {
         auto nextIt = it;
         ++nextIt;
 
-        if(nextIt!=coll.end())
-            REQUIRE( ! (*nextIt < *it) );
+        if (nextIt != coll.end())
+            REQUIRE(!(*nextIt < *it));
     }
 
     // verify that no iterators have been invalidated
-    _verifyIteratorsStillValid( coll, its );
-    _verifyIteratorsStillValid( coll, otherIts );
+    _verifyIteratorsStillValid(coll, its);
+    _verifyIteratorsStillValid(coll, otherIts);
 
     // verify that all elements from the original lists are still there
-    for( auto& el: coll )
-    {
-        if( !origColl.isEmpty() && _isCollectionElementEqual(el, origColl.getFirst()) )
+    for (auto &el : coll) {
+        if (!origColl.isEmpty() &&
+            _isCollectionElementEqual(el, origColl.getFirst()))
             origColl.removeFirst();
-        else
-        {
-            REQUIRE( !origOther.isEmpty() );
-            REQUIRE( _isCollectionElementEqual(el, origOther.getFirst()) );
+        else {
+            REQUIRE(!origOther.isEmpty());
+            REQUIRE(_isCollectionElementEqual(el, origOther.getFirst()));
             origOther.removeFirst();
         }
     }
 
     // verify that all elements have been found
-    REQUIRE( origOther.isEmpty() );
-    REQUIRE( origColl.isEmpty() );
+    REQUIRE(origOther.isEmpty());
+    REQUIRE(origColl.isEmpty());
 }
 
-
-
-template<class CollType, typename ComesBeforeFuncType>
-void verifyStealAllAndMergeSorted(CollType& coll, CollType& other, ComesBeforeFuncType comesBefore)
+template <class CollType, typename ComesBeforeFuncType>
+void verifyStealAllAndMergeSorted(CollType &coll, CollType &other,
+                                  ComesBeforeFuncType comesBefore)
 {
     CollType origColl(coll);
     CollType origOther(other);
 
     // make a list with all iterators from the two lists
-    std::list< typename CollType::Iterator > its;
-    std::list< typename CollType::Iterator > otherIts;
-    for( auto it = coll.begin(); it!=coll.end(); ++it)
+    std::list<typename CollType::Iterator> its;
+    std::list<typename CollType::Iterator> otherIts;
+    for (auto it = coll.begin(); it != coll.end(); ++it)
         its.push_back(it);
-    for( auto it = other.begin(); it!=other.end(); ++it)
+    for (auto it = other.begin(); it != other.end(); ++it)
         otherIts.push_back(it);
 
     SECTION("List&")
-        coll.stealAllAndMergeSorted(other, comesBefore);
+    coll.stealAllAndMergeSorted(other, comesBefore);
 
     SECTION("std::list&")
-        coll.stealAllAndMergeSorted( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other), comesBefore );
+    coll.stealAllAndMergeSorted(
+        static_cast<std::list<typename CollType::Element,
+                              typename CollType::Allocator> &>(other),
+        comesBefore);
 
     SECTION("List&&")
-        coll.stealAllAndMergeSorted( std::move(other), comesBefore );
+    coll.stealAllAndMergeSorted(std::move(other), comesBefore);
 
     SECTION("std::list&&")
-        coll.stealAllAndMergeSorted( std::move( static_cast<std::list<typename CollType::Element, typename CollType::Allocator>&>(other) ), comesBefore );
+    coll.stealAllAndMergeSorted(
+        std::move(
+            static_cast<std::list<typename CollType::Element,
+                                  typename CollType::Allocator> &>(other)),
+        comesBefore);
 
-    REQUIRE( other.isEmpty() );
+    REQUIRE(other.isEmpty());
 
     // verify that the collection is sorted
-    for( auto it = coll.begin(); it!=coll.end(); ++it)
-    {
+    for (auto it = coll.begin(); it != coll.end(); ++it) {
         auto nextIt = it;
         ++nextIt;
 
-        if(nextIt!=coll.end())
-            REQUIRE( ! comesBefore(*nextIt, *it) );
+        if (nextIt != coll.end())
+            REQUIRE(!comesBefore(*nextIt, *it));
     }
 
     // verify that no iterators have been invalidated
-    _verifyIteratorsStillValid( coll, its );
-    _verifyIteratorsStillValid( coll, otherIts );
+    _verifyIteratorsStillValid(coll, its);
+    _verifyIteratorsStillValid(coll, otherIts);
 
     // verify that all elements from the original lists are still there
-    for( auto& el: coll )
-    {
-        if( !origColl.isEmpty() && _isCollectionElementEqual(el, origColl.getFirst()) )
+    for (auto &el : coll) {
+        if (!origColl.isEmpty() &&
+            _isCollectionElementEqual(el, origColl.getFirst()))
             origColl.removeFirst();
-        else
-        {
-            REQUIRE( !origOther.isEmpty() );
-            REQUIRE( _isCollectionElementEqual(el, origOther.getFirst()) );
+        else {
+            REQUIRE(!origOther.isEmpty());
+            REQUIRE(_isCollectionElementEqual(el, origOther.getFirst()));
             origOther.removeFirst();
         }
     }
 
     // verify that all elements have been found
-    REQUIRE( origOther.isEmpty() );
-    REQUIRE( origColl.isEmpty() );
+    REQUIRE(origOther.isEmpty());
+    REQUIRE(origColl.isEmpty());
 }
 
-
-
-template<class CollType>
-void _testStealAllAndMergeSorted(CollType& coll, CollType& other)
+template <class CollType>
+void _testStealAllAndMergeSorted(CollType &coll, CollType &other)
 {
     SECTION("both sorted")
     {
@@ -168,21 +170,21 @@ void _testStealAllAndMergeSorted(CollType& coll, CollType& other)
 
         SECTION("custom order")
         {
-            auto sortFunc = [](const typename CollType::Element& a, const typename CollType::Element& b)
-                {
-                    return (b<a);
-                };
+            auto sortFunc = [](const typename CollType::Element &a,
+                               const typename CollType::Element &b) {
+                return (b < a);
+            };
 
-            coll.sort( sortFunc );
-            other.sort( sortFunc );
+            coll.sort(sortFunc);
+            other.sort(sortFunc);
 
             verifyStealAllAndMergeSorted(coll, other, sortFunc);
         }
     }
 
     /* we cannot test the cases where the preconditions (both lists sorted) are
-       not met. In these cases some C++ std libs cause debug assertions to be triggered
-       and could potentially cause crashes.
+       not met. In these cases some C++ std libs cause debug assertions to be
+    triggered and could potentially cause crashes.
 
     SECTION("left sorted")
     {
@@ -204,19 +206,15 @@ void _testStealAllAndMergeSorted(CollType& coll, CollType& other)
     }*/
 }
 
-
-
-
-template<typename ElType>
-void _testStealAllAndMergeSorted(
-    std::initializer_list<ElType> initElList,
-    std::initializer_list<ElType> newElList)
+template <typename ElType>
+void _testStealAllAndMergeSorted(std::initializer_list<ElType> initElList,
+                                 std::initializer_list<ElType> newElList)
 {
     List<ElType> coll;
     List<ElType> other;
 
     SECTION("empty - empty")
-        _testStealAllAndMergeSorted(coll, other);
+    _testStealAllAndMergeSorted(coll, other);
 
     SECTION("empty - not empty")
     {
@@ -238,9 +236,7 @@ void _testStealAllAndMergeSorted(
     }
 }
 
-
-template<class ItType>
-struct ElementInfo
+template <class ItType> struct ElementInfo
 {
     ElementInfo(ItType it)
     {
@@ -251,123 +247,132 @@ struct ElementInfo
 
     void verify(ItType it)
     {
-        REQUIRE( &*it == _elPointer );
-        REQUIRE( _isCollectionElementEqual(*it, _elValue) );
-        REQUIRE( &*_it == _elPointer );
+        REQUIRE(&*it == _elPointer);
+        REQUIRE(_isCollectionElementEqual(*it, _elValue));
+        REQUIRE(&*_it == _elPointer);
     }
 
-    ItType                          _it;
-    typename ItType::value_type*    _elPointer;
-    typename ItType::value_type     _elValue;
+    ItType _it;
+    typename ItType::value_type *_elPointer;
+    typename ItType::value_type _elValue;
 };
 
-
-template<typename ItType>
+template <typename ItType>
 static void _verifyElementRange(
-    ItType beginIt,
-    ItType endIt,
-    typename std::list< ElementInfo<ItType> >::iterator expectedBeginIt,
-    typename std::list< ElementInfo<ItType> >::iterator expectedEndIt)
+    ItType beginIt, ItType endIt,
+    typename std::list<ElementInfo<ItType>>::iterator expectedBeginIt,
+    typename std::list<ElementInfo<ItType>>::iterator expectedEndIt)
 {
     ItType currIt = beginIt;
-    typename std::list< ElementInfo<ItType> >::iterator expectedCurrIt = expectedBeginIt;
+    typename std::list<ElementInfo<ItType>>::iterator expectedCurrIt =
+        expectedBeginIt;
 
-    while(currIt!=endIt)
-    {
-        REQUIRE( expectedCurrIt!=expectedEndIt );
+    while (currIt != endIt) {
+        REQUIRE(expectedCurrIt != expectedEndIt);
 
-        expectedCurrIt->verify( currIt );
+        expectedCurrIt->verify(currIt);
 
         ++currIt;
         ++expectedCurrIt;
     }
 
-    REQUIRE( expectedCurrIt == expectedEndIt );
+    REQUIRE(expectedCurrIt == expectedEndIt);
 }
 
-
-template<class CollType>
-static std::list< ElementInfo<typename CollType::Iterator> > _getCollElementInfo( CollType& coll )
+template <class CollType>
+static std::list<ElementInfo<typename CollType::Iterator>>
+_getCollElementInfo(CollType &coll)
 {
-    std::list< ElementInfo<typename CollType::Iterator> > infoList;
+    std::list<ElementInfo<typename CollType::Iterator>> infoList;
 
-    for( auto it = coll.begin(); it!=coll.end(); ++it)
-        infoList.push_back( it );
+    for (auto it = coll.begin(); it != coll.end(); ++it)
+        infoList.push_back(it);
 
     return infoList;
 }
 
-template<class CollType>
-static typename std::list< ElementInfo<typename CollType::Iterator> >::iterator _toElementInfoIt(
-    CollType& coll,
-    typename CollType::Iterator it,
-    std::list< ElementInfo<typename CollType::Iterator> >& infoList )
+template <class CollType>
+static typename std::list<ElementInfo<typename CollType::Iterator>>::iterator
+_toElementInfoIt(CollType &coll, typename CollType::Iterator it,
+                 std::list<ElementInfo<typename CollType::Iterator>> &infoList)
 {
-    if(it==coll.end())
+    if (it == coll.end())
         return infoList.end();
 
-    for( auto infoIt = infoList.begin();
-         infoIt!=infoList.end();
-         ++infoIt)
-    {
-        if(infoIt->_elPointer == &*it)
+    for (auto infoIt = infoList.begin(); infoIt != infoList.end(); ++infoIt) {
+        if (infoIt->_elPointer == &*it)
             return infoIt;
     }
 
-    REQUIRE( false );
+    REQUIRE(false);
 
     return infoList.end();
 }
 
-
-
-template<typename CollType>
-static void _verifyStealAndInsert( CollType& coll, CollType& other, typename CollType::Iterator insertPos)
+template <typename CollType>
+static void _verifyStealAndInsert(CollType &coll, CollType &other,
+                                  typename CollType::Iterator insertPos)
 {
-    std::list< ElementInfo<typename CollType::Iterator> > info = _getCollElementInfo(coll);
-    std::list< ElementInfo<typename CollType::Iterator> > otherInfo = _getCollElementInfo(other);
+    std::list<ElementInfo<typename CollType::Iterator>> info =
+        _getCollElementInfo(coll);
+    std::list<ElementInfo<typename CollType::Iterator>> otherInfo =
+        _getCollElementInfo(other);
 
     size_t insertIndex = std::distance(coll.begin(), insertPos);
 
-    typename std::list< ElementInfo<typename CollType::Iterator> >::iterator infoInsertPos = _toElementInfoIt(coll, insertPos, info);
+    typename std::list<ElementInfo<typename CollType::Iterator>>::iterator
+        infoInsertPos = _toElementInfoIt(coll, insertPos, info);
 
-    size_t                      transferCount = 0;
-    size_t                      transferBeginIndex = 0;
+    size_t transferCount = 0;
+    size_t transferBeginIndex = 0;
 
     SECTION("stealAllAndInsertAt")
     {
         SECTION("List&")
-            coll.stealAllAndInsertAt(insertPos, other);
+        coll.stealAllAndInsertAt(insertPos, other);
 
         SECTION("List&&")
-            coll.stealAllAndInsertAt(insertPos, std::move(other) );
+        coll.stealAllAndInsertAt(insertPos, std::move(other));
 
         SECTION("std::list&")
-            coll.stealAllAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other) );
+        coll.stealAllAndInsertAt(
+            insertPos,
+            static_cast<std::list<typename CollType::Element> &>(other));
 
         SECTION("std::list&&")
-            coll.stealAllAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)) );
+        coll.stealAllAndInsertAt(
+            insertPos,
+            std::move(
+                static_cast<std::list<typename CollType::Element> &>(other)));
 
         transferCount = otherInfo.size();
         transferBeginIndex = 0;
-    }       
-
+    }
 
     SECTION("stealSectionAndInsertAt")
     {
         SECTION("empty transfer")
         {
             SECTION("List&")
-                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), other.begin() );
+            coll.stealSectionAndInsertAt(insertPos, other, other.begin(),
+                                         other.begin());
 
             SECTION("List&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), other.begin()  );
+            coll.stealSectionAndInsertAt(insertPos, std::move(other),
+                                         other.begin(), other.begin());
 
             SECTION("std::list&")
-                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), other.begin()  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                static_cast<std::list<typename CollType::Element> &>(other),
+                other.begin(), other.begin());
 
             SECTION("std::list&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), other.begin()  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                std::move(static_cast<std::list<typename CollType::Element> &>(
+                    other)),
+                other.begin(), other.begin());
 
             transferCount = 0;
             transferBeginIndex = 0;
@@ -379,19 +384,28 @@ static void _verifyStealAndInsert( CollType& coll, CollType& other, typename Col
 
             typename CollType::ConstIterator transferEndIt = other.begin();
             transferCount = other.size() / 2;
-            std::advance( transferEndIt, transferCount );
+            std::advance(transferEndIt, transferCount);
 
             SECTION("List&")
-                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), transferEndIt );
+            coll.stealSectionAndInsertAt(insertPos, other, other.begin(),
+                                         transferEndIt);
 
             SECTION("List&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(insertPos, std::move(other),
+                                         other.begin(), transferEndIt);
 
             SECTION("std::list&")
-                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                static_cast<std::list<typename CollType::Element> &>(other),
+                other.begin(), transferEndIt);
 
             SECTION("std::list&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                std::move(static_cast<std::list<typename CollType::Element> &>(
+                    other)),
+                other.begin(), transferEndIt);
         }
 
         SECTION("full transfer")
@@ -402,146 +416,179 @@ static void _verifyStealAndInsert( CollType& coll, CollType& other, typename Col
             transferCount = other.size();
 
             SECTION("List&")
-                coll.stealSectionAndInsertAt(insertPos, other, other.begin(), transferEndIt );
+            coll.stealSectionAndInsertAt(insertPos, other, other.begin(),
+                                         transferEndIt);
 
             SECTION("List&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(other), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(insertPos, std::move(other),
+                                         other.begin(), transferEndIt);
 
             SECTION("std::list&")
-                coll.stealSectionAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                static_cast<std::list<typename CollType::Element> &>(other),
+                other.begin(), transferEndIt);
 
             SECTION("std::list&&")
-                coll.stealSectionAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin(), transferEndIt  );
+            coll.stealSectionAndInsertAt(
+                insertPos,
+                std::move(static_cast<std::list<typename CollType::Element> &>(
+                    other)),
+                other.begin(), transferEndIt);
         }
     }
-        
-    if(otherInfo.size()>0)
-    {
+
+    if (otherInfo.size() > 0) {
         SECTION("stealAndInsertAt")
         {
             transferCount = 1;
 
             SECTION("first")
-            {            
+            {
                 transferBeginIndex = 0;
 
                 SECTION("List&")
-                    coll.stealAndInsertAt(insertPos, other, other.begin() );
+                coll.stealAndInsertAt(insertPos, other, other.begin());
 
                 SECTION("List&&")
-                    coll.stealAndInsertAt(insertPos, std::move(other), other.begin()  );
+                coll.stealAndInsertAt(insertPos, std::move(other),
+                                      other.begin());
 
                 SECTION("std::list&")
-                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), other.begin()  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    static_cast<std::list<typename CollType::Element> &>(other),
+                    other.begin());
 
                 SECTION("std::list&&")
-                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), other.begin()  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    std::move(
+                        static_cast<std::list<typename CollType::Element> &>(
+                            other)),
+                    other.begin());
             }
 
             SECTION("middle")
-            {            
-                transferBeginIndex = other.size()/2;
+            {
+                transferBeginIndex = other.size() / 2;
 
                 auto transferIt = other.begin();
                 std::advance(transferIt, transferBeginIndex);
 
                 SECTION("List&")
-                    coll.stealAndInsertAt(insertPos, other, transferIt );
+                coll.stealAndInsertAt(insertPos, other, transferIt);
 
                 SECTION("List&&")
-                    coll.stealAndInsertAt(insertPos, std::move(other), transferIt  );
+                coll.stealAndInsertAt(insertPos, std::move(other), transferIt);
 
                 SECTION("std::list&")
-                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), transferIt  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    static_cast<std::list<typename CollType::Element> &>(other),
+                    transferIt);
 
                 SECTION("std::list&&")
-                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), transferIt  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    std::move(
+                        static_cast<std::list<typename CollType::Element> &>(
+                            other)),
+                    transferIt);
             }
 
             SECTION("last")
-            {            
-                transferBeginIndex = other.size()-1;
+            {
+                transferBeginIndex = other.size() - 1;
 
                 auto transferIt = other.end();
                 --transferIt;
 
                 SECTION("List&")
-                    coll.stealAndInsertAt(insertPos, other, transferIt );
+                coll.stealAndInsertAt(insertPos, other, transferIt);
 
                 SECTION("List&&")
-                    coll.stealAndInsertAt(insertPos, std::move(other), transferIt  );
+                coll.stealAndInsertAt(insertPos, std::move(other), transferIt);
 
                 SECTION("std::list&")
-                    coll.stealAndInsertAt(insertPos, static_cast<std::list<typename CollType::Element>& >(other), transferIt  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    static_cast<std::list<typename CollType::Element> &>(other),
+                    transferIt);
 
                 SECTION("std::list&&")
-                    coll.stealAndInsertAt(insertPos, std::move(static_cast<std::list<typename CollType::Element>& >(other)), transferIt  );
+                coll.stealAndInsertAt(
+                    insertPos,
+                    std::move(
+                        static_cast<std::list<typename CollType::Element> &>(
+                            other)),
+                    transferIt);
             }
         }
     }
 
-    REQUIRE( other.getSize() == otherInfo.size()-transferCount );
-    REQUIRE( coll.getSize() == info.size()+transferCount );
-            
+    REQUIRE(other.getSize() == otherInfo.size() - transferCount);
+    REQUIRE(coll.getSize() == info.size() + transferCount);
+
     typename CollType::Iterator insertEnd;
-    if(infoInsertPos == info.end() )
-    {
+    if (infoInsertPos == info.end()) {
         // insert was at the end of the original collection => the insert end in
         // the resulting collection is its end
-        insertEnd = coll.end();            
-    }
-    else
-    {
+        insertEnd = coll.end();
+    } else {
         // insertPos now points to the element following the inserted range
         insertEnd = insertPos;
     }
-    
-    // insertPos now points to the end of the inserted range. We want it to point
-    // to the first inserted element.
+
+    // insertPos now points to the end of the inserted range. We want it to
+    // point to the first inserted element.
     insertPos = coll.begin();
-    std::advance( insertPos, insertIndex);
+    std::advance(insertPos, insertIndex);
 
     auto otherTransferBegin = other.begin();
-    std::advance( otherTransferBegin, transferBeginIndex );
-    
+    std::advance(otherTransferBegin, transferBeginIndex);
+
     auto otherInfoTransferBegin = otherInfo.begin();
-    std::advance( otherInfoTransferBegin, transferBeginIndex );
-    
+    std::advance(otherInfoTransferBegin, transferBeginIndex);
+
     auto otherInfoTransferEnd = otherInfoTransferBegin;
-    std::advance( otherInfoTransferEnd, transferCount );
-                
-    _verifyElementRange( coll.begin(), insertPos, info.begin(), infoInsertPos );
-    _verifyElementRange( insertPos, insertEnd, otherInfoTransferBegin, otherInfoTransferEnd );
-    _verifyElementRange( insertEnd, coll.end(), infoInsertPos, info.end() );
+    std::advance(otherInfoTransferEnd, transferCount);
 
-    _verifyElementRange( other.begin(), otherTransferBegin, otherInfo.begin(), otherInfoTransferBegin );
+    _verifyElementRange(coll.begin(), insertPos, info.begin(), infoInsertPos);
+    _verifyElementRange(insertPos, insertEnd, otherInfoTransferBegin,
+                        otherInfoTransferEnd);
+    _verifyElementRange(insertEnd, coll.end(), infoInsertPos, info.end());
 
-    // note that the transferred items are now gone from other. So otherTransferBegin marks is
-    // the first element AFTER the removed section
-    _verifyElementRange( otherTransferBegin, other.end(), otherInfoTransferEnd, otherInfo.end() );
+    _verifyElementRange(other.begin(), otherTransferBegin, otherInfo.begin(),
+                        otherInfoTransferBegin);
 
+    // note that the transferred items are now gone from other. So
+    // otherTransferBegin marks is the first element AFTER the removed section
+    _verifyElementRange(otherTransferBegin, other.end(), otherInfoTransferEnd,
+                        otherInfo.end());
 }
 
-template<typename CollType>
-static void _verifyStealAndInsert( CollType& coll, CollType& other)
+template <typename CollType>
+static void _verifyStealAndInsert(CollType &coll, CollType &other)
 {
     SECTION("insert at begin")
-        _verifyStealAndInsert( coll, other, coll.begin() );
+    _verifyStealAndInsert(coll, other, coll.begin());
 
-    if( coll.getSize()>0 )
-    {
+    if (coll.getSize() > 0) {
         SECTION("insert in middle")
         {
-            _verifyStealAndInsert( coll, other, ++coll.begin() );
+            _verifyStealAndInsert(coll, other, ++coll.begin());
         }
     }
 
     SECTION("insert at end")
-        _verifyStealAndInsert( coll, other, coll.end() );
+    _verifyStealAndInsert(coll, other, coll.end());
 }
 
-template<typename CollType>
-static void _testStealAndInsert( CollType& coll, std::initializer_list< typename CollType::Element> newElList)
+template <typename CollType>
+static void
+_testStealAndInsert(CollType &coll,
+                    std::initializer_list<typename CollType::Element> newElList)
 {
     SECTION("other empty")
     {
@@ -558,123 +605,120 @@ static void _testStealAndInsert( CollType& coll, std::initializer_list< typename
     }
 }
 
-template<typename CollType>
-static void _testReverseOrder( CollType& coll )
+template <typename CollType> static void _testReverseOrder(CollType &coll)
 {
-    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+    std::list<ElementInfo<typename CollType::Iterator>> origInfo =
+        _getCollElementInfo(coll);
 
     auto initialFirstIt = coll.begin();
     auto initialEnd = coll.end();
     auto initialLastIt = coll.end();
-    if(!coll.isEmpty())
+    if (!coll.isEmpty())
         --initialLastIt;
 
     coll.reverseOrder();
 
     auto it = coll.begin();
 
-    for( auto origInfoIt = origInfo.rbegin(); origInfoIt!=origInfo.rend(); ++origInfoIt)
-    {
-        REQUIRE( it != coll.end() );
+    for (auto origInfoIt = origInfo.rbegin(); origInfoIt != origInfo.rend();
+         ++origInfoIt) {
+        REQUIRE(it != coll.end());
 
         origInfoIt->verify(it);
 
         ++it;
     }
 
-    REQUIRE( it==coll.end() );
+    REQUIRE(it == coll.end());
 
-    REQUIRE( coll.end() == initialEnd );
+    REQUIRE(coll.end() == initialEnd);
 
-    if( !coll.isEmpty() )  
-    {
-        REQUIRE( coll.begin() == initialLastIt );
-        REQUIRE( --coll.end() == initialFirstIt );
+    if (!coll.isEmpty()) {
+        REQUIRE(coll.begin() == initialLastIt);
+        REQUIRE(--coll.end() == initialFirstIt);
     }
 }
 
-template<class CollType>
-static void _verifyRemoveConsecutiveDuplicates( CollType& coll, int expectedRemoveIndex, int equalityVariant )
-{    
-    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+template <class CollType>
+static void _verifyRemoveConsecutiveDuplicates(CollType &coll,
+                                               int expectedRemoveIndex,
+                                               int equalityVariant)
+{
+    std::list<ElementInfo<typename CollType::Iterator>> origInfo =
+        _getCollElementInfo(coll);
 
-
-    if(equalityVariant==0)
+    if (equalityVariant == 0)
         coll.removeConsecutiveDuplicates();
-    
-    else if(equalityVariant==1)
-    {
+
+    else if (equalityVariant == 1) {
         // normal equality, but implemented by custom function
         coll.removeConsecutiveDuplicates(
-            [](const typename CollType::Element& a, const typename CollType::Element& b)
-            {
-                return a==b;
-            } );
+            [](const typename CollType::Element &a,
+               const typename CollType::Element &b) { return a == b; });
     }
 
-    else if(equalityVariant==2)
-    {
+    else if (equalityVariant == 2) {
         // never consider two elements duplicates
         // this verifies that the custom function is actually used
         coll.removeConsecutiveDuplicates(
-            [](const typename CollType::Element& a, const typename CollType::Element& b)
-            {
-                return false;
-            } );
+            [](const typename CollType::Element &a,
+               const typename CollType::Element &b) { return false; });
 
-        // sanity check: expectedRemoveIndex should be -1 since our custom function
-        // never considers two elements duplicates
-        REQUIRE( expectedRemoveIndex==-1 );
+        // sanity check: expectedRemoveIndex should be -1 since our custom
+        // function never considers two elements duplicates
+        REQUIRE(expectedRemoveIndex == -1);
     }
 
     else
         REQUIRE(false);
 
-    if(expectedRemoveIndex==-1)
-    {
-        REQUIRE( coll.getSize() == origInfo.size() );
+    if (expectedRemoveIndex == -1) {
+        REQUIRE(coll.getSize() == origInfo.size());
 
-        _verifyElementRange( coll.begin(), coll.end(), origInfo.begin(), origInfo.end() );
-    }
-    else
-    {
-        REQUIRE( coll.getSize() == origInfo.size()-1 );
+        _verifyElementRange(coll.begin(), coll.end(), origInfo.begin(),
+                            origInfo.end());
+    } else {
+        REQUIRE(coll.getSize() == origInfo.size() - 1);
 
         auto origInfoRemoveIt = origInfo.begin();
-        std::advance( origInfoRemoveIt, expectedRemoveIndex);
+        std::advance(origInfoRemoveIt, expectedRemoveIndex);
 
         auto collRemoveIt = coll.begin();
-        std::advance( collRemoveIt, expectedRemoveIndex);
+        std::advance(collRemoveIt, expectedRemoveIndex);
 
-        _verifyElementRange( coll.begin(), collRemoveIt, origInfo.begin(), origInfoRemoveIt );
+        _verifyElementRange(coll.begin(), collRemoveIt, origInfo.begin(),
+                            origInfoRemoveIt);
 
         auto origInfoAfterRemoveIt = origInfoRemoveIt;
         ++origInfoAfterRemoveIt;
 
-        _verifyElementRange( collRemoveIt, coll.end(), origInfoAfterRemoveIt, origInfo.end() );
+        _verifyElementRange(collRemoveIt, coll.end(), origInfoAfterRemoveIt,
+                            origInfo.end());
     }
 }
 
-template<class CollType>
-static void _verifyRemoveConsecutiveDuplicates( CollType& coll, int expectedRemoveIndex )
-{    
+template <class CollType>
+static void _verifyRemoveConsecutiveDuplicates(CollType &coll,
+                                               int expectedRemoveIndex)
+{
     SECTION("operator=")
-        _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 0);
+    _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 0);
 
     SECTION("custom equality")
-        _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 1);
+    _verifyRemoveConsecutiveDuplicates(coll, expectedRemoveIndex, 1);
 
     SECTION("never equal")
-        _verifyRemoveConsecutiveDuplicates(coll, -1, 2);
+    _verifyRemoveConsecutiveDuplicates(coll, -1, 2);
 }
 
-template<typename ElType>
-static void _testRemoveConsecutiveDuplicates( std::initializer_list<ElType> sortedElList )
+template <typename ElType>
+static void
+_testRemoveConsecutiveDuplicates(std::initializer_list<ElType> sortedElList)
 {
     List<ElType> coll;
 
     SECTION("empty")
-        _verifyRemoveConsecutiveDuplicates(coll, -1);        
+    _verifyRemoveConsecutiveDuplicates(coll, -1);
 
     SECTION("not empty")
     {
@@ -685,40 +729,38 @@ static void _testRemoveConsecutiveDuplicates( std::initializer_list<ElType> sort
             SECTION("consecutive")
             {
                 // duplicate the second element
-                coll.insertAt( ++coll.begin(), *++coll.begin() );
+                coll.insertAt(++coll.begin(), *++coll.begin());
 
-                _verifyRemoveConsecutiveDuplicates(coll, 2);        
+                _verifyRemoveConsecutiveDuplicates(coll, 2);
             }
 
             SECTION("not consecutive")
             {
                 // duplicate the second element, but insert it at the end
-                coll.add( *++coll.begin() );
+                coll.add(*++coll.begin());
 
-                _verifyRemoveConsecutiveDuplicates(coll, -1);        
+                _verifyRemoveConsecutiveDuplicates(coll, -1);
             }
         }
 
         SECTION("without duplicate")
         {
-            _verifyRemoveConsecutiveDuplicates(coll, -1);        
+            _verifyRemoveConsecutiveDuplicates(coll, -1);
         }
     }
 }
 
-
-template<typename ElType, typename... ConstructArgs>
-static void testList(
-    std::initializer_list<ElType> initElList,
-    std::initializer_list<ElType> newElList,
-    std::function< bool(const ElType&) > isMovedRemnant,
-    ElType expectedConstructedEl,
-    ConstructArgs... constructArgs )
+template <typename ElType, typename... ConstructArgs>
+static void testList(std::initializer_list<ElType> initElList,
+                     std::initializer_list<ElType> newElList,
+                     std::function<bool(const ElType &)> isMovedRemnant,
+                     ElType expectedConstructedEl,
+                     ConstructArgs... constructArgs)
 {
-	SECTION("test traits")
-	{
-		REQUIRE( CollectionSupportsBiDirIteration_< List<ElType> >::value );
-	}
+    SECTION("test traits")
+    {
+        REQUIRE(CollectionSupportsBiDirIteration_<List<ElType>>::value);
+    }
 
     SECTION("construct")
     {
@@ -728,19 +770,19 @@ static void testList(
         {
             SECTION("0")
             {
-                List<ElType> coll( 0, *newElList.begin() );
-                
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                List<ElType> coll(0, *newElList.begin());
+
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
 
             SECTION("3")
             {
-                List<ElType> coll( 3, *newElList.begin() );
+                List<ElType> coll(3, *newElList.begin());
 
-                for(int i=0; i<3; i++)
-                    expectedElements.push_back( *newElList.begin() );
+                for (int i = 0; i < 3; i++)
+                    expectedElements.push_back(*newElList.begin());
 
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
         }
 
@@ -748,18 +790,18 @@ static void testList(
         {
             SECTION("0")
             {
-                List<ElType> coll( 0 );
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                List<ElType> coll(0);
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
 
             SECTION("3")
             {
-                List<ElType> coll( 3 );
+                List<ElType> coll(3);
 
-                for(int i=0; i<3; i++)
-                    expectedElements.push_back( ElType() );
+                for (int i = 0; i < 3; i++)
+                    expectedElements.push_back(ElType());
 
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
         }
 
@@ -767,17 +809,18 @@ static void testList(
         {
             SECTION("empty")
             {
-                List<ElType> coll( newElList.begin(), newElList.begin() );
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                List<ElType> coll(newElList.begin(), newElList.begin());
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
 
             SECTION("non-empty")
             {
-                List<ElType> coll( newElList.begin(), newElList.end() );
+                List<ElType> coll(newElList.begin(), newElList.end());
 
-                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+                expectedElements.insert(expectedElements.begin(),
+                                        newElList.begin(), newElList.end());
 
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
         }
 
@@ -785,24 +828,26 @@ static void testList(
         {
             SECTION("List")
             {
-                List<ElType> src( newElList );
+                List<ElType> src(newElList);
 
                 List<ElType> coll(src);
 
-                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+                expectedElements.insert(expectedElements.begin(),
+                                        newElList.begin(), newElList.end());
 
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
 
             SECTION("std::list")
             {
-                std::list<ElType> src( newElList );
+                std::list<ElType> src(newElList);
 
                 List<ElType> coll(src);
 
-                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
+                expectedElements.insert(expectedElements.begin(),
+                                        newElList.begin(), newElList.end());
 
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
             }
         }
 
@@ -810,35 +855,38 @@ static void testList(
         {
             SECTION("List")
             {
-                List<ElType> src( newElList );
+                List<ElType> src(newElList);
 
-                List<ElType> coll( std::move(src) );
+                List<ElType> coll(std::move(src));
 
-                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                expectedElements.insert(expectedElements.begin(),
+                                        newElList.begin(), newElList.end());
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
 
-                REQUIRE( src.size()==0 );
+                REQUIRE(src.size() == 0);
             }
 
             SECTION("std::list")
             {
-                std::list<ElType> src( newElList );
+                std::list<ElType> src(newElList);
 
-                List<ElType> coll( std::move(src) );
+                List<ElType> coll(std::move(src));
 
-                expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-                _verifyPositionalCollectionReadOnly( coll, expectedElements );
+                expectedElements.insert(expectedElements.begin(),
+                                        newElList.begin(), newElList.end());
+                _verifyPositionalCollectionReadOnly(coll, expectedElements);
 
-                REQUIRE( src.size()==0 );
+                REQUIRE(src.size() == 0);
             }
         }
 
         SECTION("initializer_list")
         {
-            List<ElType> coll( newElList );
+            List<ElType> coll(newElList);
 
-            expectedElements.insert( expectedElements.begin(), newElList.begin(), newElList.end() );
-            _verifyPositionalCollectionReadOnly( coll, expectedElements );
+            expectedElements.insert(expectedElements.begin(), newElList.begin(),
+                                    newElList.end());
+            _verifyPositionalCollectionReadOnly(coll, expectedElements);
         }
     }
 
@@ -847,79 +895,68 @@ static void testList(
     SECTION("empty")
     {
         _verifyPositionalCollection(
-            coll,
-            std::list<ElType>({}),
-            newElList,
-            isMovedRemnant,
+            coll, std::list<ElType>({}), newElList, isMovedRemnant,
             expectedConstructedEl,
-            std::forward<ConstructArgs>(constructArgs)... );
+            std::forward<ConstructArgs>(constructArgs)...);
 
         SECTION("prepareForSize")
-            _testGenericCollectionPrepareForSize(coll);
+        _testGenericCollectionPrepareForSize(coll);
 
         SECTION("stealAndInsert")
-            _testStealAndInsert(coll, newElList);
+        _testStealAndInsert(coll, newElList);
 
         SECTION("reverseOrder")
-            _testReverseOrder(coll);
+        _testReverseOrder(coll);
     }
 
     SECTION("non-empty")
     {
-        for(auto& el: initElList)
-            coll.add( el );
+        for (auto &el : initElList)
+            coll.add(el);
 
         _verifyPositionalCollection(
-            coll,
-            std::list<ElType>(initElList),
-            newElList,
-            isMovedRemnant,
+            coll, std::list<ElType>(initElList), newElList, isMovedRemnant,
             expectedConstructedEl,
-            std::forward<ConstructArgs>(constructArgs)... );        
-        
+            std::forward<ConstructArgs>(constructArgs)...);
+
         SECTION("prepareForSize")
-            _testGenericCollectionPrepareForSize(coll);
+        _testGenericCollectionPrepareForSize(coll);
 
         SECTION("stealAndInsert")
-            _testStealAndInsert(coll, newElList);
+        _testStealAndInsert(coll, newElList);
 
         SECTION("reverseOrder")
-            _testReverseOrder(coll);       
-        
-    }    
+        _testReverseOrder(coll);
+    }
 }
 
-template<class CollType>
-static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNotInList)
+template <class CollType>
+static void _verifyFindAndRemove(CollType &coll,
+                                 typename CollType::Element elNotInList)
 {
-    std::list< ElementInfo<typename CollType::Iterator> > origInfo = _getCollElementInfo(coll);
+    std::list<ElementInfo<typename CollType::Iterator>> origInfo =
+        _getCollElementInfo(coll);
 
-	SECTION("generic tests")
-		_verifyCollectionFindAndRemove(coll, coll, elNotInList );
+    SECTION("generic tests")
+    _verifyCollectionFindAndRemove(coll, coll, elNotInList);
 
     SECTION("no match")
     {
-        SECTION("find value")
-        {
-            coll.findAndRemove( elNotInList );
-        }
+        SECTION("find value") { coll.findAndRemove(elNotInList); }
 
         SECTION("check function")
         {
-            coll.findCustomAndRemove( 
-                [](const typename CollType::Iterator& it)
-                {
-                    return false;
-                } );
+            coll.findCustomAndRemove(
+                [](const typename CollType::Iterator &it) { return false; });
         }
 
-        REQUIRE( coll.getSize() == origInfo.size() );
+        REQUIRE(coll.getSize() == origInfo.size());
 
-        _verifyElementRange(coll.begin(), coll.end(), origInfo.begin(), origInfo.end() );
+        _verifyElementRange(coll.begin(), coll.end(), origInfo.begin(),
+                            origInfo.end());
     }
 
-    if(!origInfo.empty())
-    {
+    if (!origInfo.empty()) {
         SECTION("single match")
         {
             // the second element is only once in the list (no duplicates)
@@ -927,22 +964,23 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             typename CollType::Element toFind = *++coll.begin();
 
             SECTION("find value")
-                coll.findAndRemove( toFind );
+            coll.findAndRemove(toFind);
 
             SECTION("check function")
-            {   
-                coll.findCustomAndRemove( 
-                    [toFind](const typename CollType::Iterator& it )
-                    {
-                        return (*it)==toFind;
-                    } );
+            {
+                coll.findCustomAndRemove(
+                    [toFind](const typename CollType::Iterator &it) {
+                        return (*it) == toFind;
+                    });
             }
 
-            REQUIRE( coll.getSize() == origInfo.size()-1 );
+            REQUIRE(coll.getSize() == origInfo.size() - 1);
 
             // second element should have been removed
-            _verifyElementRange(coll.begin(), ++coll.begin(), origInfo.begin(), ++origInfo.begin() );
-            _verifyElementRange(++coll.begin(), coll.end(), ++(++origInfo.begin()), origInfo.end() );
+            _verifyElementRange(coll.begin(), ++coll.begin(), origInfo.begin(),
+                                ++origInfo.begin());
+            _verifyElementRange(++coll.begin(), coll.end(),
+                                ++(++origInfo.begin()), origInfo.end());
         }
 
         SECTION("multiple matches")
@@ -951,33 +989,34 @@ static void _verifyFindAndRemove(CollType& coll, typename CollType::Element elNo
             typename CollType::Element toFind = *coll.begin();
 
             SECTION("find value")
-                coll.findAndRemove( toFind );
+            coll.findAndRemove(toFind);
 
             SECTION("check function")
-            {   
-                coll.findCustomAndRemove( 
-                    [toFind](const typename CollType::Iterator& it )
-                    {
-                        return (*it)==toFind;
-                    } );
+            {
+                coll.findCustomAndRemove(
+                    [toFind](const typename CollType::Iterator &it) {
+                        return (*it) == toFind;
+                    });
             }
-                        
-            REQUIRE( coll.getSize() == origInfo.size()-2 );
+
+            REQUIRE(coll.getSize() == origInfo.size() - 2);
 
             // first and third should be removed
 
             // the first result element should be the original second
-            _verifyElementRange(coll.begin(), ++coll.begin(), ++origInfo.begin(), ++(++origInfo.begin()) );
+            _verifyElementRange(coll.begin(), ++coll.begin(),
+                                ++origInfo.begin(), ++(++origInfo.begin()));
 
             // then the fourth and later should follow
-            _verifyElementRange(++coll.begin(), coll.end(), ++(++(++origInfo.begin())), origInfo.end() );
+            _verifyElementRange(++coll.begin(), coll.end(),
+                                ++(++(++origInfo.begin())), origInfo.end());
         }
     }
 }
 
-
-template<typename ElType>
-static void _testFindAndRemove(std::initializer_list<ElType> elList, ElType elNotInList)
+template <typename ElType>
+static void _testFindAndRemove(std::initializer_list<ElType> elList,
+                               ElType elNotInList)
 {
     SECTION("empty")
     {
@@ -992,213 +1031,207 @@ static void _testFindAndRemove(std::initializer_list<ElType> elList, ElType elNo
     }
 }
 
-
 TEST_CASE("List")
 {
     SECTION("simple type")
     {
-        testList<int>(
-            {17, 42, 3},
-            {100, 101, 102},
-            [](const int& el)
-            {
-                return true;
-            },
-            345,
-            345 );       
+        testList<int>({17, 42, 3}, {100, 101, 102},
+                      [](const int &el) { return true; }, 345, 345);
 
-        _testCollectionFindWithStartPos< List<int> >( {17, 42, 17, 3}, 88 );
-		_testCollectionReverseFind< List<int> >( {17, 42, 17, 3}, 88 );
-        _testCollectionSort< List<int> >( {17, 42, 17, 3}, {3, 17, 17, 42} );
+        _testCollectionFindWithStartPos<List<int>>({17, 42, 17, 3}, 88);
+        _testCollectionReverseFind<List<int>>({17, 42, 17, 3}, 88);
+        _testCollectionSort<List<int>>({17, 42, 17, 3}, {3, 17, 17, 42});
 
-        _testStealAllAndMergeSorted<int>( {17, 42, 17, 3}, {99, 6, 2, 102} );
+        _testStealAllAndMergeSorted<int>({17, 42, 17, 3}, {99, 6, 2, 102});
 
         SECTION("removeConsecutiveDuplicates")
-            _testRemoveConsecutiveDuplicates( {3, 17, 42} );
+        _testRemoveConsecutiveDuplicates({3, 17, 42});
 
         SECTION("findAndRemove")
-            _testFindAndRemove( {17, 42, 17, 3}, 88 );
+        _testFindAndRemove({17, 42, 17, 3}, 88);
     }
 
-	SECTION("addSequence with compatible but different type")
-	{
-		// String objects can be implicitly converted to std::string.
-		// Passing a source sequence with String objects to a collection with std::string
-		// elements should work.
+    SECTION("addSequence with compatible but different type")
+    {
+        // String objects can be implicitly converted to std::string.
+        // Passing a source sequence with String objects to a collection with
+        // std::string elements should work.
 
-		List< std::string > coll;
+        List<std::string> coll;
 
-		SECTION("initializer_list")
-		{
-			coll.addSequence( { String("hello"), String("world") } );
-			_verifyGenericCollectionReadOnly( coll, { std::string("hello"), std::string("world") } );
-		}
+        SECTION("initializer_list")
+        {
+            coll.addSequence({String("hello"), String("world")});
+            _verifyGenericCollectionReadOnly(
+                coll, {std::string("hello"), std::string("world")});
+        }
 
-		SECTION("std::list")
-		{
-			coll.addSequence( std::list<String>( { String("hello"), String("world") } ) );
-			_verifyGenericCollectionReadOnly( coll, { std::string("hello"), std::string("world") } );
-		}
-	}
+        SECTION("std::list")
+        {
+            coll.addSequence(
+                std::list<String>({String("hello"), String("world")}));
+            _verifyGenericCollectionReadOnly(
+                coll, {std::string("hello"), std::string("world")});
+        }
+    }
 
     SECTION("complex type")
     {
         SECTION("ordered")
         {
             testList<TestCollectionElement_OrderedComparable_>(
-                { TestCollectionElement_OrderedComparable_(17, 117),
-                  TestCollectionElement_OrderedComparable_(42, 142),
-                  TestCollectionElement_OrderedComparable_(3, 103)
+                {TestCollectionElement_OrderedComparable_(17, 117),
+                 TestCollectionElement_OrderedComparable_(42, 142),
+                 TestCollectionElement_OrderedComparable_(3, 103)},
+                {TestCollectionElement_OrderedComparable_(100, 201),
+                 TestCollectionElement_OrderedComparable_(102, 202),
+                 TestCollectionElement_OrderedComparable_(103, 203)},
+                [](const TestCollectionElement_OrderedComparable_ &el) {
+                    return el._a == -2 && el._b == -2;
                 },
-                { TestCollectionElement_OrderedComparable_(100, 201),
-                  TestCollectionElement_OrderedComparable_(102, 202),
-                  TestCollectionElement_OrderedComparable_(103, 203)
-                },
-                [](const TestCollectionElement_OrderedComparable_& el)
+                TestCollectionElement_OrderedComparable_(345, 456), 345, 456);
+
+            _testCollectionFindWithStartPos<
+                List<TestCollectionElement_OrderedComparable_>>(
                 {
-                    return el._a==-2 && el._b==-2;
-                },
-                TestCollectionElement_OrderedComparable_(345, 456),
-                345, 456 );
-
-            _testCollectionFindWithStartPos< List<TestCollectionElement_OrderedComparable_> >(
-                { TestCollectionElement_OrderedComparable_(17, 117),
+                    TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(3, 103),
                 },
-                TestCollectionElement_OrderedComparable_(400, 401) );
-			_testCollectionReverseFind< List<TestCollectionElement_OrderedComparable_> >(
-                { TestCollectionElement_OrderedComparable_(17, 117),
+                TestCollectionElement_OrderedComparable_(400, 401));
+            _testCollectionReverseFind<
+                List<TestCollectionElement_OrderedComparable_>>(
+                {
+                    TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 117),
                     TestCollectionElement_OrderedComparable_(3, 103),
                 },
-                TestCollectionElement_OrderedComparable_(400, 401) );
+                TestCollectionElement_OrderedComparable_(400, 401));
 
-            _testCollectionSort< List<TestCollectionElement_OrderedComparable_> >(
-                { TestCollectionElement_OrderedComparable_(17, 1),
+            _testCollectionSort<List<TestCollectionElement_OrderedComparable_>>(
+                {
+                    TestCollectionElement_OrderedComparable_(17, 1),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 2),
                     TestCollectionElement_OrderedComparable_(3, 103),
                 },
-                { TestCollectionElement_OrderedComparable_(3, 103),
+                {
+                    TestCollectionElement_OrderedComparable_(3, 103),
                     TestCollectionElement_OrderedComparable_(17, 1),
                     TestCollectionElement_OrderedComparable_(17, 2),
                     TestCollectionElement_OrderedComparable_(42, 142),
-                } );
+                });
 
-            _testStealAllAndMergeSorted<TestCollectionElement_OrderedComparable_>(
-                { TestCollectionElement_OrderedComparable_(17, 1),
+            _testStealAllAndMergeSorted<
+                TestCollectionElement_OrderedComparable_>(
+                {
+                    TestCollectionElement_OrderedComparable_(17, 1),
                     TestCollectionElement_OrderedComparable_(42, 142),
                     TestCollectionElement_OrderedComparable_(17, 2),
                     TestCollectionElement_OrderedComparable_(3, 103),
                 },
-                { TestCollectionElement_OrderedComparable_(99, 1),
+                {
+                    TestCollectionElement_OrderedComparable_(99, 1),
                     TestCollectionElement_OrderedComparable_(6, 142),
                     TestCollectionElement_OrderedComparable_(2, 2),
                     TestCollectionElement_OrderedComparable_(102, 103),
-                } );
-
+                });
 
             SECTION("removeConsecutiveDuplicates")
             {
                 _testRemoveConsecutiveDuplicates(
-                    { TestCollectionElement_OrderedComparable_(3, 103),
-                      TestCollectionElement_OrderedComparable_(17, 1),
-                      TestCollectionElement_OrderedComparable_(42, 142)
-                    } );
+                    {TestCollectionElement_OrderedComparable_(3, 103),
+                     TestCollectionElement_OrderedComparable_(17, 1),
+                     TestCollectionElement_OrderedComparable_(42, 142)});
             }
 
             SECTION("findAndRemove")
             {
                 _testFindAndRemove(
-                    {   TestCollectionElement_OrderedComparable_(17, 117),
-                        TestCollectionElement_OrderedComparable_(42, 142),                
+                    {
+                        TestCollectionElement_OrderedComparable_(17, 117),
+                        TestCollectionElement_OrderedComparable_(42, 142),
                         TestCollectionElement_OrderedComparable_(17, 117),
                         TestCollectionElement_OrderedComparable_(3, 103),
                     },
-                    TestCollectionElement_OrderedComparable_(400, 401) );
+                    TestCollectionElement_OrderedComparable_(400, 401));
             }
         }
 
         SECTION("unordered comparable")
         {
             testList<TestCollectionElement_UnorderedComparable_>(
-                { TestCollectionElement_UnorderedComparable_(17, 117),
-                  TestCollectionElement_UnorderedComparable_(42, 142),
-                  TestCollectionElement_UnorderedComparable_(3, 103)
+                {TestCollectionElement_UnorderedComparable_(17, 117),
+                 TestCollectionElement_UnorderedComparable_(42, 142),
+                 TestCollectionElement_UnorderedComparable_(3, 103)},
+                {TestCollectionElement_UnorderedComparable_(100, 201),
+                 TestCollectionElement_UnorderedComparable_(102, 202),
+                 TestCollectionElement_UnorderedComparable_(103, 203)},
+                [](const TestCollectionElement_UnorderedComparable_ &el) {
+                    return el._a == -2 && el._b == -2;
                 },
-                { TestCollectionElement_UnorderedComparable_(100, 201),
-                  TestCollectionElement_UnorderedComparable_(102, 202),
-                  TestCollectionElement_UnorderedComparable_(103, 203)
-                },
-                [](const TestCollectionElement_UnorderedComparable_& el)
-                {
-                    return el._a==-2 && el._b==-2;
-                },
-                TestCollectionElement_UnorderedComparable_(345, 456),
-                345, 456 );
+                TestCollectionElement_UnorderedComparable_(345, 456), 345, 456);
 
-            _testCollectionFindWithStartPos< List<TestCollectionElement_UnorderedComparable_> >(
-                { TestCollectionElement_UnorderedComparable_(17, 117),
-                    TestCollectionElement_UnorderedComparable_(42, 142),                
+            _testCollectionFindWithStartPos<
+                List<TestCollectionElement_UnorderedComparable_>>(
+                {
+                    TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(42, 142),
                     TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(3, 103),
                 },
-                TestCollectionElement_UnorderedComparable_(400, 401) );
-			_testCollectionReverseFind< List<TestCollectionElement_UnorderedComparable_> >(
-                { TestCollectionElement_UnorderedComparable_(17, 117),
-                    TestCollectionElement_UnorderedComparable_(42, 142),                
+                TestCollectionElement_UnorderedComparable_(400, 401));
+            _testCollectionReverseFind<
+                List<TestCollectionElement_UnorderedComparable_>>(
+                {
+                    TestCollectionElement_UnorderedComparable_(17, 117),
+                    TestCollectionElement_UnorderedComparable_(42, 142),
                     TestCollectionElement_UnorderedComparable_(17, 117),
                     TestCollectionElement_UnorderedComparable_(3, 103),
                 },
-                TestCollectionElement_UnorderedComparable_(400, 401) );
+                TestCollectionElement_UnorderedComparable_(400, 401));
 
             // cannot sort because not ordered
 
             SECTION("removeConsecutiveDuplicates")
             {
                 _testRemoveConsecutiveDuplicates(
-                    { TestCollectionElement_OrderedComparable_(3, 103),
-                      TestCollectionElement_OrderedComparable_(17, 1),
-                      TestCollectionElement_OrderedComparable_(42, 142)
-                    } );
+                    {TestCollectionElement_OrderedComparable_(3, 103),
+                     TestCollectionElement_OrderedComparable_(17, 1),
+                     TestCollectionElement_OrderedComparable_(42, 142)});
             }
-
 
             SECTION("findAndRemove")
             {
                 _testFindAndRemove(
-                    {   TestCollectionElement_UnorderedComparable_(17, 117),
-                        TestCollectionElement_UnorderedComparable_(42, 142),                
+                    {
+                        TestCollectionElement_UnorderedComparable_(17, 117),
+                        TestCollectionElement_UnorderedComparable_(42, 142),
                         TestCollectionElement_UnorderedComparable_(17, 117),
                         TestCollectionElement_UnorderedComparable_(3, 103),
                     },
-                    TestCollectionElement_UnorderedComparable_(400, 401) );
+                    TestCollectionElement_UnorderedComparable_(400, 401));
             }
         }
 
         SECTION("unordered uncomparable")
         {
             testList<TestCollectionElement_UnorderedUncomparable_>(
-                { TestCollectionElement_UnorderedUncomparable_(17, 117),
-                  TestCollectionElement_UnorderedUncomparable_(42, 142),
-                  TestCollectionElement_UnorderedUncomparable_(3, 103)
+                {TestCollectionElement_UnorderedUncomparable_(17, 117),
+                 TestCollectionElement_UnorderedUncomparable_(42, 142),
+                 TestCollectionElement_UnorderedUncomparable_(3, 103)},
+                {TestCollectionElement_UnorderedUncomparable_(100, 201),
+                 TestCollectionElement_UnorderedUncomparable_(102, 202),
+                 TestCollectionElement_UnorderedUncomparable_(103, 203)},
+                [](const TestCollectionElement_UnorderedUncomparable_ &el) {
+                    return el._a == -2 && el._b == -2;
                 },
-                { TestCollectionElement_UnorderedUncomparable_(100, 201),
-                  TestCollectionElement_UnorderedUncomparable_(102, 202),
-                  TestCollectionElement_UnorderedUncomparable_(103, 203)
-                },
-                [](const TestCollectionElement_UnorderedUncomparable_& el)
-                {
-                    return el._a==-2 && el._b==-2;
-                },
-                TestCollectionElement_UnorderedUncomparable_(345, 456),
-                345, 456 );
+                TestCollectionElement_UnorderedUncomparable_(345, 456), 345,
+                456);
 
             // cannot use List::find, since elements are not comparable
         }
     }
 }
-

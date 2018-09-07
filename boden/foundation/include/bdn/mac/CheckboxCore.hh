@@ -11,88 +11,90 @@
 
 namespace bdn
 {
-namespace mac
-{
-
-template <class T>
-class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
-{
-public:
-    CheckboxCore(T *pOuter)
-        : ToggleCoreBase(pOuter)
+    namespace mac
     {
-        if (tryCast<Checkbox>(pOuter))
-            _nsButton.allowsMixedState = true;
 
-        setLabel( pOuter->label() );
-        setState( pOuter->state() );
-    }
-    
-    // Called when attached to a Checkbox or Toggle with checkbox appearance
-    void setState(const TriState& state) override
-    {
-        if (state == TriState::mixed)
+        template <class T>
+        class CheckboxCore : public ToggleCoreBase,
+                             BDN_IMPLEMENTS ICheckboxCore,
+                             BDN_IMPLEMENTS ISwitchCore
         {
-            // Explicitly allow for mixed state in NSButton when setting
-            // Checkbox::State::mixed programatically
-            _nsButton.allowsMixedState = true;
-        }
+          public:
+            CheckboxCore(T *pOuter) : ToggleCoreBase(pOuter)
+            {
+                if (tryCast<Checkbox>(pOuter))
+                    _nsButton.allowsMixedState = true;
 
-        _nsButton.state = triStateToNSControlStateValue(state);
-    }
+                setLabel(pOuter->label());
+                setState(pOuter->state());
+            }
 
-    // Called when attached to a Switch or Toggle with switch appearance
-    void setOn(const bool& on) override
-    {
-        setState(on ? TriState::on : TriState::off);
-    }
-
-    void generateClick() override
-    {
-        P<T> pOuter = cast<T>( getOuterViewIfStillAttached() );
-        if(pOuter!=nullptr)
-        {
-            P<Checkbox> pCheckbox = tryCast<Checkbox>(pOuter);
-            P<Toggle> pToggle = tryCast<Toggle>(pOuter);
-
-            bdn::ClickEvent evt(pOuter);
-
-            // Observing NSButton's state via KVO does not work when
-            // the button's state is changed via user interaction. KVO
-            // works though when state is set programatically, which
-            // unfortunately is useless in the case that a user changes
-            // the button's state. This means we have to stick to the
-            // click event to propagate the state change to the framework.
-            // The state will be set before the onClick notification
-            // is posted.
-
-            // Mixed state is supported if T == Checkbox
-            if (pCheckbox) {
-                // Prohibit setting mixed state via user interaction. When NSButton
-                // allows for mixed state, it also allows users to toggle the checkbox
-                // to mixed state by clicking (Off => Mixed => On). To prevent this
-                // behavior, we deactivate allowsMixedState when NSButton is switched
-                // to off state and reactivate it when it is set to on state.
-                if (_nsButton.state == NSOffState) {
-                    _nsButton.allowsMixedState = false;
-                } else {
+            // Called when attached to a Checkbox or Toggle with checkbox
+            // appearance
+            void setState(const TriState &state) override
+            {
+                if (state == TriState::mixed) {
+                    // Explicitly allow for mixed state in NSButton when setting
+                    // Checkbox::State::mixed programatically
                     _nsButton.allowsMixedState = true;
                 }
-            }
-            
-            TriState newState = nsControlStateValueToTriState(_nsButton.state);
 
-            if (pCheckbox) {
-                pCheckbox->setState( newState );
-            } else {
-                pToggle->setOn( newState == TriState::on );
+                _nsButton.state = triStateToNSControlStateValue(state);
             }
-            pOuter->onClick().notify(evt);
-        }
+
+            // Called when attached to a Switch or Toggle with switch appearance
+            void setOn(const bool &on) override
+            {
+                setState(on ? TriState::on : TriState::off);
+            }
+
+            void generateClick() override
+            {
+                P<T> pOuter = cast<T>(getOuterViewIfStillAttached());
+                if (pOuter != nullptr) {
+                    P<Checkbox> pCheckbox = tryCast<Checkbox>(pOuter);
+                    P<Toggle> pToggle = tryCast<Toggle>(pOuter);
+
+                    bdn::ClickEvent evt(pOuter);
+
+                    // Observing NSButton's state via KVO does not work when
+                    // the button's state is changed via user interaction. KVO
+                    // works though when state is set programatically, which
+                    // unfortunately is useless in the case that a user changes
+                    // the button's state. This means we have to stick to the
+                    // click event to propagate the state change to the
+                    // framework. The state will be set before the onClick
+                    // notification is posted.
+
+                    // Mixed state is supported if T == Checkbox
+                    if (pCheckbox) {
+                        // Prohibit setting mixed state via user interaction.
+                        // When NSButton allows for mixed state, it also allows
+                        // users to toggle the checkbox to mixed state by
+                        // clicking (Off => Mixed => On). To prevent this
+                        // behavior, we deactivate allowsMixedState when
+                        // NSButton is switched to off state and reactivate it
+                        // when it is set to on state.
+                        if (_nsButton.state == NSOffState) {
+                            _nsButton.allowsMixedState = false;
+                        } else {
+                            _nsButton.allowsMixedState = true;
+                        }
+                    }
+
+                    TriState newState =
+                        nsControlStateValueToTriState(_nsButton.state);
+
+                    if (pCheckbox) {
+                        pCheckbox->setState(newState);
+                    } else {
+                        pToggle->setOn(newState == TriState::on);
+                    }
+                    pOuter->onClick().notify(evt);
+                }
+            }
+        };
     }
-};
-
-}
 }
 
 #endif /* BDN_MACCheckboxCore_HH */

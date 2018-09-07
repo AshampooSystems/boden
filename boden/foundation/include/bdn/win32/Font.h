@@ -5,38 +5,27 @@
 
 namespace bdn
 {
-namespace win32
-{
+    namespace win32
+    {
 
-class Font : public Base
-{
-public:
-	explicit Font(const LOGFONT& fontInfo);
-	~Font();
+        class Font : public Base
+        {
+          public:
+            explicit Font(const LOGFONT &fontInfo);
+            ~Font();
 
+            /** Returns the font's metrics.*/
+            TEXTMETRIC getMetrics() const;
 
-	/** Returns the font's metrics.*/
-	TEXTMETRIC getMetrics() const;
+            /** Returns the font size in pixels on the screen.*/
+            double getSizePixels() const;
 
+            HFONT getHandle() const { return _handle; }
 
-	/** Returns the font size in pixels on the screen.*/
-	double getSizePixels() const;
-
-
-	HFONT getHandle() const
-	{
-		return _handle;
-	}
-
-protected:
-	HFONT _handle;
-};
-	
-
-
+          protected:
+            HFONT _handle;
+        };
+    }
 }
-}
-
 
 #endif
-

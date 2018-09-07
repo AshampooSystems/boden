@@ -14,68 +14,65 @@
 
 namespace bdn
 {
-namespace webems
-{
-
-class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
-{
-public:
-    UiProvider()
+    namespace webems
     {
-        _pLayoutCoordinator = newObj<LayoutCoordinator>();
 
-        emscripten::val docVal = emscripten::val::global("document");
-        
-        emscripten::val divVal( docVal.call<emscripten::val>("createElement", std::string("div") ) );
+        class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+        {
+          public:
+            UiProvider()
+            {
+                _pLayoutCoordinator = newObj<LayoutCoordinator>();
 
-        docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("appendChild", divVal);
+                emscripten::val docVal = emscripten::val::global("document");
 
-        emscripten::val styleObj = divVal["style"];
-        styleObj.set("height", "1em");
+                emscripten::val divVal(docVal.call<emscripten::val>(
+                    "createElement", std::string("div")));
 
-        // the browser also works with DIPs. So no conversion necessary
+                docVal
+                    .call<emscripten::val>("getElementsByTagName",
+                                           std::string("body"))[0]
+                    .call<void>("appendChild", divVal);
 
-        _semDips = divVal["offsetHeight"].template as<double>();
+                emscripten::val styleObj = divVal["style"];
+                styleObj.set("height", "1em");
 
-        docVal.call<emscripten::val>("getElementsByTagName", std::string("body"))[0].call<void>("removeChild", divVal);
-    }   
+                // the browser also works with DIPs. So no conversion necessary
 
-    
-    String getName() const override;
-    
-    P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
+                _semDips = divVal["offsetHeight"].template as<double>();
 
-    P<ITextUi> getTextUi() override;
-    
+                docVal
+                    .call<emscripten::val>("getElementsByTagName",
+                                           std::string("body"))[0]
+                    .call<void>("removeChild", divVal);
+            }
 
-    static UiProvider& get();
+            String getName() const override;
 
+            P<IViewCore> createViewCore(const String &coreTypeName,
+                                        View *pView) override;
 
-    double getSemSizeDips() const
-    {
-        return _semDips;
+            P<ITextUi> getTextUi() override;
+
+            static UiProvider &get();
+
+            double getSemSizeDips() const { return _semDips; }
+
+            /** Returns the layout coordinator that is used by view cores
+             * created by this UI provider.*/
+            P<LayoutCoordinator> getLayoutCoordinator()
+            {
+                return _pLayoutCoordinator;
+            }
+
+          private:
+            double _semDips;
+            P<LayoutCoordinator> _pLayoutCoordinator;
+
+            Mutex _textUiInitMutex;
+            P<ITextUi> _pTextUi;
+        };
     }
-
-
-    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
-    P<LayoutCoordinator> getLayoutCoordinator()
-    {
-        return _pLayoutCoordinator;
-    }
-
-
-
-private:
-    double _semDips;
-    P<LayoutCoordinator> _pLayoutCoordinator;
-
-    Mutex                _textUiInitMutex;
-    P<ITextUi>           _pTextUi;
-
-};
-
 }
-}
-
 
 #endif

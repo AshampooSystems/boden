@@ -9,40 +9,35 @@
 
 using namespace bdn;
 
-
-class TestMacButtonCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestButtonCore >
+class TestMacButtonCore
+    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestButtonCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin< bdn::test::TestButtonCore >::initCore();
-        
-        _pNSButton = (NSButton*) _pNSView;
-        REQUIRE( _pNSButton!=nullptr );
+        bdn::test::TestMacChildViewCoreMixin<
+            bdn::test::TestButtonCore>::initCore();
+
+        _pNSButton = (NSButton *)_pNSView;
+        REQUIRE(_pNSButton != nullptr);
     }
 
-    
     void verifyCoreLabel() override
     {
         String expectedLabel = _pButton->label();
-        
-        String label = bdn::mac::macStringToString( _pNSButton.title );
-        
-        REQUIRE( label == expectedLabel );
+
+        String label = bdn::mac::macStringToString(_pNSButton.title);
+
+        REQUIRE(label == expectedLabel);
     }
-    
-protected:
-    NSButton* _pNSButton;
+
+  protected:
+    NSButton *_pNSButton;
 };
 
 TEST_CASE("mac.ButtonCore")
 {
     P<TestMacButtonCore> pTest = newObj<TestMacButtonCore>();
-    
+
     pTest->runTests();
 }
-
-
-
-

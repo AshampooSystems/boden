@@ -3,10 +3,7 @@
 
 @implementation BdnSwitchClickManager
 
-- (void)clicked
-{
-    self.pTarget->clicked();
-}
+- (void)clicked { self.pTarget->clicked(); }
 
 @end
 
@@ -18,7 +15,8 @@
     NSSize switchSize = self.bdnSwitch.fittingSize;
     // We only want the switch's size if the label is empty
     CGFloat margin = self.label.stringValue.length > 0 ? 10. : 0.;
-    return CGSizeMake(switchSize.width + labelSize.width + margin, fmax(switchSize.height, labelSize.height));
+    return CGSizeMake(switchSize.width + labelSize.width + margin,
+                      fmax(switchSize.height, labelSize.height));
 }
 
 @end

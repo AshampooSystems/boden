@@ -9,14 +9,14 @@
 
 using namespace bdn;
 
-
-class TestWin32WindowCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestWindowCore >
+class TestWin32WindowCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestWindowCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestWin32ViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+        bdn::test::TestWin32ViewCoreMixin<
+            bdn::test::TestWindowCore>::initCore();
     }
 
     void verifyCoreTitle() override
@@ -24,8 +24,8 @@ protected:
         String expectedTitle = _pWindow->title();
 
         String title = bdn::win32::Win32Window::getWindowText(_hwnd);
-        
-        REQUIRE( title == expectedTitle );
+
+        REQUIRE(title == expectedTitle);
     }
 
     void clearAllReferencesToCore() override
@@ -34,33 +34,28 @@ protected:
 
         _pWin32Core = nullptr;
     }
-    
-    
+
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(HWND hwnd)
-        {
-            this->hwnd = hwnd;
-        }
-        
+        DestructVerificationInfo(HWND hwnd) { this->hwnd = hwnd; }
+
         HWND hwnd;
     };
-    
+
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override
     {
         // sanity check
-        REQUIRE( ::IsWindow(_hwnd) );
+        REQUIRE(::IsWindow(_hwnd));
 
-        return newObj<DestructVerificationInfo>( _hwnd );
+        return newObj<DestructVerificationInfo>(_hwnd);
     }
 
-
-    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        HWND hwnd = cast<DestructVerificationInfo>( pVerificationInfo )->hwnd;
+        HWND hwnd = cast<DestructVerificationInfo>(pVerificationInfo)->hwnd;
 
         // window should have been destroyed.
-        REQUIRE( !::IsWindow(hwnd) );
+        REQUIRE(!::IsWindow(hwnd));
     }
 };
 
@@ -70,5 +65,3 @@ TEST_CASE("win32.WindowCore")
 
     pTest->runTests();
 }
-
-

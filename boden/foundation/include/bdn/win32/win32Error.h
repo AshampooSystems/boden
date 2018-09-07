@@ -8,76 +8,79 @@
 
 namespace bdn
 {
-namespace win32
-{
-        
-/** Creates a SystemError / std::system_error object from a Win32 error code (as returned by the
-    win32 function GetLastError).
+    namespace win32
+    {
 
-    This function is only available on the Windows Win32 and Windows Universal (UWP) platforms.
-    
-	@param errorCode a win32 error code.
+        /** Creates a SystemError / std::system_error object from a Win32 error
+           code (as returned by the win32 function GetLastError).
 
-	@param fields an ErrorFields instance contains arbitrary additional information
-		about the error. For example, if the error occurred while accessing a file you
-		could add a "path" field with the file path.
+            This function is only available on the Windows Win32 and Windows
+           Universal (UWP) platforms.
 
-		The fields object is encoded into the message returned by std::exception::what().
-		You can use ErrorInfo to access the fields from an exception object.
+            @param errorCode a win32 error code.
 
-		The easiest way to construct the params object is to create an ad-hoc temporary object
-		and call ErrorFields::add() on it, as shown in the following example.
+            @param fields an ErrorFields instance contains arbitrary additional
+           information about the error. For example, if the error occurred while
+           accessing a file you could add a "path" field with the file path.
 
-	Example:
+                The fields object is encoded into the message returned by
+           std::exception::what(). You can use ErrorInfo to access the fields
+           from an exception object.
 
-	\code
+                The easiest way to construct the params object is to create an
+           ad-hoc temporary object and call ErrorFields::add() on it, as shown
+           in the following example.
 
-	win32ErrorCodeToSystemError(errorCode, ErrorFields().add("path", filePath)
-										                .add("anotherArbitraryValue", "some more info") );
+            Example:
 
-	\endcode
+            \code
 
-	*/
-inline SystemError win32ErrorCodeToSystemError(unsigned long errorCode, const ErrorFields& fields = ErrorFields() )
-{
-    return SystemError(errorCode, std::system_category(), fields.toString() );
+            win32ErrorCodeToSystemError(errorCode, ErrorFields().add("path",
+           filePath) .add("anotherArbitraryValue", "some more info") );
+
+            \endcode
+
+            */
+        inline SystemError
+        win32ErrorCodeToSystemError(unsigned long errorCode,
+                                    const ErrorFields &fields = ErrorFields())
+        {
+            return SystemError(errorCode, std::system_category(),
+                               fields.toString());
+        }
+    }
 }
-
-
-}
-}
-
 
 /** \define BDN_WIN32_throwLastError(params)
 
-	Throws an appropriate exception for the last Win32 system error (as returned by the
-    win32 function GetLastError).
+    Throws an appropriate exception for the last Win32 system error (as returned
+   by the win32 function GetLastError).
 
-	The fields parameter must be an ErrorFields instance. You can use this instance
-	to provide additional information about the error and the context it occurred in.
-	
-	The recommended way to create the fields parameter is as a temporary ad-hoc object.
-	For example:	
+    The fields parameter must be an ErrorFields instance. You can use this
+   instance to provide additional information about the error and the context it
+   occurred in.
 
-	\code
-	BDN_WIN32_throwLastError( ErrorFields().add("path", filePath},
-										.add("context", "while doing X") );
+    The recommended way to create the fields parameter is as a temporary ad-hoc
+   object. For example:
 
-	\endcode
+    \code
+    BDN_WIN32_throwLastError( ErrorFields().add("path", filePath},
+                                        .add("context", "while doing X") );
 
-	Note that BDN_WIN32_throwLastError is implemented as a macro because the construction of the fields
-	object might call operating system functions and thus modify the last system error.
-	The macro ensures that the last system error is saved first, before the fields
-	object is initialized.
+    \endcode
 
-	Also see throwWin32Error()
+    Note that BDN_WIN32_throwLastError is implemented as a macro because the
+   construction of the fields object might call operating system functions and
+   thus modify the last system error. The macro ensures that the last system
+   error is saved first, before the fields object is initialized.
 
-	*/
-#define BDN_WIN32_throwLastError( fields )	\
-{ \
-	DWORD _savedSysError = ::GetLastError(); \
-	throw bdn::win32::win32ErrorCodeToSystemError(_savedSysError, fields); \
-}
+    Also see throwWin32Error()
 
+    */
+#define BDN_WIN32_throwLastError(fields)                                       \
+    {                                                                          \
+        DWORD _savedSysError = ::GetLastError();                               \
+        throw bdn::win32::win32ErrorCodeToSystemError(_savedSysError, fields); \
+    }
 
 #endif

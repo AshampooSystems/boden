@@ -10,80 +10,65 @@
 namespace bdn
 {
 
-
-void logError(const std::exception& e, const String& additionalInfo) noexcept
-{
-    try
+    void logError(const std::exception &e,
+                  const String &additionalInfo) noexcept
     {
-	    logError( additionalInfo + " ("+String(e.what())+")" );
+        try {
+            logError(additionalInfo + " (" + String(e.what()) + ")");
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
-
 
 #if BDN_PLATFORM_ANDROID
 
-void logError(const String& message) noexcept
-{
-    try
+    void logError(const String &message) noexcept
     {
-        __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+        try {
+            __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr());
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
 
-void logInfo(const String& message) noexcept
-{
-    try
+    void logInfo(const String &message) noexcept
     {
-	    __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr() );
+        try {
+            __android_log_write(ANDROID_LOG_INFO, "boden", message.asUtf8Ptr());
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
 
 #else
 
-void logError(const String& message) noexcept
-{
-    try
+    void logError(const String &message) noexcept
     {
-	    std::cerr << ("ERROR: "+message) << std::endl;
+        try {
+            std::cerr << ("ERROR: " + message) << std::endl;
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
 
-void logInfo(const String& message) noexcept
-{
-    try
+    void logInfo(const String &message) noexcept
     {
-	    std::cerr << ("Info: "+message) << std::endl;
+        try {
+            std::cerr << ("Info: " + message) << std::endl;
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
-
 
 #endif
 
-
-void logActiveException(const String& additionalInfo) noexcept
-{
-    std::exception_ptr p = std::current_exception();
+    void logActiveException(const String &additionalInfo) noexcept
+    {
+        std::exception_ptr p = std::current_exception();
+    }
 }
-
-}
-

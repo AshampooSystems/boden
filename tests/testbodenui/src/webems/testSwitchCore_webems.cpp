@@ -9,31 +9,32 @@
 
 using namespace bdn;
 
-
-class TestWebemsSwitchCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestSwitchCore >
+class TestWebemsSwitchCore
+    : public bdn::test::TestWebemsViewCoreMixin<bdn::test::TestSwitchCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
 
-        emscripten::val labelDomObject = cast<webems::SwitchCore<Switch>>(_pWebCore)->_getLabelDomObject();
+        emscripten::val labelDomObject =
+            cast<webems::SwitchCore<Switch>>(_pWebCore)->_getLabelDomObject();
         emscripten::val contentObj = labelDomObject["textContent"];
-        REQUIRE( !labelDomObject.isUndefined() );
+        REQUIRE(!labelDomObject.isUndefined());
 
         String label = contentObj.as<std::string>();
-        
-        REQUIRE( label == expectedLabel );
+
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
         bool expectedOn = _pSwitch->on();
-        bool on = cast<webems::SwitchCore<Switch>>(_pWebCore)->_getSwitchDomObject().call<bool>("getAttribute", emscripten::val("data-on"));
-        REQUIRE( on == expectedOn );
+        bool on = cast<webems::SwitchCore<Switch>>(_pWebCore)
+                      ->_getSwitchDomObject()
+                      .call<bool>("getAttribute", emscripten::val("data-on"));
+        REQUIRE(on == expectedOn);
     }
-
 };
 
 TEST_CASE("webems.SwitchCore")
@@ -42,12 +43,3 @@ TEST_CASE("webems.SwitchCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-
-

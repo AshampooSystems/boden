@@ -8,40 +8,40 @@
 
 namespace bdn
 {
-namespace win32
-{
+    namespace win32
+    {
 
+        int commandLineAppEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            int argc, char *argv[])
+        {
+            BDN_ENTRY_BEGIN;
 
+            bdn::P<bdn::win32::CommandLineAppRunner> pAppRunner =
+                bdn::newObj<bdn::win32::CommandLineAppRunner>(
+                    appControllerCreator, argc, argv);
+            _setAppRunner(pAppRunner);
 
-int commandLineAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int argc, char* argv[])
-{
-	BDN_ENTRY_BEGIN;
+            return pAppRunner->entry();
 
-	bdn::P< bdn::win32::CommandLineAppRunner > pAppRunner = bdn::newObj< bdn::win32::CommandLineAppRunner >( appControllerCreator, argc, argv );
-	_setAppRunner(pAppRunner);
+            BDN_ENTRY_END(false);
 
-	return pAppRunner->entry();
+            return 0;
+        }
 
-	BDN_ENTRY_END(false);
+        int uiAppEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            int showCommand)
+        {
+            BDN_ENTRY_BEGIN;
 
-	return 0;
+            bdn::P<bdn::win32::UiAppRunner> pAppRunner =
+                bdn::newObj<bdn::win32::UiAppRunner>(appControllerCreator,
+                                                     showCommand);
+            _setAppRunner(pAppRunner);
+            return pAppRunner->entry();
+            BDN_ENTRY_END(false);
+            return 0;
+        }
+    }
 }
-
-
-int uiAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int showCommand)
-{
-	BDN_ENTRY_BEGIN;
-	
-	bdn::P< bdn::win32::UiAppRunner > pAppRunner = bdn::newObj< bdn::win32::UiAppRunner >( appControllerCreator, showCommand );
-    _setAppRunner(pAppRunner);
-	return pAppRunner->entry(); \
-    BDN_ENTRY_END(false); \
-    return 0; \
-
-}
-
-
-}
-}
-
-

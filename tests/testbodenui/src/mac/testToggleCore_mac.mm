@@ -9,47 +9,42 @@
 
 using namespace bdn;
 
-
-class TestMacToggleCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestToggleCore >
+class TestMacToggleCore
+    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestToggleCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin< bdn::test::TestToggleCore >::initCore();
-        
-        _pNSButton = (NSButton*) _pNSView;
-        REQUIRE( _pNSButton!=nullptr );
+        bdn::test::TestMacChildViewCoreMixin<
+            bdn::test::TestToggleCore>::initCore();
+
+        _pNSButton = (NSButton *)_pNSView;
+        REQUIRE(_pNSButton != nullptr);
     }
 
-    
     void verifyCoreLabel() override
     {
         String expectedLabel = _pToggle->label();
-        
-        String label = bdn::mac::macStringToString( _pNSButton.title );
-        
-        REQUIRE( label == expectedLabel );
+
+        String label = bdn::mac::macStringToString(_pNSButton.title);
+
+        REQUIRE(label == expectedLabel);
     }
-    
+
     void verifyCoreOn() override
     {
         bool expectedOn = _pToggle->on();
         bool on = _pNSButton.state == NSOnState;
-        REQUIRE( on == expectedOn );
+        REQUIRE(on == expectedOn);
     }
-    
-protected:
-    NSButton* _pNSButton;
+
+  protected:
+    NSButton *_pNSButton;
 };
 
 TEST_CASE("mac.ToggleCore")
 {
     P<TestMacToggleCore> pTest = newObj<TestMacToggleCore>();
-    
+
     pTest->runTests();
 }
-
-
-
-

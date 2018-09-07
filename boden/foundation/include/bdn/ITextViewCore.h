@@ -6,16 +6,12 @@
 namespace bdn
 {
 
-class ITextViewCore : BDN_IMPLEMENTS IViewCore
-{
-public:
-
-	/** Changes the text view's content text.*/
-	virtual void setText(const String& text)=0;
-	
-};
-
-
+    class ITextViewCore : BDN_IMPLEMENTS IViewCore
+    {
+      public:
+        /** Changes the text view's content text.*/
+        virtual void setText(const String &text) = 0;
+    };
 }
 
 #endif

@@ -8,18 +8,17 @@
 
 using namespace bdn;
 
-
-class TestWin32ButtonCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestButtonCore >
+class TestWin32ButtonCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestButtonCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pButton->label();
 
         String label = bdn::win32::Win32Window::getWindowText(_hwnd);
-        
-        REQUIRE( label == expectedLabel );
+
+        REQUIRE(label == expectedLabel);
     }
 };
 
@@ -29,8 +28,3 @@ TEST_CASE("win32.ButtonCore")
 
     pTest->runTests();
 }
-
-
-
-
-

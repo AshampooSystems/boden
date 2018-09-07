@@ -9,35 +9,32 @@
 
 using namespace bdn;
 
-
-class TestIosTextFieldCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestIosTextFieldCore
+    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestIosViewCoreMixin< bdn::test::TestTextFieldCore >::initCore();
-        
-        _pUITextField = (UITextField*) _pUIView;
-        REQUIRE(_pUITextField!=nullptr);
+        bdn::test::TestIosViewCoreMixin<
+            bdn::test::TestTextFieldCore>::initCore();
+
+        _pUITextField = (UITextField *)_pUIView;
+        REQUIRE(_pUITextField != nullptr);
     }
-    
-    
+
     void verifyCoreText() override
     {
         String expectedText = _pTextField->text();
         String text = bdn::ios::iosStringToString(_pUITextField.text);
-        REQUIRE( text == expectedText );
+        REQUIRE(text == expectedText);
     }
-    
-protected:
-    UITextField* _pUITextField;
-};
 
+  protected:
+    UITextField *_pUITextField;
+};
 
 TEST_CASE("ios.TextFieldCore")
 {
     P<TestIosTextFieldCore> pTest = newObj<TestIosTextFieldCore>();
     pTest->runTests();
 }
-

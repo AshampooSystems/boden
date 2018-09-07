@@ -10,46 +10,53 @@
 
 using namespace bdn;
 
-
-class TestWinuwpSwitchCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestSwitchCore >
+class TestWinuwpSwitchCore
+    : public bdn::test::TestWinuwpViewCoreMixin<bdn::test::TestSwitchCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestWinuwpViewCoreMixin< TestSwitchCore >::initCore();
+        TestWinuwpViewCoreMixin<TestSwitchCore>::initCore();
 
-        _pWinSwitch = dynamic_cast<::Windows::UI::Xaml::Controls::StackPanel^>( _pWinFrameworkElement );
-        REQUIRE( _pWinSwitch!=nullptr );
+        _pWinSwitch = dynamic_cast<::Windows::UI::Xaml::Controls::StackPanel ^>(
+            _pWinFrameworkElement);
+        REQUIRE(_pWinSwitch != nullptr);
     }
 
     UiMargin getExpectedDefaultPadding() override
     {
-        return UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
+        return UiMargin(UiLength::sem(0.4), UiLength::sem(1));
     }
 
     void verifyCorePadding() override
     {
-        verifyIsExpectedWinPadding( _pWinSwitch->Padding );
+        verifyIsExpectedWinPadding(_pWinSwitch->Padding);
     }
 
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
 
-        String label = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( dynamic_cast<::Windows::UI::Xaml::Controls::ToggleSwitch^>(_pWinSwitch->Children->GetAt(0))->Header )->Text->Data();
-        
-        REQUIRE( label == expectedLabel );
+        String label =
+            dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock ^>(
+                dynamic_cast<::Windows::UI::Xaml::Controls::ToggleSwitch ^>(
+                    _pWinSwitch->Children->GetAt(0))
+                    ->Header)
+                ->Text->Data();
+
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
         bool expectedOn = _pSwitch->on();
-        bool on = dynamic_cast<::Windows::UI::Xaml::Controls::ToggleSwitch^>(_pWinSwitch->Children->GetAt(0))->IsOn;
-        REQUIRE( on == expectedOn );
+        bool on = dynamic_cast<::Windows::UI::Xaml::Controls::ToggleSwitch ^>(
+                      _pWinSwitch->Children->GetAt(0))
+                      ->IsOn;
+        REQUIRE(on == expectedOn);
     }
 
-    ::Windows::UI::Xaml::Controls::StackPanel^ _pWinSwitch;
+    ::Windows::UI::Xaml::Controls::StackPanel ^ _pWinSwitch;
 };
 
 TEST_CASE("winuwp.SwitchCore")
@@ -58,7 +65,3 @@ TEST_CASE("winuwp.SwitchCore")
 
     pTest->runTests();
 }
-
-
-
-

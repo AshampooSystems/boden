@@ -8,41 +8,38 @@
 
 using namespace bdn;
 
-
-class TestIosTextViewCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestTextViewCore >
+class TestIosTextViewCore
+    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestIosViewCoreMixin< bdn::test::TestTextViewCore >::initCore();
-        
-        _pUILabel = (UILabel*) _pUIView;
-        REQUIRE( _pUILabel!=nullptr );
+        TestIosViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
+
+        _pUILabel = (UILabel *)_pUIView;
+        REQUIRE(_pUILabel != nullptr);
     }
 
     bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
     {
-        // unfortunately the ios text view will wrap single words into individual characters.
-        // This is not the recommended behaviour for boden, but there is apparently no setting to
-        // change that.
+        // unfortunately the ios text view will wrap single words into
+        // individual characters. This is not the recommended behaviour for
+        // boden, but there is apparently no setting to change that.
         return true;
     }
 
-   
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();
 
-        String text = bdn::ios::iosStringToString( _pUILabel.text );
-        
-        REQUIRE( text == expectedText );
-    }
-    
-protected:
-    UILabel* _pUILabel;
-};
+        String text = bdn::ios::iosStringToString(_pUILabel.text);
 
+        REQUIRE(text == expectedText);
+    }
+
+  protected:
+    UILabel *_pUILabel;
+};
 
 TEST_CASE("ios.TextViewCore")
 {
@@ -50,11 +47,3 @@ TEST_CASE("ios.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

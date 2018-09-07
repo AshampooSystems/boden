@@ -12,76 +12,71 @@
 
 using namespace bdn;
 
-
-
-class TestGtkWindowCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestWindowCore >
+class TestGtkWindowCore
+    : public bdn::test::TestGtkViewCoreMixin<bdn::test::TestWindowCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestGtkViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+        bdn::test::TestGtkViewCoreMixin<bdn::test::TestWindowCore>::initCore();
     }
 
     void verifyCoreTitle() override
     {
         String expectedTitle = _pWindow->title();
-        
-        String title = gtk_window_get_title( GTK_WINDOW(_pGtkWidget) );
-        
-        REQUIRE( title == expectedTitle );
+
+        String title = gtk_window_get_title(GTK_WINDOW(_pGtkWidget));
+
+        REQUIRE(title == expectedTitle);
     }
-    
-    
-        
-    bool windowExists(GtkWindow* pWindow)
+
+    bool windowExists(GtkWindow *pWindow)
     {
-        GList* pList = gtk_window_list_toplevels();
-        
-        GList* pEl = g_list_find(pList, pWindow);
-        
+        GList *pList = gtk_window_list_toplevels();
+
+        GList *pEl = g_list_find(pList, pWindow);
+
         g_list_free(pList);
-        
-        return ( pEl != nullptr );
+
+        return (pEl != nullptr);
     }
-    
-    
+
     void clearAllReferencesToCore() override
     {
-        bdn::test::TestGtkViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
-        
+        bdn::test::TestGtkViewCoreMixin<
+            bdn::test::TestWindowCore>::clearAllReferencesToCore();
+
         _pGtkCore = nullptr;
         _pGtkWidget = nullptr;
     }
-    
-    
+
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(GtkWindow* pWindow)
+        DestructVerificationInfo(GtkWindow *pWindow)
         {
             this->pWindow = pWindow;
         }
-        
-        GtkWindow* pWindow;
+
+        GtkWindow *pWindow;
     };
-    
+
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override
     {
-        GtkWindow* pWindow = GTK_WINDOW(_pGtkWidget);
-        
-        // sanity check
-        REQUIRE( windowExists( pWindow ) );
+        GtkWindow *pWindow = GTK_WINDOW(_pGtkWidget);
 
-        return newObj<DestructVerificationInfo>( pWindow );
+        // sanity check
+        REQUIRE(windowExists(pWindow));
+
+        return newObj<DestructVerificationInfo>(pWindow);
     }
 
-
-    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        GtkWindow* pWindow = cast<DestructVerificationInfo>( pVerificationInfo )->pWindow;
+        GtkWindow *pWindow =
+            cast<DestructVerificationInfo>(pVerificationInfo)->pWindow;
 
         // window should have been destroyed.
-        REQUIRE( !windowExists(pWindow) );
+        REQUIRE(!windowExists(pWindow));
     }
 };
 
@@ -91,7 +86,3 @@ TEST_CASE("gtk.WindowCore")
 
     pTest->runTests();
 }
-
-
-
-

@@ -11,35 +11,26 @@
 
 using namespace bdn;
 
-
-
-class TestWinuwpContainerViewCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestWinuwpContainerViewCore : public bdn::test::TestWinuwpViewCoreMixin<
+                                        bdn::test::TestContainerViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestWinuwpViewCoreMixin< TestContainerViewCore >::initCore();
+        TestWinuwpViewCoreMixin<TestContainerViewCore>::initCore();
 
-        _pWinPanel = dynamic_cast<::Windows::UI::Xaml::Controls::Panel^>( _pWinFrameworkElement );
-        REQUIRE( _pWinPanel!=nullptr );
-    }    
+        _pWinPanel = dynamic_cast<::Windows::UI::Xaml::Controls::Panel ^>(
+            _pWinFrameworkElement);
+        REQUIRE(_pWinPanel != nullptr);
+    }
 
-    ::Windows::UI::Xaml::Controls::Panel^ _pWinPanel;
+    ::Windows::UI::Xaml::Controls::Panel ^ _pWinPanel;
 };
-
-
 
 TEST_CASE("winuwp.ContainerViewCore")
 {
-    P<TestWinuwpContainerViewCore> pTest = newObj<TestWinuwpContainerViewCore>();
+    P<TestWinuwpContainerViewCore> pTest =
+        newObj<TestWinuwpContainerViewCore>();
 
     pTest->runTests();
 }
-
-
-
-
-
-
-

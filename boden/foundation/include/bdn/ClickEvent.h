@@ -6,16 +6,11 @@
 namespace bdn
 {
 
-class ClickEvent : public ViewEvent
-{
-public:
-    ClickEvent(View* pView) : ViewEvent(pView) {}
-    
-};
-    
+    class ClickEvent : public ViewEvent
+    {
+      public:
+        ClickEvent(View *pView) : ViewEvent(pView) {}
+    };
 }
 
-
 #endif
-
-

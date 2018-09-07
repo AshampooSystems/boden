@@ -6,16 +6,12 @@
 namespace bdn
 {
 
-class ITextFieldCore : BDN_IMPLEMENTS IViewCore
-{
-public:
-
-	// Implement setter functions for property observers here
-    virtual void setText(const String& text) = 0;
-	
-};
-
-
+    class ITextFieldCore : BDN_IMPLEMENTS IViewCore
+    {
+      public:
+        // Implement setter functions for property observers here
+        virtual void setText(const String &text) = 0;
+    };
 }
 
 #endif

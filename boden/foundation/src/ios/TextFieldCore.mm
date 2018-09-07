@@ -4,9 +4,9 @@
 
 #import <bdn/ios/TextFieldCore.hh>
 
-@interface BdnTextFieldDelegate : NSObject<UITextFieldDelegate>
+@interface BdnTextFieldDelegate : NSObject <UITextFieldDelegate>
 
-@property (nonatomic, assign) bdn::WeakP<bdn::ios::TextFieldCore> core;
+@property(nonatomic, assign) bdn::WeakP<bdn::ios::TextFieldCore> core;
 
 - (id)initWithCore:(bdn::WeakP<bdn::ios::TextFieldCore>)core;
 - (void)textFieldDidChange:(UITextField *)textField;
@@ -20,41 +20,45 @@
 {
     if ((self = [super init])) {
         self.core = core;
-        
+
         bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-        UITextField* textField = (UITextField*)textFieldCore->getUIView();
+        UITextField *textField = (UITextField *)textFieldCore->getUIView();
         textField.delegate = self;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textField];
-        
+
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(textFieldDidChange:)
+                   name:UITextFieldTextDidChangeNotification
+                 object:textField];
+
         return self;
     }
-    
+
     return nil;
 }
 
-- (void)dealloc
-{
-   [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+- (void)dealloc { [[NSNotificationCenter defaultCenter] removeObserver:self]; }
 
 - (void)textFieldDidChange:(NSNotification *)notification
 {
     bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
+    bdn::P<bdn::TextField> outerTextField =
+        bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
     if (outerTextField) {
-        outerTextField->setText( bdn::ios::iosStringToString(((UITextField *)notification.object).text) );
+        outerTextField->setText(bdn::ios::iosStringToString(
+            ((UITextField *)notification.object).text));
     }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     bdn::P<bdn::ios::TextFieldCore> textFieldCore = self.core.toStrong();
-    bdn::P<bdn::TextField> outerTextField = bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
+    bdn::P<bdn::TextField> outerTextField =
+        bdn::cast<bdn::TextField>(textFieldCore->getOuterViewIfStillAttached());
     if (outerTextField) {
         outerTextField->submit();
     }
-    
+
     return YES;
 }
 
@@ -62,20 +66,16 @@
 
 namespace bdn
 {
-namespace ios
-{
+    namespace ios
+    {
 
-TextFieldCore::TextFieldCore(TextField* pOuterTextField)
-    : ViewCore(pOuterTextField, _createUITextField(pOuterTextField)),
-      _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
-{
-	setText(pOuterTextField->text());
-}
+        TextFieldCore::TextFieldCore(TextField *pOuterTextField)
+            : ViewCore(pOuterTextField, _createUITextField(pOuterTextField)),
+              _delegate([[BdnTextFieldDelegate alloc] initWithCore:this])
+        {
+            setText(pOuterTextField->text());
+        }
 
-TextFieldCore::~TextFieldCore()
-{
-	_delegate = nil;
-}
-
-}
+        TextFieldCore::~TextFieldCore() { _delegate = nil; }
+    }
 }

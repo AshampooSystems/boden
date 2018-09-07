@@ -3,14 +3,12 @@
 
 namespace bdn
 {
-namespace android
-{
+    namespace android
+    {
 
-class UiProvider;
-
+        class UiProvider;
+    }
 }
-}
-
 
 #include <bdn/IUiProvider.h>
 #include <bdn/LayoutCoordinator.h>
@@ -23,51 +21,44 @@ class UiProvider;
 
 namespace bdn
 {
-namespace android
-{
-
-class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
-{
-public:
-    UiProvider()
+    namespace android
     {
-        _semDips = -1;
-        _pLayoutCoordinator = newObj<LayoutCoordinator>();
-    }   
 
-    
-    String getName() const override;
-    
-    P<IViewCore> createViewCore(const String& coreTypeName, View* pView) override;
+        class UiProvider : public Base, BDN_IMPLEMENTS IUiProvider
+        {
+          public:
+            UiProvider()
+            {
+                _semDips = -1;
+                _pLayoutCoordinator = newObj<LayoutCoordinator>();
+            }
 
-    P<ITextUi> getTextUi() override;
+            String getName() const override;
 
+            P<IViewCore> createViewCore(const String &coreTypeName,
+                                        View *pView) override;
 
-    double getSemSizeDips(ViewCore& viewCore);
+            P<ITextUi> getTextUi() override;
 
+            double getSemSizeDips(ViewCore &viewCore);
 
+            /** Returns the layout coordinator that is used by view cores
+             * created by this UI provider.*/
+            P<LayoutCoordinator> getLayoutCoordinator()
+            {
+                return _pLayoutCoordinator;
+            }
 
-    /** Returns the layout coordinator that is used by view cores created by this UI provider.*/
-    P<LayoutCoordinator> getLayoutCoordinator()
-    {
-        return _pLayoutCoordinator;
+            static UiProvider &get();
+
+          private:
+            double _semDips;
+            P<LayoutCoordinator> _pLayoutCoordinator;
+
+            Mutex _textUiInitMutex;
+            P<ITextUi> _pTextUi;
+        };
     }
-
-
-    static UiProvider& get();
-
-
-private:
-    double _semDips;
-    P<LayoutCoordinator> _pLayoutCoordinator;
-
-    Mutex           _textUiInitMutex;
-    P<ITextUi>      _pTextUi;
-
-};
-
 }
-}
-
 
 #endif

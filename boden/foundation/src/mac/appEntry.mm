@@ -6,26 +6,25 @@
 
 namespace bdn
 {
-namespace mac
-{
+    namespace mac
+    {
 
+        int uiAppEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            int argc, char *argv[])
+        {
+            BDN_ENTRY_BEGIN;
 
-int uiAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int argc, char* argv[])
-{
-    BDN_ENTRY_BEGIN;
+            bdn::P<bdn::mac::UiAppRunner> pAppRunner =
+                bdn::newObj<bdn::mac::UiAppRunner>(appControllerCreator, argc,
+                                                   argv);
+            _setAppRunner(pAppRunner);
 
-    bdn::P< bdn::mac::UiAppRunner > pAppRunner = bdn::newObj< bdn::mac::UiAppRunner >( appControllerCreator, argc, argv );
-    _setAppRunner(pAppRunner);
-    
-    return pAppRunner->entry();
+            return pAppRunner->entry();
 
-    BDN_ENTRY_END(false);
-    
-    return 0;
+            BDN_ENTRY_END(false);
+
+            return 0;
+        }
+    }
 }
-
-
-}
-}
-
-

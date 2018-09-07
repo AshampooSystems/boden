@@ -8,18 +8,19 @@
 
 using namespace bdn;
 
-class TestWebemsTextFieldCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestWebemsTextFieldCore
+    : public bdn::test::TestWebemsViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
+  protected:
     void verifyCoreText() override
     {
         String expectedText = _pTextField->text();
 
         emscripten::val contentObj = _domObject["value"];
-        REQUIRE( !contentObj.isUndefined() );
+        REQUIRE(!contentObj.isUndefined());
 
         String text = contentObj.as<std::string>();
-        REQUIRE( text == expectedText );
+        REQUIRE(text == expectedText);
     }
 };
 

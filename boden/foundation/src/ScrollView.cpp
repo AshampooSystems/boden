@@ -7,32 +7,23 @@
 namespace bdn
 {
 
-ScrollView::ScrollView()
-{
-    setVerticalScrollingEnabled(true);    
+    ScrollView::ScrollView() { setVerticalScrollingEnabled(true); }
+
+    void ScrollView::scrollClientRectToVisible(const Rect &area)
+    {
+        Thread::assertInMainThread();
+
+        if (isBeingDeletedBecauseReferenceCountReachedZero()) {
+            // this happens when invalidateSizingInfo is called during the
+            // destructor. In this case we do not schedule the invalidation,
+            // since the view will be gone anyway.
+
+            // So, do nothing.
+            return;
+        }
+
+        P<IScrollViewCore> pCore = cast<IScrollViewCore>(getViewCore());
+        if (pCore != nullptr)
+            pCore->scrollClientRectToVisible(area);
+    }
 }
-
-
-void ScrollView::scrollClientRectToVisible(const Rect& area)
-{
-	Thread::assertInMainThread();
-
-    if( isBeingDeletedBecauseReferenceCountReachedZero() )
-	{
-		// this happens when invalidateSizingInfo is called during the destructor.
-		// In this case we do not schedule the invalidation, since the view
-		// will be gone anyway.
-
-		// So, do nothing.
-        return;
-	}
-
-
-    P<IScrollViewCore> pCore = cast<IScrollViewCore>( getViewCore() );
-    if(pCore!=nullptr)
-        pCore->scrollClientRectToVisible(area);
-}
-
-}
-
-

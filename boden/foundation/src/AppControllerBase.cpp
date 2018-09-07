@@ -6,13 +6,11 @@
 namespace bdn
 {
 
-void AppControllerBase::unhandledProblem(IUnhandledProblem& problem)
-{
-    // log the problem and let the app terminate.
+    void AppControllerBase::unhandledProblem(IUnhandledProblem &problem)
+    {
+        // log the problem and let the app terminate.
 
-    logError( "TERMINATING app because of unhandled problem: "+problem.toString() );
+        logError("TERMINATING app because of unhandled problem: " +
+                 problem.toString());
+    }
 }
-
-
-}
-

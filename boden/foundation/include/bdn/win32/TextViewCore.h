@@ -6,22 +6,20 @@
 
 namespace bdn
 {
-namespace win32
-{
+    namespace win32
+    {
 
-class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
-{
-public:
-	TextViewCore(TextView* pOuter);
+        class TextViewCore : public ViewCore, BDN_IMPLEMENTS ITextViewCore
+        {
+          public:
+            TextViewCore(TextView *pOuter);
 
-	void setText(const String& text) override;
-    
-	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
-    
-};
+            void setText(const String &text) override;
 
-
-}
+            Size calcPreferredSize(
+                const Size &availableSpace = Size::none()) const override;
+        };
+    }
 }
 
 #endif

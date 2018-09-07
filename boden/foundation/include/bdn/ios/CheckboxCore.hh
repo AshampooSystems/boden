@@ -11,40 +11,42 @@
 
 @interface BdnIosCheckboxComposite : BdnIosToggleCompositeBase
 
-@property (strong) BdnIosCheckbox* checkbox;
+@property(strong) BdnIosCheckbox *checkbox;
 
 @end
 
 namespace bdn
 {
-namespace ios
-{
-
-    class CheckboxCore : public ToggleCoreBase, BDN_IMPLEMENTS ICheckboxCore, BDN_IMPLEMENTS ISwitchCore
+    namespace ios
     {
-    private:
-        static BdnIosCheckboxComposite* _createCheckboxComposite();
-        
-    public:
-        CheckboxCore(Checkbox* pOuterCheckbox);
-        virtual ~CheckboxCore();
-        
-        void setState(const TriState& state) override
-        {
-            ((BdnIosCheckboxComposite*)_composite).checkbox.checkboxState = state;
-        }
 
-        void setOn(const bool& on) override
+        class CheckboxCore : public ToggleCoreBase,
+                             BDN_IMPLEMENTS ICheckboxCore,
+                             BDN_IMPLEMENTS ISwitchCore
         {
-            setState(on ? TriState::on : TriState::off);
-        }
-       
-        void _clicked() override;
-        
-        void layout() override;
-    };
-    
-}
+          private:
+            static BdnIosCheckboxComposite *_createCheckboxComposite();
+
+          public:
+            CheckboxCore(Checkbox *pOuterCheckbox);
+            virtual ~CheckboxCore();
+
+            void setState(const TriState &state) override
+            {
+                ((BdnIosCheckboxComposite *)_composite).checkbox.checkboxState =
+                    state;
+            }
+
+            void setOn(const bool &on) override
+            {
+                setState(on ? TriState::on : TriState::off);
+            }
+
+            void _clicked() override;
+
+            void layout() override;
+        };
+    }
 }
 
 #endif

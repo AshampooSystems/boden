@@ -9,33 +9,33 @@
 
 using namespace bdn;
 
-
-class TestAndroidToggleCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestToggleCore >
+class TestAndroidToggleCore
+    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestToggleCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestToggleCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<
+            bdn::test::TestToggleCore>::initCore();
 
-        _jSwitch = bdn::android::JSwitch( _jView.getRef_() );
+        _jSwitch = bdn::android::JSwitch(_jView.getRef_());
     }
 
     void verifyCoreLabel() override
     {
         String expectedLabel = _pToggle->label();
         String label = _jSwitch.getText();
-        REQUIRE( label == expectedLabel );
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
         bool expectedOn = _pToggle->on();
         bool on = _jSwitch.isChecked();
-        REQUIRE( on == expectedOn );
+        REQUIRE(on == expectedOn);
     }
 
-protected:
+  protected:
     bdn::android::JSwitch _jSwitch;
 };
 
@@ -45,12 +45,3 @@ TEST_CASE("android.ToggleCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-
-

@@ -9,37 +9,33 @@
 
 using namespace bdn;
 
-
-class TestMacTextFieldCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestMacTextFieldCore
+    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestMacChildViewCoreMixin< bdn::test::TestTextFieldCore >::initCore();
-        
-        _pNSTextField = (NSTextField*) _pNSView;
-        REQUIRE(_pNSTextField!=nullptr);
+        bdn::test::TestMacChildViewCoreMixin<
+            bdn::test::TestTextFieldCore>::initCore();
+
+        _pNSTextField = (NSTextField *)_pNSView;
+        REQUIRE(_pNSTextField != nullptr);
     }
 
-    
     void verifyCoreText() override
     {
         String expectedText = _pTextField->text();
         String text = bdn::mac::macStringToString(_pNSTextField.stringValue);
         REQUIRE(text == expectedText);
     }
-    
-protected:
-    NSTextField* _pNSTextField;
+
+  protected:
+    NSTextField *_pNSTextField;
 };
 
 TEST_CASE("mac.TextFieldCore")
 {
     P<TestMacTextFieldCore> pTest = newObj<TestMacTextFieldCore>();
-    
+
     pTest->runTests();
 }
-
-
-

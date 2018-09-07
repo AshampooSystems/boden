@@ -8,31 +8,30 @@
 
 namespace bdn
 {
-namespace gtk
-{
+    namespace gtk
+    {
 
-class TextFieldCore : public ViewCore, BDN_IMPLEMENTS ITextFieldCore
-{
-public:
-    TextFieldCore(View* pOuter);
+        class TextFieldCore : public ViewCore, BDN_IMPLEMENTS ITextFieldCore
+        {
+          public:
+            TextFieldCore(View *pOuter);
 
-    void setText(const String& text) override;
+            void setText(const String &text) override;
 
-    
-private:
-    void connectChangedHandler();
-    void disconnectChangedHandler();
-    
-    static void changedCallback(GtkEditable* editable, gpointer user_data);
-    static void activateCallback(GtkEditable* editable, gpointer user_data);
+          private:
+            void connectChangedHandler();
+            void disconnectChangedHandler();
 
-    gulong _changedHandlerId = 0;
+            static void changedCallback(GtkEditable *editable,
+                                        gpointer user_data);
+            static void activateCallback(GtkEditable *editable,
+                                         gpointer user_data);
 
-    String _lastText;
-};
+            gulong _changedHandlerId = 0;
 
-
-}
+            String _lastText;
+        };
+    }
 }
 
 #endif // BDN_GTK_TextFieldCore_H_

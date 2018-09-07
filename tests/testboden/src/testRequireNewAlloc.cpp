@@ -7,54 +7,44 @@ using namespace bdn;
 
 class TestDummy : public RequireNewAlloc<Base, TestDummy>
 {
-public:
-	TestDummy()
-	{		
-	}
+  public:
+    TestDummy() {}
 
-	TestDummy(double x)
-	{		
-	}
+    TestDummy(double x) {}
 };
 
 TEST_CASE("RequireNewAlloc")
 {
-	SECTION("NoParams")
-	{
-		SECTION("nonNew")
-			REQUIRE_THROWS_PROGRAMMING_ERROR( TestDummy test; );
+    SECTION("NoParams")
+    {
+        SECTION("nonNew")
+        REQUIRE_THROWS_PROGRAMMING_ERROR(TestDummy test;);
 
-		SECTION("new")
-			newObj<TestDummy>();
-	}
+        SECTION("new")
+        newObj<TestDummy>();
+    }
 
-	SECTION("withParams")
-	{
-		SECTION("nonNew")
-			REQUIRE_THROWS_PROGRAMMING_ERROR( TestDummy test(2.3); );
+    SECTION("withParams")
+    {
+        SECTION("nonNew")
+        REQUIRE_THROWS_PROGRAMMING_ERROR(TestDummy test(2.3););
 
-		SECTION("new")
-			newObj<TestDummy>(2.3);
-	}
+        SECTION("new")
+        newObj<TestDummy>(2.3);
+    }
 
-	SECTION("errorMessageContainsCorrectClassName")
-	{
+    SECTION("errorMessageContainsCorrectClassName")
+    {
         bdn::ExpectProgrammingError expectProgrammingErr;
 
-		String errorMessage;
-		try
-		{
-			TestDummy test;
-		}
-		catch(ProgrammingError& e)
-		{
-			errorMessage = e.what();			
-		}
+        String errorMessage;
+        try {
+            TestDummy test;
+        }
+        catch (ProgrammingError &e) {
+            errorMessage = e.what();
+        }
 
-		REQUIRE( errorMessage.contains("TestDummy") );
-	}
-
-
+        REQUIRE(errorMessage.contains("TestDummy"));
+    }
 }
-
-

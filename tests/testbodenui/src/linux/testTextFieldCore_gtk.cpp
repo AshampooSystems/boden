@@ -8,10 +8,10 @@
 
 using namespace bdn;
 
-
-class TestGtkTextFieldCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestGtkTextFieldCore
+    : public bdn::test::TestGtkViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
+  protected:
     void verifyCoreText() override
     {
         String expectedText = _pTextField->text();

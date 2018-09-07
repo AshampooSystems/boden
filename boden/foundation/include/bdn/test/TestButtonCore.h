@@ -6,100 +6,98 @@
 
 namespace bdn
 {
-namespace test
-{
-
-
-/** Helper for tests that verify IButtonCore implementations.*/
-class TestButtonCore : public TestViewCore<Button>
-{
-
-protected:
-
-    P<View> createView() override
+    namespace test
     {
-        P<Button> pButton = newObj<Button>();
-        pButton->setLabel( "hello" );
 
-        return pButton;
-    }
-
-    void setView(View* pView) override
-    {
-        TestViewCore::setView(pView);
-
-        _pButton = cast<Button>( pView );
-    }
-
-    void runInitTests() override
-    {
-        TestViewCore::runInitTests();
-
-        SECTION("label")
+        /** Helper for tests that verify IButtonCore implementations.*/
+        class TestButtonCore : public TestViewCore<Button>
         {
-            _pButton->setLabel( "helloworld" );
-            initCore();
-            verifyCoreLabel();
-        }
-    }
 
-    void runPostInitTests() override
-    {
-        P<TestButtonCore> pThis(this);
-    
-        TestViewCore::runPostInitTests();
-
-        SECTION("label")
-        {
-            SECTION("value")
+          protected:
+            P<View> createView() override
             {
-                _pButton->setLabel( "helloworld" );
-                
-                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                P<Button> pButton = newObj<Button>();
+                pButton->setLabel("hello");
+
+                return pButton;
+            }
+
+            void setView(View *pView) override
+            {
+                TestViewCore::setView(pView);
+
+                _pButton = cast<Button>(pView);
+            }
+
+            void runInitTests() override
+            {
+                TestViewCore::runInitTests();
+
+                SECTION("label")
                 {
-                    pThis->verifyCoreLabel();
-                };
+                    _pButton->setLabel("helloworld");
+                    initCore();
+                    verifyCoreLabel();
+                }
             }
 
-            SECTION("effectsOnPreferredSize")
+            void runPostInitTests() override
             {
-                String labelBefore = _pButton->label();
+                P<TestButtonCore> pThis(this);
 
-                // the label should not be empty here
-                REQUIRE(labelBefore.getLength()>3);
+                TestViewCore::runPostInitTests();
 
-                Size prefSizeBefore = _pButton->calcPreferredSize();
+                SECTION("label")
+                {
+                    SECTION("value")
+                    {
+                        _pButton->setLabel("helloworld");
 
-                _pButton->setLabel( labelBefore + labelBefore + labelBefore );
-                
-                Size prefSize = pThis->_pButton->calcPreferredSize();
+                        CONTINUE_SECTION_WHEN_IDLE(pThis)
+                        {
+                            pThis->verifyCoreLabel();
+                        };
+                    }
 
-                // width must increase with a bigger label
-                REQUIRE(prefSize.width > prefSizeBefore.width);
+                    SECTION("effectsOnPreferredSize")
+                    {
+                        String labelBefore = _pButton->label();
 
-                // note that the height might or might not increase. But it cannot be smaller.
-                REQUIRE(prefSize.height >= prefSizeBefore.height);
+                        // the label should not be empty here
+                        REQUIRE(labelBefore.getLength() > 3);
 
-                // when we go back to the same label as before then the preferred size should
-                // also be the same again
-                pThis->_pButton->setLabel( labelBefore );
-                
-                REQUIRE(pThis->_pButton->calcPreferredSize() == prefSizeBefore);
+                        Size prefSizeBefore = _pButton->calcPreferredSize();
+
+                        _pButton->setLabel(labelBefore + labelBefore +
+                                           labelBefore);
+
+                        Size prefSize = pThis->_pButton->calcPreferredSize();
+
+                        // width must increase with a bigger label
+                        REQUIRE(prefSize.width > prefSizeBefore.width);
+
+                        // note that the height might or might not increase. But
+                        // it cannot be smaller.
+                        REQUIRE(prefSize.height >= prefSizeBefore.height);
+
+                        // when we go back to the same label as before then the
+                        // preferred size should also be the same again
+                        pThis->_pButton->setLabel(labelBefore);
+
+                        REQUIRE(pThis->_pButton->calcPreferredSize() ==
+                                prefSizeBefore);
+                    }
+                }
             }
-        }
+
+            /** Verifies that the button core's label has the expected value
+                (the label set in the outer button object's Button::label()
+               property.*/
+            virtual void verifyCoreLabel() = 0;
+
+            P<Button> _pButton;
+        };
     }
-
-    /** Verifies that the button core's label has the expected value
-        (the label set in the outer button object's Button::label() property.*/
-    virtual void verifyCoreLabel()=0;
-
-
-    P<Button> _pButton;
-};
-
-
-}
 }
 
 #endif
-

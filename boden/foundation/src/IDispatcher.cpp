@@ -5,11 +5,8 @@
 namespace bdn
 {
 
-P<IDispatcher> getMainDispatcher()
-{
-    return getAppRunner()->getMainDispatcher();
+    P<IDispatcher> getMainDispatcher()
+    {
+        return getAppRunner()->getMainDispatcher();
+    }
 }
-
-
-}
-

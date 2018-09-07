@@ -93,9 +93,8 @@ void Console::createMissingObjects()
 		else
 			_pIn = newObj<LocaleStreamWriter>( &std::cerr  );
 	}
-	
-#endif
 
+#endif
 
 #if BDN_PLATFORM_WIN32
 	// On Windows we do not know if stdout is connected to a terminal.
@@ -178,6 +177,4 @@ void Console::setBackgroundColor( Console::Color color)
 
 }
 
-#endif //0
-
-
+#endif // 0

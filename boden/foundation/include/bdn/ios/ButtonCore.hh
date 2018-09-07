@@ -9,49 +9,41 @@
 
 namespace bdn
 {
-namespace ios
-{
-    
-class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
-{
-private:
-    static UIButton* _createUIButton(Button* pOuterButton);
-    
-public:
-    ButtonCore(Button* pOuterButton);
-    
-    ~ButtonCore();
-    
-    
-    UIButton* getUIButton()
+    namespace ios
     {
-        return _button;
+
+        class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
+        {
+          private:
+            static UIButton *_createUIButton(Button *pOuterButton);
+
+          public:
+            ButtonCore(Button *pOuterButton);
+
+            ~ButtonCore();
+
+            UIButton *getUIButton() { return _button; }
+
+            void setLabel(const String &label) override
+            {
+                [_button setTitle:stringToIosString(label)
+                         forState:UIControlStateNormal];
+            }
+
+            void _clicked();
+
+          protected:
+            double getFontSize() const override
+            {
+                return _button.titleLabel.font.pointSize;
+            }
+
+          private:
+            UIButton *_button;
+
+            NSObject *_clickManager;
+        };
     }
-    
-    void setLabel(const String& label) override
-    {
-        [_button setTitle: stringToIosString(label)
-                 forState:UIControlStateNormal];
-    }
-    
-    void _clicked();
-    
-protected:
-    double getFontSize() const override
-    {
-        return _button.titleLabel.font.pointSize;
-    }
-
-    
-private:
-    UIButton*   _button;
-    
-    NSObject*   _clickManager;
-};
-
-
-
-}
 }
 
 #endif

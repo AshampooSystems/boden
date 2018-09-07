@@ -9,16 +9,16 @@
 
 using namespace bdn;
 
-
-class TestAndroidButtonCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestButtonCore >
+class TestAndroidButtonCore
+    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestButtonCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<
+            bdn::test::TestButtonCore>::initCore();
 
-        _jButton = bdn::android::JButton( _jView.getRef_() );
+        _jButton = bdn::android::JButton(_jView.getRef_());
     }
 
     void verifyCoreLabel() override
@@ -27,10 +27,10 @@ protected:
 
         String label = _jButton.getText();
 
-        REQUIRE( label == expectedLabel );
+        REQUIRE(label == expectedLabel);
     }
 
-protected:
+  protected:
     bdn::android::JButton _jButton;
 };
 
@@ -40,12 +40,3 @@ TEST_CASE("android.ButtonCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-
-

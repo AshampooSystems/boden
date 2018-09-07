@@ -9,17 +9,13 @@ namespace bdn
 
     class IStringData : virtual public IBase
     {
-    public:
+      public:
+        virtual CharIterator begin() = 0;
+        virtual CharIterator end() = 0;
 
-        virtual CharIterator begin()=0;
-        virtual CharIterator end()=0;
-
-        virtual bool operator==(CharIterator otherBegin, CharIterator otherEnd)=0;
-
-
+        virtual bool operator==(CharIterator otherBegin,
+                                CharIterator otherEnd) = 0;
     };
-
 }
-
 
 #endif

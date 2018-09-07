@@ -3,10 +3,7 @@
 
 namespace bdn
 {
-namespace gtk
-{
-
-
+    namespace gtk
+    {
+    }
 }
-}
-

@@ -8,25 +8,24 @@
 
 using namespace bdn;
 
-
-class TestWin32CheckboxCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestCheckboxCore >
+class TestWin32CheckboxCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestCheckboxCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pCheckbox->label();
         String label = bdn::win32::Win32Window::getWindowText(_hwnd);
-        REQUIRE( label == expectedLabel );
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
-    	TriState expectedState = _pCheckbox->state();
-    	TriState state = cast<win32::CheckboxCore<Checkbox>>(_pWin32Core)->_state();
-    	REQUIRE( state == expectedState );
+        TriState expectedState = _pCheckbox->state();
+        TriState state =
+            cast<win32::CheckboxCore<Checkbox>>(_pWin32Core)->_state();
+        REQUIRE(state == expectedState);
     }
-
 };
 
 TEST_CASE("win32.CheckboxCore")
@@ -35,8 +34,3 @@ TEST_CASE("win32.CheckboxCore")
 
     pTest->runTests();
 }
-
-
-
-
-

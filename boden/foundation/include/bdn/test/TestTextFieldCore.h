@@ -6,86 +6,83 @@
 
 namespace bdn
 {
-namespace test
-{
-
-
-/** Helper for tests that verify ITextFieldCore implementations.*/
-class TestTextFieldCore : public TestViewCore<TextField>
-{
-
-protected:
-
-    P<View> createView() override
+    namespace test
     {
-        P<TextField> pTextField = newObj<TextField>();
-        pTextField->setText( "hello" );
 
-        return pTextField;
-    }
-
-    void setView(View* pView) override
-    {
-        TestViewCore::setView(pView);
-        _pTextField = cast<TextField>( pView );
-    }
-
-    void runInitTests() override
-    {
-        TestViewCore::runInitTests();
-
-        SECTION("text")
+        /** Helper for tests that verify ITextFieldCore implementations.*/
+        class TestTextFieldCore : public TestViewCore<TextField>
         {
-            _pTextField->setText("helloworld");
-            initCore();
-            verifyCoreText();
-        }
-    }
 
-    void runPostInitTests() override
-    {
-        P<TestTextFieldCore> pThis(this);
-    
-        TestViewCore::runPostInitTests();
-
-        SECTION("text")
-        {
-            SECTION("value")
+          protected:
+            P<View> createView() override
             {
-                _pTextField->setText( "helloworld" );
-                
-                CONTINUE_SECTION_WHEN_IDLE(pThis)
+                P<TextField> pTextField = newObj<TextField>();
+                pTextField->setText("hello");
+
+                return pTextField;
+            }
+
+            void setView(View *pView) override
+            {
+                TestViewCore::setView(pView);
+                _pTextField = cast<TextField>(pView);
+            }
+
+            void runInitTests() override
+            {
+                TestViewCore::runInitTests();
+
+                SECTION("text")
                 {
-                    pThis->verifyCoreText();
-                };
+                    _pTextField->setText("helloworld");
+                    initCore();
+                    verifyCoreText();
+                }
             }
 
-            // Text should not affect preferred size
-            SECTION("effectsOnPreferredSize")
+            void runPostInitTests() override
             {
-                String textBefore = _pTextField->text();
+                P<TestTextFieldCore> pThis(this);
 
-                // the text should not be empty here
-                REQUIRE(textBefore.getLength()>3);
+                TestViewCore::runPostInitTests();
 
-                Size prefSizeBefore = _pTextField->calcPreferredSize();
-                
-                _pTextField->setText( textBefore+textBefore+textBefore );
+                SECTION("text")
+                {
+                    SECTION("value")
+                    {
+                        _pTextField->setText("helloworld");
 
-                Size prefSizeAfter = _pTextField->calcPreferredSize();
+                        CONTINUE_SECTION_WHEN_IDLE(pThis)
+                        {
+                            pThis->verifyCoreText();
+                        };
+                    }
 
-                REQUIRE(prefSizeAfter == prefSizeBefore);
+                    // Text should not affect preferred size
+                    SECTION("effectsOnPreferredSize")
+                    {
+                        String textBefore = _pTextField->text();
+
+                        // the text should not be empty here
+                        REQUIRE(textBefore.getLength() > 3);
+
+                        Size prefSizeBefore = _pTextField->calcPreferredSize();
+
+                        _pTextField->setText(textBefore + textBefore +
+                                             textBefore);
+
+                        Size prefSizeAfter = _pTextField->calcPreferredSize();
+
+                        REQUIRE(prefSizeAfter == prefSizeBefore);
+                    }
+                }
             }
-        }
+
+            virtual void verifyCoreText() = 0;
+
+            P<TextField> _pTextField;
+        };
     }
-
-    virtual void verifyCoreText() = 0;
-
-    P<TextField> _pTextField;
-};
-
-
-}
 }
 
 #endif

@@ -10,27 +10,27 @@
 
 using namespace bdn;
 
-
-class TestWinuwpTextFieldCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestWinuwpTextFieldCore
+    : public bdn::test::TestWinuwpViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestWinuwpViewCoreMixin< TestTextFieldCore >::initCore();
+        TestWinuwpViewCoreMixin<TestTextFieldCore>::initCore();
 
-        _pWinTextBox = dynamic_cast<::Windows::UI::Xaml::Controls::TextBox^>( _pWinFrameworkElement );
-        REQUIRE( _pWinTextBox!=nullptr );
+        _pWinTextBox = dynamic_cast<::Windows::UI::Xaml::Controls::TextBox ^>(
+            _pWinFrameworkElement);
+        REQUIRE(_pWinTextBox != nullptr);
     }
 
     UiMargin getExpectedDefaultPadding() override
     {
-        return UiMargin(UiLength::sem(0.4), UiLength::sem(0.4) );
+        return UiMargin(UiLength::sem(0.4), UiLength::sem(0.4));
     }
 
     void verifyCorePadding() override
     {
-        verifyIsExpectedWinPadding( (_pWinTextBox)->Padding );
+        verifyIsExpectedWinPadding((_pWinTextBox)->Padding);
     }
 
     void verifyCoreText() override
@@ -40,7 +40,7 @@ protected:
         REQUIRE(text == expectedText);
     }
 
-    ::Windows::UI::Xaml::Controls::TextBox^ _pWinTextBox;
+    ::Windows::UI::Xaml::Controls::TextBox ^ _pWinTextBox;
 };
 
 TEST_CASE("winuwp.TextFieldCore")
@@ -48,6 +48,3 @@ TEST_CASE("winuwp.TextFieldCore")
     P<TestWinuwpTextFieldCore> pTest = newObj<TestWinuwpTextFieldCore>();
     pTest->runTests();
 }
-
-
-

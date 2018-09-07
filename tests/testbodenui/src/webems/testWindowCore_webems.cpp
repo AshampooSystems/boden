@@ -9,39 +9,34 @@
 
 using namespace bdn;
 
-
-class TestWebemsWindowCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >
+class TestWebemsWindowCore
+    : public bdn::test::TestWebemsViewCoreMixin<bdn::test::TestWindowCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+        bdn::test::TestWebemsViewCoreMixin<
+            bdn::test::TestWindowCore>::initCore();
     }
 
     void clearAllReferencesToCore() override
     {
-        bdn::test::TestWebemsViewCoreMixin< bdn::test::TestWindowCore >::clearAllReferencesToCore();
+        bdn::test::TestWebemsViewCoreMixin<
+            bdn::test::TestWindowCore>::clearAllReferencesToCore();
 
         _pWebCore = nullptr;
         _domObject = emscripten::val::undefined();
     }
 
-    bool canManuallyChangePosition() const override
-    {
-        return false;
-    }
+    bool canManuallyChangePosition() const override { return false; }
 
-    bool canManuallyChangeSize() const override
-    {
-        return false;
-    }
+    bool canManuallyChangeSize() const override { return false; }
 
     Rect getViewRect() override
     {
         int width = _domObject["offsetWidth"].as<int>();
         int height = _domObject["offsetHeight"].as<int>();
-        
+
         return Rect(0, 0, width, height);
     }
 
@@ -53,20 +48,20 @@ protected:
         emscripten::val docVal = emscripten::val::global("document");
 
         String title = docVal["title"].as<std::string>();
-        
-        REQUIRE( title == expectedTitle );
+
+        REQUIRE(title == expectedTitle);
     }
-    
+
     struct DestructVerificationInfo : public Base
     {
-        DestructVerificationInfo(const String& elementId)
+        DestructVerificationInfo(const String &elementId)
         {
             this->elementId = elementId;
         }
-        
+
         String elementId;
     };
-    
+
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override
     {
         // sanity check
@@ -74,23 +69,25 @@ protected:
 
         emscripten::val doc = emscripten::val::global("document");
 
-        emscripten::val el = doc.call<emscripten::val>("getElementById", elementId.asUtf8() );
-        REQUIRE( !el.isNull() );
-        REQUIRE( !el.isUndefined() );
+        emscripten::val el =
+            doc.call<emscripten::val>("getElementById", elementId.asUtf8());
+        REQUIRE(!el.isNull());
+        REQUIRE(!el.isUndefined());
 
-        return newObj<DestructVerificationInfo>( elementId );
+        return newObj<DestructVerificationInfo>(elementId);
     }
 
-
-    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
+    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override
     {
-        String elementId = cast<DestructVerificationInfo>( pVerificationInfo )->elementId;
+        String elementId =
+            cast<DestructVerificationInfo>(pVerificationInfo)->elementId;
 
         // window should have been destroyed.
         emscripten::val doc = emscripten::val::global("document");
-        
-        emscripten::val el = doc.call<emscripten::val>("getElementById", elementId.asUtf8() );
-        REQUIRE( el.isNull() );
+
+        emscripten::val el =
+            doc.call<emscripten::val>("getElementById", elementId.asUtf8());
+        REQUIRE(el.isNull());
     }
 };
 
@@ -100,9 +97,3 @@ TEST_CASE("webems.WindowCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-

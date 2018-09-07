@@ -6,15 +6,11 @@
 namespace bdn
 {
 
-class SubmitEvent : public ViewEvent
-{
-public:
-	SubmitEvent(View* pView) : ViewEvent(pView) {}
-};
-
+    class SubmitEvent : public ViewEvent
+    {
+      public:
+        SubmitEvent(View *pView) : ViewEvent(pView) {}
+    };
 }
 
-
 #endif
-
-

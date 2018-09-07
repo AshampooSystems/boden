@@ -6,26 +6,16 @@
 namespace bdn
 {
 
-class ViewEvent : public Base
-{
-public:
-    ViewEvent(View* pView)
+    class ViewEvent : public Base
     {
-        _pView = pView;
-    }
-    
-    P<View> getView()
-    {
-        return _pView;
-    }
-    
-protected:
-    P<View> _pView;
-};
-    
+      public:
+        ViewEvent(View *pView) { _pView = pView; }
+
+        P<View> getView() { return _pView; }
+
+      protected:
+        P<View> _pView;
+    };
 }
 
-
 #endif
-
-

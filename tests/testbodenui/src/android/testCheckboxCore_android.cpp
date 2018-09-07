@@ -10,33 +10,35 @@
 
 using namespace bdn;
 
-
-class TestAndroidCheckboxCore : public bdn::test::TestAndroidViewCoreMixin< bdn::test::TestCheckboxCore >
+class TestAndroidCheckboxCore
+    : public bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestAndroidViewCoreMixin<bdn::test::TestCheckboxCore>::initCore();
+        bdn::test::TestAndroidViewCoreMixin<
+            bdn::test::TestCheckboxCore>::initCore();
 
-        _jCheckBox = bdn::android::JCheckBox( _jView.getRef_() );
+        _jCheckBox = bdn::android::JCheckBox(_jView.getRef_());
     }
 
     void verifyCoreLabel() override
     {
         String expectedLabel = _pCheckbox->label();
         String label = _jCheckBox.getText();
-        REQUIRE( label == expectedLabel );
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
         TriState expectedState = _pCheckbox->state();
-        TriState state = cast<bdn::android::CheckboxCore<Checkbox>>(_pAndroidViewCore)->getState();
-        REQUIRE( state == expectedState );
+        TriState state =
+            cast<bdn::android::CheckboxCore<Checkbox>>(_pAndroidViewCore)
+                ->getState();
+        REQUIRE(state == expectedState);
     }
 
-protected:
+  protected:
     bdn::android::JCheckBox _jCheckBox;
 };
 
@@ -46,12 +48,3 @@ TEST_CASE("android.CheckboxCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-
-

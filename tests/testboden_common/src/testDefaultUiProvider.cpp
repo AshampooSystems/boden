@@ -8,48 +8,45 @@
 
 using namespace bdn;
 
-
-template<typename CHAR_TYPE>
-class RedirectStdStream
+template <typename CHAR_TYPE> class RedirectStdStream
 {
-public:
-    RedirectStdStream(
-                  std::basic_ostream<CHAR_TYPE>& stream,
-                  std::basic_streambuf<CHAR_TYPE>& buffer)
-    : _stream(stream)
+  public:
+    RedirectStdStream(std::basic_ostream<CHAR_TYPE> &stream,
+                      std::basic_streambuf<CHAR_TYPE> &buffer)
+        : _stream(stream)
     {
         _pOldBuffer = _stream.rdbuf(&buffer);
     }
-    
-    ~RedirectStdStream()
-    {
-        _stream.rdbuf( _pOldBuffer );
-    }
-    
-private:
-    std::basic_ostream<CHAR_TYPE>&   _stream;
-    std::basic_streambuf<CHAR_TYPE>* _pOldBuffer;
+
+    ~RedirectStdStream() { _stream.rdbuf(_pOldBuffer); }
+
+  private:
+    std::basic_ostream<CHAR_TYPE> &_stream;
+    std::basic_streambuf<CHAR_TYPE> *_pOldBuffer;
 };
 
-template<typename CHAR_TYPE>
-void testDefaultUiProvider( std::basic_ostream<CHAR_TYPE>& stdOutStream, std::basic_ostream<CHAR_TYPE>& stdErrStream )
+template <typename CHAR_TYPE>
+void testDefaultUiProvider(std::basic_ostream<CHAR_TYPE> &stdOutStream,
+                           std::basic_ostream<CHAR_TYPE> &stdErrStream)
 {
     SECTION("textUi")
     {
         P<ITextUi> pUi = getDefaultUiProvider()->getTextUi();
-        
+
         SECTION("stdio connection")
         {
             bdn::test::MockTextSink outSink;
             bdn::test::MockTextSink errSink;
-            
+
             TextSinkStdStreamBuf<CHAR_TYPE> outBuffer(&outSink);
             TextSinkStdStreamBuf<CHAR_TYPE> errBuffer(&errSink);
-            
+
             {
-                RedirectStdStream<CHAR_TYPE> redirectOut( stdOutStream, outBuffer);
-                RedirectStdStream<CHAR_TYPE> redirectErr( stdErrStream, errBuffer);
-            
+                RedirectStdStream<CHAR_TYPE> redirectOut(stdOutStream,
+                                                         outBuffer);
+                RedirectStdStream<CHAR_TYPE> redirectErr(stdErrStream,
+                                                         errBuffer);
+
                 // IMPORTANT: we should not start any new sections
                 // here, nor make any assertions while the streams
                 // are redirected. Otherwise output from the test framework
@@ -57,30 +54,28 @@ void testDefaultUiProvider( std::basic_ostream<CHAR_TYPE>& stdOutStream, std::ba
                 // stream.
                 pUi->output()->writeLine("for out");
                 pUi->statusOrProblem()->writeLine("for err");
-                
+
                 stdOutStream.flush();
                 stdErrStream.flush();
             }
-            
+
             // the cout/cerr redirection has been undone.
             // So now we can use functionality from the test framework again.
-            
+
             String out;
             String err;
-            
-            for(auto& s: outSink.getWrittenChunks() )
+
+            for (auto &s : outSink.getWrittenChunks())
                 out += s;
-            
-            for(auto& s: errSink.getWrittenChunks() )
+
+            for (auto &s : errSink.getWrittenChunks())
                 err += s;
-            
-            REQUIRE( out == "for out\n" );
-            REQUIRE( err == "for err\n" );
+
+            REQUIRE(out == "for out\n");
+            REQUIRE(err == "for err\n");
         }
     }
 }
-
-
 
 TEST_CASE("defaultUiProvider")
 {
@@ -96,9 +91,3 @@ TEST_CASE("defaultUiProvider")
     testDefaultUiProvider<char>(std::cout, std::cerr);
 #endif
 }
-
-
-
-
-
-

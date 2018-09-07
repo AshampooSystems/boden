@@ -8,31 +8,19 @@
 
 using namespace bdn;
 
-
-
-class TestMacContainerViewCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestMacContainerViewCore : public bdn::test::TestMacChildViewCoreMixin<
+                                     bdn::test::TestContainerViewCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        TestMacChildViewCoreMixin< TestContainerViewCore >::initCore();
+        TestMacChildViewCoreMixin<TestContainerViewCore>::initCore();
     }
-    
 };
-
-
 
 TEST_CASE("mac.ContainerViewCore")
 {
     P<TestMacContainerViewCore> pTest = newObj<TestMacContainerViewCore>();
-    
+
     pTest->runTests();
 }
-
-
-
-
-
-
-

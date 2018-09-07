@@ -2,19 +2,11 @@
 
 #import <bdn/ios/MainViewController.hh>
 
-
-
 @implementation MainViewController
 
-- (void)loadView
-{
-    [super loadView];
-}
+- (void)loadView { [super loadView]; }
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-}
+- (void)viewDidLoad { [super viewDidLoad]; }
 
 - (void)didReceiveMemoryWarning
 {
@@ -23,4 +15,3 @@
 }
 
 @end
-

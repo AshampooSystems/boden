@@ -8,20 +8,15 @@
 
 using namespace bdn;
 
-
-
-class TestWin32ContainerViewCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestWin32ContainerViewCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestContainerViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestWin32ViewCoreMixin< TestContainerViewCore >::initCore();
-    }    
-
+        TestWin32ViewCoreMixin<TestContainerViewCore>::initCore();
+    }
 };
-
-
 
 TEST_CASE("win32.ContainerViewCore")
 {
@@ -29,10 +24,3 @@ TEST_CASE("win32.ContainerViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-

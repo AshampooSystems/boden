@@ -3,8 +3,4 @@
 
 namespace bdn
 {
-    
-
-
 }
-

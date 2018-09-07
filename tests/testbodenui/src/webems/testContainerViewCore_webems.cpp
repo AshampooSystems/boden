@@ -8,28 +8,20 @@
 
 using namespace bdn;
 
-
-
-class TestWebemsContainerViewCore : public bdn::test::TestWebemsViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestWebemsContainerViewCore : public bdn::test::TestWebemsViewCoreMixin<
+                                        bdn::test::TestContainerViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestWebemsViewCoreMixin< TestContainerViewCore >::initCore();
-    }        
-
+        TestWebemsViewCoreMixin<TestContainerViewCore>::initCore();
+    }
 };
-
-
 
 TEST_CASE("webems.ContainerViewCore")
 {
-    P<TestWebemsContainerViewCore> pTest = newObj<TestWebemsContainerViewCore>();
+    P<TestWebemsContainerViewCore> pTest =
+        newObj<TestWebemsContainerViewCore>();
 
     pTest->runTests();
 }
-
-
-
-

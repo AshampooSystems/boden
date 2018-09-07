@@ -7,31 +7,22 @@
 namespace bdn
 {
 
-int genericCommandLineAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int argc, char* argv[])
-{
-    try
+    int genericCommandLineAppEntry(
+        const std::function<P<AppControllerBase>()> &appControllerCreator,
+        int argc, char *argv[])
     {
-        bdn::P<GenericAppRunner> pAppRunner = bdn::newObj<GenericAppRunner>(appControllerCreator,
-                                                                            argc,
-                                                                            argv,
-                                                                            true );
-        _setAppRunner(pAppRunner);
-        
-        return pAppRunner->entry();
+        try {
+            bdn::P<GenericAppRunner> pAppRunner = bdn::newObj<GenericAppRunner>(
+                appControllerCreator, argc, argv, true);
+            _setAppRunner(pAppRunner);
+
+            return pAppRunner->entry();
+        }
+        catch (...) {
+            bdn::unhandledException(false);
+            return 1;
+        }
+
+        return 0;
     }
-    catch(...)
-    {
-        bdn::unhandledException(false);
-        return 1;
-    }
-
-    return 0;
 }
-
-
-
-}
-
-
-
-

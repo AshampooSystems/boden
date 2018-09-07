@@ -7,22 +7,21 @@
 
 namespace bdn
 {
-namespace winuwp
-{
+    namespace winuwp
+    {
 
+        int appEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            Platform::Array<Platform::String ^> ^ args)
+        {
+            BDN_ENTRY_BEGIN;
 
-int appEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, Platform::Array<Platform::String^>^ args)
-{
-    BDN_ENTRY_BEGIN;
-
-	bdn::P< bdn::winuwp::AppRunner> pAppRunner = bdn::newObj< bdn::winuwp::AppRunner>( appControllerCreator, args );
-    _setAppRunner(pAppRunner);
-	return pAppRunner->entry();
-    BDN_ENTRY_END(false);
-    return 0;
+            bdn::P<bdn::winuwp::AppRunner> pAppRunner =
+                bdn::newObj<bdn::winuwp::AppRunner>(appControllerCreator, args);
+            _setAppRunner(pAppRunner);
+            return pAppRunner->entry();
+            BDN_ENTRY_END(false);
+            return 0;
+        }
+    }
 }
-
-}
-}
-
-

@@ -22,97 +22,87 @@
 
 namespace bdn
 {
-    
-P<IUiProvider> getDefaultUiProvider()
-{
-    if( getAppRunner()->isCommandLineApp() )
-    {
-        static P< StdioUiProvider<char> > pProvider( newObj< StdioUiProvider<char> >(&std::cin, &std::cout, &std::cerr) );
-        
-        return pProvider;
-    }
-    else
-        return &bdn::mac::UiProvider::get();
-}
-    
-}
 
+    P<IUiProvider> getDefaultUiProvider()
+    {
+        if (getAppRunner()->isCommandLineApp()) {
+            static P<StdioUiProvider<char>> pProvider(
+                newObj<StdioUiProvider<char>>(&std::cin, &std::cout,
+                                              &std::cerr));
+
+            return pProvider;
+        } else
+            return &bdn::mac::UiProvider::get();
+    }
+}
 
 namespace bdn
 {
-namespace mac
-{
-
-BDN_SAFE_STATIC_IMPL( UiProvider, UiProvider::get );
-
-
-UiProvider::UiProvider()
-{
-    // mac uses DIPs natively. So no conversion necessary
-    _semDips = NSFont.systemFontSize;
-    
-    _pLayoutCoordinator = newObj<LayoutCoordinator>();
-}
-
-String UiProvider::getName() const
-{
-    return "mac";
-}
-    
-P<ITextUi> UiProvider::getTextUi()
-{
+    namespace mac
     {
-        Mutex::Lock lock( _textUiInitMutex );
-        if(_pTextUi==nullptr)
+
+        BDN_SAFE_STATIC_IMPL(UiProvider, UiProvider::get);
+
+        UiProvider::UiProvider()
         {
-            // we want the output of the text UI to go to both the
-            // View-based text UI, as well as the stdout/stderr streams.
-            
-            _pTextUi = newObj<TextUiCombiner>(
-                 newObj< ViewTextUi >(),
-                 newObj< StdioTextUi<char> >( &std::cin, &std::cout, &std::cerr ) );
+            // mac uses DIPs natively. So no conversion necessary
+            _semDips = NSFont.systemFontSize;
+
+            _pLayoutCoordinator = newObj<LayoutCoordinator>();
+        }
+
+        String UiProvider::getName() const { return "mac"; }
+
+        P<ITextUi> UiProvider::getTextUi()
+        {
+            {
+                Mutex::Lock lock(_textUiInitMutex);
+                if (_pTextUi == nullptr) {
+                    // we want the output of the text UI to go to both the
+                    // View-based text UI, as well as the stdout/stderr streams.
+
+                    _pTextUi = newObj<TextUiCombiner>(
+                        newObj<ViewTextUi>(),
+                        newObj<StdioTextUi<char>>(&std::cin, &std::cout,
+                                                  &std::cerr));
+                }
+            }
+
+            return _pTextUi;
+        }
+
+        P<IViewCore> UiProvider::createViewCore(const String &coreTypeName,
+                                                View *pView)
+        {
+            if (coreTypeName == ContainerView::getContainerViewCoreTypeName())
+                return newObj<ContainerViewCore>(cast<ContainerView>(pView));
+
+            else if (coreTypeName == Button::getButtonCoreTypeName())
+                return newObj<ButtonCore>(cast<Button>(pView));
+
+            else if (coreTypeName == Checkbox::getCheckboxCoreTypeName())
+                return newObj<CheckboxCore<Checkbox>>(cast<Checkbox>(pView));
+
+            else if (coreTypeName == Switch::getSwitchCoreTypeName())
+                return newObj<SwitchCore<Switch>>(cast<Switch>(pView));
+
+            else if (coreTypeName == Toggle::getToggleCoreTypeName())
+                return newObj<CheckboxCore<Toggle>>(cast<Toggle>(pView));
+
+            else if (coreTypeName == TextView::getTextViewCoreTypeName())
+                return newObj<TextViewCore>(cast<TextView>(pView));
+
+            else if (coreTypeName == TextField::getTextFieldCoreTypeName())
+                return newObj<TextFieldCore>(cast<TextField>(pView));
+
+            else if (coreTypeName == ScrollView::getScrollViewCoreTypeName())
+                return newObj<ScrollViewCore>(cast<ScrollView>(pView));
+
+            else if (coreTypeName == Window::getWindowCoreTypeName())
+                return newObj<WindowCore>(cast<Window>(pView));
+
+            else
+                throw ViewCoreTypeNotSupportedError(coreTypeName);
         }
     }
-    
-    return _pTextUi;
 }
-
-    
-P<IViewCore> UiProvider::createViewCore(const String& coreTypeName, View* pView)
-{
-    if(coreTypeName == ContainerView::getContainerViewCoreTypeName() )
-        return newObj<ContainerViewCore>( cast<ContainerView>(pView) );
-    
-    else if(coreTypeName == Button::getButtonCoreTypeName() )
-        return newObj<ButtonCore>( cast<Button>(pView) );
-
-    else if(coreTypeName == Checkbox::getCheckboxCoreTypeName() )
-        return newObj<CheckboxCore<Checkbox>>( cast<Checkbox>(pView) );
-
-    else if(coreTypeName == Switch::getSwitchCoreTypeName() )
-        return newObj<SwitchCore<Switch>>( cast<Switch>(pView) );
-    
-    else if(coreTypeName == Toggle::getToggleCoreTypeName() )
-        return newObj<CheckboxCore<Toggle>>( cast<Toggle>(pView) );
-
-    
-    else if(coreTypeName == TextView::getTextViewCoreTypeName() )
-        return newObj<TextViewCore>( cast<TextView>(pView) );
-
-    else if(coreTypeName == TextField::getTextFieldCoreTypeName() )
-        return newObj<TextFieldCore>( cast<TextField>(pView) );
-    
-    else if(coreTypeName == ScrollView::getScrollViewCoreTypeName() )
-        return newObj<ScrollViewCore>( cast<ScrollView>(pView) );
-    
-    else if(coreTypeName == Window::getWindowCoreTypeName() )
-        return newObj<WindowCore>( cast<Window>(pView) );
-   
-    else
-        throw ViewCoreTypeNotSupportedError(coreTypeName);
-}
-
-
-}
-}
-

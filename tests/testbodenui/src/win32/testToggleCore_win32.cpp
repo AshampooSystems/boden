@@ -9,27 +9,25 @@
 
 using namespace bdn;
 
-
-class TestWin32ToggleCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestToggleCore >
+class TestWin32ToggleCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestToggleCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pToggle->label();
 
         String label = bdn::win32::Win32Window::getWindowText(_hwnd);
-        
-        REQUIRE( label == expectedLabel );
+
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreOn() override
     {
-    	bool expectedOn = _pToggle->on();
-    	bool on = cast<win32::CheckboxCore<Toggle>>(_pWin32Core)->_on();
-    	REQUIRE( on == expectedOn );
+        bool expectedOn = _pToggle->on();
+        bool on = cast<win32::CheckboxCore<Toggle>>(_pWin32Core)->_on();
+        REQUIRE(on == expectedOn);
     }
-
 };
 
 TEST_CASE("win32.ToggleCore")
@@ -38,8 +36,3 @@ TEST_CASE("win32.ToggleCore")
 
     pTest->runTests();
 }
-
-
-
-
-

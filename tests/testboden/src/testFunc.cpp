@@ -5,620 +5,598 @@
 
 using namespace bdn;
 
-
-
 struct MethodPTestStruct
 {
-    int         i;
+    int i;
     std::string s;
 };
 
-
 class MethodPTestHelperBase : public Base
 {
-public:
-
+  public:
     virtual int ii(int a)
     {
         _lastCalled = "base int(int)";
-        
+
         return a;
     }
-    
+
     String _lastCalled;
-    
 };
 
 class IMethodPTestHelper : BDN_IMPLEMENTS IBase
 {
-public:
-    
-    virtual int ii(int a)=0;
-    
+  public:
+    virtual int ii(int a) = 0;
 };
 
-class MethodPTestHelper : public MethodPTestHelperBase, BDN_IMPLEMENTS IMethodPTestHelper
+class MethodPTestHelper : public MethodPTestHelperBase,
+                          BDN_IMPLEMENTS IMethodPTestHelper
 {
-public:
-
+  public:
     int i()
     {
         _lastCalled = "int()";
-        
+
         return 42;
     }
-    
+
     int ii(int a) override
     {
         _lastCalled = "int(int)";
-        
-        return a*a;
+
+        return a * a;
     }
-    
-    void vi(int a)
-    {
-        _lastCalled = "void(int)";
-    }
-    
-    MethodPTestStruct sss(const MethodPTestStruct& a, const MethodPTestStruct& b)
+
+    void vi(int a) { _lastCalled = "void(int)"; }
+
+    MethodPTestStruct sss(const MethodPTestStruct &a,
+                          const MethodPTestStruct &b)
     {
         _lastCalled = "struct(struct,struct)";
-        
-        return MethodPTestStruct{a.i+b.i, a.s+b.s};
+
+        return MethodPTestStruct{a.i + b.i, a.s + b.s};
     }
 };
 
-
-
-
-
-template<class MethodType>
-static void verifyMethodValid(const MethodType& m, bool expectedValid )
+template <class MethodType>
+static void verifyMethodValid(const MethodType &m, bool expectedValid)
 {
-    REQUIRE( static_cast<bool>(m) == expectedValid );
-    REQUIRE( (m==nullptr) == !expectedValid );
-    REQUIRE( (m!=nullptr) == expectedValid );
+    REQUIRE(static_cast<bool>(m) == expectedValid);
+    REQUIRE((m == nullptr) == !expectedValid);
+    REQUIRE((m != nullptr) == expectedValid);
 }
 
 TEST_CASE("strongMethod")
 {
     MethodPTestHelper helper;
-    
-    REQUIRE( helper.getRefCount() == 1);
-    
-    
+
+    REQUIRE(helper.getRefCount() == 1);
+
     SECTION("int()")
     {
         {
             auto m = strongMethod(&helper, &MethodPTestHelper::i);
-            
-            REQUIRE( helper.getRefCount() == 2);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
 
             int val = m();
-            REQUIRE( val==42 );
+            REQUIRE(val == 42);
 
-            REQUIRE( helper._lastCalled=="int()" );
+            REQUIRE(helper._lastCalled == "int()");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("int(int)")
     {
         {
             auto m = strongMethod(&helper, &MethodPTestHelper::ii);
-            
-            REQUIRE( helper.getRefCount() == 2);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             int val = m(3);
-            REQUIRE( val==9 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
+            REQUIRE(val == 9);
+
+            REQUIRE(helper._lastCalled == "int(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("int(int) virtual base")
     {
         {
-            auto m = strongMethod((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
-            
-            REQUIRE( helper.getRefCount() == 2);
+            auto m = strongMethod((MethodPTestHelperBase *)&helper,
+                                  &MethodPTestHelperBase::ii);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             int val = m(3);
-            REQUIRE( val==9 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
+            REQUIRE(val == 9);
+
+            REQUIRE(helper._lastCalled == "int(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("int(int) virtual interface")
     {
         {
-            auto m = strongMethod((IMethodPTestHelper*)&helper, &IMethodPTestHelper::ii);
-            
-            REQUIRE( helper.getRefCount() == 2);
+            auto m = strongMethod((IMethodPTestHelper *)&helper,
+                                  &IMethodPTestHelper::ii);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             int val = m(3);
-            REQUIRE( val==9 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
+            REQUIRE(val == 9);
+
+            REQUIRE(helper._lastCalled == "int(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-       
-    
+
     SECTION("void(int)")
     {
         {
             auto m = strongMethod(&helper, &MethodPTestHelper::vi);
-            
-            REQUIRE( helper.getRefCount() == 2);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             m(3);
-            
-            REQUIRE( helper._lastCalled=="void(int)" );
+
+            REQUIRE(helper._lastCalled == "void(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("struct(struct, struct)")
     {
         {
             auto m = strongMethod(&helper, &MethodPTestHelper::sss);
-            
-            REQUIRE( helper.getRefCount() == 2);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             MethodPTestStruct a{12, "ab"};
             MethodPTestStruct b{34, "cd"};
-            
+
             MethodPTestStruct r = m(a, b);
-            
-            REQUIRE( r.i==12+34 );
-            REQUIRE( r.s=="abcd" );
-            
-            
-            REQUIRE( helper._lastCalled=="struct(struct,struct)" );
+
+            REQUIRE(r.i == 12 + 34);
+            REQUIRE(r.s == "abcd");
+
+            REQUIRE(helper._lastCalled == "struct(struct,struct)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("struct(struct, struct) from P")
     {
         {
             P<MethodPTestHelper> pHelper = &helper;
-        
+
             auto m = strongMethod(pHelper, &MethodPTestHelper::sss);
-            
-            REQUIRE( helper.getRefCount() == 3);
+
+            REQUIRE(helper.getRefCount() == 3);
             verifyMethodValid(m, true);
-            
+
             MethodPTestStruct a{12, "ab"};
             MethodPTestStruct b{34, "cd"};
-            
+
             MethodPTestStruct r = m(a, b);
-            
-            REQUIRE( r.i==12+34 );
-            REQUIRE( r.s=="abcd" );
-            
-            
-            REQUIRE( helper._lastCalled=="struct(struct,struct)" );
+
+            REQUIRE(r.i == 12 + 34);
+            REQUIRE(r.s == "abcd");
+
+            REQUIRE(helper._lastCalled == "struct(struct,struct)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
 
     SECTION("defaultInit")
     {
         StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-        
+
         verifyMethodValid(m, false);
-        
+
         // calling the strongMethod should have no effect
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
-    }
-    
-    SECTION("object=null")
-    {
-        auto m = strongMethod((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
-        
-        verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
-    }
-    
-    SECTION("method=null")
-    {
-        void (MethodPTestHelper::* nullFunc)(int);
-        
-        nullFunc = nullptr;
-    
-        auto m = strongMethod(&helper, nullFunc);
-        
-        verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
-    }
-    
-    SECTION("strongMethod and object null")
-    {
-        void (MethodPTestHelper::* nullFunc)(int);
-        nullFunc = nullptr;
-        
-        auto m = strongMethod((MethodPTestHelper*)nullptr, nullFunc);
-        
-        verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
 
+    SECTION("object=null")
+    {
+        auto m =
+            strongMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
+
+        verifyMethodValid(m, false);
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
+    }
+
+    SECTION("method=null")
+    {
+        void (MethodPTestHelper::*nullFunc)(int);
+
+        nullFunc = nullptr;
+
+        auto m = strongMethod(&helper, nullFunc);
+
+        verifyMethodValid(m, false);
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
+    }
+
+    SECTION("strongMethod and object null")
+    {
+        void (MethodPTestHelper::*nullFunc)(int);
+        nullFunc = nullptr;
+
+        auto m = strongMethod((MethodPTestHelper *)nullptr, nullFunc);
+
+        verifyMethodValid(m, false);
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
+    }
 
     SECTION("copyConstructor")
     {
         SECTION("defaultInit")
         {
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-            
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
-            
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
+                m;
+
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
+                m2(m);
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
                 auto m = strongMethod(&helper, &MethodPTestHelper::ii);
-                REQUIRE( helper.getRefCount() == 2);
+                REQUIRE(helper.getRefCount() == 2);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2(m);
-                REQUIRE( helper.getRefCount() == 3);
+                REQUIRE(helper.getRefCount() == 3);
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
             }
-            
-            REQUIRE( helper.getRefCount()==1 );
+
+            REQUIRE(helper.getRefCount() == 1);
         }
     }
-
 
     SECTION("assignment")
     {
         SECTION("defaultInit")
         {
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-            
-            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
-            
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
+                m;
+
+            StrongMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)>
+                m2;
+
             m2 = m;
-            
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
                 auto m = strongMethod(&helper, &MethodPTestHelper::ii);
-                REQUIRE( helper.getRefCount() == 2);
+                REQUIRE(helper.getRefCount() == 2);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2;
-                
+
                 m2 = m;
-                
-                REQUIRE( helper.getRefCount() == 3);
+
+                REQUIRE(helper.getRefCount() == 3);
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
             }
-            
-            REQUIRE( helper.getRefCount()==1 );
+
+            REQUIRE(helper.getRefCount() == 1);
         }
     }
-
-
 }
-
-
-
 
 TEST_CASE("weakMethod")
 {
-    
+
     MethodPTestHelper helper;
-    
-    REQUIRE( helper.getRefCount() == 1);
-    
-    
+
+    REQUIRE(helper.getRefCount() == 1);
+
     SECTION("int()")
     {
         {
             auto m = weakMethod(&helper, &MethodPTestHelper::i);
-            
+
             // refcount should not have increased
-            REQUIRE( helper.getRefCount() == 1);
+            REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             int val = m();
-            REQUIRE( val==42 );
-            
-            REQUIRE( helper._lastCalled=="int()" );
+            REQUIRE(val == 42);
+
+            REQUIRE(helper._lastCalled == "int()");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("int(int)")
     {
         {
             auto m = weakMethod(&helper, &MethodPTestHelper::ii);
-            
+
             // refcount should not have increased
-            REQUIRE( helper.getRefCount() == 1);
+            REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             int val = m(3);
-            REQUIRE( val==9 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
+            REQUIRE(val == 9);
+
+            REQUIRE(helper._lastCalled == "int(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
-    
+
     SECTION("int(int) virtual base")
     {
         {
-            auto m = weakMethod((MethodPTestHelperBase*)&helper, &MethodPTestHelperBase::ii);
-            
-            REQUIRE( helper.getRefCount() == 1);
+            auto m = weakMethod((MethodPTestHelperBase *)&helper,
+                                &MethodPTestHelperBase::ii);
+
+            REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             int val = m(3);
-            REQUIRE( val==9 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
+            REQUIRE(val == 9);
+
+            REQUIRE(helper._lastCalled == "int(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
-    
-    
+
     SECTION("void(int)")
     {
         {
             auto m = weakMethod(&helper, &MethodPTestHelper::vi);
-            
-            REQUIRE( helper.getRefCount() == 1);
+
+            REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             m(3);
-            
-            REQUIRE( helper._lastCalled=="void(int)" );
+
+            REQUIRE(helper._lastCalled == "void(int)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("struct(struct, struct)")
     {
         {
             auto m = weakMethod(&helper, &MethodPTestHelper::sss);
-            
-            REQUIRE( helper.getRefCount() == 1);
+
+            REQUIRE(helper.getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             MethodPTestStruct a{12, "ab"};
             MethodPTestStruct b{34, "cd"};
-            
+
             MethodPTestStruct r = m(a, b);
-            
-            REQUIRE( r.i==12+34 );
-            REQUIRE( r.s=="abcd" );
-            
-            
-            REQUIRE( helper._lastCalled=="struct(struct,struct)" );
+
+            REQUIRE(r.i == 12 + 34);
+            REQUIRE(r.s == "abcd");
+
+            REQUIRE(helper._lastCalled == "struct(struct,struct)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("struct(struct, struct) from P")
     {
         {
             P<MethodPTestHelper> pHelper = &helper;
-            
-            REQUIRE( helper.getRefCount() == 2);
-            
+
+            REQUIRE(helper.getRefCount() == 2);
+
             auto m = weakMethod(pHelper, &MethodPTestHelper::sss);
-            
-            REQUIRE( helper.getRefCount() == 2);
+
+            REQUIRE(helper.getRefCount() == 2);
             verifyMethodValid(m, true);
-            
+
             MethodPTestStruct a{12, "ab"};
             MethodPTestStruct b{34, "cd"};
-            
+
             MethodPTestStruct r = m(a, b);
-            
-            REQUIRE( r.i==12+34 );
-            REQUIRE( r.s=="abcd" );
-            
-            
-            REQUIRE( helper._lastCalled=="struct(struct,struct)" );
+
+            REQUIRE(r.i == 12 + 34);
+            REQUIRE(r.s == "abcd");
+
+            REQUIRE(helper._lastCalled == "struct(struct,struct)");
         }
-        
-        REQUIRE( helper.getRefCount()==1 );
+
+        REQUIRE(helper.getRefCount() == 1);
     }
-    
+
     SECTION("defaultInit")
     {
         WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-        
+
         verifyMethodValid(m, false);
-        
+
         // calling the strongMethod should have no effect
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
+
     SECTION("object=null")
     {
-        auto m = weakMethod((MethodPTestHelper*)nullptr, &MethodPTestHelper::ii);
-        
+        auto m =
+            weakMethod((MethodPTestHelper *)nullptr, &MethodPTestHelper::ii);
+
         verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
+
     SECTION("method=null")
     {
-        void (MethodPTestHelper::* nullFunc)(int);
-        
+        void (MethodPTestHelper::*nullFunc)(int);
+
         nullFunc = nullptr;
-        
+
         auto m = weakMethod(&helper, nullFunc);
-        
+
         verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
+
     SECTION("strongMethod and object null")
     {
-        void (MethodPTestHelper::* nullFunc)(int);
+        void (MethodPTestHelper::*nullFunc)(int);
         nullFunc = nullptr;
-        
-        auto m = weakMethod((MethodPTestHelper*)nullptr, nullFunc);
-        
+
+        auto m = weakMethod((MethodPTestHelper *)nullptr, nullFunc);
+
         verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
-    
+
     SECTION("copyConstructor")
     {
         SECTION("defaultInit")
         {
             WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-            
-            WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(m);
-            
+
+            WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2(
+                m);
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
                 auto m = weakMethod(&helper, &MethodPTestHelper::ii);
-                REQUIRE( helper.getRefCount() == 1);
+                REQUIRE(helper.getRefCount() == 1);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2(m);
-                REQUIRE( helper.getRefCount() == 1);
+                REQUIRE(helper.getRefCount() == 1);
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
             }
-            
-            REQUIRE( helper.getRefCount()==1 );
+
+            REQUIRE(helper.getRefCount() == 1);
         }
     }
-    
-    
+
     SECTION("assignment")
     {
         SECTION("defaultInit")
         {
             WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m;
-            
+
             WeakMethod_<MethodPTestHelper, void (MethodPTestHelper::*)(int)> m2;
-            
+
             m2 = m;
-            
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
                 auto m = weakMethod(&helper, &MethodPTestHelper::ii);
-                REQUIRE( helper.getRefCount() == 1);
+                REQUIRE(helper.getRefCount() == 1);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2;
-                
+
                 m2 = m;
-                
-                REQUIRE( helper.getRefCount() == 1);
+
+                REQUIRE(helper.getRefCount() == 1);
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
             }
-            
-            REQUIRE( helper.getRefCount()==1 );
+
+            REQUIRE(helper.getRefCount() == 1);
         }
     }
 
@@ -628,227 +606,218 @@ TEST_CASE("weakMethod")
 
         {
             P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
-    
-            REQUIRE( pHelper->getRefCount() == 1);    
-    
+
+            REQUIRE(pHelper->getRefCount() == 1);
+
             m = weakMethod(pHelper, &MethodPTestHelper::i);
-            
+
             // refcount should not have increased
-            REQUIRE( pHelper->getRefCount() == 1);    
+            REQUIRE(pHelper->getRefCount() == 1);
             verifyMethodValid(m, true);
-            
+
             int val = m();
-            REQUIRE( val==42 );
-            
-            REQUIRE( pHelper->_lastCalled=="int()" );
+            REQUIRE(val == 42);
+
+            REQUIRE(pHelper->_lastCalled == "int()");
         }
 
         // should still be valid, since the function object does still have
         // a backing callable object.
         verifyMethodValid(m, true);
 
-        REQUIRE_THROWS_AS( m(), DanglingFunctionError );
-    }   
-    
+        REQUIRE_THROWS_AS(m(), DanglingFunctionError);
+    }
 }
-
-
-
-
-
 
 class PlainMethodTestHelperNonBase
 {
-public:
-
+  public:
     virtual int ii(int a)
     {
         _lastCalled = "int(int)";
-        
-        return a*a;
+
+        return a * a;
     }
 
-    virtual void v()
-    {
-        _lastCalled = "void()";
-    }
-    
+    virtual void v() { _lastCalled = "void()"; }
+
     String _lastCalled;
-    
 };
 
 TEST_CASE("plainMethod")
 {
-    
+
     PlainMethodTestHelperNonBase helper;
-        
-    
+
     SECTION("int(int)")
     {
         {
             auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
-            
+
             verifyMethodValid(m, true);
-            
+
             int val = m(17);
-            REQUIRE( val==17*17 );
-            
-            REQUIRE( helper._lastCalled=="int(int)" );
-        }        
+            REQUIRE(val == 17 * 17);
+
+            REQUIRE(helper._lastCalled == "int(int)");
+        }
     }
-    
-    
+
     SECTION("void()")
     {
         {
             auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::v);
-            
+
             verifyMethodValid(m, true);
-            
+
             m();
-            
-            REQUIRE( helper._lastCalled=="void()" );
+
+            REQUIRE(helper._lastCalled == "void()");
         }
     }
 
-
     SECTION("int(int) from P")
     {
-         P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
+        P<MethodPTestHelper> pHelper = newObj<MethodPTestHelper>();
 
         {
             auto m = plainMethod(pHelper, &MethodPTestHelper::ii);
-            
+
             verifyMethodValid(m, true);
             // should not have increased the refcount
-            REQUIRE(pHelper->getRefCount()==1);
-            
+            REQUIRE(pHelper->getRefCount() == 1);
+
             int val = m(17);
-            REQUIRE( val==17*17 );
-            
-            REQUIRE( pHelper->_lastCalled=="int(int)" );
-        }        
+            REQUIRE(val == 17 * 17);
+
+            REQUIRE(pHelper->_lastCalled == "int(int)");
+        }
 
         // refcount should still be the same
-        REQUIRE(pHelper->getRefCount()==1);
+        REQUIRE(pHelper->getRefCount() == 1);
     }
-    
 
     SECTION("defaultInit")
     {
-        PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
-        
+        PlainMethod_<PlainMethodTestHelperNonBase,
+                     void (PlainMethodTestHelperNonBase::*)(int)>
+            m;
+
         verifyMethodValid(m, false);
-        
+
         // calling the strongMethod should have no effect
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
+
     SECTION("object=null")
     {
-        auto m = plainMethod((PlainMethodTestHelperNonBase*)nullptr, &PlainMethodTestHelperNonBase::ii);
-        
+        auto m = plainMethod((PlainMethodTestHelperNonBase *)nullptr,
+                             &PlainMethodTestHelperNonBase::ii);
+
         verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-    
+
     SECTION("method=null")
     {
-        void (PlainMethodTestHelperNonBase::* nullFunc)(int);
-        
+        void (PlainMethodTestHelperNonBase::*nullFunc)(int);
+
         nullFunc = nullptr;
-        
+
         auto m = plainMethod(&helper, nullFunc);
-        
+
         verifyMethodValid(m, false);
-        
-        REQUIRE_THROWS_AS( m(1), std::bad_function_call );
+
+        REQUIRE_THROWS_AS(m(1), std::bad_function_call);
     }
-        
-    
+
     SECTION("copyConstructor")
     {
         SECTION("defaultInit")
         {
-            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
-            
-            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2(m);
-            
+            PlainMethod_<PlainMethodTestHelperNonBase,
+                         void (PlainMethodTestHelperNonBase::*)(int)>
+                m;
+
+            PlainMethod_<PlainMethodTestHelperNonBase,
+                         void (PlainMethodTestHelperNonBase::*)(int)>
+                m2(m);
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
-                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                auto m =
+                    plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2(m);
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
             }
         }
     }
-    
-    
+
     SECTION("assignment")
     {
         SECTION("defaultInit")
         {
-            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m;
-            
-            PlainMethod_<PlainMethodTestHelperNonBase, void (PlainMethodTestHelperNonBase::*)(int)> m2;
-            
+            PlainMethod_<PlainMethodTestHelperNonBase,
+                         void (PlainMethodTestHelperNonBase::*)(int)>
+                m;
+
+            PlainMethod_<PlainMethodTestHelperNonBase,
+                         void (PlainMethodTestHelperNonBase::*)(int)>
+                m2;
+
             m2 = m;
-            
+
             verifyMethodValid(m2, false);
-            
+
             // calling the strongMethod should have no effect
-            REQUIRE_THROWS_AS( m2(1), std::bad_function_call );
+            REQUIRE_THROWS_AS(m2(1), std::bad_function_call);
         }
-        
+
         SECTION("ok")
         {
             {
-                auto m = plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
+                auto m =
+                    plainMethod(&helper, &PlainMethodTestHelperNonBase::ii);
                 verifyMethodValid(m, true);
-                
+
                 std::function<int(int)> m2;
-                
+
                 m2 = m;
-                
+
                 verifyMethodValid(m2, true);
-                
+
                 int val = m(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
                 helper._lastCalled = "";
-                
+
                 val = m2(3);
-                REQUIRE( val==9 );
-                
-                REQUIRE( helper._lastCalled=="int(int)" );
-            }            
+                REQUIRE(val == 9);
+
+                REQUIRE(helper._lastCalled == "int(int)");
+            }
         }
     }
 }
-
-
-
-
-

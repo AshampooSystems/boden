@@ -5,12 +5,11 @@
 
 using namespace bdn;
 
-
 TEST_CASE("mainDispatcher")
 {
 
     bool canKeepRunningAfterUnhandledException = true;
-    
+
     // iOS always exits after unhandled exceptions
 #ifdef BDN_PLATFORM_IOS
     canKeepRunningAfterUnhandledException = false;
@@ -20,11 +19,8 @@ TEST_CASE("mainDispatcher")
 #ifdef BDN_TESTBODEN_ENABLE_TIMING_TESTS
     enableTimingTests = true;
 #endif
-    
 
-    bdn::test::testDispatcher( getMainDispatcher(), Thread::getMainId(), enableTimingTests, canKeepRunningAfterUnhandledException );
+    bdn::test::testDispatcher(getMainDispatcher(), Thread::getMainId(),
+                              enableTimingTests,
+                              canKeepRunningAfterUnhandledException);
 }
-
-
-
-

@@ -10,41 +10,44 @@
 
 using namespace bdn;
 
-class TestWinuwpTextViewCore : public bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestTextViewCore >
+class TestWinuwpTextViewCore
+    : public bdn::test::TestWinuwpViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestWinuwpViewCoreMixin< bdn::test::TestTextViewCore >::initCore();
+        bdn::test::TestWinuwpViewCoreMixin<
+            bdn::test::TestTextViewCore>::initCore();
 
-        _pWinTextBlock = dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock^>( _pWinFrameworkElement );
-        REQUIRE( _pWinTextBlock!=nullptr );
+        _pWinTextBlock =
+            dynamic_cast<::Windows::UI::Xaml::Controls::TextBlock ^>(
+                _pWinFrameworkElement);
+        REQUIRE(_pWinTextBlock != nullptr);
     }
 
-	bool clipsPreferredWidthToAvailableWidth() const override
-	{
-		// unfortunately the winuwp implementation will always clip the preferred width
-		// to the available width, even if the text cannot be wrapped to fit in there.
-		return true;
-	}
+    bool clipsPreferredWidthToAvailableWidth() const override
+    {
+        // unfortunately the winuwp implementation will always clip the
+        // preferred width to the available width, even if the text cannot be
+        // wrapped to fit in there.
+        return true;
+    }
 
     void verifyCorePadding() override
     {
-        verifyIsExpectedWinPadding( _pWinTextBlock->Padding );
+        verifyIsExpectedWinPadding(_pWinTextBlock->Padding);
     }
 
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();
 
-        String text = _pWinTextBlock->Text->Data();                
-        
-        REQUIRE( text == expectedText );
+        String text = _pWinTextBlock->Text->Data();
+
+        REQUIRE(text == expectedText);
     }
 
-
-    ::Windows::UI::Xaml::Controls::TextBlock^ _pWinTextBlock;
+    ::Windows::UI::Xaml::Controls::TextBlock ^ _pWinTextBlock;
 };
 
 TEST_CASE("winuwp.TextViewCore")
@@ -53,9 +56,3 @@ TEST_CASE("winuwp.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-

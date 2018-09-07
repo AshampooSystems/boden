@@ -9,27 +9,26 @@
 
 using namespace bdn;
 
-
-class TestGtkCheckboxCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestCheckboxCore >
+class TestGtkCheckboxCore
+    : public bdn::test::TestGtkViewCoreMixin<bdn::test::TestCheckboxCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pCheckbox->label();
-        
-        String label = gtk_button_get_label( GTK_BUTTON(_pGtkWidget) );
-        
-        REQUIRE( label == expectedLabel );
+
+        String label = gtk_button_get_label(GTK_BUTTON(_pGtkWidget));
+
+        REQUIRE(label == expectedLabel);
     }
 
     void verifyCoreState() override
     {
-    	TriState expectedState = _pCheckbox->state();
-    	TriState state = cast<bdn::gtk::CheckboxCore<Checkbox>>(_pCore)->_gtkToggleButtonStateToCheckboxState();
-    	REQUIRE( state == expectedState );
+        TriState expectedState = _pCheckbox->state();
+        TriState state = cast<bdn::gtk::CheckboxCore<Checkbox>>(_pCore)
+                             ->_gtkToggleButtonStateToCheckboxState();
+        REQUIRE(state == expectedState);
     }
-
 };
 
 TEST_CASE("gtk.CheckboxCore")
@@ -38,7 +37,3 @@ TEST_CASE("gtk.CheckboxCore")
 
     pTest->runTests();
 }
-
-
-
-

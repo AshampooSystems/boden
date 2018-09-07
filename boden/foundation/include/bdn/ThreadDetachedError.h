@@ -5,20 +5,17 @@
 
 namespace bdn
 {
-    
-/** The Thread object was detached from the actual thread.
-     */
-class ThreadDetachedError : public ProgrammingError
-{
-public:
-    ThreadDetachedError()
-    : ProgrammingError("The function cannot be performed because the thread was detached.")
-    {
-    }
-};
-    
-    
-}
 
+    /** The Thread object was detached from the actual thread.
+     */
+    class ThreadDetachedError : public ProgrammingError
+    {
+      public:
+        ThreadDetachedError()
+            : ProgrammingError("The function cannot be performed because the "
+                               "thread was detached.")
+        {}
+    };
+}
 
 #endif

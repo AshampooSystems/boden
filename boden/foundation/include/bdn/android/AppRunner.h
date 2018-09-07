@@ -7,43 +7,36 @@
 
 namespace bdn
 {
-namespace android
-{
-    
-    
-/** IAppRunner implementation for android.
-	*/
-class AppRunner : public AppRunnerBase
-{
-private:
-    AppLaunchInfo _makeLaunchInfo(JIntent intent);
+    namespace android
+    {
 
-public:
-	AppRunner( std::function< P<AppControllerBase>() > appControllerCreator, JIntent intent );
+        /** IAppRunner implementation for android.
+         */
+        class AppRunner : public AppRunnerBase
+        {
+          private:
+            AppLaunchInfo _makeLaunchInfo(JIntent intent);
 
-	bool isCommandLineApp() const override;
+          public:
+            AppRunner(
+                std::function<P<AppControllerBase>()> appControllerCreator,
+                JIntent intent);
 
-	/** Main entry function of the app runner.*/
-    void entry();
+            bool isCommandLineApp() const override;
 
+            /** Main entry function of the app runner.*/
+            void entry();
 
-	P<IDispatcher> getMainDispatcher() override;
+            P<IDispatcher> getMainDispatcher() override;
 
+            void initiateExitIfPossible(int exitCode) override;
 
-	void initiateExitIfPossible(int exitCode) override;
+          protected:
+            void disposeMainDispatcher() override;
 
-
-
-protected:
-	void disposeMainDispatcher() override;
-
-	P<Dispatcher> _pMainDispatcher;
-};
-  		
-
-    
-}    
+            P<Dispatcher> _pMainDispatcher;
+        };
+    }
 }
 
 #endif
-

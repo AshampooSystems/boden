@@ -8,64 +8,49 @@
 
 using namespace bdn;
 
-
-class TestMacTextViewCore : public bdn::test::TestMacChildViewCoreMixin< bdn::test::TestTextViewCore >
+class TestMacTextViewCore
+    : public bdn::test::TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestMacChildViewCoreMixin< bdn::test::TestTextViewCore >::initCore();
-        
-        _pNSTextView = (NSTextView*) _pNSView;
-        REQUIRE( _pNSTextView!=nullptr );
-    }
+        TestMacChildViewCoreMixin<bdn::test::TestTextViewCore>::initCore();
 
+        _pNSTextView = (NSTextView *)_pNSView;
+        REQUIRE(_pNSTextView != nullptr);
+    }
 
     bool wrapsAtCharacterBoundariesIfWordDoesNotFit() const override
     {
-        // unfortunately the mac text view will wrap single words into individual characters.
-        // This is not the recommended behaviour for boden, but there is apparently no setting to
-        // change that.
+        // unfortunately the mac text view will wrap single words into
+        // individual characters. This is not the recommended behaviour for
+        // boden, but there is apparently no setting to change that.
         return true;
     }
-   
-    
+
     void runPostInitTests() override
     {
-        TestMacChildViewCoreMixin< bdn::test::TestTextViewCore >::runPostInitTests();
-        
-        SECTION("not editable")
-        {
-            REQUIRE( _pNSTextView.editable==false );
-        }
-        
-        SECTION("not selectable")
-        {
-            REQUIRE( _pNSTextView.selectable==false );
-        }
-        
-        SECTION("not rich text")
-        {
-            REQUIRE( _pNSTextView.richText==false );
-        }
+        TestMacChildViewCoreMixin<
+            bdn::test::TestTextViewCore>::runPostInitTests();
 
-        
+        SECTION("not editable") { REQUIRE(_pNSTextView.editable == false); }
+
+        SECTION("not selectable") { REQUIRE(_pNSTextView.selectable == false); }
+
+        SECTION("not rich text") { REQUIRE(_pNSTextView.richText == false); }
     }
-
-
 
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();
 
-        String text = bdn::mac::macStringToString( _pNSTextView.string );
-        
-        REQUIRE( text == expectedText );
+        String text = bdn::mac::macStringToString(_pNSTextView.string);
+
+        REQUIRE(text == expectedText);
     }
-    
-protected:
-    NSTextView* _pNSTextView;
+
+  protected:
+    NSTextView *_pNSTextView;
 };
 
 TEST_CASE("mac.TextViewCore")
@@ -74,11 +59,3 @@ TEST_CASE("mac.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

@@ -1,7 +1,6 @@
 #include <bdn/init.h>
 #include <bdn/test.h>
 
-
 #include <bdn/test/TestContainerViewCore.h>
 
 #include <bdn/gtk/UiProvider.h>
@@ -9,20 +8,15 @@
 
 using namespace bdn;
 
-
-
-class TestGtkContainerViewCore : public bdn::test::TestGtkViewCoreMixin< bdn::test::TestContainerViewCore >
+class TestGtkContainerViewCore
+    : public bdn::test::TestGtkViewCoreMixin<bdn::test::TestContainerViewCore>
 {
-protected:
-
+  protected:
     void initCore() override
     {
-        TestGtkViewCoreMixin< TestContainerViewCore >::initCore();
-    }    
-
+        TestGtkViewCoreMixin<TestContainerViewCore>::initCore();
+    }
 };
-
-
 
 TEST_CASE("gtk.ContainerViewCore")
 {
@@ -30,6 +24,3 @@ TEST_CASE("gtk.ContainerViewCore")
 
     pTest->runTests();
 }
-
-
-

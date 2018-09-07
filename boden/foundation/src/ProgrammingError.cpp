@@ -9,23 +9,20 @@
 namespace bdn
 {
 
+    void programmingError(const String &errorMessage)
+    {
+        if (!ExpectProgrammingError::isProgrammingErrorExpected()) {
+            // not expected. log an error message, raise an assert and
+            // cause a debugger break.
 
-void programmingError(const String& errorMessage)
-{
-	if( ! ExpectProgrammingError::isProgrammingErrorExpected() )
-	{
-		// not expected. log an error message, raise an assert and
-		// cause a debugger break.
+            logError("IMPORTANT: Programming error encountered: " +
+                     errorMessage);
 
-		logError("IMPORTANT: Programming error encountered: "+errorMessage);
+            BDN_DEBUG_BREAK();
 
-		BDN_DEBUG_BREAK();
+            assert(false && "IMPORTANT: Programming error encountered");
+        }
 
-		assert(false && "IMPORTANT: Programming error encountered");		
-	}
-
-	throw ProgrammingError(errorMessage);
+        throw ProgrammingError(errorMessage);
+    }
 }
-
-}
-

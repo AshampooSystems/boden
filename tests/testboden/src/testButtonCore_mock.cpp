@@ -9,18 +9,17 @@
 
 using namespace bdn;
 
-
-class TestMockButtonCore : public bdn::test::TestMockViewCoreMixin< bdn::test::TestButtonCore >
+class TestMockButtonCore
+    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestButtonCore>
 {
-protected:
-
+  protected:
     void verifyCoreLabel() override
     {
         String expectedLabel = _pButton->label();
 
-        String label = cast<bdn::test::MockButtonCore>( _pMockCore )->getLabel();
-        
-        REQUIRE( label == expectedLabel );
+        String label = cast<bdn::test::MockButtonCore>(_pMockCore)->getLabel();
+
+        REQUIRE(label == expectedLabel);
     }
 };
 
@@ -30,8 +29,3 @@ TEST_CASE("mock.ButtonCore")
 
     pTest->runTests();
 }
-
-
-
-
-

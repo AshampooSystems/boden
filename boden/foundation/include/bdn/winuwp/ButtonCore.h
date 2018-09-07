@@ -6,152 +6,151 @@
 
 namespace bdn
 {
-namespace winuwp
-{
+    namespace winuwp
+    {
 
-class ButtonCore : public ChildViewCore, BDN_IMPLEMENTS IButtonCore
-{
-private:
-	static ::Windows::UI::Xaml::Controls::Button^ _createButton(Button* pOuter)
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		return ref new ::Windows::UI::Xaml::Controls::Button();		
-
-        BDN_WINUWP_TO_STDEXC_END;
-	}
-
-public:
-
-	/** Used internally.*/
-	ref class ButtonCoreEventForwarder : public ViewCoreEventForwarder
-	{
-	internal:
-		ButtonCoreEventForwarder(ButtonCore* pParent)
-			: ViewCoreEventForwarder(pParent)
-		{
-		}
-
-		ButtonCore* getButtonCoreIfAlive()
-		{
-			return dynamic_cast<ButtonCore*>( getViewCoreIfAlive() );
-		}
-
-	public:
-		void clicked(Object^ sender, ::Windows::UI::Xaml::RoutedEventArgs^ pArgs)
-		{
-            BDN_WINUWP_TO_PLATFORMEXC_BEGIN
-
-			ButtonCore* pButtonCore = getButtonCoreIfAlive();
-			if(pButtonCore!=nullptr)
-				pButtonCore->_clicked();			
-
-            BDN_WINUWP_TO_PLATFORMEXC_END
-		}		
-
-	private:
-		ChildViewCore* _pParentWeak;
-	};
-
-
-	ButtonCore(	Button* pOuter)
-		: ChildViewCore(pOuter, _createButton(pOuter), ref new ButtonCoreEventForwarder(this) )
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		_pButton = dynamic_cast< ::Windows::UI::Xaml::Controls::Button^ >( getFrameworkElement() );
-
-		ButtonCoreEventForwarder^ pEventForwarder = dynamic_cast<ButtonCoreEventForwarder^>( getViewCoreEventForwarder() );
-
-		_pButton->Click += ref new ::Windows::UI::Xaml::RoutedEventHandler( pEventForwarder, &ButtonCoreEventForwarder::clicked );
-		
-		setPadding( pOuter->padding() );
-		setLabel( pOuter->label() );
-
-        BDN_WINUWP_TO_STDEXC_END;
-	}
-
-
-    void setPadding(const Nullable<UiMargin>& pad) override
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
-
-		// Apply the padding to the control, so that the content is positioned accordingly.
-        UiMargin uiPadding;
-        if(pad.isNull())
+        class ButtonCore : public ChildViewCore, BDN_IMPLEMENTS IButtonCore
         {
-            // we should use a default padding that looks good.
-            // Xaml uses zero padding as the default, so we cannot use their
-            // default value. So we choose our own default that matches the
-            // normal aesthetic of Windows apps.
-            uiPadding = UiMargin(UiLength::sem(0.4), UiLength::sem(1) );
-        }
-        else
-            uiPadding = pad;
+          private:
+            static ::Windows::UI::Xaml::Controls::Button ^
+                _createButton(Button *pOuter) {
+                    BDN_WINUWP_TO_STDEXC_BEGIN;
 
-		Margin padding = uiMarginToDipMargin(uiPadding);
-        
-        // UWP also uses DIPs => no conversion necessary
+                    return ref new ::Windows::UI::Xaml::Controls::Button();
 
-        // Note that the padding must be set on the button Content to have an effect. The button
-        // class itself seems to completely ignore it.
-        _contentPadding = ::Windows::UI::Xaml::Thickness(
-			padding.left,
-			padding.top,
-			padding.right,
-			padding.bottom );
-        _applyContentPadding = true;
+                    BDN_WINUWP_TO_STDEXC_END;
+                }
 
-        if(_pButton->Content!=nullptr)
-            ((::Windows::UI::Xaml::Controls::TextBlock^)_pButton->Content)->Padding = _contentPadding;
+                public :
 
-        
-        BDN_WINUWP_TO_STDEXC_END;
-	}
+                /** Used internally.*/
+                ref class ButtonCoreEventForwarder
+                : public ViewCoreEventForwarder
+            {
+                internal : ButtonCoreEventForwarder(ButtonCore *pParent)
+                    : ViewCoreEventForwarder(pParent)
+                {}
 
-	void setLabel(const String& label)
-	{
-        BDN_WINUWP_TO_STDEXC_BEGIN;
+                ButtonCore *getButtonCoreIfAlive()
+                {
+                    return dynamic_cast<ButtonCore *>(getViewCoreIfAlive());
+                }
 
-		::Windows::UI::Xaml::Controls::TextBlock^ pLabel = ref new ::Windows::UI::Xaml::Controls::TextBlock();
+              public:
+                void clicked(Object ^ sender,
+                             ::Windows::UI::Xaml::RoutedEventArgs ^ pArgs)
+                {
+                    BDN_WINUWP_TO_PLATFORMEXC_BEGIN
 
-		pLabel->Text = ref new ::Platform::String( label.asWidePtr() );
+                    ButtonCore *pButtonCore = getButtonCoreIfAlive();
+                    if (pButtonCore != nullptr)
+                        pButtonCore->_clicked();
 
-		// we cannot simply schedule a sizing info update here. The desired size of the control will still
-		// be outdated when the sizing happens.
-		// Instead we wait for the "layout updated" event that will happen soon after we set the
-		// content. That is when we update our sizing info.
-        
-        _pButton->Content = pLabel;		
+                    BDN_WINUWP_TO_PLATFORMEXC_END
+                }
 
-        if(_applyContentPadding)
-            pLabel->Padding = _contentPadding;
+              private:
+                ChildViewCore *_pParentWeak;
+            };
 
+            ButtonCore(Button *pOuter)
+                : ChildViewCore(pOuter, _createButton(pOuter),
+                                ref new ButtonCoreEventForwarder(this))
+            {
+                BDN_WINUWP_TO_STDEXC_BEGIN;
 
-        BDN_WINUWP_TO_STDEXC_END;
-	}
+                _pButton =
+                    dynamic_cast<::Windows::UI::Xaml::Controls::Button ^>(
+                        getFrameworkElement());
 
+                ButtonCoreEventForwarder ^ pEventForwarder =
+                    dynamic_cast<ButtonCoreEventForwarder ^>(
+                        getViewCoreEventForwarder());
 
-protected:
+                _pButton->Click +=
+                    ref new ::Windows::UI::Xaml::RoutedEventHandler(
+                        pEventForwarder, &ButtonCoreEventForwarder::clicked);
 
-	void _clicked()
-	{
-        P<View> pOuterView = getOuterViewIfStillAttached();
-        if(pOuterView!=nullptr)
-        {
-		    ClickEvent evt(pOuterView);
-		    cast<Button>(pOuterView)->onClick().notify(evt);
-        }
-	}
+                setPadding(pOuter->padding());
+                setLabel(pOuter->label());
 
-   
-	::Windows::UI::Xaml::Controls::Button^ _pButton;
+                BDN_WINUWP_TO_STDEXC_END;
+            }
 
-    ::Windows::UI::Xaml::Thickness _contentPadding;
-    bool                           _applyContentPadding = false;	
-};
+            void setPadding(const Nullable<UiMargin> &pad) override
+            {
+                BDN_WINUWP_TO_STDEXC_BEGIN;
 
-}
+                // Apply the padding to the control, so that the content is
+                // positioned accordingly.
+                UiMargin uiPadding;
+                if (pad.isNull()) {
+                    // we should use a default padding that looks good.
+                    // Xaml uses zero padding as the default, so we cannot use
+                    // their default value. So we choose our own default that
+                    // matches the normal aesthetic of Windows apps.
+                    uiPadding = UiMargin(UiLength::sem(0.4), UiLength::sem(1));
+                } else
+                    uiPadding = pad;
+
+                Margin padding = uiMarginToDipMargin(uiPadding);
+
+                // UWP also uses DIPs => no conversion necessary
+
+                // Note that the padding must be set on the button Content to
+                // have an effect. The button class itself seems to completely
+                // ignore it.
+                _contentPadding = ::Windows::UI::Xaml::Thickness(
+                    padding.left, padding.top, padding.right, padding.bottom);
+                _applyContentPadding = true;
+
+                if (_pButton->Content != nullptr)
+                    ((::Windows::UI::Xaml::Controls::TextBlock ^)
+                         _pButton->Content)
+                        ->Padding = _contentPadding;
+
+                BDN_WINUWP_TO_STDEXC_END;
+            }
+
+            void setLabel(const String &label)
+            {
+                BDN_WINUWP_TO_STDEXC_BEGIN;
+
+                ::Windows::UI::Xaml::Controls::TextBlock ^ pLabel =
+                    ref new ::Windows::UI::Xaml::Controls::TextBlock();
+
+                pLabel->Text = ref new ::Platform::String(label.asWidePtr());
+
+                // we cannot simply schedule a sizing info update here. The
+                // desired size of the control will still be outdated when the
+                // sizing happens. Instead we wait for the "layout updated"
+                // event that will happen soon after we set the content. That is
+                // when we update our sizing info.
+
+                _pButton->Content = pLabel;
+
+                if (_applyContentPadding)
+                    pLabel->Padding = _contentPadding;
+
+                BDN_WINUWP_TO_STDEXC_END;
+            }
+
+          protected:
+            void _clicked()
+            {
+                P<View> pOuterView = getOuterViewIfStillAttached();
+                if (pOuterView != nullptr) {
+                    ClickEvent evt(pOuterView);
+                    cast<Button>(pOuterView)->onClick().notify(evt);
+                }
+            }
+
+            ::Windows::UI::Xaml::Controls::Button ^ _pButton;
+
+            ::Windows::UI::Xaml::Thickness _contentPadding;
+            bool _applyContentPadding = false;
+        };
+    }
 }
 
 #endif

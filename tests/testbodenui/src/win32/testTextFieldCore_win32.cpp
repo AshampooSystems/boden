@@ -8,14 +8,15 @@
 
 using namespace bdn;
 
-class TestWin32TextFieldCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestTextFieldCore >
+class TestWin32TextFieldCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestTextFieldCore>
 {
-protected:
+  protected:
     void verifyCoreText() override
     {
         String expectedText = _pTextField->text();
         String text = bdn::win32::Win32Window::getWindowText(_hwnd);
-        REQUIRE( text == expectedText );
+        REQUIRE(text == expectedText);
     }
 };
 

@@ -12,22 +12,20 @@
 
 #import <bdn/ios/ScrollViewCore.hh>
 
-
 using namespace bdn;
 
-class TestIosScrollViewCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestScrollViewCore >
+class TestIosScrollViewCore
+    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestScrollViewCore>
 {
-protected:
-
-
+  protected:
     void initCore() override
     {
-        bdn::test::TestIosViewCoreMixin< bdn::test::TestScrollViewCore >::initCore();
-        
-        _uiScrollView = (UIScrollView*) _pUIView;
+        bdn::test::TestIosViewCoreMixin<
+            bdn::test::TestScrollViewCore>::initCore();
+
+        _uiScrollView = (UIScrollView *)_pUIView;
     }
-    
-  
+
     double getVertBarWidth() override
     {
         // scroll bars are only shown during scrolling as an overlay.
@@ -35,111 +33,121 @@ protected:
         return 0;
     }
 
-
     double getHorzBarHeight() override
     {
         // scroll bars are only shown during scrolling as an overlay.
         // So they do not take up space in layout.
         return 0;
     }
-                
 
     bdn::Size getNonClientSize()
     {
         // our scroll views do not have a border.
-        return bdn::Size(0,0);
+        return bdn::Size(0, 0);
     }
 
-    bdn::Size initiateScrollViewResizeToHaveViewPortSize( const bdn::Size& viewPortSize) override
+    bdn::Size initiateScrollViewResizeToHaveViewPortSize(
+        const bdn::Size &viewPortSize) override
     {
         bdn::Size viewSize = viewPortSize + getNonClientSize();
-        
-        viewSize = _pScrollView->adjustBounds( bdn::Rect( _pScrollView->position(), viewSize), RoundType::nearest, RoundType::nearest ).getSize();
-        
-        
+
+        viewSize =
+            _pScrollView
+                ->adjustBounds(bdn::Rect(_pScrollView->position(), viewSize),
+                               RoundType::nearest, RoundType::nearest)
+                .getSize();
+
         // we cannot resize the scroll view directly with adjustAndSetBounds.
         // That would not have any effect outside of a layout cycle.
         // Instead we set the preferred size min and max to force the outer view
         // to resize it to the specified size.
-        
-        _pScrollView->setPreferredSizeMinimum( viewSize );
-        _pScrollView->setPreferredSizeMaximum( viewSize );
 
-        // also request a re-layout here. With the normal propagation of the property changes
-        // it would take two event cycles until the layout happens. But we want it to happen
-        // immediately after the properties have been changed.
-        _pScrollView->getParentView()->needLayout( View::InvalidateReason::customDataChanged );
-        
+        _pScrollView->setPreferredSizeMinimum(viewSize);
+        _pScrollView->setPreferredSizeMaximum(viewSize);
+
+        // also request a re-layout here. With the normal propagation of the
+        // property changes it would take two event cycles until the layout
+        // happens. But we want it to happen immediately after the properties
+        // have been changed.
+        _pScrollView->getParentView()->needLayout(
+            View::InvalidateReason::customDataChanged);
+
         return viewSize;
     }
-    
-    void verifyScrollsHorizontally( bool expectedScrolls) override
+
+    void verifyScrollsHorizontally(bool expectedScrolls) override
     {
-        // To check whether the view actually scrolls we have to check if the content size is
-        // bigger than the view size.
-        
+        // To check whether the view actually scrolls we have to check if the
+        // content size is bigger than the view size.
+
         CGSize viewPortSize = _uiScrollView.frame.size;
         CGSize contentSize = _uiScrollView.contentSize;
-        
-        bool scrolls = (contentSize.width > viewPortSize.width && _uiScrollView.scrollEnabled);
-        
-        REQUIRE( scrolls == expectedScrolls );
+
+        bool scrolls = (contentSize.width > viewPortSize.width &&
+                        _uiScrollView.scrollEnabled);
+
+        REQUIRE(scrolls == expectedScrolls);
     }
 
-    void verifyScrollsVertically( bool expectedScrolls) override
+    void verifyScrollsVertically(bool expectedScrolls) override
     {
-        // To check whether the view actually scrolls we have to check if the content size is
-        // bigger than the view size.
+        // To check whether the view actually scrolls we have to check if the
+        // content size is bigger than the view size.
         CGSize viewPortSize = _uiScrollView.frame.size;
         CGSize contentSize = _uiScrollView.contentSize;
-        
-        bool scrolls = (contentSize.height > viewPortSize.height && _uiScrollView.scrollEnabled);
-        
-        REQUIRE( scrolls == expectedScrolls );
+
+        bool scrolls = (contentSize.height > viewPortSize.height &&
+                        _uiScrollView.scrollEnabled);
+
+        REQUIRE(scrolls == expectedScrolls);
     }
 
-    void verifyContentViewBounds( const bdn::Rect& expectedBounds, double maxDeviation=0) override
+    void verifyContentViewBounds(const bdn::Rect &expectedBounds,
+                                 double maxDeviation = 0) override
     {
         maxDeviation += Dip::significanceBoundary();
 
-        P<View> pContentView =  _pScrollView->getContentView();
+        P<View> pContentView = _pScrollView->getContentView();
 
-        if(pContentView!=nullptr)
-        {
-            bdn::Rect bounds( _pScrollView->getContentView()->position(), pContentView->size() );
-            
-            if(maxDeviation==0)
-                REQUIRE( bounds == expectedBounds );
-            else
-            {
-                REQUIRE_ALMOST_EQUAL(  bounds.x, expectedBounds.x, maxDeviation );
-                REQUIRE_ALMOST_EQUAL(  bounds.y, expectedBounds.y, maxDeviation );
-                REQUIRE_ALMOST_EQUAL(  bounds.width, expectedBounds.width, maxDeviation );
-                REQUIRE_ALMOST_EQUAL(  bounds.height, expectedBounds.height, maxDeviation );
+        if (pContentView != nullptr) {
+            bdn::Rect bounds(_pScrollView->getContentView()->position(),
+                             pContentView->size());
+
+            if (maxDeviation == 0)
+                REQUIRE(bounds == expectedBounds);
+            else {
+                REQUIRE_ALMOST_EQUAL(bounds.x, expectedBounds.x, maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.y, expectedBounds.y, maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.width, expectedBounds.width,
+                                     maxDeviation);
+                REQUIRE_ALMOST_EQUAL(bounds.height, expectedBounds.height,
+                                     maxDeviation);
             }
         }
     }
 
-    void verifyScrolledAreaSize( const bdn::Size& expectedSize) override
+    void verifyScrolledAreaSize(const bdn::Size &expectedSize) override
     {
-        bdn::Size scrolledAreaSize = bdn::ios::iosSizeToSize( _uiScrollView.contentSize );
-        bdn::Size viewPortSize = bdn::ios::iosSizeToSize( _uiScrollView.frame.size );
+        bdn::Size scrolledAreaSize =
+            bdn::ios::iosSizeToSize(_uiScrollView.contentSize);
+        bdn::Size viewPortSize =
+            bdn::ios::iosSizeToSize(_uiScrollView.frame.size);
 
         scrolledAreaSize.applyMinimum(viewPortSize);
-        
-        REQUIRE(  Dip::equal( scrolledAreaSize, expectedSize ) );
+
+        REQUIRE(Dip::equal(scrolledAreaSize, expectedSize));
     }
 
-    void verifyViewPortSize( const bdn::Size& expectedSize) override
+    void verifyViewPortSize(const bdn::Size &expectedSize) override
     {
-        bdn::Size viewPortSize = bdn::ios::iosSizeToSize( _uiScrollView.frame.size );
-        
-        REQUIRE(  Dip::equal( viewPortSize, expectedSize ) );
-    }               
-    
-    
-private:
-    UIScrollView* _uiScrollView;
+        bdn::Size viewPortSize =
+            bdn::ios::iosSizeToSize(_uiScrollView.frame.size);
+
+        REQUIRE(Dip::equal(viewPortSize, expectedSize));
+    }
+
+  private:
+    UIScrollView *_uiScrollView;
 };
 
 TEST_CASE("ios.ScrollViewCore")
@@ -148,6 +156,3 @@ TEST_CASE("ios.ScrollViewCore")
 
     pTest->runTests();
 }
-
-
-

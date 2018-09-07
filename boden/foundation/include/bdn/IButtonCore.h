@@ -6,16 +6,12 @@
 namespace bdn
 {
 
-class IButtonCore : BDN_IMPLEMENTS IViewCore
-{
-public:
-
-	/** Changes the button's label text.*/
-	virtual void setLabel(const String& label)=0;
-	
-};
-
-
+    class IButtonCore : BDN_IMPLEMENTS IViewCore
+    {
+      public:
+        /** Changes the button's label text.*/
+        virtual void setLabel(const String &label) = 0;
+    };
 }
 
 #endif

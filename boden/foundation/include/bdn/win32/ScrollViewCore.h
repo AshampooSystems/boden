@@ -7,114 +7,106 @@
 
 #include <bdn/IScrollViewCore.h>
 
-
 namespace bdn
 {
-namespace win32
-{
-
-class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore
-{
-public:
-    ScrollViewCore(ScrollView* pOuter);		
-
-    HWND getParentHwndForChildren() const override;
-        
-	void setHorizontalScrollingEnabled( const bool& enabled) override;    
-	void setVerticalScrollingEnabled( const bool& enabled) override;    
-
-    
-    void scrollClientRectToVisible(const Rect& rect) override;
-
-
-    void layout() override;
-	
-	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;	
-
-
-    /** Returns the height of the horizontal scroll bar in DIPs.
-        The returned value is in DIPs, but rounded to full physical pixels.
-        */
-    static double getHorizontalScrollBarHeight(double uiScaleFactor);
-
-    /** Returns the width of the vertical scroll bar in DIPs.
-        The returned value is in DIPs, but rounded to full physical pixels.
-        */
-    static double getVerticalScrollBarWidth(double uiScaleFactor);
-
-
-private:
-
-    void    updateWin32ScrollInfo();
-    void    updateContentContainerPos();
-    void    updateVisibleClientRect();
-
-    enum class ScrollPosType
+    namespace win32
     {
-        /** Current position of the scrollbar.*/
-        current,
 
-        /** The current tracking position if the user is in the process of changing
-            the scroll position
-        */
-        track
-    };
+        class ScrollViewCore : public ViewCore, BDN_IMPLEMENTS IScrollViewCore
+        {
+          public:
+            ScrollViewCore(ScrollView *pOuter);
 
-    POINT getScrollPositionInPixels(ScrollPosType scrollPosType = ScrollPosType::current);
+            HWND getParentHwndForChildren() const override;
 
-    virtual void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+            void setHorizontalScrollingEnabled(const bool &enabled) override;
+            void setVerticalScrollingEnabled(const bool &enabled) override;
 
-    class ScrollViewCoreClass : public Win32WindowClass
-	{
-	public:
-		ScrollViewCoreClass()
-			: Win32WindowClass("bdnScrollView", Win32Window::windowProc)
-		{
-			ensureRegistered();			
-		}
+            void scrollClientRectToVisible(const Rect &rect) override;
 
-		static ScrollViewCoreClass& get();
-	};
+            void layout() override;
 
+            Size calcPreferredSize(
+                const Size &availableSpace = Size::none()) const override;
 
+            /** Returns the height of the horizontal scroll bar in DIPs.
+                The returned value is in DIPs, but rounded to full physical
+               pixels.
+                */
+            static double getHorizontalScrollBarHeight(double uiScaleFactor);
 
-    
-    class ContentContainerClass : public Win32WindowClass
-	{
-	public:
-		ContentContainerClass()
-			: Win32WindowClass("bdnScrollViewContentContainer", Win32Window::windowProc)
-		{
-			ensureRegistered();			
-		}
+            /** Returns the width of the vertical scroll bar in DIPs.
+                The returned value is in DIPs, but rounded to full physical
+               pixels.
+                */
+            static double getVerticalScrollBarWidth(double uiScaleFactor);
 
-		static ContentContainerClass& get();
-	};
+          private:
+            void updateWin32ScrollInfo();
+            void updateContentContainerPos();
+            void updateVisibleClientRect();
 
+            enum class ScrollPosType
+            {
+                /** Current position of the scrollbar.*/
+                current,
 
-    
-    class ContentContainer : public Win32Window
-    {
-    public:
-        ContentContainer(HWND parentHwnd);
-    };
+                /** The current tracking position if the user is in the process
+                   of changing the scroll position
+                */
+                track
+            };
 
+            POINT getScrollPositionInPixels(
+                ScrollPosType scrollPosType = ScrollPosType::current);
 
-    
-    bool                _showHorizontalScrollBar = false;
-    bool                _showVerticalScrollBar = false;
+            virtual void handleMessage(MessageContext &context,
+                                       HWND windowHandle, UINT message,
+                                       WPARAM wParam, LPARAM lParam) override;
 
-    Margin              _nonClientMargins;
+            class ScrollViewCoreClass : public Win32WindowClass
+            {
+              public:
+                ScrollViewCoreClass()
+                    : Win32WindowClass("bdnScrollView", Win32Window::windowProc)
+                {
+                    ensureRegistered();
+                }
 
-    P<ContentContainer> _pContentContainer;
+                static ScrollViewCoreClass &get();
+            };
 
-    SIZE                _viewPortSizePixels{0,0};
-    SIZE                _clientSizePixels{0,0};
-    POINT               _scrollPositionPixels{0,0};
-};
+            class ContentContainerClass : public Win32WindowClass
+            {
+              public:
+                ContentContainerClass()
+                    : Win32WindowClass("bdnScrollViewContentContainer",
+                                       Win32Window::windowProc)
+                {
+                    ensureRegistered();
+                }
 
-}
+                static ContentContainerClass &get();
+            };
+
+            class ContentContainer : public Win32Window
+            {
+              public:
+                ContentContainer(HWND parentHwnd);
+            };
+
+            bool _showHorizontalScrollBar = false;
+            bool _showVerticalScrollBar = false;
+
+            Margin _nonClientMargins;
+
+            P<ContentContainer> _pContentContainer;
+
+            SIZE _viewPortSizePixels{0, 0};
+            SIZE _clientSizePixels{0, 0};
+            POINT _scrollPositionPixels{0, 0};
+        };
+    }
 }
 
 #endif
-

@@ -3,7 +3,4 @@
 
 #include "../include/bdn/ui.h"
 
-void testUiFunction() {
-    bdn::logInfo("Hallo UI Welt!");
-}
-
+void testUiFunction() { bdn::logInfo("Hallo UI Welt!"); }

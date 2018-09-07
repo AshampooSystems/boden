@@ -9,194 +9,176 @@ using namespace bdn;
 
 void testMutex(bool recursive)
 {
-	Mutex mutex;
-    
+    Mutex mutex;
+
 #if BDN_HAVE_THREADS
 
-	bool  threadLocked = false;
-	bool  threadUnlocked = false;
+    bool threadLocked = false;
+    bool threadUnlocked = false;
 
-	mutex.lock();
-
-	if(recursive)
-	{
-		// lock and unlock again
-		mutex.lock();
-		mutex.unlock();
-
-		// should still be locked here.
-	}
-
-	Thread::exec(	[&mutex, &threadLocked, &threadUnlocked]()
-					{
-						mutex.lock();
-						threadLocked = true;
-
-						Thread::sleepMillis(2000);
-
-						mutex.unlock();
-
-						threadUnlocked = true;
-					
-					} );
-
-	Thread::sleepMillis(1000);
-
-	REQUIRE( !threadLocked );
-
-	mutex.unlock();
-
-	Thread::sleepMillis(1000);
-
-	REQUIRE( threadLocked );
-		
-	StopWatch watch;
-
-	mutex.lock();
-
-	Thread::sleepMillis(500);
-
-	REQUIRE( threadUnlocked );
-	REQUIRE( watch.getMillis()>=800 );
-	REQUIRE( watch.getMillis()<2000 );
-
-	mutex.unlock();
-
-#else
-
-   
-    // multi threading is not supported. So all we can do here is verify
-    // that mutexes do not block or crash
-    
     mutex.lock();
-    if(recursive)
-    {
+
+    if (recursive) {
         // lock and unlock again
         mutex.lock();
         mutex.unlock();
-        
+
         // should still be locked here.
     }
-    
+
+    Thread::exec([&mutex, &threadLocked, &threadUnlocked]() {
+        mutex.lock();
+        threadLocked = true;
+
+        Thread::sleepMillis(2000);
+
+        mutex.unlock();
+
+        threadUnlocked = true;
+    });
+
+    Thread::sleepMillis(1000);
+
+    REQUIRE(!threadLocked);
+
     mutex.unlock();
-    
+
+    Thread::sleepMillis(1000);
+
+    REQUIRE(threadLocked);
+
+    StopWatch watch;
+
     mutex.lock();
-    
+
+    Thread::sleepMillis(500);
+
+    REQUIRE(threadUnlocked);
+    REQUIRE(watch.getMillis() >= 800);
+    REQUIRE(watch.getMillis() < 2000);
+
     mutex.unlock();
-    
+
+#else
+
+    // multi threading is not supported. So all we can do here is verify
+    // that mutexes do not block or crash
+
+    mutex.lock();
+    if (recursive) {
+        // lock and unlock again
+        mutex.lock();
+        mutex.unlock();
+
+        // should still be locked here.
+    }
+
+    mutex.unlock();
+
+    mutex.lock();
+
+    mutex.unlock();
+
 #endif
-
 }
-
-
 
 TEST_CASE("Mutex")
 {
-	SECTION("lockUnlock")
-		testMutex(false);
+    SECTION("lockUnlock")
+    testMutex(false);
 
-	SECTION("recursive")
-		testMutex(true);
-
+    SECTION("recursive")
+    testMutex(true);
 }
-
 
 #if BDN_HAVE_THREADS
 
 TEST_CASE("Mutex::Lock")
 {
-	Mutex mutex;
-	bool  threadLocked = false;
+    Mutex mutex;
+    bool threadLocked = false;
 
-	{
-		Mutex::Lock lock(mutex);
+    {
+        Mutex::Lock lock(mutex);
 
-		Thread::exec(	[&threadLocked, &mutex]()
-						{
-							mutex.lock();
+        Thread::exec([&threadLocked, &mutex]() {
+            mutex.lock();
 
-							threadLocked = true;
+            threadLocked = true;
 
-							mutex.unlock();
-						} );
+            mutex.unlock();
+        });
 
-		Thread::sleepMillis(1000);
+        Thread::sleepMillis(1000);
 
-		REQUIRE(!threadLocked);
-	}
+        REQUIRE(!threadLocked);
+    }
 
-	Thread::sleepMillis(1000);
+    Thread::sleepMillis(1000);
 
-	REQUIRE( threadLocked );
+    REQUIRE(threadLocked);
 
-	StopWatch watch;
+    StopWatch watch;
 
-	mutex.lock();
+    mutex.lock();
 
-	REQUIRE( watch.getMillis()<1000 );
-	mutex.unlock();
+    REQUIRE(watch.getMillis() < 1000);
+    mutex.unlock();
 }
-
 
 TEST_CASE("Mutex::Unlock")
 {
-	Mutex mutex;
-	bool  threadLocked = false;
-	bool  threadLocked2 = false;
+    Mutex mutex;
+    bool threadLocked = false;
+    bool threadLocked2 = false;
 
-	{
-		Mutex::Lock lock(mutex);
+    {
+        Mutex::Lock lock(mutex);
 
-		Thread::exec(	[&threadLocked, &mutex]()
-						{
-							mutex.lock();
+        Thread::exec([&threadLocked, &mutex]() {
+            mutex.lock();
 
-							threadLocked = true;
+            threadLocked = true;
 
-							mutex.unlock();
-						} );
+            mutex.unlock();
+        });
 
-		Thread::sleepMillis(1000);
+        Thread::sleepMillis(1000);
 
-		REQUIRE(!threadLocked);
+        REQUIRE(!threadLocked);
 
-		StopWatch watch;
+        StopWatch watch;
 
-		{
-			Mutex::Unlock unlock(mutex);
+        {
+            Mutex::Unlock unlock(mutex);
 
-			Thread::sleepMillis(1000);
+            Thread::sleepMillis(1000);
 
-			REQUIRE( threadLocked );
+            REQUIRE(threadLocked);
 
-			watch.start();
-		}		
+            watch.start();
+        }
 
-		REQUIRE( watch.getMillis()<1000 );
+        REQUIRE(watch.getMillis() < 1000);
 
-		// verify that the mutex has really been re-locked		
-		
-		Thread::exec(	[&threadLocked2, &mutex]()
-						{
-							mutex.lock();
+        // verify that the mutex has really been re-locked
 
-							threadLocked2 = true;
+        Thread::exec([&threadLocked2, &mutex]() {
+            mutex.lock();
 
-							mutex.unlock();
-						} );
+            threadLocked2 = true;
 
-		Thread::sleepMillis(1000);
+            mutex.unlock();
+        });
 
-		REQUIRE(!threadLocked2);		
-	}	
+        Thread::sleepMillis(1000);
 
-	Thread::sleepMillis(1000);
+        REQUIRE(!threadLocked2);
+    }
 
-	REQUIRE(threadLocked2);	
+    Thread::sleepMillis(1000);
 
+    REQUIRE(threadLocked2);
 }
 
 #endif
-
-
-

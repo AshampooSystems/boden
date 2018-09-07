@@ -7,78 +7,78 @@
 
 #include <bdn/IWindowCore.h>
 
-
 namespace bdn
 {
-namespace win32
-{
+    namespace win32
+    {
 
-class WindowCore : public ViewCore, BDN_IMPLEMENTS IWindowCore, BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
-{
-public:
-	WindowCore(Window* pWindow);			
+        class WindowCore
+            : public ViewCore,
+              BDN_IMPLEMENTS IWindowCore,
+              BDN_IMPLEMENTS LayoutCoordinator::IWindowCoreExtension
+        {
+          public:
+            WindowCore(Window *pWindow);
 
-    ~WindowCore();
-	
-	void	setTitle(const String& title) override;
+            ~WindowCore();
 
-	
-    /** Returns the area of the screen that can be used by windows.
-		That excludes taskbars, sidebars and the like (if they are always visible).
-		The returned rect applies only to the screen that the window is currently on.
-		Other screens can have different window areas.
-        
-        Note that the work area position may have negative coordinates on systems
-        with multiple monitors. That can be normal.
-     
-        */
-	Rect getScreenWorkArea() const;	
+            void setTitle(const String &title) override;
 
-	Size getMinimumSize() const;
+            /** Returns the area of the screen that can be used by windows.
+                That excludes taskbars, sidebars and the like (if they are
+               always visible). The returned rect applies only to the screen
+               that the window is currently on. Other screens can have different
+               window areas.
 
-	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
-    void layout() override;
+                Note that the work area position may have negative coordinates
+               on systems with multiple monitors. That can be normal.
 
-	void requestAutoSize();
-    void requestCenter();
+                */
+            Rect getScreenWorkArea() const;
 
-    void center() override;
-    void autoSize() override;
-       
+            Size getMinimumSize() const;
 
-	
-protected:
-	class WindowCoreClass : public Win32WindowClass
-	{
-	public:
-		WindowCoreClass()
-			: Win32WindowClass("bdnWindow", ViewCore::windowProc)
-		{
-			_info.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
+            Size calcPreferredSize(
+                const Size &availableSpace = Size::none()) const override;
+            void layout() override;
 
-			ensureRegistered();			
-		}
+            void requestAutoSize();
+            void requestCenter();
 
-		static WindowCoreClass& get();
-	};
+            void center() override;
+            void autoSize() override;
 
-	void initUiScaleFactor();
-	void setWindowsDpiValue(int dpi);
+          protected:
+            class WindowCoreClass : public Win32WindowClass
+            {
+              public:
+                WindowCoreClass()
+                    : Win32WindowClass("bdnWindow", ViewCore::windowProc)
+                {
+                    _info.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
 
-	void dpiChanged(int newDpi, const RECT* pSuggestedNewRect );
-    void sizeChanged(WPARAM changeType);
+                    ensureRegistered();
+                }
 
-	void handleMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+                static WindowCoreClass &get();
+            };
 
-private:
-    /** Returns the size of the non-client area around the window.
-        This includes the window border, titlebar, etc.*/
-    Margin getNonClientMargin() const;
+            void initUiScaleFactor();
+            void setWindowsDpiValue(int dpi);
 
-};
+            void dpiChanged(int newDpi, const RECT *pSuggestedNewRect);
+            void sizeChanged(WPARAM changeType);
 
-}
+            void handleMessage(MessageContext &context, HWND windowHandle,
+                               UINT message, WPARAM wParam,
+                               LPARAM lParam) override;
+
+          private:
+            /** Returns the size of the non-client area around the window.
+                This includes the window border, titlebar, etc.*/
+            Margin getNonClientMargin() const;
+        };
+    }
 }
 
 #endif
-

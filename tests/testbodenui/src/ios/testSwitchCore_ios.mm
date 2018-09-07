@@ -10,41 +10,39 @@
 
 using namespace bdn;
 
-
-class TestIosSwitchCore : public bdn::test::TestIosViewCoreMixin< bdn::test::TestSwitchCore >
+class TestIosSwitchCore
+    : public bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestIosViewCoreMixin< bdn::test::TestSwitchCore >::initCore();
-        _switchComposite = (BdnIosSwitchComposite*)_pUIView;
-        REQUIRE( _switchComposite!=nullptr );
+        bdn::test::TestIosViewCoreMixin<bdn::test::TestSwitchCore>::initCore();
+        _switchComposite = (BdnIosSwitchComposite *)_pUIView;
+        REQUIRE(_switchComposite != nullptr);
     }
-    
+
     void verifyCoreOn() override
     {
         bool expectedOn = _pSwitch->on();
         bool on = _switchComposite.uiSwitch.on;
-        REQUIRE( on == expectedOn );
+        REQUIRE(on == expectedOn);
     }
-    
+
     void verifyCoreLabel() override
     {
         String expectedLabel = _pSwitch->label();
-        String label = bdn::ios::iosStringToString( _switchComposite.uiLabel.text );
-        REQUIRE( label == expectedLabel );
+        String label =
+            bdn::ios::iosStringToString(_switchComposite.uiLabel.text);
+        REQUIRE(label == expectedLabel);
     }
-    
-protected:
-    BdnIosSwitchComposite* _switchComposite;
-};
 
+  protected:
+    BdnIosSwitchComposite *_switchComposite;
+};
 
 TEST_CASE("ios.SwitchCore")
 {
     P<TestIosSwitchCore> pTest = newObj<TestIosSwitchCore>();
-    
+
     pTest->runTests();
 }
-

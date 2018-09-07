@@ -6,38 +6,36 @@
 
 namespace bdn
 {
-namespace win32
-{
+    namespace win32
+    {
 
-class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
-{
-public:
-	ButtonCore(Button* pOuter);
-
-	void setLabel(const String& label) override;
-
-	void generateClick()
-	{
-        P<View> pView = getOuterViewIfStillAttached();
-
-        if(pView!=nullptr)
+        class ButtonCore : public ViewCore, BDN_IMPLEMENTS IButtonCore
         {
-		    ClickEvent evt( pView );
+          public:
+            ButtonCore(Button *pOuter);
 
-		    cast<Button>(pView)->onClick().notify(evt);
-        }
-	}
+            void setLabel(const String &label) override;
 
+            void generateClick()
+            {
+                P<View> pView = getOuterViewIfStillAttached();
 
-	Size calcPreferredSize( const Size& availableSpace = Size::none() ) const override;
+                if (pView != nullptr) {
+                    ClickEvent evt(pView);
 
-protected:		
-	void handleParentMessage(MessageContext& context, HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) override;
+                    cast<Button>(pView)->onClick().notify(evt);
+                }
+            }
 
-};
+            Size calcPreferredSize(
+                const Size &availableSpace = Size::none()) const override;
 
-
-}
+          protected:
+            void handleParentMessage(MessageContext &context, HWND windowHandle,
+                                     UINT message, WPARAM wParam,
+                                     LPARAM lParam) override;
+        };
+    }
 }
 
 #endif

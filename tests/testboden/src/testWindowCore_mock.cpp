@@ -9,23 +9,22 @@
 
 using namespace bdn;
 
-
-class TestMockWindowCore : public bdn::test::TestMockViewCoreMixin< bdn::test::TestWindowCore >
+class TestMockWindowCore
+    : public bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>
 {
-protected:
-    
+  protected:
     void initCore() override
     {
-        bdn::test::TestMockViewCoreMixin< bdn::test::TestWindowCore >::initCore();
+        bdn::test::TestMockViewCoreMixin<bdn::test::TestWindowCore>::initCore();
 
-        _pMockWindowCore = cast<bdn::test::MockWindowCore>( _pMockCore );
+        _pMockWindowCore = cast<bdn::test::MockWindowCore>(_pMockCore);
     }
 
     void verifyCoreTitle() override
     {
         String expectedTitle = _pWindow->title();
-                
-        REQUIRE( _pMockWindowCore->getTitle() == expectedTitle );
+
+        REQUIRE(_pMockWindowCore->getTitle() == expectedTitle);
     }
 
     void clearAllReferencesToCore() override
@@ -34,17 +33,13 @@ protected:
 
         _pMockWindowCore = nullptr;
     }
-    
-        
+
     P<IBase> createInfoToVerifyCoreUiElementDestruction() override
     {
         return nullptr;
     }
 
-
-    void verifyCoreUiElementDestruction(IBase* pVerificationInfo) override
-    {
-    }
+    void verifyCoreUiElementDestruction(IBase *pVerificationInfo) override {}
 
     P<bdn::test::MockWindowCore> _pMockWindowCore;
 };
@@ -55,5 +50,3 @@ TEST_CASE("mock.WindowCore")
 
     pTest->runTests();
 }
-
-

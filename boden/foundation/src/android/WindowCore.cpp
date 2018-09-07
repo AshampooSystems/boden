@@ -3,17 +3,11 @@
 
 namespace bdn
 {
-namespace android
-{
+    namespace android
+    {
 
-BDN_SAFE_STATIC_THREAD_LOCAL_IMPL( WindowCore::RootViewRegistry, WindowCore::getRootViewRegistryForCurrentThread );
-
-
+        BDN_SAFE_STATIC_THREAD_LOCAL_IMPL(
+            WindowCore::RootViewRegistry,
+            WindowCore::getRootViewRegistryForCurrentThread);
+    }
 }
-}
-
-
-
-
-
-

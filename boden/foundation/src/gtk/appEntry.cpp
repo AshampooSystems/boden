@@ -7,26 +7,25 @@
 
 namespace bdn
 {
-namespace gtk
-{
+    namespace gtk
+    {
 
+        int uiAppEntry(
+            const std::function<P<AppControllerBase>()> &appControllerCreator,
+            int argc, char *argv[])
+        {
+            BDN_ENTRY_BEGIN;
 
-int uiAppEntry(const std::function< P<AppControllerBase>() >& appControllerCreator, int argc, char* argv[])
-{
-    BDN_ENTRY_BEGIN;
+            bdn::P<bdn::gtk::UiAppRunner> pAppRunner =
+                bdn::newObj<bdn::gtk::UiAppRunner>(appControllerCreator, argc,
+                                                   argv);
+            _setAppRunner(pAppRunner);
 
-    bdn::P< bdn::gtk::UiAppRunner > pAppRunner = bdn::newObj< bdn::gtk::UiAppRunner >( appControllerCreator, argc, argv );
-    _setAppRunner(pAppRunner);
-    
-    return pAppRunner->entry();
+            return pAppRunner->entry();
 
-    BDN_ENTRY_END(false);
+            BDN_ENTRY_END(false);
 
-    return 0;
+            return 0;
+        }
+    }
 }
-
-
-}
-}
-
-

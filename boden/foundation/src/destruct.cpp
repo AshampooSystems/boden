@@ -6,31 +6,26 @@
 namespace bdn
 {
 
-/** Used internally. Do not call.*/
-void _handleDestructorException(const char* className, const std::exception& e) noexcept
-{
-    try
+    /** Used internally. Do not call.*/
+    void _handleDestructorException(const char *className,
+                                    const std::exception &e) noexcept
     {
-        logError(e, "Exception in destructor of " + String(className) );
+        try {
+            logError(e, "Exception in destructor of " + String(className));
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
 
-void _handleDestructorException(const char* className) noexcept
-{
-    try
+    void _handleDestructorException(const char *className) noexcept
     {
-        logError("Exception of unknown type in destructor of " + String(className) );
+        try {
+            logError("Exception of unknown type in destructor of " +
+                     String(className));
+        }
+        catch (...) {
+            // ignore
+        }
     }
-    catch(...)
-    {
-        // ignore
-    }
-}
-  
-
-
 }

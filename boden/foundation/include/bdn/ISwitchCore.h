@@ -6,14 +6,13 @@
 namespace bdn
 {
 
-/** Generic interface for toggle-like control cores */
-class ISwitchCore : BDN_IMPLEMENTS IToggleCoreBase
-{
-public:
-	/** Changes the control's on/off state */
-    virtual void setOn(const bool& on)=0;
-};
-    
+    /** Generic interface for toggle-like control cores */
+    class ISwitchCore : BDN_IMPLEMENTS IToggleCoreBase
+    {
+      public:
+        /** Changes the control's on/off state */
+        virtual void setOn(const bool &on) = 0;
+    };
 }
 
 #endif /* BDN_ISwitchCore_H_ */

@@ -8,18 +8,17 @@
 
 using namespace bdn;
 
-
-class TestWin32TextViewCore : public bdn::test::TestWin32ViewCoreMixin< bdn::test::TestTextViewCore >
+class TestWin32TextViewCore
+    : public bdn::test::TestWin32ViewCoreMixin<bdn::test::TestTextViewCore>
 {
-protected:
-
+  protected:
     void verifyCoreText() override
     {
         String expectedText = _pTextView->text();
 
         String text = bdn::win32::Win32Window::getWindowText(_hwnd);
-        
-        REQUIRE( text == expectedText );
+
+        REQUIRE(text == expectedText);
     }
 };
 
@@ -29,11 +28,3 @@ TEST_CASE("win32.TextViewCore")
 
     pTest->runTests();
 }
-
-
-
-
-
-
-
-

@@ -10,32 +10,31 @@
 
 @interface BdnIosToggleCompositeBase : UIControl
 
-@property (strong) UILabel* uiLabel;
+@property(strong) UILabel *uiLabel;
 
 @end
 
-
 namespace bdn
 {
-namespace ios
-{
+    namespace ios
+    {
 
-    class ToggleCoreBase : public ViewCore, BDN_IMPLEMENTS IToggleCoreBase
-    {        
-    public:
-        ToggleCoreBase(View* pOuter, BdnIosToggleCompositeBase* pToggleComposite);
-        virtual ~ToggleCoreBase();
-        
-        void setLabel(const String& label) override;
+        class ToggleCoreBase : public ViewCore, BDN_IMPLEMENTS IToggleCoreBase
+        {
+          public:
+            ToggleCoreBase(View *pOuter,
+                           BdnIosToggleCompositeBase *pToggleComposite);
+            virtual ~ToggleCoreBase();
 
-        virtual void _clicked() = 0;
-        
-    protected:
-        BdnIosToggleCompositeBase* _composite;
-        BdnIosToggleClickManager*  _clickManager;
-    };
-    
-}
+            void setLabel(const String &label) override;
+
+            virtual void _clicked() = 0;
+
+          protected:
+            BdnIosToggleCompositeBase *_composite;
+            BdnIosToggleClickManager *_clickManager;
+        };
+    }
 }
 
 #endif

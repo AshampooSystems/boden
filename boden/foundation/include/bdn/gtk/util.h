@@ -5,45 +5,32 @@
 
 namespace bdn
 {
-namespace gtk
-{
+    namespace gtk
+    {
 
+        inline Rect gtkRectToRect(const GdkRectangle &rect)
+        {
+            // GTK also uses DIPs. So no conversion necessary.
+            return Rect(rect.x, rect.y, rect.width, rect.height);
+        }
 
-inline Rect gtkRectToRect(const GdkRectangle& rect )
-{
-    // GTK also uses DIPs. So no conversion necessary.
-	return Rect(
-			rect.x,
-			rect.y,
-			rect.width,
-			rect.height );
+        inline GdkRectangle rectToGtkRect(const Rect &rect)
+        {
+            GdkRectangle result;
+
+            result.x = std::lround(rect.x);
+            result.y = std::lround(rect.y);
+            result.width = std::lround(rect.width);
+            result.height = std::lround(rect.height);
+
+            return result;
+        }
+
+        inline Size gtkSizeToSize(const GtkRequisition &size)
+        {
+            return Size(size.width, size.height);
+        }
+    }
 }
-
-inline GdkRectangle rectToGtkRect(const Rect& rect)
-{
-    GdkRectangle result;
-    
-    result.x = std::lround(rect.x);
-    result.y = std::lround(rect.y);
-    result.width = std::lround(rect.width);
-    result.height = std::lround(rect.height);
-    
-    return result;
-}
-
-
-inline Size gtkSizeToSize(const GtkRequisition& size)
-{
-    return Size( size.width,
-                 size.height );
-}
-
-
-		
-}
-}
-
 
 #endif
-
-
