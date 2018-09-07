@@ -85,6 +85,8 @@ class CommandProcessor:
                 elif command=="codesign":
                     self.prepare(configuration, platformState);
                     self.codesign(configuration)
+                elif command=="copy":
+                    self.copy(buildDirectory)
                 else:
                     raise error.ProgramArgumentError("Invalid command: '%s'" % command);
 
@@ -92,7 +94,7 @@ class CommandProcessor:
     def prepare(self, configuration, platformState):
         buildDirectory = self.buildFolder.getBuildDir(configuration)
         self.logger.info("Preparing %s", buildDirectory)
-
+        
         if not os.path.isdir(buildDirectory):
             os.makedirs(buildDirectory);
 
@@ -166,4 +168,9 @@ class CommandProcessor:
 
         if exitCode != 0:
             raise error.ErrorWithExitCode( "Application failed with exit code: 0x{:02x}".format(exitCode), exitCode)
+
+    def copy(self, buildDirectory):
+        destFolder = os.path.join(buildDirectory, os.path.basename(self.args.folder))
+        self.logger.info("Copying %s into %s", self.args.folder, destFolder)
+        shutil.copytree(self.args.folder, destFolder)
 

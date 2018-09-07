@@ -14,6 +14,9 @@ add_subdirectory(cmake)
 add_subdirectory(bauer)
 
 fix_ios_package()
+# Documentation
+add_subdirectory(documentation)
+
 setup_web_ems(boden)
 
 # Main Library

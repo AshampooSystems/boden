@@ -18,7 +18,7 @@ class BuildExecutor:
         self.buildFolder = buildFolder
 
     def build(self, configuration, args):
-        self.buildTarget(configuration, args, None)
+        self.buildTarget(configuration, args, args.module)
 
     def clean(self, configuration, args):
         self.buildTarget(configuration, args, "clean")

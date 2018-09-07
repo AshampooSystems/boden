@@ -1,4 +1,4 @@
-DIP: Unit for user interface and layout
+DIP: Unit for user interface and layout              {#dip-units}
 =======================================
 
 The default unit in Boden for values that refer to user interface layout, sizes and coordinates is DIP.

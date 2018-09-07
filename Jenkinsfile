@@ -9,6 +9,30 @@ pipeline {
     }
 
     stages {
+        stage('Documentation') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile_documentation'
+                    additionalBuildArgs '-t boden_documentation'
+                    args '--volume ${WORKSPACE}:/boden'
+                    label 'boden'
+                }
+            }
+            steps {
+                sh 'cd /boden && mkdir -p build/documentation'
+                sh 'cd /boden/build/documentation && cmake ../../ -DCMAKE_INSTALL_PREFIX=/boden/boden-documentation'
+                sh 'cd /boden/build/documentation && make boden_documentation'
+                sh 'cd /boden/build/documentation && cmake -DCOMPONENT=documentation -P cmake_install.cmake'
+                sh 'cd /boden/ && tar -zcvf boden-documentation.tar.gz boden-documentation'
+    
+                stash includes: 'build/**/*', name: 'boden_documentation_builddir'
+                archiveArtifacts artifacts: 'boden-*.tar.gz', fingerprint: true
+                
+                sh 'cd /boden/build && mkdir package'
+                sh 'cd /boden && cp boden-documentation.tar.gz build/package/'
+                stash includes: 'build/package/*', name: 'documentation-packages'
+            }
+        }
         stage('Platforms') {
             parallel {
                 stage('Linux') {
@@ -29,10 +53,12 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
+                                unstash 'boden_documentation_builddir'
+                                sh 'python build.py copy -f build/documentation/documentation'
                                 sh 'python build.py build'
                             }
                         }
-
+            
                         stage('Package') {
                             steps {
                                 sh 'python build.py package'
@@ -40,7 +66,6 @@ pipeline {
                                 stash includes: 'build/package/*', name: 'linux-packages'
                             }
                         }
-
                         stage('Test') {
                             steps {
                                 sh 'mkdir -p testresults'
@@ -73,6 +98,7 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
+                                unstash 'boden_documentation_builddir'
                                 sh 'python build.py prepare -b make -a arm64-v8a'
                                 sh 'python build.py prepare -b make -a x86_64'
 
@@ -103,7 +129,8 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'python build.py prepare'
+                                unstash 'boden_documentation_builddir'
+                                sh 'python build.py copy -f build/documentation/documentation'
                                 sh 'python build.py build'
                             }
                         }
@@ -142,7 +169,8 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'python build.py prepare'
+                                unstash 'boden_documentation_builddir'
+                                sh 'python build.py copy -f build/documentation/documentation'
                                 sh 'python build.py build'
                             }
                         }
@@ -198,6 +226,7 @@ pipeline {
                 unstash 'ios-packages'
                 unstash 'macos-packages'
                 unstash 'linux-packages'
+                unstash 'documentation-packages'
 
                 script {
                     env.RELEASE_NAME = env.BRANCH_NAME.split('/')[1]

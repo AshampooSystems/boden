@@ -54,17 +54,24 @@ class BauerArgParser():
         for parser in parsers:
           parser.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true', help="Enable debug output")
     
-    def addConfigurationArguments(self, parsers, platforms=None):
+    def addBaseConfigurationArguments(self, parsers, platforms=None, require=False):
         for parser in parsers:
           if platforms == None:
             platforms = self.bauerGlobals.platformMap.keys()
 
           configGroup = parser.add_argument_group('Compile target')
-          configGroup.add_argument('-p', "--platform", action=EnvDefault, help="The target platform", choices=platforms );
-          configGroup.add_argument('-b', "--build-system", action=EnvDefault, help="The cmake generator" );
-          configGroup.add_argument('-c', "--config", action=EnvDefault, choices=["Debug", "Release"] );
-          configGroup.add_argument('-a', "--arch", action=EnvDefault, help="The target architecture ( default: 'std' )" );
+          configGroup.add_argument('-p', "--platform", action=EnvDefault, help="The target platform", choices=platforms, required=require );
+          configGroup.add_argument('-b', "--build-system", action=EnvDefault, help="The cmake generator", required=require );
+          configGroup.add_argument('-c', "--config", action=EnvDefault, choices=["Debug", "Release"], required=require );
+          configGroup.add_argument('-a', "--arch", action=EnvDefault, help="The target architecture ( default: 'std' )", required=require );
 
+          buildFolderGroup = parser.add_argument_group('Build folder', "(optional)")
+          buildFolderGroup.add_argument("--build-folder", action=EnvDefault, help="The buildfolder root (default: ./build)")
+
+    def addConfigurationArguments(self, parsers, platforms=None):
+        self.addBaseConfigurationArguments(parsers, platforms, False)
+
+        for parser in parsers:
           macGroup = parser.add_argument_group('Mac OSX specific', "(optional)")
           macGroup.add_argument("--macos-sdk-path", action=EnvDefault, help="The Mac OSX SDK Path")
           macGroup.add_argument("--macos-min-version", action=EnvDefault, help="The target minimum Mac OSX version")
@@ -73,8 +80,6 @@ class BauerArgParser():
           packageGroup.add_argument("--package-generator", action=EnvDefault, help="The CPack Generator" )
           packageGroup.add_argument("--package-folder", action=EnvDefault, help="The CPack package output folder")
 
-          buildFolderGroup = parser.add_argument_group('Build folder', "(optional)")
-          buildFolderGroup.add_argument("--build-folder", action=EnvDefault, help="The buildfolder root (default: ./build)")
 
     def addBuildArguments(self, parsers):
         for parser in parsers:
@@ -111,6 +116,7 @@ class BauerArgParser():
         distclean = subs.add_parser('distclean', epilog=self.getDistCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         run = subs.add_parser('run', description="Executes one of bodens targets", epilog=self.getRunEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         package = subs.add_parser('package', description="Packages boden for release", epilog=self.getPackageEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        copy = subs.add_parser('copy', description="Copy a folder into the build folder", epilog=self.getCopyEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
 
         if sys.platform == 'darwin':
           sign = subs.add_parser('codesign', description="Sign libraries and executables")
@@ -119,7 +125,7 @@ class BauerArgParser():
           self.addPasswordArgument([sign])
           self.addConfigurationArguments([sign], platforms=['ios', 'mac'])
 
-
+        self.addBaseConfigurationArguments( [ copy ], platforms=None, require=False )
         self.addConfigurationArguments( [ prepare, build, clean, distclean, run, package ])
         self.addBuildArguments( [ build, clean, distclean, run, package ])
 
@@ -130,7 +136,9 @@ class BauerArgParser():
         self.addAndroidSimulatorArguments(simGroup)
 
         self.addParams(run)
-        run.add_argument('-m', "--module", help="The module to run" );
+        map(lambda p: p.add_argument('-m', "--module", help="The module to build/run" ), [run, build])
+
+        copy.add_argument('-f', '--folder', help="Source folder to copy", required=True );
 
         info = subs.add_parser('manual', description="Shows futher information")
 
@@ -211,7 +219,10 @@ Note the double -- before "run" in the commandline. This is necessary to separat
 parameters for build.py from those that are intended for the executed module."""
 
     def getPackageEpilog(self):
-      return """"""
+        return """"""
+
+    def getCopyEpilog(self):
+        return """"""
 
     def getManual(self):
         return """Usage: build.py COMMAND [PARAMS]
