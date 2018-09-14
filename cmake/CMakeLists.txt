@@ -1,5 +1,6 @@
 
 set(_CMAKE_UTILITIES 
+    utilities/linuxsysteminfo.cmake
     utilities/platform.cmake
     utilities/compiler.cmake
     utilities/warnings.cmake

@@ -120,6 +120,10 @@ if(BDN_PLATFORM_OSX)
     endif()
 endif()
 
+if(BDN_PLATFORM_LINUX)
+    message(STATUS "  Linux distribution: ${BDN_LINUX_DISTRIBUTION_ID} (${BDN_LINUX_DISTRIBUTION_NAME}) ")
+endif()
+
 # Make options globally available
 
 set(BDN_TARGET ${BDN_TARGET} CACHE INTERNAL "Boden target name")

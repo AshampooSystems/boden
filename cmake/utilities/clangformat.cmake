@@ -2,10 +2,14 @@
 if(APPLE)
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-darwin" CACHE INTERNAL "")
 elseif(UNIX)
-    set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-linux" CACHE INTERNAL "")
+    set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-${BDN_LINUX_DISTRIBUTION_ID}" CACHE INTERNAL "")
 elseif(WIN32)
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-windows.exe" CACHE INTERNAL "")
 else()
+    set(CLANG_FORMAT_EXECUTABLE "CLANG_FORMAT_EXECUTABLE-NOTFOUND" CACHE INTERNAL "")
+endif()
+
+if(NOT EXISTS ${CLANG_FORMAT_EXECUTABLE})
     set(CLANG_FORMAT_EXECUTABLE "CLANG_FORMAT_EXECUTABLE-NOTFOUND" CACHE INTERNAL "")
 endif()
 
