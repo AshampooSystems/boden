@@ -14,22 +14,22 @@ Java_io_boden_android_NativeTextViewOnEditorActionListener_viewCoreOnEditorActio
 {
     bool consumed = false;
 
-    BDN_ENTRY_BEGIN(pEnv);
+    bdn::platformEntryWrapper(
+        [&]() {
+            bdn::android::TextFieldCore *core = (bdn::android::TextFieldCore *)
+                bdn::android::ViewCore::getViewCoreFromJavaViewRef(
+                    bdn::java::Reference::convertExternalLocal(rawView));
+            bdn::android::JKeyEvent keyEvent(
+                bdn::java::Reference::convertExternalLocal(rawEvent));
 
-    bdn::android::TextFieldCore *core = (bdn::android::TextFieldCore *)
-        bdn::android::ViewCore::getViewCoreFromJavaViewRef(
-            bdn::java::Reference::convertExternalLocal(rawView));
-    bdn::android::JKeyEvent keyEvent(
-        bdn::java::Reference::convertExternalLocal(rawEvent));
-
-    if (core == nullptr) {
-        // no view core is associated with the view => ignore the event
-        // and do nothing.
-    } else {
-        consumed = core->onEditorAction(actionId, keyEvent);
-    }
-
-    BDN_ENTRY_END();
+            if (core == nullptr) {
+                // no view core is associated with the view => ignore the event
+                // and do nothing.
+            } else {
+                consumed = core->onEditorAction(actionId, keyEvent);
+            }
+        },
+        true, pEnv);
 
     return consumed;
 }

@@ -125,52 +125,39 @@ namespace bdn
         void UiAppRunner::_applicationWillFinishLaunching(
             NSNotification *notification)
         {
-            BDN_ENTRY_BEGIN;
-
-            prepareLaunch();
-            beginLaunch();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() {
+                    prepareLaunch();
+                    beginLaunch();
+                },
+                false);
         }
 
         void UiAppRunner::_applicationDidFinishLaunching(
             NSNotification *notification)
         {
-            BDN_ENTRY_BEGIN;
-
-            finishLaunch();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
         }
 
         void
         UiAppRunner::_applicationDidBecomeActive(NSNotification *notification)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onActivate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onActivate(); }, false);
         }
 
         void
         UiAppRunner::_applicationDidResignActive(NSNotification *notification)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onDeactivate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onDeactivate(); }, false);
         }
 
         void
         UiAppRunner::_applicationWillTerminate(NSNotification *notification)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onTerminate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onTerminate(); }, false);
         }
 
         void UiAppRunner::initiateExitIfPossible(int exitCode)

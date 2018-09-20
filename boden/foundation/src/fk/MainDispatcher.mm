@@ -26,26 +26,27 @@
 
 - (void)invoke
 {
-    BDN_ENTRY_BEGIN;
+    bdn::platformEntryWrapper(
+        [=]() {
+            if (delaySeconds <= 0) {
+                try {
+                    func();
+                }
+                catch (bdn::DanglingFunctionError &) {
+                    // ignore. This means that the function is a weak method
+                    // whose object has been deleted. This is treated like a
+                    // no-op.
+                }
+            } else {
+                double delay = delaySeconds;
+                delaySeconds = 0; // set to 0 so that we will not wait again
 
-    if (delaySeconds <= 0) {
-        try {
-            func();
-        }
-        catch (bdn::DanglingFunctionError &) {
-            // ignore. This means that the function is a weak method
-            // whose object has been deleted. This is treated like a no-op.
-        }
-    } else {
-        double delay = delaySeconds;
-        delaySeconds = 0; // set to 0 so that we will not wait again
-
-        [self performSelector:@selector(invoke)
-                   withObject:nil
-                   afterDelay:delay];
-    }
-
-    BDN_ENTRY_END(true);
+                [self performSelector:@selector(invoke)
+                           withObject:nil
+                           afterDelay:delay];
+            }
+        },
+        true);
 }
 
 @end
@@ -69,31 +70,31 @@
 
 - (void)targetMethod:(NSTimer *)theTimer
 {
-    BDN_ENTRY_BEGIN;
+    bdn::platformEntryWrapper(
+        [&]() {
+            if (pTimerFuncList != nullptr) {
+                std::function<bool()> &timerFunc = *timerFuncIt;
 
-    if (pTimerFuncList != nullptr) {
-        std::function<bool()> &timerFunc = *timerFuncIt;
+                bool result;
+                try {
+                    result = timerFunc();
+                }
+                catch (bdn::DanglingFunctionError &) {
+                    // ignore. This means that the function is a weak method
+                    // whose object has been deleted. This is treated as if the
+                    // function had returned false (i.e. the timer is stopped)
+                    result = false;
+                }
 
-        bool result;
-        try {
-            result = timerFunc();
-        }
-        catch (bdn::DanglingFunctionError &) {
-            // ignore. This means that the function is a weak method
-            // whose object has been deleted. This is treated as if the
-            // function had returned false (i.e. the timer is stopped)
-            result = false;
-        }
+                if (!result) {
+                    [theTimer invalidate];
 
-        if (!result) {
-            [theTimer invalidate];
-
-            pTimerFuncList->funcList.erase(timerFuncIt);
-            pTimerFuncList = nullptr;
-        }
-    }
-
-    BDN_ENTRY_END(true);
+                    pTimerFuncList->funcList.erase(timerFuncIt);
+                    pTimerFuncList = nullptr;
+                }
+            }
+        },
+        true);
 }
 
 @end

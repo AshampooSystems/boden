@@ -10,22 +10,26 @@ extern "C" JNIEXPORT jboolean JNICALL
 Java_io_boden_android_NativeUncaughtExceptionHandler_nativeUncaughtException(
     JNIEnv *pEnv, jclass rawCls, jobject rawThrowable, jboolean canKeepRunning)
 {
-    BDN_ENTRY_BEGIN(pEnv);
+    jboolean returnValue = JNI_FALSE;
 
-    try {
-        bdn::java::JThrowable throwable(
-            bdn::java::Reference::convertExternalLocal(rawThrowable));
+    bdn::platformEntryWrapper(
+        [&]() {
+            try {
+                bdn::java::JThrowable throwable(
+                    bdn::java::Reference::convertExternalLocal(rawThrowable));
 
-        bdn::java::JavaException::rethrowThrowable(throwable);
-    }
-    catch (...) {
-        // note that we can always keep running on android.
-        return bdn::unhandledException(canKeepRunning != JNI_FALSE) ? JNI_TRUE
-                                                                    : JNI_FALSE;
-    }
-
-    BDN_ENTRY_END();
+                bdn::java::JavaException::rethrowThrowable(throwable);
+            }
+            catch (...) {
+                // note that we can always keep running on android.
+                returnValue =
+                    bdn::unhandledException(canKeepRunning != JNI_FALSE)
+                        ? JNI_TRUE
+                        : JNI_FALSE;
+            }
+        },
+        true, pEnv);
 
     // should never reach here.
-    return JNI_FALSE;
+    return returnValue;
 }

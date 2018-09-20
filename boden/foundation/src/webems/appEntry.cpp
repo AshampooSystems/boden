@@ -14,18 +14,20 @@ namespace bdn
             const std::function<P<AppControllerBase>()> &appControllerCreator,
             int argc, char *argv[])
         {
-            BDN_ENTRY_BEGIN;
+            int returnValue = 0;
 
-            bdn::P<bdn::webems::AppRunner> pAppRunner =
-                bdn::newObj<bdn::webems::AppRunner>(appControllerCreator, argc,
-                                                    argv);
-            _setAppRunner(pAppRunner);
+            bdn::platformEntryWrapper(
+                [&]() {
+                    bdn::P<bdn::webems::AppRunner> pAppRunner =
+                        bdn::newObj<bdn::webems::AppRunner>(
+                            appControllerCreator, argc, argv);
+                    _setAppRunner(pAppRunner);
 
-            return pAppRunner->entry();
+                    returnValue = pAppRunner->entry();
+                },
+                false);
 
-            BDN_ENTRY_END(false);
-
-            return 0;
+            return returnValue;
         }
     }
 }

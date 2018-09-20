@@ -14,14 +14,17 @@ namespace bdn
             const std::function<P<AppControllerBase>()> &appControllerCreator,
             Platform::Array<Platform::String ^> ^ args)
         {
-            BDN_ENTRY_BEGIN;
-
-            bdn::P<bdn::winuwp::AppRunner> pAppRunner =
-                bdn::newObj<bdn::winuwp::AppRunner>(appControllerCreator, args);
-            _setAppRunner(pAppRunner);
-            return pAppRunner->entry();
-            BDN_ENTRY_END(false);
-            return 0;
+            int returnValue = 0;
+            bdn::platformEntryWrapper(
+                [&]() {
+                    bdn::P<bdn::winuwp::AppRunner> pAppRunner =
+                        bdn::newObj<bdn::winuwp::AppRunner>(
+                            appControllerCreator, args);
+                    _setAppRunner(pAppRunner);
+                    returnValue = pAppRunner->entry();
+                },
+                false);
+            return returnValue;
         }
     }
 }

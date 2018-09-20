@@ -41,11 +41,8 @@ namespace bdn
                         strongMethod(this, &Dispatcher::idleHandler)));
             } else {
                 // ok, we are actually idle
-                BDN_ENTRY_BEGIN;
-
-                executeItem(Priority::idle);
-
-                BDN_ENTRY_END(true);
+                bdn::platformEntryWrapper(
+                    [&]() { executeItem(Priority::idle); }, true);
             }
         }
 
@@ -73,11 +70,8 @@ namespace bdn
                     ::Windows::UI::Core::CoreDispatcherPriority::Normal,
                     ref new Windows::UI::Core::DispatchedHandler(
                         [pThis, priority]() {
-                            BDN_ENTRY_BEGIN;
-
-                            pThis->executeItem(priority);
-
-                            BDN_ENTRY_END(true);
+                            bdn::platformEntryWrapper(
+                                [&]() { pThis->executeItem(priority); }, true);
                         }));
             }
 
@@ -230,13 +224,13 @@ namespace bdn
                     ref new ::Windows::System::Threading::TimerElapsedHandler(
                         [pTimer](::Windows::System::Threading::ThreadPoolTimer ^
                                  pUwpTimer) {
-                            BDN_ENTRY_BEGIN;
+                            bdn::platformEntryWrapper(
+                                [&]() {
+                                    pTimer->setUwpTimer(pUwpTimer);
 
-                            pTimer->setUwpTimer(pUwpTimer);
-
-                            pTimer->call();
-
-                            BDN_ENTRY_END(true);
+                                    pTimer->call();
+                                },
+                                true);
                         }),
                     ts);
 

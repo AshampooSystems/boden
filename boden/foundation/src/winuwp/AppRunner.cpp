@@ -25,18 +25,6 @@ namespace bdn
             AppRunner::StoredUnhandledException,
             AppRunner::getThreadLocalStoredUnhandledException)
 
-        void _storeParametersForUnhandledException(
-            ::Platform::Exception ^ pUwpException,
-            bool canKeepRunningAfterException)
-        {
-            // call the App runners method.
-
-            P<AppRunner> pAppRunner = tryCast<AppRunner>(bdn::getAppRunner());
-            if (pAppRunner != nullptr)
-                pAppRunner->_storeParametersForUnhandledException(
-                    pUwpException, canKeepRunningAfterException);
-        }
-
         ref class App sealed
             : public ::Windows::UI::Xaml::Application,
               public ::Windows::UI::Xaml::Markup::IXamlMetadataProvider
@@ -57,25 +45,20 @@ namespace bdn
           public:
             virtual ::Windows::UI::Xaml::Markup::IXamlType ^
                 GetXamlType(::Windows::UI::Xaml::Interop::TypeName type) {
-                    BDN_ENTRY_BEGIN;
-
-                    return nullptr; // return
-                                    // getXamlTypeInfoProvider()->GetXamlTypeByType(type);
-
-                    BDN_ENTRY_END(false);
-
+                    bdn::platformEntryWrapper(
+                        [&]() {},
+                        false); // return
+                                // getXamlTypeInfoProvider()->GetXamlTypeByType(type);
                     return nullptr;
                 }
 
                 virtual ::Windows::UI::Xaml::Markup::IXamlType
                 ^
                 GetXamlType(::Platform::String ^ fullName) {
-                    BDN_ENTRY_BEGIN;
-
-                    return nullptr; // return
-                                    // getXamlTypeInfoProvider()->GetXamlTypeByName(fullName);
-
-                    BDN_ENTRY_END(false);
+                    bdn::platformEntryWrapper(
+                        [&]() {},
+                        false); // return
+                                // getXamlTypeInfoProvider()->GetXamlTypeByName(fullName);
 
                     return nullptr;
                 }
@@ -83,12 +66,10 @@ namespace bdn
                 virtual ::Platform::Array<
                     ::Windows::UI::Xaml::Markup::XmlnsDefinition> ^
                 GetXmlnsDefinitions() {
-                    BDN_ENTRY_BEGIN;
-
-                    return nullptr; // return ref new
-                                    // ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>(0);
-
-                    BDN_ENTRY_END(false);
+                    bdn::platformEntryWrapper(
+                        [&]() {},
+                        false); // return ref new
+                                // ::Platform::Array<::Windows::UI::Xaml::Markup::XmlnsDefinition>(0)
 
                     return nullptr;
                 }
@@ -99,54 +80,45 @@ namespace bdn
                                             LaunchActivatedEventArgs ^
                                         pArgs) override
             {
-                BDN_ENTRY_BEGIN;
-
-                _pAppRunner->launch();
-
-                BDN_ENTRY_END(true);
+                bdn::platformEntryWrapper([&]() { _pAppRunner->launch(); },
+                                          true);
             }
 
             void unhandledUwpException(
                 ::Platform::Object ^ pSender,
                 ::Windows::UI::Xaml::UnhandledExceptionEventArgs ^ pArgs)
             {
-                BDN_ENTRY_BEGIN;
-
-                if (_pAppRunner != nullptr)
-                    _pAppRunner->_unhandledUwpException(pSender, pArgs);
-
-                BDN_ENTRY_END(true);
+                bdn::platformEntryWrapper(
+                    [&]() {
+                        if (_pAppRunner != nullptr)
+                            _pAppRunner->_unhandledUwpException(pSender, pArgs);
+                    },
+                    true);
             }
 
             void InitializeComponent()
             {
-                BDN_ENTRY_BEGIN;
-
-                UnhandledException +=
-                    ref new ::Windows::UI::Xaml::UnhandledExceptionEventHandler(
-                        this, &App::unhandledUwpException);
-
-                BDN_ENTRY_END(false);
+                bdn::platformEntryWrapper(
+                    [&]() {
+                        UnhandledException += ref new ::Windows::UI::Xaml::
+                            UnhandledExceptionEventHandler(
+                                this, &App::unhandledUwpException);
+                    },
+                    false);
             }
 
             void suspending(Platform::Object ^ pSender,
                             Windows::ApplicationModel::SuspendingEventArgs ^
                                 pArgs)
             {
-                BDN_ENTRY_BEGIN;
-
-                AppControllerBase::get()->onSuspend();
-
-                BDN_ENTRY_END(true);
+                bdn::platformEntryWrapper(
+                    [&]() { AppControllerBase::get()->onSuspend(); }, true);
             }
 
             void resuming(Platform::Object ^ pSender, Platform::Object ^ pArgs)
             {
-                BDN_ENTRY_BEGIN
-
-                AppControllerBase::get()->onResume();
-
-                BDN_ENTRY_END(true);
+                bdn::platformEntryWrapper(
+                    [&]() { AppControllerBase::get()->onResume(); }, true);
             }
 
             internal : P<AppRunner> _pAppRunner;
@@ -201,11 +173,8 @@ namespace bdn
                     [pThis](Windows::UI::Xaml::
                                 ApplicationInitializationCallbackParams ^
                             pParams) {
-                        BDN_ENTRY_BEGIN;
-
-                        ref new App(pThis);
-
-                        BDN_ENTRY_END(false);
+                        bdn::platformEntryWrapper([&]() { ref new App(pThis); },
+                                                  false);
                     }));
 
             return 0;

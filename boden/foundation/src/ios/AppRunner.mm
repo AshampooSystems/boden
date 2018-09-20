@@ -158,12 +158,12 @@ namespace bdn
         bool
         AppRunner::_applicationWillFinishLaunching(NSDictionary *launchOptions)
         {
-            BDN_ENTRY_BEGIN;
-
-            prepareLaunch();
-            beginLaunch();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() {
+                    prepareLaunch();
+                    beginLaunch();
+                },
+                false);
 
             return true;
         }
@@ -171,31 +171,21 @@ namespace bdn
         bool
         AppRunner::_applicationDidFinishLaunching(NSDictionary *launchOptions)
         {
-            BDN_ENTRY_BEGIN;
-
-            finishLaunch();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper([&]() { finishLaunch(); }, false);
 
             return true;
         }
 
         void AppRunner::_applicationDidBecomeActive(UIApplication *application)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onActivate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onActivate(); }, false);
         }
 
         void AppRunner::_applicationWillResignActive(UIApplication *application)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onDeactivate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onDeactivate(); }, false);
         }
 
         void
@@ -208,11 +198,8 @@ namespace bdn
 
         void AppRunner::_applicationWillTerminate(UIApplication *application)
         {
-            BDN_ENTRY_BEGIN;
-
-            AppControllerBase::get()->onTerminate();
-
-            BDN_ENTRY_END(false);
+            bdn::platformEntryWrapper(
+                [&]() { AppControllerBase::get()->onTerminate(); }, false);
         }
 
         void AppRunner::initiateExitIfPossible(int exitCode)

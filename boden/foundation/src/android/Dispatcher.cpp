@@ -12,17 +12,19 @@ Java_io_boden_android_NativeDispatcher_nativeTimerEvent(JNIEnv *pEnv,
                                                         jclass rawClass,
                                                         jobject rawTimerObject)
 {
-    BDN_ENTRY_BEGIN(pEnv);
+    jboolean returnValue = JNI_TRUE;
+    bdn::platformEntryWrapper(
+        [&]() {
+            bdn::android::Dispatcher::Timer_ *pTimer =
+                dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
+                    bdn::java::JNativeStrongPointer::unwrapJObject(
+                        rawTimerObject));
 
-    bdn::android::Dispatcher::Timer_ *pTimer =
-        dynamic_cast<bdn::android::Dispatcher::Timer_ *>(
-            bdn::java::JNativeStrongPointer::unwrapJObject(rawTimerObject));
+            returnValue = pTimer->onEvent() ? JNI_TRUE : JNI_FALSE;
+        },
+        true, pEnv);
 
-    return pTimer->onEvent() ? JNI_TRUE : JNI_FALSE;
-
-    BDN_ENTRY_END();
-
-    return JNI_TRUE;
+    return returnValue;
 }
 
 namespace bdn
