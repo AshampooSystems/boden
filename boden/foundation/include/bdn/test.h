@@ -2607,6 +2607,8 @@ namespace bdn
     } while (bdn::alwaysFalse()) // expr here is never evaluated at runtime but
                                  // it forces the compiler to give it a look
 
+// clang-format off
+// clang-format fails with this codeblock, so we disable it
 #define INTERNAL_BDN_ALMOST_EQUAL(value, expectedValue, maxDeviation,          \
                                   resultDisposition, macroName)                \
     do {                                                                       \
@@ -2614,8 +2616,8 @@ namespace bdn
             macroName, BDN_INTERNAL_LINEINFO,                                  \
             #value ", " #expectedValue ", " #maxDeviation, resultDisposition); \
         try {                                                                  \
-            /* capture the concrete values, in case the parameters are a       \
-             * function call or similar.*/                                     \
+            /* capture the concrete values, in case the parameters are a       \ 
+               function call or similar.*/                                     \
             auto _val = value;                                                 \
             auto _expectedVal = expectedValue;                                 \
             auto _dev = maxDeviation;                                          \
@@ -2634,6 +2636,7 @@ namespace bdn
         INTERNAL_BDN_REACT(__catchResult)                                      \
     } while (bdn::alwaysFalse()) // expr here is never evaluated at runtime but
                                  // it forces the compiler to give it a look
+// clang-format on
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef BDN_CONFIG_VARIADIC_MACROS
