@@ -1,9 +1,9 @@
 
-if(APPLE)
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-darwin" CACHE INTERNAL "")
-elseif(UNIX)
+elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-${BDN_LINUX_DISTRIBUTION_ID}" CACHE INTERNAL "")
-elseif(WIN32)
+elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-windows.exe" CACHE INTERNAL "")
 else()
     set(CLANG_FORMAT_EXECUTABLE "CLANG_FORMAT_EXECUTABLE-NOTFOUND" CACHE INTERNAL "")
