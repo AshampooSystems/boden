@@ -27,6 +27,8 @@ elseif(BDN_NEEDS_TO_BE_STATIC_LIBRARY OR NOT BDN_SHARED_LIB)
     add_library(ui STATIC ${_BDN_UI_FILES})
 endif()
 
+windows_export_all_functions(ui)
+
 target_link_libraries(ui PUBLIC foundation)
 
 add_clangformat(ui)

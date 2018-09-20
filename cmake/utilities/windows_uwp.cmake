@@ -12,14 +12,5 @@ macro(setup_windows_uwp TARGET)
         # a max macro. And that interferes with std::max. We set a preprocessor
         # switch to remove the max macro
         target_compile_definitions(${TARGET} PUBLIC "NOMINMAX" )
-        
-        
-        # MSVC does not export any symbols from a DLL by default.
-        # Symbols to export must be marked in the source code with
-        # __declspec(dllexport).
-        # All other compilers export everything by default.
-        # Luckily there is a cmake feature to make VSVC behave like
-        # the other compilers. So activate that.
-        set_target_properties( ${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE )
     endif()
 endmacro()

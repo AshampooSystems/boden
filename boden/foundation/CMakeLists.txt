@@ -67,6 +67,8 @@ setup_windows_uwp(foundation)
 setup_gtk(foundation)
 setup_ios(foundation)
 
+windows_export_all_functions(foundation)
+
 ##########################################################################
 # Options
 
