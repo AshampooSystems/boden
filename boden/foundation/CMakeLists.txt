@@ -11,7 +11,6 @@ CMAKE_DEPENDENT_OPTION(BDN_SHARED_LIB "Compile foundation as a shared library" O
 
 add_sources(_BDN_FILES _BDN_HEADERS ./)
 add_sources(_BDN_FILES _BDN_HEADERS ./${BDN_TARGET})
-add_sources(_BDN_FILES _BDN_HEADERS ./test)
 
 if( BDN_USES_FK )
     add_sources(_BDN_FILES _BDN_HEADERS ./fk)

@@ -25,20 +25,20 @@ endfunction()
 set(bodenConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake CACHE INTERNAL "")
 
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/foundation/bodenConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/bodenConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
 configure_file(bodenConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/foundation/bodenConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/bodenConfig.cmake"
   COPYONLY
 )
 
 install(
   FILES
     bodenConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/foundation/bodenConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/bodenConfigVersion.cmake"
   DESTINATION
     ${bodenConfigPackageLocation}
   COMPONENT
@@ -50,3 +50,4 @@ install(
 
 add_subdirectory(foundation)
 add_subdirectory(ui)
+add_subdirectory(testing)

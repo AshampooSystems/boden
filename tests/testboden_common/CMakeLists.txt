@@ -9,7 +9,7 @@ file(GLOB _TESTBODEN_COMMON_SOURCES
     ${TESTBODEN_COMMON_SRCDIR}/${BDN_TARGET}/*.hh)
 
 add_library(testboden_common SHARED ${_TESTBODEN_COMMON_SOURCES})
-target_link_libraries(testboden_common PUBLIC foundation)
+target_link_libraries(testboden_common PUBLIC foundation testing ui)
 
 windows_export_all_functions(testboden_common)
 

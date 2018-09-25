@@ -4,8 +4,6 @@
 
 add_sources(_BDN_UI_FILES _BDN_HEADERS ./)
 add_sources(_BDN_UI_FILES _BDN_HEADERS ./${BDN_TARGET})
-add_sources(_BDN_UI_FILES _BDN_HEADERS ./test)
-
 
 if( BDN_USES_FK )
     add_sources(_BDN_UI_FILES _BDN_HEADERS ./fk)
@@ -30,6 +28,13 @@ endif()
 windows_export_all_functions(ui)
 
 target_link_libraries(ui PUBLIC foundation)
+target_include_directories(ui
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    )
+
+target_include_directories(ui PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
 add_clangformat(ui)
 
