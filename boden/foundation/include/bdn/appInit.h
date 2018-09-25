@@ -122,7 +122,7 @@
 
 #ifdef BDN_COMPILING_COMMANDLINE_APP
 
-#include <bdn/appEntry.h>
+#include <bdn/genericAppEntry.h>
 
 #define BDN_APP_INIT_WITH_CONTROLLER_CREATOR(appControllerCreator)             \
     int main(int argc, char *argv[])                                           \

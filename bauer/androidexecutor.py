@@ -275,6 +275,7 @@ class AndroidExecutor:
 
 
     def prepareAndroidEnvironment(self, configuration):
+        self.logger.info("Preparing android environment...")
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
         androidHome = self.getAndroidHome()
         sdkManagerPath = self.getBuildToolPath(androidHome, "tools/bin/sdkmanager")
@@ -297,10 +298,6 @@ class AndroidExecutor:
             self.androidBuildToolsVersion,
             self.androidBuildApiVersion )
 
-        # the following package is needed for emulation only. But we install it during preparation anyway
-        # to ensure that it actually exists (otherwise we would only find out that we cannot emulate
-        # this combination after we have built everything)
-        sdkManagerCommand += ' "system-images;android-%s;google_apis;%s"' % (self.androidEmulatorApiVersion, androidAbi)
         try:
             subprocess.check_call( sdkManagerCommand, shell=True, env=self.getToolEnv() )
         except:

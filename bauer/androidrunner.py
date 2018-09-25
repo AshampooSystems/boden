@@ -66,7 +66,7 @@ class AndroidRunner:
 
 
     def prepareAndroid(self, androidAbi):
-        self.logger.info("Ensuring that all necessary android packages are installed...")
+        self.logger.info("Ensuring that all necessary android packages are installed (API Version: %s, ABI: %s)..." % (self.buildExecutor.androidEmulatorApiVersion, androidAbi) )
 
         sdkManagerCommand = '"%s" "emulator" "system-images;android-%s;google_apis;%s"' % (
             self.sdkManagerPath,

@@ -471,7 +471,7 @@ namespace bdn
                             const PangoFontDescription *pFontDesc = nullptr;
                             gtk_style_context_get(pStyleContext,
                                                   GTK_STATE_FLAG_NORMAL, "font",
-                                                  &pFontDesc, NULL);
+                                                  &pFontDesc, nullptr);
                             if (pFontDesc != nullptr) {
                                 size =
                                     pango_font_description_get_size(pFontDesc);

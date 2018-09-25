@@ -7795,13 +7795,31 @@ namespace bdn
                     break;
 
                 default:
-                    // Escape control chars - based on contribution by @espenalb
-                    // in PR #465
-                    if ((c < '\x09') || (c > '\x0D' && c < '\x20') ||
-                        c == '\x7F')
+                    // Escape control chars.
+                    if ((static_cast<signed char>(c) >= 0 && c < '\x09') ||
+                        (c > '\x0D' && c < '\x20') || c == '\x7F')
                         os << "&#x" << std::uppercase << std::hex
                            << static_cast<int>(c);
-                    else
+                    else if (static_cast<unsigned char>(c) >= 0x80) {
+                        // we must not output invalid UTF-8 and we have no way
+                        // of knowing if the input char string is correctly
+                        // encoded. So we check first.
+                        auto it = m_str.begin() + i;
+                        if (Utf8Codec::decodeChar(it, m_str.end()) == 0xfffd) {
+                            // not a valid UTF-8 sequence. Escape the byte.
+                            os << "&#x" << std::uppercase << std::hex
+                               << static_cast<uint32_t>(
+                                      static_cast<unsigned char>(c))
+                               << ";";
+                        } else {
+                            // we had a valid UTF-8 sequence. Write the whole
+                            // sequence.
+                            size_t endIndex = it - m_str.begin();
+                            for (; i < endIndex; i++)
+                                os << m_str[i];
+                            i--;
+                        }
+                    } else
                         os << c;
                 }
             }

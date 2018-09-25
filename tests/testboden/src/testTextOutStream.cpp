@@ -19,12 +19,18 @@ static String _getStreamContents(STREAM_TYPE &stream)
 
 template <typename STREAM_TYPE>
 static void _verifyContents(STREAM_TYPE &stream, const String &expected,
-                            const String *pAlternativeExpected = nullptr)
+                            const String *pAlternativeExpected = nullptr,
+                            const String *pAlternativeExpected2 = nullptr)
 {
     String actual = _getStreamContents(stream);
 
-    if (pAlternativeExpected == nullptr || actual != *pAlternativeExpected)
-        REQUIRE(actual == expected);
+    std::list<String> expectedList{expected};
+    if (pAlternativeExpected != nullptr)
+        expectedList.push_back(*pAlternativeExpected);
+    if (pAlternativeExpected2 != nullptr)
+        expectedList.push_back(*pAlternativeExpected2);
+
+    REQUIRE_IN(actual, expectedList);
 }
 
 template <typename INT_TYPE, typename STREAM_TYPE>
@@ -93,21 +99,31 @@ static void _verifyString(STREAM_TYPE &stream)
             // in the middle should have simply been casted up to a char32.
             // Alternatively, the ascii codec may have generated an error,
             // in which case each UTF-8 byte should have been translated
-            // to the unicode replacement character U+fffd
+            // to the unicode replacement character U+fffd.
+
+            // MUSL libc is a special case: for some reason its ASCII
+            // codec add 0xdf00 to all ascii codes >= 0x80. This is clearly
+            // a bug in the standard library codec. We work around it so
+            // that our tests also succeed with MUSL.
 
             String expected1;
             String expected2;
+            String expected3;
             for (size_t i = 0; value[i] != 0; i++) {
                 unsigned char chr = (unsigned char)value[i];
                 expected1 += (char32_t)chr;
 
-                if (chr >= 128)
+                if (chr >= 128) {
                     expected2 += U'\ufffd';
-                else
+                    expected3 += static_cast<char32_t>(chr) + 0xdf00;
+                } else {
                     expected2 += chr;
+                    expected3 += chr;
+                }
             }
 
-            _verifyContents(stream, expected1, &expected2);
+            _verifyContents(stream, expected1, &expected2, &expected3);
+
         } else
             _verifyContents(stream, inString);
     }

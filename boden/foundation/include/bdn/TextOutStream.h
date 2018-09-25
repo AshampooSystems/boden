@@ -895,7 +895,13 @@ namespace bdn
     */
     using TextOutStream = std::basic_ostream<char32_t, UnicodeCharTraits>;
 
-#if defined(_MSC_VER) && _MSC_VER <= 1919
+    // the following is a workaround for a Visual Studio bug that was fixed in
+    // one of the updates of Visual Studio 2017. At the time of this writing it
+    // is unclear which particular update fixed this - early versions of VS2017
+    // had the bug and VS2017 v15.8 (_MSC_VER=1915) did not have the bug
+    // anymore. So for the time being we set the cutoff for the workaround at
+    // v15.7 (_MSC_VER 1914)
+#if defined(_MSC_VER) && _MSC_VER <= 1914
 
     // This is a TextOutStream version of the normal << overload for
     // std::basic_ostream rvalue references. This overload ensures that the <<
