@@ -741,33 +741,40 @@ namespace bdn
 
     typedef void (*TestFunction)();
 
-    struct NameAndDesc
+    struct TestCaseParams
     {
-        NameAndDesc(const char *_name = "", const char *_description = "")
-            : name(_name), description(_description)
+        TestCaseParams(
+            const char *name = "", const char *description = "",
+            std::function<void()> testEndCallback = std::function<void()>())
+            : name(name), description(description),
+              testEndCallback(testEndCallback)
         {}
 
         const char *name;
         const char *description;
+
+        /** Callback that is called at the end of each individual test in the
+           test case (i.e. at the end of each leaf in the section tree).*/
+        std::function<void()> testEndCallback;
     };
 
     void registerTestCase(ITestCase *testCase, char const *className,
-                          NameAndDesc const &nameAndDesc,
+                          TestCaseParams const &params,
                           SourceLineInfo const &lineInfo);
 
     struct AutoReg
     {
 
         AutoReg(TestFunction function, SourceLineInfo const &lineInfo,
-                NameAndDesc const &nameAndDesc);
+                TestCaseParams const &params);
 
         template <typename C>
         AutoReg(void (C::*method)(), char const *className,
-                NameAndDesc const &nameAndDesc, SourceLineInfo const &lineInfo)
+                TestCaseParams const &params, SourceLineInfo const &lineInfo)
         {
 
-            registerTestCase(new MethodTestCase<C>(method), className,
-                             nameAndDesc, lineInfo);
+            registerTestCase(new MethodTestCase<C>(method), className, params,
+                             lineInfo);
         }
 
         ~AutoReg();
@@ -779,7 +786,7 @@ namespace bdn
 
     void registerTestCaseFunction(TestFunction function,
                                   SourceLineInfo const &lineInfo,
-                                  NameAndDesc const &nameAndDesc);
+                                  TestCaseParams const &params);
 
 } // end namespace bdn
 
@@ -792,7 +799,7 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoTestCaseRegistrar)(                                            \
             &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____),           \
-            BDN_INTERNAL_LINEINFO, bdn::NameAndDesc(__VA_ARGS__));             \
+            BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(__VA_ARGS__));          \
     }                                                                          \
     static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)()
 
@@ -803,7 +810,7 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoMethodAsTestCaseRegistrar)(&QualifiedMethod,                   \
                                            "&" #QualifiedMethod,               \
-                                           bdn::NameAndDesc(__VA_ARGS__),      \
+                                           bdn::TestCaseParams(__VA_ARGS__),   \
                                            BDN_INTERNAL_LINEINFO);             \
     }
 
@@ -819,14 +826,15 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoTestCaseMethodRegistrar)(                                      \
             &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test,     \
-            #ClassName, bdn::NameAndDesc(__VA_ARGS__), BDN_INTERNAL_LINEINFO); \
+            #ClassName, bdn::TestCaseParams(__VA_ARGS__),                      \
+            BDN_INTERNAL_LINEINFO);                                            \
     }                                                                          \
     void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test()
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_REGISTER_TESTCASE(Function, ...)                          \
     bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO,                              \
-                 bdn::NameAndDesc(__VA_ARGS__));
+                 bdn::TestCaseParams(__VA_ARGS__));
 
 #else
   ///////////////////////////////////////////////////////////////////////////////
@@ -837,7 +845,7 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoTestCaseRegistrar)(                                            \
             &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____),           \
-            BDN_INTERNAL_LINEINFO, bdn::NameAndDesc(Name, Desc));              \
+            BDN_INTERNAL_LINEINFO, bdn::TestCaseParams(Name, Desc));           \
     }                                                                          \
     static void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)()
 
@@ -848,7 +856,7 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoMethodAsTestCaseRegistrar)(&QualifiedMethod,                   \
                                            "&" #QualifiedMethod,               \
-                                           bdn::NameAndDesc(Name, Desc),       \
+                                           bdn::TestCaseParams(Name, Desc),    \
                                            BDN_INTERNAL_LINEINFO);             \
     }
 
@@ -864,14 +872,15 @@ namespace bdn
         bdn::AutoReg INTERNAL_BDN_UNIQUE_NAME_POSSIBLY_WITH_COUNTER(           \
             autoTestCaseMethodRegistrar)(                                      \
             &INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test,     \
-            #ClassName, bdn::NameAndDesc(TestName, Desc),                      \
+            #ClassName, bdn::TestCaseParams(TestName, Desc),                   \
             BDN_INTERNAL_LINEINFO);                                            \
     }                                                                          \
     void INTERNAL_BDN_UNIQUE_NAME(____C_A_T_C_H____T_E_S_T____)::test()
 
 ///////////////////////////////////////////////////////////////////////////////
 #define INTERNAL_BDN_REGISTER_TESTCASE(Function, Name, Desc)                   \
-    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO, bdn::NameAndDesc(Name, Desc));
+    bdn::AutoReg(Function, BDN_INTERNAL_LINEINFO,                              \
+                 bdn::TestCaseParams(Name, Desc));
 #endif
 
 // #included from: internal/catch_capture.hpp
@@ -3448,6 +3457,7 @@ namespace bdn
         TestCaseInfo(std::string const &_name, std::string const &_className,
                      std::string const &_description,
                      std::set<std::string> const &_tags,
+                     std::function<void()> testEndCallback,
                      SourceLineInfo const &_lineInfo);
 
         TestCaseInfo(TestCaseInfo const &other);
@@ -3466,6 +3476,7 @@ namespace bdn
         std::set<std::string> tags;
         std::set<std::string> lcaseTags;
         std::string tagsAsString;
+        std::function<void()> testEndCallback;
         SourceLineInfo lineInfo;
         SpecialProperties properties;
     };
@@ -3494,6 +3505,7 @@ namespace bdn
     TestCase makeTestCase(ITestCase *testCase, std::string const &className,
                           std::string const &name,
                           std::string const &description,
+                          std::function<void()> testEndCallback,
                           SourceLineInfo const &lineInfo);
 }
 
@@ -3585,9 +3597,12 @@ namespace bdn
             {
                 u_int count;
                 Method *methods = class_copyMethodList(cls, &count);
+
                 for (u_int m = 0; m < count; m++) {
+
                     SEL selector = method_getName(methods[m]);
                     std::string methodName = sel_getName(selector);
+
                     if (startsWith(methodName, "Catch_TestCase_")) {
                         std::string testCaseName = methodName.substr(15);
                         std::string name =
@@ -3598,7 +3613,8 @@ namespace bdn
 
                         getMutableRegistryHub().registerTest(makeTestCase(
                             new OcMethod(cls, selector), className,
-                            name.c_str(), desc.c_str(), SourceLineInfo()));
+                            name.c_str(), desc.c_str(), std::function<void()>(),
+                            SourceLineInfo()));
                         noTestMethods++;
                     }
                 }
@@ -4111,6 +4127,23 @@ namespace bdn
 #define CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "CAPTURE")
 #define SCOPED_CAPTURE(msg) INTERNAL_BDN_INFO(#msg " := " << msg, "CAPTURE")
 
+/** \def TEST_CASE( ... )
+    Defines a test case.
+
+    \param name name of the test case.
+    \param descriptionAndTags (optional) string with the test case description
+    \param testEndCallback (optional) a callable (must be compatible with
+        std::function<void()>) that is called whenever one of the individual
+        tests in the test case ends. Note that each SECTION definition inside a
+   test case causes the test case function to be called one additional time. The
+        callback function is called at the end of each of these executions. If a
+   test execution is continued asynchronously (with one of the
+        CONTINUE_SECTION_WHEN_... macros) then the callback is called at the end
+        of the asynchronous continuation.
+
+        Note that the callback can also use test functionality like REQUIRE to
+        cause the test to be considered a failure.
+ */
 #define TEST_CASE(...) INTERNAL_BDN_TESTCASE(__VA_ARGS__)
 #define TEST_CASE_METHOD(className, ...)                                       \
     INTERNAL_BDN_TEST_CASE_METHOD(className, __VA_ARGS__)

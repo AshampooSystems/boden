@@ -1038,3 +1038,64 @@ TEST_CASE(
 }
 
 #endif
+
+static int testEndCallbackForTestCallCount = 0;
+
+static void testEndCallbackForTest() { testEndCallbackForTestCallCount++; }
+
+TEST_CASE("testEndCallback", "", testEndCallbackForTest)
+{
+    SECTION("a")
+    {
+        SECTION("aSub1") { REQUIRE(testEndCallbackForTestCallCount == 0); }
+
+        SECTION("aSub2") { REQUIRE(testEndCallbackForTestCallCount == 1); }
+    }
+
+    SECTION("b")
+    {
+        SECTION("bSub1") { REQUIRE(testEndCallbackForTestCallCount == 2); }
+
+        SECTION("bSub2-Async")
+        {
+            REQUIRE(testEndCallbackForTestCallCount == 3);
+
+            CONTINUE_SECTION_WHEN_IDLE()
+            {
+                REQUIRE(testEndCallbackForTestCallCount == 3);
+            };
+        }
+
+        SECTION("bSub3") { REQUIRE(testEndCallbackForTestCallCount == 4); }
+    }
+
+    SECTION("c")
+    {
+        REQUIRE(testEndCallbackForTestCallCount == 5);
+
+        CONTINUE_SECTION_WHEN_IDLE()
+        {
+            REQUIRE(testEndCallbackForTestCallCount == 5);
+
+            CONTINUE_SECTION_WHEN_IDLE()
+            {
+                REQUIRE(testEndCallbackForTestCallCount == 5);
+            };
+
+            REQUIRE(testEndCallbackForTestCallCount == 5);
+        };
+
+        REQUIRE(testEndCallbackForTestCallCount == 5);
+    }
+
+    // the last test end callback should be called asynchronously.
+    // So at the end of this test case function the call count should never go
+    // above 5, even though a sixth callback will happen.
+    REQUIRE(testEndCallbackForTestCallCount <= 5);
+}
+
+static void testEndCallbackForTest_CausesFail() { REQUIRE(false); }
+
+TEST_CASE("testEndCallback-callbackCausesFail", "[!shouldfail]",
+          testEndCallbackForTest_CausesFail)
+{}

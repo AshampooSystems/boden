@@ -4232,6 +4232,19 @@ namespace bdn
             // we must hold a mutex here. If the test uses multiple threads
             // then we might get failures from multiple threads at once.
 
+            try {
+                if (_pCurrentTestCaseInfo->testEndCallback)
+                    _pCurrentTestCaseInfo->testEndCallback();
+            }
+            catch (TestFailureException &) {
+                if (result == CurrentTestResult::Passed)
+                    result = CurrentTestResult::Failed;
+            }
+            catch (...) {
+                if (result == CurrentTestResult::Passed)
+                    result = CurrentTestResult::Exception;
+            }
+
             CurrentTestResult actualCurrentResult = result;
 
             {
@@ -5015,26 +5028,27 @@ namespace bdn
 
     void registerTestCase(ITestCase *testCase,
                           char const *classOrQualifiedMethodName,
-                          NameAndDesc const &nameAndDesc,
+                          TestCaseParams const &params,
                           SourceLineInfo const &lineInfo)
     {
 
-        getMutableRegistryHub().registerTest(
-            makeTestCase(testCase, extractClassName(classOrQualifiedMethodName),
-                         nameAndDesc.name, nameAndDesc.description, lineInfo));
+        getMutableRegistryHub().registerTest(makeTestCase(
+            testCase, extractClassName(classOrQualifiedMethodName), params.name,
+            params.description, params.testEndCallback, lineInfo));
     }
+
     void registerTestCaseFunction(TestFunction function,
                                   SourceLineInfo const &lineInfo,
-                                  NameAndDesc const &nameAndDesc)
+                                  TestCaseParams const &params)
     {
-        registerTestCase(new FreeFunctionTestCase(function), "", nameAndDesc,
+        registerTestCase(new FreeFunctionTestCase(function), "", params,
                          lineInfo);
     }
 
     ///////////////////////////////////////////////////////////////////////////
 
     AutoReg::AutoReg(TestFunction function, SourceLineInfo const &lineInfo,
-                     NameAndDesc const &nameAndDesc)
+                     TestCaseParams const &nameAndDesc)
     {
         registerTestCaseFunction(function, lineInfo, nameAndDesc);
     }
@@ -5916,6 +5930,7 @@ namespace bdn
     TestCase makeTestCase(ITestCase *_testCase, std::string const &_className,
                           std::string const &_name,
                           std::string const &_descOrTags,
+                          std::function<void()> testEndCallback,
                           SourceLineInfo const &_lineInfo)
     {
         bool isHidden(startsWith(_name, "./")); // Legacy support
@@ -5951,7 +5966,8 @@ namespace bdn
             tags.insert(".");
         }
 
-        TestCaseInfo info(_name, _className, desc, tags, _lineInfo);
+        TestCaseInfo info(_name, _className, desc, tags, testEndCallback,
+                          _lineInfo);
         return TestCase(_testCase, info);
     }
 
@@ -5978,9 +5994,11 @@ namespace bdn
                                std::string const &_className,
                                std::string const &_description,
                                std::set<std::string> const &_tags,
+                               std::function<void()> testEndCallback,
                                SourceLineInfo const &_lineInfo)
         : name(_name), className(_className), description(_description),
-          lineInfo(_lineInfo), properties(None)
+          testEndCallback(testEndCallback), lineInfo(_lineInfo),
+          properties(None)
     {
         setTags(*this, _tags);
     }
@@ -5989,7 +6007,8 @@ namespace bdn
         : name(other.name), className(other.className),
           description(other.description), tags(other.tags),
           lcaseTags(other.lcaseTags), tagsAsString(other.tagsAsString),
-          lineInfo(other.lineInfo), properties(other.properties)
+          testEndCallback(other.testEndCallback), lineInfo(other.lineInfo),
+          properties(other.properties)
     {}
 
     bool TestCaseInfo::isHidden() const { return (properties & IsHidden) != 0; }
@@ -6027,6 +6046,7 @@ namespace bdn
         tags.swap(other.tags);
         lcaseTags.swap(other.lcaseTags);
         tagsAsString.swap(other.tagsAsString);
+        std::swap(testEndCallback, other.testEndCallback);
         std::swap(TestCaseInfo::properties,
                   static_cast<TestCaseInfo &>(other).properties);
         std::swap(lineInfo, other.lineInfo);
@@ -6044,6 +6064,7 @@ namespace bdn
     {
         return name < other.name;
     }
+
     TestCase &TestCase::operator=(TestCase const &other)
     {
         TestCase temp(other);
