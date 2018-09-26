@@ -1,3 +1,4 @@
+option(BDN_ALWAYS_CLANG_FORMAT "Run clang-format on every build" OFF)
 
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(CLANG_FORMAT_EXECUTABLE "${CMAKE_SOURCE_DIR}/3rdparty/clang-format/clang-format-darwin" CACHE INTERNAL "")
@@ -92,9 +93,14 @@ function(add_global_clangformat TARGETNAME ROOTFOLDER)
 
         add_dependencies(${TARGETNAME} ${TARGETNAME}_clangformat)
 
-        foreach(_target ${BDN_CODE_FORMATTING_TARGETS})
-            add_dependencies(${_target} ${TARGETNAME})
-        endforeach()
+        if(NOT BDN_ALWAYS_CLANG_FORMAT)
+            set_target_properties(${TARGETNAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+        else()
+            foreach(_target ${BDN_CODE_FORMATTING_TARGETS})
+                add_dependencies(${_target} ${TARGETNAME})
+            endforeach()
+        endif()
+
     endif()
 endfunction()
 
