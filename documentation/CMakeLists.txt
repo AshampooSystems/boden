@@ -1,4 +1,6 @@
-find_package(Doxygen)
+if(${CMAKE_VERSION} VERSION_GREATER "3.9.0")
+    find_package(Doxygen)
+endif()
 
 file(GLOB PAGES "./pages/*.md")
 
@@ -10,8 +12,8 @@ if(DOXYGEN_FOUND)
     add_custom_target(boden_documentation SOURCES ${DOC_SOURCES})
     
     set(DOCUMENTATION_SOURCE_FOLDERS
-        ${PROJECT_SOURCE_DIR}/boden/foundation/include 
-        ${PROJECT_SOURCE_DIR}/boden/ui/include)
+        ${PROJECT_SOURCE_DIR}/framework/foundation/include
+        ${PROJECT_SOURCE_DIR}/framework/ui/include)
 
     set(DOXYGEN_EXCLUDE ${PROJECT_SOURCE_DIR}/boden/include/bdn/test.h)
     set(DOXYGEN_FILE_PATTERNS *.h *.md)

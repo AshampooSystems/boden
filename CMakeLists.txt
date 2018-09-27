@@ -17,10 +17,8 @@ fix_ios_package()
 # Documentation
 add_subdirectory(documentation)
 
-setup_web_ems(boden)
-
 # Main Library
-add_subdirectory(boden)
+add_subdirectory(framework)
 
 # Examples
 option(BDN_BUILD_EXAMPLES "Build boden examples" ON)

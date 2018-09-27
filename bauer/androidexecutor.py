@@ -20,9 +20,9 @@ class AndroidExecutor:
         self.gradle = Gradle(sourceDirectory)
         self.cmake = CMake()
 
-        self.androidBuildApiVersion = "26"
-        self.androidBuildToolsVersion = "26.0.2"
-        self.androidEmulatorApiVersion = "26"
+        self.androidBuildApiVersion = "28"
+        self.androidBuildToolsVersion = "28.0.2"
+        self.androidEmulatorApiVersion = "28"
 
     def buildTarget(self, configuration, args, target):
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
@@ -35,7 +35,7 @@ class AndroidExecutor:
             self.buildTargetMake(configuration, args, target)
 
     def buildTargetMake(self, configuration, args, target):
-        buildExecutor = BuildExecutor(self.generatorInfo, None, self.sourceDirectory, self.buildFolder)
+        buildExecutor = BuildExecutor(self.generatorInfo, self.sourceDirectory, self.buildFolder)
         buildExecutor.buildTarget(configuration, args, target)
 
     def buildTargetAndroidStudio(self, configuration, args, target, androidAbi, androidHome, buildDir):
@@ -127,13 +127,21 @@ class AndroidExecutor:
 
         self.cmake.open(self.sourceDirectory, tmpCMakeFolder, "Unix Makefiles")
 
-        arguments = [ "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome), "-DCMAKE_SYSTEM_NAME=Android", "-DBAUER_RUN=Yes" ]
+        cmakeArguments = [ 
+            "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome), 
+            "-DCMAKE_SYSTEM_NAME=Android", 
+            "-DANDROID_ABI=%s" % (self.getAndroidABIFromArch(configuration.arch)),
+            "-DANDROID_NATIVE_API_LEVEL=%s" % ( self.androidBuildApiVersion ),
+            "-DBAUER_RUN=Yes" ]
 
         if sys.platform == 'win32':
-            arguments += ["-DCMAKE_MAKE_PROGRAM=%s/ndk-bundle/prebuilt/windows-x86_64/bin/make.exe" % (androidHome)]
+            cmakeArguments += ["-DCMAKE_MAKE_PROGRAM=%s/ndk-bundle/prebuilt/windows-x86_64/bin/make.exe" % (androidHome)]
 
+        self.logger.debug("Starting configure ...")
+        self.logger.debug(" Arguments: %s", cmakeArguments)
+        self.logger.debug(" Generator: %s", "Unix Makefiles")
 
-        self.cmake.configure(arguments)
+        self.cmake.configure(cmakeArguments)
 
         cmakeConfigurations = self.cmake.codeModel["configurations"]
         if len(cmakeConfigurations) != 1:
@@ -202,7 +210,7 @@ class AndroidExecutor:
     def getAndroidHome(self):
         android_home_dir = os.environ.get("ANDROID_HOME")
         if not android_home_dir:
-            if sys.platform == "linux2":
+            if sys.platform.startswith("linux"):
                 android_home_dir = os.path.expanduser("~/Android/Sdk")
                 if os.path.exists(android_home_dir):
                     self.logger.info("Android home directory automatically detected as: %s", android_home_dir)

@@ -11,7 +11,7 @@
 #include <bdn/Checkbox.h>
 
 #include <bdn/appInit.h>
-#include <bdn/AppControllerBase.h>
+#include <bdn/UiAppControllerBase.h>
 
 #include <bdn/property.h>
 
@@ -319,7 +319,7 @@ class MainViewController : public Base // ViewControllerBase
     P<Checkbox> _pCheckbox;
 };
 
-class AppController : public AppControllerBase
+class AppController : public UiAppControllerBase
 {
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override

@@ -112,7 +112,7 @@ class AndroidRunner:
 
         # For some reason, GPU acceleration does not work inside a Parallels VM for linux.
         # "auto" will cause the emulator to exit with an error.
-        if sys.platform=="linux2":
+        if sys.platform.startswith("linux"):
             try:
                 output = subprocess.check_output("lspci | grep VGA", shell=True, env=self.androidEnvironment)
                 if output.find("Parallels")!=-1:

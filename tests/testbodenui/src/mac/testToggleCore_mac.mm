@@ -34,7 +34,7 @@ class TestMacToggleCore
     void verifyCoreOn() override
     {
         bool expectedOn = _pToggle->on();
-        bool on = _pNSButton.state == NSOnState;
+        bool on = _pNSButton.state == NSControlStateValueOn;
         REQUIRE(on == expectedOn);
     }
 

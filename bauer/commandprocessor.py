@@ -9,20 +9,18 @@ from buildconfiguration import BuildConfiguration
 from desktoprunner import DesktopRunner
 from androidexecutor import AndroidExecutor
 from androidrunner import AndroidRunner
-from emscriptenrunner import EmscriptenRunner
 from iosrunner import IOSRunner
 from codesigner import CodeSigner
 
 class CommandProcessor:
-    def __init__(self, bauerGlobals, generatorInfo, emscriptenInfo, args, sourceFolder, buildFolder):
+    def __init__(self, bauerGlobals, generatorInfo, args, sourceFolder, buildFolder):
         self.args = args
         self.logger = logging.getLogger(__name__)
         self.bauerGlobals = bauerGlobals
         self.generatorInfo = generatorInfo
         self.buildFolder = buildFolder
-        self.buildExecutor = BuildExecutor(generatorInfo, emscriptenInfo, sourceFolder, buildFolder)
+        self.buildExecutor = BuildExecutor(generatorInfo, sourceFolder, buildFolder)
         self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder)
-        self.emscriptenInfo = emscriptenInfo
 
     def process(self):
         command = self.args.command;
@@ -149,10 +147,6 @@ class CommandProcessor:
 
             iosRunner = IOSRunner(self.buildExecutor.cmake)
             exitCode = iosRunner.run(configuration, self.args)
-
-        elif configuration.platform == "webems":
-            emscriptenRunner = EmscriptenRunner(self.buildFolder, self.buildExecutor.cmake, self.emscriptenInfo)
-            exitCode = emscriptenRunner.run(configuration, self.args)
 
         elif configuration.platform == "android":
             if configuration.buildsystem == "AndroidStudio":

@@ -10,7 +10,7 @@ class AndroidStudioProjectGenerator(object):
         self.androidBuildApiVersion = androidBuildApiVersion
         
     def getGradleDependency(self):
-        return "classpath 'com.android.tools.build:gradle:3.0.1'"
+        return "classpath 'com.android.tools.build:gradle:3.2.0'"
 
 
 
@@ -40,7 +40,8 @@ class AndroidStudioProjectGenerator(object):
             gradle_path = self.gradle.getGradlePath()
         
             subprocess.check_call(
-                '"%s" wrapper --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.1-all.zip"' % (gradle_path),
+                #'"%s" wrapper --gradle-distribution-url "https://services.gradle.org/distributions/gradle-4.10-all.zip"' % (gradle_path),
+                '"%s" wrapper --gradle-version=4.10.2' % (gradle_path),
                 shell=True,
                 cwd=gradle_temp_dir);
 
@@ -202,7 +203,7 @@ task clean(type: Delete) {
 
         moduleDependencyCode = "";
         for dep in dependencyList:            
-            moduleDependencyCode += "    compile project(':%s')\n" % dep;
+            moduleDependencyCode += "    implementation project(':%s')\n" % dep;
 
         cmakeTargets = '"%s"' % (cmakeTargetName);
         

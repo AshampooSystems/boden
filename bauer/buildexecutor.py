@@ -9,11 +9,10 @@ from compilerinfo import CompilerInfo
 
 
 class BuildExecutor:
-    def __init__(self, generatorInfo, emscriptenInfo, sourceDirectory, buildFolder):
+    def __init__(self, generatorInfo, sourceDirectory, buildFolder):
         self.logger = logging.getLogger(__name__)
         self.cmake = CMake()
         self.generatorInfo = generatorInfo
-        self.emscriptenInfo = emscriptenInfo
         self.sourceDirectory = sourceDirectory
         self.buildFolder = buildFolder
 
@@ -33,7 +32,7 @@ class BuildExecutor:
             configs = [args.config]
 
         if target == None and args.module != None:
-            target = args.target
+            target = args.module
 
         isSingleConfigBuildSystem = self.generatorInfo.isSingleConfigBuildSystem(configuration.buildsystem)
 
@@ -96,13 +95,7 @@ class BuildExecutor:
 
             cmakeArguments += ["-DCPACK_OUTPUT_FILE_PREFIX=%s" % (packageFolder)]
 
-        if configuration.platform.startswith("win"):
-            generatorName, newArgs = self.generateWindowsCMakeArguments(configuration)
-            cmakeArguments += newArgs
-            # Architecture has to be set via the generator name
-            cmakeArch = None
-
-        elif configuration.platform=="mac":
+        if configuration.platform=="mac":
             if configuration.arch!="std":
                 raise error.InvalidArchitectureError(arch);
             
@@ -120,29 +113,6 @@ class BuildExecutor:
                 raise error.InvalidArchitectureError(arch);
 
             toolChainFileName = "ios.toolchain.cmake";
-
-        elif configuration.platform=="webems":
-            needsCleanBuildDir, cmakeArguments, toolChainFileName = self.generateWebEMSArguments(platformState, configuration.arch)
-            cmakeArguments += cmakeArguments
-
-        elif configuration.platform=="linux":
-            # we prefer clang over GCC 4. GCC has a lot more bugs in their standard library.
-            compilerInfo = CompilerInfo()
-
-            if compilerInfo.gccVersion is not None and compilerInfo.gccVersion[0]==4 and compilerInfo.clangVersion is not None:
-                self.logger.info("Forcing use of clang instead of GCC because of bugs in this GCC version.");
-                cmakeEnvironment = {"CC" : "/usr/bin/clang", "CXX" : "/usr/bin/clang++"};
-                if configuration.arch != "std":
-                    raise error.InvalidArchitectureError(arch);
-            else:
-                if configuration.arch != "std":
-                    if configuration.arch == "clang":
-                        cmakeEnvironment = {"CC" : "/usr/bin/clang", "CXX" : "/usr/bin/clang++"};
-                    elif configuration.arch == "gcc":
-                        cmakeEnvironment = {"CC" : "/usr/bin/gcc", "CXX" : "/usr/bin/g++"};
-                    else:
-                        raise error.InvalidArchitectureError(configuration.arch);
-
 
         if toolChainFileName:
             toolChainFilePath = os.path.join(self.sourceDirectory, "cmake/toolchains", toolChainFileName);               
@@ -174,58 +144,3 @@ class BuildExecutor:
 
 
         self.cmake.configure(cmakeArguments)
-
-    def generateWebEMSArguments(self, platformState, arch):
-        if arch!="std":
-            raise error.InvalidArchitectureError(arch);
-
-        cmakeArguments = ""
-        needsCleanBuildDir = False
-
-        # store the prepared emscripten version in the build dir.
-        # If the version changes then we have to clean it completely.
-        versionChanged = True
-        if "emsSdkVersion" in platformState.state:
-            preparedEmsSdkVersion = platformState.state["emsSdkVersion"]
-            if preparedEmsSdkVersion != self.emscriptenInfo.version:
-                needsCleanBuildDir = True
-                self.logger.info("Project was previously prepared for different Emscripten version(%s vs. %s). Auto-cleaning old build files.", preparedEmsSdkVersion, self.emscriptenInfo.version)
-
-        platformState.state["emsSdkVersion"] = self.emscriptenInfo.version
-
-        self.emscriptenInfo.ensure_emscripten_version_active()
-
-        emsdkDir = self.emscriptenInfo.getEmscriptenSdkBuildDir()
-        emsdkExePath = os.path.join(emsdkDir, "emsdk");
-
-        cmakeArguments = ["-DEMSCRIPTEN_ROOT_PATH=%s" % (self.emscriptenInfo.getEmscriptenSdkRootPath()) ]
-        #self.emscriptenInfo.getEnvironmentSetupCommandLine()
-        toolChainFileName = "emscripten.toolchain.cmake";
-
-        return (needsCleanBuildDir, cmakeArguments, toolChainFileName)
-
-
-    def generateWindowsCMakeArguments(self, configuration):
-        generatorName = self.generatorInfo.getCMakeGeneratorName(configuration.buildsystem)
-        newArgs = []
-
-        if configuration.platform=="winuwp":
-            newArgs = ["-DCMAKE_SYSTEM_NAME=WindowsStore", "-DCMAKE_SYSTEM_VERSION=10.0.10240.0" ]
-
-        if configuration.arch != "std":
-            if "Visual Studio" in generatorName:
-
-                # note: passing the architecture with -A does not work properly.
-                # Cmake cannot find a compiler if we do it that way.
-                # So instead we pass it in the generator name.
-                if configuration.arch == "x64":
-                    generatorName += " Win64"
-                    
-                elif configuration.arch == "arm":
-                    generatorName += " ARM"
-                else:
-                    raise error.InvalidArchitectureError(arch)
-            else:
-                raise error.InvalidArchitectureError(configuration.arch);           
-
-        return ( generatorName, newArgs )

@@ -32,7 +32,7 @@ namespace bdn
 
         SECTION("typedef")
         {
-#if BDN_PLATFORM_FAMILY_WINDOWS || BDN_PLATFORM_DOTNET
+#if BDN_PLATFORM_FAMILY_WINDOWS
             REQUIRE(typeid(WideCodec) == typeid(Utf16CodecImpl<wchar_t>));
 
 #else

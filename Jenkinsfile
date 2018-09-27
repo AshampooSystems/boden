@@ -13,6 +13,42 @@ pipeline {
     }
 
     stages {
+        stage('Check formatting') {
+            environment {
+                BAUER_PLATFORM = 'mac'
+                BAUER_BUILD_SYSTEM = 'make'
+                BAUER_CONFIG = 'Release'
+                BAUER_PACKAGE_FOLDER = 'package'
+                BAUER_PACKAGE_GENERATOR = 'TGZ'
+            }
+            agent { label 'macOS' }
+            stages {
+                stage('Run clang-format') {
+                    steps {
+                        sh 'python boden.py build --module FormatSources'
+                    }
+                }
+                stage('Check for changes') {
+                    steps {
+                        script {
+                            List<String> sourceChanged = sh(returnStdout: true, script: "git diff --name-only").split()
+                            if(sourceChanged.size() > 0) {
+                                String changedFiles = "Some files were changed by clang-format, make sure to format before committing:\n";
+                                for (int i = 0; i < sourceChanged.size(); i++) {
+                                    changedFiles += sourceChanged[i] + "\n";
+                                    if(i > 10) {
+                                        changedFiles += "...\n";
+                                        break;
+                                    }
+                                }
+                                println changedFiles
+                                error(changedFiles)
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Documentation') {
             agent {
@@ -20,7 +56,7 @@ pipeline {
             }
             steps {
                 sh 'mkdir -p ${WORKSPACE}/build/documentation'
-                
+
                 sh 'cd ${WORKSPACE}/build/documentation && cmake ../../ -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/boden-documentation'
                 sh 'cd ${WORKSPACE}/build/documentation && make boden_documentation'
                 sh 'cd ${WORKSPACE}/build/documentation && cmake -DCOMPONENT=documentation -P cmake_install.cmake'
@@ -35,215 +71,11 @@ pipeline {
                 stash includes: 'build/package/*', name: 'documentation-packages'
             }
         }
-        
+
         stage('Building and testing (parallel)') {
 
             parallel {
-                stage('Check formatting') {
-                    environment {
-                       BAUER_PLATFORM = 'linux'
-                       BAUER_BUILD_SYSTEM = 'make'
-                       BAUER_CONFIG = 'Release'
-                       BAUER_PACKAGE_FOLDER = 'package'
-                       BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent {
-                        label 'linux-build-test-cpp'
-                    }
-                    stages {
-                        stage('Run clang-format') {
-                            steps {
-                                sh 'python build.py build --module FormatSources'
-                            }
-                        }
-                        stage('Check for changes') {
-                            steps {
-                                script {
-                                    List<String> sourceChanged = sh(returnStdout: true, script: "git diff --name-only").split()
-                                    if(sourceChanged.size() > 0) {
-                                        String changedFiles = "Some files were changed by clang-format, make sure to format before committing:\n";
-                                        for (int i = 0; i < sourceChanged.size(); i++) {
-                                            changedFiles += sourceChanged[i] + "\n";
-                                            if(i > 10) {
-                                                changedFiles += "...\n";
-                                                break;
-                                            }
-                                        }
-                                        println changedFiles
-                                        error(changedFiles)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }                
 
-                stage('Linux') {
-                    environment {
-                        BAUER_PLATFORM = 'linux'
-                        BAUER_BUILD_SYSTEM = 'make'
-                        BAUER_CONFIG = 'Release'
-                        BAUER_PACKAGE_FOLDER = 'package'
-                        BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent {
-                        label 'linux-build-test-cpp'
-                    }
-                    stages {
-                        stage('Build') {
-                            steps {
-                                unstash 'boden_documentation_builddir'
-                                sh 'python build.py copy -f build/documentation/documentation'
-                                sh 'python build.py build'
-                            }
-                        }
-
-                        stage('Package') {
-                            steps {
-                                sh 'python build.py package'
-                                archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
-                                stash includes: 'build/package/*', name: 'linux-packages'
-                            }
-                        }
-                        stage('Test') {
-                            steps {
-                                sh 'mkdir -p testresults'
-
-                                sh 'python build.py run --module testboden --config Release -- --out testresults/linux_testboden.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/linux_testboden.xml"
-
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testbodenui --config Release -- --out testresults/linux_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/linux_testbodenui.xml"
-
-                                archiveArtifacts artifacts: 'testresults/*.xml'
-                            }
-                        }
-                    }
-                }
-                /* disabled for merging because it currently fails (also in master)
-                stage('Win32') {
-                    environment {
-                        BAUER_PLATFORM = 'win32'
-                        BAUER_CONFIG = 'Release'
-                        BAUER_PACKAGE_FOLDER = 'package'
-                        BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent {
-                        label 'windows-build-test-cpp'
-                    }
-                    
-                    stages {                        
-                        stage('Build') {
-                            steps {
-                                bat 'python build.py prepare --build-system "vs2017"'
-
-                                bat 'python build.py build --build-system "vs2017" %BUILD_EXTRA_ARGS%'
-                            }
-                        }
-                        /*stage('Package') {
-                            steps {
-                                sh 'python build.py package -p win32 %BUILD_EXTRA_ARGS%'
-                                archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
-                                stash includes: 'build/package/*', name: 'win32-packages'
-                            }
-                        }* /
-                        stage('Test') {
-                            steps {
-                                bat 'mkdir -p testresults'
-
-                                bat 'python build.py run --module testboden --config Release -- --out testresults/win32_testboden.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/win32_testboden.xml"
-
-                                bat 'python build.py run --module testbodenui --config Release -- --out testresults/win32_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/win32_testbodenui.xml"
-
-                                archiveArtifacts artifacts: 'testresults/*.xml'
-                            }
-                        }
-                    }
-                }*/
-                /*stage('WinUWP') {
-                    environment {
-                        BAUER_PLATFORM = 'winuwp'
-                        BAUER_CONFIG = 'Release'
-                        BAUER_PACKAGE_FOLDER = 'package'
-                        BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent {
-                        label 'windows-build-test-cpp'
-                    }
-
-                    stages {
-                        stage('Build') {
-                            steps {
-                                bat 'python build.py prepare --build-system vs2017'
-
-                                bat 'python build.py build --build-system vs2017 %BUILD_EXTRA_ARGS%'
-                            }
-                        }
-                        /*stage('Package') {
-                            steps {
-                                bat 'python build.py package -p winuwp %BUILD_EXTRA_ARGS%'
-                                archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
-                                stash includes: 'build/package/*', name: 'winuwp-packages'
-                            }
-                        }* /    
-                        stage('Test') {
-                            steps {
-                                bat 'mkdir -p testresults'
-
-                                bat 'python build.py run --module testboden --config Release -- --out testresults/winuwp_testboden.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/winuwp_testboden.xml"
-
-                                bat 'python build.py run --module testbodenui --config Release -- --out testresults/winuwp_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/winuwp_testbodenui.xml"
-
-                                archiveArtifacts artifacts: 'testresults/*.xml'
-                            }
-                        }                    
-                    }
-                }*/
-                stage('Webems') {
-                    environment {
-                        BAUER_PLATFORM = 'webems'
-                        BAUER_CONFIG = 'Release'
-                        BAUER_PACKAGE_FOLDER = 'package'
-                        BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent {
-                        label 'linux-build-test-webems'
-                    }
-
-                    stages {
-                        stage('Build') {
-                            steps {
-                                sh 'python build.py prepare --build-system make'
-
-                                sh 'python build.py build --build-system make $BUILD_EXTRA_ARGS'
-                            }
-                        }
-                        /*stage('Package') {
-                            steps {
-                                sh 'python build.py package -p webems $BUILD_EXTRA_ARGS'
-                                archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
-                                stash includes: 'build/package/*', name: 'webems-packages'
-                            }
-                        }*/
-                        /*stage('Test') {
-                            steps {
-                                sh 'mkdir -p testresults'
-
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testboden --config Release -- --out testresults/webems_testboden.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/webems_testboden.xml"
-
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testbodenui --config Release -- --out testresults/webems_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/webems_testbodenui.xml"
-
-                                archiveArtifacts artifacts: 'testresults/*.xml'
-                            }
-                        }                         */
-                    }
-                }
                 stage('Android Build') {
                     environment {
                         BAUER_PLATFORM = 'android'
@@ -258,20 +90,20 @@ pipeline {
                         stage('Build') {
                             steps {
                                 unstash 'boden_documentation_builddir'
-                                sh 'python build.py prepare -b make -a arm64-v8a'
-                                sh 'python build.py prepare -b make -a x86_64'
+                                sh 'python boden.py prepare -b make -a arm64-v8a'
+                                sh 'python boden.py prepare -b make -a x86_64'
 
                                 // This is only necessary for testing, move out once tests work again
-                                sh 'python build.py prepare -a x86_64 -b AndroidStudio'
+                                sh 'python boden.py prepare -a x86_64 -b AndroidStudio'
 
-                                sh 'python build.py build -b AndroidStudio $BUILD_EXTRA_ARGS'
+                                sh 'python boden.py build -b AndroidStudio $BUILD_EXTRA_ARGS'
 
                                 stash includes: 'build/android/**/*', name: 'android-build-data'
                             }
                         }
                         /*stage('Package') {
                             steps {
-                                sh 'python build.py package -p android -b AndroidStudio $BUILD_EXTRA_ARGS'
+                                sh 'python boden.py package -p android -b AndroidStudio $BUILD_EXTRA_ARGS'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'android-packages'
                             }
@@ -280,10 +112,10 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testboden.xml"
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
@@ -314,57 +146,19 @@ pipeline {
 
                                 sh 'mkdir -p testresults'
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testboden.xml"
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python build.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
                             }
                         }
-                        
+
                     }
                 }*/
-                stage('MacOS') {
-                    environment {
-                        BAUER_PLATFORM = 'mac'
-                        BAUER_BUILD_SYSTEM = 'make'
-                        BAUER_CONFIG = 'Release'
-                        BAUER_PACKAGE_FOLDER = 'package'
-                        BAUER_PACKAGE_GENERATOR = 'TGZ'
-                    }
-                    agent { label 'macOS' }
-                    stages {
-                        stage('Build') {
-                            steps {
-                                unstash 'boden_documentation_builddir'
-                                sh 'python build.py copy -f build/documentation/documentation'
-                                sh 'python build.py build'
-                            }
-                        }
-                        stage('Package') {
-                            steps {
-                                sh 'python build.py package'
-                                archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
-                                stash includes: 'build/package/*', name: 'macos-packages'
-                            }
-                        }
-                        stage('Test') {
-                            steps {
-                                sh 'mkdir -p testresults'
 
-                                sh 'python build.py run --module testboden --run-output-file testresults/mac_testboden.xml -- --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/mac_testboden.xml"
-
-                                sh 'python build.py run --module testbodenui --run-output-file testresults/mac_testbodenui.xml -- --reporter junit --reporter console --print-level 2 || true'
-                                junit "testresults/mac_testbodenui.xml"
-
-                                archiveArtifacts artifacts: 'testresults/*.xml'
-                            }
-                        }
-                    }
-                }
                 stage('IOS') {
                     environment {
                         BAUER_PLATFORM = 'ios'
@@ -379,14 +173,14 @@ pipeline {
                         stage('Build') {
                             steps {
                                 unstash 'boden_documentation_builddir'
-                                sh 'python build.py copy -f build/documentation/documentation'
-                                sh 'python build.py build'
+                                sh 'python boden.py copy -f build/documentation/documentation'
+                                sh 'python boden.py build'
                             }
                         }
 
                         stage('Package') {
                             steps {
-                                sh 'python build.py package'
+                                sh 'python boden.py package'
                                 archiveArtifacts artifacts: 'build/package/boden-*.tar.gz', fingerprint: true
                                 stash includes: 'build/package/*', name: 'ios-packages'
                             }
@@ -398,7 +192,7 @@ pipeline {
                                 BAUER_KEYCHAIN = credentials('jenkins-dev-certificate-keychain')
                             }
                             steps {
-                                sh 'python build.py codesign --password $JENKINS_USER_PSW'
+                                sh 'python boden.py codesign --password $JENKINS_USER_PSW'
                             }
                         }
 
@@ -406,10 +200,10 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'python build.py run --module testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python boden.py run --module testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testboden.xml"
 
-                                sh 'python build.py run --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python boden.py run --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'

@@ -11,8 +11,6 @@ file(GLOB _TESTBODEN_COMMON_SOURCES
 add_library(testboden_common SHARED ${_TESTBODEN_COMMON_SOURCES})
 target_link_libraries(testboden_common PUBLIC foundation testing ui)
 
-windows_export_all_functions(testboden_common)
-
 group_sources_automatically(${CMAKE_CURRENT_SOURCE_DIR} ${_TESTBODEN_COMMON_SOURCES})
 
 function(add_boden_test TARGET SOURCES PURE_CONSOLE)

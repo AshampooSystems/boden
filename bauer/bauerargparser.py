@@ -136,7 +136,7 @@ class BauerArgParser():
         self.addAndroidSimulatorArguments(simGroup)
 
         self.addParams(run)
-        map(lambda p: p.add_argument('-m', "--module", help="The module to build/run" ), [run, build])
+        list(map(lambda p: p.add_argument('-m', "--module", help="The module to build/run" ), [run, build]))
 
         copy.add_argument('-f', '--folder', help="Source folder to copy", required=True );
 
@@ -319,11 +319,6 @@ BUILDSYSTEM values:
   AndroidStudio (for android platform only)
 
 %s
-
-RESTRICTIONS:
-  ios platform: only the Xcode build system is supported
-  webems platform: only the Makefile build systems are supported
-  android platform: only the AndroidStudio build system is supported
 
 IMPORTANT: Remember to enclose the build system names that consist of multiple
 words in quotation marks!

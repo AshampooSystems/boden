@@ -4,9 +4,6 @@ set(_CMAKE_UTILITIES
     utilities/platform.cmake
     utilities/compiler.cmake
     utilities/warnings.cmake
-    utilities/windows_uwp.cmake
-    utilities/webems.cmake
-    utilities/gtk.cmake
     utilities/xcode.cmake
     utilities/ios.cmake
     utilities/utilities.cmake

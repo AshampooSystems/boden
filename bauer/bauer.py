@@ -12,7 +12,6 @@ from commandprocessor import CommandProcessor
 from buildfolder import BuildFolder
 from bauerutilities import BauerGlobals
 from generatorinfo import GeneratorInfo
-from emscripteninfo import EmscriptenInfo
 from coloredlogger import ColorizingStreamHandler
 
 def setupLogging(argv):
@@ -44,11 +43,9 @@ def run(argv):
 
     rootPath = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))
 
-    emscriptenInfo = EmscriptenInfo(os.path.join(rootPath, "3rdparty", "emsdk"), os.path.join(rootPath, "3rdparty_build", "emsdk"))
-
     buildFolder = BuildFolder(bauerGlobals, generatorInfo, rootPath, args)
 
-    commandProcessor = CommandProcessor(bauerGlobals, generatorInfo, emscriptenInfo, args, rootPath, buildFolder)
+    commandProcessor = CommandProcessor(bauerGlobals, generatorInfo, args, rootPath, buildFolder)
     commandProcessor.process()
 
 def main(argv):
