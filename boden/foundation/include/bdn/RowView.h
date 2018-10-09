@@ -6,6 +6,21 @@
 namespace bdn
 {
 
+    /**
+        @brief Represents a container view that arranges its child views
+       horizontally in a row layout.
+
+        You add child views by calling the ContainerView::addChildView() method.
+       By default, child views are aligned with the top of the row view. To
+       change that behavior, you may set the child view's
+       View::verticalAlignment() property.
+
+        @note Currently, expanding a child view's width to the maximum available
+       horizontal space using View::horizontalAlignment() is not supported.
+
+        @sa If you want to arrange child views in a vertical layout, see the
+       ColumnView class.
+     */
     class RowView : public ContainerView
     {
       public:
