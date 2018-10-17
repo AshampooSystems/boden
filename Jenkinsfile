@@ -84,7 +84,11 @@ pipeline {
                         BAUER_PACKAGE_GENERATOR = 'TGZ'
                     }
                     agent {
-                        label 'linux-build-android'
+                        dockerfile {
+                            filename 'Dockerfile_android'
+                            additionalBuildArgs  '-t boden_android'
+                            label 'boden'
+                        }
                     }
                     stages {
                         stage('Build') {
