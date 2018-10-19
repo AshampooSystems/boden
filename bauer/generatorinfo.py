@@ -8,7 +8,7 @@ class GeneratorInfo(object):
         self.cmakeExecutable = find_executable('cmake')
 
         if not self.cmakeExecutable or not os.path.exists(self.cmakeExecutable):
-            raise Exception("Couldn't find cmake executable, please install.")
+            raise Exception("Couldn't find cmake executable. Please download and install it from www.cmake.org/download")
 
         self.generatorHelpList = [];
         self.generatorNames = [];    

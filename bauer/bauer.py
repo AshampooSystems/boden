@@ -54,18 +54,26 @@ def main(argv):
     except HelpOptionUsed as e:
         exit(0)
     except cmakelib.CMakeError as e:
-        print("Error:", e.cmakeError)
-        print("Packet:", e.packet)
-        print("****************************")
-        traceback.print_exc()
+
+        if '-d' in argv:
+            print("CMake error: %s" % (e.cmakeError), file=sys.stderr)
+            print(" packet:", e.packet, file=sys.stderr)
+            traceback.print_exc();
+        else:
+            print(" ".join(e.args), file=sys.stderr)
         exit(1)
 
     except error.ErrorWithExitCode as e:
-        print( "\n"+str(e)+"\n" , file=sys.stderr);
-        print()
-        traceback.print_exc();
+        if '-d' in argv:
+            traceback.print_exc();
+        else:
+            print(" ".join(e.args), file=sys.stderr)
+
         exit(e.exitCode);
 
     except Exception as e:        
-        traceback.print_exc();
+        if '-d' in argv:
+            traceback.print_exc();
+        else:
+            print(" ".join(e.args), file=sys.stderr)
         exit(50)
