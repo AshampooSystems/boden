@@ -35,6 +35,10 @@ class BauerArgParser():
     def parse_args(self):
         options =self.parser.parse_args()
 
+        if options.command == None:
+          self.parser.print_help()
+          return None
+
         if options.command == "manual":
           print(self.getManual())
           return None
