@@ -1,6 +1,6 @@
 import error
 import logging
-import os
+import os, sys
 import shutil
 
 from generatorstate import GeneratorState
@@ -12,6 +12,8 @@ from androidrunner import AndroidRunner
 from iosrunner import IOSRunner
 from codesigner import CodeSigner
 
+
+
 class CommandProcessor:
     def __init__(self, bauerGlobals, generatorInfo, args, sourceFolder, buildFolder):
         self.args = args
@@ -21,6 +23,19 @@ class CommandProcessor:
         self.buildFolder = buildFolder
         self.buildExecutor = BuildExecutor(generatorInfo, sourceFolder, buildFolder)
         self.androidExecutor = AndroidExecutor(self.buildExecutor, generatorInfo, sourceFolder, buildFolder)
+
+        self.defaultLadder = {
+            ('android', None) : ('android', 'AndroidStudio'),
+            (None, 'AndroidStudio') : ('android', 'AndroidStudio'),
+            ('ios', None) : ('ios', 'Xcode'),
+            (None, 'Xcode') : ('ios', 'Xcode'),
+            ('mac', None) : ('mac', 'Xcode')
+        }
+
+        if sys.platform == 'darwin':
+            self.defaultLadder[(None, None)] = ('ios', 'Xcode')
+        else:
+            self.defaultLadder[(None, None)] = ('android', 'AndroidStudio')
 
     def process(self):
         command = self.args.command;
@@ -33,10 +48,16 @@ class CommandProcessor:
             self.logger.debug("* %s", config)
 
         if len(selectedConfigurations)==0:
-            if not self.args.platform:
-                raise error.IncorrectCallError("--platform PLATFORM must be specified when prepare is first called.");
-            if not self.args.build_system:
-                raise error.IncorrectCallError("--build-system BUILDSYSTEM must be specified when prepare is first called.");
+            defaultLadderKey = (self.args.platform, self.args.build_system)
+            if defaultLadderKey in self.defaultLadder:
+                defaults = self.defaultLadder[defaultLadderKey]
+
+                self.logger.info("Defaulting to: %s - %s" % (defaults[0], defaults[1]))
+                selectedConfigurations = [
+                    BuildConfiguration(platform=defaults[0], arch="std", buildsystem=defaults[1], config=None)
+                ]
+            else:
+                raise error.IncorrectCallError("Could not determin default platform / buildsystem ( and configuration ). Please specifiy one via -p, -b (and -c)")
 
         for configuration in selectedConfigurations:
             if configuration.platform not in self.bauerGlobals.platformMap:
