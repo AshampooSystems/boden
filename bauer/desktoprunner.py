@@ -15,13 +15,13 @@ class DesktopRunner:
         self.args = args
 
     def run(self):
-        cmakeTargetToRun = self.cmake.executableTarget(self.args.config, self.args.module)
+        cmakeTargetToRun = self.cmake.executableTarget(self.args.config, self.args.target)
         artifactToRun = self.cmake.executableArtifactPath(cmakeTargetToRun)
 
         self.logger.debug("Executable: %s", artifactToRun)
 
         if not artifactToRun:
-            raise error.ProgramArgumentError("Couldn't find path to exectuable for Module %s" % self.args.module)
+            raise error.ProgramArgumentError("Couldn't find path to exectuable for Module %s" % self.args.target)
 
         self.logger.debug("Path: %s", artifactToRun)
 

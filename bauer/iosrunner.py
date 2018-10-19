@@ -25,7 +25,7 @@ class IOSRunner:
 
     def run(self, configuration, args):
 
-        cmakeTargetToRun = self.cmake.executableTarget(args.config, args.module)
+        cmakeTargetToRun = self.cmake.executableTarget(args.config, args.target)
         artifactToRun = self.cmake.executableArtifactPath(cmakeTargetToRun)
         artifactToRun = artifactToRun.replace("${EFFECTIVE_PLATFORM_NAME}", "-iphonesimulator")
 
@@ -41,7 +41,7 @@ class IOSRunner:
         self.logger.debug("Executable: %s", artifactToRun)
 
         if not artifactToRun:
-            raise error.ProgramArgumentError("Couldn't find path to exectuable for Module %s" % args.module)
+            raise error.ProgramArgumentError("Couldn't find path to exectuable for Module %s" % args.target)
 
         if artifactToRun.endswith('.app') and os.path.isdir(artifactToRun):
             r = self.readPList(os.path.join(artifactToRun, "Info.plist"))
@@ -49,7 +49,7 @@ class IOSRunner:
             artifactToRun = os.path.join(artifactToRun, executable)
 
         if not os.path.exists(artifactToRun):
-            raise error.ProgramArgumentError("exectuable for Module %s does not exists at: %s" % (args.module, artifactToRun))
+            raise error.ProgramArgumentError("exectuable for Module %s does not exists at: %s" % (args.target, artifactToRun))
 
         bundlePath = self.getBundlePathFromExecutable(artifactToRun)
 

@@ -140,7 +140,7 @@ class BauerArgParser():
         self.addAndroidSimulatorArguments(simGroup)
 
         self.addParams(run)
-        list(map(lambda p: p.add_argument('-m', "--module", help="The module to build/run" ), [run, build]))
+        list(map(lambda p: p.add_argument('-t', "--target", help="The target to build/run" ), [run, build]))
 
         copy.add_argument('-f', '--folder', help="Source folder to copy", required=True );
 

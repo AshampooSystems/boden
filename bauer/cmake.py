@@ -115,10 +115,10 @@ class CMake:
                             cmakeTargetToRun = cmakeTarget
 
         if not cmakeTargetToRun:
-            raise error.ProgramArgumentError("Couldn't find module %s" % self.args.module)
+            raise error.ProgramArgumentError("Couldn't find module %s" % self.args.target)
 
         if cmakeTargetToRun["type"] != "EXECUTABLE":
-            raise error.ProgramArgumentError("Module %s is not an executable" % self.args.module)
+            raise error.ProgramArgumentError("Module %s is not an executable" % self.args.target)
 
         return cmakeTargetToRun
 

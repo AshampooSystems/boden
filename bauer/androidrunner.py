@@ -26,10 +26,10 @@ class AndroidRunner:
             raise Exception("For android, --run-output-file can only be used with --run-android-fetch-output-from.")
 
         androidAbi = self.buildExecutor.getAndroidABI(configuration)
-        appIdToRun = "io.boden.android.%s" % args.module
+        appIdToRun = "io.boden.android.%s" % args.target
         buildDir = self.buildFolder.getBuildDir(configuration)
 
-        moduleNameInFileSystem = args.module
+        moduleNameInFileSystem = args.target
         moduleFilePath = os.path.join(buildDir, moduleNameInFileSystem, "build", "outputs", "apk", args.config.lower(), moduleNameInFileSystem+"-"+args.config.lower()+".apk")
 
         if not os.path.exists(moduleFilePath):

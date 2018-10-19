@@ -153,7 +153,7 @@ class CommandProcessor:
         pass
 
     def run(self, configuration):
-        if not self.args.module:
+        if not self.args.target:
             raise error.ProgramArgumentError("Please specify a module name with --module MODULE")
         
         if not self.args.platform:

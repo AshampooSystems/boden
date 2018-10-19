@@ -17,7 +17,7 @@ class BuildExecutor:
         self.buildFolder = buildFolder
 
     def build(self, configuration, args):
-        self.buildTarget(configuration, args, args.module)
+        self.buildTarget(configuration, args, args.target)
 
     def clean(self, configuration, args):
         self.buildTarget(configuration, args, "clean")
@@ -31,8 +31,8 @@ class BuildExecutor:
         if args.config != None:
             configs = [args.config]
 
-        if target == None and args.module != None:
-            target = args.module
+        if target == None and args.target != None:
+            target = args.target
 
         isSingleConfigBuildSystem = self.generatorInfo.isSingleConfigBuildSystem(configuration.buildsystem)
 

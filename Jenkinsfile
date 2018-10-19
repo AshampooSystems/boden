@@ -25,7 +25,7 @@ pipeline {
             stages {
                 stage('Run clang-format') {
                     steps {
-                        sh 'python boden.py build --module FormatSources'
+                        sh 'python boden.py build --target FormatSources'
                     }
                 }
                 stage('Check for changes') {
@@ -116,10 +116,10 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --target testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testboden.xml"
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --target testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
@@ -150,10 +150,10 @@ pipeline {
 
                                 sh 'mkdir -p testresults'
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --target testboden -- --out testresults/android_testboden.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testboden.xml"
 
-                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --module testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
+                                sh 'xvfb-run --server-args=\'-screen 0, 1024x768x16\' -- python boden.py run --target testbodenui -- --out testresults/android_testbodenui.xml --reporter junit --reporter console --print-level 2 || true'
                                 junit "testresults/android_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
@@ -204,10 +204,10 @@ pipeline {
                             steps {
                                 sh 'mkdir -p testresults'
 
-                                sh 'python boden.py run --module testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python boden.py run --target testboden --run-output-file testresults/ios_testboden.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testboden.xml"
 
-                                sh 'python boden.py run --module testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
+                                sh 'python boden.py run --target testbodenui --run-output-file testresults/ios_testbodenui.xml -- --reporter junit --reporter console --force-exit-at-end --print-level 2 || true'
                                 junit "testresults/ios_testbodenui.xml"
 
                                 archiveArtifacts artifacts: 'testresults/*.xml'
