@@ -168,13 +168,18 @@ if (NOT CMAKE_OSX_SYSROOT)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   message(STATUS "Using SDK: ${CMAKE_OSX_SYSROOT} for platform: ${IOS_PLATFORM}")
 endif()
+
 if (NOT EXISTS ${CMAKE_OSX_SYSROOT})
-  message(SEND_ERROR "Please make sure that Xcode is installed and that the toolchain"
-    "is pointing to the correct path. Please run:"
-    "sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
-    "and see if that fixes the problem for you.")
-  message(FATAL_ERROR "Invalid CMAKE_OSX_SYSROOT: ${CMAKE_OSX_SYSROOT} "
-    "does not exist.")
+  message("== ERROR ========================================================")
+  message("Couldn't find SDK at: \"${CMAKE_OSX_SYSROOT}\"")
+  message("  Please make sure that Xcode is installed and that")
+  message("  the toolchain is pointing to the correct path.")
+  message("  Please run:")
+  message("   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer")
+  message("  and see if that fixes the problem for you.")
+  message("=================================================================")
+
+  message(FATAL_ERROR "Invalid CMAKE_OSX_SYSROOT: ${CMAKE_OSX_SYSROOT} does not exist.")
 endif()
 # Specify minimum version of deployment target.
 if (NOT DEFINED IOS_DEPLOYMENT_TARGET)
