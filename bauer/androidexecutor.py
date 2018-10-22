@@ -232,7 +232,7 @@ class AndroidExecutor:
 
     def getAndroidABIFromArch(self, arch):
         if arch=="std":
-            return "x86_64"
+            return "x86"
         else:
             return arch
 
