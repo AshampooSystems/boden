@@ -225,6 +225,14 @@ class AndroidExecutor:
                 else:
                     android_home_dir = None
 
+            if sys.platform == "win32":
+                android_home_dir = os.path.expanduser("~/AppData/Local/Android/SDK")
+
+                if os.path.exists(android_home_dir):
+                    self.logger.info("Android home directory automatically detected as: %s", android_home_dir)
+                else:
+                    android_home_dir = None
+
         if not android_home_dir:                    
             raise Exception("ANDROID_HOME environment variable is not set. Please point it to the root of the android SDK installation.")
 

@@ -10,106 +10,199 @@ Android apps can be built on macOS, Windows, and Linux. iOS apps can be built on
 
 Choose your development platform:
 
-* [macOS](#developing-boden-apps-on-macos)
-* Windows
+* [macOS](#building-boden-apps-on-macos)
+* [Windows](#building-boden-apps-on-windows)
 * Linux
 
-### Developing Boden Apps on macOS
+### Building Boden Apps on macOS
 
 Choose your target platform: [iOS](#ios-apps) or [Android](#android-apps).
 
 ### iOS Apps
 
-Boden requires the following dependencies to be installed:
+To build iOS apps on macOS, the following dependencies need to be installed:
 
-1. macOS 10.13.6 High Sierra or higher
-2. Xcode 9.2 or higher (with Command Line Tools installed)
-3. Python 3.4 or higher
-4. CMake 3.12 or higher
+1. macOS 10.13.6 High Sierra or newer
+2. [Xcode 9.2+](https://developer.apple.com/xcode/) (with Command Line Tools installed)
+3. [Python 3.4+](https://www.python.org/downloads/)
+4. [CMake 3.12+](https://cmake.org/download/)
+
+> If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for iOS on macOS](#setting-up-macos-for-ios-builds) and follow the steps listed there.
 
 Follow these steps to set up Boden for iOS development:
 
-1. If you are not sure whether all of the dependencies listed above are installed, jump to the [Extended Installation Guide for iOS on macOS](https://github.com/AshampooSystems/boden/tree/feature/BDN-285-getting-started#set-up-macos-for-ios-builds) and follow the steps listed there.
-2. Open the Terminal app and clone the git repository by typing `git clone git@github.com:AshampooSystems/boden.git`.
-3. Type `cd boden`.
-4. Type `./boden prepare -p ios`. This will create an Xcode project for you.
-5. To open the generated Xcode project, type `open build/ios/std/Xcode/boden.xcodeproj`.
-6. Select the `uidemo` target and press Cmd+R to build and run the example application.
+1. Open the Terminal app and clone the git repository: 
+
+		git clone git@github.com:AshampooSystems/boden.git
+
+3. Run the `boden` build tool to generate an Xcode project:
+
+		cd boden
+		./boden prepare -p ios
+
+4. Open the generated project in Xcode:
+
+		open build/ios/std/Xcode/boden.xcodeproj
+
+5. Select the `uidemo` target and press Cmd+R to build and run the example application.
 
 ### Android Apps
 
-Boden requires the following dependencies to be installed:
+To build Android apps on macOS, the following dependencies need to be installed:
 
-1. macOS 10.13.6 High Sierra or higher
-2. [Android Studio](https://developer.android.com)
-3. Command Line Tools
-4. OpenJDK 8
-5. Python 3.4 or higher
-6. CMake 3.12 or higher
+1. macOS 10.13.6 High Sierra or newer
+2. Command Line Tools
+3. [OpenJDK 8](https://openjdk.java.net/)
+4. [Python 3.4+](https://www.python.org/downloads/)
+5. [CMake 3.12+](https://cmake.org/download/)
+6. [Android Studio](https://developer.android.com) (with Android NDK)
+
+> If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on macOS](#setting-up-macos-for-android-builds) and follow the steps listed there to install them.
 
 Follow these steps to set up Boden for Android development on the Mac:
 
-1. If you are not sure whether all of the dependencies listed above are installed, jump to the [Extended Installation Guide for Android on macOS](#set-up-macos-for-android-builds) and follow the steps listed there.
-2. Open the Terminal app and clone the git repository by typing `git clone git@github.com:AshampooSystems/boden.git`.
-3. Type `cd boden`.
-4. Type `./boden prepare -p android`. This will generate an AndroidStudio project for you.
-5. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
-6. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+1. Open the terminal and clone the git repository:
 
-## Extended Installation Guide
+		git clone git@github.com:AshampooSystems/boden.git
 
-### Set up macOS for iOS builds
+2. Run the `boden` build tool to prepare an Android Studio project:
 
-* Install brew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-* `brew install python3 cmake`
-* Install Xcode
-    * Open App Store app by clicking on the Apple logo in the menu bar and selecting “App Store..."
-    * Click on the search field (macOS < 10.14 upper right corner of the window, macOS 10.14 upper left corner of the window) and type “Xcode"
-    * Locate “Xcode” and click on “Get”
-    * The store page for Xcode opens up
-    * Click the “Get” button again
-    * Once installed, open Xcode and agree to the license agreement
-    * Xcode will install components afterwards
-    * Open a terminal and run sudo xcodeselect -s /Applications/Xcode.app/Contents/Developer
-* `git clone git@github.com:AshampooSystems/boden.git`
-* If git not installed:
-    * macOS asks if software should be downloaded
-    * Accept EULA
-    * Download
-    * “Software was installed"
-* `cd boden`
-* `./boden build -p ios -b Xcode -c Debug -t uidemo`
+		cd boden
+		./boden prepare -p android
 
-### Set up macOS for Android builds
+4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-* Install brew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-* `brew tap caskroom/versions`
-* `brew cask install java8`
-* `brew install python3 cmake`
-* Install Android Studio:
-    * Go to https://developer.android.com
-    * Click “Download Android Studio"
-    * Agree to the Terms and Conditions
-    * Once the download is completed, open the DMG
-    * Drag Android Studio.app and drop it on the Applications folder icon
-    * Open Android Studio
-    * In the dialog asking you to complete the installation, click ok
-    * Android Studio Setup Wizard opens up
-    * Click Next
-    * Leave type of setup set to “Standard” and click Next
-    * Choose a theme and click Next
-    * Leave the SDK components setup as is and click Next
-    * Click Finish
-    * Android Studio will now download a couple of components, grab a snack and a drink
-    * On the summary screen, click Finish
-    * On the “Welcome to Android” screen, click “Configure” and select “SDK Manager"
-    * Click on the “SDK Tools” tab
-    * Select “NDK” from the list
-    * Click OK
-    * Confirm the change by clicking OK in the popup window
-    * Accept the NDK license agreement
-    * The NDK component is being installed, grab another drink
-    * After the installation has finished, click Finish.
-* `cd boden`
-* `./boden build -p android -b AndroidStudio -t uidemo -c Debug`
+5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
 
+### Building Boden Apps on Windows
+
+To build Android apps on Windows, the following dependencies need to be installed:
+
+1. Windows 10
+2. [Python 3.4+](https://www.python.org/downloads/)
+3. [CMake 3.12+](https://cmake.org/download/)
+4. [Git](https://git-scm.com/download/win)
+5. [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+6. [Android Studio](https://developer.android.com) (with Android NDK)
+
+> If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Windows](#setting-up-windows-for-android-builds) and follow the steps listed there to install them.
+
+Follow these steps to set up Boden for Android development on Windows 10:
+
+1. Open a Command Prompt: Hit Win+R, type `cmd` and then hit Enter.
+2. Clone the git repository:
+
+		git clone git@github.com:AshampooSystems/boden.git
+
+3. Run the `boden.py` build tool to generate an Android Studio project:
+
+		cd boden
+		python boden.py prepare
+
+4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
+
+5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+
+## Dependency Installation Guide
+
+### Setting up macOS for iOS builds
+
+#### 1. Install Xcode
+
+1. Open the App Store app by clicking on the Apple logo in the menu bar and then selecting “App Store...".
+2. Click on the search field and type Xcode.
+3. Locate Xcode and click Get.
+4. The store page for Xcode opens up. Click the Get button again.
+6. Once installed, open Xcode by clicking Open and agree to the terms of service. Xcode will install components afterwards.
+7. Finally, open up a terminal and run `sudo xcodeselect -s /Applications/Xcode.app/Contents/Developer`.
+
+#### 2. Install Homebrew, Python, and CMake
+
+1. Install Homebrew:
+
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+2. Install Python and CMake: 
+
+		brew install python3 cmake
+
+### Setting up macOS for Android builds
+
+#### 1. Install Homebrew, Java, Python, and CMake
+
+1. Install Homebrew:
+
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+2. Install Java 8:
+
+		brew tap caskroom/versions
+		brew cask install java8
+
+4. Install Python and CMake:
+
+		brew install python3 cmake
+
+#### 2. Install Android Studio
+
+##### 2.1 Download Android Studio
+
+1. Go to https://developer.android.com.
+1. Click “Download Android Studio".
+1. Agree to the Terms and Conditions.
+
+##### 2.2 Complete the Installation
+
+1. Once the download is completed, open the DMG.
+1. Drag Android Studio.app and drop it on the Applications folder icon.
+1. Open Android Studio using Finder or Spotlight.
+1. Follow the steps in the setup wizard.
+3. Stay on the "Welcome to Android" screen and complete the steps below to complete the installation.
+
+> For Boden, it's sufficient to select the default setup type in the Android Studio Setup wizard. When asked, grant permission to the Intel HAXM installer to allow for Android device emulation.
+
+##### 2.3 Install Android NDK
+
+1. On the “Welcome to Android” screen, click “Configure” and select “SDK Manager".
+1. Click on the “SDK Tools” tab.
+1. Select “NDK” from the list and click OK.
+1. A prompt appears asking you to confirm the change. Do so by clicking OK.
+1. Accept the NDK license agreement.
+1. The NDK component is being installed, grab another drink.
+1. After the installation has finished, click Finish. The installation is now complete.
+
+### Setting up Windows for Android builds
+
+#### 1. Install Python, CMake, Git, and JDK 8
+
+1. Download and install Python3 from https://www.python.org/downloads/ (ca. 25MB).
+	
+	> Important: Make sure to activate the “Add Python to PATH" checkbox at the bottom of the installer window.
+
+1. Download and install CMake from https://cmake.org/download/ (ca. 19MB). We recommend using the latest win64-x64 stable release installer binary.
+
+1. Download and install git from https://git-scm.com/download/win (ca. 42MB). If you’re unsure about the available options presented in the installer, just keep the default settings.
+
+	> Important: When installing CMake, make sure to choose “Add the Cmake binary to the PATH environment variable”.
+
+1. Dowload and install JDK 8 from https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html (ca. 200MB).
+
+#### 2. Install Android Studio
+
+##### 2.1 Download and Install Android Studio
+
+1. Download Android Studio from https://developer.android.com/studio/ (ca. 1GB) and start the downloaded EXE file.
+2. Follow the steps in the setup wizard.
+3. Stay on the "Welcome to Android" screen and complete the steps below to complete the installation.
+
+> For Boden, it's sufficient to select the default setup type in the Android Studio Setup wizard. When asked, grant permission to the Intel HAXM installer to allow for Android device emulation.
+
+##### 2.2 Install Android NDK
+
+1. On the “Welcome to Android” screen, click Configure and select SDK Manager.
+1. Click on the SDK Tools tab.
+1. Select NDK from the list and click OK.
+1. Confirm the change by clicking OK in the popup window.
+1. Accept the NDK license agreement.
+1. The NDK component is being installed, grab another drink.
+1. After the installation has finished, click Finish. The installation is now complete.
