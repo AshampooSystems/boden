@@ -15,7 +15,8 @@ foreach(_utility ${_CMAKE_UTILITIES})
 endforeach()
 
 set(_CMAKE_TOOLCHAINS
-    toolchains/ios.toolchain.cmake
+    toolchains/ios.xcode.toolchain.cmake
+    toolchains/ios.make.toolchain.cmake
     toolchains/emscripten.toolchain.cmake)
 
 set(_CLANG_FORMAT

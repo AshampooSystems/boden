@@ -121,6 +121,8 @@ class BauerArgParser():
         run = subs.add_parser('run', description="Executes one of bodens targets", epilog=self.getRunEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         package = subs.add_parser('package', description="Packages boden for release", epilog=self.getPackageEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
         copy = subs.add_parser('copy', description="Copy a folder into the build folder", epilog=self.getCopyEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
+        open_project = subs.add_parser('open', description="Open the project files")
+
 
         if sys.platform == 'darwin':
           sign = subs.add_parser('codesign', description="Sign libraries and executables")
@@ -130,7 +132,7 @@ class BauerArgParser():
           self.addConfigurationArguments([sign], platforms=['ios', 'mac'])
 
         self.addBaseConfigurationArguments( [ copy ], platforms=None, require=False )
-        self.addConfigurationArguments( [ prepare, build, clean, distclean, run, package ])
+        self.addConfigurationArguments( [ prepare, build, clean, distclean, run, package, open_project ])
         self.addBuildArguments( [ build, clean, distclean, run, package ])
 
         simGroup = run.add_argument_group("Simulator", "(optional)")
@@ -146,7 +148,7 @@ class BauerArgParser():
 
         info = subs.add_parser('manual', description="Shows futher information")
 
-        self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package ])
+        self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package, open_project ])
 
     def getPlatformHelp(self):
         platformHelp = "";
@@ -213,14 +215,14 @@ If ARCH is omitted then all architectures for the selected platform(s) are
 distcleaned."""
 
     def getRunEpilog(self):
-      return """Runs the executable from the specified module.
+      return """Runs the executable from the specified target.
 
 PARAMS are one or more parameters to be passed to the executable.
 On Android you can use the "{DATA_DIR}" placeholder in the parameters.
 It will be replaced with the path of the application's data directory inside the emulator.
 
 Note the double -- before "run" in the commandline. This is necessary to separate the
-parameters for build.py from those that are intended for the executed module."""
+parameters for build.py from those that are intended for the executed target."""
 
     def getPackageEpilog(self):
         return """"""

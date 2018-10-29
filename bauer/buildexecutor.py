@@ -105,14 +105,17 @@ class BuildExecutor:
                 cmakeArguments.extend( [ "-DCMAKE_OSX_DEPLOYMENT_TARGET=%s" % (args.macos_min_version) ] )
 
         elif configuration.platform=="ios":
-            if configuration.arch == "std" or configuration.arch == "simulator":
-                cmakeArguments.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
-            elif configuration.arch == "device":
-                cmakeArguments.extend( [ "-DIOS_PLATFORM=OS" ] );
+            if generatorName == 'Xcode' and configuration.arch == "std":
+                toolChainFileName = "ios.xcode.toolchain.cmake";
             else:
-                raise error.InvalidArchitectureError(arch);
+                if configuration.arch == "std" or configuration.arch == "simulator":
+                    cmakeArguments.extend( [ "-DIOS_PLATFORM=SIMULATOR64" ] );
+                elif configuration.arch == "device":
+                    cmakeArguments.extend( [ "-DIOS_PLATFORM=OS64" ] );
+                else:
+                    raise error.InvalidArchitectureError(arch);
 
-            toolChainFileName = "ios.toolchain.cmake";
+                toolChainFileName = "ios.make.toolchain.cmake";
 
         if toolChainFileName:
             toolChainFilePath = os.path.join(self.sourceDirectory, "cmake/toolchains", toolChainFileName);               

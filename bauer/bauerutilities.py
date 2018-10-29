@@ -1,4 +1,4 @@
-import sys
+import sys, os, subprocess
 
 class BauerGlobals:
     def __init__(self):
@@ -14,3 +14,10 @@ class BauerGlobals:
         self.platformMap = {}
         for platformName, platformInfo in self.platformList:
             self.platformMap[platformName] = platformInfo;
+
+    def open_file(self, filename):
+        if sys.platform == "win32":
+            os.startfile(filename)
+        else:
+            opener ="open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, filename])

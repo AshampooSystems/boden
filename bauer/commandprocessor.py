@@ -49,12 +49,17 @@ class CommandProcessor:
 
         if len(selectedConfigurations)==0:
             defaultLadderKey = (self.args.platform, self.args.build_system)
+            architecture = self.args.arch
+            configuration = self.args.config
+            if not architecture:
+                architecture = "std"
+
             if defaultLadderKey in self.defaultLadder:
                 defaults = self.defaultLadder[defaultLadderKey]
 
                 self.logger.info("Defaulting to: %s - %s" % (defaults[0], defaults[1]))
                 selectedConfigurations = [
-                    BuildConfiguration(platform=defaults[0], arch="std", buildsystem=defaults[1], config=None)
+                    BuildConfiguration(platform=defaults[0], arch=architecture, buildsystem=defaults[1], config=configuration)
                 ]
             else:
                 raise error.IncorrectCallError("Could not determin default platform / buildsystem ( and configuration ). Please specifiy one via -p, -b (and -c)")
@@ -106,6 +111,9 @@ class CommandProcessor:
                     self.codesign(configuration)
                 elif command=="copy":
                     self.copy(buildDirectory)
+                elif command=="open":
+                    self.prepare(configuration, platformState)
+                    self.open(configuration, buildDirectory)
                 else:
                     raise error.ProgramArgumentError("Invalid command: '%s'" % command);
 
@@ -149,6 +157,18 @@ class CommandProcessor:
         codeSigner = CodeSigner(self.buildExecutor.cmake.codeModel)
         codeSigner.sign(self.args)
 
+    def open(self, configuration, buildDirectory):
+        for cmakeConfig in self.buildExecutor.cmake.codeModel['configurations']:
+            for project in cmakeConfig['projects']:
+                if configuration.buildsystem == 'Xcode':
+                    project_file_name = os.path.join(buildDirectory, project['name'] + ".xcodeproj")
+                    self.logger.debug("Starting: %s", project_file_name)
+                    self.bauerGlobals.open_file(project_file_name)
+                    return
+
+
+
+
     def buildDeps(self):
         pass
 
@@ -165,6 +185,8 @@ class CommandProcessor:
         if configuration.platform == "ios":
             if configuration.arch == "device":
                 raise error.ProgramArgumentError("Can't run on ios devices yet")
+            if configuration.arch == "std" and configuration.buildsystem == 'Xcode':
+                raise error.ProgramArgumentError("Can't run on ios devices yet, specifiy architecture 'simulator' to run.")
 
             iosRunner = IOSRunner(self.buildExecutor.cmake)
             exitCode = iosRunner.run(configuration, self.args)

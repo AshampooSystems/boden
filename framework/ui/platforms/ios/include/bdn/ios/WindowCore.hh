@@ -123,6 +123,7 @@ namespace bdn
 
             void requestAutoSize() override
             {
+                // TODO: Why request auto size if we are not able to resize ?
                 P<Window> pWindow = cast<Window>(getOuterViewIfStillAttached());
                 if (pWindow != nullptr) {
                     P<UiProvider> pProvider =
@@ -177,10 +178,21 @@ namespace bdn
 
                     Rect area(Point(0, 0), pView->size());
 
-                    double topBarHeight =
-                        _window.rootViewController.topLayoutGuide.length;
-                    double bottomBarHeight =
-                        _window.rootViewController.bottomLayoutGuide.length;
+                    double topBarHeight = 0;
+                    double bottomBarHeight = 0;
+
+                    if (@available(iOS 11.0, *)) {
+                        topBarHeight = _window.safeAreaInsets.top;
+                        bottomBarHeight = _window.safeAreaInsets.bottom;
+                    }
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0
+                    else {
+                        topBarHeight =
+                            _window.rootViewController.topLayoutGuide.length;
+                        bottomBarHeight =
+                            _window.rootViewController.bottomLayoutGuide.length;
+                    }
+#endif
 
                     area.y += topBarHeight;
                     area.height -= topBarHeight + bottomBarHeight;
