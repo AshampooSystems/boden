@@ -12,7 +12,7 @@ Choose your development platform:
 
 * [macOS](#building-boden-apps-on-macos)
 * [Windows](#building-boden-apps-on-windows)
-* Linux
+* [Linux](#building-boden-apps-on-linux)
 
 ### Building Boden Apps on macOS
 
@@ -25,7 +25,7 @@ To build iOS apps on macOS, the following dependencies need to be installed:
 1. macOS 10.13.6 High Sierra or newer
 2. [Xcode 9.2+](https://developer.apple.com/xcode/) (with Command Line Tools installed)
 3. [Python 3.4+](https://www.python.org/downloads/)
-4. [CMake 3.12+](https://cmake.org/download/)
+4. [CMake 3.10.2+](https://cmake.org/download/)
 
 > If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for iOS on macOS](#setting-up-macos-for-ios-builds) and follow the steps listed there.
 
@@ -54,7 +54,7 @@ To build Android apps on macOS, the following dependencies need to be installed:
 2. Command Line Tools
 3. [OpenJDK 8](https://openjdk.java.net/)
 4. [Python 3.4+](https://www.python.org/downloads/)
-5. [CMake 3.12+](https://cmake.org/download/)
+5. [CMake 3.10.2+](https://cmake.org/download/)
 6. [Android Studio](https://developer.android.com) (with Android NDK)
 
 > If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on macOS](#setting-up-macos-for-android-builds) and follow the steps listed there to install them.
@@ -80,7 +80,7 @@ To build Android apps on Windows, the following dependencies need to be installe
 
 1. Windows 10
 2. [Python 3.4+](https://www.python.org/downloads/)
-3. [CMake 3.12+](https://cmake.org/download/)
+3. [CMake 3.10.2+](https://cmake.org/download/)
 4. [Git](https://git-scm.com/download/win)
 5. [Oracle JDK 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 6. [Android Studio](https://developer.android.com) (with Android NDK)
@@ -98,6 +98,35 @@ Follow these steps to set up Boden for Android development on Windows 10:
 
 		cd boden
 		python boden.py prepare
+
+4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
+
+5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+
+### Building Boden Apps on Linux
+
+To build Android apps on Linux, the following dependencies need to be installed:
+
+1. Ubuntu 18.04
+2. Git
+3. [OpenJDK 8](https://openjdk.java.net/)
+4. [Python 3.4+](https://www.python.org/downloads/)
+5. [CMake 3.10.2+](https://cmake.org/download/)
+6. qemu-kvm
+6. [Android Studio](https://developer.android.com) (with Android NDK)
+
+> If you are not sure whether all of the dependencies listed above are installed, jump to the [Dependency Installation Guide for Android on Linux](#setting-up-linux-for-android-builds) and follow the steps listed there to install them.
+
+Follow these steps to set up Boden for Android development on Ubuntu:
+
+1. Open up a terminal and clone the git repository:
+
+		git clone git@github.com:AshampooSystems/boden.git
+
+3. Run the `boden` build tool to generate an Xcode project:
+
+		cd boden
+		./boden prepare
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
@@ -198,6 +227,47 @@ Follow these steps to set up Boden for Android development on Windows 10:
 > For Boden, it's sufficient to select the default setup type in the Android Studio Setup wizard. When asked, grant permission to the Intel HAXM installer to allow for Android device emulation.
 
 ##### 2.2 Install Android NDK
+
+1. On the “Welcome to Android” screen, click Configure and select SDK Manager.
+1. Click on the SDK Tools tab.
+1. Select NDK from the list and click OK.
+1. Confirm the change by clicking OK in the popup window.
+1. Accept the NDK license agreement.
+1. The NDK component is being installed, grab another drink.
+1. After the installation has finished, click Finish. The installation is now complete.
+
+### Setting up Linux for Android Builds
+
+#### 1. Install Git, Python, CMake, OpenJDK, and qemu-kvm
+
+Open up a terminal and run the following command:
+
+	sudo apt update && sudo apt install git cmake python3-distutils openjdk-8-jdk qemu-kvm
+
+#### 2. Install Android Studio
+
+1. Download Android Studio from https://developer.android.com/studio/ (ca. 1GB) and unpack the downloaded ZIP file.
+
+1. Open up a terminal and change to the directory to which you unpacked the ZIP file. To start Android Studio, run the following commands:
+
+		cd android-studio/bin
+		./studio.sh
+
+1. Follow the steps in the setup wizard to complete the installation.
+
+1. If you want to run Android Applications in the Android Emulator, follow the steps below.
+
+#### 3. Configure Ubuntu for Running Android Emulator
+
+1. Open up a terminal and run the following command:
+
+		sudo adduser YOUR_USERNAME kvm
+
+1. Log out of Ubuntu by typing:
+
+		gnome-session-quit
+
+2. Log back in. Android Emulator should now work on your system.
 
 1. On the “Welcome to Android” screen, click Configure and select SDK Manager.
 1. Click on the SDK Tools tab.
