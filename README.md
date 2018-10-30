@@ -257,6 +257,16 @@ Open up a terminal and run the following command:
 
 1. If you want to run Android Applications in the Android Emulator, follow the steps below.
 
+#### 2. Install Android NDK
+
+1. On the “Welcome to Android” screen, click Configure and select SDK Manager.
+1. Click on the SDK Tools tab.
+1. Select NDK from the list and click OK.
+1. Confirm the change by clicking OK in the popup window.
+1. Accept the NDK license agreement.
+1. The NDK component is being installed, grab another drink.
+1. After the installation has finished, click Finish. The installation is now complete.
+
 #### 3. Configure Ubuntu for Running Android Emulator
 
 1. Open up a terminal and run the following command:
@@ -269,10 +279,3 @@ Open up a terminal and run the following command:
 
 2. Log back in. Android Emulator should now work on your system.
 
-1. On the “Welcome to Android” screen, click Configure and select SDK Manager.
-1. Click on the SDK Tools tab.
-1. Select NDK from the list and click OK.
-1. Confirm the change by clicking OK in the popup window.
-1. Accept the NDK license agreement.
-1. The NDK component is being installed, grab another drink.
-1. After the installation has finished, click Finish. The installation is now complete.
