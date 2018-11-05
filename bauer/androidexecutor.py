@@ -289,6 +289,24 @@ class AndroidExecutor:
 
         return dependencies
 
+    def tryDetectAndroidCmakeComponentName(self, sdkManagerPath):
+
+        command = '"%s" --list' % (sdkManagerPath)
+        try:
+            output = subprocess.check_output( command, shell=True, env=self.getToolEnv() )
+        except:
+            self.logger.warning("Failed to get Android SDK module list")
+            return None
+
+        last_cmake_component_name = None
+        for line in output.splitlines():
+            line = line.strip()
+            if line.startswith("cmake;"):
+                last_cmake_component_name = line.partition(" ")[0]
+
+        return last_cmake_component_name
+
+
 
     def prepareAndroidEnvironment(self, configuration):
         self.logger.info("Preparing android environment...")
@@ -313,6 +331,10 @@ class AndroidExecutor:
             sdkManagerPath,
             self.androidBuildToolsVersion,
             self.androidBuildApiVersion )
+
+        cmakeComponentName = self.tryDetectAndroidCmakeComponentName(sdkManagerPath);
+        if cmakeComponentName:
+            sdkManagerCommand += ' "%s"' % cmakeComponentName
 
         try:
             subprocess.check_call( sdkManagerCommand, shell=True, env=self.getToolEnv() )
