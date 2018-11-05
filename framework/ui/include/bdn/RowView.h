@@ -1,7 +1,7 @@
 #ifndef BDN_RowView_H_
 #define BDN_RowView_H_
 
-#include <bdn/ContainerView.h>
+#include <bdn/LinearLayoutView.h>
 
 namespace bdn
 {
@@ -21,30 +21,10 @@ namespace bdn
         @sa If you want to arrange child views in a vertical layout, see the
        ColumnView class.
      */
-    class RowView : public ContainerView
+    class RowView : public LinearLayoutView
     {
       public:
         RowView();
-
-        Size calcContainerPreferredSize(
-            const Size &availableSpace = Size::none()) const override;
-        P<ViewLayout>
-        calcContainerLayout(const Size &containerSize) const override;
-
-      private:
-        enum class LayoutPhase
-        {
-            Measure,
-            Layout
-        };
-
-        Margin calculatePadding() const;
-        Size calculatePaddedAvailableSpace(
-            const Margin &padding, const Size &effectiveAvailableSpace) const;
-        Rect calculateAdjustedChildBounds(
-            const P<View> pChildView, Point &childPosition,
-            const Size &clippedAvailableSpace, const LayoutPhase phase,
-            Rect *pUnadjustedBounds = nullptr) const;
     };
 }
 

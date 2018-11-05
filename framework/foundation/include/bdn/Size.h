@@ -19,6 +19,10 @@ namespace bdn
     struct Size
     {
       public:
+        double width = 0;
+        double height = 0;
+
+      public:
         /** Returns a number that can be used as a Size component (width and/or
            height) to indicate a value that is intentionally left unspecified.
 
@@ -59,9 +63,6 @@ namespace bdn
         {
             return Size(componentNone(), componentNone());
         }
-
-        double width = 0;
-        double height = 0;
 
         constexpr Size() {}
 

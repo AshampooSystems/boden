@@ -1,60 +1,29 @@
-#ifndef BDN_ColumnView_H_
-#define BDN_ColumnView_H_
+#pragma once
 
-#include <bdn/ContainerView.h>
+#include <bdn/LinearLayoutView.h>
 
 namespace bdn
 {
 
-    /** A container view that arranges its children in a vertical column,
-        one below the other. See #RowView for a similar horizontal container.
+    /**
+        @brief Represents a container view that arranges its child views
+       vertically in a column layout.
 
-        The children's View::horizontalAlignment() property controls how
-        the child views are aligned horizontally.
+        You add child views by calling the ContainerView::addChildView() method.
+       By default, child views are aligned with the left of the column view. To
+       change that behavior, you may set the child view's
+       View::horizontalAlignment() property.
 
-        If there is extra space available in the container after sizing all
-        children to their preferred size then the remaining space is distributed
-        according to the children's View::extraSpaceWeight() property.
+        @note Currently, expanding a child view's height to the maximum
+       available vertical space using View::verticalAlignment() is not
+       supported.
 
-        */
-    class ColumnView : public ContainerView
+        @sa If you want to arrange child views in a horizontal layout, see the
+       RowView class.
+     */
+    class ColumnView : public LinearLayoutView
     {
       public:
         ColumnView();
-
-        Size calcContainerPreferredSize(
-            const Size &availableSpace = Size::none()) const override;
-
-        P<ViewLayout>
-        calcContainerLayout(const Size &containerSize) const override;
-
-      private:
-        /** Calculates the positions and sizes (in DIPs - see \ref dip.md) of
-           the child views for the case that the ColumnView has the specified
-           width.
-
-            availableSpace indicates the amount of space that is available for
-           the client views inside the parent.
-
-            forMeasuring indicates that the call is not intended for arranging
-           the children, but to measure the preferred size of the container. In
-           this case availableSpace is interpreted as in calcPreferredSize as a
-           "recommended upper limit". The size limits for preferred sizes
-           (View::preferredSizeMaximum, View::preferredSizeMinimum) are also
-           factored in. If forMeasuring is false then availableSpace is
-           interpreted as the fixed predetermined container size
-
-            If forMeasuring is true then width and/or height of availableSpace
-           can be Size::componentNone(), which means that the space is unlimited
-           - i.e. the bounds should be measured for the case when any preferred
-           size is acceptable.
-
-            Returns the total size of the layout (i.e. the used amount of space
-           that is covered by the layout).
-            */
-        Size calcLayoutImpl(ViewLayout *pLayout, const Size &availableSpace,
-                            bool forMeasuring) const;
     };
 }
-
-#endif

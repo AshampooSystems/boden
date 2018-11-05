@@ -60,8 +60,8 @@ namespace bdn
         enum class VerticalAlignment
         {
             top,
-            bottom,
             middle,
+            bottom,
             /** Expand the view to the full available height.*/
             expand
         };
