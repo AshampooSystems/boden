@@ -206,6 +206,11 @@ task clean(type: Delete) {
             moduleDependencyCode += "    implementation project(':%s')\n" % dep;
 
         cmakeTargets = '"%s"' % (cmakeTargetName);
+
+        if android_abi:
+            abiFilterStatement = "abiFilters '%s'" % android_abi
+        else:
+            abiFilterStatement = ""
         
         return """
 apply plugin: '$$PluginName$$'
@@ -222,8 +227,8 @@ android {
             cmake {
                 targets $$CmakeTargets$$
                 arguments "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=rtti exceptions"
-                cppFlags "-std=c++11 -frtti -fexceptions"     
-                abiFilters '$$AndroidAbi$$' //'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+                $$AbiFilter$$
+                cppFlags "-std=c++11 -frtti -fexceptions"                     
             }
         }
     }
@@ -264,7 +269,7 @@ $$ModuleDependencyCode$$
 
 """ .replace("$$AppIdCode$$", appIdCode) \
     .replace("$$BuildSdkVersion$$", self.androidBuildApiVersion) \
-    .replace("$$AndroidAbi$$", android_abi) \
+    .replace("$$AbiFilter$$", abiFilterStatement) \
     .replace("$$PluginName$$", pluginName) \
     .replace("$$CmakeTargets$$", cmakeTargets) \
     .replace("$$ModuleDependencyCode$$", moduleDependencyCode) \

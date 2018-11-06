@@ -62,7 +62,7 @@ class CommandProcessor:
                     BuildConfiguration(platform=defaults[0], arch=architecture, buildsystem=defaults[1], config=configuration)
                 ]
             else:
-                raise error.IncorrectCallError("Could not determin default platform / buildsystem ( and configuration ). Please specifiy one via -p, -b (and -c)")
+                raise error.IncorrectCallError("Could not determine default platform / buildsystem ( and configuration ). Please specifiy one via -p, -b (and -c)")
 
         for configuration in selectedConfigurations:
             if configuration.platform not in self.bauerGlobals.platformMap:

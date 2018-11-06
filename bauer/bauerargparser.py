@@ -302,22 +302,12 @@ ARCH values:
     std: normal iOS app (combined 32 and 64 bit binary)
 
   android:  
-    std: at the time of this writing the same as x86_64 (but might
-      change in future)
-    armeabi: ARMv5TE based CPU with software floating point operations
+    std: generates a multi-architecture project, targetting all modern ABIs
     armeabi-v7a: ARMv7 based devices with hardware FPU instructions
-      (VFPv3_D16)
-    armeabi-v7a with NEON: same as armeabi-v7a, but sets NEON as floating-
-      point unit
-    armeabi-v7a with VFPV3: same as armeabi-v7a, but sets VFPv3_D32 as
-      floating-point unit
-    armeabi-v6 with VFP: tuned for ARMv6 processors having VFP
-    x86: IA-32 instruction set
-    mips: MIPS32 instruction set
     arm64-v8a: ARMv8 AArch64 instruction set - only for NDK r10 and newer
+    x86: IA-32 instruction set
     x86_64: Intel64 instruction set (r1) - only for NDK r10 and newer
-    mips64: MIPS64 instruction set (r6) - only for NDK r10 and newer
-    
+   
 
 BUILDSYSTEM values:
 

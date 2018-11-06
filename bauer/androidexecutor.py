@@ -87,9 +87,13 @@ class AndroidExecutor:
     def prepareMake(self, platformState, configuration, args, androidAbi, androidHome, cmakeBuildDir):
         self.cmake.open(self.sourceDirectory, cmakeBuildDir, "Unix Makefiles")
 
+        android_abi_arg = self.getAndroidABIFromArch(configuration.arch)
+        if not android_abi_arg:
+            raise error.InvalidArchitectureError("No target architecture specified. The architecture parameter is required for makefile build systems.")
+
         cmakeArguments = [
             "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome),
-            "-DANDROID_ABI=%s" % (self.getAndroidABIFromArch(configuration.arch)),
+            "-DANDROID_ABI=%s" % (android_abi_arg),
             "-DANDROID_NATIVE_API_LEVEL=%s" % ( self.androidBuildApiVersion ),
             "-DCMAKE_BUILD_TYPE=%s" % (configuration.config),
             "-DBDN_BUILD_TESTS=Off",
@@ -125,12 +129,20 @@ class AndroidExecutor:
         gradlePath = self.gradle.getGradlePath()
         tmpCMakeFolder = os.path.join(buildDir, "tmp-cmake-gen")
 
+        makefile_android_abi = self.getAndroidABIFromArch(configuration.arch)
+        if not makefile_android_abi:
+            # If we target multiple architectures at the same time then we simply use x86 for the temporary
+            # Makefile project we generate here (since makefiles support only one architecture).
+            # Note that the makefile is only used temporarily to detect the available projects and is never
+            # used to build anything.
+            makefile_android_abi = "x86"
+
         self.cmake.open(self.sourceDirectory, tmpCMakeFolder, "Unix Makefiles")
 
         cmakeArguments = [ 
             "-DCMAKE_TOOLCHAIN_FILE=%s/ndk-bundle/build/cmake/android.toolchain.cmake" % (androidHome), 
             "-DCMAKE_SYSTEM_NAME=Android", 
-            "-DANDROID_ABI=%s" % (self.getAndroidABIFromArch(configuration.arch)),
+            "-DANDROID_ABI=%s" % (makefile_android_abi),
             "-DANDROID_NATIVE_API_LEVEL=%s" % ( self.androidBuildApiVersion ),
             "-DBAUER_RUN=Yes" ]
 
@@ -240,7 +252,7 @@ class AndroidExecutor:
 
     def getAndroidABIFromArch(self, arch):
         if arch=="std":
-            return "x86"
+            return None
         else:
             return arch
 
