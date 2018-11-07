@@ -96,6 +96,9 @@ class CMake:
         cmakelib.writePayload(self.proc, { "type":"codemodel", "cookie":"CODEMODEL" } )
         payload = cmakelib.waitForRawMessage(self.proc)
 
+        if not payload or not "cookie" in payload or payload["cookie"] != "CODEMODEL":
+            raise Exception("Something went wrong trying to configure the project. ( Unexpected response from cmake during codemodel request: %s )" % (payload))
+
         self.codeModel = payload
 
     def executableTarget(self, config, targetName):
