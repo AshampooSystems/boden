@@ -305,7 +305,7 @@ class AndroidExecutor:
 
         command = '"%s" --list' % (sdkManagerPath)
         try:
-            output = subprocess.check_output( command, shell=True, env=self.getToolEnv() )
+            output = subprocess.check_output( command, shell=True, env=self.getToolEnv(), universal_newlines=True )
         except:
             self.logger.warning("Failed to get Android SDK module list")
             return None
