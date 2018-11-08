@@ -58,13 +58,13 @@ namespace bdn
                 break;
             }
 
-            childPosition.secondary +=
-                (childAvailableSpace.secondary - childSize.secondary) *
-                alignFactor;
-
             // When laying out the container's contents, child views cannot
             // exceed available space
             childSize.applyMaximum(childAvailableSpace);
+
+            childPosition.secondary +=
+                (childAvailableSpace.secondary - childSize.secondary) *
+                alignFactor;
 
             if (alignment == VirtualAlignment::expand &&
                 std::isfinite(childAvailableSpace.secondary) &&

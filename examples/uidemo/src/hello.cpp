@@ -17,251 +17,39 @@
 
 using namespace bdn;
 
-class Model : public Base
+class MainViewController : public Base
 {
   public:
-    Model()
+    MainViewController()
     {
-        setUserText("Edit me");
+        _window = newObj<Window>();
+        _window->setTitle("UI Demo");
 
-        _morphingTextCounter = -1;
-        changeMorphingText();
-    }
+        auto mainColumn = newObj<ColumnView>();
+        mainColumn->setPreferredSizeMinimum(Size(250, 0));
 
-    BDN_PROPERTY(int, helloCounter, setHelloCounter);
+        addControlWithHeading("Switch", newObj<Switch>(), mainColumn, true);
+        addControlWithHeading("Checkbox", newObj<Checkbox>(), mainColumn, true);
 
-    BDN_PROPERTY(String, userText, setUserText);
+        auto btn = newObj<Button>();
+        btn->setLabel("Button");
+        addControlWithHeading("Button", btn, mainColumn, true);
 
-    /** A text that changes when changeMorphingText is called.
-        The different text variations are significantly different in their
-       length.*/
-    BDN_PROPERTY(String, morphingText, setMorphingText);
+        P<TextField> textFieldCtrl = newObj<TextField>();
 
-    void changeMorphingText()
-    {
-        _morphingTextCounter++;
+        addControlWithHeading("Text Input", textFieldCtrl, mainColumn, true);
+        textFieldCtrl->setPreferredSizeMinimum(Size(250, 0));
+        textFieldCtrl->setText("Test text");
 
-        int sel = _morphingTextCounter % 3;
-        if (sel == 0)
-            setMorphingText("Short text");
-        else if (sel == 1)
-            setMorphingText(
-                "This is a single-line, medium sized text. Lorem ipsum.");
-        else
-            setMorphingText(
-                "This is a long text that spans multiple lines and also has "
-                "some free lines.\nLorem ipsum dolor sit amet, consectetuer "
-                "adipiscing elit.\nAenean commodo ligula eget dolor.\n\nAenean "
-                "massa. Cum sociis natoque penatibus et magnis dis parturient "
-                "montes, nascetur ridiculus mus.");
-    }
-
-  protected:
-    int _morphingTextCounter;
-};
-
-class ViewModel : public Base
-{
-  public:
-    ViewModel(Model *pModel)
-    {
-        _pModel = pModel;
-
-        // Connect our read-only morphingText property to the
-        // model's read-write morphingText property
-        BDN_BIND_TO_PROPERTY(*this, setMorphingText, *_pModel, morphingText);
-
-        // do a two-way binding between the userText properties of the model and
-        // view model
-        BDN_BIND_PROPERTIES(*this, userText, setUserText, *_pModel, userText,
-                            setUserText);
-
-        // connect our helloMessage to the helloCounter.
-        // Note that we use a filter here to transform the integer counter
-        // to a string for our property.
-        auto helloMessageFilter = [](int newCounter) {
-            String message = "Hello World";
-            if (newCounter > 0)
-                message += " " + std::to_string(newCounter);
-
-            return message;
-        };
-        BDN_BIND_TO_PROPERTY_WITH_FILTER(*this, setHelloMessage, *_pModel,
-                                         helloCounter, helloMessageFilter);
-
-        setToggleText("Toggle me");
-        setSwitchText("Switch me");
-        setCheckboxText("Check me");
-
-        toggleOnChanged().subscribe([this](bool isOn) {
-            setToggleText(isOn ? "Toggle is on" : "Toggle is off");
-        });
-
-        switchOnChanged().subscribe([this](bool isOn) {
-            setSwitchText(isOn ? "Switch is on" : "Switch is off");
-
-            // Set checkbox state to mixed to test whether programatically
-            // setting it after user interaction works
-            setCheckboxState(TriState::mixed);
-        });
-
-        checkboxStateChanged().subscribe([this](TriState state) {
-            switch (state) {
-            case TriState::on:
-                setCheckboxText("Checkbox is on");
-                break;
-            case TriState::off:
-                setCheckboxText("Checkbox is off");
-                break;
-            case TriState::mixed:
-                setCheckboxText("Checkbox is mixed");
-                break;
-            }
-        });
-    }
-
-    BDN_PROPERTY_WITH_CUSTOM_ACCESS(String, public, helloMessage, protected,
-                                    setHelloMessage);
-    BDN_PROPERTY_WITH_CUSTOM_ACCESS(String, public, morphingText, protected,
-                                    setMorphingText);
-
-    BDN_PROPERTY(String, userText, setUserText);
-
-    BDN_PROPERTY(String, toggleText, setToggleText);
-    BDN_PROPERTY(String, switchText, setSwitchText);
-    BDN_PROPERTY(String, checkboxText, setCheckboxText);
-
-    BDN_PROPERTY(bool, toggleOn, setToggleOn);
-    BDN_PROPERTY(bool, switchOn, setSwitchOn);
-    BDN_PROPERTY(TriState, checkboxState, setCheckboxState);
-
-    void increaseHelloCounter()
-    {
-        _pModel->setHelloCounter(_pModel->helloCounter() + 1);
-    }
-
-    void changeMorphingText() { _pModel->changeMorphingText(); }
-
-  protected:
-    P<Model> _pModel;
-};
-
-class MainViewController : public Base // ViewControllerBase
-{
-  public:
-    MainViewController(ViewModel *pViewModel)
-    {
-        _pViewModel = pViewModel;
-
-        _pWindow = newObj<Window>();
-        _pWindow->setTitle("hello");
-
-        P<ColumnView> pColumnView = newObj<ColumnView>();
-
-        P<RowView> pRowView = newObj<RowView>();
-        pColumnView->addChildView(pRowView);
-
-        P<ColumnView> pInnerColumnView = newObj<ColumnView>();
-        pRowView->addChildView(pInnerColumnView);
-
-        P<Button> pButton = newObj<Button>();
-        pButton->setLabel("Left column 1");
-        pInnerColumnView->addChildView(pButton);
-
-        P<Button> pButton2 = newObj<Button>();
-        pButton2->setLabel("Left column 2");
-        pInnerColumnView->addChildView(pButton2);
-
-        P<Button> pButton3 = newObj<Button>();
-        pButton3->setLabel("Right column");
-        pButton3->setVerticalAlignment(View::VerticalAlignment::middle);
-        pRowView->addChildView(pButton3);
-
-        _pToggle = newObj<Toggle>();
-        _pToggle->setMargin(UiMargin(10, 10, 10, 10));
-        _pToggle->setHorizontalAlignment(View::HorizontalAlignment::center);
-        BDN_BIND_PROPERTIES(*_pToggle, label, setLabel, *_pViewModel,
-                            toggleText, setToggleText);
-        BDN_BIND_PROPERTIES(*_pToggle, on, setOn, *_pViewModel, toggleOn,
-                            setToggleOn);
-        pColumnView->addChildView(_pToggle);
-
-        _pSwitch = newObj<Switch>();
-        _pSwitch->setMargin(UiMargin(10, 10, 10, 10));
-        _pSwitch->setHorizontalAlignment(View::HorizontalAlignment::center);
-        BDN_BIND_PROPERTIES(*_pSwitch, label, setLabel, *_pViewModel,
-                            switchText, setSwitchText);
-        BDN_BIND_PROPERTIES(*_pSwitch, on, setOn, *_pViewModel, switchOn,
-                            setSwitchOn);
-        pColumnView->addChildView(_pSwitch);
-
-        _pCheckbox = newObj<Checkbox>();
-        _pCheckbox->setMargin(UiMargin(10, 10, 10, 10));
-        _pCheckbox->setHorizontalAlignment(View::HorizontalAlignment::center);
-        BDN_BIND_PROPERTIES(*_pCheckbox, label, setLabel, *_pViewModel,
-                            checkboxText, setCheckboxText);
-        BDN_BIND_PROPERTIES(*_pCheckbox, state, setState, *_pViewModel,
-                            checkboxState, setCheckboxState);
-        pColumnView->addChildView(_pCheckbox);
-
-        _pHelloMessageButton = newObj<Button>();
-
-        // we want the hello message on the button
-        BDN_BIND_TO_PROPERTY(*_pHelloMessageButton, setLabel, *_pViewModel,
-                             helloMessage);
-
-        _pHelloMessageButton->setMargin(UiMargin(10, 10, 10, 10));
-        _pHelloMessageButton->setHorizontalAlignment(
-            View::HorizontalAlignment::center);
-
-        pColumnView->addChildView(_pHelloMessageButton);
-        _pHelloMessageButton->onClick().subscribeParamless(
-            weakMethod(this, &MainViewController::buttonClicked));
-
-        _pUserTextField = newObj<TextField>();
-
-        BDN_BIND_PROPERTIES(*_pUserTextField, text, setText, *pViewModel,
-                            userText, setUserText);
-
-        _pUserTextField->setMargin(UiMargin(UiLength::sem(1)));
-        _pUserTextField->setHorizontalAlignment(
-            View::HorizontalAlignment::expand);
-        _pUserTextField->onSubmit().subscribeParamless(
-            weakMethod(this, &MainViewController::textFieldSubmitted));
-        pColumnView->addChildView(_pUserTextField);
-
-        _pUserTextView = newObj<TextView>();
-
-        BDN_BIND_TO_PROPERTY(*_pUserTextView, setText, *_pViewModel, userText);
-
-        _pUserTextView->setMargin(UiMargin(UiLength::sem(1)));
-        _pUserTextView->setHorizontalAlignment(
-            View::HorizontalAlignment::center);
-        pColumnView->addChildView(_pUserTextView);
-
-        _pMorphingTextView = newObj<TextView>();
-
-        // show the morphing text in the text view
-        BDN_BIND_TO_PROPERTY(*_pMorphingTextView, setText, *_pViewModel,
-                             morphingText);
-        _pMorphingTextView->setMargin(UiMargin(10, 10, 10, 10));
-
-        pColumnView->addChildView(_pMorphingTextView);
-
-        _pScrollView = newObj<ScrollView>();
+        auto textScrollView = newObj<ScrollView>();
 
         // limit the maximum size. We simply want the scroll view to fill the
         // available width and have a height of 100 dips.
-        _pScrollView->setPreferredSizeMinimum(Size(0, 100));
-        _pScrollView->setPreferredSizeMaximum(Size(0, 100));
-        _pScrollView->setHorizontalAlignment(View::HorizontalAlignment::expand);
+        textScrollView->setPreferredSizeMinimum(Size(0, 100));
+        textScrollView->setPreferredSizeMaximum(Size(0, 100));
 
-        _pScrollView->setPadding(UiMargin(5, 5, 5, 5));
-        _pScrollView->setMargin(UiMargin(10, 10, 10, 10));
-
-        _pScrolledTextView = newObj<TextView>();
-
-        _pScrolledTextView->setText(
+        auto scrolledTextView = newObj<TextView>();
+        scrolledTextView->setText(
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam "
             "nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam "
             "erat, sed diam voluptua. At vero eos et accusam et justo duo "
@@ -272,51 +60,101 @@ class MainViewController : public Base // ViewControllerBase
             "voluptua. At vero eos et accusam et justo duo dolores et ea "
             "rebum. Stet clita kasd gubergren, no sea takimata sanctus est "
             "Lorem ipsum dolor sit amet.");
-        _pScrollView->setContentView(_pScrolledTextView);
+        textScrollView->setContentView(scrolledTextView);
 
-        pColumnView->addChildView(_pScrollView);
+        addControlWithHeading("Scrolling multi line text", textScrollView,
+                              mainColumn, false);
 
-        _pWindow->setContentView(pColumnView);
+        auto listColumn = newObj<ColumnView>();
 
-        _pWindow->requestAutoSize();
-        _pWindow->requestCenter();
+        String demoEntries[] = {"List", "Demo"};
 
-        _pWindow->setVisible(true);
+        for (auto entry : demoEntries) {
+            auto newEntry = newObj<TextView>();
+            newEntry->setText(entry);
+            listColumn->addChildView(newEntry);
+        }
+
+        listColumn->setHorizontalAlignment(View::HorizontalAlignment::expand);
+        listColumn->setMargin(UiMargin(15, 15, 15, 15));
+
+        auto addButton = newObj<Button>();
+        addButton->setLabel("Add");
+        addButton->setHorizontalAlignment(View::HorizontalAlignment::expand);
+
+        addButton->onClick() += [listColumn, textFieldCtrl](auto) {
+            auto newEntry = newObj<TextView>();
+            newEntry->setText(textFieldCtrl->text());
+            listColumn->addChildView(newEntry);
+        };
+
+        auto removeButton = newObj<Button>();
+        removeButton->setLabel("Remove");
+        removeButton->setHorizontalAlignment(View::HorizontalAlignment::expand);
+        removeButton->onClick() += [listColumn](auto) {
+            bdn::List<bdn::P<bdn::View>> children;
+            listColumn->getChildViews(children);
+            if (children.size() > 0) {
+                listColumn->removeChildView(children.back());
+            }
+        };
+
+        auto clearButton = newObj<Button>();
+        clearButton->setLabel("Clear");
+        clearButton->setHorizontalAlignment(View::HorizontalAlignment::expand);
+        clearButton->onClick() +=
+            [listColumn](auto) { listColumn->removeAllChildViews(); };
+
+        auto buttonRow = newObj<RowView>();
+        buttonRow->setPreferredSizeMinimum(Size(200, 0));
+        buttonRow->addChildView(addButton);
+        buttonRow->addChildView(removeButton);
+        buttonRow->addChildView(clearButton);
+
+        addControlWithHeading("Mutable list", buttonRow, mainColumn, true);
+        mainColumn->addChildView(listColumn);
+
+        auto mainScrollView = newObj<ScrollView>();
+        mainScrollView->setContentView(mainColumn);
+
+        _window->setContentView(mainScrollView);
+
+        _window->requestAutoSize();
+        _window->requestCenter();
+
+        _window->setVisible(true);
+    }
+
+    void addControlWithHeading(String headingText, P<View> control,
+                               P<ContainerView> container, bool single)
+    {
+        auto header = newObj<TextView>();
+        header->setText(headingText);
+        header->setHorizontalAlignment(View::HorizontalAlignment::left);
+
+        if (single) {
+            control->setHorizontalAlignment(View::HorizontalAlignment::right);
+            control->setVerticalAlignment(View::VerticalAlignment::middle);
+            header->setVerticalAlignment(View::VerticalAlignment::middle);
+            auto row = newObj<RowView>();
+            row->setMargin(UiMargin(15, 15, 15, 15));
+            row->setHorizontalAlignment(View::HorizontalAlignment::expand);
+            header->setHorizontalAlignment(View::HorizontalAlignment::expand);
+            row->addChildView(header);
+            row->addChildView(control);
+            container->addChildView(row);
+        } else {
+            header->setMargin(UiMargin(15 + 6, 15, 18, 15));
+            control->setMargin(UiMargin(2, 15, 15, 15));
+            control->setHorizontalAlignment(View::HorizontalAlignment::expand);
+
+            container->addChildView(header);
+            container->addChildView(control);
+        }
     }
 
   protected:
-    void buttonClicked()
-    {
-        _pViewModel->increaseHelloCounter();
-        _pViewModel->changeMorphingText();
-
-        // wait until the model changes have propagated to the UI, then autosize
-        P<Window> pWindow = _pWindow;
-        asyncCallFromMainThreadWhenIdle(
-            [pWindow]() { pWindow->requestAutoSize(); });
-    }
-
-    void textFieldSubmitted()
-    {
-        _pViewModel->increaseHelloCounter();
-        _pViewModel->changeMorphingText();
-    }
-
-    P<ViewModel> _pViewModel;
-
-    P<Window> _pWindow;
-    P<Button> _pHelloMessageButton;
-
-    P<TextField> _pUserTextField;
-    P<TextView> _pUserTextView;
-
-    P<TextView> _pMorphingTextView;
-    P<ScrollView> _pScrollView;
-    P<TextView> _pScrolledTextView;
-
-    P<Toggle> _pToggle;
-    P<Switch> _pSwitch;
-    P<Checkbox> _pCheckbox;
+    P<Window> _window;
 };
 
 class AppController : public UiAppControllerBase
@@ -324,16 +162,11 @@ class AppController : public UiAppControllerBase
   public:
     void beginLaunch(const AppLaunchInfo &launchInfo) override
     {
-        _pModel = newObj<Model>();
-        _pViewModel = newObj<ViewModel>(_pModel);
-
-        _pMainViewController = newObj<MainViewController>(_pViewModel);
+        _mainViewController = newObj<MainViewController>();
     }
 
   protected:
-    P<MainViewController> _pMainViewController;
-    P<ViewModel> _pViewModel;
-    P<Model> _pModel;
+    P<MainViewController> _mainViewController;
 };
 
 BDN_APP_INIT(AppController)

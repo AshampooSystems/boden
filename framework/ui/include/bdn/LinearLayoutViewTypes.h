@@ -82,9 +82,8 @@ namespace bdn
     {
       public:
         VirtualRect(bool h, const Rect &other)
-            : primary(h ? x : y), secondary(h ? y : x),
-              primarySize(h ? width : height),
-              secondarySize(h ? height : width), _h(h)
+            : _h(h), primary(h ? x : y), secondary(h ? y : x),
+              primarySize(h ? width : height), secondarySize(h ? height : width)
         {
             Rect::operator=(other);
         }

@@ -96,6 +96,9 @@ namespace bdn
                 _childViews.erase(it);
                 pChildView->_setParentView(nullptr);
             }
+
+            // TODO: Fix this
+            reinitCore();
         }
 
         void removeAllChildViews() override
@@ -106,6 +109,9 @@ namespace bdn
                 pChildView->_setParentView(nullptr);
 
             _childViews.clear();
+
+            // TODO: Fix this
+            reinitCore();
         }
 
         void getChildViews(List<P<View>> &childViews) const override
