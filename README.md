@@ -1,8 +1,13 @@
-# Boden
+# Boden Cross-Platform Framework
 
-*Image representing core caps of Boden. Make it easy for people to star the repo even if they don't have time to read.*
+Rock solid and truly native C++ cross-platform framework for Android and iOS development
 
-*Teaser: What is Boden in two to three short sentences.*
+![](README/uidemo.png)
+
+* **Native widgets**: Instead of drawing widgets that look nearly identical to the platform's design, Boden uses native OEM widgets ensuring that your app will always have a truly native look and feel.
+* **Fast**: Boden is written in modern C++11 to make development easy and apps fast and battery-friendly.
+* **Open**: Boden is an open framework and welcomes contributions and feedback from the community. We want you to shape its development so Boden can meet your requirements.
+* **Independent**: We are an independent development shop and we created Boden for independent developers. No big tech involved!
 
 ## Getting Started
 
@@ -279,3 +284,6 @@ Open up a terminal and run the following command:
 
 2. Log back in. Android Emulator should now work on your system.
 
+## Additional
+
+## FAQ/Contact/Troubleshooting
