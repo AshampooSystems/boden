@@ -75,7 +75,7 @@ class AndroidExecutor:
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
         androidHome = self.getAndroidHome()
 
-        self.prepareAndroidEnvironment(configuration)
+        self.prepareAndroidEnvironment(configuration, args.accept_terms)
 
         buildDir = self.buildFolder.getBuildDir(configuration)
 
@@ -320,22 +320,23 @@ class AndroidExecutor:
 
 
 
-    def prepareAndroidEnvironment(self, configuration):
+    def prepareAndroidEnvironment(self, configuration, accept_terms):
         self.logger.info("Preparing android environment...")
         androidAbi = self.getAndroidABIFromArch(configuration.arch)
         androidHome = self.getAndroidHome()
         sdkManagerPath = self.getBuildToolPath(androidHome, "tools/bin/sdkmanager")
 
-        self.logger.info("Ensuring that all android license agreements are accepted ...")
+        if accept_terms:
+            self.logger.info("Ensuring that all android license agreements are accepted ...")
 
-        licenseCall = subprocess.Popen( '"%s" --licenses' % sdkManagerPath, shell=True, env=self.getToolEnv(), stdin=subprocess.PIPE )
+            licenseCall = subprocess.Popen( '"%s" --licenses' % sdkManagerPath, shell=True, env=self.getToolEnv(), stdin=subprocess.PIPE )
 
-        licenseInputData = ""
-        for i in range(100):
-            licenseInputData += "y\n"
-        licenseCall.communicate(licenseInputData.encode('utf-8'))
+            licenseInputData = ""
+            for i in range(100):
+                licenseInputData += "y\n"
+            licenseCall.communicate(licenseInputData.encode('utf-8'))
 
-        self.logger.info("Done updating licenses.")
+            self.logger.info("Done updating licenses.")
         
         self.logger.info("Ensuring that all necessary android packages are installed...")
 

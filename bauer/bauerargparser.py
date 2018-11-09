@@ -57,6 +57,7 @@ class BauerArgParser():
     def buildGlobalArguments(self, parsers):
         for parser in parsers:
           parser.add_argument('-d', '--enable-debug-output', dest='debug', action='store_true', help="Enable debug output")
+          parser.add_argument('--accept-terms', action='store_true', help="Automatically accept license terms for third party components. If this is not specified then an interactive prompt is displayed when the components are needed.")
     
     def addBaseConfigurationArguments(self, parsers, platforms=None, require=False):
         for parser in parsers:
