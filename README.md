@@ -9,11 +9,11 @@ Rock solid and truly native C++ cross-platform framework for Android and iOS dev
 * **Open**: Boden is an open framework and welcomes contributions and feedback from the community. We want you to shape its development so Boden can meet your requirements.
 * **Independent**: We are an independent development shop and we created Boden for independent developers. No big tech involved!
 
-## Getting Started
+## Setup
 
-Android apps can be built on macOS, Windows, and Linux. iOS apps can be built on macOS only.
+You can use macOS to build both iOS and Android apps. Windows and Linux can be used to build Android only. This guide will help you set up your system for developing Boden apps.
 
-Choose your development platform:
+Which platform do you want to set up for development?
 
 * [macOS](#building-boden-apps-on-macos)
 * [Windows](#building-boden-apps-on-windows)
@@ -49,7 +49,7 @@ Follow these steps to set up Boden for iOS development:
 
 		open build/ios/std/Xcode/boden.xcodeproj
 
-5. Select the `uidemo` target and press Cmd+R to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Cmd</kbd>+<kbd>R</kbd> to build and run the example application.
 
 ### Android Apps
 
@@ -77,7 +77,7 @@ Follow these steps to set up Boden for Android development on the Mac:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
 ### Building Boden Apps on Windows
 
@@ -94,7 +94,7 @@ To build Android apps on Windows, the following dependencies need to be installe
 
 Follow these steps to set up Boden for Android development on Windows 10:
 
-1. Open a Command Prompt: Hit Win+R, type `cmd` and then hit Enter.
+1. Open a Command Prompt: Hit <kbd>Win</kbd>+<kbd>R</kbd>, type `cmd` and then hit Enter.
 2. Clone the git repository:
 
 		git clone git@github.com:AshampooSystems/boden.git
@@ -106,7 +106,7 @@ Follow these steps to set up Boden for Android development on Windows 10:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
 ### Building Boden Apps on Linux
 
@@ -135,7 +135,7 @@ Follow these steps to set up Boden for Android development on Ubuntu:
 
 4. Run Android Studio and open `boden/build/android/std/AndroidStudio`.
 
-5. Select the `uidemo` target and click the Run button in the toolbar to build and run the example application.
+5. Select the `uidemo` target and press <kbd>Ctrl</kbd>+<kbd>R</kbd> to build and run the example application.
 
 ## Dependency Installation Guide
 
