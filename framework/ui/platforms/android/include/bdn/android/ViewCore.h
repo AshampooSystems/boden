@@ -280,12 +280,27 @@ namespace bdn
                 // do nothing by default. Most views do not have subviews.
             }
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
             {
-                _addToParent(pNewParent);
-
                 return true;
             }
+
+            void moveToParentView(View &newParentView) override
+            {
+                P<View> pOuter = getOuterViewIfStillAttached();
+                if (pOuter != nullptr) {
+                    P<View> pParent = pOuter->getParentView();
+
+                    if (&newParentView != pParent.getPtr()) {
+                        // Parent has changed. Remove the view from its current
+                        // super view.
+                        dispose();
+                        _addToParent(&newParentView);
+                    }
+                }
+            }
+
+            void dispose() override { _removeFromParent(); }
 
             /** Called when the user clicks on the view.
              *
@@ -390,6 +405,28 @@ namespace bdn
                     pParentCore->addChildJView(*_pJView);
 
                     setUiScaleFactor(pParentCore->getUiScaleFactor());
+                }
+            }
+
+            void _removeFromParent()
+            {
+                P<View> pView = getOuterViewIfStillAttached();
+                P<View> pParent;
+                if (pView != nullptr)
+                    pParent = pView->getParentView();
+
+                if (pParent == nullptr)
+                    return; // no parent – nothing to do
+
+                P<IParentViewCore> pParentCore =
+                    cast<IParentViewCore>(pParent->getViewCore());
+                if (pParentCore != nullptr) {
+                    // XXX: Rather unfortunate – removeAllChildViews() is BFS
+                    // and so parent core is no longer set when removing
+                    // multiple levels of views. Either change
+                    // removeAllChildViews()/_deinitCore() to DFS or change the
+                    // removal mechanism to use the platform parent.
+                    pParentCore->removeChildJView(*_pJView);
                 }
             }
 

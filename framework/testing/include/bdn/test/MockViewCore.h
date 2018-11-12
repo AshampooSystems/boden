@@ -338,13 +338,22 @@ namespace bdn
                     uiLengthToDips(margin.bottom), uiLengthToDips(margin.left));
             }
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
+            {
+                return true;
+            }
+
+            void moveToParentView(View &newParentView) override
             {
                 BDN_REQUIRE_IN_MAIN_THREAD();
 
-                _pParentViewWeak = pNewParent;
+                _pParentViewWeak = &newParentView;
                 _parentViewChangeCount++;
-                return true;
+            }
+
+            void dispose() override
+            {
+                // do nothing
             }
 
             int getCalcPreferredSizeCount() const

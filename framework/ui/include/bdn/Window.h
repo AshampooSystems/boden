@@ -135,10 +135,11 @@ namespace bdn
         }
 
       protected:
-        P<IUiProvider> determineUiProvider() override
+        P<IUiProvider>
+        determineUiProvider(P<View> pParentView = nullptr) override
         {
             // our Ui provider never changes. Just return the current one.
-            return _pUiProvider;
+            return cast<IUiProvider>(_pUiProvider);
         }
 
       private:

@@ -305,6 +305,11 @@ namespace bdn
                 _pContentParent->addView(childJView);
             }
 
+            void removeChildJView(JView childJView) override
+            {
+                _pContentParent->removeView(childJView);
+            }
+
             /** Used internally - do not call.*/
             void _scrollChange(int scrollX, int scrollY, int oldScrollX,
                                int oldScrollY)

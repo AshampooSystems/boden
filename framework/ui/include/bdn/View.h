@@ -787,15 +787,21 @@ namespace bdn
             or null if the view does not have a parent or the parent does not
             have a ui provider.
             */
-        virtual P<IUiProvider> determineUiProvider()
+        virtual P<IUiProvider>
+        determineUiProvider(P<View> pParentView = nullptr)
         {
-            P<View> pParentView = getParentView();
+            if (pParentView == nullptr)
+                pParentView = getParentView();
 
             return (pParentView != nullptr) ? pParentView->getUiProvider()
                                             : nullptr;
         }
 
       private:
+        /** Should not be called directly. Use setParentView() instead.
+         */
+        bool _canMoveToParentView(P<View> pParentView);
+
         /** Should not be called directly. Use reinitCore() instead.
          */
         void _deinitCore();

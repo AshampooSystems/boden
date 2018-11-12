@@ -235,16 +235,36 @@ namespace bdn
                 // do nothing by default. Most views do not have subviews.
             }
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
             {
-                _addToParent(pNewParent);
-
                 return true;
             }
+
+            void moveToParentView(View &newParentView) override
+            {
+                P<View> pOuter = getOuterViewIfStillAttached();
+                if (pOuter != nullptr) {
+                    P<View> pParent = pOuter->getParentView();
+
+                    if (&newParentView != pParent.getPtr()) {
+                        // Parent has changed. Remove the view from its current
+                        // super view.
+                        dispose();
+                        _addToParent(&newParentView);
+                    }
+                }
+            }
+
+            void dispose() override { removeFromUISuperview(); }
 
             virtual void addChildUIView(UIView *childView)
             {
                 [_view addSubview:childView];
+            }
+
+            virtual void removeFromUISuperview()
+            {
+                [_view removeFromSuperview];
             }
 
           protected:

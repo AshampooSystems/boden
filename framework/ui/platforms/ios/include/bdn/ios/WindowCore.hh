@@ -156,10 +156,15 @@ namespace bdn
                 // we cannot change our position. So, do nothing.
             }
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
             {
                 // we don't have a parent. Report that we cannot do this.
                 return false;
+            }
+
+            void moveToParentView(View &newParentView) override
+            {
+                // do nothing
             }
 
           private:

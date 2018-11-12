@@ -14,6 +14,9 @@ namespace bdn
             /** Adds a child Ui element to the parent.*/
             virtual void addChildJView(JView view) = 0;
 
+            /** Removes a child UI element from the parent */
+            virtual void removeChildJView(JView view) = 0;
+
             /** Returns the current UI scale factor. This depends on the pixel
              *density of the current display. On high DPI displays the scale
              *factor is >1 to scale up UI elements to use more physical pixels.

@@ -256,6 +256,12 @@ namespace bdn
                 parentGroup.addView(childJView);
             }
 
+            void removeChildJView(JView childJView) override
+            {
+                JNativeViewGroup parentGroup(getJView().getRef_());
+                parentGroup.removeView(childJView);
+            }
+
           protected:
             Rect getContentArea()
             {

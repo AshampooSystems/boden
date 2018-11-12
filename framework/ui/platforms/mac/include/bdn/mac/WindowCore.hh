@@ -167,10 +167,21 @@ namespace bdn
             void autoSize() override;
             void center() override;
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
             {
                 // we don't have a parent. Report that we cannot do this.
                 return false;
+            }
+
+            void moveToParentView(View &newParentView) override
+            {
+                // do nothing
+            }
+
+            void dispose() override
+            {
+                // Window does not need to be removed from view hierarchy – do
+                // nothing
             }
 
             void addChildNsView(NSView *childView) override

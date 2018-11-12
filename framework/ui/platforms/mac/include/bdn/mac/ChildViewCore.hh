@@ -246,12 +246,27 @@ namespace bdn
                 // do nothing by default
             }
 
-            bool tryChangeParentView(View *pNewParent) override
+            bool canMoveToParentView(View &newParentView) const override
             {
-                _addToParent(pNewParent);
-
                 return true;
             }
+
+            void moveToParentView(View &newParentView) override
+            {
+                P<View> pOuter = getOuterViewIfStillAttached();
+                if (pOuter != nullptr) {
+                    P<View> pParent = pOuter->getParentView();
+
+                    if (&newParentView != pParent.getPtr()) {
+                        // Parent has changed. Remove the view from its current
+                        // super view.
+                        dispose();
+                        _addToParent(&newParentView);
+                    }
+                }
+            }
+
+            void dispose() override { removeFromNsSuperview(); }
 
             P<View> getOuterViewIfStillAttached() const
             {
@@ -264,6 +279,8 @@ namespace bdn
             {
                 [_nsView addSubview:childView];
             }
+
+            void removeFromNsSuperview() { [_nsView removeFromSuperview]; }
 
           protected:
             /** Returns an estimate padding that the NSView automatically

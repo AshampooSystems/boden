@@ -253,42 +253,49 @@ namespace bdn
     {
         Thread::assertInMainThread();
 
-        bool callReinitCoreHere = true;
+        if (_canMoveToParentView(pParentView)) {
+            // Move the core directly to its new parent without reinitialization
+            _pCore->moveToParentView(*pParentView);
 
-        // note that we do not have special handling for the case when the "new"
+            _parentViewWeak = pParentView;
+        } else {
+            _deinitCore();
+
+            _parentViewWeak = pParentView;
+
+            // Note that there is no need to update the UI provider of the child
+            // views. If the UI provider changed then the core will be
+            // reinitialized. That automatically causes our child cores to be
+            // reinitialized which in turn updates their UI provider.
+
+            if (pParentView)
+                reinitCore();
+        }
+    }
+
+    bool View::_canMoveToParentView(P<View> pParentView)
+    {
+        // Note that we do not have special handling for the case when the "new"
         // parent view is the same as the old parent view. That case can happen
         // if the order position of a child view inside the parent is changed.
         // We use the same handling for that as for the case of a different
         // handling: ask the core to update accordingly. And the core gets the
         // opportunity to deny that, causing us to recreate the core (maybe in
         // some cases the core cannot change the order of existing views).
-
-        _parentViewWeak = pParentView;
-
-        P<IUiProvider> pNewUiProvider = determineUiProvider();
-
-        // see if we need to throw away our current core and create a new one.
+        //
+        // See if we need to throw away our current core and create a new one.
         // The reason why we don't always throw this away is that the change in
         // parents might simply be a minor layout position change, and in that
         // case the UI provider might want to animate this change. To allow for
-        // that, we have to keep the old core and tell it to switch parents Note
-        // that we can only keep the current core if the old and new parent's
-        // use the same UI provider.
-        if (_pUiProvider == pNewUiProvider && _pUiProvider != nullptr &&
-            pParentView != nullptr && _pCore != nullptr) {
-            // we try to move the core to the new parent.
+        // that, we have to keep the old core and tell it to switch parents.
+        // Note that we can only keep the current core if the old and new
+        // parent's use the same UI provider.
 
-            if (_pCore->tryChangeParentView(pParentView))
-                callReinitCoreHere = false;
-        }
+        P<IUiProvider> pNewUiProvider = determineUiProvider(pParentView);
 
-        if (callReinitCoreHere)
-            reinitCore();
-
-        // note that there is no need to update the UI provider of the child
-        // views. If our UI provider changed then we will reinit our core. That
-        // automatically causes our child cores to be reinitialized. Which in
-        // turn updates their view provider.
+        return _pUiProvider == pNewUiProvider && _pUiProvider != nullptr &&
+               pParentView != nullptr && _pCore != nullptr &&
+               _pCore->canMoveToParentView(*pParentView);
     }
 
     void View::reinitCore()
@@ -304,6 +311,10 @@ namespace bdn
     {
         List<P<View>> childViewsCopy;
         getChildViews(childViewsCopy);
+
+        if (_pCore != nullptr) {
+            _pCore->dispose();
+        }
 
         _pCore = nullptr;
 
