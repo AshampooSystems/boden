@@ -48,7 +48,11 @@ class BauerArgParser():
         return options
 
     def buildBauerArguments(self, args, **kwargs):
-          self.parser = argparse.ArgumentParser(args);
+          prog = args[0]
+          self.parser = argparse.ArgumentParser(
+            prog=prog,
+            description="Use '%s COMMAND --help' to get help for a specific command." % prog,
+            formatter_class=argparse.RawDescriptionHelpFormatter);
           self.buildCommandParsers()
 
     def setBaseParser(self, parser):
@@ -112,21 +116,50 @@ class BauerArgParser():
             parser.add_argument('--password', action=EnvDefault, help='The password for the keychain', **kwargs)
 
     def buildCommandParsers(self):
-        subs = self.parser.add_subparsers(title="Command", help='The command to execute', dest='command')
+        subs = self.parser.add_subparsers(
+          title=None,
+          metavar="COMMAND",
+          help='The command to execute.',
+          dest='command')
 
-        prepare = subs.add_parser('prepare', description='Prepares boden build', epilog=self.getPrepareEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-
-        build = subs.add_parser('build', description='Builds boden', epilog=self.getBuildEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        clean = subs.add_parser('clean', description='Cleans boden', epilog=self.getCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        distclean = subs.add_parser('distclean', epilog=self.getDistCleanEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        run = subs.add_parser('run', description="Executes one of bodens targets", epilog=self.getRunEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        package = subs.add_parser('package', description="Packages boden for release", epilog=self.getPackageEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        copy = subs.add_parser('copy', description="Copy a folder into the build folder", epilog=self.getCopyEpilog(), formatter_class=argparse.RawDescriptionHelpFormatter)
-        open_project = subs.add_parser('open', description="Open the project files")
-
+        command_info = [
+          ('prepare', 'Prepares boden build', self.getPrepareEpilog()),
+          ('build', 'Builds boden', self.getBuildEpilog()),
+          ('clean', 'Clears build files', self.getCleanEpilog()),
+          ('distclean', 'Clears build files and project files', self.getDistCleanEpilog()),
+          ('run', "Executes one of bodens targets", self.getRunEpilog()),
+          ('package', "Packages boden for release", self.getPackageEpilog()),
+          ('copy', "Copy a folder into the build folder", self.getCopyEpilog()),
+          ('open', "Open the project files", None),
+          ('manual', "Shows futher information", None),
+        ]
 
         if sys.platform == 'darwin':
-          sign = subs.add_parser('codesign', description="Sign libraries and executables")
+          command_info += [
+            ('codesign', 'Sign libraries and executables', None)
+          ]
+
+        command_map = {}
+        for command, desc, epilog in command_info:
+          command_map[command] = subs.add_parser(
+            command,
+            description=desc,
+            help=desc,
+            epilog=epilog,
+            prog=self.parser.prog+" "+command,
+            formatter_class=argparse.RawDescriptionHelpFormatter)
+
+        prepare = command_map["prepare"]
+        build = command_map["build"]
+        clean = command_map["clean"]
+        distclean = command_map["distclean"]
+        run = command_map["run"]
+        package = command_map["package"]
+        copy = command_map["copy"]
+        open_project = command_map["open"]
+
+        if sys.platform == 'darwin':
+          sign = command_map["codesign"]
           sign.add_argument('-i', '--identity', action=EnvDefault, help="The Identity to pass to codesign", required=True)
           self.addKeychainArgument([sign])
           self.addPasswordArgument([sign])
@@ -147,7 +180,7 @@ class BauerArgParser():
 
         copy.add_argument('-f', '--folder', help="Source folder to copy", required=True );
 
-        info = subs.add_parser('manual', description="Shows futher information")
+        info = command_map["manual"]
 
         self.buildGlobalArguments([ self.parser, prepare, build, clean, distclean, run, package, open_project ])
 
